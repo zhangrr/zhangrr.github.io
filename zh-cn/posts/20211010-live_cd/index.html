@@ -241,11 +241,9 @@ BOOTSTRAP
   <div class="offcanvas-body">
     <nav id="TableOfContents">
   <ul>
-    <li>
-      <ul>
-        <li></li>
-      </ul>
-    </li>
+    <li><a href="#一安装live-tools">一、安装live-tools</a></li>
+    <li><a href="#二准备kickstart文件centos7-live-dockerks">二、准备Kickstart文件centos7-live-docker.ks</a></li>
+    <li><a href="#三build出iso文件">三、build出iso文件</a></li>
   </ul>
 </nav>
   </div>
@@ -253,9 +251,9 @@ BOOTSTRAP
 <p>或者直接启动一个LIVE CentOS系统，去做某些事，比如用MegaRaid划分Raid、测试系统等等</p>
 <p>这时候就需要制作出来一个LIVE CD的系统了</p>
 <p>制作步骤如下：</p>
-<h4 id="一安装live-tools">一、安装live-tools</h4>
+<h2 id="一安装live-tools">一、安装live-tools</h2>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>yum -y install livecd-tools
-</code></pre></div><h4 id="二准备kickstart文件centos7-live-dockerks">二、准备Kickstart文件centos7-live-docker.ks</h4>
+</code></pre></div><h2 id="二准备kickstart文件centos7-live-dockerks">二、准备Kickstart文件centos7-live-docker.ks</h2>
 <p>下载地址：<a href="centos7-live-docker.ks">centos7-live-docker.ks</a>
 </p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">  1</span><span class="na">lang en_GB.UTF-8</span>
@@ -674,7 +672,7 @@ BOOTSTRAP
    />
 
 </p>
-<h4 id="三build出iso文件">三、build出iso文件</h4>
+<h2 id="三build出iso文件">三、build出iso文件</h2>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>livecd-creator --verbose -c centos7-live-docker.ks --cache<span class="o">=</span>cache -f centos7-live-docker
 </code></pre></div><p>然后就会得到centos7-live-docker.iso的文件，注意在build过程中的报错信息，多数是无法下载包导致的。</p>
 <p>直接加载ISO文件启动或者刻录到USB上启动，就可以进入这个自制的Live系统了</p>
