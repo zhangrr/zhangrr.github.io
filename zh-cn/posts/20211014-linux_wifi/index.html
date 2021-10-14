@@ -241,11 +241,10 @@ BOOTSTRAP
   <div class="offcanvas-body">
     <nav id="TableOfContents">
   <ul>
-    <li>
-      <ul>
-        <li></li>
-      </ul>
-    </li>
+    <li><a href="#一安装hostapd软件">一、安装hostapd软件</a></li>
+    <li><a href="#二建立hostapdconf文件">二、建立hostapd.conf文件</a></li>
+    <li><a href="#三建立启动脚本usrlocalbininitapsh">三、建立启动脚本/usr/local/bin/initAP.sh</a></li>
+    <li><a href="#四用root身份执行即可">四、用root身份执行即可</a></li>
   </ul>
 </nav>
   </div>
@@ -253,9 +252,9 @@ BOOTSTRAP
 <p>usb无线网卡设备必须是一个 nl80211 兼容的无线设备，所以驱动就是这个：nl80211</p>
 <p>我的操作系统是Ubuntu，如果是CentOS命令基本一样</p>
 <p>插上wifi usb卡后 ip a 看一下网卡的名称，我这里是：wlx00a1b0817651，够长</p>
-<h4 id="一安装hostapd软件">一、安装hostapd软件</h4>
+<h2 id="一安装hostapd软件">一、安装hostapd软件</h2>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>sudo apt install -y hostapd
-</code></pre></div><h4 id="二建立hostapdconf文件">二、建立hostapd.conf文件</h4>
+</code></pre></div><h2 id="二建立hostapdconf文件">二、建立hostapd.conf文件</h2>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span><span class="na">vi /etc/hostapd/hostapd.conf</span>
 <span class="ln">2</span><span class="na">driver</span><span class="o">=</span><span class="s">nl80211</span>
 <span class="ln">3</span><span class="na">ssid</span><span class="o">=</span><span class="s">Fast_8188 </span>
@@ -265,7 +264,7 @@ BOOTSTRAP
 <span class="ln">7</span><span class="na">wpa_passphrase</span><span class="o">=</span><span class="s">GreatWall2021!</span>
 <span class="ln">8</span><span class="na">wpa_key_mgmt</span><span class="o">=</span><span class="s">WPA-PSK</span>
 <span class="ln">9</span><span class="na">wpa_pairwise</span><span class="o">=</span><span class="s">TKIP</span>
-</code></pre></div><h4 id="三建立启动脚本usrlocalbininitapsh">三、建立启动脚本/usr/local/bin/initAP.sh</h4>
+</code></pre></div><h2 id="三建立启动脚本usrlocalbininitapsh">三、建立启动脚本/usr/local/bin/initAP.sh</h2>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span><span class="na">cat /usr/local/bin/initAP.sh</span>
 <span class="ln"> 2</span>
 <span class="ln"> 3</span><span class="c1">#!/bin/bash</span>
@@ -312,7 +311,7 @@ BOOTSTRAP
 <span class="ln">44</span>        <span class="na">echo &#34;Usage: $0 {start|stop}&#34;</span>
 <span class="ln">45</span>        <span class="na">exit 2</span>
 <span class="ln">46</span><span class="na">esac</span>
-</code></pre></div><h4 id="四用root身份执行即可">四、用root身份执行即可</h4>
+</code></pre></div><h2 id="四用root身份执行即可">四、用root身份执行即可</h2>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>sudo chmod <span class="m">755</span> /usr/local/bin/initAP.sh
 <span class="ln">2</span>sudo /usr/local/bin/initAP.sh start
 </code></pre></div><p>这样就可以用自己的手机连上这个wifi热点，尽情冲浪啦。</p>

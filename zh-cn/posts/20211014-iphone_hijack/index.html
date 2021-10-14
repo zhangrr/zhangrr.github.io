@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="Iphone手机的https抓包">
 <meta itemprop="description" content="上一篇文章，我们实施了Ubuntu下wifi热点的搭建，那么，其实我是想抓我iphone手机的https明文流量包来着。 怎么抓取呢？ 方法也很"><meta itemprop="datePublished" content="2021-10-14T09:35:11+08:00" />
 <meta itemprop="dateModified" content="2021-10-14T09:35:11+08:00" />
-<meta itemprop="wordCount" content="489">
+<meta itemprop="wordCount" content="503">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="Iphone手机的https抓包" />
 <meta property="og:description" content="上一篇文章，我们实施了Ubuntu下wifi热点的搭建，那么，其实我是想抓我iphone手机的https明文流量包来着。 怎么抓取呢？ 方法也很" />
 <meta property="og:type" content="article" />
@@ -229,7 +229,7 @@ BOOTSTRAP
 </h1><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-10-14
   </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
   </span></div>
 <div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
   <div class="offcanvas-header">
@@ -241,23 +241,22 @@ BOOTSTRAP
   <div class="offcanvas-body">
     <nav id="TableOfContents">
   <ul>
-    <li>
-      <ul>
-        <li></li>
-      </ul>
-    </li>
+    <li><a href="#一安装-mitmproxy">一、安装 mitmproxy</a></li>
+    <li><a href="#二运行mitmproxy">二、运行mitmproxy</a></li>
+    <li><a href="#三配置iphone安装mitm证书">三、配置iphone安装mitm证书</a></li>
+    <li><a href="#四包的拦截修改">四、包的拦截修改</a></li>
   </ul>
 </nav>
   </div>
 </div><div class="post-content mb-3"><p>上一篇文章，我们实施了Ubuntu下wifi热点的搭建，那么，其实我是想抓我iphone手机的https明文流量包来着。</p>
 <p>怎么抓取呢？</p>
 <p>方法也很简单</p>
-<h4 id="一安装-mitmproxy">一、安装 mitmproxy</h4>
+<h2 id="一安装-mitmproxy">一、安装 mitmproxy</h2>
 <p>有wifi热点那台机器的wlan网卡地址是192.168.222.1，就在那台上安装，便于抓取</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>pip install mitmproxy
-</code></pre></div><h4 id="二运行mitmproxy">二、运行mitmproxy</h4>
+</code></pre></div><h2 id="二运行mitmproxy">二、运行mitmproxy</h2>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>mitmproxy -p <span class="m">8080</span>
-</code></pre></div><h4 id="三配置iphone安装mitm证书">三、配置iphone安装mitm证书</h4>
+</code></pre></div><h2 id="三配置iphone安装mitm证书">三、配置iphone安装mitm证书</h2>
 <p>打开手机，用Safari浏览器打开网址：http://mitm.it</p>
 <p><img class="img-fluid" alt="image-20211014144813987" src="/zh-cn/posts/20211014-iphone_hijack/image-20211014144813987.png" loading="lazy"
    width="349" height="640"
@@ -277,13 +276,19 @@ BOOTSTRAP
    />
 
 </p>
+<p>安装好以后会显示绿色的已验证</p>
+<p><img class="img-fluid" alt="image-20211014154731414" src="/zh-cn/posts/20211014-iphone_hijack/image-20211014154731414.png" loading="lazy"
+   width="343" height="290"
+   />
+
+</p>
 <p>上下选中，然后按回车查看，左右光标键移动，可以看到response是明文的，q键是退出</p>
 <p><img class="img-fluid" alt="image-20211014150022475" src="/zh-cn/posts/20211014-iphone_hijack/image-20211014150022475.png" loading="lazy"
    width="1241" height="688"
    />
 
 </p>
-<h4 id="四包的拦截修改">四、包的拦截修改</h4>
+<h2 id="四包的拦截修改">四、包的拦截修改</h2>
 <p>上面演示的是常规的操作，下面介绍一下 mitmproxy 的另一强大功能，拦截修改 request 和 response。</p>
 <p>输入 <code>i</code>，然后输入 <code>~s</code> 再按回车键，这时候就进入了 response 拦截模式。如果输入 <code> ~q</code> 则进入 request 的拦截模式，更多的命令可以输入 <code>？</code> 查看。拦截模式下的页面显示如下图所示：</p>
 <p><img class="img-fluid" alt="image-20211014150501427" src="/zh-cn/posts/20211014-iphone_hijack/image-20211014150501427.png" loading="lazy"
