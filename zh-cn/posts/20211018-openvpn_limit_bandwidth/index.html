@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="OpenVPN 限制流量带宽">
 <meta itemprop="description" content="公司安装了 openvpn ，带来方便，但是也有很多不便的地方，机房的总带宽就那么多。 很多人共用 vpn 的时候，就会抢占带宽。 那么，我们需要限制一下，限制 openvpn 所能使"><meta itemprop="datePublished" content="2021-10-18T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2021-10-18T09:30:11+08:00" />
-<meta itemprop="wordCount" content="305">
+<meta itemprop="wordCount" content="318">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="OpenVPN 限制流量带宽" />
 <meta property="og:description" content="公司安装了 openvpn ，带来方便，但是也有很多不便的地方，机房的总带宽就那么多。 很多人共用 vpn 的时候，就会抢占带宽。 那么，我们需要限制一下，限制 openvpn 所能使" />
 <meta property="og:type" content="article" />
@@ -233,7 +233,7 @@ BOOTSTRAP
 <p>很多人共用 vpn 的时候，就会抢占带宽。</p>
 <p>那么，我们需要限制一下，限制 openvpn 所能使用的带宽，避免抢占 WEB 的带宽</p>
 <p>做法如下：</p>
-<p>由于我们不是要单独限制某一个 openvpn 用户，而是限制整体，所有简单用 TC 就可以了</p>
+<p>由于我们不是要单独限制某一个 openvpn 用户，而是限制整体，所以简单用 TC 就可以了</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span><span class="cp">#!/bin/sh
 </span><span class="ln">2</span><span class="cp"></span>tc qdisc del dev tun0 root  
 <span class="ln">3</span>tc qdisc add dev tun0 root handle 1: htb default <span class="m">1</span>
@@ -241,9 +241,9 @@ BOOTSTRAP
 </code></pre></div><p>解释一下：</p>
 <ul>
 <li>我们 openvpn 启的是 tun0 ，所以限制的对象就是 dev tun0</li>
-<li>首先第一行清除 tun0 的根</li>
-<li>然后第二行建立 tun0 的 root 为 1:0 htb ，缺省是1:1</li>
-<li>最后一行，第三行建立 1:1 的 带宽限制是 30Mbit ，注意这里是大B，就是网络术语中的带宽，换算成小b的话，需要除以8</li>
+<li>首先第一行清除 tun0 的根队列</li>
+<li>然后第二行建立 tun0 的 root 根队列为 1:0 htb ，缺省是1:1的子队列</li>
+<li>最后一行，第三行建立 1:1 的子队列，带宽限制是 30Mbit ，注意这里是大B，就是网络术语中的带宽，换算成小b的话，需要除以8</li>
 </ul>
 <p>效果很明显，直接被限制住（41兆而不是30M是因为这台机器是虚机，实体机上还有别的流量）：</p>
 <p><img class="img-fluid" alt="image-20211018102400898" src="/zh-cn/posts/20211018-openvpn_limit_bandwidth/image-20211018102400898.png" loading="lazy"
@@ -280,6 +280,10 @@ BOOTSTRAP
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="/zh-cn/posts/20211015-hugo_blog/">本站博客的由来以及搭建使用教程
 </a>
+  </div><div class="post-nav post-next">
+    <a href="/zh-cn/posts/20211018-ipset_block_cn/">使用IPSET封掉某个国家整个的访问
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
     <ul class="related-posts"><li><a href="/zh-cn/posts/20211015-hugo_blog/">本站博客的由来以及搭建使用教程
@@ -320,11 +324,11 @@ BOOTSTRAP
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="/zh-cn/posts/20211018-openvpn_limit_bandwidth/">OpenVPN 限制流量带宽
+    <ul><li><a href="/zh-cn/posts/20211018-ipset_block_cn/">使用IPSET封掉某个国家整个的访问
+</a></li><li><a href="/zh-cn/posts/20211018-openvpn_limit_bandwidth/">OpenVPN 限制流量带宽
 </a></li><li><a href="/zh-cn/posts/20211015-hugo_blog/">本站博客的由来以及搭建使用教程
 </a></li><li><a href="/zh-cn/posts/20211014-iphone_hijack/">Iphone手机的https抓包
 </a></li><li><a href="/zh-cn/posts/20211014-linux_wifi/">Ubuntu下自建一个wifi热点供手机使用
-</a></li><li><a href="/zh-cn/posts/20211010-live_cd/">CentOS 7 Live-CD 的制作
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
