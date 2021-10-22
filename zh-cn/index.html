@@ -46,7 +46,7 @@
         <a class="btn btn-sm btn-outline-primary dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
           简体中文
         </a>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="/en/">English</a></li><li><a class="dropdown-item" href="/fr/">Français</a></li><li><a class="dropdown-item" href="/zh-tw/">繁體中文</a></li></ul>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown"><li><a class="dropdown-item" href="/en/">English</a></li></ul>
       </div>
     </div>
   </form>
@@ -196,6 +196,19 @@ BOOTSTRAP
 <div class="col-lg-8">
   <div class="container"><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
+        <h2 class="card-title post-title"><a href="/zh-cn/posts/20211022-pypxe/">PyPXE-一个牛逼的一站式PXE安装包
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-22
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          一般来说，我们要搭建一个正式的pxe自动装机系统，需要装 dnsmasq 做 dhcp + tftp ，需要编译 ipxe 来获得 undionly.kpxe ，需要 http 服务器来提供资源下载，repo 同步服务来提供 r
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
         <h2 class="card-title post-title"><a href="/zh-cn/posts/20211021-etcd_confd_nginx/">ETCD &#43; CONFD &#43; NGINX的配置
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-10-21
@@ -259,6 +272,58 @@ BOOTSTRAP
           chrony 已经成了事实标准，替代了ntp。 但是，有几个细节，需要非常注意。 给出我们的配置，/etc/chrony.conf 1 2# Use public servers from the pool.ntp.org project. 3# Please consider joining
         </div>
       </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="/zh-cn/posts/20211019-ghostunnel/">Ghostunnel使用TLS加密TCP流量
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-19
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          很现实的问题，局域网内有态势感知和网络流量分析，这很讨厌！ 那么，如何把某段流量隐藏起来，让态势感知无法分析呢？ 前提条件，你需要有国外的一台 VPS
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="/zh-cn/posts/20211019-certik/">Certik 证书签发软件
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-19
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          我们会有很多时候需要用到TLS证书，一个非常方便、小众的工具就是 certik 。 这个软件纯由 Go 组成，就一个可执行文件，使用了 etcd 的 boltdb 格式存放所有的证书。 软
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="/zh-cn/posts/20211018-ipset_block_cn/">使用IPSET封掉某个国家整个的访问
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-18
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          现在国内都禁止挖币，什么币安、火币、cnspark之类的都不允许国内 IP 访问了。 如何实现的呢？ 首先需要得到国家IP段，下载地址：http://
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="/zh-cn/posts/20211018-openvpn_limit_bandwidth/">OpenVPN 限制流量带宽
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-18
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          公司安装了 openvpn ，带来方便，但是也有很多不便的地方，机房的总带宽就那么多。 很多人共用 vpn 的时候，就会抢占带宽。 那么，我们需要限制一下，限制 openvpn 所能使
+        </div>
+      </div>
     </article></div><div class="row table-responsive mb-3">
     <ul class="pagination pagination-default">
       <li class="page-item disabled">
@@ -274,13 +339,10 @@ BOOTSTRAP
         <a href="/zh-cn/page/2/" aria-label="Page 2" class="page-link" role="button">2</a>
       </li>
       <li class="page-item">
-        <a href="/zh-cn/page/3/" aria-label="Page 3" class="page-link" role="button">3</a>
-      </li>
-      <li class="page-item">
         <a href="/zh-cn/page/2/" aria-label="Next" class="page-link" role="button"><span aria-hidden="true">&raquo;</span></a>
       </li>
       <li class="page-item">
-        <a href="/zh-cn/page/3/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
+        <a href="/zh-cn/page/2/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
       </li>
     </ul></div>
 </div>
@@ -306,11 +368,11 @@ BOOTSTRAP
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="/zh-cn/posts/20211021-etcd_confd_nginx/">ETCD &#43; CONFD &#43; NGINX的配置
+    <ul><li><a href="/zh-cn/posts/20211022-pypxe/">PyPXE-一个牛逼的一站式PXE安装包
+</a></li><li><a href="/zh-cn/posts/20211021-etcd_confd_nginx/">ETCD &#43; CONFD &#43; NGINX的配置
 </a></li><li><a href="/zh-cn/posts/20211021-etcd_docker/">Etcd单节点应用
 </a></li><li><a href="/zh-cn/posts/20211021-libguestfs/">Libguestfs的救援手段
 </a></li><li><a href="/zh-cn/posts/20211021-dogecoin/">如何用CPU挖狗币Dogecoin
-</a></li><li><a href="/zh-cn/posts/20211020-chrony/">Chrony的几个详细配置细节
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
