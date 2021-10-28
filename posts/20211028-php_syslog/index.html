@@ -252,7 +252,7 @@ BOOTSTRAP
 </code></pre></div><p>居然没有 socket 模块，没办法，找到源代码，编译一个安装，原有的 php 安装路径是 /export/servers/php</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>$ tar zxvf php-7.4.0.tar.gz 
 <span class="ln">2</span>$ <span class="nb">cd</span> php-7.4.0/sockets
-<span class="ln">3</span>$ /export/servers/php/bin
+<span class="ln">3</span>$ /export/servers/php/bin/phpize
 <span class="ln">4</span>$ ./configure --enable-sockets --with-php-config<span class="o">=</span>/export/servers/php/bin/php-config
 <span class="ln">5</span>$ make
 <span class="ln">6</span>$ make install
@@ -347,6 +347,10 @@ BOOTSTRAP
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="/posts/20211027-docker_extract_file/">没有装Docker如何从镜像中释放出文件
 </a>
+  </div><div class="post-nav post-next">
+    <a href="/posts/20211028-dockerfile/">Dockerfile的编写与调试技巧
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
     <ul class="related-posts"><li><a href="/posts/20211027-docker_extract_file/">没有装Docker如何从镜像中释放出文件
@@ -387,11 +391,11 @@ BOOTSTRAP
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="/posts/20211028-php_syslog/">PHP程序如何发送syslog到远程服务器
+    <ul><li><a href="/posts/20211028-dockerfile/">Dockerfile的编写与调试技巧
+</a></li><li><a href="/posts/20211028-php_syslog/">PHP程序如何发送syslog到远程服务器
 </a></li><li><a href="/posts/20211027-docker_extract_file/">没有装Docker如何从镜像中释放出文件
 </a></li><li><a href="/posts/20211027-bitwarden/">Bitwarden（vaultwarden）如何在非Docker环境下安装使用
 </a></li><li><a href="/posts/20211026-ack_build/">阿里云ACK完全生产环境规划和搭建
-</a></li><li><a href="/posts/20211025-autoinstall_cd/">Centos Auto Install Cdrom自动安装cdrom的制作
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
