@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="Linux内核TCP连接Keep-Alive timeout的配置">
 <meta itemprop="description" content="Custom Configuration of TCP Socket Keep-Alive Timeouts 这是个古老的话题，我们在机器的优化中，需要设置 TCP Socket 的 Timeout 参数 用来加快 TCP 关闭无用闲置连接的时间 Linux 内核中有三个缺省参数: 1 tcp_keepalive_time 缺省是 7200"><meta itemprop="datePublished" content="2021-11-02T09:00:11+08:00" />
 <meta itemprop="dateModified" content="2021-11-02T09:00:11+08:00" />
-<meta itemprop="wordCount" content="368">
+<meta itemprop="wordCount" content="365">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="Linux内核TCP连接Keep-Alive timeout的配置" />
 <meta property="og:description" content="Custom Configuration of TCP Socket Keep-Alive Timeouts 这是个古老的话题，我们在机器的优化中，需要设置 TCP Socket 的 Timeout 参数 用来加快 TCP 关闭无用闲置连接的时间 Linux 内核中有三个缺省参数: 1 tcp_keepalive_time 缺省是 7200" />
 <meta property="og:type" content="article" />
@@ -260,26 +260,25 @@ BOOTSTRAP
 </ul>
 <p>处理流程如下：</p>
 <p>一、客户端打开一个 TCP socket 连接，开始跟服务器通讯</p>
-<p>二、如果这条 socket 连接如果没有任何数据传输，静默了 <code>tcp_keepalive_time</code> 秒，那么客户端会发送一个空的 <code>ACK</code> 包到服务器</p>
+<p>二、如果这条 socket 连接空闲没有任何数据传输，静默了 <code>tcp_keepalive_time</code> 秒后，那么客户端会主动发送一个空的 <code>ACK</code> 包到服务器</p>
 <p>三、那么，根据服务器是否回应了一个相应的 ACK 包来判断</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plaintext" data-lang="plaintext"><span class="ln">1</span>ACK    
 </code></pre></div><ul>
 <li>未回应
 <ol>
 <li>等待 <code>tcp_keepalive_intvl</code> 秒，然后再发一个 <code>ACK</code> 包</li>
-<li>重复以上发送 ACK 包的过程，直到次数等于 <code>tcp_keepalive_probes</code></li>
+<li>重复以上等待并发送 ACK 包的过程，直到次数等于 <code>tcp_keepalive_probes</code></li>
 <li>如果第2步做完还收不到任何回应，发送一个 <code>RST</code> 包并关闭连接</li>
 </ol>
 </li>
 <li><strong>回应了</strong>: 回到上述第二步</li>
 </ul>
 <p>那么缺省情况下，7200+75×9，一个没有任何数据传输的 socket 才会被关闭，大概是2小时11分钟。</p>
-<p>这个时间太长了。优化一下：</p>
+<p>这个时间太长了。需要优化一下：</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span><span class="na">net.ipv4.tcp_keepalive_time</span> <span class="o">=</span> <span class="s">300</span>
 <span class="ln">2</span><span class="na">net.ipv4.tcp_keepalive_probes</span> <span class="o">=</span> <span class="s">5</span>
 <span class="ln">3</span><span class="na">net.ipv4.tcp_keepalive_intvl</span> <span class="o">=</span> <span class="s">15</span>
 </code></pre></div><p>上面的时间是 300 + 5x15，大概是6分钟，大大缩短释放空闲 socket 的时间</p>
-<p>This means that the keepalive process waits 300 seconds for socket</p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
