@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bitwarden（vaultwarden）如何在非Docker环境下安装使用 - Hugo Bootstrap</title><link rel="apple-touch-icon" href="/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>生产环境Proxmox 7.02的安装和配置 - Hugo Bootstrap</title><link rel="apple-touch-icon" href="/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="/images/favicons/manifest.json">
 <link rel="icon" href="/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="Bitwarden（vaultwarden）如何在非Docker环境下安装使用">
-<meta itemprop="description" content="为什么会有非 Docker 环境这个怪字眼呢？ 无他，因为满网搜索到的教程都是在 Docker 环境下安装使用。 但是穷啊，八戒的 vps 是个单核 500m 的 justhost 机器，便宜的很，这种廉价机"><meta itemprop="datePublished" content="2021-10-27T09:30:11+08:00" />
-<meta itemprop="dateModified" content="2021-10-27T09:30:11+08:00" />
-<meta itemprop="wordCount" content="826">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="Bitwarden（vaultwarden）如何在非Docker环境下安装使用" />
-<meta property="og:description" content="为什么会有非 Docker 环境这个怪字眼呢？ 无他，因为满网搜索到的教程都是在 Docker 环境下安装使用。 但是穷啊，八戒的 vps 是个单核 500m 的 justhost 机器，便宜的很，这种廉价机" />
+<meta name="description" content="" /><meta itemprop="name" content="生产环境Proxmox 7.02的安装和配置">
+<meta itemprop="description" content="其实我们的生产环境一直是 KVM ，然后用 shell 脚本控制虚机的生成，也是用到了 Cloud-init 的标准镜像。 听说 Proxmox 也很不错，于是想看看能否也在生产环境中用上 如果在生产环"><meta itemprop="datePublished" content="2021-11-03T09:30:11+08:00" />
+<meta itemprop="dateModified" content="2021-11-03T09:30:11+08:00" />
+<meta itemprop="wordCount" content="1017">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="生产环境Proxmox 7.02的安装和配置" />
+<meta property="og:description" content="其实我们的生产环境一直是 KVM ，然后用 shell 脚本控制虚机的生成，也是用到了 Cloud-init 的标准镜像。 听说 Proxmox 也很不错，于是想看看能否也在生产环境中用上 如果在生产环" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="/posts/20211027-bitwarden/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2021-10-27T09:30:11+08:00" />
-<meta property="article:modified_time" content="2021-10-27T09:30:11+08:00" /><meta property="og:site_name" content="Hugo Bootstrap" />
+<meta property="og:url" content="/posts/20211103-proxmox/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-11-03T09:30:11+08:00" />
+<meta property="article:modified_time" content="2021-11-03T09:30:11+08:00" /><meta property="og:site_name" content="Hugo Bootstrap" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Bitwarden（vaultwarden）如何在非Docker环境下安装使用"/>
-<meta name="twitter:description" content="为什么会有非 Docker 环境这个怪字眼呢？ 无他，因为满网搜索到的教程都是在 Docker 环境下安装使用。 但是穷啊，八戒的 vps 是个单核 500m 的 justhost 机器，便宜的很，这种廉价机"/>
+<meta name="twitter:title" content="生产环境Proxmox 7.02的安装和配置"/>
+<meta name="twitter:description" content="其实我们的生产环境一直是 KVM ，然后用 shell 脚本控制虚机的生成，也是用到了 Cloud-init 的标准镜像。 听说 Proxmox 也很不错，于是想看看能否也在生产环境中用上 如果在生产环"/>
 <meta name="twitter:site" content="@yourtwitterusername"/>
 <link rel="preload" href="/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="/js/bundle.min.ba4b57bb653018b3da5a1e0ed23ac673e28c9f0624cc03f40d9c00568659899c.js" integrity="sha256-uktXu2UwGLPaWh4O0jrGc&#43;KMnwYkzAP0DZwAVoZZiZw=" crossorigin="anonymous"></script></head>
@@ -115,11 +115,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=Bitwarden%ef%bc%88vaultwarden%ef%bc%89%e5%a6%82%e4%bd%95%e5%9c%a8%e9%9d%9eDocker%e7%8e%af%e5%a2%83%e4%b8%8b%e5%ae%89%e8%a3%85%e4%bd%bf%e7%94%a8&url=%2fposts%2f20211027-bitwarden%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=%e7%94%9f%e4%ba%a7%e7%8e%af%e5%a2%83Proxmox%207.02%e7%9a%84%e5%ae%89%e8%a3%85%e5%92%8c%e9%85%8d%e7%bd%ae&url=%2fposts%2f20211103-proxmox%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=%2fposts%2f20211027-bitwarden%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=%2fposts%2f20211103-proxmox%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -185,7 +185,7 @@ BOOTSTRAP
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="/">主页</a></li><li class="breadcrumb-item"><a href="/posts/">文章</a></li><li class="breadcrumb-item active">Bitwarden（vaultwarden）如何在非Docker环境下安装使用</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="/">主页</a></li><li class="breadcrumb-item"><a href="/posts/">文章</a></li><li class="breadcrumb-item active">生产环境Proxmox 7.02的安装和配置</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -205,170 +205,137 @@ BOOTSTRAP
 ">
   <i class="fas fa-fw fa-copyright"></i>
 </a>
-    <a data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
-  <i class="fas fa-fw fa-list-alt"></i>
-</a>
+    
   </div>
 </div>
-<h1 class="card-title my-3">Bitwarden（vaultwarden）如何在非Docker环境下安装使用
+<h1 class="card-title my-3">生产环境Proxmox 7.02的安装和配置
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-27
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-03
   </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
   </span></div>
-<div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
-  <div class="offcanvas-header">
-    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
-      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
-        <i class="fas fa-times"></i>
-      </button>
-  </div>
-  <div class="offcanvas-body">
-    <nav id="TableOfContents">
-  <ul>
-    <li><a href="#一下载bitwardenvaultwarden">一、下载bitwarden(vaultwarden)</a></li>
-    <li><a href="#二安装cargo并编译可选">二、安装cargo并编译（可选）</a></li>
-    <li><a href="#三下载vaultwarden主文件">三、下载vaultwarden主文件</a></li>
-    <li><a href="#四生成systemd启动文件">四、生成systemd启动文件</a></li>
-    <li><a href="#五配置traefik">五、配置traefik</a></li>
-    <li><a href="#五启动vaultwarden和traefik">五、启动vaultwarden和traefik</a></li>
-  </ul>
-</nav>
-  </div>
-</div><div class="post-content mb-3"><p>为什么会有非 Docker 环境这个怪字眼呢？</p>
-<p>无他，因为满网搜索到的教程都是在 Docker 环境下安装使用。</p>
-<p>但是穷啊，八戒的 vps 是个单核 500m 的 justhost 机器，便宜的很，这种廉价机器来跑 Docker，基本要占100M，跑不太动。</p>
-<p>这种一穷二白的环境，就只能把 Bitwarden 从容器里拆出来用。</p>
-<p>好在 Bitwarden_rs 是一个 rust 程序，占内存(16M左右)和cpu极少，本身就适合在 systemd 环境下跑。</p>
-<p>这里就利用 vaultwarden 和 traefik，在一台老破小服务器上运行。</p>
-<p>系统环境是 CentOS 7.9</p>
-<p>步骤如下：</p>
-<h2 id="一下载bitwardenvaultwarden">一、下载bitwarden(vaultwarden)</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>wget https://github.com/dani-garcia/vaultwarden/archive/refs/tags/1.23.0.tar.gz
-</code></pre></div><h2 id="二安装cargo并编译可选">二、安装cargo并编译（可选）</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>yum install -y epel-release
-<span class="ln">2</span>yum install -y openssl-devel cargo
-<span class="ln">3</span>
-<span class="ln">4</span><span class="nb">cd</span> vaultwarden-1.23.0
-<span class="ln">5</span>cargo build --release --features sqlite
-</code></pre></div><p>直接爆错啊，小小的 vps 连编译都过不去，编译进程都被 kill 掉了</p>
-<p><img class="img-fluid" alt="image-20211027144917206" src="/posts/20211027-bitwarden/image-20211027144917206.png" loading="lazy"
-   width="1830" height="292"
+<div class="post-content mb-3"><p>其实我们的生产环境一直是 KVM ，然后用 shell 脚本控制虚机的生成，也是用到了 Cloud-init 的标准镜像。</p>
+<p>听说 Proxmox 也很不错，于是想看看能否也在生产环境中用上</p>
+<p>如果在生产环境中用，必须要让 proxmox 支持 cloud-init ，否则无意义，下面也说一下跑在生产的注意事项</p>
+<p>首先我们用光盘安装：</p>
+<p><img class="img-fluid" alt="image-20211103100713668" src="/posts/20211103-proxmox/image-20211103100713668.png" loading="lazy"
+   width="863" height="518"
    />
 
 </p>
-<h2 id="三下载vaultwarden主文件">三、下载vaultwarden主文件</h2>
-<p>编译不通，就只能想别的办法了。Faint</p>
-<p>找一台有 docker 机器，从里面把文件都解析出来好了</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>docker pull vaultwarden/server:alpine
-<span class="ln">2</span>docker create --name vw vaultwarden/server:alpine
-<span class="ln">3</span>docker cp vw:/vaultwarden .
-<span class="ln">4</span>docker cp vw:/web-vault .
-<span class="ln">5</span>docker rm vw
-</code></pre></div><p>这样会得到一个可执行文件 vaultwarden 和一个目录 web-vault</p>
-<p>我们把这两个东西都挪到 /opt/vaultwarden 目录下，并且建立 data 文件夹，用来存放要生成的 sqlite3 数据文件。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>mkdir -p /opt/vaultwarden/data
-<span class="ln">2</span>mv vaultwarden /opt/vaultwarden
-<span class="ln">3</span>mv web-vault /opt/vaultwarden
-</code></pre></div><h2 id="四生成systemd启动文件">四、生成systemd启动文件</h2>
-<p>注意，下面我们设置了 vaultwarden ROCKET_ADDRESS 的监听地址是 127.0.0.1 ，一是为了安全，二是为了下一步我们搭建 traefik，来反代 vaultwarden 用的；因为访问 vaultwarden 必须要加证书，而它本身是没有这个功能的，必须前置一个 nginx  或者 haproxy 或者 traefik 或者 carddy。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span><span class="na">cat &lt;&lt; EOF &gt;&gt; /etc/systemd/system/vaultwarden.service </span>
-<span class="ln"> 2</span><span class="k">[Unit]</span>
-<span class="ln"> 3</span><span class="na">Description</span><span class="o">=</span><span class="s">Bitwarden</span>
-<span class="ln"> 4</span>
-<span class="ln"> 5</span><span class="k">[Service]</span>
-<span class="ln"> 6</span><span class="na">Type</span><span class="o">=</span><span class="s">simple</span>
-<span class="ln"> 7</span><span class="na">Restart</span><span class="o">=</span><span class="s">always</span>
-<span class="ln"> 8</span><span class="na">Environment</span><span class="o">=</span><span class="s">&#34;ROCKET_ADDRESS=127.0.0.1&#34;</span>
-<span class="ln"> 9</span><span class="na">WorkingDirectory</span><span class="o">=</span><span class="s">/opt/vaultwarden</span>
-<span class="ln">10</span><span class="na">ExecStart</span><span class="o">=</span><span class="s">/opt/vaultwarden/vaultwarden</span>
-<span class="ln">11</span>
-<span class="ln">12</span><span class="k">[Install]</span>
-<span class="ln">13</span><span class="na">WantedBy</span><span class="o">=</span><span class="s">local.target</span>
-<span class="ln">14</span><span class="na">EOF</span>
-</code></pre></div><h2 id="五配置traefik">五、配置traefik</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span><span class="na">wget https://github.com/traefik/traefik/releases/download/v2.4.8/traefik_v2.4.8_linux_amd64.tar.gz</span>
-<span class="ln">2</span><span class="na">tar zxvf traefik_v2.4.8_linux_amd64.tar.gz</span>
-<span class="ln">3</span>
-<span class="ln">4</span><span class="na">mkdir -p /opt/traefik/dynamic</span>
-<span class="ln">5</span><span class="na">mv traefik /opt/traefik</span>
-</code></pre></div><p>生成traefik配置文件，利用 traefik 自动申请 Let&rsquo;s encrypt 证书</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span><span class="na">cat &lt;&lt; EOF &gt;&gt; /opt/traefik/traefik.yml</span>
-<span class="ln"> 2</span><span class="na">log:</span>
-<span class="ln"> 3</span>  <span class="na">level: DEBUG</span>
-<span class="ln"> 4</span>  
-<span class="ln"> 5</span><span class="na">api:</span>
-<span class="ln"> 6</span>  <span class="na">insecure: false</span>
-<span class="ln"> 7</span>  <span class="na">dashboard: true</span>
-<span class="ln"> 8</span>
-<span class="ln"> 9</span><span class="na">entryPoints:</span>
-<span class="ln">10</span>  <span class="na">http:</span>
-<span class="ln">11</span>    <span class="na">address: &#34;:80&#34;</span>
-<span class="ln">12</span>    <span class="na">http:</span>
-<span class="ln">13</span>      <span class="na">redirections:</span>
-<span class="ln">14</span>        <span class="na">entryPoint:</span>
-<span class="ln">15</span>          <span class="na">to: https</span>
-<span class="ln">16</span>          <span class="na">scheme: https</span>
-<span class="ln">17</span>  <span class="na">https:</span>
-<span class="ln">18</span>    <span class="na">address: &#34;:443&#34;</span>
-<span class="ln">19</span>
-<span class="ln">20</span><span class="na">certificatesResolvers:</span>
-<span class="ln">21</span>  <span class="na">letsEncrypt:</span>
-<span class="ln">22</span>    <span class="na">acme:</span>
-<span class="ln">23</span>      <span class="na">storage: /opt/traefik/acme.json</span>
-<span class="ln">24</span>      <span class="na">email: zhangranrui@gmail.com</span>
-<span class="ln">25</span>      <span class="na">tlsChallenge: {}</span>
-<span class="ln">26</span>      <span class="na">httpChallenge:</span>
-<span class="ln">27</span>        <span class="na">entryPoint: http</span>
-<span class="ln">28</span>
-<span class="ln">29</span><span class="na">providers:</span>
-<span class="ln">30</span>  <span class="na">file:</span>
-<span class="ln">31</span>    <span class="na">directory: /opt/traefik/dynamic</span>
-<span class="ln">32</span>    <span class="na">watch: true</span>
-</code></pre></div><p>配置 vaultwarden 代理</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span><span class="na">cat &lt;&lt; EOF &gt;&gt; /opt/traefik/dynamic/pass.yml</span>
-<span class="ln"> 2</span><span class="na">http:</span>
-<span class="ln"> 3</span>  <span class="na">routers:</span>
-<span class="ln"> 4</span>    <span class="na">https_01:</span>
-<span class="ln"> 5</span>      <span class="na">rule: &#34;Host(`xxx.rendoumi.com`)&#34;</span>
-<span class="ln"> 6</span>      <span class="na">service: svc_01</span>
-<span class="ln"> 7</span>      <span class="na">tls:</span>
-<span class="ln"> 8</span>        <span class="na">certresolver: letsEncrypt</span>
-<span class="ln"> 9</span>    <span class="na">http_01:</span>
-<span class="ln">10</span>      <span class="na">rule: &#34;Host(`xxx.rendoumi.com`)&#34;</span>
-<span class="ln">11</span>      <span class="na">service: svc_01</span>
-<span class="ln">12</span>      <span class="na">entryPoints:</span>
-<span class="ln">13</span>        <span class="na">- http</span>
-<span class="ln">14</span>  <span class="na">services:</span>
-<span class="ln">15</span>    <span class="na">svc_01:</span>
-<span class="ln">16</span>      <span class="na">loadBalancer:</span>
-<span class="ln">17</span>        <span class="na">servers:</span>
-<span class="ln">18</span>          <span class="na">- url: &#34;http://localhost:8000&#34;</span>
-<span class="ln">19</span><span class="na">EOF</span>
-</code></pre></div><p>设置 traefik 的 systemd 启动文件</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span><span class="na">cat &lt;&lt; EOF &gt;&gt; /etc/systemd/system/traefik.service </span>
-<span class="ln"> 2</span><span class="k">[Unit]</span>
-<span class="ln"> 3</span><span class="na">Description</span><span class="o">=</span><span class="s">traefik</span>
-<span class="ln"> 4</span>
-<span class="ln"> 5</span><span class="k">[Service]</span>
-<span class="ln"> 6</span><span class="na">Type</span><span class="o">=</span><span class="s">simple</span>
-<span class="ln"> 7</span><span class="na">Restart</span><span class="o">=</span><span class="s">always</span>
-<span class="ln"> 8</span><span class="na">WorkingDirectory</span><span class="o">=</span><span class="s">/export/servers/traefik</span>
-<span class="ln"> 9</span><span class="na">ExecStart</span><span class="o">=</span><span class="s">/export/servers/traefik/traefik</span>
-<span class="ln">10</span>
-<span class="ln">11</span><span class="k">[Install]</span>
-<span class="ln">12</span><span class="na">WantedBy</span><span class="o">=</span><span class="s">local.target</span>
-<span class="ln">13</span><span class="na">EOF</span>
-</code></pre></div><h2 id="五启动vaultwarden和traefik">五、启动vaultwarden和traefik</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span><span class="na">systemctl daemon-reload</span>
-<span class="ln">2</span><span class="na">systemctl enable --now vaultwarden</span>
-<span class="ln">3</span><span class="na">systemctl enable --now traefik</span>
-</code></pre></div><p>打开页面，我们就成功的用一台老破小搭建了自己的密码管理服务器！！！</p>
-<p><img class="img-fluid" alt="image-20211027152237848" src="/posts/20211027-bitwarden/image-20211027152237848.png" loading="lazy"
-   width="449" height="531"
+<p>然后第一个注意的地方就是硬盘，选 Options 后：</p>
+<p><img class="img-fluid" alt="image-20211103101222517" src="/posts/20211103-proxmox/image-20211103101222517.png" loading="lazy"
+   width="492" height="123"
    />
 
 </p>
+<p>会冒出一堆选项，公司的生产环境，服务器如果没有 raid 卡是很奇怪的，所以 zfs 反而不是标配，因为我们会事先在 raid 卡上划分好硬盘，生产环境基本必然是 raid10 ，接下来就是 ext4 和 xfs 二选一了，八戒选 ext4 ，因为坏了好修理，xfs_repair 用起来相当龟毛：</p>
+<p><img class="img-fluid" alt="image-20211103101317418" src="/posts/20211103-proxmox/image-20211103101317418.png" loading="lazy"
+   width="305" height="394"
+   />
+
+</p>
+<p>那么，选定了 ext4 ，接下来就比较重要了</p>
+<p><img class="img-fluid" alt="image-20211103104456187" src="/posts/20211103-proxmox/image-20211103104456187.png" loading="lazy"
+   width="299" height="389"
+   />
+
+</p>
+<ul>
+<li>
+<p>hdsize 1116.0 ，单位是G，这个是自动收集上来的，不用改</p>
+</li>
+<li>
+<p>swapsize，交换分区大小，这个给 8 G（最大8G）</p>
+</li>
+<li>
+<p>maxroot，这个分区是第一个分区，存放 iso 和 template 的，需要给够，100 G</p>
+</li>
+<li>
+<p>minfree，第一个分区最小留多大，给 10 G（缺省16G）</p>
+</li>
+<li>
+<p>maxvz，这个分区是第二个分区，存放实际的虚机文件，全都用上，什么也不填写</p>
+</li>
+</ul>
+<p>然后安装成功。</p>
+<p>打开网页，我们可以看到一个 local，100G，对应上面的 maxroot</p>
+<p>然后 local-lvm ，就是剩余放虚机的空间</p>
+<p><img class="img-fluid" alt="image-20211103110216144" src="/posts/20211103-proxmox/image-20211103110216144.png" loading="lazy"
+   width="238" height="160"
+   />
+
+</p>
+<p>ssh登录系统，首先换成中科大的 apt 源，并升级一下系统：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>$ sed -i <span class="s1">&#39;s|^deb http://ftp.debian.org|deb https://mirrors.ustc.edu.cn|g&#39;</span> /etc/apt/sources.list
+<span class="ln">2</span>$ sed -i <span class="s1">&#39;s|^deb http://security.debian.org|deb https://mirrors.ustc.edu.cn/debian-security|g&#39;</span> /etc/apt/sources.list
+<span class="ln">3</span>$  <span class="nv">CODENAME</span><span class="o">=</span><span class="sb">`</span>cat /etc/os-release <span class="p">|</span>grep CODENAME <span class="p">|</span>cut -f <span class="m">2</span> -d <span class="s2">&#34;=&#34;</span><span class="sb">`</span>
+<span class="ln">4</span>$  <span class="nb">echo</span> <span class="s2">&#34;deb https://mirrors.ustc.edu.cn/proxmox/debian </span><span class="nv">$CODENAME</span><span class="s2"> pve-no-subscription&#34;</span> &gt; /etc/apt/sources.list.d/pve-no-subscription.list
+<span class="ln">5</span>$  cat /etc/apt/sources.list.d/pve-no-subscription.list
+<span class="ln">6</span>$  rm /etc/apt/sources.list.d/pve-enterprise.list 
+<span class="ln">7</span>$  apt update
+<span class="ln">8</span>$  apt upgrade
+</code></pre></div><p>那生产使用，是必须用 Cloud-init 的标准化镜像的。我们需要造出一个 template 。</p>
+<p>以 Centos7 为例子</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>wget http://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2
+<span class="ln">2</span>apt-get install libguestfs-tools
+</code></pre></div><p>然后准备脚本 <a href="modify.sh">modify.sh</a>
+：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="cp">#!/bin/sh
+</span><span class="ln"> 2</span><span class="cp"></span><span class="nv">image_name</span><span class="o">=</span>CentOS-7-x86_64-GenericCloud.qcow2
+<span class="ln"> 3</span><span class="c1"># virt-edit -a ${image_name} /etc/cloud/cloud.cfg</span>
+<span class="ln"> 4</span>virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/cloud/cloud.cfg -e <span class="s1">&#39;s/disable_root: [Tt]rue/disable_root: False/&#39;</span>
+<span class="ln"> 5</span>virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/cloud/cloud.cfg -e <span class="s1">&#39;s/disable_root: 1/disable_root: 0/&#39;</span> 
+<span class="ln"> 6</span>virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/cloud/cloud.cfg -e <span class="s1">&#39;s/lock_passwd: [Tt]rue/lock_passwd: False/&#39;</span>
+<span class="ln"> 7</span>virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/cloud/cloud.cfg -e <span class="s1">&#39;s/lock_passwd: 1/lock_passwd: 0/&#39;</span> 
+<span class="ln"> 8</span>virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/cloud/cloud.cfg -e <span class="s1">&#39;s/ssh_pwauth:   0/ssh_pwauth:   1/&#39;</span>
+<span class="ln"> 9</span>virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/ssh/sshd_config -e <span class="s1">&#39;s/PasswordAuthentication no/PasswordAuthentication yes/&#39;</span>
+<span class="ln">10</span>virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/ssh/sshd_config -e <span class="s1">&#39;s/PermitRootLogin [Nn]o/PermitRootLogin yes/&#39;</span>
+<span class="ln">11</span>virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/ssh/sshd_config -e <span class="s1">&#39;s/#PermitRootLogin [Yy]es/PermitRootLogin yes/&#39;</span>
+<span class="ln">12</span>virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/ssh/sshd_config -e <span class="s1">&#39;s/#PermitRootLogin prohibit-password/PermitRootLogin yes/&#39;</span>
+<span class="ln">13</span>virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/ssh/sshd_config -e <span class="s1">&#39;s/[#M]axAuthTries 6/MaxAuthTries 20/&#39;</span>
+<span class="ln">14</span>virt-customize --install cloud-init,atop,htop,nano,vim,qemu-guest-agent,curl,wget,telnet,lsof,screen -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span>
+</code></pre></div><p>运行它，以上命令其实是侵入镜像，修改 sshd_config 允许 root 用 password 登录，然后又安了几个常用软件，大家可以按需修改。</p>
+<p>最后生成 template , 脚本： <a href="vm.sh">vm.sh</a>
+</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="cp">#!/bin/sh
+</span><span class="ln"> 2</span><span class="cp"></span><span class="nv">vm_id</span><span class="o">=</span><span class="m">9999</span>
+<span class="ln"> 3</span><span class="nv">image_name</span><span class="o">=</span>CentOS-7-x86_64-GenericCloud.qcow2
+<span class="ln"> 4</span>
+<span class="ln"> 5</span>qm create <span class="si">${</span><span class="nv">vm_id</span><span class="si">}</span> --memory <span class="m">8196</span> --net0 virtio,bridge<span class="o">=</span>vmbr0
+<span class="ln"> 6</span>qm importdisk <span class="si">${</span><span class="nv">vm_id</span><span class="si">}</span> <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> local-lvm
+<span class="ln"> 7</span>qm <span class="nb">set</span> <span class="si">${</span><span class="nv">vm_id</span><span class="si">}</span> --scsihw virtio-scsi-pci --scsi0 local-lvm:vm-<span class="si">${</span><span class="nv">vm_id</span><span class="si">}</span>-disk-0
+<span class="ln"> 8</span>qm <span class="nb">set</span> <span class="si">${</span><span class="nv">vm_id</span><span class="si">}</span> --ide2 local-lvm:cloudinit
+<span class="ln"> 9</span>qm <span class="nb">set</span> <span class="si">${</span><span class="nv">vm_id</span><span class="si">}</span> --boot c --bootdisk scsi0
+<span class="ln">10</span>qm <span class="nb">set</span> <span class="si">${</span><span class="nv">vm_id</span><span class="si">}</span> --serial0 socket --vga serial0
+<span class="ln">11</span>qm template <span class="si">${</span><span class="nv">vm_id</span><span class="si">}</span>
+</code></pre></div><p>cloud-init 技术的核心其实就是用配置文件，在虚机启动的时候动态修改，这里把配置放到了 ide2 的一个虚拟 cdrom 中</p>
+<p>最终会生成一个 id 为 9999 的 template</p>
+<p><img class="img-fluid" alt="image-20211103111301527" src="/posts/20211103-proxmox/image-20211103111301527.png" loading="lazy"
+   width="286" height="183"
+   />
+
+</p>
+<p>我们还需要改两处：</p>
+<p>一是 CPU、MEMORY、硬盘大小，缺省是 8G，我们生产的镜像标配是80G，需要 resize , 加 72G，合计80G</p>
+<p><img class="img-fluid" alt="image-20211103111448122" src="/posts/20211103-proxmox/image-20211103111448122.png" loading="lazy"
+   width="659" height="311"
+   />
+
+</p>
+<p>二是 cloud-init 部分，用户名、密码、DNS、IP、MASK、GATEWAY</p>
+<p><img class="img-fluid" alt="image-20211103111612689" src="/posts/20211103-proxmox/image-20211103111612689.png" loading="lazy"
+   width="651" height="284"
+   />
+
+</p>
+<p>这样这个 template 就做好了，在生产的时候，只需要 clone 这个模板（模式要选 Full Clone），然后记得修改为不同的IP，就可以了。</p>
+<p><img class="img-fluid" alt="image-20211103111814172" src="/posts/20211103-proxmox/image-20211103111814172.png" loading="lazy"
+   width="615" height="267"
+   />
+
+</p>
+<p>总体来说，这个东西偏小白，对于习惯了 KVM 的人来说，反而不如脚本来的快。</p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -396,19 +363,15 @@ BOOTSTRAP
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="/posts/20211026-ack_build/">阿里云ACK完全生产环境规划和搭建
+    <a href="/posts/20211102-ingress_nginx/">K8s中nginx Ingress的性能优化
 </a>
-  </div><div class="post-nav post-next">
-    <a href="/posts/20211027-docker_extract_file/">没有装Docker如何从镜像中释放出文件
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="/posts/20211026-ack_build/">阿里云ACK完全生产环境规划和搭建
-</a></li><li><a href="/posts/20211025-autoinstall_cd/">Centos Auto Install Cdrom自动安装cdrom的制作
-</a></li><li><a href="/posts/20211025-vsftpd/">Vsftpd的日志设置
-</a></li><li><a href="/posts/20211022-pypxe/">PyPXE-一个牛逼的一站式PXE安装包
-</a></li><li><a href="/posts/20211021-etcd_confd_nginx/">ETCD &#43; CONFD &#43; NGINX的配置
+    <ul class="related-posts"><li><a href="/posts/20211102-ingress_nginx/">K8s中nginx Ingress的性能优化
+</a></li><li><a href="/posts/20211102-sysctl_conf/">Linux内核sysctl内核参数优化
+</a></li><li><a href="/posts/20211102-tcp_keealive/">Linux内核TCP连接Keep-Alive Timeout的配置
+</a></li><li><a href="/posts/20211029-bash_multithread/">Shell以及find的多线程执行
+</a></li><li><a href="/posts/20211028-trickle/">Linux下的程序限速软件Trickle
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
