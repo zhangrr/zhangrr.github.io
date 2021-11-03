@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>OpenVPN 限制流量带宽 - Hugo Bootstrap</title><link rel="apple-touch-icon" href="/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>alphine镜像中timezone的设定 - Hugo Bootstrap</title><link rel="apple-touch-icon" href="/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="/images/favicons/manifest.json">
 <link rel="icon" href="/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="OpenVPN 限制流量带宽">
-<meta itemprop="description" content="公司安装了 openvpn ，带来方便，但是也有很多不便的地方，机房的总带宽就那么多。 很多人共用 vpn 的时候，就会抢占带宽。 那么，我们需要限制一下，限制 openvpn 所能使"><meta itemprop="datePublished" content="2021-10-18T09:30:11+08:00" />
-<meta itemprop="dateModified" content="2021-10-18T09:30:11+08:00" />
-<meta itemprop="wordCount" content="318">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="OpenVPN 限制流量带宽" />
-<meta property="og:description" content="公司安装了 openvpn ，带来方便，但是也有很多不便的地方，机房的总带宽就那么多。 很多人共用 vpn 的时候，就会抢占带宽。 那么，我们需要限制一下，限制 openvpn 所能使" />
+<meta name="description" content="" /><meta itemprop="name" content="alphine镜像中timezone的设定">
+<meta itemprop="description" content="我们都喜欢用 alphine 的镜像做底包，来生产自己的镜像 alphine 的底包的时间设定就非常重要了 直接给出 Dockerfile 1FROM alpine:3.12 2 3# latest certs 4RUN apk add ca-certificates --no-cache &amp;&amp; update-ca-certificates 5 6# timezone support 7ENV TZ=Asia/Shanghai 8RUN apk add --update tzdata --no-cache &amp;&amp;\ 9 cp"><meta itemprop="datePublished" content="2021-11-03T11:30:11+08:00" />
+<meta itemprop="dateModified" content="2021-11-03T11:30:11+08:00" />
+<meta itemprop="wordCount" content="196">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="alphine镜像中timezone的设定" />
+<meta property="og:description" content="我们都喜欢用 alphine 的镜像做底包，来生产自己的镜像 alphine 的底包的时间设定就非常重要了 直接给出 Dockerfile 1FROM alpine:3.12 2 3# latest certs 4RUN apk add ca-certificates --no-cache &amp;&amp; update-ca-certificates 5 6# timezone support 7ENV TZ=Asia/Shanghai 8RUN apk add --update tzdata --no-cache &amp;&amp;\ 9 cp" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="/posts/20211018-openvpn_limit_bandwidth/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2021-10-18T09:30:11+08:00" />
-<meta property="article:modified_time" content="2021-10-18T09:30:11+08:00" /><meta property="og:site_name" content="Hugo Bootstrap" />
+<meta property="og:url" content="/posts/20211103-alphine_timezone/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-11-03T11:30:11+08:00" />
+<meta property="article:modified_time" content="2021-11-03T11:30:11+08:00" /><meta property="og:site_name" content="Hugo Bootstrap" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="OpenVPN 限制流量带宽"/>
-<meta name="twitter:description" content="公司安装了 openvpn ，带来方便，但是也有很多不便的地方，机房的总带宽就那么多。 很多人共用 vpn 的时候，就会抢占带宽。 那么，我们需要限制一下，限制 openvpn 所能使"/>
+<meta name="twitter:title" content="alphine镜像中timezone的设定"/>
+<meta name="twitter:description" content="我们都喜欢用 alphine 的镜像做底包，来生产自己的镜像 alphine 的底包的时间设定就非常重要了 直接给出 Dockerfile 1FROM alpine:3.12 2 3# latest certs 4RUN apk add ca-certificates --no-cache &amp;&amp; update-ca-certificates 5 6# timezone support 7ENV TZ=Asia/Shanghai 8RUN apk add --update tzdata --no-cache &amp;&amp;\ 9 cp"/>
 <meta name="twitter:site" content="@yourtwitterusername"/>
 <link rel="preload" href="/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="/js/bundle.min.ba4b57bb653018b3da5a1e0ed23ac673e28c9f0624cc03f40d9c00568659899c.js" integrity="sha256-uktXu2UwGLPaWh4O0jrGc&#43;KMnwYkzAP0DZwAVoZZiZw=" crossorigin="anonymous"></script></head>
@@ -115,11 +115,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=OpenVPN%20%e9%99%90%e5%88%b6%e6%b5%81%e9%87%8f%e5%b8%a6%e5%ae%bd&url=%2fposts%2f20211018-openvpn_limit_bandwidth%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=alphine%e9%95%9c%e5%83%8f%e4%b8%adtimezone%e7%9a%84%e8%ae%be%e5%ae%9a&url=%2fposts%2f20211103-alphine_timezone%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=%2fposts%2f20211018-openvpn_limit_bandwidth%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=%2fposts%2f20211103-alphine_timezone%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -185,7 +185,7 @@ BOOTSTRAP
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="/">主页</a></li><li class="breadcrumb-item"><a href="/posts/">文章</a></li><li class="breadcrumb-item active">OpenVPN 限制流量带宽</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="/">主页</a></li><li class="breadcrumb-item"><a href="/posts/">文章</a></li><li class="breadcrumb-item active">Alphine镜像中timezone的设定</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -208,35 +208,45 @@ BOOTSTRAP
     
   </div>
 </div>
-<h1 class="card-title my-3">OpenVPN 限制流量带宽
+<h1 class="card-title my-3">Alphine镜像中timezone的设定
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-18
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-03
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
-<div class="post-content mb-3"><p>公司安装了 openvpn ，带来方便，但是也有很多不便的地方，机房的总带宽就那么多。</p>
-<p>很多人共用 vpn 的时候，就会抢占带宽。</p>
-<p>那么，我们需要限制一下，限制 openvpn 所能使用的带宽，避免抢占 WEB 的带宽</p>
-<p>做法如下：</p>
-<p>由于我们不是要单独限制某一个 openvpn 用户，而是限制整体，所以简单用 TC 就可以了</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span><span class="cp">#!/bin/sh
-</span><span class="ln">2</span><span class="cp"></span>tc qdisc del dev tun0 root  
-<span class="ln">3</span>tc qdisc add dev tun0 root handle 1: htb default <span class="m">1</span>
-<span class="ln">4</span>tc class add dev tun0 parent 1: classid 1:1 htb rate 30Mbit ceil 30Mbit
-</code></pre></div><p>解释一下：</p>
-<ul>
-<li>我们 openvpn 启的是 tun0 ，所以限制的对象就是 dev tun0</li>
-<li>首先第一行清除 tun0 的根队列</li>
-<li>然后第二行建立 tun0 的 root 根队列为 1:0 htb ，缺省是1:1的子队列</li>
-<li>最后一行，第三行建立 1:1 的子队列，带宽限制是 30Mbit ，注意这里是大B，就是网络术语中的带宽，换算成小b的话，需要除以8</li>
-</ul>
-<p>效果很明显，直接被限制住（41兆而不是30M是因为这台机器是虚机，实体机上还有别的流量）：</p>
-<p><img class="img-fluid" alt="Float Left" src="/posts/20211018-openvpn_limit_bandwidth/image-20211018102400898.png" loading="lazy"
-   width="650" height="280"
-   />
-
-</p>
-</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="post-content mb-3"><p>我们都喜欢用 alphine 的镜像做底包，来生产自己的镜像</p>
+<p>alphine 的底包的时间设定就非常重要了</p>
+<p>直接给出 Dockerfile</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span><span class="na">FROM alpine:3.12</span>
+<span class="ln"> 2</span>
+<span class="ln"> 3</span><span class="c1"># latest certs</span>
+<span class="ln"> 4</span><span class="na">RUN apk add ca-certificates --no-cache &amp;&amp; update-ca-certificates</span>
+<span class="ln"> 5</span>
+<span class="ln"> 6</span><span class="c1"># timezone support</span>
+<span class="ln"> 7</span><span class="na">ENV TZ</span><span class="o">=</span><span class="s">Asia/Shanghai</span>
+<span class="ln"> 8</span><span class="na">RUN apk add --update tzdata --no-cache &amp;&amp;\</span>
+<span class="ln"> 9</span>    <span class="na">cp /usr/share/zoneinfo/${TZ} /etc/localtime &amp;&amp;\</span>
+<span class="ln">10</span>    <span class="na">echo $TZ &gt; /etc/timezone</span>
+<span class="ln">11</span>
+<span class="ln">12</span><span class="c1"># install chrony and place default conf which can be overridden with volume</span>
+<span class="ln">13</span><span class="na">RUN apk add --no-cache chrony &amp;&amp; mkdir -p /etc/chrony</span>
+<span class="ln">14</span><span class="na">COPY chrony.conf /etc/chrony/.</span>
+<span class="ln">15</span>
+<span class="ln">16</span><span class="c1"># port exposed</span>
+<span class="ln">17</span><span class="na">EXPOSE 123/udp</span>
+<span class="ln">18</span>
+<span class="ln">19</span><span class="c1"># start</span>
+<span class="ln">20</span><span class="na">CMD [ &#34;/usr/sbin/chronyd&#34;, &#34;-d&#34;, &#34;-s&#34;]</span>
+<span class="ln">21</span>
+</code></pre></div><p>时间设定重要的就是下面这几行</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span><span class="c1"># timezone support</span>
+<span class="ln">2</span><span class="na">ENV TZ</span><span class="o">=</span><span class="s">Asia/Shanghai</span>
+<span class="ln">3</span><span class="na">RUN apk add --update tzdata --no-cache &amp;&amp;\</span>
+<span class="ln">4</span>    <span class="na">cp /usr/share/zoneinfo/${TZ} /etc/localtime &amp;&amp;\</span>
+<span class="ln">5</span>    <span class="na">echo $TZ &gt; /etc/timezone</span>
+</code></pre></div><p>还有如果在   image: maven:3.5-jdk-8-alpine  这种镜像里，无论怎么改时间都不是东八区，可以试试下面的命令：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span><span class="nb">export</span> <span class="nv">COMMIT_TIME</span><span class="o">=</span><span class="k">$(</span><span class="nv">TZ</span><span class="o">=</span>CST-8 date +%F-%H-%M<span class="k">)</span>
+</code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -263,19 +273,15 @@ BOOTSTRAP
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="/posts/20211015-hugo_blog/">本站博客的由来以及搭建使用教程
+    <a href="/posts/20211103-proxmox/">生产环境Proxmox 7.02的安装和配置
 </a>
-  </div><div class="post-nav post-next">
-    <a href="/posts/20211018-ipset_block_cn/">使用IPSET封掉某个国家整个的访问
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="/posts/20211015-hugo_blog/">本站博客的由来以及搭建使用教程
-</a></li><li><a href="/posts/20211014-iphone_hijack/">Iphone手机的https抓包
-</a></li><li><a href="/posts/20211014-linux_wifi/">Ubuntu下自建一个wifi热点供手机使用
-</a></li><li><a href="/posts/20211010-live_cd/">CentOS 7 Live-CD 的制作
-</a></li><li><a href="/posts/markdown-syntax/">Markdown Syntax Guide
+    <ul class="related-posts"><li><a href="/posts/20211103-proxmox/">生产环境Proxmox 7.02的安装和配置
+</a></li><li><a href="/posts/20211102-ingress_nginx/">K8s中nginx Ingress的性能优化
+</a></li><li><a href="/posts/20211102-sysctl_conf/">Linux内核sysctl内核参数优化
+</a></li><li><a href="/posts/20211102-tcp_keealive/">Linux内核TCP连接Keep-Alive Timeout的配置
+</a></li><li><a href="/posts/20211029-bash_multithread/">Shell以及find的多线程执行
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">

@@ -7,7 +7,16 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>Copyright © 2021-{year} Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Wed, 03 Nov 2021 09:30:11 +0800</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 03 Nov 2021 11:30:11 +0800</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>alphine镜像中timezone的设定</title>
+      <link>/posts/20211103-alphine_timezone/</link>
+      <pubDate>Wed, 03 Nov 2021 11:30:11 +0800</pubDate>
+      
+      <guid>/posts/20211103-alphine_timezone/</guid>
+      <description>我们都喜欢用 alphine 的镜像做底包，来生产自己的镜像 alphine 的底包的时间设定就非常重要了 直接给出 Dockerfile 1FROM alpine:3.12 2 3# latest certs 4RUN apk add ca-certificates --no-cache &amp;amp;&amp;amp; update-ca-certificates 5 6# timezone support 7ENV TZ=Asia/Shanghai 8RUN apk add --update tzdata --no-cache &amp;amp;&amp;amp;\ 9 cp</description>
+    </item>
+    
     <item>
       <title>生产环境Proxmox 7.02的安装和配置</title>
       <link>/posts/20211103-proxmox/</link>
