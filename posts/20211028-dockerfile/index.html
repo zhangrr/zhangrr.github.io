@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="Dockerfile的编写与调试技巧">
 <meta itemprop="description" content="Dockerfile 是造出镜像的基础，是必须熟知并了解的知识： 一、编写Dockerfile 先给个例子，是 minio 代理访问阿里的 OSS 1FROM alpine:3.12 2 3RUN apk add --update bash &amp;&amp; rm -rf /var/cache/apk/* 4 5COPY minio.RELEASE.2020-04-15T19-42-18Z /data/minio.RELEASE.2020-04-15T19-42-18Z 6 7ENV"><meta itemprop="datePublished" content="2021-10-28T10:30:11+08:00" />
 <meta itemprop="dateModified" content="2021-10-28T10:30:11+08:00" />
-<meta itemprop="wordCount" content="1135">
+<meta itemprop="wordCount" content="1243">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="Dockerfile的编写与调试技巧" />
 <meta property="og:description" content="Dockerfile 是造出镜像的基础，是必须熟知并了解的知识： 一、编写Dockerfile 先给个例子，是 minio 代理访问阿里的 OSS 1FROM alpine:3.12 2 3RUN apk add --update bash &amp;&amp; rm -rf /var/cache/apk/* 4 5COPY minio.RELEASE.2020-04-15T19-42-18Z /data/minio.RELEASE.2020-04-15T19-42-18Z 6 7ENV" />
 <meta property="og:type" content="article" />
@@ -228,6 +228,7 @@ BOOTSTRAP
   <ul>
     <li><a href="#一编写dockerfile">一、编写Dockerfile</a></li>
     <li><a href="#二调试容器">二、调试容器</a></li>
+    <li><a href="#三pod的等待技巧">三、pod的等待技巧</a></li>
   </ul>
 </nav>
   </div>
@@ -304,6 +305,19 @@ BOOTSTRAP
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>CMD /bin/sh -c <span class="s2">&#34;while true; do echo hi; sleep 10; done&#34;</span>  
 </code></pre></div><p>然后进入容器，然后再执行之前的 CMD 命令，看看报错信息是什么，就可以调试了</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>$ docker <span class="nb">exec</span> -it 89174asklja /bin/sh
+</code></pre></div><h2 id="三pod的等待技巧">三、pod的等待技巧</h2>
+<p>这里启动正式的pod之前，先临时起了两个容器等待其他服务的完成</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>  containers: 
+<span class="ln"> 2</span>  - name: myapp-container 
+<span class="ln"> 3</span>    image: busybox 
+<span class="ln"> 4</span>    command: <span class="o">[</span><span class="s1">&#39;sh&#39;</span>, <span class="s1">&#39;-c&#39;</span>, <span class="s1">&#39;echo The app is running! &amp;&amp; sleep 3600&#39;</span><span class="o">]</span> 
+<span class="ln"> 5</span>  initContainers: 
+<span class="ln"> 6</span>  - name: init-myservice 
+<span class="ln"> 7</span>    image: busybox 
+<span class="ln"> 8</span>    command: <span class="o">[</span><span class="s1">&#39;sh&#39;</span>, <span class="s1">&#39;-c&#39;</span>, <span class="s1">&#39;until nslookup myservice; do echo waiting for myservice; sleep 2; done;&#39;</span><span class="o">]</span> 
+<span class="ln"> 9</span>  - name: init-mydb 
+<span class="ln">10</span>    image: busybox 
+<span class="ln">11</span>    command: <span class="o">[</span><span class="s1">&#39;sh&#39;</span>, <span class="s1">&#39;-c&#39;</span>, <span class="s1">&#39;until nslookup mydb; do echo waiting for mydb; sleep 2; done;&#39;</span><span class="o">]</span> 
 </code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -378,10 +392,10 @@ BOOTSTRAP
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
     <ul><li><a href="/posts/20211103-alphine_timezone/">Alphine镜像中timezone的设定
+</a></li><li><a href="/posts/20211104-alphine_usage/">Alphine镜像的使用技巧
 </a></li><li><a href="/posts/20211103-proxmox/">生产环境Proxmox 7.02的安装和配置
 </a></li><li><a href="/posts/20211102-ingress_nginx/">K8s中nginx Ingress的性能优化
 </a></li><li><a href="/posts/20211102-sysctl_conf/">Linux内核sysctl内核参数优化
-</a></li><li><a href="/posts/20211102-tcp_keealive/">Linux内核TCP连接Keep-Alive Timeout的配置
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
