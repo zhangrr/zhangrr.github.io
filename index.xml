@@ -7,7 +7,25 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>Copyright © 2021-{year} Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Wed, 03 Nov 2021 11:30:11 +0800</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 04 Nov 2021 10:30:11 +0800</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Haproxy的Zero downtime重启如何做</title>
+      <link>/posts/20211104-haproxy_restart/</link>
+      <pubDate>Thu, 04 Nov 2021 10:30:11 +0800</pubDate>
+      
+      <guid>/posts/20211104-haproxy_restart/</guid>
+      <description>Nginx 可以用 kill -HUP 来重启，不会丢失已建连接。Haproxy 如何做才能做到 zero downtime 无缝重载呢？ 做法如下： 一、配置 编译harpoxy的时候带上参数 USE_</description>
+    </item>
+    
+    <item>
+      <title>alphine镜像的使用技巧</title>
+      <link>/posts/20211104-alphine_usage/</link>
+      <pubDate>Thu, 04 Nov 2021 09:30:11 +0800</pubDate>
+      
+      <guid>/posts/20211104-alphine_usage/</guid>
+      <description>用 alphine 镜像的一些常用技巧： 会随时增加： 一、修改源，用国外的源非常慢，替换成国内的中科大源 1sed -i &amp;#39;s/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g&amp;#39; /etc/apk/repositories 二、更新apk库 1apk update 三、安装软件 1#安装tel</description>
+    </item>
+    
     <item>
       <title>alphine镜像中timezone的设定</title>
       <link>/posts/20211103-alphine_timezone/</link>
@@ -15,15 +33,6 @@
       
       <guid>/posts/20211103-alphine_timezone/</guid>
       <description>我们都喜欢用 alphine 的镜像做底包，来生产自己的镜像 alphine 的底包的时间设定就非常重要了 直接给出 Dockerfile 1FROM alpine:3.12 2 3# latest certs 4RUN apk add ca-certificates --no-cache &amp;amp;&amp;amp; update-ca-certificates 5 6# timezone support 7ENV TZ=Asia/Shanghai 8RUN apk add --update tzdata --no-cache &amp;amp;&amp;amp;\ 9 cp</description>
-    </item>
-    
-    <item>
-      <title>alphine镜像的使用技巧</title>
-      <link>/posts/20211104-alphine_usage/</link>
-      <pubDate>Wed, 03 Nov 2021 11:30:11 +0800</pubDate>
-      
-      <guid>/posts/20211104-alphine_usage/</guid>
-      <description>用 alphine 镜像的一些常用技巧： 会随时增加： 一、修改源，用国外的源非常慢，替换成国内的中科大源 1sed -i &amp;#39;s/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g&amp;#39; /etc/apk/repositories 二、更新apk库 1apk update 三、安装软件 1#安装tel</description>
     </item>
     
     <item>

@@ -181,6 +181,32 @@ BOOTSTRAP
 <div class="col-lg-8">
   <div class="container"><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
+        <h2 class="card-title post-title"><a href="/posts/20211104-haproxy_restart/">Haproxy的Zero Downtime重启如何做
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-04
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          Nginx 可以用 kill -HUP 来重启，不会丢失已建连接。Haproxy 如何做才能做到 zero downtime 无缝重载呢？ 做法如下： 一、配置 编译harpoxy的时候带上参数 USE_
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="/posts/20211104-alphine_usage/">Alphine镜像的使用技巧
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-04
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          用 alphine 镜像的一些常用技巧： 会随时增加： 一、修改源，用国外的源非常慢，替换成国内的中科大源 1sed -i &#39;s/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g&#39; /etc/apk/repositories 二、更新apk库 1apk update 三、安装软件 1#安装tel
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
         <h2 class="card-title post-title"><a href="/posts/20211103-alphine_timezone/">Alphine镜像中timezone的设定
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-11-03
@@ -190,19 +216,6 @@ BOOTSTRAP
 <div class="post-summary">
           
           我们都喜欢用 alphine 的镜像做底包，来生产自己的镜像 alphine 的底包的时间设定就非常重要了 直接给出 Dockerfile 1FROM alpine:3.12 2 3# latest certs 4RUN apk add ca-certificates --no-cache &amp;&amp; update-ca-certificates 5 6# timezone support 7ENV TZ=Asia/Shanghai 8RUN apk add --update tzdata --no-cache &amp;&amp;\ 9 cp
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="/posts/20211104-alphine_usage/">Alphine镜像的使用技巧
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-03
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          用 alphine 镜像的一些常用技巧： 会随时增加： 一、修改源，用国外的源非常慢，替换成国内的中科大源 1sed -i &#39;s/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g&#39; /etc/apk/repositories 二、更新apk库 1apk update 三、安装软件 1#安装tel
         </div>
       </div>
     </article><article class="row card post component">
@@ -296,19 +309,6 @@ BOOTSTRAP
           Dockerfile 是造出镜像的基础，是必须熟知并了解的知识： 一、编写Dockerfile 先给个例子，是 minio 代理访问阿里的 OSS 1FROM alpine:3.12 2 3RUN apk add --update bash &amp;&amp; rm -rf /var/cache/apk/* 4 5COPY minio.RELEASE.2020-04-15T19-42-18Z /data/minio.RELEASE.2020-04-15T19-42-18Z 6 7ENV
         </div>
       </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="/posts/20211028-php_syslog/">PHP程序如何发送syslog到远程服务器
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-28
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          给同事做了个 PHP 接口，转发发送短信的请求，同时要把发送记录发送到远程的 cacti 的 syslog 去 很简单，但是也不简单 首先是 PHP 服务器，是最简化编译的，php -m 查了
-        </div>
-      </div>
     </article></div><div class="row table-responsive mb-3">
     <ul class="pagination pagination-default">
       <li class="page-item disabled">
@@ -327,10 +327,13 @@ BOOTSTRAP
         <a href="/page/3/" aria-label="Page 3" class="page-link" role="button">3</a>
       </li>
       <li class="page-item">
+        <a href="/page/4/" aria-label="Page 4" class="page-link" role="button">4</a>
+      </li>
+      <li class="page-item">
         <a href="/page/2/" aria-label="Next" class="page-link" role="button"><span aria-hidden="true">&raquo;</span></a>
       </li>
       <li class="page-item">
-        <a href="/page/3/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
+        <a href="/page/4/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
       </li>
     </ul></div>
 </div>
@@ -356,11 +359,11 @@ BOOTSTRAP
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="/posts/20211103-alphine_timezone/">Alphine镜像中timezone的设定
+    <ul><li><a href="/posts/20211104-haproxy_restart/">Haproxy的Zero Downtime重启如何做
 </a></li><li><a href="/posts/20211104-alphine_usage/">Alphine镜像的使用技巧
+</a></li><li><a href="/posts/20211103-alphine_timezone/">Alphine镜像中timezone的设定
 </a></li><li><a href="/posts/20211103-proxmox/">生产环境Proxmox 7.02的安装和配置
 </a></li><li><a href="/posts/20211102-ingress_nginx/">K8s中nginx Ingress的性能优化
-</a></li><li><a href="/posts/20211102-sysctl_conf/">Linux内核sysctl内核参数优化
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
