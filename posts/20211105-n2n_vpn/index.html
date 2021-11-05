@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>alphine镜像的使用技巧 - Hugo Bootstrap</title><link rel="apple-touch-icon" href="/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>n2n一种peer to peer的VPN的使用 - Hugo Bootstrap</title><link rel="apple-touch-icon" href="/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="/images/favicons/manifest.json">
 <link rel="icon" href="/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="alphine镜像的使用技巧">
-<meta itemprop="description" content="用 alphine 镜像的一些常用技巧： 会随时增加： 一、修改源，用国外的源非常慢，替换成国内的中科大源 1sed -i &#39;s/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g&#39; /etc/apk/repositories 二、更新apk库 1apk update 三、安装软件 1#安装tel"><meta itemprop="datePublished" content="2021-11-04T09:30:11+08:00" />
-<meta itemprop="dateModified" content="2021-11-04T09:30:11+08:00" />
-<meta itemprop="wordCount" content="351">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="alphine镜像的使用技巧" />
-<meta property="og:description" content="用 alphine 镜像的一些常用技巧： 会随时增加： 一、修改源，用国外的源非常慢，替换成国内的中科大源 1sed -i &#39;s/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g&#39; /etc/apk/repositories 二、更新apk库 1apk update 三、安装软件 1#安装tel" />
+<meta name="description" content="" /><meta itemprop="name" content="n2n一种peer to peer的VPN的使用">
+<meta itemprop="description" content="vpn的搭建一直是一个难解的题目，openvpn、ipsec、tinc 都在用，都不够简洁。 n2n 是一种 peer to peer 端到端的 vpn，搭建起来非常简单方便"><meta itemprop="datePublished" content="2021-11-05T10:30:11+08:00" />
+<meta itemprop="dateModified" content="2021-11-05T10:30:11+08:00" />
+<meta itemprop="wordCount" content="446">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="n2n一种peer to peer的VPN的使用" />
+<meta property="og:description" content="vpn的搭建一直是一个难解的题目，openvpn、ipsec、tinc 都在用，都不够简洁。 n2n 是一种 peer to peer 端到端的 vpn，搭建起来非常简单方便" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="/posts/20211104-alphine_usage/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2021-11-04T09:30:11+08:00" />
-<meta property="article:modified_time" content="2021-11-04T09:30:11+08:00" /><meta property="og:site_name" content="Hugo Bootstrap" />
+<meta property="og:url" content="/posts/20211105-n2n_vpn/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-11-05T10:30:11+08:00" />
+<meta property="article:modified_time" content="2021-11-05T10:30:11+08:00" /><meta property="og:site_name" content="Hugo Bootstrap" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="alphine镜像的使用技巧"/>
-<meta name="twitter:description" content="用 alphine 镜像的一些常用技巧： 会随时增加： 一、修改源，用国外的源非常慢，替换成国内的中科大源 1sed -i &#39;s/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g&#39; /etc/apk/repositories 二、更新apk库 1apk update 三、安装软件 1#安装tel"/>
+<meta name="twitter:title" content="n2n一种peer to peer的VPN的使用"/>
+<meta name="twitter:description" content="vpn的搭建一直是一个难解的题目，openvpn、ipsec、tinc 都在用，都不够简洁。 n2n 是一种 peer to peer 端到端的 vpn，搭建起来非常简单方便"/>
 <meta name="twitter:site" content="@yourtwitterusername"/>
 <link rel="preload" href="/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="/js/bundle.min.ba4b57bb653018b3da5a1e0ed23ac673e28c9f0624cc03f40d9c00568659899c.js" integrity="sha256-uktXu2UwGLPaWh4O0jrGc&#43;KMnwYkzAP0DZwAVoZZiZw=" crossorigin="anonymous"></script></head>
@@ -115,11 +115,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=alphine%e9%95%9c%e5%83%8f%e7%9a%84%e4%bd%bf%e7%94%a8%e6%8a%80%e5%b7%a7&url=%2fposts%2f20211104-alphine_usage%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=n2n%e4%b8%80%e7%a7%8dpeer%20to%20peer%e7%9a%84VPN%e7%9a%84%e4%bd%bf%e7%94%a8&url=%2fposts%2f20211105-n2n_vpn%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=%2fposts%2f20211104-alphine_usage%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=%2fposts%2f20211105-n2n_vpn%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -185,7 +185,7 @@ BOOTSTRAP
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="/">主页</a></li><li class="breadcrumb-item"><a href="/posts/">文章</a></li><li class="breadcrumb-item active">Alphine镜像的使用技巧</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="/">主页</a></li><li class="breadcrumb-item"><a href="/posts/">文章</a></li><li class="breadcrumb-item active">N2n一种peer to Peer的VPN的使用</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -205,79 +205,49 @@ BOOTSTRAP
 ">
   <i class="fas fa-fw fa-copyright"></i>
 </a>
-    <a data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
-  <i class="fas fa-fw fa-list-alt"></i>
-</a>
+    
   </div>
 </div>
-<h1 class="card-title my-3">Alphine镜像的使用技巧
+<h1 class="card-title my-3">N2n一种peer to Peer的VPN的使用
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-04
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-05
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
-<div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
-  <div class="offcanvas-header">
-    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
-      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
-        <i class="fas fa-times"></i>
-      </button>
-  </div>
-  <div class="offcanvas-body">
-    <nav id="TableOfContents">
-  <ul>
-    <li><a href="#一修改源用国外的源非常慢替换成国内的中科大源">一、修改源，用国外的源非常慢，替换成国内的中科大源</a></li>
-    <li><a href="#二更新apk库">二、更新apk库</a></li>
-    <li><a href="#三安装软件">三、安装软件</a></li>
-    <li><a href="#四进入容器一步执行换源更新安装">四、进入容器一步执行换源、更新、安装</a></li>
-    <li><a href="#五解决缺少glibc库的问题">五、解决缺少glibc库的问题</a></li>
-    <li><a href="#六一些调试的cmd">六、一些调试的CMD</a></li>
-    <li><a href="#七pod的等待技巧">七、pod的等待技巧</a></li>
-  </ul>
-</nav>
-  </div>
-</div><div class="post-content mb-3"><p>用 alphine 镜像的一些常用技巧：</p>
-<p>会随时增加：</p>
-<h2 id="一修改源用国外的源非常慢替换成国内的中科大源">一、修改源，用国外的源非常慢，替换成国内的中科大源</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>sed -i <span class="s1">&#39;s/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g&#39;</span> /etc/apk/repositories
-</code></pre></div><h2 id="二更新apk库">二、更新apk库</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>apk update
-</code></pre></div><h2 id="三安装软件">三、安装软件</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="c1">#安装telnet</span>
-<span class="ln"> 2</span>apk add busybox-extras
-<span class="ln"> 3</span>
-<span class="ln"> 4</span><span class="c1">#安装curl</span>
-<span class="ln"> 5</span>apk add curl
-<span class="ln"> 6</span>
-<span class="ln"> 7</span><span class="c1">#安装时间组件</span>
-<span class="ln"> 8</span>apk add tzdata
-<span class="ln"> 9</span>
-<span class="ln">10</span><span class="c1">#更新并且安装软件</span>
-<span class="ln">11</span>apk add --update tzdata
-</code></pre></div><h2 id="四进入容器一步执行换源更新安装">四、进入容器一步执行换源、更新、安装</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>sed -i <span class="s1">&#39;s/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g&#39;</span> /etc/apk/repositories <span class="o">&amp;&amp;</span> apk update <span class="o">&amp;&amp;</span> apk add curl <span class="o">&amp;&amp;</span> apk add busybox-extras
-</code></pre></div><h2 id="五解决缺少glibc库的问题">五、解决缺少glibc库的问题</h2>
-<p>如果不ln会报错，原因是缺少glibc库！！！解决方法如下：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>RUN mkdir /lib64 <span class="o">&amp;&amp;</span> <span class="se">\ </span> 
-<span class="ln">2</span>    ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2  
-</code></pre></div><h2 id="六一些调试的cmd">六、一些调试的CMD</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>CMD <span class="o">[</span><span class="s2">&#34;/bin/bash&#34;</span>, <span class="s2">&#34;-c&#34;</span>, <span class="s2">&#34;while true; do echo hi; sleep 10; done&#34;</span><span class="o">]</span>
-<span class="ln">2</span>
-<span class="ln">3</span>kubectl run curlpod --image<span class="o">=</span>radial/busyboxplus:curl --command -- /bin/sh -c <span class="s2">&#34;while true; do echo hi; sleep 10; done&#34;</span>
-</code></pre></div><h2 id="七pod的等待技巧">七、pod的等待技巧</h2>
-<p>这儿里启动正式的pod之前，先临时起了两个容器等待其他服务的完成</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>  containers: 
-<span class="ln"> 2</span>  - name: myapp-container 
-<span class="ln"> 3</span>    image: busybox 
-<span class="ln"> 4</span>    command: <span class="o">[</span><span class="s1">&#39;sh&#39;</span>, <span class="s1">&#39;-c&#39;</span>, <span class="s1">&#39;echo The app is running! &amp;&amp; sleep 3600&#39;</span><span class="o">]</span> 
-<span class="ln"> 5</span>  initContainers: 
-<span class="ln"> 6</span>  - name: init-myservice 
-<span class="ln"> 7</span>    image: busybox 
-<span class="ln"> 8</span>    command: <span class="o">[</span><span class="s1">&#39;sh&#39;</span>, <span class="s1">&#39;-c&#39;</span>, <span class="s1">&#39;until nslookup myservice; do echo waiting for myservice; sleep 2; done;&#39;</span><span class="o">]</span> 
-<span class="ln"> 9</span>  - name: init-mydb 
-<span class="ln">10</span>    image: busybox 
-<span class="ln">11</span>    command: <span class="o">[</span><span class="s1">&#39;sh&#39;</span>, <span class="s1">&#39;-c&#39;</span>, <span class="s1">&#39;until nslookup mydb; do echo waiting for mydb; sleep 2; done;&#39;</span><span class="o">]</span> 
-</code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="post-content mb-3"><p>vpn的搭建一直是一个难解的题目，openvpn、ipsec、tinc 都在用，都不够简洁。</p>
+<p>n2n 是一种 peer to peer 端到端的 vpn，搭建起来非常简单方便。必备利器</p>
+<p>首先了解一下概念</p>
+<p><img class="img-fluid" alt="image-20211105135642166" src="/posts/20211105-n2n_vpn/image-20211105135642166.png" loading="lazy"
+   width="436" height="289"
+   />
+
+</p>
+<p>n2n 的 vpn 分为两种角色，Supernode 超级节点和 Edgenode 边缘节点。</p>
+<p>很简单，Supernode 最好是公网地址，需要开放端口供其它节点连接上来；剩余的 Edgenode 可以没有公网地址，各个 Edgenode 边缘节点之间会尝试绕过 Supernode 直接连接。这大大提高了节点之间通讯的效率。通讯是加密的，非常安全。</p>
+<p>安装的话完全不用安装，直接一个命令就搞定了。</p>
+<p><a href="https://github.com/ntop/n2n" target="_blank" rel="noopener noreferrer">https://github.com/ntop/n2n</a>
+</p>
+<p>弄出两个可执行文件 supernode 和 edge 就好了</p>
+<p>超级节点：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>/usr/local/bin/supernode -p <span class="m">11111</span> -v
+</code></pre></div><p>边缘节点：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>/usr/local/bin/edge -d n2n0 -c ThisisaSecret2012 -k Fuck2020 -a 192.168.0.2 -l 41.22.59.112:11111 -f
+</code></pre></div><p>参数解释：</p>
+<ul>
+<li>-d 生成的虚拟网卡的命名</li>
+<li>-c <!-- raw HTML omitted --> 某组vpn节点的口令。大家看到启动 supernode 的时候没有任何参数，supdernode 只负责转发。supernode 支持多组不同的 vpn。这里就是用来区分不同的 vpn 组的。</li>
+<li>-k <!-- raw HTML omitted --> 节点之间通讯是用的 twofish 加密算法，这里指定的是密钥</li>
+<li>-a 节点的ip</li>
+<li>-l supernode的ip和端口</li>
+<li>-f 放到后台 daemon 执行</li>
+</ul>
+<p>这样就建立好了，系统中会多出一张 n2n0 的网卡。</p>
+<p><img class="img-fluid" alt="image-20211105141808048" src="/posts/20211105-n2n_vpn/image-20211105141808048.png" loading="lazy"
+   width="970" height="112"
+   />
+
+</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -304,19 +274,15 @@ BOOTSTRAP
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="/posts/20211103-alphine_timezone/">Alphine镜像中timezone的设定
+    <a href="/posts/20211105-onedev/">一站式Git软件onedev的安装使用
 </a>
-  </div><div class="post-nav post-next">
-    <a href="/posts/20211104-haproxy_restart/">Haproxy的Zero Downtime重启如何做
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="/posts/20211103-alphine_timezone/">Alphine镜像中timezone的设定
+    <ul class="related-posts"><li><a href="/posts/20211105-onedev/">一站式Git软件onedev的安装使用
+</a></li><li><a href="/posts/20211104-haproxy_restart/">Haproxy的Zero Downtime重启如何做
+</a></li><li><a href="/posts/20211104-alphine_usage/">Alphine镜像的使用技巧
+</a></li><li><a href="/posts/20211103-alphine_timezone/">Alphine镜像中timezone的设定
 </a></li><li><a href="/posts/20211103-proxmox/">生产环境Proxmox 7.02的安装和配置
-</a></li><li><a href="/posts/20211102-ingress_nginx/">K8s中nginx Ingress的性能优化
-</a></li><li><a href="/posts/20211102-sysctl_conf/">Linux内核sysctl内核参数优化
-</a></li><li><a href="/posts/20211102-tcp_keealive/">Linux内核TCP连接Keep-Alive Timeout的配置
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
