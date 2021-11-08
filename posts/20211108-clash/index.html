@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>使用IPSET封掉某个国家整个的访问 - Hugo Bootstrap</title><link rel="apple-touch-icon" href="/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>clash的搭建教程 - Hugo Bootstrap</title><link rel="apple-touch-icon" href="/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="/images/favicons/manifest.json">
 <link rel="icon" href="/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="使用IPSET封掉某个国家整个的访问">
-<meta itemprop="description" content="现在国内都禁止挖币，什么币安、火币、cnspark之类的都不允许国内 IP 访问了。 如何实现的呢？ 首先需要得到国家IP段，下载地址：http://"><meta itemprop="datePublished" content="2021-10-18T10:30:11+08:00" />
-<meta itemprop="dateModified" content="2021-10-18T10:30:11+08:00" />
-<meta itemprop="wordCount" content="339">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="使用IPSET封掉某个国家整个的访问" />
-<meta property="og:description" content="现在国内都禁止挖币，什么币安、火币、cnspark之类的都不允许国内 IP 访问了。 如何实现的呢？ 首先需要得到国家IP段，下载地址：http://" />
+<meta name="description" content="" /><meta itemprop="name" content="clash的搭建教程">
+<meta itemprop="description" content="没啊办法，翻墙翻墙还是翻墙。 上游有若干 trojian 、v2ray 、sock5 、http各种各样的代理，这样多种的选择，那么就装一个 clash 客户端就可以全接管了"><meta itemprop="datePublished" content="2021-11-08T10:30:11+08:00" />
+<meta itemprop="dateModified" content="2021-11-08T10:30:11+08:00" />
+<meta itemprop="wordCount" content="1112">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="clash的搭建教程" />
+<meta property="og:description" content="没啊办法，翻墙翻墙还是翻墙。 上游有若干 trojian 、v2ray 、sock5 、http各种各样的代理，这样多种的选择，那么就装一个 clash 客户端就可以全接管了" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="/posts/20211018-ipset_block_cn/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2021-10-18T10:30:11+08:00" />
-<meta property="article:modified_time" content="2021-10-18T10:30:11+08:00" /><meta property="og:site_name" content="Hugo Bootstrap" />
+<meta property="og:url" content="/posts/20211108-clash/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-11-08T10:30:11+08:00" />
+<meta property="article:modified_time" content="2021-11-08T10:30:11+08:00" /><meta property="og:site_name" content="Hugo Bootstrap" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="使用IPSET封掉某个国家整个的访问"/>
-<meta name="twitter:description" content="现在国内都禁止挖币，什么币安、火币、cnspark之类的都不允许国内 IP 访问了。 如何实现的呢？ 首先需要得到国家IP段，下载地址：http://"/>
+<meta name="twitter:title" content="clash的搭建教程"/>
+<meta name="twitter:description" content="没啊办法，翻墙翻墙还是翻墙。 上游有若干 trojian 、v2ray 、sock5 、http各种各样的代理，这样多种的选择，那么就装一个 clash 客户端就可以全接管了"/>
 <meta name="twitter:site" content="@yourtwitterusername"/>
 <link rel="preload" href="/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="/js/bundle.min.ba4b57bb653018b3da5a1e0ed23ac673e28c9f0624cc03f40d9c00568659899c.js" integrity="sha256-uktXu2UwGLPaWh4O0jrGc&#43;KMnwYkzAP0DZwAVoZZiZw=" crossorigin="anonymous"></script></head>
@@ -115,11 +115,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=%e4%bd%bf%e7%94%a8IPSET%e5%b0%81%e6%8e%89%e6%9f%90%e4%b8%aa%e5%9b%bd%e5%ae%b6%e6%95%b4%e4%b8%aa%e7%9a%84%e8%ae%bf%e9%97%ae&url=%2fposts%2f20211018-ipset_block_cn%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=clash%e7%9a%84%e6%90%ad%e5%bb%ba%e6%95%99%e7%a8%8b&url=%2fposts%2f20211108-clash%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=%2fposts%2f20211018-ipset_block_cn%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=%2fposts%2f20211108-clash%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -185,7 +185,7 @@ BOOTSTRAP
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="/">主页</a></li><li class="breadcrumb-item"><a href="/posts/">文章</a></li><li class="breadcrumb-item active">使用IPSET封掉某个国家整个的访问</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="/">主页</a></li><li class="breadcrumb-item"><a href="/posts/">文章</a></li><li class="breadcrumb-item active">Clash的搭建教程</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -205,64 +205,169 @@ BOOTSTRAP
 ">
   <i class="fas fa-fw fa-copyright"></i>
 </a>
-    <a data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
-  <i class="fas fa-fw fa-list-alt"></i>
-</a>
+    
   </div>
 </div>
-<h1 class="card-title my-3">使用IPSET封掉某个国家整个的访问
+<h1 class="card-title my-3">Clash的搭建教程
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-18
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-08
   </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
   </span></div>
-<div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
-  <div class="offcanvas-header">
-    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
-      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
-        <i class="fas fa-times"></i>
-      </button>
-  </div>
-  <div class="offcanvas-body">
-    <nav id="TableOfContents">
-  <ul>
-    <li><a href="#一安装ipset">一、安装ipset</a></li>
-    <li><a href="#二清空iptable规则">二、清空iptable规则</a></li>
-    <li><a href="#三创建ipset规则集">三、创建ipset规则集</a></li>
-    <li><a href="#四创建iptable黑名单">四、创建iptable黑名单</a></li>
-  </ul>
-</nav>
-  </div>
-</div><div class="post-content mb-3"><p>现在国内都禁止挖币，什么币安、火币、cnspark之类的都不允许国内 IP 访问了。</p>
-<p>如何实现的呢？</p>
-<p>首先需要得到国家<code>IP</code>段，下载地址：http://www.ipdeny.com/ipblocks/。这里以我们国家 cn 为例</p>
-<p>步骤如下：</p>
-<h2 id="一安装ipset">一、安装ipset</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span><span class="c1">#Debian/Ubuntu系统</span>
-<span class="ln">2</span>apt-get -y install ipset
-<span class="ln">3</span>
-<span class="ln">4</span><span class="c1">#CentOS系统</span>
-<span class="ln">5</span>yum -y install ipset
-</code></pre></div><h2 id="二清空iptable规则">二、清空iptable规则</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span><span class="c1">#防止设置不生效，清空之前的防火墙规则</span>
-<span class="ln">2</span>iptables -P INPUT ACCEPT
-<span class="ln">3</span>iptables -F
-</code></pre></div><h2 id="三创建ipset规则集">三、创建ipset规则集</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span><span class="c1">#创建一个名为cnip的规则</span>
-<span class="ln">2</span>ipset -N cnip hash:net
-<span class="ln">3</span>
-<span class="ln">4</span><span class="c1">#下载国家IP段，这里以中国为例</span>
-<span class="ln">5</span>wget -P . http://www.ipdeny.com/ipblocks/data/countries/cn.zone
-<span class="ln">6</span>
-<span class="ln">7</span><span class="c1">#将IP段添加到cnip规则集中</span>
-<span class="ln">8</span><span class="k">for</span> i in <span class="k">$(</span>cat /root/cn.zone <span class="k">)</span><span class="p">;</span> <span class="k">do</span> ipset -A cnip <span class="nv">$i</span><span class="p">;</span> <span class="k">done</span>
-</code></pre></div><h2 id="四创建iptable黑名单">四、创建iptable黑名单</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span><span class="c1">#扔黑名单</span>
-<span class="ln">2</span>iptables -A INPUT -p tcp --dport <span class="m">80</span> -m <span class="nb">set</span> --match-set cnip src -j DROP
-<span class="ln">3</span>iptables -A INPUT -p tcp --dport <span class="m">443</span> -m <span class="nb">set</span> --match-set cnip src -j DROP
-<span class="ln">4</span>
-<span class="ln">5</span><span class="c1">#然后放行其他的</span>
-<span class="ln">6</span>iptables -P INPUT ACCEPT
+<div class="post-content mb-3"><p>没啊办法，翻墙翻墙还是翻墙。</p>
+<p>上游有若干 trojian 、v2ray 、sock5 、http各种各样的代理，这样多种的选择，那么就装一个 clash 客户端就可以全接管了。</p>
+<p><strong>说下我们的做法：找个小Linux做旁路由，DNS和网关都设置在这台机器上，局域网内的机器都通过这台上网。</strong></p>
+<p><strong>我们用到的是 clash 的 Tproxy redir-host 和 udp-proxy 模式，这种模式比较强大。用就用最强大的。</strong></p>
+<p>安装很简单，操作系统 centos 或者 ubuntu 都行，项目地址：</p>
+<p><a href="https://github.com/Dreamacro/clash" target="_blank" rel="noopener noreferrer">https://github.com/Dreamacro/clash</a>
+</p>
+<p>说明书：</p>
+<p><a href="https://lancellc.gitbook.io/clash/clash-config-file/proxy-groups/load-balance" target="_blank" rel="noopener noreferrer">https://lancellc.gitbook.io/clash/clash-config-file/proxy-groups/load-balance</a>
+</p>
+<p>首先下载二进制文件，现在版本是 v1.7.1，解压后放到 /usr/local/bin 目录下</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>wget https://github.com/Dreamacro/clash/releases/download/v1.7.1/clash-linux-amd64-v1.7.1.gz
+<span class="ln">2</span>gzip -d clash-linux-amd64-v1.7.1.gz
+<span class="ln">3</span>chmod <span class="m">755</span> clash-linux-amd64-v1.7.1
+<span class="ln">4</span>mv clash-linux-amd64-v1.7.1 /usr/local/bin
+</code></pre></div><p>然后生成 clash.service</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>cat <span class="s">&lt;&lt; EOF &gt;&gt; /etc/systemd/system/clash.service 
+</span><span class="ln"> 2</span><span class="s">[Unit]
+</span><span class="ln"> 3</span><span class="s">Description=clash service
+</span><span class="ln"> 4</span><span class="s">After=network.target
+</span><span class="ln"> 5</span><span class="s">
+</span><span class="ln"> 6</span><span class="s">[Service]
+</span><span class="ln"> 7</span><span class="s">Type=simple
+</span><span class="ln"> 8</span><span class="s">User=root
+</span><span class="ln"> 9</span><span class="s">ExecStart=/usr/local/bin/clash-linux-amd64-v1.7.1
+</span><span class="ln">10</span><span class="s">Restart=on-failure # or always, on-abort, etc
+</span><span class="ln">11</span><span class="s">
+</span><span class="ln">12</span><span class="s">[Install]
+</span><span class="ln">13</span><span class="s">WantedBy=multi-user.target
+</span><span class="ln">14</span><span class="s">EOF</span>
+</code></pre></div><p>然后最重要的，就是配置文件了</p>
+<p>我这里这个旁路由的设备 IP 地址是 192.168.2.2，网卡设备是 enp2s0</p>
+<p>下卖弄</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="c1"># http的代理端口</span>
+<span class="ln"> 2</span>port: <span class="m">7890</span>
+<span class="ln"> 3</span><span class="c1"># sock5的代理端口</span>
+<span class="ln"> 4</span>socks-port: <span class="m">7891</span>
+<span class="ln"> 5</span><span class="c1"># 重定向的端口</span>
+<span class="ln"> 6</span>redir-port: <span class="m">7892</span>
+<span class="ln"> 7</span>
+<span class="ln"> 8</span>ipv6: <span class="nb">false</span>
+<span class="ln"> 9</span>
+<span class="ln">10</span>allow-lan: <span class="nb">true</span>
+<span class="ln">11</span>bind-address: <span class="s1">&#39;192.168.2.2&#39;</span>
+<span class="ln">12</span>interface-name: enp2s0
+<span class="ln">13</span>
+<span class="ln">14</span>mode: rule
+<span class="ln">15</span>log-level: info
+<span class="ln">16</span>external-controller: 0.0.0.0:9090
+<span class="ln">17</span>secret: <span class="s2">&#34;Fuck2021&#34;</span>
+<span class="ln">18</span>external-ui: dashboard
+<span class="ln">19</span>
+<span class="ln">20</span>profile:
+<span class="ln">21</span>  store-selected: <span class="nb">false</span>
+<span class="ln">22</span>  tracing: <span class="nb">true</span>
+<span class="ln">23</span>
+<span class="ln">24</span>hosts:
+<span class="ln">25</span>  <span class="c1"># 把cantv的域名解析屏蔽掉，禁止它自动升级</span>
+<span class="ln">26</span>  <span class="s1">&#39;tms.can.cibntv.net&#39;</span>: 0.0.0.0
+<span class="ln">27</span>
+<span class="ln">28</span>dns:
+<span class="ln">29</span>  enable: <span class="nb">true</span>
+<span class="ln">30</span>  listen: 0.0.0.0:1053
+<span class="ln">31</span>  enhanced-mode: redir-host 
+<span class="ln">32</span>  nameserver:
+<span class="ln">33</span>    - 114.114.114.114
+<span class="ln">34</span>    - tls://dns.rubyfish.cn:853  <span class="c1"># dns over tls</span>
+<span class="ln">35</span>    - https://1.1.1.1/dns-query  <span class="c1"># dns over https</span>
+<span class="ln">36</span>    - tcp://1.1.1.1
+<span class="ln">37</span>
+<span class="ln">38</span>proxies:
+<span class="ln">39</span>  - name: <span class="s2">&#34;trojan1&#34;</span>
+<span class="ln">40</span>    type: trojan
+<span class="ln">41</span>    server: www.linuxboy.net
+<span class="ln">42</span>    port: <span class="m">443</span>
+<span class="ln">43</span>    password: Fuck2021
+<span class="ln">44</span>    sni: www.linuxboy.net
+<span class="ln">45</span>    skip-cert-verify: <span class="nb">true</span>
+<span class="ln">46</span>
+<span class="ln">47</span> - name: <span class="s2">&#34;vmess1&#34;</span>
+<span class="ln">48</span>    type: vmess
+<span class="ln">49</span>    server: 101.59.201.93
+<span class="ln">50</span>    port: <span class="m">41555</span> 
+<span class="ln">51</span>    uuid: 7a17ae5e-fb86-42e2-abd4-b8c33cfabcd
+<span class="ln">52</span>    alterId: <span class="m">64</span>
+<span class="ln">53</span>    cipher: auto
+<span class="ln">54</span>    
+<span class="ln">55</span>proxy-groups:
+<span class="ln">56</span>  - name: Proxy
+<span class="ln">57</span>    type: <span class="k">select</span>
+<span class="ln">58</span>    proxies:
+<span class="ln">59</span>      - trojan
+<span class="ln">60</span>
+<span class="ln">61</span>  - name: <span class="s2">&#34;auto&#34;</span>
+<span class="ln">62</span>    type: url-test
+<span class="ln">63</span>    proxies:
+<span class="ln">64</span>      - vmess1
+<span class="ln">65</span>      - trojan1
+<span class="ln">66</span>    url: <span class="s1">&#39;http://www.gstatic.com/generate_204&#39;</span>
+<span class="ln">67</span>    interval: <span class="m">300</span>
+<span class="ln">68</span>
+<span class="ln">69</span>rules:
+<span class="ln">70</span>  - DOMAIN-SUFFIX,v2ex.com,Proxy
+<span class="ln">71</span>  - DOMAIN-SUFFIX,t66y.com,auto
+<span class="ln">72</span>  - DOMAIN-SUFFIX,reddit.com,Proxy
+<span class="ln">73</span>  - SRC-IP-CIDR,192.168.1.0/32,DIRECT
+<span class="ln">74</span>  - SRC-IP-CIDR,192.168.2.0/32,DIRECT
+<span class="ln">75</span>  - IP-CIDR,127.0.0.0/8,DIRECT
+<span class="ln">76</span>  - GEOIP,CN,DIRECT
+<span class="ln">77</span>  - MATCH,Proxy
+</code></pre></div><p>解释一下：proxy 定义了两个代理，一个是 trojan，一个是 v2ray。然后再集合成组，一个组叫 Proxy， 显式指定用 trojan；另一个组叫 auto，根据 vmess1 和 trojan1 访问 <a href="http://www.gstatic.com/generate_204" target="_blank" rel="noopener noreferrer">http://www.gstatic.com/generate_204</a>
+ 的页面速度，谁快就用谁，缺省300秒会访问一次这个页面来决定哪个代理快。</p>
+<p>剩下的 rules 就很简单，把自己知道要访问的域名放到代理中去，然后把局域网的 IP 段放进 DIRECT 直接访问，最后 GEO IP 不是中国的由 Proxy 兜底。</p>
+<p>网上有一大堆规则，八戒的建议是不要去学，规则越多越慢，你自己知道要访问什么网站需要翻墙，加进去就好了。弄一堆，自己看着都头蒙</p>
+<p>最后我们在 rc.local 放入以下 iptable 内容，就可以了</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="c1">#clash</span>
+<span class="ln"> 2</span><span class="c1">#tcp</span>
+<span class="ln"> 3</span>iptables -t nat -N clash
+<span class="ln"> 4</span>iptables -t nat -A clash -d 0.0.0.0/8 -j RETURN
+<span class="ln"> 5</span>iptables -t nat -A clash -d 10.0.0.0/8 -j RETURN
+<span class="ln"> 6</span>iptables -t nat -A clash -d 127.0.0.0/8 -j RETURN
+<span class="ln"> 7</span>iptables -t nat -A clash -d 169.254.0.0/16 -j RETURN
+<span class="ln"> 8</span>iptables -t nat -A clash -d 172.16.0.0/12 -j RETURN
+<span class="ln"> 9</span>iptables -t nat -A clash -d 192.168.0.0/16 -j RETURN
+<span class="ln">10</span>iptables -t nat -A clash -d 224.0.0.0/4 -j RETURN
+<span class="ln">11</span>iptables -t nat -A clash -d 240.0.0.0/4 -j RETURN
+<span class="ln">12</span>iptables -t nat -A clash -d 192.168.2.2 -j RETURN
+<span class="ln">13</span>iptables -t nat -A clash -p tcp -j REDIRECT --to-port <span class="m">7892</span>
+<span class="ln">14</span>iptables -t nat -I PREROUTING -p tcp -d 8.8.8.8 -j REDIRECT --to-port <span class="m">7892</span>
+<span class="ln">15</span>iptables -t nat -I PREROUTING -p tcp -d 8.8.4.4 -j REDIRECT --to-port <span class="m">7892</span>
+<span class="ln">16</span>iptables -t nat -A PREROUTING -p tcp -j clash
+<span class="ln">17</span>
+<span class="ln">18</span><span class="c1">#udp</span>
+<span class="ln">19</span>ip rule add fwmark <span class="m">1</span> table <span class="m">100</span>
+<span class="ln">20</span>ip route add <span class="nb">local</span> default dev lo table <span class="m">100</span>
+<span class="ln">21</span>iptables -t mangle -N clash
+<span class="ln">22</span>iptables -t mangle -A clash -d 0.0.0.0/8 -j RETURN
+<span class="ln">23</span>iptables -t mangle -A clash -d 10.0.0.0/8 -j RETURN
+<span class="ln">24</span>iptables -t mangle -A clash -d 127.0.0.0/8 -j RETURN
+<span class="ln">25</span>iptables -t mangle -A clash -d 169.254.0.0/16 -j RETURN
+<span class="ln">26</span>iptables -t mangle -A clash -d 172.16.0.0/12 -j RETURN
+<span class="ln">27</span>iptables -t mangle -A clash -d 192.168.0.0/16 -j RETURN
+<span class="ln">28</span>iptables -t mangle -A clash -d 224.0.0.0/4 -j RETURN
+<span class="ln">29</span>iptables -t mangle -A clash -d 240.0.0.0/4 -j RETURN
+<span class="ln">30</span>iptables -t mangle -A clash -d 192.168.2.2 -j RETURN
+<span class="ln">31</span>iptables -t mangle -A clash -p udp -j TPROXY --on-port <span class="m">7892</span> --tproxy-mark <span class="m">1</span>
+<span class="ln">32</span>iptables -t mangle -A PREROUTING -p udp -j clash
+<span class="ln">33</span>iptables -t nat -N CLASH_DNS
+<span class="ln">34</span>iptables -t nat -F CLASH_DNS 
+<span class="ln">35</span>iptables -t nat -A CLASH_DNS -p udp -j REDIRECT --to-port <span class="m">1053</span>
+<span class="ln">36</span>iptables -t nat -I OUTPUT -p udp --dport <span class="m">53</span> -j CLASH_DNS
+<span class="ln">37</span>iptables -t nat -I PREROUTING -p udp --dport <span class="m">53</span> -j REDIRECT --to <span class="m">1053</span>
+</code></pre></div><p>最后启动clash</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>systemctl start clash
 </code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -290,19 +395,15 @@ BOOTSTRAP
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="/posts/20211018-openvpn_limit_bandwidth/">OpenVPN 限制流量带宽
+    <a href="/posts/20211108-ondev_maven/">Onedev构建一个实际java Spring应用
 </a>
-  </div><div class="post-nav post-next">
-    <a href="/posts/20211019-certik/">Certik 证书签发软件
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="/posts/20211018-openvpn_limit_bandwidth/">OpenVPN 限制流量带宽
-</a></li><li><a href="/posts/20211015-hugo_blog/">本站博客的由来以及搭建使用教程
-</a></li><li><a href="/posts/20211014-iphone_hijack/">Iphone手机的https抓包
-</a></li><li><a href="/posts/20211014-linux_wifi/">Ubuntu下自建一个wifi热点供手机使用
-</a></li><li><a href="/posts/20211010-live_cd/">CentOS 7 Live-CD 的制作
+    <ul class="related-posts"><li><a href="/posts/20211108-ondev_maven/">Onedev构建一个实际java Spring应用
+</a></li><li><a href="/posts/20211105-n2n_vpn/">N2n一种peer to Peer的VPN的使用
+</a></li><li><a href="/posts/20211105-onedev/">一站式Git软件onedev的安装使用
+</a></li><li><a href="/posts/20211104-haproxy_restart/">Haproxy的Zero Downtime重启如何做
+</a></li><li><a href="/posts/20211104-alphine_usage/">Alphine镜像的使用技巧
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
