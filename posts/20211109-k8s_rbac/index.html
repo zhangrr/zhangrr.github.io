@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>PHP程序如何发送syslog到远程服务器 - Hugo Bootstrap</title><link rel="apple-touch-icon" href="/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>Kubernetes创建普通账号 - Hugo Bootstrap</title><link rel="apple-touch-icon" href="/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="/images/favicons/manifest.json">
 <link rel="icon" href="/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="PHP程序如何发送syslog到远程服务器">
-<meta itemprop="description" content="给同事做了个 PHP 接口，转发发送短信的请求，同时要把发送记录发送到远程的 cacti 的 syslog 去 很简单，但是也不简单 首先是 PHP 服务器，是最简化编译的，php -m 查了"><meta itemprop="datePublished" content="2021-10-28T09:30:11+08:00" />
-<meta itemprop="dateModified" content="2021-10-28T09:30:11+08:00" />
-<meta itemprop="wordCount" content="644">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="PHP程序如何发送syslog到远程服务器" />
-<meta property="og:description" content="给同事做了个 PHP 接口，转发发送短信的请求，同时要把发送记录发送到远程的 cacti 的 syslog 去 很简单，但是也不简单 首先是 PHP 服务器，是最简化编译的，php -m 查了" />
+<meta name="description" content="" /><meta itemprop="name" content="Kubernetes创建普通账号">
+<meta itemprop="description" content="kubernetes 装好正常运行一段时间后，会出现要把研发和运维权限分开的场景： 比如： 给某个用户某一指定名称空间下的管理权限 给用户赋予集群的只读权限 … 非常麻烦"><meta itemprop="datePublished" content="2021-11-09T09:30:11+08:00" />
+<meta itemprop="dateModified" content="2021-11-09T09:30:11+08:00" />
+<meta itemprop="wordCount" content="1372">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="Kubernetes创建普通账号" />
+<meta property="og:description" content="kubernetes 装好正常运行一段时间后，会出现要把研发和运维权限分开的场景： 比如： 给某个用户某一指定名称空间下的管理权限 给用户赋予集群的只读权限 … 非常麻烦" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="/posts/20211028-php_syslog/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2021-10-28T09:30:11+08:00" />
-<meta property="article:modified_time" content="2021-10-28T09:30:11+08:00" /><meta property="og:site_name" content="Hugo Bootstrap" />
+<meta property="og:url" content="/posts/20211109-k8s_rbac/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-11-09T09:30:11+08:00" />
+<meta property="article:modified_time" content="2021-11-09T09:30:11+08:00" /><meta property="og:site_name" content="Hugo Bootstrap" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="PHP程序如何发送syslog到远程服务器"/>
-<meta name="twitter:description" content="给同事做了个 PHP 接口，转发发送短信的请求，同时要把发送记录发送到远程的 cacti 的 syslog 去 很简单，但是也不简单 首先是 PHP 服务器，是最简化编译的，php -m 查了"/>
+<meta name="twitter:title" content="Kubernetes创建普通账号"/>
+<meta name="twitter:description" content="kubernetes 装好正常运行一段时间后，会出现要把研发和运维权限分开的场景： 比如： 给某个用户某一指定名称空间下的管理权限 给用户赋予集群的只读权限 … 非常麻烦"/>
 <meta name="twitter:site" content="@yourtwitterusername"/>
 <link rel="preload" href="/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="/js/bundle.min.ba4b57bb653018b3da5a1e0ed23ac673e28c9f0624cc03f40d9c00568659899c.js" integrity="sha256-uktXu2UwGLPaWh4O0jrGc&#43;KMnwYkzAP0DZwAVoZZiZw=" crossorigin="anonymous"></script></head>
@@ -115,11 +115,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=PHP%e7%a8%8b%e5%ba%8f%e5%a6%82%e4%bd%95%e5%8f%91%e9%80%81syslog%e5%88%b0%e8%bf%9c%e7%a8%8b%e6%9c%8d%e5%8a%a1%e5%99%a8&url=%2fposts%2f20211028-php_syslog%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=Kubernetes%e5%88%9b%e5%bb%ba%e6%99%ae%e9%80%9a%e8%b4%a6%e5%8f%b7&url=%2fposts%2f20211109-k8s_rbac%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=%2fposts%2f20211028-php_syslog%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=%2fposts%2f20211109-k8s_rbac%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -185,7 +185,7 @@ BOOTSTRAP
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="/">主页</a></li><li class="breadcrumb-item"><a href="/posts/">文章</a></li><li class="breadcrumb-item active">PHP程序如何发送syslog到远程服务器</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="/">主页</a></li><li class="breadcrumb-item"><a href="/posts/">文章</a></li><li class="breadcrumb-item active">Kubernetes创建普通账号</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -205,119 +205,211 @@ BOOTSTRAP
 ">
   <i class="fas fa-fw fa-copyright"></i>
 </a>
-    
+    <a data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+  <i class="fas fa-fw fa-list-alt"></i>
+</a>
   </div>
 </div>
-<h1 class="card-title my-3">PHP程序如何发送syslog到远程服务器
+<h1 class="card-title my-3">Kubernetes创建普通账号
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-28
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-09
   </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
   </span></div>
-<div class="post-content mb-3"><p>给同事做了个 PHP 接口，转发发送短信的请求，同时要把发送记录发送到远程的 cacti 的 syslog 去</p>
-<p>很简单，但是也不简单</p>
-<p>首先是 PHP 服务器，是最简化编译的，php  -m 查了一下</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span><span class="na">php -m</span>
-<span class="ln"> 2</span><span class="k">[PHP Modules]</span>
-<span class="ln"> 3</span><span class="na">Core</span>
-<span class="ln"> 4</span><span class="na">ctype</span>
-<span class="ln"> 5</span><span class="na">curl</span>
-<span class="ln"> 6</span><span class="na">date</span>
-<span class="ln"> 7</span><span class="na">dom</span>
-<span class="ln"> 8</span><span class="na">fileinfo</span>
-<span class="ln"> 9</span><span class="na">filter</span>
-<span class="ln">10</span><span class="na">gettext</span>
-<span class="ln">11</span><span class="na">hash</span>
-<span class="ln">12</span><span class="na">iconv</span>
-<span class="ln">13</span><span class="na">json</span>
-<span class="ln">14</span><span class="na">libxml</span>
-<span class="ln">15</span><span class="na">openssl</span>
-<span class="ln">16</span><span class="na">pcre</span>
-<span class="ln">17</span><span class="na">PDO</span>
-<span class="ln">18</span><span class="na">pdo_sqlite</span>
-<span class="ln">19</span><span class="na">Phar</span>
-<span class="ln">20</span><span class="na">posix</span>
-<span class="ln">21</span><span class="na">Reflection</span>
-<span class="ln">22</span><span class="na">session</span>
-<span class="ln">23</span><span class="na">SimpleXML</span>
-<span class="ln">24</span><span class="na">SPL</span>
-<span class="ln">25</span><span class="na">sqlite3</span>
-<span class="ln">26</span><span class="na">standard</span>
-<span class="ln">27</span><span class="na">tokenizer</span>
-<span class="ln">28</span><span class="na">xml</span>
-<span class="ln">29</span><span class="na">xmlreader</span>
-<span class="ln">30</span><span class="na">xmlwriter</span>
-<span class="ln">31</span>
-<span class="ln">32</span><span class="k">[Zend Modules]</span>
-</code></pre></div><p>居然没有 socket 模块，没办法，找到源代码，编译一个安装，原有的 php 安装路径是 /export/servers/php</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>$ tar zxvf php-7.4.0.tar.gz 
-<span class="ln">2</span>$ <span class="nb">cd</span> php-7.4.0/sockets
-<span class="ln">3</span>$ /export/servers/php/bin/phpize
-<span class="ln">4</span>$ ./configure --enable-sockets --with-php-config<span class="o">=</span>/export/servers/php/bin/php-config
-<span class="ln">5</span>$ make
-<span class="ln">6</span>$ make install
-</code></pre></div><p>又看了一眼，是 php-fpm，居然没有 php.ini ，得，再生成一个，放在 /export/servers/php/lib/php.ini</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span><span class="na">extension_dir</span> <span class="o">=</span> <span class="s">&#34;/export/servers/php740/lib/php/extensions/no-debug-non-zts-20190902/&#34;</span>
-<span class="ln">2</span><span class="na">extension</span> <span class="o">=</span> <span class="s">sockets.so</span>
-</code></pre></div><p>然后重启 php-fpm ，重新 php -m 检查，发现有 socket 模块就 ok 了。</p>
-<p>接下来就是 php 源代码了</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-php" data-lang="php"><span class="ln"> 1</span><span class="o">&lt;?</span><span class="nx">php</span>
-<span class="ln"> 2</span><span class="nx">date_default_timezone_set</span><span class="p">(</span><span class="s1">&#39;Asia/Shanghai&#39;</span><span class="p">);</span>
-<span class="ln"> 3</span>
-<span class="ln"> 4</span><span class="k">function</span> <span class="nf">send_remote_syslog</span><span class="p">(</span><span class="nv">$message</span><span class="p">)</span> <span class="p">{</span>
-<span class="ln"> 5</span>    <span class="nv">$sock</span> <span class="o">=</span> <span class="nx">socket_create</span><span class="p">(</span><span class="nx">AF_INET</span><span class="p">,</span> <span class="nx">SOCK_DGRAM</span><span class="p">,</span> <span class="nx">SOL_UDP</span><span class="p">);</span>
-<span class="ln"> 6</span>    <span class="k">foreach</span><span class="p">(</span><span class="nx">explode</span><span class="p">(</span><span class="s2">&#34;</span><span class="se">\n</span><span class="s2">&#34;</span><span class="p">,</span> <span class="nv">$message</span><span class="p">)</span> <span class="k">as</span> <span class="nv">$line</span><span class="p">)</span> <span class="p">{</span>
-<span class="ln"> 7</span>      <span class="nv">$syslog_message</span> <span class="o">=</span> <span class="s2">&#34;&lt;22&gt;&#34;</span> <span class="o">.</span> <span class="nx">date</span><span class="p">(</span><span class="s1">&#39;M d H:i:s &#39;</span><span class="p">)</span> <span class="o">.</span> <span class="s1">&#39;Qi_an_xin sms_log: &#39;</span> <span class="o">.</span> <span class="nv">$line</span><span class="p">;</span>
-<span class="ln"> 8</span>      <span class="nx">socket_sendto</span><span class="p">(</span><span class="nv">$sock</span><span class="p">,</span> <span class="nv">$syslog_message</span><span class="p">,</span> <span class="nx">strlen</span><span class="p">(</span><span class="nv">$syslog_message</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;172.18.31.6&#39;</span><span class="p">,</span> <span class="mi">514</span><span class="p">);</span>
-<span class="ln"> 9</span>    <span class="p">}</span>
-<span class="ln">10</span>    <span class="nx">socket_close</span><span class="p">(</span><span class="nv">$sock</span><span class="p">);</span>
-<span class="ln">11</span><span class="p">}</span>
-<span class="ln">12</span>
-<span class="ln">13</span>    <span class="nx">send_remote_syslog</span><span class="p">(</span><span class="s2">&#34;ABC 验证码: 39792192&#34;</span><span class="p">);</span>
-<span class="ln">14</span><span class="cp">?&gt;</span><span class="err">    
-</span></code></pre></div><p>这样就可以了，上面代码比较难理解的是&lt;22&gt;，那是报错级别的计算方法，Facility + Severity：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span> <span class="na">*   Facility values:</span>
-<span class="ln"> 2</span> <span class="na">*      0 kernel messages</span>
-<span class="ln"> 3</span> <span class="na">*      1 user-level messages</span>
-<span class="ln"> 4</span> <span class="na">*      2 mail system</span>
-<span class="ln"> 5</span> <span class="na">*      3 system daemons</span>
-<span class="ln"> 6</span> <span class="na">*      4 security/authorization messages</span>
-<span class="ln"> 7</span> <span class="na">*      5 messages generated internally by syslogd</span>
-<span class="ln"> 8</span> <span class="na">*      6 line printer subsystem</span>
-<span class="ln"> 9</span> <span class="na">*      7 network news subsystem</span>
-<span class="ln">10</span> <span class="na">*      8 UUCP subsystem</span>
-<span class="ln">11</span> <span class="na">*      9 clock daemon</span>
-<span class="ln">12</span> <span class="na">*     10 security/authorization messages</span>
-<span class="ln">13</span> <span class="na">*     11 FTP daemon</span>
-<span class="ln">14</span> <span class="na">*     12 NTP subsystem</span>
-<span class="ln">15</span> <span class="na">*     13 log audit</span>
-<span class="ln">16</span> <span class="na">*     14 log alert</span>
-<span class="ln">17</span> <span class="na">*     15 clock daemon</span>
-<span class="ln">18</span> <span class="na">*     16 local user 0 (local0) (default value)</span>
-<span class="ln">19</span> <span class="na">*     17 local user 1 (local1)</span>
-<span class="ln">20</span> <span class="na">*     18 local user 2 (local2)</span>
-<span class="ln">21</span> <span class="na">*     19 local user 3 (local3)</span>
-<span class="ln">22</span> <span class="na">*     20 local user 4 (local4)</span>
-<span class="ln">23</span> <span class="na">*     21 local user 5 (local5)</span>
-<span class="ln">24</span> <span class="na">*     22 local user 6 (local6)</span>
-<span class="ln">25</span> <span class="na">*     23 local user 7 (local7)</span>
-<span class="ln">26</span> <span class="na">*</span>
-<span class="ln">27</span> <span class="na">*   Severity values:</span>
-<span class="ln">28</span> <span class="na">*     0 Emergency: system is unusable</span>
-<span class="ln">29</span> <span class="na">*     1 Alert: action must be taken immediately</span>
-<span class="ln">30</span> <span class="na">*     2 Critical: critical conditions</span>
-<span class="ln">31</span> <span class="na">*     3 Error: error conditions</span>
-<span class="ln">32</span> <span class="na">*     4 Warning: warning conditions</span>
-<span class="ln">33</span> <span class="na">*     5 Notice: normal but significant condition (default value)</span>
-<span class="ln">34</span> <span class="na">*     6 Informational: informational messages</span>
-<span class="ln">35</span> <span class="na">*     7 Debug: debug-level messages</span>
-</code></pre></div><p>计算方法就是 （facility*8 + severity），这里的22+0，可以理解成 local6 ，就是级别6</p>
-<p><img class="img-fluid" alt="image-20211028114512589" src="/posts/20211028-php_syslog/image-20211028114512589.png" loading="lazy"
-   width="1163" height="51"
+<div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+  </div>
+  <div class="offcanvas-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#一创建客户端证书">一、创建客户端证书</a></li>
+    <li><a href="#二创建-role-角色">二、创建 Role 角色</a></li>
+    <li><a href="#三创建-rolebinding">三、创建 Rolebinding</a></li>
+    <li><a href="#四生成-kubectl-配置文件">四、生成 kubectl 配置文件</a></li>
+    <li><a href="#五测试">五、测试</a></li>
+    <li><a href="#六集群只读用户">六、集群只读用户</a></li>
+  </ul>
+</nav>
+  </div>
+</div><div class="post-content mb-3"><p>kubernetes 装好正常运行一段时间后，会出现要把研发和运维权限分开的场景：</p>
+<p>比如：</p>
+<ul>
+<li>给某个用户某一指定名称空间下的管理权限</li>
+<li>给用户赋予集群的只读权限</li>
+<li>…</li>
+</ul>
+<p>非常麻烦，我们这里不讨论过多的概念，从运维的角度出发，简单实用化</p>
+<p><strong>我们需要明确三个RBAC最基本的概念</strong></p>
+<ul>
+<li>Role: 角色，它定义了一组规则，定义了一组对Kubernetes API对象的操作权限</li>
+<li>RoleBinding: 定义了&quot;被作用者&quot;和&quot;角色&quot;的绑定关系</li>
+<li>Subject: 被作用者，既可以是&quot;人&quot;，也可以是机器，当然也可以是 Kubernetes 中定义的用户(ServiceAccount主要负责kubernetes内置用户)</li>
+</ul>
+<p>我们的操作过程流程如下，首先创建客户端证书；其次创建Role角色；再创建RoleBinding，把Subject和Role绑定，就完事了；最后一步是生成 kubectl 的配置文件。</p>
+<h2 id="一创建客户端证书">一、创建客户端证书</h2>
+<p><strong>我们以已建好的阿里 ACK 为例，或者自建好的 Kubernetes 也行；确定已经有了 .kube/config 配置文件，拥有集群最高权限，并且可以正常执行 kubectl 命令。</strong></p>
+<p>首先是生成证书，并向集群提出证书请求并签发，脚本如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="cp">#!/bin/sh  
+</span><span class="ln"> 2</span><span class="cp"></span>
+<span class="ln"> 3</span><span class="nv">useraccount</span><span class="o">=</span>reader
+<span class="ln"> 4</span>
+<span class="ln"> 5</span>openssl req -new -newkey rsa:4096 -nodes -keyout <span class="nv">$useraccount</span>-k8s.key -out <span class="nv">$useraccount</span>-k8s.csr -subj <span class="s2">&#34;/CN=</span><span class="nv">$useraccount</span><span class="s2">/O=devops&#34;</span>  
+<span class="ln"> 6</span><span class="nv">csr</span><span class="o">=</span><span class="k">$(</span>cat <span class="nv">$useraccount</span>-k8s.csr <span class="p">|</span> base64 <span class="p">|</span> tr -d <span class="s1">&#39;\n&#39;</span><span class="k">)</span>  
+<span class="ln"> 7</span>cat <span class="s">&lt;&lt; EOF &gt; k8s-csr.yaml  
+</span><span class="ln"> 8</span><span class="s">apiVersion: certificates.k8s.io/v1beta1
+</span><span class="ln"> 9</span><span class="s">kind: CertificateSigningRequest
+</span><span class="ln">10</span><span class="s">metadata:
+</span><span class="ln">11</span><span class="s">  name: $useraccount-k8s-access
+</span><span class="ln">12</span><span class="s">spec:
+</span><span class="ln">13</span><span class="s">  groups:
+</span><span class="ln">14</span><span class="s">  - system:authenticated
+</span><span class="ln">15</span><span class="s">  request: $csr
+</span><span class="ln">16</span><span class="s">  usages:
+</span><span class="ln">17</span><span class="s">  - client auth
+</span><span class="ln">18</span><span class="s">EOF</span>
+<span class="ln">19</span> 
+<span class="ln">20</span>
+<span class="ln">21</span>kubectl create -f k8s-csr.yaml  
+<span class="ln">22</span>kubectl certificate approve <span class="nv">$useraccount</span>-k8s-access  
+<span class="ln">23</span>
+<span class="ln">24</span>kubectl get csr <span class="nv">$useraccount</span>-k8s-access -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.status.certificate}&#39;</span> <span class="p">|</span> base64 --decode &gt; <span class="nv">$useraccount</span>-k8s-access.crt  
+<span class="ln">25</span>kubectl config view -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.clusters[0].cluster.certificate-authority-data}&#39;</span> --raw <span class="p">|</span> base64 --decode - &gt; k8s-ca.crt
+</code></pre></div><p>解释一下：我们定义了一个用户CN=reader，然后向集群发送了证书请求并签发，最终从集群获得了 reader-k8s-access.crt 的客户端证书和 k8s-ca.crt 的 CA 证书。</p>
+<p>k8s-csr.yaml 和 reader-k8s.csr 都是中间产物，最终我们有了客户端私钥 reader-k8s.key ，客户端证书 reader-k8s-access.crt ，CA 证书 k8s-ca.crt 这三个有用的文件。</p>
+<h2 id="二创建-role-角色">二、创建 Role 角色</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>cat <span class="s">&lt;&lt; EOF &gt;&gt; role.yaml
+</span><span class="ln"> 2</span><span class="s">apiVersion: rbac.authorization.k8s.io/v1
+</span><span class="ln"> 3</span><span class="s">kind: Role
+</span><span class="ln"> 4</span><span class="s">metadata:
+</span><span class="ln"> 5</span><span class="s">  name: role-pods_reader
+</span><span class="ln"> 6</span><span class="s">  namespace: default
+</span><span class="ln"> 7</span><span class="s">rules:
+</span><span class="ln"> 8</span><span class="s">- apiGroups:
+</span><span class="ln"> 9</span><span class="s">  - &#34;&#34;
+</span><span class="ln">10</span><span class="s">  resources:
+</span><span class="ln">11</span><span class="s">  - pods
+</span><span class="ln">12</span><span class="s">  - pods/log
+</span><span class="ln">13</span><span class="s">  verbs:
+</span><span class="ln">14</span><span class="s">  - get
+</span><span class="ln">15</span><span class="s">  - list
+</span><span class="ln">16</span><span class="s">  - watch
+</span><span class="ln">17</span><span class="s">EOF</span>
+<span class="ln">18</span>
+<span class="ln">19</span>kubectl apply -f role.yaml
+</code></pre></div><p>解释：我们创建了一个 role 角色，名字叫做 role-pods_reader，所属命名空间是 default ，它对 pods 和 pods/log 有 get 、list、watch的权限，也就是说role-pods_reader 可以查看 default 空间的 pods 和 pods 的日志。</p>
+<h2 id="三创建-rolebinding">三、创建 Rolebinding</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>cat <span class="s">&lt;&lt; EOF &gt;&gt; rolebinding.yaml
+</span><span class="ln"> 2</span><span class="s">apiVersion: rbac.authorization.k8s.io/v1
+</span><span class="ln"> 3</span><span class="s">kind: RoleBinding
+</span><span class="ln"> 4</span><span class="s">metadata:
+</span><span class="ln"> 5</span><span class="s">  name: rolebinding-default_pods_reader
+</span><span class="ln"> 6</span><span class="s">  namespace: default
+</span><span class="ln"> 7</span><span class="s">roleRef:
+</span><span class="ln"> 8</span><span class="s">  apiGroup: rbac.authorization.k8s.io
+</span><span class="ln"> 9</span><span class="s">  kind: Role
+</span><span class="ln">10</span><span class="s">  name: role-pods_reader
+</span><span class="ln">11</span><span class="s">subjects:
+</span><span class="ln">12</span><span class="s">- apiGroup: rbac.authorization.k8s.io
+</span><span class="ln">13</span><span class="s">  kind: User
+</span><span class="ln">14</span><span class="s">  name: reader
+</span><span class="ln">15</span><span class="s">EOF</span>
+<span class="ln">16</span>
+<span class="ln">17</span>kubectl apply -f rolebinding.yaml
+</code></pre></div><p>解释：我们创建了一个 rolebinding，名字叫做 rolebinding-default_pods_reader，同样所属命名空间是 default，它绑了两个东西，一个是 role，就是上面第二步创建的 role-pods_reader；另一个是 subject，对应了一个用户，就是我们第一步创建的那个 reader。</p>
+<h2 id="四生成-kubectl-配置文件">四、生成 kubectl 配置文件</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="cp">#!/bin/sh
+</span><span class="ln"> 2</span><span class="cp"></span><span class="nv">useraccount</span><span class="o">=</span>reader
+<span class="ln"> 3</span><span class="nv">namespace</span><span class="o">=</span>default
+<span class="ln"> 4</span>
+<span class="ln"> 5</span>kubectl config set-cluster <span class="k">$(</span>kubectl config view -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.clusters[0].name}&#39;</span><span class="k">)</span> --server<span class="o">=</span><span class="k">$(</span>kubectl config view -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.clusters[0].cluster.server}&#39;</span><span class="k">)</span> --certificate-authority<span class="o">=</span>k8s-ca.crt --embed-certs --kubeconfig<span class="o">=</span><span class="nv">$useraccount</span>-k8s-config
+<span class="ln"> 6</span>
+<span class="ln"> 7</span>kubectl config set-credentials <span class="nv">$useraccount</span> --client-certificate<span class="o">=</span><span class="nv">$useraccount</span>-k8s-access.crt --client-key<span class="o">=</span><span class="nv">$useraccount</span>-k8s.key --embed-certs --kubeconfig<span class="o">=</span><span class="nv">$useraccount</span>-k8s-config
+<span class="ln"> 8</span>
+<span class="ln"> 9</span>kubectl config set-context <span class="nv">$useraccount</span> --cluster<span class="o">=</span><span class="k">$(</span>kubectl config view -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.clusters[0].name}&#39;</span><span class="k">)</span> --namespace<span class="o">=</span><span class="nv">$namespace</span> --user<span class="o">=</span><span class="nv">$useraccount</span> --kubeconfig<span class="o">=</span><span class="nv">$useraccount</span>-k8s-config
+<span class="ln">10</span>
+<span class="ln">11</span>kubectl config use-context <span class="nv">$useraccount</span> --kubeconfig<span class="o">=</span><span class="nv">$useraccount</span>-k8s-config
+</code></pre></div><p>解释：上面看起来很复杂，其实就是四步，在配置文件里设置 cluster 、设置  credentials 证书、设置 context 上下文、设置当前上下文。</p>
+<p>完事后会产生一个完整的 reader-k8s-config 文件，如下：</p>
+<p><img class="img-fluid" alt="image-20211109133307250" src="/posts/20211109-k8s_rbac/image-20211109133307250.png" loading="lazy"
+   width="904" height="725"
    />
 
 </p>
-<p>如果发了一个 &ldquo;local use 4&rdquo; 和 Serverity = 5 的消息，那么就是 20×8+5=165 ，包头就是 &lt;165&gt;</p>
+<h2 id="五测试">五、测试</h2>
+<p>我们验证一下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span><span class="nv">KUBECONFIG</span><span class="o">=</span>reader-k8s-config kubectl get pods
+<span class="ln">2</span>
+<span class="ln">3</span><span class="nv">KUBECONFIG</span><span class="o">=</span>reader-k8s-config kubectl auth can-i delete pods
+<span class="ln">4</span>
+<span class="ln">5</span><span class="nv">KUBECONFIG</span><span class="o">=</span>reader-k8s-config kubectl auth can-i delete svc
+<span class="ln">6</span>
+</code></pre></div><p>这样一个对 default 空间的只读用户就建立好了</p>
+<h2 id="六集群只读用户">六、集群只读用户</h2>
+<p>我们这里给出集群只读用户的 role，命名 role-cluster_reader</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>kubectl apply -f - <span class="s">&lt;&lt;EOF
+</span><span class="ln"> 2</span><span class="s">apiVersion: rbac.authorization.k8s.io/v1
+</span><span class="ln"> 3</span><span class="s">kind: ClusterRole
+</span><span class="ln"> 4</span><span class="s">metadata:
+</span><span class="ln"> 5</span><span class="s">  name: role-cluster_reader
+</span><span class="ln"> 6</span><span class="s">rules:
+</span><span class="ln"> 7</span><span class="s">- apiGroups:
+</span><span class="ln"> 8</span><span class="s">  - &#34;&#34;
+</span><span class="ln"> 9</span><span class="s">  resources:
+</span><span class="ln">10</span><span class="s">  - nodes
+</span><span class="ln">11</span><span class="s">  - pods
+</span><span class="ln">12</span><span class="s">  - pods/exec
+</span><span class="ln">13</span><span class="s">  - pods/log
+</span><span class="ln">14</span><span class="s">  - services
+</span><span class="ln">15</span><span class="s">  - configmaps
+</span><span class="ln">16</span><span class="s">  - secrets
+</span><span class="ln">17</span><span class="s">  - serviceaccounts
+</span><span class="ln">18</span><span class="s">  - endpoints
+</span><span class="ln">19</span><span class="s">  verbs:
+</span><span class="ln">20</span><span class="s">  - get
+</span><span class="ln">21</span><span class="s">  - list
+</span><span class="ln">22</span><span class="s">  - watch
+</span><span class="ln">23</span><span class="s">- apiGroups:
+</span><span class="ln">24</span><span class="s">  - apps
+</span><span class="ln">25</span><span class="s">  resources:
+</span><span class="ln">26</span><span class="s">  - deployments
+</span><span class="ln">27</span><span class="s">  - replicasets
+</span><span class="ln">28</span><span class="s">  - daemonsets
+</span><span class="ln">29</span><span class="s">  - statefulsets
+</span><span class="ln">30</span><span class="s">  verbs:
+</span><span class="ln">31</span><span class="s">  - get
+</span><span class="ln">32</span><span class="s">  - list
+</span><span class="ln">33</span><span class="s">  - watch
+</span><span class="ln">34</span><span class="s">- apiGroups:
+</span><span class="ln">35</span><span class="s">  - batch
+</span><span class="ln">36</span><span class="s">  resources:
+</span><span class="ln">37</span><span class="s">  - jobs
+</span><span class="ln">38</span><span class="s">  - cronjobs
+</span><span class="ln">39</span><span class="s">  verbs:
+</span><span class="ln">40</span><span class="s">  - get
+</span><span class="ln">41</span><span class="s">  - list
+</span><span class="ln">42</span><span class="s">  - watch
+</span><span class="ln">43</span><span class="s">EOF</span>
+</code></pre></div><p>以及 rolebinding，还是绑到第一步的用户 reader 的例子</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>kubectl apply -f - <span class="s">&lt;&lt;EOF
+</span><span class="ln"> 2</span><span class="s">apiVersion: rbac.authorization.k8s.io/v1
+</span><span class="ln"> 3</span><span class="s">kind: ClusterRoleBinding
+</span><span class="ln"> 4</span><span class="s">metadata:
+</span><span class="ln"> 5</span><span class="s">  name: rolebinding-cluster_reader
+</span><span class="ln"> 6</span><span class="s">roleRef:
+</span><span class="ln"> 7</span><span class="s">  apiGroup: rbac.authorization.k8s.io
+</span><span class="ln"> 8</span><span class="s">  kind: ClusterRole
+</span><span class="ln"> 9</span><span class="s">  name: role-cluster_reader
+</span><span class="ln">10</span><span class="s">subjects:
+</span><span class="ln">11</span><span class="s">- apiGroup: rbac.authorization.k8s.io
+</span><span class="ln">12</span><span class="s">  kind: User
+</span><span class="ln">13</span><span class="s">  name: reader
+</span><span class="ln">14</span><span class="s">EOF</span>
+</code></pre></div><p>生成配置文件的步骤跟上一步是一样的。</p>
+<p>从上面大家可以看到，其实最主要的就是 role 的 yaml 文件，里面控制着到底有怎么样的权限。</p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -345,19 +437,15 @@ BOOTSTRAP
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="/posts/20211027-docker_extract_file/">没有装Docker如何从镜像中释放出文件
+    <a href="/posts/20211108-clash/">Clash的搭建教程
 </a>
-  </div><div class="post-nav post-next">
-    <a href="/posts/20211028-dockerfile/">Dockerfile的编写与调试技巧
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="/posts/20211027-docker_extract_file/">没有装Docker如何从镜像中释放出文件
-</a></li><li><a href="/posts/20211027-bitwarden/">Bitwarden（vaultwarden）如何在非Docker环境下安装使用
-</a></li><li><a href="/posts/20211026-ack_build/">阿里云ACK完全生产环境规划和搭建
-</a></li><li><a href="/posts/20211025-autoinstall_cd/">Centos Auto Install Cdrom自动安装cdrom的制作
-</a></li><li><a href="/posts/20211025-vsftpd/">Vsftpd的日志设置
+    <ul class="related-posts"><li><a href="/posts/20211108-clash/">Clash的搭建教程
+</a></li><li><a href="/posts/20211108-onedev_maven/">Onedev构建一个实际java Spring应用
+</a></li><li><a href="/posts/20211105-n2n_vpn/">N2n一种peer to Peer的VPN的使用
+</a></li><li><a href="/posts/20211105-onedev/">一站式Git软件onedev的安装使用
+</a></li><li><a href="/posts/20211104-haproxy_restart/">Haproxy的Zero Downtime重启如何做
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
