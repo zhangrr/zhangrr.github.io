@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="onedev构建一个实际java spring应用">
 <meta itemprop="description" content="上篇简单介绍了 onedev ，这篇我们具体拿个 java spring 的项目来实际编译一下 首先必须确认环境： onedev 和 agent 都是用 root 安装运行的，然后已经安装了 docker，且 selinux 设置为"><meta itemprop="datePublished" content="2021-11-08T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2021-11-08T09:30:11+08:00" />
-<meta itemprop="wordCount" content="687">
+<meta itemprop="wordCount" content="729">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="onedev构建一个实际java spring应用" />
 <meta property="og:description" content="上篇简单介绍了 onedev ，这篇我们具体拿个 java spring 的项目来实际编译一下 首先必须确认环境： onedev 和 agent 都是用 root 安装运行的，然后已经安装了 docker，且 selinux 设置为" />
 <meta property="og:type" content="article" />
@@ -307,7 +307,14 @@ BOOTSTRAP
 
 </p>
 <p>接下来的步骤就可以用 Dockerfile 生成镜像，然后推到 Harbor，再下载或者 gitops下载来各种 yaml 文件，拉 kubectl 和配置文件，就可以推送到 kubernetes 了。</p>
-</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<p>补充一下，在别的地方突然看到有 maven 的阿里镜像地址，记录一下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span>    <span class="na">&lt;mirror&gt;</span>
+<span class="ln">2</span>      <span class="na">&lt;id&gt;alimaven&lt;/id&gt;</span>
+<span class="ln">3</span>      <span class="na">&lt;name&gt;aliyun maven&lt;/name&gt;</span>
+<span class="ln">4</span>      <span class="na">&lt;url&gt;http://maven.aliyun.com/nexus/content/groups/public/&lt;/url&gt;</span>
+<span class="ln">5</span>      <span class="na">&lt;mirrorOf&gt;*&lt;/mirrorOf&gt;</span>
+<span class="ln">6</span>    <span class="na">&lt;/mirror&gt;</span>
+</code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -381,10 +388,10 @@ BOOTSTRAP
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
     <ul><li><a href="/posts/20211110-k8s_gfs/">生产环境kubernetes使用持久化卷GlusterFS
+</a></li><li><a href="/posts/20211110-k8s_sidecar/">Kubernetes生产环境使用filebeat Sidecar收集日志
 </a></li><li><a href="/posts/20211110-haproxy_multiple_port/">Haproxy一个端口跑多个服务
 </a></li><li><a href="/posts/20211110-sslh_multiple_port/">Sslh的一个端口同时跑多个服务
 </a></li><li><a href="/posts/20211109-nginx_multiple_port/">Nginx的一个端口同时跑SSH和HTTPS服务
-</a></li><li><a href="/posts/20211109-k8s_rbac/">Kubernetes创建普通账号
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

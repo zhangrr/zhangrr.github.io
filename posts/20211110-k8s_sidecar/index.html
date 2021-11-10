@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>sslh的一个端口同时跑多个服务 - Hugo Bootstrap</title><link rel="apple-touch-icon" href="/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>kubernetes生产环境使用filebeat sidecar收集日志 - Hugo Bootstrap</title><link rel="apple-touch-icon" href="/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="/images/favicons/manifest.json">
 <link rel="icon" href="/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="sslh的一个端口同时跑多个服务">
-<meta itemprop="description" content="Ucloud的机器在两会期间干脆端口全灭，firewall设置进来的端口全关闭！！！！！！ 还好有个Global ssh的服务，可以 ssh ubuntu@111.129.37.89.ipssh.net 登录上去"><meta itemprop="datePublished" content="2021-11-10T09:30:11+08:00" />
-<meta itemprop="dateModified" content="2021-11-10T09:30:11+08:00" />
-<meta itemprop="wordCount" content="276">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="sslh的一个端口同时跑多个服务" />
-<meta property="og:description" content="Ucloud的机器在两会期间干脆端口全灭，firewall设置进来的端口全关闭！！！！！！ 还好有个Global ssh的服务，可以 ssh ubuntu@111.129.37.89.ipssh.net 登录上去" />
+<meta name="description" content="" /><meta itemprop="name" content="kubernetes生产环境使用filebeat sidecar收集日志">
+<meta itemprop="description" content="在生产环境中，ES 通常是不会在 k8s 集群中存在的，一般 MySQL 和 Elasticsearch 都是独立在 k8s 之外。 那么无论哪种 pod，要甩日志到 ES，最轻量的方案肯定是用 filebeat 甩过去了"><meta itemprop="datePublished" content="2021-11-10T12:30:11+08:00" />
+<meta itemprop="dateModified" content="2021-11-10T12:30:11+08:00" />
+<meta itemprop="wordCount" content="1084">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="kubernetes生产环境使用filebeat sidecar收集日志" />
+<meta property="og:description" content="在生产环境中，ES 通常是不会在 k8s 集群中存在的，一般 MySQL 和 Elasticsearch 都是独立在 k8s 之外。 那么无论哪种 pod，要甩日志到 ES，最轻量的方案肯定是用 filebeat 甩过去了" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="/posts/20211110-sslh_multiple_port/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2021-11-10T09:30:11+08:00" />
-<meta property="article:modified_time" content="2021-11-10T09:30:11+08:00" /><meta property="og:site_name" content="Hugo Bootstrap" />
+<meta property="og:url" content="/posts/20211110-k8s_sidecar/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-11-10T12:30:11+08:00" />
+<meta property="article:modified_time" content="2021-11-10T12:30:11+08:00" /><meta property="og:site_name" content="Hugo Bootstrap" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="sslh的一个端口同时跑多个服务"/>
-<meta name="twitter:description" content="Ucloud的机器在两会期间干脆端口全灭，firewall设置进来的端口全关闭！！！！！！ 还好有个Global ssh的服务，可以 ssh ubuntu@111.129.37.89.ipssh.net 登录上去"/>
+<meta name="twitter:title" content="kubernetes生产环境使用filebeat sidecar收集日志"/>
+<meta name="twitter:description" content="在生产环境中，ES 通常是不会在 k8s 集群中存在的，一般 MySQL 和 Elasticsearch 都是独立在 k8s 之外。 那么无论哪种 pod，要甩日志到 ES，最轻量的方案肯定是用 filebeat 甩过去了"/>
 <meta name="twitter:site" content="@yourtwitterusername"/>
 <link rel="preload" href="/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="/js/bundle.min.ba4b57bb653018b3da5a1e0ed23ac673e28c9f0624cc03f40d9c00568659899c.js" integrity="sha256-uktXu2UwGLPaWh4O0jrGc&#43;KMnwYkzAP0DZwAVoZZiZw=" crossorigin="anonymous"></script></head>
@@ -115,11 +115,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=sslh%e7%9a%84%e4%b8%80%e4%b8%aa%e7%ab%af%e5%8f%a3%e5%90%8c%e6%97%b6%e8%b7%91%e5%a4%9a%e4%b8%aa%e6%9c%8d%e5%8a%a1&url=%2fposts%2f20211110-sslh_multiple_port%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=kubernetes%e7%94%9f%e4%ba%a7%e7%8e%af%e5%a2%83%e4%bd%bf%e7%94%a8filebeat%20sidecar%e6%94%b6%e9%9b%86%e6%97%a5%e5%bf%97&url=%2fposts%2f20211110-k8s_sidecar%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=%2fposts%2f20211110-sslh_multiple_port%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=%2fposts%2f20211110-k8s_sidecar%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -185,7 +185,7 @@ BOOTSTRAP
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="/">主页</a></li><li class="breadcrumb-item"><a href="/posts/">文章</a></li><li class="breadcrumb-item active">Sslh的一个端口同时跑多个服务</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="/">主页</a></li><li class="breadcrumb-item"><a href="/posts/">文章</a></li><li class="breadcrumb-item active">Kubernetes生产环境使用filebeat Sidecar收集日志</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -205,36 +205,180 @@ BOOTSTRAP
 ">
   <i class="fas fa-fw fa-copyright"></i>
 </a>
-    
+    <a data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+  <i class="fas fa-fw fa-list-alt"></i>
+</a>
   </div>
 </div>
-<h1 class="card-title my-3">Sslh的一个端口同时跑多个服务
+<h1 class="card-title my-3">Kubernetes生产环境使用filebeat Sidecar收集日志
 </h1><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-11-10
   </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
   </span></div>
-<div class="post-content mb-3"><p>Ucloud的机器在两会期间干脆端口全灭，firewall设置进来的端口全关闭！！！！！！</p>
-<p>还好有个Global ssh的服务，可以 ssh <a href="mailto:ubuntu@111.129.37.89.ipssh.net">ubuntu@111.129.37.89.ipssh.net</a>
+<div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+  </div>
+  <div class="offcanvas-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#一打造-filebeat-镜像">一、打造 filebeat 镜像</a></li>
+    <li><a href="#二sidecar部署">二、sidecar部署</a></li>
+  </ul>
+</nav>
+  </div>
+</div><div class="post-content mb-3"><p>在生产环境中，ES 通常是不会在 k8s 集群中存在的，一般 MySQL 和 Elasticsearch 都是独立在 k8s 之外。</p>
+<p>那么无论哪种 pod，要甩日志到 ES，最轻量的方案肯定是用 filebeat 甩过去了。</p>
+<p>当然，如果是阿里的 ACK，logtail 和 logstore 配搭已经非常不错了，根本用不到 filebeat 和 ES。</p>
+<p>如果我们不想为阿里 sls、logstore 出钱买单，就只能用 filebeat + ES 了</p>
+<p>我们说说 filebeat 的 sidecar 僚机用法：</p>
+<p><img class="img-fluid" alt="image-20211110192939845" src="/posts/20211110-k8s_sidecar/image-20211110192939845.png" loading="lazy"
+   width="539" height="299"
+   />
+
 </p>
-<p>登录上去，注意，直接ssh <a href="mailto:ubuntu@111.129.37.89">ubuntu@111.129.37.89</a>
-是不通的。</p>
-<p>那我们就搭建一个SSLH服务，可以把ssh和openvpn以及ssl服务统统塞到一个端口22里</p>
-<p>动手吧</p>
-<p>1、修改openssh的端口 从22端口改成2222，千万别重启，22这会先得归ssh用</p>
-<p>2、安装sslh</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>sudo apt install sslh
-<span class="ln">2</span>vi /etc/default/sslh
-<span class="ln">3</span>
-<span class="ln">4</span><span class="nv">找到Run</span><span class="o">=</span>no
-<span class="ln">5</span><span class="nv">改成Run</span><span class="o">=</span>yes
-<span class="ln">6</span>
-<span class="ln">7</span>然后到下面，按需配置（不跑443的话可以不配）
-<span class="ln">8</span><span class="nv">DAEMON_OPTS</span><span class="o">=</span><span class="s2">&#34;--user sslh --listen 0.0.0.0:22 --ssh 127.0.0.1:2222 --ssl 127.0.0.1:443 --openvpn 127.0.0.1:1194 --pidfile /var/run/sslh/sslh.pid --timeout 5&#34;</span>
-</code></pre></div><p>3、配置sslh并且重启服务器</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln">1</span>sudo systemctl enable sslh
-<span class="ln">2</span>sudo reboot
-</code></pre></div><p>就搞定了</p>
+<p>如上图所示，简单说就是起一个 filebeat 的 logging-agent 僚机来收集日志并发送到 ES，而不用动 app-container 分毫。</p>
+<p>我们以部署一个 Tomcat 应用为例来说明：</p>
+<h2 id="一打造-filebeat-镜像">一、打造 filebeat 镜像</h2>
+<p>首先准备 Dockerfile</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span><span class="na">FROM alpine:3.12  </span>
+<span class="ln"> 2</span>
+<span class="ln"> 3</span><span class="na">ARG VERSION</span><span class="o">=</span><span class="s">7.15.1  </span>
+<span class="ln"> 4</span>
+<span class="ln"> 5</span><span class="na">COPY docker-entrypoint.sh /  </span>
+<span class="ln"> 6</span>
+<span class="ln"> 7</span><span class="na">RUN set -x \  </span>
+<span class="ln"> 8</span>    <span class="na">&amp;&amp; cd /tmp \  </span>
+<span class="ln"> 9</span>    <span class="na">&amp;&amp; wget https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-${VERSION}-linux-x86_64.tar.gz \  </span>
+<span class="ln">10</span>    <span class="na">&amp;&amp; tar xzvf filebeat-${VERSION}-linux-x86_64.tar.gz \  </span>
+<span class="ln">11</span>    <span class="na">&amp;&amp; mv filebeat-${VERSION}-linux-x86_64 /opt \  </span>
+<span class="ln">12</span>    <span class="na">&amp;&amp; rm /tmp/* \  </span>
+<span class="ln">13</span>    <span class="na">&amp;&amp; chmod +x /docker-entrypoint.sh  </span>
+<span class="ln">14</span>
+<span class="ln">15</span>
+<span class="ln">16</span><span class="na">ENV PATH $PATH:/opt/filebeat-${VERSION}-linux-x86_64  </span>
+<span class="ln">17</span>
+<span class="ln">18</span><span class="na">WORKDIR /opt/filebeat-${VERSION}-linux-x86_64  </span>
+<span class="ln">19</span>
+<span class="ln">20</span><span class="na">ENTRYPOINT [&#34;/docker-entrypoint.sh&#34;]  </span>
+</code></pre></div><p>我们以 alphine:3.12 为底版，然后下载 filebeat  7.15.1的二进制包并释放到 /opt 下，最后指定入口文件 /docker-entrypoint.sh</p>
+<p>奥妙全在这个 docker-entrypoint.sh 中了</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="cp">#!/bin/bash 
+</span><span class="ln"> 2</span><span class="cp"></span>  
+<span class="ln"> 3</span>cat &gt; /etc/filebeat.yaml <span class="s">&lt;&lt; EOF 
+</span><span class="ln"> 4</span><span class="s">filebeat.config.modules:
+</span><span class="ln"> 5</span><span class="s">  path: /opt/filebeat-7.15.1-linux-x86_64/modules.d/*.yml
+</span><span class="ln"> 6</span><span class="s">  reload.enabled: true
+</span><span class="ln"> 7</span><span class="s">
+</span><span class="ln"> 8</span><span class="s"># 加入自定义的字段
+</span><span class="ln"> 9</span><span class="s">fields_under_root: true
+</span><span class="ln">10</span><span class="s">fields:
+</span><span class="ln">11</span><span class="s">  project: kuaijian-tomcat
+</span><span class="ln">12</span><span class="s">  
+</span><span class="ln">13</span><span class="s"># 收集云厂商的数据和docker的变量
+</span><span class="ln">14</span><span class="s">processors:
+</span><span class="ln">15</span><span class="s">  - add_cloud_metadata: ~
+</span><span class="ln">16</span><span class="s">  - add_docker_metadata: ~
+</span><span class="ln">17</span><span class="s">
+</span><span class="ln">18</span><span class="s">filebeat.modules:
+</span><span class="ln">19</span><span class="s">  - module: apache
+</span><span class="ln">20</span><span class="s">    access:
+</span><span class="ln">21</span><span class="s">      enabled: true
+</span><span class="ln">22</span><span class="s">      var.paths:
+</span><span class="ln">23</span><span class="s">      - &#34;/usr/local/tomcat/logs/localhost_access_log.*.txt&#34;
+</span><span class="ln">24</span><span class="s">    error:
+</span><span class="ln">25</span><span class="s">      enabled: true
+</span><span class="ln">26</span><span class="s">      var.paths:
+</span><span class="ln">27</span><span class="s">      - &#34;/usr/local/tomcat/logs/application.log*&#34;
+</span><span class="ln">28</span><span class="s">      - &#34;/usr/local/tomcat/logs/catalina.*.log&#34;
+</span><span class="ln">29</span><span class="s">      - &#34;/usr/local/tomcat/logs/host-manager.*.log&#34;
+</span><span class="ln">30</span><span class="s">      - &#34;/usr/local/tomcat/logs/localhost.*.log&#34;
+</span><span class="ln">31</span><span class="s">      - &#34;/usr/local/tomcat/logs/manager.*.log&#34;
+</span><span class="ln">32</span><span class="s">      
+</span><span class="ln">33</span><span class="s">setup.template.name: &#34;tomcat-logs&#34;
+</span><span class="ln">34</span><span class="s">setup.template.pattern: &#34;tomcat-logs-*&#34;
+</span><span class="ln">35</span><span class="s">output.elasticsearch:
+</span><span class="ln">36</span><span class="s">  hosts: [&#34;172.19.20.xxx:9200&#34;,&#34;172.19.20.xxx:9200&#34;]
+</span><span class="ln">37</span><span class="s">  index: &#34;tomcat-logs-%{+yyyy.MM}&#34;
+</span><span class="ln">38</span><span class="s">EOF</span> 
+<span class="ln">39</span> 
+<span class="ln">40</span><span class="nb">set</span> -xe 
+<span class="ln">41</span>
+<span class="ln">42</span><span class="c1"># If user don&#39;t provide any command </span>
+<span class="ln">43</span><span class="c1"># Run filebeat </span>
+<span class="ln">44</span><span class="k">if</span> <span class="o">[[</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">==</span> <span class="s2">&#34;&#34;</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span> 
+<span class="ln">45</span>     <span class="nb">exec</span> /opt/filebeat-7.15.1-linux-x86_64/filebeat -c /etc/filebeat.yaml  
+<span class="ln">46</span><span class="k">else</span> 
+<span class="ln">47</span>    <span class="c1"># Else allow the user to run arbitrarily commands like bash </span>
+<span class="ln">48</span>    <span class="nb">exec</span> <span class="s2">&#34;</span><span class="nv">$@</span><span class="s2">&#34;</span> 
+<span class="ln">49</span><span class="k">fi</span> 
+</code></pre></div><p>我们为什么不在 k8s 里用 configmap 来配置 filebeat.yml 呢？</p>
+<p>理由是收集日志文件多且路径、类型各不相同，这么一堆的配置都放在 configmap 里会让人癫狂的。所以干脆放到镜像里，便于调试也便于修改。</p>
+<p>上面我们也充分利用了 filebeat 的 module，有 module 可用就必须用 module，而不是手动指定 filebeat.inputs ，可用的 mudole 实在太多了，一定要善用！！！另外 tomcat 和 apache 的日志格式是一样的。</p>
+<p>我们在最后执行的时候，也加了 <code>exec $@</code> 便于调试，如果没有指定 CMD，就启动 filebeat，如果指定了比如 /bin/bash，就进入调试状态。</p>
+<p>我们打好镜像就 push 到 harbor 里待用</p>
+<p>附录：https://www.elastic.co/guide/en/beats/filebeat/current/configuration-general-options.html filebeat的配置列表</p>
+<h2 id="二sidecar部署">二、sidecar部署</h2>
+<p>我们写一个 k8s 的 tomcat deployment文件：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span><span class="na">apiVersion: apps/v1</span>
+<span class="ln"> 2</span><span class="na">kind: Deployment</span>
+<span class="ln"> 3</span><span class="na">metadata:</span>
+<span class="ln"> 4</span>  <span class="na">name: tomcat</span>
+<span class="ln"> 5</span>  <span class="na">labels:</span>
+<span class="ln"> 6</span>    <span class="na">app: tomcat</span>
+<span class="ln"> 7</span><span class="na">spec:</span>
+<span class="ln"> 8</span>  <span class="na">replicas: 1</span>
+<span class="ln"> 9</span>  <span class="na">selector:</span>
+<span class="ln">10</span>    <span class="na">matchLabels:</span>
+<span class="ln">11</span>      <span class="na">app: tomcat</span>
+<span class="ln">12</span>  <span class="na">template:</span>
+<span class="ln">13</span>    <span class="na">metadata:</span>
+<span class="ln">14</span>      <span class="na">labels:</span>
+<span class="ln">15</span>        <span class="na">app: tomcat</span>
+<span class="ln">16</span>    <span class="na">spec:</span>
+<span class="ln">17</span>      <span class="na">containers:</span>
+<span class="ln">18</span>      <span class="na">- name: filebeat-sidecar</span>
+<span class="ln">19</span>        <span class="na">image: xxxx.xxxx.xxx/filebeat:xxx</span>
+<span class="ln">20</span>        <span class="na">env:</span>
+<span class="ln">21</span>        <span class="na">- name: POD_NAMESPACE</span>
+<span class="ln">22</span>          <span class="na">valueFrom:</span>
+<span class="ln">23</span>            <span class="na">fieldRef:</span>
+<span class="ln">24</span>              <span class="na">apiVersion: v1</span>
+<span class="ln">25</span>              <span class="na">fieldPath: metadata.namespace</span>
+<span class="ln">26</span>        <span class="na">- name: NODE_NAME</span>
+<span class="ln">27</span>          <span class="na">valueFrom:</span>
+<span class="ln">28</span>            <span class="na">fieldRef:</span>
+<span class="ln">29</span>              <span class="na">apiVersion: v1</span>
+<span class="ln">30</span>              <span class="na">fieldPath: spec.nodeName</span>
+<span class="ln">31</span>        <span class="na">- name: POD_IP</span>
+<span class="ln">32</span>          <span class="na">valueFrom:</span>
+<span class="ln">33</span>            <span class="na">fieldRef:</span>
+<span class="ln">34</span>              <span class="na">apiVersion: v1</span>
+<span class="ln">35</span>              <span class="na">fieldPath: status.podIP</span>
+<span class="ln">36</span>        <span class="na">- name: POD_NAME</span>
+<span class="ln">37</span>          <span class="na">valueFrom:</span>
+<span class="ln">38</span>            <span class="na">fieldRef:</span>
+<span class="ln">39</span>              <span class="na">apiVersion: v1</span>
+<span class="ln">40</span>              <span class="na">fieldPath: metadata.name            </span>
+<span class="ln">41</span>        <span class="na">volumeMounts:</span>
+<span class="ln">42</span>        <span class="na">- name: logs-volume</span>
+<span class="ln">43</span>          <span class="na">mountPath: /usr/local/tomcat/logs</span>
+<span class="ln">44</span>      <span class="na">- name: tomcat</span>
+<span class="ln">45</span>        <span class="na">image: tomcat</span>
+<span class="ln">46</span>        <span class="na">ports:</span>
+<span class="ln">47</span>        <span class="na">- containerPort: 8080</span>
+<span class="ln">48</span>        <span class="na">volumeMounts:</span>
+<span class="ln">49</span>        <span class="na">- name: logs-volume</span>
+<span class="ln">50</span>          <span class="na">mountPath: /usr/local/tomcat/logs</span>
+<span class="ln">51</span>      <span class="na">volumes:</span>
+<span class="ln">52</span>      <span class="na">- name: logs-volume</span>
+<span class="ln">53</span>        <span class="na">emptyDir: {}</span>
+</code></pre></div><p>可以看到我们在这个 deployment 里定义了 pod 是单副本，里面跑了两个 container，一个是 filebeat，一个是 tocmat，两者通过同一个 volume 连接在一起，这样就可以做到不修改 tomcat container 而拿到里面的日志了。</p>
+<p>这样就把 tomcat 应用的日志收到 ES 去了。</p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -262,19 +406,19 @@ BOOTSTRAP
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="/posts/20211109-nginx_multiple_port/">Nginx的一个端口同时跑SSH和HTTPS服务
+    <a href="/posts/20211110-haproxy_multiple_port/">Haproxy一个端口跑多个服务
 </a>
   </div><div class="post-nav post-next">
-    <a href="/posts/20211110-haproxy_multiple_port/">Haproxy一个端口跑多个服务
+    <a href="/posts/20211110-k8s_gfs/">生产环境kubernetes使用持久化卷GlusterFS
 </a>
     <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="/posts/20211109-nginx_multiple_port/">Nginx的一个端口同时跑SSH和HTTPS服务
+    <ul class="related-posts"><li><a href="/posts/20211110-haproxy_multiple_port/">Haproxy一个端口跑多个服务
+</a></li><li><a href="/posts/20211110-sslh_multiple_port/">Sslh的一个端口同时跑多个服务
+</a></li><li><a href="/posts/20211109-nginx_multiple_port/">Nginx的一个端口同时跑SSH和HTTPS服务
 </a></li><li><a href="/posts/20211109-k8s_rbac/">Kubernetes创建普通账号
 </a></li><li><a href="/posts/20211108-clash/">Clash的搭建教程
-</a></li><li><a href="/posts/20211108-onedev_maven/">Onedev构建一个实际java Spring应用
-</a></li><li><a href="/posts/20211105-n2n_vpn/">N2n一种peer to Peer的VPN的使用
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
