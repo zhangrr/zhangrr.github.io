@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="kubernetes生产环境使用filebeat sidecar收集日志">
 <meta itemprop="description" content="在生产环境中，ES 通常是不会在 k8s 集群中存在的，一般 MySQL 和 Elasticsearch 都是独立在 k8s 之外。 那么无论哪种 pod，要甩日志到 ES，最轻量的方案肯定是用 filebeat 甩过去了"><meta itemprop="datePublished" content="2021-11-10T12:30:11+08:00" />
 <meta itemprop="dateModified" content="2021-11-10T12:30:11+08:00" />
-<meta itemprop="wordCount" content="1084">
+<meta itemprop="wordCount" content="1092">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="kubernetes生产环境使用filebeat sidecar收集日志" />
 <meta property="og:description" content="在生产环境中，ES 通常是不会在 k8s 集群中存在的，一般 MySQL 和 Elasticsearch 都是独立在 k8s 之外。 那么无论哪种 pod，要甩日志到 ES，最轻量的方案肯定是用 filebeat 甩过去了" />
 <meta property="og:type" content="article" />
@@ -278,44 +278,48 @@ BOOTSTRAP
 </span><span class="ln"> 9</span><span class="s">fields_under_root: true
 </span><span class="ln">10</span><span class="s">fields:
 </span><span class="ln">11</span><span class="s">  project: kuaijian-tomcat
-</span><span class="ln">12</span><span class="s">  
-</span><span class="ln">13</span><span class="s"># 收集云厂商的数据和docker的变量
-</span><span class="ln">14</span><span class="s">processors:
-</span><span class="ln">15</span><span class="s">  - add_cloud_metadata: ~
-</span><span class="ln">16</span><span class="s">  - add_docker_metadata: ~
-</span><span class="ln">17</span><span class="s">
-</span><span class="ln">18</span><span class="s">filebeat.modules:
-</span><span class="ln">19</span><span class="s">  - module: apache
-</span><span class="ln">20</span><span class="s">    access:
-</span><span class="ln">21</span><span class="s">      enabled: true
-</span><span class="ln">22</span><span class="s">      var.paths:
-</span><span class="ln">23</span><span class="s">      - &#34;/usr/local/tomcat/logs/localhost_access_log.*.txt&#34;
-</span><span class="ln">24</span><span class="s">    error:
+</span><span class="ln">12</span><span class="s">  pod_ip: ${POD_IP}
+</span><span class="ln">13</span><span class="s">  pod_name: ${POD_NAME}
+</span><span class="ln">14</span><span class="s">  node_name: ${NODE_NAME}
+</span><span class="ln">15</span><span class="s">  pod_namespace: ${POD_NAMESPACE}
+</span><span class="ln">16</span><span class="s">  
+</span><span class="ln">17</span><span class="s"># 收集云厂商的数据和docker的变量
+</span><span class="ln">18</span><span class="s">processors:
+</span><span class="ln">19</span><span class="s">  - add_cloud_metadata: ~
+</span><span class="ln">20</span><span class="s">  - add_docker_metadata: ~
+</span><span class="ln">21</span><span class="s">
+</span><span class="ln">22</span><span class="s">filebeat.modules:
+</span><span class="ln">23</span><span class="s">  - module: apache
+</span><span class="ln">24</span><span class="s">    access:
 </span><span class="ln">25</span><span class="s">      enabled: true
 </span><span class="ln">26</span><span class="s">      var.paths:
-</span><span class="ln">27</span><span class="s">      - &#34;/usr/local/tomcat/logs/application.log*&#34;
-</span><span class="ln">28</span><span class="s">      - &#34;/usr/local/tomcat/logs/catalina.*.log&#34;
-</span><span class="ln">29</span><span class="s">      - &#34;/usr/local/tomcat/logs/host-manager.*.log&#34;
-</span><span class="ln">30</span><span class="s">      - &#34;/usr/local/tomcat/logs/localhost.*.log&#34;
-</span><span class="ln">31</span><span class="s">      - &#34;/usr/local/tomcat/logs/manager.*.log&#34;
-</span><span class="ln">32</span><span class="s">      
-</span><span class="ln">33</span><span class="s">setup.template.name: &#34;tomcat-logs&#34;
-</span><span class="ln">34</span><span class="s">setup.template.pattern: &#34;tomcat-logs-*&#34;
-</span><span class="ln">35</span><span class="s">output.elasticsearch:
-</span><span class="ln">36</span><span class="s">  hosts: [&#34;172.19.20.xxx:9200&#34;,&#34;172.19.20.xxx:9200&#34;]
-</span><span class="ln">37</span><span class="s">  index: &#34;tomcat-logs-%{+yyyy.MM}&#34;
-</span><span class="ln">38</span><span class="s">EOF</span> 
-<span class="ln">39</span> 
-<span class="ln">40</span><span class="nb">set</span> -xe 
-<span class="ln">41</span>
-<span class="ln">42</span><span class="c1"># If user don&#39;t provide any command </span>
-<span class="ln">43</span><span class="c1"># Run filebeat </span>
-<span class="ln">44</span><span class="k">if</span> <span class="o">[[</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">==</span> <span class="s2">&#34;&#34;</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span> 
-<span class="ln">45</span>     <span class="nb">exec</span> /opt/filebeat-7.15.1-linux-x86_64/filebeat -c /etc/filebeat.yaml  
-<span class="ln">46</span><span class="k">else</span> 
-<span class="ln">47</span>    <span class="c1"># Else allow the user to run arbitrarily commands like bash </span>
-<span class="ln">48</span>    <span class="nb">exec</span> <span class="s2">&#34;</span><span class="nv">$@</span><span class="s2">&#34;</span> 
-<span class="ln">49</span><span class="k">fi</span> 
+</span><span class="ln">27</span><span class="s">      - &#34;/usr/local/tomcat/logs/localhost_access_log.*.txt&#34;
+</span><span class="ln">28</span><span class="s">    error:
+</span><span class="ln">29</span><span class="s">      enabled: true
+</span><span class="ln">30</span><span class="s">      var.paths:
+</span><span class="ln">31</span><span class="s">      - &#34;/usr/local/tomcat/logs/application.log*&#34;
+</span><span class="ln">32</span><span class="s">      - &#34;/usr/local/tomcat/logs/catalina.*.log&#34;
+</span><span class="ln">33</span><span class="s">      - &#34;/usr/local/tomcat/logs/host-manager.*.log&#34;
+</span><span class="ln">34</span><span class="s">      - &#34;/usr/local/tomcat/logs/localhost.*.log&#34;
+</span><span class="ln">35</span><span class="s">      - &#34;/usr/local/tomcat/logs/manager.*.log&#34;
+</span><span class="ln">36</span><span class="s">      
+</span><span class="ln">37</span><span class="s">setup.template.name: &#34;tomcat-logs&#34;
+</span><span class="ln">38</span><span class="s">setup.template.pattern: &#34;tomcat-logs-*&#34;
+</span><span class="ln">39</span><span class="s">output.elasticsearch:
+</span><span class="ln">40</span><span class="s">  hosts: [&#34;172.19.20.xxx:9200&#34;,&#34;172.19.20.xxx:9200&#34;]
+</span><span class="ln">41</span><span class="s">  index: &#34;tomcat-logs-%{+yyyy.MM}&#34;
+</span><span class="ln">42</span><span class="s">EOF</span> 
+<span class="ln">43</span> 
+<span class="ln">44</span><span class="nb">set</span> -xe 
+<span class="ln">45</span>
+<span class="ln">46</span><span class="c1"># If user don&#39;t provide any command </span>
+<span class="ln">47</span><span class="c1"># Run filebeat </span>
+<span class="ln">48</span><span class="k">if</span> <span class="o">[[</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">==</span> <span class="s2">&#34;&#34;</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span> 
+<span class="ln">49</span>     <span class="nb">exec</span> /opt/filebeat-7.15.1-linux-x86_64/filebeat -c /etc/filebeat.yaml  
+<span class="ln">50</span><span class="k">else</span> 
+<span class="ln">51</span>    <span class="c1"># Else allow the user to run arbitrarily commands like bash </span>
+<span class="ln">52</span>    <span class="nb">exec</span> <span class="s2">&#34;</span><span class="nv">$@</span><span class="s2">&#34;</span> 
+<span class="ln">53</span><span class="k">fi</span> 
 </code></pre></div><p>我们为什么不在 k8s 里用 configmap 来配置 filebeat.yml 呢？</p>
 <p>理由是收集日志文件多且路径、类型各不相同，这么一堆的配置都放在 configmap 里会让人癫狂的。所以干脆放到镜像里，便于调试也便于修改。</p>
 <p>上面我们也充分利用了 filebeat 的 module，有 module 可用就必须用 module，而不是手动指定 filebeat.inputs ，可用的 mudole 实在太多了，一定要善用！！！另外 tomcat 和 apache 的日志格式是一样的。</p>
@@ -452,11 +456,11 @@ BOOTSTRAP
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="/posts/20211110-k8s_gfs/">生产环境kubernetes使用持久化卷GlusterFS
+    <ul><li><a href="/posts/20211111-k8s_filebeat/">Kubernetes使用filebeat Multiline自定义收集日志
+</a></li><li><a href="/posts/20211110-k8s_gfs/">生产环境kubernetes使用持久化卷GlusterFS
 </a></li><li><a href="/posts/20211110-k8s_sidecar/">Kubernetes生产环境使用filebeat Sidecar收集日志
 </a></li><li><a href="/posts/20211110-haproxy_multiple_port/">Haproxy一个端口跑多个服务
 </a></li><li><a href="/posts/20211110-sslh_multiple_port/">Sslh的一个端口同时跑多个服务
-</a></li><li><a href="/posts/20211109-nginx_multiple_port/">Nginx的一个端口同时跑SSH和HTTPS服务
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
