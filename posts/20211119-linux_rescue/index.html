@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>etcd单节点应用 - Hugo Bootstrap</title><link rel="apple-touch-icon" href="/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>CentOS7的救援模式和紧急模式 - Hugo Bootstrap</title><link rel="apple-touch-icon" href="/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="/images/favicons/manifest.json">
 <link rel="icon" href="/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="etcd单节点应用">
-<meta itemprop="description" content="由于使用到了阿里的 K8S 托管集群 ACK，于是想占便宜。想用到托管 master node 的 etcd 来保存数据。 结果是，未遂！！无法使用。 阿里有单独的配置管理服务，复杂化了"><meta itemprop="datePublished" content="2021-10-21T11:30:11+08:00" />
-<meta itemprop="dateModified" content="2021-10-21T11:30:11+08:00" />
-<meta itemprop="wordCount" content="758">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="etcd单节点应用" />
-<meta property="og:description" content="由于使用到了阿里的 K8S 托管集群 ACK，于是想占便宜。想用到托管 master node 的 etcd 来保存数据。 结果是，未遂！！无法使用。 阿里有单独的配置管理服务，复杂化了" />
+<meta name="description" content="" /><meta itemprop="name" content="CentOS7的救援模式和紧急模式">
+<meta itemprop="description" content="说到 CentOS7 的紧急模式与救援模式，网上可以搜到漫天飞的帖子，说一下区别 RESCUE 救援模式： 救援模式启动的系统没有挂载硬盘，可以将硬盘 mount 出然后拷出数据。 EMERGENCY 紧"><meta itemprop="datePublished" content="2021-11-19T09:30:11+08:00" />
+<meta itemprop="dateModified" content="2021-11-19T09:30:11+08:00" />
+<meta itemprop="wordCount" content="608">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="CentOS7的救援模式和紧急模式" />
+<meta property="og:description" content="说到 CentOS7 的紧急模式与救援模式，网上可以搜到漫天飞的帖子，说一下区别 RESCUE 救援模式： 救援模式启动的系统没有挂载硬盘，可以将硬盘 mount 出然后拷出数据。 EMERGENCY 紧" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="/posts/20211021-etcd_docker/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2021-10-21T11:30:11+08:00" />
-<meta property="article:modified_time" content="2021-10-21T11:30:11+08:00" /><meta property="og:site_name" content="Hugo Bootstrap" />
+<meta property="og:url" content="/posts/20211119-linux_rescue/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-11-19T09:30:11+08:00" />
+<meta property="article:modified_time" content="2021-11-19T09:30:11+08:00" /><meta property="og:site_name" content="Hugo Bootstrap" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="etcd单节点应用"/>
-<meta name="twitter:description" content="由于使用到了阿里的 K8S 托管集群 ACK，于是想占便宜。想用到托管 master node 的 etcd 来保存数据。 结果是，未遂！！无法使用。 阿里有单独的配置管理服务，复杂化了"/>
+<meta name="twitter:title" content="CentOS7的救援模式和紧急模式"/>
+<meta name="twitter:description" content="说到 CentOS7 的紧急模式与救援模式，网上可以搜到漫天飞的帖子，说一下区别 RESCUE 救援模式： 救援模式启动的系统没有挂载硬盘，可以将硬盘 mount 出然后拷出数据。 EMERGENCY 紧"/>
 <meta name="twitter:site" content="@yourtwitterusername"/>
 <link rel="preload" href="/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="/js/bundle.min.87b5f6de4af2ec3f025ccdcc6c2857c39a4f558a06c006547dee606bb6c5840d.js" integrity="sha256-h7X23kry7D8CXM3MbChXw5pPVYoGwAZUfe5ga7bFhA0=" crossorigin="anonymous"></script></head>
@@ -115,11 +115,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=etcd%e5%8d%95%e8%8a%82%e7%82%b9%e5%ba%94%e7%94%a8&url=%2fposts%2f20211021-etcd_docker%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=CentOS7%e7%9a%84%e6%95%91%e6%8f%b4%e6%a8%a1%e5%bc%8f%e5%92%8c%e7%b4%a7%e6%80%a5%e6%a8%a1%e5%bc%8f&url=%2fposts%2f20211119-linux_rescue%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=%2fposts%2f20211021-etcd_docker%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=%2fposts%2f20211119-linux_rescue%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -185,7 +185,7 @@ BOOTSTRAP
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="/">主页</a></li><li class="breadcrumb-item"><a href="/posts/">文章</a></li><li class="breadcrumb-item active">Etcd单节点应用</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="/">主页</a></li><li class="breadcrumb-item"><a href="/posts/">文章</a></li><li class="breadcrumb-item active">CentOS7的救援模式和紧急模式</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -205,167 +205,41 @@ BOOTSTRAP
 ">
   <i class="fas fa-fw fa-copyright"></i>
 </a>
-    <a data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
-  <i class="fas fa-fw fa-list-alt"></i>
-</a>
+    
   </div>
 </div>
-<h1 class="card-title my-3">Etcd单节点应用
+<h1 class="card-title my-3">CentOS7的救援模式和紧急模式
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-21
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-19
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
   </span></div>
-<div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
-  <div class="offcanvas-header">
-    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
-      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
-        <i class="fas fa-times"></i>
-      </button>
-  </div>
-  <div class="offcanvas-body">
-    <nav id="TableOfContents">
-  <ul>
-    <li><a href="#一实现etcd的单节点docker化">一、实现etcd的单节点docker化</a></li>
-    <li><a href="#二实现-etcd-的单节点-k8s-化">二、实现 etcd 的单节点 k8s 化</a></li>
-  </ul>
-</nav>
-  </div>
-</div><div class="post-content mb-3"><p>由于使用到了阿里的 K8S 托管集群 ACK，于是想占便宜。想用到托管 master node 的 etcd 来保存数据。</p>
-<p>结果是，未遂！！无法使用。</p>
-<p>阿里有单独的配置管理服务，复杂化了，不想用。</p>
-<p>那么解决方案就是，启动只有一个节点副本的 etcd pod，然后数据持久化到 OSS 的 S3 桶中。</p>
-<h2 id="一实现etcd的单节点docker化">一、实现etcd的单节点docker化</h2>
-<p>首先我们只想在测试环境中跑一个单节点的 etcd，还没有用到 k8s，做法如下：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln"> 1</span><span class="cp">#!/bin/bash
-</span><span class="ln"> 2</span><span class="cp"></span>
-<span class="ln"> 3</span><span class="nv">NODE1</span><span class="o">=</span>172.18.31.33
-<span class="ln"> 4</span><span class="nv">REGISTRY</span><span class="o">=</span>quay.io/coreos/etcd
-<span class="ln"> 5</span><span class="c1"># available from v3.2.5</span>
-<span class="ln"> 6</span><span class="c1">#REGISTRY=gcr.io/etcd-development/etcd</span>
-<span class="ln"> 7</span>
-<span class="ln"> 8</span>docker run <span class="se">\
-</span><span class="ln"> 9</span><span class="se"></span>  -p 2379:2379 <span class="se">\
-</span><span class="ln">10</span><span class="se"></span>  -p 2380:2380 <span class="se">\
-</span><span class="ln">11</span><span class="se"></span>  --volume<span class="o">=</span>/data/etcd:/etcd-data <span class="se">\
-</span><span class="ln">12</span><span class="se"></span>  --name etcd <span class="si">${</span><span class="nv">REGISTRY</span><span class="si">}</span>:latest <span class="se">\
-</span><span class="ln">13</span><span class="se"></span>  /usr/local/bin/etcd <span class="se">\
-</span><span class="ln">14</span><span class="se"></span>  --data-dir<span class="o">=</span>/etcd-data --name node1 <span class="se">\
-</span><span class="ln">15</span><span class="se"></span>  --initial-advertise-peer-urls http://<span class="si">${</span><span class="nv">NODE1</span><span class="si">}</span>:2380 --listen-peer-urls http://0.0.0.0:2380 <span class="se">\
-</span><span class="ln">16</span><span class="se"></span>  --advertise-client-urls http://<span class="si">${</span><span class="nv">NODE1</span><span class="si">}</span>:2379 --listen-client-urls http://0.0.0.0:2379 <span class="se">\
-</span><span class="ln">17</span><span class="se"></span>  --initial-cluster <span class="nv">node1</span><span class="o">=</span>http://<span class="si">${</span><span class="nv">NODE1</span><span class="si">}</span>:2380
-<span class="ln">18</span>
-<span class="ln">19</span>
-</code></pre></div><p>如上就可以了，容器跑起来以后进入容器测试一下：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>docker <span class="nb">exec</span> -it 425f26903466 /bin/sh
+<div class="post-content mb-3"><p>说到 CentOS7 的紧急模式与救援模式，网上可以搜到漫天飞的帖子，说一下区别</p>
+<p>RESCUE 救援模式：
+救援模式启动的系统没有挂载硬盘，可以将硬盘 mount 出然后拷出数据。</p>
+<p>EMERGENCY 紧急模式：
+紧急模式启动的系统是一个最小的环境。根目录档案系统将会被挂载为仅能读取，而且将不会做任何的设定。</p>
+<p>当然进入的方法也很简单，进入系统的时候按 e 修改 grub 菜单参数，就可以进入不同的模式</p>
+<p>本文讨论的重点不是怎么进去，而是那两句命令，在紧急状态下反正我是记不住的</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>systemd.unit<span class="o">=</span>rescue.target
+<span class="ln">2</span>systemd.unit<span class="o">=</span>emergency.target
+</code></pre></div><p>都没有之前的 single 简单，也完全记不住，既然记不住，那就干脆做到菜单里好了，这才是本文的重点。</p>
+<p>现在都是使用 grub2 了，而不是 grub，这很重要。grub2的配置文件是 /boot/grub2/grub.cfg。</p>
+<p>修改 grub2 有两个工具，grub2-mkconfig 和 grubby，不要同时使用这两个工具修改，会覆盖的</p>
+<ul>
+<li>grub2-mkconfig 会去搜索 /boot 目录下的核心文件，有多少个核心就会生成多少个启动项。那么如果是同一个核心，只是修改不同的启动参数就完蛋，他不会自动生成单核心的多个启动项</li>
+<li>grubby 很灵活，可以根据当前 grub2 的配置，生成一个核心，多个不同启动参数的多个启动项。</li>
+</ul>
+<p>那么我们要加进去两个只是启动参数不同，核心一样的启动项，用 grubby 就好了</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>grubby --add-kernel<span class="o">=</span><span class="se">\$</span><span class="o">(</span>ls -1cat /boot/vmlinuz*<span class="p">|</span>grep rescue<span class="o">)</span> --title<span class="o">=</span><span class="s2">&#34;RESCUE BOOT&#34;</span> --initrd<span class="o">=</span><span class="se">\$</span><span class="o">(</span>ls -1cat /boot/initramfs*<span class="p">|</span>grep rescue<span class="o">)</span> --args<span class="o">=</span><span class="s2">&#34;systemd.unit=rescue.target&#34;</span> --copy-default
 <span class="ln">2</span>
-<span class="ln">3</span>etcdctl -C http://127.0.0.1:2379 member list
-<span class="ln">4</span>c3511611548b7c7c: <span class="nv">name</span><span class="o">=</span>node1 <span class="nv">peerURLs</span><span class="o">=</span>http://172.18.31.33:2380 <span class="nv">clientURLs</span><span class="o">=</span>http://172.18.31.33:2379 <span class="nv">isLeader</span><span class="o">=</span><span class="nb">true</span>
-<span class="ln">5</span>
-<span class="ln">6</span>etcdctl ls --recursive /
-</code></pre></div><p>这样一个单节点的 etcd 就弄好了，对外暴露的是 2379 和 2380 端口</p>
-<h2 id="二实现-etcd-的单节点-k8s-化">二、实现 etcd 的单节点 k8s 化</h2>
-<p>首先编写一个deployment文件etcd-deploy.yaml：</p>
-<p>下载：<a href="etcd-deploy.yaml">etcd-deploy.yaml</a>
-</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span><span class="na">apiVersion: apps/v1 </span>
-<span class="ln"> 2</span><span class="na">kind: Deployment </span>
-<span class="ln"> 3</span><span class="na">metadata: </span>
-<span class="ln"> 4</span>  <span class="na">name: etcd-deploy</span>
-<span class="ln"> 5</span>  <span class="na">labels: </span>
-<span class="ln"> 6</span>    <span class="na">app: etcd</span>
-<span class="ln"> 7</span><span class="na">spec: </span>
-<span class="ln"> 8</span>  <span class="na">replicas: 1 </span>
-<span class="ln"> 9</span>  <span class="na">selector: </span>
-<span class="ln">10</span>    <span class="na">matchLabels: </span>
-<span class="ln">11</span>      <span class="na">app: etcd</span>
-<span class="ln">12</span>  <span class="na">template: </span>
-<span class="ln">13</span>    <span class="na">metadata: </span>
-<span class="ln">14</span>      <span class="na">labels: </span>
-<span class="ln">15</span>        <span class="na">app: etcd</span>
-<span class="ln">16</span>    <span class="na">spec: </span>
-<span class="ln">17</span>      <span class="na">containers: </span>
-<span class="ln">18</span>      <span class="na">- name: etcd</span>
-<span class="ln">19</span>        <span class="na">image: quay.io/coreos/etcd:latest</span>
-<span class="ln">20</span>        <span class="na">ports:</span>
-<span class="ln">21</span>        <span class="na">- containerPort: 2379</span>
-<span class="ln">22</span>          <span class="na">name: client</span>
-<span class="ln">23</span>          <span class="na">protocol: TCP</span>
-<span class="ln">24</span>        <span class="na">- containerPort: 2380</span>
-<span class="ln">25</span>          <span class="na">name: server</span>
-<span class="ln">26</span>          <span class="na">protocol: TCP</span>
-<span class="ln">27</span>        <span class="na">command:</span>
-<span class="ln">28</span>        <span class="na">- /usr/local/bin/etcd</span>
-<span class="ln">29</span>        <span class="na">- --name</span>
-<span class="ln">30</span>        <span class="na">- etcd</span>
-<span class="ln">31</span>        <span class="na">- --initial-advertise-peer-urls</span>
-<span class="ln">32</span>        <span class="na">- http://etcd:2380</span>
-<span class="ln">33</span>        <span class="na">- --listen-peer-urls</span>
-<span class="ln">34</span>        <span class="na">- http://0.0.0.0:2380</span>
-<span class="ln">35</span>        <span class="na">- --listen-client-urls</span>
-<span class="ln">36</span>        <span class="na">- http://0.0.0.0:2379</span>
-<span class="ln">37</span>        <span class="na">- --advertise-client-urls</span>
-<span class="ln">38</span>        <span class="na">- http://etcd:2379</span>
-<span class="ln">39</span>        <span class="na">- --initial-cluster</span>
-<span class="ln">40</span>        <span class="na">- etcd</span><span class="o">=</span><span class="s">http://etcd:2380
-</span><span class="ln">41</span><span class="s">        - --data-dir
-</span><span class="ln">42</span><span class="s">        - /etcd-data 
-</span><span class="ln">43</span><span class="s">        volumeMounts:
-</span><span class="ln">44</span><span class="s">        - mountPath: /etcd-data
-</span><span class="ln">45</span><span class="s">          name: etcd-data
-</span><span class="ln">46</span><span class="s">        lifecycle:
-</span><span class="ln">47</span><span class="s">          postStart:
-</span><span class="ln">48</span><span class="s">            exec:
-</span><span class="ln">49</span><span class="s">              command:
-</span><span class="ln">50</span><span class="s">                 - &#34;sh&#34;
-</span><span class="ln">51</span><span class="s">                 - &#34;-c&#34;
-</span><span class="ln">52</span><span class="s">                 - &gt;
-</span><span class="ln">53</span><span class="s">                   echo &#34;127.0.0.1 etcd&#34; &gt;&gt; /etc/hosts;
-</span><span class="ln">54</span><span class="s">      volumes:
-</span><span class="ln">55</span><span class="s">        - name: etcd-data
-</span><span class="ln">56</span><span class="s">          persistentVolumeClaim:
-</span><span class="ln">57</span><span class="s">            claimName: k8s-etcd-20g
-</span><span class="ln">58</span><span class="s">      restartPolicy: Always</span>
-</code></pre></div><p>注意上面，我们使用了一个 pvc 卷 k8s-etcd-20g，这个卷挂在 /etcd-data，是由 OSS 建立的，用于持久话数据，省得重启 etcd 的 pod，数据消失不见了。</p>
-<p>然后，我们需要把这个 deployment 作为 svc 服务暴露在集群中，再编写一个etcd-svc.yaml</p>
-<p>下载：<a href="etcd-svc.yaml">etcd-svc.yaml</a>
-</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span><span class="na">apiVersion: v1</span>
-<span class="ln"> 2</span><span class="na">kind: Service</span>
-<span class="ln"> 3</span><span class="na">metadata:</span>
-<span class="ln"> 4</span> <span class="na">name: etcd-svc</span>
-<span class="ln"> 5</span><span class="na">spec:</span>
-<span class="ln"> 6</span> <span class="na">ports:</span>
-<span class="ln"> 7</span> <span class="na">- port: 2379</span>
-<span class="ln"> 8</span>   <span class="na">name: tcp2379</span>
-<span class="ln"> 9</span>   <span class="na">protocol: TCP</span>
-<span class="ln">10</span>   <span class="na">targetPort: 2379</span>
-<span class="ln">11</span> <span class="na">- port: 2380</span>
-<span class="ln">12</span>   <span class="na">name: tcp2380</span>
-<span class="ln">13</span>   <span class="na">protocol: TCP</span>
-<span class="ln">14</span>   <span class="na">targetPort: 2380</span>
-<span class="ln">15</span> <span class="na">selector:</span>
-<span class="ln">16</span>   <span class="na">app: etcd</span>
-<span class="ln">17</span> <span class="na">type: ClusterIP</span>
-</code></pre></div><p>kubectl apply 部署到 k8s 中，这样就可以了。</p>
-<p>k8s测试方法，随便启动一个 busybox pod，进去测试一下：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln"> 1</span>kubectl run curl --image<span class="o">=</span>radial/busyboxplus:curl -i --tty --rm
-<span class="ln"> 2</span>
-<span class="ln"> 3</span>curl http://etcd-svc:2379/version
-<span class="ln"> 4</span>
-<span class="ln"> 5</span>curl http://etcd-svc.default:2379/version
-<span class="ln"> 6</span>
-<span class="ln"> 7</span>curl http://etcd-svc.default:2379/v2/keys
-<span class="ln"> 8</span>
-<span class="ln"> 9</span>curl http://etcd-svc.default:2379/v2/keys/?recursive<span class="o">=</span><span class="nb">true</span>
-<span class="ln">10</span>
-<span class="ln">11</span>curl http://etcd-svc.default:2379/v2/keys/service/nginx
-<span class="ln">12</span>
-<span class="ln">13</span>curl http://etcd-svc.default:2379/v2/keys/service/nginx/127.0.0.1
-<span class="ln">14</span>
-<span class="ln">15</span>curl --location --request PUT <span class="s1">&#39;http://etcd-svc:2379/v2/keys/service/nginx/10.240.0.41&#39;</span> --header <span class="s1">&#39;Content-Type: application/x-www-form-urlencoded&#39;</span> --data-urlencode <span class="s1">&#39;value=10.240.0.41:9000&#39;</span>
-<span class="ln">16</span>
-<span class="ln">17</span>curl http://etcd-svc.default:2379/v2/keys/service/nginx/
+<span class="ln">3</span>grubby --add-kernel<span class="o">=</span><span class="se">\$</span><span class="o">(</span>ls -1cat /boot/vmlinuz*<span class="p">|</span>grep rescue<span class="o">)</span> --title<span class="o">=</span><span class="s2">&#34;EMERGENCY BOOT&#34;</span> --initrd<span class="o">=</span><span class="se">\$</span><span class="o">(</span>ls -1cat /boot/initramfs*<span class="p">|</span>grep rescue<span class="o">)</span> --args<span class="o">=</span><span class="s2">&#34;systemd.unit=emergency.target&#34;</span> --copy-default
+</code></pre></div><p>切忌我们之后不能运行</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>grub2-mkconfig -o /boot/grub2/grub.cfg
+</code></pre></div><p>否则上面的两个启动项菜单会消失，因为 grub2-mkconfig 配置的话一个核心只能有一个启动项</p>
+<p>grub2-mkconfig 也有自己的强项，如果要修改缺省的菜单超时时间，grubby 就做不到了</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>sed -i <span class="s1">&#39;/^GRUB_TIMEOUT=/s/^.*$/GRUB_TIMEOUT=10/&#39;</span> /etc/default/grub
+<span class="ln">2</span>grub2-mkconfig -o /boot/grub2/grub.cfg
 </code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -393,19 +267,15 @@ BOOTSTRAP
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="/posts/20211021-libguestfs/">Libguestfs的救援手段
+    <a href="/posts/20211116-pacproxy/">Linux下web Pacproxy的用法
 </a>
-  </div><div class="post-nav post-next">
-    <a href="/posts/20211021-etcd_confd_nginx/">ETCD &#43; CONFD &#43; NGINX的配置
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="/posts/20211021-libguestfs/">Libguestfs的救援手段
-</a></li><li><a href="/posts/20211021-dogecoin/">如何用CPU挖狗币Dogecoin
-</a></li><li><a href="/posts/20211020-chrony/">Chrony的几个详细配置细节
-</a></li><li><a href="/posts/20211019-ghostunnel/">Ghostunnel使用TLS加密TCP流量
-</a></li><li><a href="/posts/20211019-certik/">Certik 证书签发软件
+    <ul class="related-posts"><li><a href="/posts/20211116-pacproxy/">Linux下web Pacproxy的用法
+</a></li><li><a href="/posts/20211115-tomcat_config/">Tomcat Server.xml配置详细解释
+</a></li><li><a href="/posts/20211115-gluster_tuning/">GlusterFS文件系统的优化
+</a></li><li><a href="/posts/20211112-python_aiohttp/">Python的协程详细解释
+</a></li><li><a href="/posts/20211111-k8s_filebeat/">Kubernetes使用filebeat Multiline自定义收集日志
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">

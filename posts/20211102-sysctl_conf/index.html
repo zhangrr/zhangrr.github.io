@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="Linux内核sysctl内核参数优化">
 <meta itemprop="description" content="这篇是纯配置篇，解释都在配置里了，是生产服务器 sysctl.conf 的配置 1### KERNEL ### 2 3# Reboot after 10sec. on kernel panic 4kernel.panic = 10 5 6### IMPROVE SYSTEM MEMORY MANAGEMENT ### 7 8# Increase size of file handles and inode cache 9fs.file-max = 2097152 10 11# Insure we always have enough memory 12vm.min_free_kbytes"><meta itemprop="datePublished" content="2021-11-02T10:30:11+08:00" />
 <meta itemprop="dateModified" content="2021-11-02T10:30:11+08:00" />
-<meta itemprop="wordCount" content="787">
+<meta itemprop="wordCount" content="847">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="Linux内核sysctl内核参数优化" />
 <meta property="og:description" content="这篇是纯配置篇，解释都在配置里了，是生产服务器 sysctl.conf 的配置 1### KERNEL ### 2 3# Reboot after 10sec. on kernel panic 4kernel.panic = 10 5 6### IMPROVE SYSTEM MEMORY MANAGEMENT ### 7 8# Increase size of file handles and inode cache 9fs.file-max = 2097152 10 11# Insure we always have enough memory 12vm.min_free_kbytes" />
 <meta property="og:type" content="article" />
@@ -244,142 +244,142 @@ BOOTSTRAP
 <span class="ln"> 27</span> 
 <span class="ln"> 28</span><span class="c1"># Turn on syncookies for SYN flood attack protection</span>
 <span class="ln"> 29</span><span class="na">net.ipv4.tcp_syncookies</span> <span class="o">=</span> <span class="s">1</span>
-<span class="ln"> 30</span><span class="na">net.ipv4.tcp_max_syn_backlog</span> <span class="o">=</span> <span class="s">1024</span>
-<span class="ln"> 31</span><span class="na">net.ipv4.tcp_max_syn_backlog</span> <span class="o">=</span> <span class="s">8192</span>
+<span class="ln"> 30</span><span class="na">net.ipv4.tcp_max_syn_backlog</span> <span class="o">=</span> <span class="s">8192</span>
+<span class="ln"> 31</span>
 <span class="ln"> 32</span>
-<span class="ln"> 33</span>
-<span class="ln"> 34</span><span class="c1"># Turn on timestamping</span>
-<span class="ln"> 35</span><span class="na">net.ipv4.tcp_timestamps</span> <span class="o">=</span> <span class="s">1</span>
-<span class="ln"> 36</span> 
-<span class="ln"> 37</span><span class="c1"># Turn on and log spoofed, source routed, and redirect packets</span>
-<span class="ln"> 38</span><span class="na">net.ipv4.conf.all.log_martians</span> <span class="o">=</span> <span class="s">1</span>
-<span class="ln"> 39</span><span class="na">net.ipv4.conf.default.log_martians</span> <span class="o">=</span> <span class="s">1</span>
-<span class="ln"> 40</span> 
-<span class="ln"> 41</span><span class="c1"># No source routed packets here</span>
-<span class="ln"> 42</span><span class="na">net.ipv4.conf.all.accept_source_route</span> <span class="o">=</span> <span class="s">0</span>
-<span class="ln"> 43</span><span class="na">net.ipv4.conf.default.accept_source_route</span> <span class="o">=</span> <span class="s">0</span>
-<span class="ln"> 44</span> 
-<span class="ln"> 45</span><span class="c1"># Turn on reverse path filtering</span>
-<span class="ln"> 46</span><span class="na">net.ipv4.conf.all.rp_filter</span> <span class="o">=</span> <span class="s">1</span>
-<span class="ln"> 47</span><span class="na">net.ipv4.conf.default.rp_filter</span> <span class="o">=</span> <span class="s">1</span>
-<span class="ln"> 48</span> 
-<span class="ln"> 49</span><span class="c1"># Make sure no one can alter the routing tables</span>
-<span class="ln"> 50</span><span class="na">net.ipv4.conf.all.accept_redirects</span> <span class="o">=</span> <span class="s">0</span>
-<span class="ln"> 51</span><span class="na">net.ipv4.conf.default.accept_redirects</span> <span class="o">=</span> <span class="s">0</span>
-<span class="ln"> 52</span><span class="na">net.ipv4.conf.all.secure_redirects</span> <span class="o">=</span> <span class="s">0</span>
-<span class="ln"> 53</span><span class="na">net.ipv4.conf.default.secure_redirects</span> <span class="o">=</span> <span class="s">0</span>
-<span class="ln"> 54</span> 
-<span class="ln"> 55</span><span class="c1"># Don&#39;t act as a router</span>
-<span class="ln"> 56</span><span class="na">net.ipv4.ip_forward</span> <span class="o">=</span> <span class="s">0</span>
-<span class="ln"> 57</span><span class="na">net.ipv4.conf.all.send_redirects</span> <span class="o">=</span> <span class="s">0</span>
-<span class="ln"> 58</span><span class="na">net.ipv4.conf.default.send_redirects</span> <span class="o">=</span> <span class="s">0</span>
-<span class="ln"> 59</span>
-<span class="ln"> 60</span><span class="c1"># Number of times SYNACKs for passive TCP connection.</span>
-<span class="ln"> 61</span><span class="na">net.ipv4.tcp_synack_retries</span> <span class="o">=</span> <span class="s">2</span>
-<span class="ln"> 62</span>
-<span class="ln"> 63</span><span class="c1"># Allowed local port range</span>
-<span class="ln"> 64</span><span class="na">net.ipv4.ip_local_port_range</span> <span class="o">=</span> <span class="s">1024 65000</span>
-<span class="ln"> 65</span>
-<span class="ln"> 66</span><span class="c1"># Protect Against TCP Time-Wait</span>
-<span class="ln"> 67</span><span class="na">net.ipv4.tcp_rfc1337</span> <span class="o">=</span> <span class="s">1</span>
-<span class="ln"> 68</span>
-<span class="ln"> 69</span><span class="c1"># Decrease the time default value for tcp_fin_timeout connection</span>
-<span class="ln"> 70</span><span class="na">net.ipv4.tcp_fin_timeout</span> <span class="o">=</span> <span class="s">15</span>
-<span class="ln"> 71</span>
-<span class="ln"> 72</span><span class="c1"># Decrease the time default value for connections to keep alive</span>
-<span class="ln"> 73</span><span class="na">net.ipv4.tcp_keepalive_time</span> <span class="o">=</span> <span class="s">300</span>
-<span class="ln"> 74</span><span class="na">net.ipv4.tcp_keepalive_probes</span> <span class="o">=</span> <span class="s">5</span>
-<span class="ln"> 75</span><span class="na">net.ipv4.tcp_keepalive_intvl</span> <span class="o">=</span> <span class="s">15</span>
-<span class="ln"> 76</span><span class="c1"># This means that the keepalive process waits 300 seconds for socket </span>
-<span class="ln"> 77</span><span class="c1"># activity before sending the first keepalive probe, and then resend</span>
-<span class="ln"> 78</span><span class="c1"># it every 15 seconds. If no ACK response is received for 5 consecutive </span>
-<span class="ln"> 79</span><span class="c1"># times (75s in this case), the connection is marked as broken.</span>
-<span class="ln"> 80</span>
-<span class="ln"> 81</span><span class="c1">### TUNING NETWORK PERFORMANCE ###</span>
-<span class="ln"> 82</span>
-<span class="ln"> 83</span><span class="c1"># Disable IPv6</span>
-<span class="ln"> 84</span><span class="na">net.ipv6.conf.all.disable_ipv6</span> <span class="o">=</span> <span class="s">1</span>
-<span class="ln"> 85</span><span class="na">net.ipv6.conf.default.disable_ipv6</span> <span class="o">=</span> <span class="s">1</span>
-<span class="ln"> 86</span><span class="na">net.ipv6.conf.lo.disable_ipv6</span> <span class="o">=</span> <span class="s">1</span>
-<span class="ln"> 87</span>
-<span class="ln"> 88</span><span class="c1"># Default Socket Receive Buffer</span>
-<span class="ln"> 89</span><span class="na">net.core.rmem_default</span> <span class="o">=</span> <span class="s">31457280</span>
-<span class="ln"> 90</span>
-<span class="ln"> 91</span><span class="c1"># Maximum Socket Receive Buffer</span>
-<span class="ln"> 92</span><span class="na">net.core.rmem_max</span> <span class="o">=</span> <span class="s">12582912</span>
-<span class="ln"> 93</span>
-<span class="ln"> 94</span><span class="c1"># Default Socket Send Buffer</span>
-<span class="ln"> 95</span><span class="na">net.core.wmem_default</span> <span class="o">=</span> <span class="s">31457280</span>
-<span class="ln"> 96</span>
-<span class="ln"> 97</span><span class="c1"># Maximum Socket Send Buffer</span>
-<span class="ln"> 98</span><span class="na">net.core.wmem_max</span> <span class="o">=</span> <span class="s">12582912</span>
-<span class="ln"> 99</span>
-<span class="ln">100</span><span class="c1"># Increase number of incoming connections</span>
-<span class="ln">101</span><span class="na">net.core.somaxconn</span> <span class="o">=</span> <span class="s">5000</span>
-<span class="ln">102</span>
-<span class="ln">103</span><span class="c1"># Increase number of incoming connections backlog</span>
-<span class="ln">104</span><span class="na">net.core.netdev_max_backlog</span> <span class="o">=</span> <span class="s">65536</span>
-<span class="ln">105</span>
-<span class="ln">106</span><span class="c1"># Enable TCP window scaling</span>
-<span class="ln">107</span><span class="na">net.ipv4.tcp_window_scaling</span> <span class="o">=</span> <span class="s">1</span>
-<span class="ln">108</span>
-<span class="ln">109</span><span class="c1"># Increase the maximum amount of option memory buffers</span>
-<span class="ln">110</span><span class="na">net.core.optmem_max</span> <span class="o">=</span> <span class="s">25165824</span>
+<span class="ln"> 33</span><span class="c1"># Turn on timestamping</span>
+<span class="ln"> 34</span><span class="na">net.ipv4.tcp_timestamps</span> <span class="o">=</span> <span class="s">1</span>
+<span class="ln"> 35</span> 
+<span class="ln"> 36</span><span class="c1"># Turn on and log spoofed, source routed, and redirect packets</span>
+<span class="ln"> 37</span><span class="na">net.ipv4.conf.all.log_martians</span> <span class="o">=</span> <span class="s">1</span>
+<span class="ln"> 38</span><span class="na">net.ipv4.conf.default.log_martians</span> <span class="o">=</span> <span class="s">1</span>
+<span class="ln"> 39</span> 
+<span class="ln"> 40</span><span class="c1"># No source routed packets here</span>
+<span class="ln"> 41</span><span class="na">net.ipv4.conf.all.accept_source_route</span> <span class="o">=</span> <span class="s">0</span>
+<span class="ln"> 42</span><span class="na">net.ipv4.conf.default.accept_source_route</span> <span class="o">=</span> <span class="s">0</span>
+<span class="ln"> 43</span> 
+<span class="ln"> 44</span><span class="c1"># Turn on reverse path filtering</span>
+<span class="ln"> 45</span><span class="na">net.ipv4.conf.all.rp_filter</span> <span class="o">=</span> <span class="s">1</span>
+<span class="ln"> 46</span><span class="na">net.ipv4.conf.default.rp_filter</span> <span class="o">=</span> <span class="s">1</span>
+<span class="ln"> 47</span> 
+<span class="ln"> 48</span><span class="c1"># Make sure no one can alter the routing tables</span>
+<span class="ln"> 49</span><span class="na">net.ipv4.conf.all.accept_redirects</span> <span class="o">=</span> <span class="s">0</span>
+<span class="ln"> 50</span><span class="na">net.ipv4.conf.default.accept_redirects</span> <span class="o">=</span> <span class="s">0</span>
+<span class="ln"> 51</span><span class="na">net.ipv4.conf.all.secure_redirects</span> <span class="o">=</span> <span class="s">0</span>
+<span class="ln"> 52</span><span class="na">net.ipv4.conf.default.secure_redirects</span> <span class="o">=</span> <span class="s">0</span>
+<span class="ln"> 53</span> 
+<span class="ln"> 54</span><span class="c1"># Don&#39;t act as a router</span>
+<span class="ln"> 55</span><span class="na">net.ipv4.ip_forward</span> <span class="o">=</span> <span class="s">0</span>
+<span class="ln"> 56</span><span class="na">net.ipv4.conf.all.send_redirects</span> <span class="o">=</span> <span class="s">0</span>
+<span class="ln"> 57</span><span class="na">net.ipv4.conf.default.send_redirects</span> <span class="o">=</span> <span class="s">0</span>
+<span class="ln"> 58</span>
+<span class="ln"> 59</span><span class="c1"># Number of times SYNACKs for passive TCP connection.</span>
+<span class="ln"> 60</span><span class="na">net.ipv4.tcp_synack_retries</span> <span class="o">=</span> <span class="s">2</span>
+<span class="ln"> 61</span>
+<span class="ln"> 62</span><span class="c1"># Allowed local port range</span>
+<span class="ln"> 63</span><span class="na">net.ipv4.ip_local_port_range</span> <span class="o">=</span> <span class="s">1024 65000</span>
+<span class="ln"> 64</span>
+<span class="ln"> 65</span><span class="c1"># Protect Against TCP Time-Wait</span>
+<span class="ln"> 66</span><span class="na">net.ipv4.tcp_rfc1337</span> <span class="o">=</span> <span class="s">1</span>
+<span class="ln"> 67</span>
+<span class="ln"> 68</span><span class="c1"># Decrease the time default value for tcp_fin_timeout connection</span>
+<span class="ln"> 69</span><span class="na">net.ipv4.tcp_fin_timeout</span> <span class="o">=</span> <span class="s">15</span>
+<span class="ln"> 70</span>
+<span class="ln"> 71</span><span class="c1"># Decrease the time default value for connections to keep alive</span>
+<span class="ln"> 72</span><span class="na">net.ipv4.tcp_keepalive_time</span> <span class="o">=</span> <span class="s">300</span>
+<span class="ln"> 73</span><span class="na">net.ipv4.tcp_keepalive_probes</span> <span class="o">=</span> <span class="s">5</span>
+<span class="ln"> 74</span><span class="na">net.ipv4.tcp_keepalive_intvl</span> <span class="o">=</span> <span class="s">15</span>
+<span class="ln"> 75</span><span class="c1"># This means that the keepalive process waits 300 seconds for socket </span>
+<span class="ln"> 76</span><span class="c1"># activity before sending the first keepalive probe, and then resend</span>
+<span class="ln"> 77</span><span class="c1"># it every 15 seconds. If no ACK response is received for 5 consecutive </span>
+<span class="ln"> 78</span><span class="c1"># times (75s in this case), the connection is marked as broken.</span>
+<span class="ln"> 79</span>
+<span class="ln"> 80</span><span class="c1">### TUNING NETWORK PERFORMANCE ###</span>
+<span class="ln"> 81</span>
+<span class="ln"> 82</span><span class="c1"># Disable IPv6</span>
+<span class="ln"> 83</span><span class="na">net.ipv6.conf.all.disable_ipv6</span> <span class="o">=</span> <span class="s">1</span>
+<span class="ln"> 84</span><span class="na">net.ipv6.conf.default.disable_ipv6</span> <span class="o">=</span> <span class="s">1</span>
+<span class="ln"> 85</span><span class="na">net.ipv6.conf.lo.disable_ipv6</span> <span class="o">=</span> <span class="s">1</span>
+<span class="ln"> 86</span>
+<span class="ln"> 87</span><span class="c1"># Default Socket Receive Buffer</span>
+<span class="ln"> 88</span><span class="na">net.core.rmem_default</span> <span class="o">=</span> <span class="s">31457280</span>
+<span class="ln"> 89</span>
+<span class="ln"> 90</span><span class="c1"># Maximum Socket Receive Buffer</span>
+<span class="ln"> 91</span><span class="na">net.core.rmem_max</span> <span class="o">=</span> <span class="s">12582912</span>
+<span class="ln"> 92</span>
+<span class="ln"> 93</span><span class="c1"># Default Socket Send Buffer</span>
+<span class="ln"> 94</span><span class="na">net.core.wmem_default</span> <span class="o">=</span> <span class="s">31457280</span>
+<span class="ln"> 95</span>
+<span class="ln"> 96</span><span class="c1"># Maximum Socket Send Buffer</span>
+<span class="ln"> 97</span><span class="na">net.core.wmem_max</span> <span class="o">=</span> <span class="s">12582912</span>
+<span class="ln"> 98</span>
+<span class="ln"> 99</span><span class="c1"># Increase number of incoming connections</span>
+<span class="ln">100</span><span class="na">net.core.somaxconn</span> <span class="o">=</span> <span class="s">5000</span>
+<span class="ln">101</span>
+<span class="ln">102</span><span class="c1"># Increase number of incoming connections backlog</span>
+<span class="ln">103</span><span class="na">net.core.netdev_max_backlog</span> <span class="o">=</span> <span class="s">65536</span>
+<span class="ln">104</span>
+<span class="ln">105</span><span class="c1"># Enable TCP window scaling</span>
+<span class="ln">106</span><span class="na">net.ipv4.tcp_window_scaling</span> <span class="o">=</span> <span class="s">1</span>
+<span class="ln">107</span>
+<span class="ln">108</span><span class="c1"># Increase the maximum amount of option memory buffers</span>
+<span class="ln">109</span><span class="na">net.core.optmem_max</span> <span class="o">=</span> <span class="s">25165824</span>
+<span class="ln">110</span>
 <span class="ln">111</span>
-<span class="ln">112</span>
-<span class="ln">113</span><span class="c1"># Increase the maximum total buffer-space allocatable</span>
-<span class="ln">114</span><span class="c1"># This is measured in units of pages (4096 bytes)</span>
-<span class="ln">115</span><span class="na">net.ipv4.tcp_mem</span> <span class="o">=</span> <span class="s">65536 131072 262144</span>
-<span class="ln">116</span><span class="na">net.ipv4.udp_mem</span> <span class="o">=</span> <span class="s">65536 131072 262144</span>
-<span class="ln">117</span>
-<span class="ln">118</span><span class="c1"># Increase the read-buffer space allocatable</span>
-<span class="ln">119</span><span class="na">net.ipv4.tcp_rmem</span> <span class="o">=</span> <span class="s">8192 87380 16777216</span>
-<span class="ln">120</span><span class="na">net.ipv4.udp_rmem_min</span> <span class="o">=</span> <span class="s">16384</span>
-<span class="ln">121</span>
-<span class="ln">122</span><span class="c1"># Increase the write-buffer-space allocatable</span>
-<span class="ln">123</span><span class="na">net.ipv4.tcp_wmem</span> <span class="o">=</span> <span class="s">8192 65536 16777216</span>
-<span class="ln">124</span><span class="na">net.ipv4.udp_wmem_min</span> <span class="o">=</span> <span class="s">16384</span>
+<span class="ln">112</span><span class="c1"># Increase the maximum total buffer-space allocatable</span>
+<span class="ln">113</span><span class="c1"># This is measured in units of pages (4096 bytes)</span>
+<span class="ln">114</span><span class="na">net.ipv4.tcp_mem</span> <span class="o">=</span> <span class="s">65536 131072 262144</span>
+<span class="ln">115</span><span class="na">net.ipv4.udp_mem</span> <span class="o">=</span> <span class="s">65536 131072 262144</span>
+<span class="ln">116</span>
+<span class="ln">117</span><span class="c1"># Increase the read-buffer space allocatable</span>
+<span class="ln">118</span><span class="na">net.ipv4.tcp_rmem</span> <span class="o">=</span> <span class="s">8192 87380 16777216</span>
+<span class="ln">119</span><span class="na">net.ipv4.udp_rmem_min</span> <span class="o">=</span> <span class="s">16384</span>
+<span class="ln">120</span>
+<span class="ln">121</span><span class="c1"># Increase the write-buffer-space allocatable</span>
+<span class="ln">122</span><span class="na">net.ipv4.tcp_wmem</span> <span class="o">=</span> <span class="s">8192 65536 16777216</span>
+<span class="ln">123</span><span class="na">net.ipv4.udp_wmem_min</span> <span class="o">=</span> <span class="s">16384</span>
+<span class="ln">124</span>
 <span class="ln">125</span>
-<span class="ln">126</span>
-<span class="ln">127</span><span class="c1"># Increase the tcp-time-wait buckets pool size to prevent simple DOS attacks</span>
-<span class="ln">128</span><span class="na">net.ipv4.tcp_max_tw_buckets</span> <span class="o">=</span> <span class="s">1800000</span>
-<span class="ln">129</span>
-<span class="ln">130</span><span class="c1"># TIME_WAIT socket policy</span>
-<span class="ln">131</span><span class="c1"># Note: if both enabled then disable</span>
-<span class="ln">132</span><span class="c1"># net.ipv4.tcp_timestamps for servers </span>
-<span class="ln">133</span><span class="c1"># behind NAT to prevent dropped incoming connections</span>
-<span class="ln">134</span><span class="na">net.ipv4.tcp_tw_recycle</span> <span class="o">=</span> <span class="s">1</span>
-<span class="ln">135</span><span class="na">net.ipv4.tcp_tw_reuse</span> <span class="o">=</span> <span class="s">1</span>
-<span class="ln">136</span>
-<span class="ln">137</span><span class="c1"># Enable TCP MTU probing (in case of Jumbo Frames enabled)</span>
-<span class="ln">138</span><span class="c1">#net.ipv4.tcp_mtu_probing = 1</span>
-<span class="ln">139</span>
-<span class="ln">140</span><span class="c1"># Speedup retrans (Google recommended)</span>
-<span class="ln">141</span><span class="na">net.ipv4.tcp_slow_start_after_idle</span> <span class="o">=</span> <span class="s">0</span>
-<span class="ln">142</span><span class="na">net.ipv4.tcp_early_retrans</span> <span class="o">=</span> <span class="s">1</span>
-<span class="ln">143</span>
-<span class="ln">144</span><span class="c1"># Conntrack</span>
-<span class="ln">145</span><span class="c1"># 288bytes x 131072 = 37748736 (~38MB) max memory usage</span>
-<span class="ln">146</span><span class="na">net.netfilter.nf_conntrack_max</span> <span class="o">=</span> <span class="s">131072</span>
-<span class="ln">147</span><span class="na">net.netfilter.nf_conntrack_tcp_loose</span> <span class="o">=</span> <span class="s">1</span>
-<span class="ln">148</span>
-<span class="ln">149</span><span class="c1">#TCP的直接拥塞通告(tcp_ecn)关掉</span>
-<span class="ln">150</span><span class="na">net.ipv4.tcp_ecn</span> <span class="o">=</span> <span class="s">0</span>
-<span class="ln">151</span>
-<span class="ln">152</span><span class="c1">#路由缓存刷新频率，当一个路由失败后多长时间跳到另一个路由，默认是300。</span>
-<span class="ln">153</span><span class="na">net.ipv4.route.gc_timeout</span> <span class="o">=</span> <span class="s">100</span>
-<span class="ln">154</span>
-<span class="ln">155</span><span class="c1">#设定系统中最多允许在多少TCP套接字不被关联到任何一个用户文件句柄上。</span>
-<span class="ln">156</span><span class="c1">#如果超过这个数字，没有与用户文件句柄关联的TCP 套接字将立即被复位</span>
-<span class="ln">157</span><span class="c1">#防简单Dos</span>
-<span class="ln">158</span><span class="na">net.ipv4.tcp_max_orphans</span> <span class="o">=</span> <span class="s">655360</span>
-<span class="ln">159</span>
-<span class="ln">160</span><span class="c1"># NOTE: Enable this if machine support it</span>
-<span class="ln">161</span><span class="c1"># -- 10gbe tuning from Intel ixgb driver README -- #</span>
-<span class="ln">162</span><span class="c1"># turn off selective ACK and timestamps</span>
-<span class="ln">163</span><span class="na">net.ipv4.tcp_sack</span> <span class="o">=</span> <span class="s">0</span>
-<span class="ln">164</span><span class="na">net.ipv4.tcp_timestamps</span> <span class="o">=</span> <span class="s">1</span>
-</code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<span class="ln">126</span><span class="c1"># Increase the tcp-time-wait buckets pool size to prevent simple DOS attacks</span>
+<span class="ln">127</span><span class="na">net.ipv4.tcp_max_tw_buckets</span> <span class="o">=</span> <span class="s">1800000</span>
+<span class="ln">128</span>
+<span class="ln">129</span><span class="c1"># TIME_WAIT socket policy</span>
+<span class="ln">130</span><span class="c1"># Note: if both enabled then disable</span>
+<span class="ln">131</span><span class="c1"># net.ipv4.tcp_timestamps for servers </span>
+<span class="ln">132</span><span class="c1"># behind NAT to prevent dropped incoming connections</span>
+<span class="ln">133</span><span class="c1">#net.ipv4.tcp_tw_recycle = 1</span>
+<span class="ln">134</span><span class="na">net.ipv4.tcp_tw_reuse</span> <span class="o">=</span> <span class="s">1</span>
+<span class="ln">135</span>
+<span class="ln">136</span><span class="c1"># Enable TCP MTU probing (in case of Jumbo Frames enabled)</span>
+<span class="ln">137</span><span class="c1">#net.ipv4.tcp_mtu_probing = 1</span>
+<span class="ln">138</span>
+<span class="ln">139</span><span class="c1"># Speedup retrans (Google recommended)</span>
+<span class="ln">140</span><span class="na">net.ipv4.tcp_slow_start_after_idle</span> <span class="o">=</span> <span class="s">0</span>
+<span class="ln">141</span><span class="na">net.ipv4.tcp_early_retrans</span> <span class="o">=</span> <span class="s">1</span>
+<span class="ln">142</span>
+<span class="ln">143</span><span class="c1"># Conntrack</span>
+<span class="ln">144</span><span class="c1"># 288bytes x 131072 = 37748736 (~38MB) max memory usage</span>
+<span class="ln">145</span><span class="c1">#net.netfilter.nf_conntrack_max = 131072</span>
+<span class="ln">146</span><span class="c1">#net.netfilter.nf_conntrack_tcp_loose = 1</span>
+<span class="ln">147</span>
+<span class="ln">148</span><span class="c1">#TCP的直接拥塞通告(tcp_ecn)关掉</span>
+<span class="ln">149</span><span class="na">net.ipv4.tcp_ecn</span> <span class="o">=</span> <span class="s">0</span>
+<span class="ln">150</span>
+<span class="ln">151</span><span class="c1">#路由缓存刷新频率，当一个路由失败后多长时间跳到另一个路由，默认是300。</span>
+<span class="ln">152</span><span class="na">net.ipv4.route.gc_timeout</span> <span class="o">=</span> <span class="s">100</span>
+<span class="ln">153</span>
+<span class="ln">154</span><span class="c1">#设定系统中最多允许在多少TCP套接字不被关联到任何一个用户文件句柄上。</span>
+<span class="ln">155</span><span class="c1">#如果超过这个数字，没有与用户文件句柄关联的TCP 套接字将立即被复位</span>
+<span class="ln">156</span><span class="c1">#防简单Dos</span>
+<span class="ln">157</span><span class="na">net.ipv4.tcp_max_orphans</span> <span class="o">=</span> <span class="s">655360</span>
+<span class="ln">158</span>
+<span class="ln">159</span><span class="c1"># NOTE: Enable this if machine support it</span>
+<span class="ln">160</span><span class="c1"># -- 10gbe tuning from Intel ixgb driver README -- #</span>
+<span class="ln">161</span><span class="c1"># turn off selective ACK and timestamps</span>
+<span class="ln">162</span><span class="c1">#net.ipv4.tcp_sack = 0</span>
+<span class="ln">163</span><span class="c1">#net.ipv4.tcp_timestamps = 1</span>
+</code></pre></div><p>** 注意，net.ipv4.tcp_tw_recycle 不要打开，在 NAT 环境中会出错，而且在 K8S 中也会因 NAT 导致 pod 出错，切记！！！**</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -452,11 +452,11 @@ BOOTSTRAP
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="/posts/20211116-pacproxy/">Linux下web Pacproxy的用法
+    <ul><li><a href="/posts/20211119-linux_rescue/">CentOS7的救援模式和紧急模式
+</a></li><li><a href="/posts/20211116-pacproxy/">Linux下web Pacproxy的用法
 </a></li><li><a href="/posts/20211115-tomcat_config/">Tomcat Server.xml配置详细解释
 </a></li><li><a href="/posts/20211115-gluster_tuning/">GlusterFS文件系统的优化
 </a></li><li><a href="/posts/20211112-python_aiohttp/">Python的协程详细解释
-</a></li><li><a href="/posts/20211111-k8s_filebeat/">Kubernetes使用filebeat Multiline自定义收集日志
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
