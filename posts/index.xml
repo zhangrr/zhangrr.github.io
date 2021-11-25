@@ -7,7 +7,25 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>Copyright © 2020-{year} Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Wed, 24 Nov 2021 09:30:11 +0800</lastBuildDate><atom:link href="https://zhangrr.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 25 Nov 2021 10:30:11 +0800</lastBuildDate><atom:link href="https://zhangrr.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>替代kubernetes crontab的神器kala</title>
+      <link>https://zhangrr.github.io/posts/20211125-kubernetes_crontab_kala/</link>
+      <pubDate>Thu, 25 Nov 2021 10:30:11 +0800</pubDate>
+      
+      <guid>https://zhangrr.github.io/posts/20211125-kubernetes_crontab_kala/</guid>
+      <description>本来 k8s 的 crontab 是启动一个容器来运行的，很简单，如下： 1apiVersion:batch/v1beta12kind:CronJob3metadata:4name:curl-cron5spec:6schedule:&amp;#34;*/1 * * * *&amp;#34;7jobTemplate:8spec:9template:10spec:11containers:12- name:curl-cron13image:radial/busyboxplus:curl14imagePullPolicy:IfNotPresent15command:16- /bin/sh17- -c18- date;echo &amp;#34;run crontab&amp;#34;;curl http://www.baidu.com19restartPolicy</description>
+    </item>
+    
+    <item>
+      <title>kubernetes的hpa和自定义指标hpa</title>
+      <link>https://zhangrr.github.io/posts/20211125-kubernetes_hpa/</link>
+      <pubDate>Thu, 25 Nov 2021 09:30:11 +0800</pubDate>
+      
+      <guid>https://zhangrr.github.io/posts/20211125-kubernetes_hpa/</guid>
+      <description>kubernetes 的动态伸缩 HPA 是非常有用的特性。 我们的服务器托管在阿里云的 ACK 上，k8s 根据 cpu 或者 内存的使用情况，会自动伸缩关键 pod 的数量，以应对大流量的情形。</description>
+    </item>
+    
     <item>
       <title>ansible vault加密的使用</title>
       <link>https://zhangrr.github.io/posts/20211124-ansible_vault/</link>
