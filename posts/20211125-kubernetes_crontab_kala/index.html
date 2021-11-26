@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="替代kubernetes crontab的神器kala">
 <meta itemprop="description" content="本来 k8s 的 crontab 是启动一个容器来运行的，很简单，如下： 1apiVersion:batch/v1beta12kind:CronJob3metadata:4name:curl-cron5spec:6schedule:&#34;*/1 * * * *&#34;7jobTemplate:8spec:9template:10spec:11containers:12- name:curl-cron13image:radial/busyboxplus:curl14imagePullPolicy:IfNotPresent15command:16- /bin/sh17- -c18- date;echo &#34;run crontab&#34;;curl http://www.baidu.com19restartPolicy"><meta itemprop="datePublished" content="2021-11-25T10:30:11+08:00" />
 <meta itemprop="dateModified" content="2021-11-25T10:30:11+08:00" />
-<meta itemprop="wordCount" content="1504">
+<meta itemprop="wordCount" content="1565">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="替代kubernetes crontab的神器kala" />
 <meta property="og:description" content="本来 k8s 的 crontab 是启动一个容器来运行的，很简单，如下： 1apiVersion:batch/v1beta12kind:CronJob3metadata:4name:curl-cron5spec:6schedule:&#34;*/1 * * * *&#34;7jobTemplate:8spec:9template:10spec:11containers:12- name:curl-cron13image:radial/busyboxplus:curl14imagePullPolicy:IfNotPresent15command:16- /bin/sh17- -c18- date;echo &#34;run crontab&#34;;curl http://www.baidu.com19restartPolicy" />
 <meta property="og:type" content="article" />
@@ -236,13 +236,13 @@
 </span><span class="ln">20</span><span class="w">  </span><span class="nt">successfulJobsHistoryLimit</span><span class="p">:</span><span class="w"> </span><span class="m">2</span><span class="w">
 </span><span class="ln">21</span><span class="w">  </span><span class="nt">failedJobsHistoryLimit</span><span class="p">:</span><span class="w"> </span><span class="m">2</span><span class="w">
 </span></code></pre></div><p>上面就跑了一个 busybox 的 pod，每分钟去访问百度，然后在 stdout 输出结果</p>
-<p>这个没什么，注意上面文件的最后两行。节制成功以及失败的job的History，如果不加限制，kubectl get pods 会看到无穷无尽的completed 状态的 cron pod。</p>
+<p>这个没什么，注意上面文件的最后两行。限制成功以及失败 job 的 History 数量，如果不加限制，kubectl get pods 会看到无穷无尽的completed 状态的 curl-cron pod。</p>
 <hr>
 <hr>
-<p>分割线，部署 crontab 的 yaml 很简单。但是，现在产品部有个需求，他们要在某一天进行促销活动，大概2天，期间会流量大增，于是想应用 hpa 来伸缩 pod，活动结束后关闭 hpa。之后他们还会有不断的促销，研发不知道什么时候开始，什么时候结束。但是研发又不想产品看到 yaml，并且部署 hpa。</p>
-<p>还有个问题，如果用crontab，那么活动开始运行一次，活动结束一次，最后还得清理删除掉这些 crontab。</p>
-<p>这下麻烦了，有什么页面管理 crontab 的神器，能让产品自己运行，权限分离，而且能指定再未来的某天运行一次或多次，且不用清理</p>
-<p>有的，kala 就是了！！！</p>
+<p>分割线，部署 crontab 的 yaml 很简单。但是，现在产品部有个需求，他们要在某一天进行促销活动，大概2天，期间会流量大增，于是想应用 hpa 来伸缩 pod，活动结束后关闭 hpa。之后他们还会有不断的促销，研发不知道什么时候开始，什么时候结束；但是研发又不想产品部看到 yaml，并且随时配合部署 hpa。</p>
+<p>还有个问题，如果用crontab，那么活动开始运行一次，活动结束一次，最后研发还得清理删除掉这两个 crontab 来恢复正常。</p>
+<p>这下麻烦了，有什么页面管理 crontab 的神器，能让产品部自己运行，然后权限分离，而且能指定再未来的某天运行一次或多次，且不用手工清理就好了。</p>
+<p>还真的有一个，kala 就是了！！！</p>
 <p>Kala 是一个cron管理配置工具，项目地址：</p>
 <p><a href="https://github.com/ajvb/kala" target="_blank" rel="noopener noreferrer">https://github.com/ajvb/kala</a>
 </p>
@@ -284,8 +284,8 @@
 <span class="ln">14</span>
 <span class="ln">15</span><span class="na">CMD [&#34;/data/kala&#34;, &#34;serve&#34;,&#34;--jobdb</span><span class="o">=</span><span class="s">boltdb&#34;,&#34;--bolt-path=/data/db&#34;]</span>
 <span class="ln">16</span><span class="c1">#CMD /bin/sh -c &#34;while true; do echo hi; sleep 10; done&#34;</span>
-</code></pre></div><p>注意上面我们把 kubectl 和配置一起放进了镜像，当然一些 yaml 和脚本也可以都打进去，然后推到阿里云镜像仓库去（注意安全问题）。</p>
-<p>kala默认的端口是8000，访问 url 是 /webui</p>
+</code></pre></div><p>注意上面我们把 kubectl 和 .kube 配置一起放进了镜像，当然一些 yaml 和脚本也可以都打进去，然后推到阿里云镜像仓库去（注意安全问题）。</p>
+<p>备注 ：kala默认的端口是8000，访问 url 是 /webui</p>
 <p>然后我们生成一个 secret 放进 k8s</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>htpasswd -c auth kala-auth
 <span class="ln">2</span>New password:
@@ -296,7 +296,7 @@
 <span class="ln">7</span>secret <span class="s2">&#34;kala-auth&#34;</span> created
 <span class="ln">8</span>
 <span class="ln">9</span>kubectl get secret kala-auth -o yaml
-</code></pre></div><p>然后我们定义一系列的资源文件，Deployment、SVC、Ingress，其中 ingress 引用了 kala-auth 的secret，并且指定了 app-root 是 /webui/。</p>
+</code></pre></div><p>然后我们定义一系列的资源文件，Deployment、SVC、Ingress，其中 ingress 引用了 kala-auth 的 secret，并且指定了 app-root 是 /webui/。</p>
 <p>另外 kala 使用了 k8s-kala-5g 的持久化卷，务必事先准备好 pv 和 pvc，不持久化的话 pod 一重启，之前保存的配置信息就全没了。</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="ln"> 1</span><span class="nn">---</span><span class="w">
 </span><span class="ln"> 2</span><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">apps/v1</span><span class="w">
@@ -366,38 +366,38 @@
 </span><span class="ln">66</span><span class="w">          </span><span class="nt">serviceName</span><span class="p">:</span><span class="w"> </span><span class="l">kala-svc</span><span class="w">
 </span><span class="ln">67</span><span class="w">          </span><span class="nt">servicePort</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
 </span></code></pre></div><p>这样 kala 就可以从公网访问了，<a href="http://kala.rendoumi.com:8000/" target="_blank" rel="noopener noreferrer">http://kala.rendoumi.com:8000/</a>
- ，需要提供密码才能访问。</p>
-<p>下面说一下具体的用法，还是有一些技巧性的：</p>
+ ，且需要提供密码才能进入。</p>
+<p>下面说一下具体的用法，还是有一些技巧性的，登录进去后的页面：</p>
 <p><img class="img-fluid" alt="image-20211125170959532" src="https://zhangrr.github.io/posts/20211125-kubernetes_crontab_kala/image-20211125170959532.png" loading="lazy"
    width="581" height="152"
    />
 
 </p>
-<p>登录后点击 Create 建立新任务</p>
+<p>进入后左上角点击 Create 建立新任务</p>
 <p><img class="img-fluid" alt="image-20211125171027673" src="https://zhangrr.github.io/posts/20211125-kubernetes_crontab_kala/image-20211125171027673.png" loading="lazy"
    width="579" height="536"
    />
 
 </p>
-<p>填写内容如下：</p>
+<p>要填写内容如下：</p>
 <ul>
 <li>
-<p>Job name：增大HPA</p>
+<p>Job name：起个名字，叫：增大HPA</p>
 </li>
 <li>
-<p>Command：/data/resize.sh 35 (固定扩大ECI的脚本)</p>
+<p>Command：要运行的脚本：/data/resize.sh 35 (固定扩大ECI的脚本)</p>
 </li>
 <li>
 <p>Schedule：R0/2021-07-07T06:00:00+08:00/PT0S</p>
 </li>
 </ul>
 <p>​       这个最重要</p>
-<p>​       格式是这样的：Number of times to repeat/Start Datetime/Interval Between Runs</p>
+<p>​       这行的格式是这样的：Number of times to repeat/Start Datetime/Interval Between Runs</p>
 <p>​       R0 重复0次，即只执行一次，不重复</p>
 <p>​       2021-07-06T06:00:00+8:00 时间戳，注意时区中国+8:00</p>
 <p>​       PT0S 无延迟0S启动</p>
 <p>​       合起来就是</p>
-<p>​       R0/2021-07-07T06:00:00+08:00/PT0S 就是在2021年7月7日中国时间6点执行一次脚本 resize.sh</p>
+<p>​       R0/2021-07-07T06:00:00+08:00/PT0S 就是在2021年7月7日中国时间6点无任何延迟执行一次脚本 resize.sh</p>
 <ul>
 <li>Reset Form 这个一定要选掉，保持空，否则下次进来上次的数据都没了，还得手动输入，麻烦</li>
 </ul>
@@ -408,13 +408,13 @@
    />
 
 </p>
-<p>我们去界面就可以看到多了两个任务，增大HPA和恢复HPA</p>
+<p>我们去界面就可以看到多了两个任务，增大HPA和恢复HPA，这样就 OK 了</p>
 <p><img class="img-fluid" alt="image-20211125171655096" src="https://zhangrr.github.io/posts/20211125-kubernetes_crontab_kala/image-20211125171655096.png" loading="lazy"
    width="638" height="248"
    />
 
 </p>
-<p>注意：JOB一旦建立，以后就可以从界面上手动执行，Run Manually</p>
+<p>注意：JOB一旦建立，以后就可以直接从界面上手动执行，Run Manually</p>
 <p><img class="img-fluid" alt="image-20211125171831594" src="https://zhangrr.github.io/posts/20211125-kubernetes_crontab_kala/image-20211125171831594.png" loading="lazy"
    width="437" height="650"
    />
@@ -450,6 +450,10 @@
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://zhangrr.github.io/posts/20211125-kubernetes_hpa/">Kubernetes的hpa和自定义指标hpa
 </a>
+  </div><div class="post-nav post-next">
+    <a href="https://zhangrr.github.io/posts/20211126-kubernetes_minio_oss_gateway/">Kubernetes搭建minio作为阿里OSS的Gateway
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
     <ul class="related-posts"><li><a href="https://zhangrr.github.io/posts/20211125-kubernetes_hpa/">Kubernetes的hpa和自定义指标hpa
@@ -502,11 +506,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://zhangrr.github.io/posts/20211125-kubernetes_crontab_kala/">替代kubernetes Crontab的神器kala
+    <ul><li><a href="https://zhangrr.github.io/posts/20211126-kubernetes_minio_oss_gateway/">Kubernetes搭建minio作为阿里OSS的Gateway
+</a></li><li><a href="https://zhangrr.github.io/posts/20211125-kubernetes_crontab_kala/">替代kubernetes Crontab的神器kala
 </a></li><li><a href="https://zhangrr.github.io/posts/20211125-kubernetes_hpa/">Kubernetes的hpa和自定义指标hpa
 </a></li><li><a href="https://zhangrr.github.io/posts/20211124-ansible_vault/">Ansible Vault加密的使用
 </a></li><li><a href="https://zhangrr.github.io/posts/20211123-freeipa_freeradius/">使用FreeIPA和FreeRadius搭建双因子认证服务器
-</a></li><li><a href="https://zhangrr.github.io/posts/20211119-kvm_disk_passthrough/">KVM下附加硬盘的passthrough直通
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
