@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="kubernetes生产环境使用filebeat sidecar收集日志">
 <meta itemprop="description" content="在生产环境中，ES 通常是不会在 k8s 集群中存在的，一般 MySQL 和 Elasticsearch 都是独立在 k8s 之外。 那么无论哪种 pod，要甩日志到 ES，最轻量的方案肯定是用 filebeat 甩过去了"><meta itemprop="datePublished" content="2021-11-10T12:30:11+08:00" />
 <meta itemprop="dateModified" content="2021-11-10T12:30:11+08:00" />
-<meta itemprop="wordCount" content="1092">
+<meta itemprop="wordCount" content="1135">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="kubernetes生产环境使用filebeat sidecar收集日志" />
 <meta property="og:description" content="在生产环境中，ES 通常是不会在 k8s 集群中存在的，一般 MySQL 和 Elasticsearch 都是独立在 k8s 之外。 那么无论哪种 pod，要甩日志到 ES，最轻量的方案肯定是用 filebeat 甩过去了" />
 <meta property="og:type" content="article" />
@@ -225,7 +225,7 @@
   <div class="offcanvas-body">
     <nav id="TableOfContents">
   <ul>
-    <li><a href="#一打造-filebeat-镜像">一、打造 filebeat 镜像</a></li>
+    <li><a href="#一打造-filebeat-边车镜像">一、打造 filebeat 边车镜像</a></li>
     <li><a href="#二sidecar部署">二、sidecar部署</a></li>
   </ul>
 </nav>
@@ -233,16 +233,16 @@
 </div><div class="post-content mb-3"><p>在生产环境中，ES 通常是不会在 k8s 集群中存在的，一般 MySQL 和 Elasticsearch 都是独立在 k8s 之外。</p>
 <p>那么无论哪种 pod，要甩日志到 ES，最轻量的方案肯定是用 filebeat 甩过去了。</p>
 <p>当然，如果是阿里的 ACK，logtail 和 logstore 配搭已经非常不错了，根本用不到 filebeat 和 ES。</p>
-<p>如果我们不想为阿里 sls、logstore 出钱买单，就只能用 filebeat + ES 了</p>
-<p>我们说说 filebeat 的 sidecar 僚机用法：</p>
+<p>可但是，我们不想为阿里 sls、logstore 出钱买单，就只能用 filebeat + ES 了</p>
+<p>说一下 filebeat 的 sidecar 边车（僚机）用法：</p>
 <p><img class="img-fluid" alt="image-20211110192939845" src="https://zhangrr.github.io/posts/20211110-k8s_sidecar/image-20211110192939845.png" loading="lazy"
    width="539" height="299"
    />
 
 </p>
-<p>如上图所示，简单说就是起一个 filebeat 的 logging-agent 僚机来收集日志并发送到 ES，而不用动 app-container 分毫。</p>
+<p>如上图所示，简单说就是起一个 filebeat 的 logging-agent 边车（僚机），边车和主应用之间共享某个文件夹（mountPath），达到收集主应用日志并发送到 ES，而不用动 app-container 分毫。</p>
 <p>我们以部署一个 Tomcat 应用为例来说明：</p>
-<h2 id="一打造-filebeat-镜像">一、打造 filebeat 镜像</h2>
+<h2 id="一打造-filebeat-边车镜像">一、打造 filebeat 边车镜像</h2>
 <p>首先准备 Dockerfile</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span><span class="na">FROM alpine:3.12  </span>
 <span class="ln"> 2</span>
@@ -467,11 +467,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://zhangrr.github.io/posts/20211208-backblaze_usage/">Backblaze类S3免费免备案对象存储
+    <ul><li><a href="https://zhangrr.github.io/posts/20211217-nodejs_nvm/">Nodejs多版本的安装与管理
+</a></li><li><a href="https://zhangrr.github.io/posts/20211208-backblaze_usage/">Backblaze类S3免费免备案对象存储
 </a></li><li><a href="https://zhangrr.github.io/posts/20211129-kubernetes_custom_503/">Kubernetes下定制服务器503以及其他的403消息
 </a></li><li><a href="https://zhangrr.github.io/posts/20211129-kubernetes_nginx_ingress_limit/">Kubernetes下nginx Ingress的限制
 </a></li><li><a href="https://zhangrr.github.io/posts/20211126-kubernetes_minio_oss_gateway/">Kubernetes搭建minio作为阿里OSS的Gateway
-</a></li><li><a href="https://zhangrr.github.io/posts/20211125-kubernetes_crontab_kala/">替代kubernetes Crontab的神器kala
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
