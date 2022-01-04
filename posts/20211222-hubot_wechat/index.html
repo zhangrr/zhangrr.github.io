@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="hubot集成企业微信&#43;jenkins&#43;ansible">
 <meta itemprop="description" content="Hubot是一个通用的聊天机器人，能和很多聊天软件集成，比如slack、rockchat、telegram、企业微信、IRC等。 公司用的是企"><meta itemprop="datePublished" content="2021-12-22T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2021-12-22T09:30:11+08:00" />
-<meta itemprop="wordCount" content="3141">
+<meta itemprop="wordCount" content="3180">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="hubot集成企业微信&#43;jenkins&#43;ansible" />
 <meta property="og:description" content="Hubot是一个通用的聊天机器人，能和很多聊天软件集成，比如slack、rockchat、telegram、企业微信、IRC等。 公司用的是企" />
 <meta property="og:type" content="article" />
@@ -244,7 +244,7 @@
 </nav>
   </div>
 </div><div class="post-content mb-3"><p>Hubot是一个通用的聊天机器人，能和很多聊天软件集成，比如slack、rockchat、telegram、企业微信、IRC等。</p>
-<p>公司用的是企业微信，之前用微信机器人和 prometheus 集成，发送各种告警信息，但是还有好多功能想集成进去，比如发送指令就开始 jenkins build，发送 ansible 指令，这个企业微信机器人就用不成了，无法接收消息，所以必须再直接一些，构建一个应用。</p>
+<p>公司用的是企业微信，之前用群机器人和 prometheus 集成，发送各种告警信息，但是群机器人无法接收消息；同时我们想集成进去很多自定义命令，比如发送指令就开始 jenkins build，发送 ansible 指令执行，发送流量图就自动把机房的流量图发过来，这个群机器人就用不成了。所以必须再直接一些，构建一个企业微信的应用。</p>
 <h2 id="一企业微信安装前准备">一、企业微信安装前准备</h2>
 <p>安装前需要在企业微信中拿到4个信息：</p>
 <ol>
@@ -294,21 +294,21 @@
    />
 
 </p>
-<p>然后点击保存，这里必然会失败！没有关系，因为我们还没有装hubot呢。我们把这三个填空先记录下来，随后再来点击保存。</p>
+<p>然后点击保存，这里必然会失败！没有关系，因为我们还没有装hubot呢。我们把这三个地方先记录下来，随后再来点击保存。</p>
 <h2 id="二hubot-安装前准备">二、Hubot 安装前准备</h2>
-<p>1、注意上面地址：URL 地址是 https ，然后 hubot 的缺省地址是 http://xxx:80 ，这样如果前面没有证书卸载的设备，就得搭建一个Nginx（haproxy、traefik）来代理 https 443端口到8080。</p>
+<p>1、注意上面地址：URL 地址是 https ，然后 hubot 的缺省地址是 http://xxx:8080 ，这样如果前面没有证书卸载的设备，就得搭建一个Nginx（haproxy、traefik）来代理 https 443端口到8080。</p>
 <p>2、Hubot 是支持 Coffeescript 和 nodejs 的，从它的 Adapters 网页看</p>
 <p><a href="https://hubot.github.com/docs/adapters/development/" target="_blank" rel="noopener noreferrer">https://hubot.github.com/docs/adapters/development/</a>
 </p>
-<p>里面都是 coffee 味的单箭头，导致不太熟悉的八戒以为在 wechatwork module导出的时候也应该用单箭头函数，结果就悲剧了。</p>
-<p>所以务必清楚，Adapter 的语法是 js，普通自建script可以用coffee，后面会详细说这一点。</p>
+<p>里面都是 coffee 味的单箭头函数，导致不太熟悉的八戒以为在 wechatwork module导出的时候也应该用单箭头函数，结果就悲剧了。</p>
+<p>所以务必清楚，Adapter 的语法是 js，普通自建自动回复script可以用coffeescript，后面会详细说这一点。</p>
 <p>3、安装Hubot必须新建一个普通用户，不能用 root 装</p>
-<p>用 root 会导致 nodejs 一堆报错，八戒新建了一个用户 bot，家目录/home/bot，然后再在这下面建立/home/bot/myhubot，在这里安装。</p>
-<p>理由是这个如果直接装在这个用户的home目录下，会导致这个用户只能有这一个用途了，目录结构太浅，一堆文件</p>
+<p>用 root 会导致 nodejs 一堆报错，八戒新建了一个用户 bot，家目录/home/bot，然后再在这下面建立/home/bot/myhubot，在这个目录下安装。</p>
+<p>理由是这个如果直接装在这个用户的 home 目录下，会导致这个用户只能有这一个用途了，目录结构太浅，一堆文件</p>
 <p>4、Hubot的变量引入都是通过环境变量引入的</p>
-<p>所以无论什么wechatwork还是jenkins，以及shell，都需要环境变量导入</p>
+<p>所以无论什么wechatwork还是jenkins，都需要通过环境变量导入变量</p>
 <h2 id="三安装hubot">三、安装Hubot</h2>
-<p>首先安装nvm，参看文章 <a href="/20211217-nodejs_nvm/">Nodejs多版本的安装与管理</a>
+<p>首先安装nvm，参看文章 <a href="/posts/20211217-nodejs_nvm/">Nodejs多版本的安装与管理</a>
 </p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh <span class="p">|</span> bash
 </code></pre></div><p>安装的时候最好加个 https_proxy 代理，因为这个 shell 脚本不翻墙很难下下来。</p>
@@ -773,7 +773,7 @@
         <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
       </a></nav>
 <div class="copyright mb-2">
-  Copyright © 2020-2021 Zhang Ranrui. All Rights Reserved.
+  Copyright © 2020-2022 Zhang Ranrui. All Rights Reserved.
 </div>
 <div class="powered-by mb-2">
   Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
