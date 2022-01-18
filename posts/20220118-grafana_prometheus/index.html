@@ -10,11 +10,11 @@
 <link rel="icon" href="https://zhangrr.github.io/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
 <meta name="description" content="" /><meta itemprop="name" content="Grafana画出prometheus的图">
-<meta itemprop="description" content="公司要做阿里的小程序接入，需要通过测试，测试呢需要提供硬盘的监控报告，比如 iops 。 同事从网上找了一下，iops 原文如下：监控磁盘的 iops ，利用 linux 的 /proc/diskstats"><meta itemprop="datePublished" content="2022-01-18T09:30:11+08:00" />
+<meta itemprop="description" content="公司要做阿里的小程序接入，需要通过测试，测试呢需要提供硬盘的监控报告，比如 iops 。 同事从网上找了一下，iops 监控原文如下：监控磁盘的 iops ，利用 linux"><meta itemprop="datePublished" content="2022-01-18T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2022-01-18T09:30:11+08:00" />
-<meta itemprop="wordCount" content="911">
+<meta itemprop="wordCount" content="913">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="Grafana画出prometheus的图" />
-<meta property="og:description" content="公司要做阿里的小程序接入，需要通过测试，测试呢需要提供硬盘的监控报告，比如 iops 。 同事从网上找了一下，iops 原文如下：监控磁盘的 iops ，利用 linux 的 /proc/diskstats" />
+<meta property="og:description" content="公司要做阿里的小程序接入，需要通过测试，测试呢需要提供硬盘的监控报告，比如 iops 。 同事从网上找了一下，iops 监控原文如下：监控磁盘的 iops ，利用 linux" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://zhangrr.github.io/posts/20220118-grafana_prometheus/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2022-01-18T09:30:11+08:00" />
@@ -22,7 +22,7 @@
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Grafana画出prometheus的图"/>
-<meta name="twitter:description" content="公司要做阿里的小程序接入，需要通过测试，测试呢需要提供硬盘的监控报告，比如 iops 。 同事从网上找了一下，iops 原文如下：监控磁盘的 iops ，利用 linux 的 /proc/diskstats"/>
+<meta name="twitter:description" content="公司要做阿里的小程序接入，需要通过测试，测试呢需要提供硬盘的监控报告，比如 iops 。 同事从网上找了一下，iops 监控原文如下：监控磁盘的 iops ，利用 linux"/>
 <link rel="preload" href="https://zhangrr.github.io/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://zhangrr.github.io/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://zhangrr.github.io/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
   <body><script src="https://zhangrr.github.io/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
@@ -214,8 +214,9 @@
     <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
   </span></div>
 <div class="post-content mb-3"><p>公司要做阿里的小程序接入，需要通过测试，测试呢需要提供硬盘的监控报告，比如 iops 。</p>
-<p>同事从网上找了一下，iops 原文如下：监控磁盘的 iops ，利用 linux 的 /proc/diskstats 的第四个字段和第八字段可监控读和写的 iops，第四个记录是记录所有读的次数，第八个字段是记录所有写的次数。通过 zabbix 上的差速率即可监控磁盘的 iops。</p>
-<p>文章链接：https://cloud.tencent.com/developer/article/1519113?ivk_sa=1024320u</p>
+<p>同事从网上找了一下，iops 监控原文如下：监控磁盘的 iops ，利用 linux 的 /proc/diskstats 的第四个字段和第八字段可监控读和写的 iops，第四个记录是记录所有读的次数，第八个字段是记录所有写的次数。通过 zabbix 上的差速率即可监控磁盘的 iops。</p>
+<p>文章链接：<a href="https://cloud.tencent.com/developer/article/1519113?ivk_sa=1024320u" target="_blank" rel="noopener noreferrer">https://cloud.tencent.com/developer/article/1519113?ivk_sa=1024320u</a>
+</p>
 <p>仔细研究了一下上面的文章，看了它提供了两张监控图，分析一下：</p>
 <p>第一张图：</p>
 <p><img class="img-fluid" alt="image-20220118093026319" src="https://zhangrr.github.io/posts/20220118-grafana_prometheus/image-20220118093026319.png" loading="lazy"
