@@ -10,11 +10,11 @@
 <link rel="icon" href="https://zhangrr.github.io/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
 <meta name="description" content="" /><meta itemprop="name" content="一站式Git软件onedev的安装使用">
-<meta itemprop="description" content="其实一直在用 github、gitlab、jenkins，但是 github 时不时的抽风， gitlab 的 runner 套 Docker in docker 的方法很难用。 所以 CI/CD 这一块挺喜欢阿里云效这种简便易"><meta itemprop="datePublished" content="2021-11-05T09:30:11+08:00" />
+<meta itemprop="description" content="其实一直在用 github、gitlab、jenkins，但是 github 时不时的抽风， gitlab 的 runner 套 Docker in docker 的方法委实很难用。 所以 CI/CD 这一块反倒挺喜欢阿里云效这"><meta itemprop="datePublished" content="2021-11-05T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2021-11-05T09:30:11+08:00" />
-<meta itemprop="wordCount" content="443">
+<meta itemprop="wordCount" content="490">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="一站式Git软件onedev的安装使用" />
-<meta property="og:description" content="其实一直在用 github、gitlab、jenkins，但是 github 时不时的抽风， gitlab 的 runner 套 Docker in docker 的方法很难用。 所以 CI/CD 这一块挺喜欢阿里云效这种简便易" />
+<meta property="og:description" content="其实一直在用 github、gitlab、jenkins，但是 github 时不时的抽风， gitlab 的 runner 套 Docker in docker 的方法委实很难用。 所以 CI/CD 这一块反倒挺喜欢阿里云效这" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://zhangrr.github.io/posts/20211105-onedev/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-11-05T09:30:11+08:00" />
@@ -22,7 +22,7 @@
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="一站式Git软件onedev的安装使用"/>
-<meta name="twitter:description" content="其实一直在用 github、gitlab、jenkins，但是 github 时不时的抽风， gitlab 的 runner 套 Docker in docker 的方法很难用。 所以 CI/CD 这一块挺喜欢阿里云效这种简便易"/>
+<meta name="twitter:description" content="其实一直在用 github、gitlab、jenkins，但是 github 时不时的抽风， gitlab 的 runner 套 Docker in docker 的方法委实很难用。 所以 CI/CD 这一块反倒挺喜欢阿里云效这"/>
 <link rel="preload" href="https://zhangrr.github.io/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://zhangrr.github.io/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://zhangrr.github.io/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
   <body><script src="https://zhangrr.github.io/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
@@ -232,9 +232,9 @@
   </ul>
 </nav>
   </div>
-</div><div class="post-content mb-3"><p>其实一直在用 github、gitlab、jenkins，但是 github 时不时的抽风， gitlab 的 runner 套 Docker in docker 的方法很难用。</p>
-<p>所以 CI/CD 这一块挺喜欢阿里云效这种简便易行的。但确实找不到合适类似的</p>
-<p>从 V2EX 上看到一个老哥发的 onedev，就是一站式的工具，这不就试试先</p>
+</div><div class="post-content mb-3"><p>其实一直在用 github、gitlab、jenkins，但是 github 时不时的抽风， gitlab 的 runner 套 Docker in docker 的方法委实很难用。</p>
+<p>所以 CI/CD 这一块反倒挺喜欢阿里云效这种简便易行的。但确实找不到其他合适、类似的软件。</p>
+<p>从 V2EX 上看到一个老哥发的 onedev，是一个一站式的开源软件，这不就试试先</p>
 <p>以 centos7 为例，安装过程如下：</p>
 <h2 id="一安装--java-18-版本">一、安装  java 1.8 版本</h2>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>rpm -ivh jdk-8u201-linux-x64.rpm
@@ -258,14 +258,20 @@
 
 </p>
 <h2 id="三例子">三、例子</h2>
-<p>我们是要用的，所以在 projects 新建一个项目 spring-boot</p>
+<p>我们是要在正式生产环境用的，所以在 projects 新建一个项目 spring-boot，以 spring-petclinic 为例：</p>
 <p>然后到源代码目录下</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>git init
-<span class="ln">2</span>git add .
-<span class="ln">3</span>git commit -m <span class="s2">&#34;Spring boot demo project&#34;</span>
-<span class="ln">4</span>
-<span class="ln">5</span>git remote add origin http://192.168.86.101:6610/spring-boot
-<span class="ln">6</span>git push --set-upstream origin master
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>git clone https://github.com/spring-projects/spring-petclinic.git
+<span class="ln"> 2</span><span class="nb">cd</span> spring-petclinic
+<span class="ln"> 3</span>./mvnw package
+<span class="ln"> 4</span>
+<span class="ln"> 5</span><span class="nb">cd</span> spring-petclinic
+<span class="ln"> 6</span>
+<span class="ln"> 7</span>git init
+<span class="ln"> 8</span>git add .
+<span class="ln"> 9</span>git commit -m <span class="s2">&#34;Spring boot demo project&#34;</span>
+<span class="ln">10</span>
+<span class="ln">11</span>git remote add origin http://192.168.86.101:6610/spring-boot
+<span class="ln">12</span>git push --set-upstream origin master
 </code></pre></div><p>这样就可以在 spring-boot 里看到代码了</p>
 <p><img class="img-fluid" alt="image-20211105113350311" src="https://zhangrr.github.io/posts/20211105-onedev/image-20211105113350311.png" loading="lazy"
    width="910" height="290"
@@ -364,11 +370,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://zhangrr.github.io/posts/20220225-ucarp/">Ucarp的安装配置
+    <ul><li><a href="https://zhangrr.github.io/posts/20220317-kubernetes_flannel/">Kubernetes下Flannel网络
+</a></li><li><a href="https://zhangrr.github.io/posts/20220225-ucarp/">Ucarp的安装配置
 </a></li><li><a href="https://zhangrr.github.io/posts/20220224-gost_tunnel/">Gost Tunnel的使用
 </a></li><li><a href="https://zhangrr.github.io/posts/20220223-kvm_passthrouth/">KVM下宿主机的目录直通到虚机
 </a></li><li><a href="https://zhangrr.github.io/posts/20220222-eth_matic/">如何用CPU挖Polygon网络的MATIC币
-</a></li><li><a href="https://zhangrr.github.io/posts/20220118-grafana_prometheus/">Grafana画出prometheus的图
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
