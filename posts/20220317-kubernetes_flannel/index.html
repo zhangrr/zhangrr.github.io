@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="Kubernetes下Flannel网络">
 <meta itemprop="description" content="现在各大公有云的 k8s 网络插件基本用的都是 vxlan，我们也需要对这个进行一下详细了解，以便用于公司的正式生产环境。 一、原理 首先，kuberne"><meta itemprop="datePublished" content="2022-03-17T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2022-03-17T09:30:11+08:00" />
-<meta itemprop="wordCount" content="2804">
+<meta itemprop="wordCount" content="2814">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="Kubernetes下Flannel网络" />
 <meta property="og:description" content="现在各大公有云的 k8s 网络插件基本用的都是 vxlan，我们也需要对这个进行一下详细了解，以便用于公司的正式生产环境。 一、原理 首先，kuberne" />
 <meta property="og:type" content="article" />
@@ -266,7 +266,7 @@
 <ul>
 <li>node 网络段，上图是 172.20.32.0/19，这是基础网络段</li>
 <li>pod 网络段，100.96.0.0/16，2¹⁶(65536)个IP，这是由 flannel 产生的 overlay network，所有的 pod 都站在一个大广场上，互相可见</li>
-<li>svc 网络段，上图未提，我们需要知道，想要把 pod 的 ip 给固定下来，就得使用 svc 来分配固定的域名</li>
+<li>svc 网络段，上图未提，我们需要知道，想要把 pod 的 ip 给固定下来，就得使用 svc 来分配固定的域名，这个是由 iptables 来维护的</li>
 <li>In-Host docker network网络段，这是每个 Node 主机的单独网络段，flannel给每个 Node 主机划分了一个 100.96.x.0/24 段，然后在 etcd 内进行维护，来避免不同的 Node 主机分配IP冲突。</li>
 </ul>
 <p>综述：flannel 为每个 Node 分配一个 subnet，容器(container)从此 subnet 中分配 IP，这些 IP 可以在 Node 间路由，容器间无需 NAT 和 port mapping 就可以跨主机通信。</p>
@@ -439,6 +439,10 @@
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://zhangrr.github.io/posts/20220225-ucarp/">Ucarp的安装配置
 </a>
+  </div><div class="post-nav post-next">
+    <a href="https://zhangrr.github.io/posts/20220401-nginx_epoll/">面试之Nginx的epoll的优势
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
     <ul class="related-posts"><li><a href="https://zhangrr.github.io/posts/20220225-ucarp/">Ucarp的安装配置
@@ -491,11 +495,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://zhangrr.github.io/posts/20220317-kubernetes_flannel/">Kubernetes下Flannel网络
+    <ul><li><a href="https://zhangrr.github.io/posts/20220401-nginx_epoll/">面试之Nginx的epoll的优势
+</a></li><li><a href="https://zhangrr.github.io/posts/20220317-kubernetes_flannel/">Kubernetes下Flannel网络
 </a></li><li><a href="https://zhangrr.github.io/posts/20220225-ucarp/">Ucarp的安装配置
 </a></li><li><a href="https://zhangrr.github.io/posts/20220224-gost_tunnel/">Gost Tunnel的使用
 </a></li><li><a href="https://zhangrr.github.io/posts/20220223-kvm_passthrouth/">KVM下宿主机的目录直通到虚机
-</a></li><li><a href="https://zhangrr.github.io/posts/20220222-eth_matic/">如何用CPU挖Polygon网络的MATIC币
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
