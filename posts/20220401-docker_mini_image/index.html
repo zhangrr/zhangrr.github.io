@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Chrony的几个详细配置细节 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://zhangrr.github.io/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>面试之Docker如何打出最小的镜像 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://zhangrr.github.io/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://zhangrr.github.io/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://zhangrr.github.io/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://zhangrr.github.io/images/favicons/manifest.json">
 <link rel="icon" href="https://zhangrr.github.io/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="Chrony的几个详细配置细节">
-<meta itemprop="description" content="chrony 已经成了事实标准，替代了ntp。 但是，有几个细节，需要非常注意。 给出我们的配置，/etc/chrony.conf 1 2# Use public servers from the pool.ntp.org project. 3# Please consider joining"><meta itemprop="datePublished" content="2021-10-20T09:30:11+08:00" />
-<meta itemprop="dateModified" content="2021-10-20T09:30:11+08:00" />
-<meta itemprop="wordCount" content="1071">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="Chrony的几个详细配置细节" />
-<meta property="og:description" content="chrony 已经成了事实标准，替代了ntp。 但是，有几个细节，需要非常注意。 给出我们的配置，/etc/chrony.conf 1 2# Use public servers from the pool.ntp.org project. 3# Please consider joining" />
+<meta name="description" content="" /><meta itemprop="name" content="面试之Docker如何打出最小的镜像">
+<meta itemprop="description" content="面试的时候被问到：如何才能让 docker 打出的镜像包尽量小？ 其实在生产已经尽量使用最小化的镜像包了，只是突然被问到还是有点懵圈；因为印象中自己基本是使"><meta itemprop="datePublished" content="2022-04-01T10:30:11+08:00" />
+<meta itemprop="dateModified" content="2022-04-01T10:30:11+08:00" />
+<meta itemprop="wordCount" content="382">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="面试之Docker如何打出最小的镜像" />
+<meta property="og:description" content="面试的时候被问到：如何才能让 docker 打出的镜像包尽量小？ 其实在生产已经尽量使用最小化的镜像包了，只是突然被问到还是有点懵圈；因为印象中自己基本是使" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://zhangrr.github.io/posts/20211020-chrony/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2021-10-20T09:30:11+08:00" />
-<meta property="article:modified_time" content="2021-10-20T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+<meta property="og:url" content="https://zhangrr.github.io/posts/20220401-docker_mini_image/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-04-01T10:30:11+08:00" />
+<meta property="article:modified_time" content="2022-04-01T10:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Chrony的几个详细配置细节"/>
-<meta name="twitter:description" content="chrony 已经成了事实标准，替代了ntp。 但是，有几个细节，需要非常注意。 给出我们的配置，/etc/chrony.conf 1 2# Use public servers from the pool.ntp.org project. 3# Please consider joining"/>
+<meta name="twitter:title" content="面试之Docker如何打出最小的镜像"/>
+<meta name="twitter:description" content="面试的时候被问到：如何才能让 docker 打出的镜像包尽量小？ 其实在生产已经尽量使用最小化的镜像包了，只是突然被问到还是有点懵圈；因为印象中自己基本是使"/>
 <link rel="preload" href="https://zhangrr.github.io/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://zhangrr.github.io/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://zhangrr.github.io/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
   <body><script src="https://zhangrr.github.io/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=Chrony%e7%9a%84%e5%87%a0%e4%b8%aa%e8%af%a6%e7%bb%86%e9%85%8d%e7%bd%ae%e7%bb%86%e8%8a%82&url=https%3a%2f%2fzhangrr.github.io%2fposts%2f20211020-chrony%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=%e9%9d%a2%e8%af%95%e4%b9%8bDocker%e5%a6%82%e4%bd%95%e6%89%93%e5%87%ba%e6%9c%80%e5%b0%8f%e7%9a%84%e9%95%9c%e5%83%8f&url=https%3a%2f%2fzhangrr.github.io%2fposts%2f20220401-docker_mini_image%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fzhangrr.github.io%2fposts%2f20211020-chrony%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fzhangrr.github.io%2fposts%2f20220401-docker_mini_image%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://zhangrr.github.io/">主页</a></li><li class="breadcrumb-item"><a href="https://zhangrr.github.io/posts/">文章</a></li><li class="breadcrumb-item active">Chrony的几个详细配置细节</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://zhangrr.github.io/">主页</a></li><li class="breadcrumb-item"><a href="https://zhangrr.github.io/posts/">文章</a></li><li class="breadcrumb-item active">面试之Docker如何打出最小的镜像</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -209,11 +209,11 @@
 </a>
   </div>
 </div>
-<h1 class="card-title my-3">Chrony的几个详细配置细节
+<h1 class="card-title my-3">面试之Docker如何打出最小的镜像
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-20
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-04-01
   </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
 <div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
   <div class="offcanvas-header">
@@ -225,87 +225,46 @@
   <div class="offcanvas-body">
     <nav id="TableOfContents">
   <ul>
-    <li><a href="#一server">一、server</a></li>
-    <li><a href="#二makestep">二、makestep</a></li>
-    <li><a href="#三rtcsync">三、rtcsync</a></li>
-    <li><a href="#四logchange">四、logchange</a></li>
-    <li><a href="#五验证调试">五、验证调试</a></li>
+    <li>
+      <ul>
+        <li><a href="#一使用尽量小的底包">一、使用尽量小的底包</a></li>
+        <li><a href="#二使用分阶段build">二、使用分阶段build</a></li>
+      </ul>
+    </li>
   </ul>
 </nav>
   </div>
-</div><div class="post-content mb-3"><p>chrony 已经成了事实标准，替代了ntp。</p>
-<p>但是，有几个细节，需要非常注意。</p>
-<p>给出我们的配置，/etc/chrony.conf</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span>
-<span class="ln"> 2</span><span class="c1"># Use public servers from the pool.ntp.org project.</span>
-<span class="ln"> 3</span><span class="c1"># Please consider joining the pool (http://www.pool.ntp.org/join.html).</span>
-<span class="ln"> 4</span><span class="na">server 172.10.1.1 iburst prefer minpoll 6 maxpoll 10</span>
-<span class="ln"> 5</span><span class="na">server 172.10.1.2 iburst</span>
+</div><div class="post-content mb-3"><p>面试的时候被问到：如何才能让 docker 打出的镜像包尽量小？</p>
+<p>其实在生产已经尽量使用最小化的镜像包了，只是突然被问到还是有点懵圈；因为印象中自己基本是使用 alphine 做底包，Dockerfile 通常就是 copy 一个可执行的程序进去就完事了，如果不行，再开 shell 进去慢慢添加。</p>
+<p>这里就总结一下，两点：</p>
+<h3 id="一使用尽量小的底包">一、使用尽量小的底包</h3>
+<p>以 alphine 为主，使用 alphine 底包的时候，需要注意以下：</p>
+<p>1、替换 apk 的源</p>
+<p>2、更新、更新证书</p>
+<p>3、注意 Timezome 的设置</p>
+<p>4、注意 glibc 库的兼容问题</p>
+<h3 id="二使用分阶段build">二、使用分阶段build</h3>
+<p>通常类似c、go、rust之类的源代码，都需要经过编译，最后产生可执行文件，那么整个的编译环境其实对最后的镜像来说都是不需要的。</p>
+<p>所以利用分阶段build，甩脱编译环境以及中间产物，就可以缩小最后 build 出镜像的大小，使用也很简单。</p>
+<p>Dockerfile 文件内容如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>FROM golang:alpine AS build-env
+<span class="ln"> 2</span>WORKDIR /app
+<span class="ln"> 3</span>ADD . /app
+<span class="ln"> 4</span>RUN <span class="nb">cd</span> /app <span class="o">&amp;&amp;</span> go build -o goapp
+<span class="ln"> 5</span>
 <span class="ln"> 6</span>
-<span class="ln"> 7</span><span class="c1"># Record the rate at which the system clock gains/losses time.</span>
-<span class="ln"> 8</span><span class="na">driftfile /var/lib/chrony/drift</span>
-<span class="ln"> 9</span>
-<span class="ln">10</span><span class="c1"># Allow the system clock to be stepped in the first three updates</span>
-<span class="ln">11</span><span class="c1"># if its offset is larger than 1 second.</span>
-<span class="ln">12</span><span class="na">makestep 1.0 3</span>
-<span class="ln">13</span>
-<span class="ln">14</span><span class="c1"># Enable kernel synchronization of the real-time clock (RTC).</span>
-<span class="ln">15</span><span class="na">rtcsync</span>
+<span class="ln"> 7</span>FROM alpine
+<span class="ln"> 8</span>RUN apk update <span class="o">&amp;&amp;</span> <span class="se">\
+</span><span class="ln"> 9</span><span class="se"></span>   apk add ca-certificates <span class="o">&amp;&amp;</span> <span class="se">\
+</span><span class="ln">10</span><span class="se"></span>   update-ca-certificates <span class="o">&amp;&amp;</span> <span class="se">\
+</span><span class="ln">11</span><span class="se"></span>   rm -rf /var/cache/apk/*
+<span class="ln">12</span>WORKDIR /app
+<span class="ln">13</span>COPY --from<span class="o">=</span>build-env /app/goapp /app
+<span class="ln">14</span>EXPOSE <span class="m">8080</span>
+<span class="ln">15</span>ENTRYPOINT ./goapp
 <span class="ln">16</span>
-<span class="ln">17</span><span class="c1"># Enable hardware timestamping on all interfaces that support it.</span>
-<span class="ln">18</span><span class="c1">#hwtimestamp *</span>
-<span class="ln">19</span>
-<span class="ln">20</span><span class="c1"># Increase the minimum number of selectable sources required to adjust</span>
-<span class="ln">21</span><span class="c1"># the system clock.</span>
-<span class="ln">22</span><span class="c1">#minsources 2</span>
-<span class="ln">23</span>
-<span class="ln">24</span><span class="c1"># Allow NTP client access from local network.</span>
-<span class="ln">25</span><span class="c1">#allow 192.168.0.0/16</span>
-<span class="ln">26</span>
-<span class="ln">27</span><span class="c1"># Serve time even if not synchronized to a time source.</span>
-<span class="ln">28</span><span class="c1">#local stratum 10</span>
-<span class="ln">29</span>
-<span class="ln">30</span><span class="c1"># Specify file containing keys for NTP authentication.</span>
-<span class="ln">31</span><span class="c1">#keyfile /etc/chrony.keys</span>
-<span class="ln">32</span>
-<span class="ln">33</span><span class="c1"># Specify directory for log files.</span>
-<span class="ln">34</span><span class="na">logdir /var/log/chrony</span>
-<span class="ln">35</span><span class="na">logchange 0.5</span>
-<span class="ln">36</span><span class="c1"># Select which information is logged.</span>
-<span class="ln">37</span><span class="c1">#log measurements statistics tracking rtc</span>
-</code></pre></div><p>里面有好几个细节，下面逐一解释一下：</p>
-<h2 id="一server">一、server</h2>
-<p>这里可以添加很多时间服务器，172.10.1.1 和 172.10.1.2 是两台自建的时间服务器。</p>
-<p>ibust 会在 chrony 启动的2秒内，去快速poll服务器4次来快速矫正当前系统时间</p>
-<p>prefer 优先使用指定的服务器</p>
-<p>minpoll 6，缺省是6，意思是2的6次方，也就是64秒，最小轮询时间服务器的时间间隔是64秒</p>
-<p>maxpoll 10，缺省是10，同上，2的10次方，也就是1024秒，最大轮询时间间隔是1024秒</p>
-<p>通常情况下一过minpoll的时间周期，就会触发一次时间同步询问。</p>
-<h2 id="二makestep">二、makestep</h2>
-<p>正常情况下如果系统时钟跟时间服务器不一致，chrony调整的方式是慢慢增加，或慢慢减少，不会一步到位，直接去跟时间服务器对齐。</p>
-<p>makestep 1.0 3，意思就是如果时间服务器跟系统时间相差1秒，那么就在下3个时钟更新中追上时间服务器。</p>
-<p>这样就会立刻快速追平了，这样会带来时间跳跃。</p>
-<h2 id="三rtcsync">三、rtcsync</h2>
-<p>这个是把系统时钟同步到主板的硬件时钟去。</p>
-<p>缺省情况下是11分钟同步一次</p>
-<h2 id="四logchange">四、logchange</h2>
-<p>logchange 0.5，意思是如果chrony调整的系统时间，超过了0.5秒的时长，就会发一条消息到syslog，这样我们就能在/var/log/messages里看到这条消息了。</p>
-<h2 id="五验证调试">五、验证调试</h2>
-<p>开发人员会问，什么时候同步的服务器啊，多长时间同步一次，时间到底准不准啊，有没有发生跳跃啊</p>
-<p>我们就用chronyc sources来验证，配置中</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span><span class="na">server 172.10.1.1 iburst prefer minpoll 4 maxpoll 5</span>
-<span class="ln">2</span><span class="na">server 172.10.1.2 iburst</span>
-</code></pre></div><p><img class="img-fluid" alt="Float left" src="https://zhangrr.github.io/posts/20211020-chrony/image-20211020172226980.png" loading="lazy"
-   width="730" height="437"
-   />
-
-</p>
-<p>解释一下，minpoll 4 maxpoll 5 ，那么最小轮询时间16秒，最大32秒。</p>
-<p>我们可以看到上图 LastRx 就是上次询问时间服务器的间隔时间，14秒、15秒、16秒，然后就变1了，最小间隔16秒后，立即就询问时间服务器，同步时间。</p>
-<p>同样可以看到第二台时间服务器就不受这个限制，缺省minpoll 6，就是64秒。所以上图第二台，63秒、64秒、65秒，变0，才去询问时间服务器。</p>
-<p>总结一下，chrony 调整时间偏差是匀速的，缓慢的。它询问时间服务器的间隔由minpoll来控制。</p>
-<p>我们用logchange来记录大的时间调整，以备追溯和查询。</p>
-</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<span class="ln">17</span>
+</code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -332,19 +291,15 @@
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://zhangrr.github.io/posts/20211019-ghostunnel/">Ghostunnel使用TLS加密TCP流量
+    <a href="https://zhangrr.github.io/posts/20220401-nginx_epoll/">面试之Nginx的epoll的优势
 </a>
-  </div><div class="post-nav post-next">
-    <a href="https://zhangrr.github.io/posts/20211021-dogecoin/">如何用CPU挖狗币Dogecoin
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://zhangrr.github.io/posts/20211019-ghostunnel/">Ghostunnel使用TLS加密TCP流量
-</a></li><li><a href="https://zhangrr.github.io/posts/20211019-certik/">Certik 证书签发软件
-</a></li><li><a href="https://zhangrr.github.io/posts/20211018-ipset_block_cn/">使用IPSET封掉某个国家整个的访问
-</a></li><li><a href="https://zhangrr.github.io/posts/20211018-openvpn_limit_bandwidth/">OpenVPN 限制流量带宽
-</a></li><li><a href="https://zhangrr.github.io/posts/20211015-hugo_blog/">本站博客的由来以及搭建使用教程
+    <ul class="related-posts"><li><a href="https://zhangrr.github.io/posts/20220401-nginx_epoll/">面试之Nginx的epoll的优势
+</a></li><li><a href="https://zhangrr.github.io/posts/20220317-kubernetes_flannel/">Kubernetes下Flannel网络
+</a></li><li><a href="https://zhangrr.github.io/posts/20220225-ucarp/">Ucarp的安装配置
+</a></li><li><a href="https://zhangrr.github.io/posts/20220224-gost_tunnel/">Gost Tunnel的使用
+</a></li><li><a href="https://zhangrr.github.io/posts/20220223-kvm_passthrouth/">KVM下宿主机的目录直通到虚机
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
