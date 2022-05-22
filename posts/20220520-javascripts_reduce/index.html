@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="Javascripts之数组的reduce">
 <meta itemprop="description" content="研究一下 javascripts 的 reduce ，reduce 是既能改变 array 的 size，又能改变数值的函数，filter 是只能改变size，不能改变数值；而 map 是不能改变 size"><meta itemprop="datePublished" content="2022-05-20T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2022-05-20T09:30:11+08:00" />
-<meta itemprop="wordCount" content="1530">
+<meta itemprop="wordCount" content="1524">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="Javascripts之数组的reduce" />
 <meta property="og:description" content="研究一下 javascripts 的 reduce ，reduce 是既能改变 array 的 size，又能改变数值的函数，filter 是只能改变size，不能改变数值；而 map 是不能改变 size" />
 <meta property="og:type" content="article" />
@@ -282,28 +282,28 @@
 <p>下面用20行的伪代码来详细解释整个 reduce 的过程，首先进入 reduce 函数：</p>
 <ol>
 <li>If <code>initialValue</code> is present, 如果初始化变量不为空</li>
-<li>​    If <code>myArray</code> has no elements, 接着判断如果数组为空</li>
-<li>​        Return <code>initialValue</code>. 那么直接初始化变量作为 reduce 的结果返回</li>
-<li>​    else 初始化变量为空但数组不为空</li>
-<li>​        Let <code>accumulator</code> be <code>initialValue</code>. 把初始变量赋给累加器</li>
-<li>​        If the method is <code>reduce</code>, 如果方法是 reduce</li>
-<li>​            Let <code>startIndex</code> be the index of the leftmost element of <code>myArray</code>. 把数组最左边的元素的index值赋予 startIndex</li>
+<li>　　If <code>myArray</code> has no elements, 接着判断如果数组为空</li>
+<li>　　　　Return <code>initialValue</code>. 那么直接初始化变量作为 reduce 的结果返回</li>
+<li>　　else 初始化变量为空但数组不为空</li>
+<li>　　　　Let <code>accumulator</code> be <code>initialValue</code>. 把初始变量赋给累加器</li>
+<li>　　　　If the method is <code>reduce</code>, 如果方法是 reduce</li>
+<li>　　　　　　Let <code>startIndex</code> be the index of the leftmost element of <code>myArray</code>. 把数组最左边的元素的index值赋予 startIndex</li>
 <li>else  如果初始化变量为空</li>
-<li>​    If <code>myArray</code> has no elements, 如果数组没有元素</li>
-<li>​        Throw <code>TypeError</code>. 初始化变量为空，数组也为空，直接抛类型错误</li>
-<li>​    Else if <code>myArray</code> has just only one element, 如果数组只有一个元素</li>
-<li>​        Return that element. 那么直接将数组中唯一一个元素作为 reduce 结果返回</li>
-<li>​    Else</li>
-<li>​        If the method is <code>reduce</code>,如果方法是 reduce</li>
-<li>​            Let <code>accumulator</code> be the leftmost element of <code>myArray</code>.  把数组最左边的第一个元素赋给累加器</li>
+<li>　　If <code>myArray</code> has no elements, 如果数组没有元素</li>
+<li>　　　　Throw <code>TypeError</code>. 初始化变量为空，数组也为空，直接抛类型错误</li>
+<li>　　Else if <code>myArray</code> has just only one element, 如果数组只有一个元素</li>
+<li>　　　　Return that element. 那么直接将数组中唯一一个元素作为 reduce 结果返回</li>
+<li>　　Else</li>
+<li>　　　　If the method is <code>reduce</code>,如果方法是 reduce</li>
+<li>　　　　　　Let <code>accumulator</code> be the leftmost element of <code>myArray</code>.  把数组最左边的第一个元素赋给累加器</li>
 <li></li>
 <li>If the method is <code>reduce</code>, 如果方法是reduce</li>
-<li>​    In left to right order, for each element of <code>myArray</code> such that its index <code>i</code> ≥ <code>startingIndex</code>, 按照从左到右的顺序，遍历数组中的每一个元素，来个大循环</li>
-<li>​        Set <code>accumulator</code> to <code>callbackfn(accumulator, myArray[i], i, myArray)</code>.  数组中的每个元素，都逐个设置到callbackfn函数中并运行</li>
+<li>　　In left to right order, for each element of <code>myArray</code> such that its index <code>i</code> ≥ <code>startingIndex</code>, 按照从左到右的顺序，遍历数组中的每一个元素，来个大循环</li>
+<li>　　　　Set <code>accumulator</code> to <code>callbackfn(accumulator, myArray[i], i, myArray)</code>.  数组中的每个元素，都逐个设置到callbackfn函数中并运行</li>
 <li>Return <code>accumulator</code>. 累加器的值作为 reduce 结果返回</li>
 </ol>
-<p>搞完了吧。</p>
-<p>给个实际例子，一群学生，有男有女，先选出女学生，然后计算出平均成绩，最后打印出来：</p>
+<p>仔细理解，搞完了吧。</p>
+<p>给个实际例子，一群学生，有男有女，先选出女学生，然后计算出她们每个人的平均成绩，最后把她们打印出来：</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln"> 1</span>const students = [ 
 <span class="ln"> 2</span>  { 
 <span class="ln"> 3</span>    name: &#34;Anna&#34;, 
@@ -344,7 +344,7 @@
 <span class="ln">38</span>console.log(studentResult(students));
 <span class="ln">39</span>//[ { name: &#39;Anna&#39;, sex: &#39;f&#39;, grades: 4 },   { name: &#39;Martha&#39;, sex: &#39;f&#39;, grades: 3.625 } ] 
 <span class="ln">40</span>
-</code></pre></div><p>最后注意一点，reduce 可以动 size，也可以动值，上面实际改变了students 数组元素的值了，不太好。应该赋一个新值 concat 进新数组</p>
+</code></pre></div><p>注意一点，reduce 可以动 size，也可以动值，上面实际改变了 students 数组元素的值了，不太好。应该赋一个新值 concat 或者 push 进新数组。</p>
 <p>下面的方法就没有动原数组的数据：</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln"> 1</span>function studentResult(students){ 
 <span class="ln"> 2</span>  return students.filter(x =&gt; x.sex==&#34;f&#34;).reduce((init,cur)=&gt;{ 
@@ -385,6 +385,10 @@
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://zhangrr.github.io/posts/20220401-docker_mini_image/">面试之Docker如何打出最小的镜像
 </a>
+  </div><div class="post-nav post-next">
+    <a href="https://zhangrr.github.io/posts/20220521-javascripts_module/">Javascripts中的module
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
     <ul class="related-posts"><li><a href="https://zhangrr.github.io/posts/20220401-docker_mini_image/">面试之Docker如何打出最小的镜像
@@ -437,11 +441,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://zhangrr.github.io/posts/20220520-javascripts_reduce/">Javascripts之数组的reduce
+    <ul><li><a href="https://zhangrr.github.io/posts/20220521-javascripts_module/">Javascripts中的module
+</a></li><li><a href="https://zhangrr.github.io/posts/20220520-javascripts_reduce/">Javascripts之数组的reduce
 </a></li><li><a href="https://zhangrr.github.io/posts/20220401-docker_mini_image/">面试之Docker如何打出最小的镜像
 </a></li><li><a href="https://zhangrr.github.io/posts/20220401-nginx_epoll/">面试之Nginx的epoll的优势
 </a></li><li><a href="https://zhangrr.github.io/posts/20220317-kubernetes_flannel/">Kubernetes下Flannel网络
-</a></li><li><a href="https://zhangrr.github.io/posts/20220225-ucarp/">Ucarp的安装配置
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
