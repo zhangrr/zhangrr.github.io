@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="面试之Docker如何打出最小的镜像">
 <meta itemprop="description" content="面试的时候被问到：如何才能让 docker 打出的镜像包尽量小？ 其实在生产已经尽量使用最小化的镜像包了，只是突然被问到还是有点懵圈；因为印象中自己基本是使"><meta itemprop="datePublished" content="2022-04-01T10:30:11+08:00" />
 <meta itemprop="dateModified" content="2022-04-01T10:30:11+08:00" />
-<meta itemprop="wordCount" content="382">
+<meta itemprop="wordCount" content="388">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="面试之Docker如何打出最小的镜像" />
 <meta property="og:description" content="面试的时候被问到：如何才能让 docker 打出的镜像包尽量小？ 其实在生产已经尽量使用最小化的镜像包了，只是突然被问到还是有点懵圈；因为印象中自己基本是使" />
 <meta property="og:type" content="article" />
@@ -235,16 +235,16 @@
 </nav>
   </div>
 </div><div class="post-content mb-3"><p>面试的时候被问到：如何才能让 docker 打出的镜像包尽量小？</p>
-<p>其实在生产已经尽量使用最小化的镜像包了，只是突然被问到还是有点懵圈；因为印象中自己基本是使用 alphine 做底包，Dockerfile 通常就是 copy 一个可执行的程序进去就完事了，如果不行，再开 shell 进去慢慢添加。</p>
+<p>其实在生产已经尽量使用最小化的镜像包了，只是突然被问到还是有点懵圈；因为印象中自己基本是使用 alphine 做底包，Dockerfile 通常就是 copy 一个可执行的程序进去就完事了，如果不行，再开 shell 进去慢慢添加缺少的库文件。</p>
 <p>这里就总结一下，两点：</p>
 <h3 id="一使用尽量小的底包">一、使用尽量小的底包</h3>
 <p>以 alphine 为主，使用 alphine 底包的时候，需要注意以下：</p>
 <p>1、替换 apk 的源</p>
 <p>2、更新、更新证书</p>
-<p>3、注意 Timezome 的设置</p>
+<p>3、注意 Timezone 的设置</p>
 <p>4、注意 glibc 库的兼容问题</p>
 <h3 id="二使用分阶段build">二、使用分阶段build</h3>
-<p>通常类似c、go、rust之类的源代码，都需要经过编译，最后产生可执行文件，那么整个的编译环境其实对最后的镜像来说都是不需要的。</p>
+<p>通常类似c、go、rust之类的源代码，都需要经过编译，最后产生可执行文件，那么完整的编译环境其实对最后的镜像来说都是不需要的。</p>
 <p>所以利用分阶段build，甩脱编译环境以及中间产物，就可以缩小最后 build 出镜像的大小，使用也很简单。</p>
 <p>Dockerfile 文件内容如下：</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>FROM golang:alpine AS build-env
@@ -293,6 +293,10 @@
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://zhangrr.github.io/posts/20220401-nginx_epoll/">面试之Nginx的epoll的优势
 </a>
+  </div><div class="post-nav post-next">
+    <a href="https://zhangrr.github.io/posts/20220520-javascripts_reduce/">Javascripts之数组的reduce
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
     <ul class="related-posts"><li><a href="https://zhangrr.github.io/posts/20220401-nginx_epoll/">面试之Nginx的epoll的优势
@@ -345,11 +349,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://zhangrr.github.io/posts/20220401-docker_mini_image/">面试之Docker如何打出最小的镜像
+    <ul><li><a href="https://zhangrr.github.io/posts/20220520-javascripts_reduce/">Javascripts之数组的reduce
+</a></li><li><a href="https://zhangrr.github.io/posts/20220401-docker_mini_image/">面试之Docker如何打出最小的镜像
 </a></li><li><a href="https://zhangrr.github.io/posts/20220401-nginx_epoll/">面试之Nginx的epoll的优势
 </a></li><li><a href="https://zhangrr.github.io/posts/20220317-kubernetes_flannel/">Kubernetes下Flannel网络
 </a></li><li><a href="https://zhangrr.github.io/posts/20220225-ucarp/">Ucarp的安装配置
-</a></li><li><a href="https://zhangrr.github.io/posts/20220224-gost_tunnel/">Gost Tunnel的使用
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
