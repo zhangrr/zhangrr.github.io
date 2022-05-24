@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>kubernetes生产环境使用filebeat sidecar收集日志 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://zhangrr.github.io/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>javascript的实际应用-fs模块 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://zhangrr.github.io/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://zhangrr.github.io/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://zhangrr.github.io/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://zhangrr.github.io/images/favicons/manifest.json">
 <link rel="icon" href="https://zhangrr.github.io/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="kubernetes生产环境使用filebeat sidecar收集日志">
-<meta itemprop="description" content="在生产环境中，ES 通常是不会在 k8s 集群中存在的，一般 MySQL 和 Elasticsearch 都是独立在 k8s 之外。 那么无论哪种 pod，要甩日志到 ES，最轻量的方案肯定是用 filebeat 甩过去了"><meta itemprop="datePublished" content="2021-11-10T12:30:11+08:00" />
-<meta itemprop="dateModified" content="2021-11-10T12:30:11+08:00" />
-<meta itemprop="wordCount" content="1135">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="kubernetes生产环境使用filebeat sidecar收集日志" />
-<meta property="og:description" content="在生产环境中，ES 通常是不会在 k8s 集群中存在的，一般 MySQL 和 Elasticsearch 都是独立在 k8s 之外。 那么无论哪种 pod，要甩日志到 ES，最轻量的方案肯定是用 filebeat 甩过去了" />
+<meta name="description" content="" /><meta itemprop="name" content="javascript的实际应用-fs模块">
+<meta itemprop="description" content="千里之行始于足下，javascript 模块漫天飞，能做的事也是五花八门。我们来实践一下 假设我们有一个文本文件，内容如下： 里面是一行行数据，我"><meta itemprop="datePublished" content="2022-05-22T09:30:11+08:00" />
+<meta itemprop="dateModified" content="2022-05-22T09:30:11+08:00" />
+<meta itemprop="wordCount" content="209">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="javascript的实际应用-fs模块" />
+<meta property="og:description" content="千里之行始于足下，javascript 模块漫天飞，能做的事也是五花八门。我们来实践一下 假设我们有一个文本文件，内容如下： 里面是一行行数据，我" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://zhangrr.github.io/posts/20211110-k8s_sidecar/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2021-11-10T12:30:11+08:00" />
-<meta property="article:modified_time" content="2021-11-10T12:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+<meta property="og:url" content="https://zhangrr.github.io/posts/20220522-javascirpts_fs/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-05-22T09:30:11+08:00" />
+<meta property="article:modified_time" content="2022-05-22T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="kubernetes生产环境使用filebeat sidecar收集日志"/>
-<meta name="twitter:description" content="在生产环境中，ES 通常是不会在 k8s 集群中存在的，一般 MySQL 和 Elasticsearch 都是独立在 k8s 之外。 那么无论哪种 pod，要甩日志到 ES，最轻量的方案肯定是用 filebeat 甩过去了"/>
+<meta name="twitter:title" content="javascript的实际应用-fs模块"/>
+<meta name="twitter:description" content="千里之行始于足下，javascript 模块漫天飞，能做的事也是五花八门。我们来实践一下 假设我们有一个文本文件，内容如下： 里面是一行行数据，我"/>
 <link rel="preload" href="https://zhangrr.github.io/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://zhangrr.github.io/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://zhangrr.github.io/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
   <body><script src="https://zhangrr.github.io/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=kubernetes%e7%94%9f%e4%ba%a7%e7%8e%af%e5%a2%83%e4%bd%bf%e7%94%a8filebeat%20sidecar%e6%94%b6%e9%9b%86%e6%97%a5%e5%bf%97&url=https%3a%2f%2fzhangrr.github.io%2fposts%2f20211110-k8s_sidecar%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=javascript%e7%9a%84%e5%ae%9e%e9%99%85%e5%ba%94%e7%94%a8-fs%e6%a8%a1%e5%9d%97&url=https%3a%2f%2fzhangrr.github.io%2fposts%2f20220522-javascirpts_fs%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fzhangrr.github.io%2fposts%2f20211110-k8s_sidecar%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fzhangrr.github.io%2fposts%2f20220522-javascirpts_fs%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://zhangrr.github.io/">主页</a></li><li class="breadcrumb-item"><a href="https://zhangrr.github.io/posts/">文章</a></li><li class="breadcrumb-item active">Kubernetes生产环境使用filebeat Sidecar收集日志</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://zhangrr.github.io/">主页</a></li><li class="breadcrumb-item"><a href="https://zhangrr.github.io/posts/">文章</a></li><li class="breadcrumb-item active">Javascript的实际应用-Fs模块</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -204,184 +204,53 @@
 ">
   <i class="fas fa-fw fa-copyright"></i>
 </a>
-    <a data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
-  <i class="fas fa-fw fa-list-alt"></i>
-</a>
+    
   </div>
 </div>
-<h1 class="card-title my-3">Kubernetes生产环境使用filebeat Sidecar收集日志
+<h1 class="card-title my-3">Javascript的实际应用-Fs模块
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-10
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-05-22
   </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
-<div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
-  <div class="offcanvas-header">
-    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
-      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
-        <i class="fas fa-times"></i>
-      </button>
-  </div>
-  <div class="offcanvas-body">
-    <nav id="TableOfContents">
-  <ul>
-    <li><a href="#一打造-filebeat-边车镜像">一、打造 filebeat 边车镜像</a></li>
-    <li><a href="#二sidecar部署">二、sidecar部署</a></li>
-  </ul>
-</nav>
-  </div>
-</div><div class="post-content mb-3"><p>在生产环境中，ES 通常是不会在 k8s 集群中存在的，一般 MySQL 和 Elasticsearch 都是独立在 k8s 之外。</p>
-<p>那么无论哪种 pod，要甩日志到 ES，最轻量的方案肯定是用 filebeat 甩过去了。</p>
-<p>当然，如果是阿里的 ACK，logtail 和 logstore 配搭已经非常不错了，根本用不到 filebeat 和 ES。</p>
-<p>可但是，我们不想为阿里 sls、logstore 出钱买单，就只能用 filebeat + ES 了</p>
-<p>说一下 filebeat 的 sidecar 边车（僚机）用法：</p>
-<p><img class="img-fluid" alt="image-20211110192939845" src="https://zhangrr.github.io/posts/20211110-k8s_sidecar/image-20211110192939845.png" loading="lazy"
-   width="539" height="299"
+<div class="post-content mb-3"><p>千里之行始于足下，javascript 模块漫天飞，能做的事也是五花八门。我们来实践一下</p>
+<p>假设我们有一个文本文件，内容如下：</p>
+<p><img class="img-fluid" alt="image-20220524155511802" src="https://zhangrr.github.io/posts/20220522-javascirpts_fs/image-20220524155511802.png" loading="lazy"
+   width="205" height="359"
    />
 
 </p>
-<p>如上图所示，简单说就是起一个 filebeat 的 logging-agent 边车（僚机），边车和主应用之间共享某个文件夹（mountPath），达到收集主应用日志并发送到 ES，而不用动 app-container 分毫。</p>
-<p>我们以部署一个 Tomcat 应用为例来说明：</p>
-<h2 id="一打造-filebeat-边车镜像">一、打造 filebeat 边车镜像</h2>
-<p>首先准备 Dockerfile</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span><span class="na">FROM alpine:3.12  </span>
+<p>里面是一行行数据，我们要做的就是把所有值取整求和，文件中有某些空行</p>
+<p>很简单，程序如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>var <span class="nv">fs</span> <span class="o">=</span> require<span class="o">(</span><span class="s1">&#39;fs&#39;</span><span class="o">)</span><span class="p">;</span>
 <span class="ln"> 2</span>
-<span class="ln"> 3</span><span class="na">ARG VERSION</span><span class="o">=</span><span class="s">7.15.1  </span>
-<span class="ln"> 4</span>
-<span class="ln"> 5</span><span class="na">COPY docker-entrypoint.sh /  </span>
-<span class="ln"> 6</span>
-<span class="ln"> 7</span><span class="na">RUN set -x \  </span>
-<span class="ln"> 8</span>    <span class="na">&amp;&amp; cd /tmp \  </span>
-<span class="ln"> 9</span>    <span class="na">&amp;&amp; wget https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-${VERSION}-linux-x86_64.tar.gz \  </span>
-<span class="ln">10</span>    <span class="na">&amp;&amp; tar xzvf filebeat-${VERSION}-linux-x86_64.tar.gz \  </span>
-<span class="ln">11</span>    <span class="na">&amp;&amp; mv filebeat-${VERSION}-linux-x86_64 /opt \  </span>
-<span class="ln">12</span>    <span class="na">&amp;&amp; rm /tmp/* \  </span>
-<span class="ln">13</span>    <span class="na">&amp;&amp; chmod +x /docker-entrypoint.sh  </span>
-<span class="ln">14</span>
-<span class="ln">15</span>
-<span class="ln">16</span><span class="na">ENV PATH $PATH:/opt/filebeat-${VERSION}-linux-x86_64  </span>
-<span class="ln">17</span>
-<span class="ln">18</span><span class="na">WORKDIR /opt/filebeat-${VERSION}-linux-x86_64  </span>
-<span class="ln">19</span>
-<span class="ln">20</span><span class="na">ENTRYPOINT [&#34;/docker-entrypoint.sh&#34;]  </span>
-</code></pre></div><p>我们以 alphine:3.12 为底版，然后下载 filebeat  7.15.1的二进制包并释放到 /opt 下，最后指定入口文件 /docker-entrypoint.sh</p>
-<p>奥妙全在这个 docker-entrypoint.sh 中了</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="cp">#!/bin/bash 
-</span><span class="ln"> 2</span><span class="cp"></span>  
-<span class="ln"> 3</span>cat &gt; /etc/filebeat.yaml <span class="s">&lt;&lt; EOF 
-</span><span class="ln"> 4</span><span class="s">filebeat.config.modules:
-</span><span class="ln"> 5</span><span class="s">  path: /opt/filebeat-7.15.1-linux-x86_64/modules.d/*.yml
-</span><span class="ln"> 6</span><span class="s">  reload.enabled: true
-</span><span class="ln"> 7</span><span class="s">
-</span><span class="ln"> 8</span><span class="s"># 加入自定义的字段
-</span><span class="ln"> 9</span><span class="s">fields_under_root: true
-</span><span class="ln">10</span><span class="s">fields:
-</span><span class="ln">11</span><span class="s">  project: kuaijian-tomcat
-</span><span class="ln">12</span><span class="s">  pod_ip: ${POD_IP}
-</span><span class="ln">13</span><span class="s">  pod_name: ${POD_NAME}
-</span><span class="ln">14</span><span class="s">  node_name: ${NODE_NAME}
-</span><span class="ln">15</span><span class="s">  pod_namespace: ${POD_NAMESPACE}
-</span><span class="ln">16</span><span class="s">  
-</span><span class="ln">17</span><span class="s"># 收集云厂商的数据和docker的变量
-</span><span class="ln">18</span><span class="s">processors:
-</span><span class="ln">19</span><span class="s">  - add_cloud_metadata: ~
-</span><span class="ln">20</span><span class="s">  - add_docker_metadata: ~
-</span><span class="ln">21</span><span class="s">
-</span><span class="ln">22</span><span class="s">filebeat.modules:
-</span><span class="ln">23</span><span class="s">  - module: apache
-</span><span class="ln">24</span><span class="s">    access:
-</span><span class="ln">25</span><span class="s">      enabled: true
-</span><span class="ln">26</span><span class="s">      var.paths:
-</span><span class="ln">27</span><span class="s">      - &#34;/usr/local/tomcat/logs/localhost_access_log.*.txt&#34;
-</span><span class="ln">28</span><span class="s">    error:
-</span><span class="ln">29</span><span class="s">      enabled: true
-</span><span class="ln">30</span><span class="s">      var.paths:
-</span><span class="ln">31</span><span class="s">      - &#34;/usr/local/tomcat/logs/application.log*&#34;
-</span><span class="ln">32</span><span class="s">      - &#34;/usr/local/tomcat/logs/catalina.*.log&#34;
-</span><span class="ln">33</span><span class="s">      - &#34;/usr/local/tomcat/logs/host-manager.*.log&#34;
-</span><span class="ln">34</span><span class="s">      - &#34;/usr/local/tomcat/logs/localhost.*.log&#34;
-</span><span class="ln">35</span><span class="s">      - &#34;/usr/local/tomcat/logs/manager.*.log&#34;
-</span><span class="ln">36</span><span class="s">      
-</span><span class="ln">37</span><span class="s">setup.template.name: &#34;tomcat-logs&#34;
-</span><span class="ln">38</span><span class="s">setup.template.pattern: &#34;tomcat-logs-*&#34;
-</span><span class="ln">39</span><span class="s">output.elasticsearch:
-</span><span class="ln">40</span><span class="s">  hosts: [&#34;172.19.20.xxx:9200&#34;,&#34;172.19.20.xxx:9200&#34;]
-</span><span class="ln">41</span><span class="s">  index: &#34;tomcat-logs-%{+yyyy.MM}&#34;
-</span><span class="ln">42</span><span class="s">EOF</span> 
-<span class="ln">43</span> 
-<span class="ln">44</span><span class="nb">set</span> -xe 
-<span class="ln">45</span>
-<span class="ln">46</span><span class="c1"># If user don&#39;t provide any command </span>
-<span class="ln">47</span><span class="c1"># Run filebeat </span>
-<span class="ln">48</span><span class="k">if</span> <span class="o">[[</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">==</span> <span class="s2">&#34;&#34;</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span> 
-<span class="ln">49</span>     <span class="nb">exec</span> /opt/filebeat-7.15.1-linux-x86_64/filebeat -c /etc/filebeat.yaml  
-<span class="ln">50</span><span class="k">else</span> 
-<span class="ln">51</span>    <span class="c1"># Else allow the user to run arbitrarily commands like bash </span>
-<span class="ln">52</span>    <span class="nb">exec</span> <span class="s2">&#34;</span><span class="nv">$@</span><span class="s2">&#34;</span> 
-<span class="ln">53</span><span class="k">fi</span> 
-</code></pre></div><p>我们为什么不在 k8s 里用 configmap 来配置 filebeat.yml 呢？</p>
-<p>理由是收集日志文件多且路径、类型各不相同，这么一堆的配置都放在 configmap 里会让人癫狂的。所以干脆放到镜像里，便于调试也便于修改。</p>
-<p>上面我们也充分利用了 filebeat 的 module，有 module 可用就必须用 module，而不是手动指定 filebeat.inputs ，可用的 mudole 实在太多了，一定要善用！！！另外 tomcat 和 apache 的日志格式是一样的。</p>
-<p>我们在最后执行的时候，也加了 <code>exec $@</code> 便于调试，如果没有指定 CMD，就启动 filebeat，如果指定了比如 /bin/bash，就进入调试状态。</p>
-<p>我们打好镜像就 push 到 harbor 里待用</p>
-<p>附录：https://www.elastic.co/guide/en/beats/filebeat/current/configuration-general-options.html filebeat的配置列表</p>
-<h2 id="二sidecar部署">二、sidecar部署</h2>
-<p>我们写一个 k8s 的 tomcat deployment文件：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span><span class="na">apiVersion: apps/v1</span>
-<span class="ln"> 2</span><span class="na">kind: Deployment</span>
-<span class="ln"> 3</span><span class="na">metadata:</span>
-<span class="ln"> 4</span>  <span class="na">name: tomcat</span>
-<span class="ln"> 5</span>  <span class="na">labels:</span>
-<span class="ln"> 6</span>    <span class="na">app: tomcat</span>
-<span class="ln"> 7</span><span class="na">spec:</span>
-<span class="ln"> 8</span>  <span class="na">replicas: 1</span>
-<span class="ln"> 9</span>  <span class="na">selector:</span>
-<span class="ln">10</span>    <span class="na">matchLabels:</span>
-<span class="ln">11</span>      <span class="na">app: tomcat</span>
-<span class="ln">12</span>  <span class="na">template:</span>
-<span class="ln">13</span>    <span class="na">metadata:</span>
-<span class="ln">14</span>      <span class="na">labels:</span>
-<span class="ln">15</span>        <span class="na">app: tomcat</span>
-<span class="ln">16</span>    <span class="na">spec:</span>
-<span class="ln">17</span>      <span class="na">containers:</span>
-<span class="ln">18</span>      <span class="na">- name: filebeat-sidecar</span>
-<span class="ln">19</span>        <span class="na">image: xxxx.xxxx.xxx/filebeat:xxx</span>
-<span class="ln">20</span>        <span class="na">env:</span>
-<span class="ln">21</span>        <span class="na">- name: POD_NAMESPACE</span>
-<span class="ln">22</span>          <span class="na">valueFrom:</span>
-<span class="ln">23</span>            <span class="na">fieldRef:</span>
-<span class="ln">24</span>              <span class="na">apiVersion: v1</span>
-<span class="ln">25</span>              <span class="na">fieldPath: metadata.namespace</span>
-<span class="ln">26</span>        <span class="na">- name: NODE_NAME</span>
-<span class="ln">27</span>          <span class="na">valueFrom:</span>
-<span class="ln">28</span>            <span class="na">fieldRef:</span>
-<span class="ln">29</span>              <span class="na">apiVersion: v1</span>
-<span class="ln">30</span>              <span class="na">fieldPath: spec.nodeName</span>
-<span class="ln">31</span>        <span class="na">- name: POD_IP</span>
-<span class="ln">32</span>          <span class="na">valueFrom:</span>
-<span class="ln">33</span>            <span class="na">fieldRef:</span>
-<span class="ln">34</span>              <span class="na">apiVersion: v1</span>
-<span class="ln">35</span>              <span class="na">fieldPath: status.podIP</span>
-<span class="ln">36</span>        <span class="na">- name: POD_NAME</span>
-<span class="ln">37</span>          <span class="na">valueFrom:</span>
-<span class="ln">38</span>            <span class="na">fieldRef:</span>
-<span class="ln">39</span>              <span class="na">apiVersion: v1</span>
-<span class="ln">40</span>              <span class="na">fieldPath: metadata.name            </span>
-<span class="ln">41</span>        <span class="na">volumeMounts:</span>
-<span class="ln">42</span>        <span class="na">- name: logs-volume</span>
-<span class="ln">43</span>          <span class="na">mountPath: /usr/local/tomcat/logs</span>
-<span class="ln">44</span>      <span class="na">- name: tomcat</span>
-<span class="ln">45</span>        <span class="na">image: tomcat</span>
-<span class="ln">46</span>        <span class="na">ports:</span>
-<span class="ln">47</span>        <span class="na">- containerPort: 8080</span>
-<span class="ln">48</span>        <span class="na">volumeMounts:</span>
-<span class="ln">49</span>        <span class="na">- name: logs-volume</span>
-<span class="ln">50</span>          <span class="na">mountPath: /usr/local/tomcat/logs</span>
-<span class="ln">51</span>      <span class="na">volumes:</span>
-<span class="ln">52</span>      <span class="na">- name: logs-volume</span>
-<span class="ln">53</span>        <span class="na">emptyDir: {}</span>
-</code></pre></div><p>可以看到我们在这个 deployment 里定义了 pod 是单副本，里面跑了两个 container，一个是 filebeat，一个是 tocmat，两者通过同一个 volume 连接在一起，这样就可以做到不修改 tomcat container 而拿到里面的日志了。</p>
-<p>这样就把 tomcat 应用的日志收到 ES 去了。</p>
+<span class="ln"> 3</span><span class="nv">calculate</span> <span class="o">=</span> <span class="o">()</span> <span class="o">=</span>&gt; <span class="o">{</span>
+<span class="ln"> 4</span>    fs.readFile<span class="o">(</span><span class="s1">&#39;data.txt&#39;</span>, <span class="s1">&#39;utf8&#39;</span>, <span class="o">(</span>err, data<span class="o">)</span> <span class="o">=</span>&gt; <span class="o">{</span>
+<span class="ln"> 5</span>        <span class="k">if</span> <span class="o">(</span>err<span class="o">)</span> <span class="o">{</span>
+<span class="ln"> 6</span>            throw new Error<span class="o">(</span>err<span class="o">)</span>
+<span class="ln"> 7</span>        <span class="o">}</span>
+<span class="ln"> 8</span>
+<span class="ln"> 9</span>        const <span class="nv">arr</span> <span class="o">=</span> data.split<span class="o">(</span><span class="s1">&#39;\r\n&#39;</span><span class="o">)</span><span class="p">;</span>
+<span class="ln">10</span>        const <span class="nv">result</span> <span class="o">=</span> arr
+<span class="ln">11</span>            .filter<span class="o">(</span><span class="nv">e</span> <span class="o">=</span>&gt; e<span class="o">)</span>
+<span class="ln">12</span>            .map<span class="o">(</span>parseFloat<span class="o">)</span>
+<span class="ln">13</span>            .reduce<span class="o">((</span>curr, next<span class="o">)</span> <span class="o">=</span>&gt; curr + next<span class="o">)</span><span class="p">;</span>
+<span class="ln">14</span>        console.log<span class="o">(</span><span class="s1">&#39;RESULT: &#39;</span>, result<span class="o">)</span><span class="p">;</span>
+<span class="ln">15</span>    <span class="o">})</span><span class="p">;</span>
+<span class="ln">16</span><span class="o">}</span>
+</code></pre></div><p>超级简单吧</p>
+<p><img class="img-fluid" alt="image-20220524155746288" src="https://zhangrr.github.io/posts/20220522-javascirpts_fs/image-20220524155746288.png" loading="lazy"
+   width="514" height="325"
+   />
+
+</p>
+<p>关键就是上面的链式调用</p>
+<ul>
+<li>split 用来分割每一行</li>
+<li>filter 用来去掉空行</li>
+<li>map 用来把每一行都转化成整数</li>
+<li>reduce 用来求和</li>
+</ul>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -409,19 +278,15 @@
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://zhangrr.github.io/posts/20211110-haproxy_multiple_port/">Haproxy一个端口跑多个服务
+    <a href="https://zhangrr.github.io/posts/20220521-javascripts_module/">Javascripts中的module
 </a>
-  </div><div class="post-nav post-next">
-    <a href="https://zhangrr.github.io/posts/20211110-k8s_gfs/">生产环境kubernetes使用持久化卷GlusterFS
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://zhangrr.github.io/posts/20211110-haproxy_multiple_port/">Haproxy一个端口跑多个服务
-</a></li><li><a href="https://zhangrr.github.io/posts/20211110-sslh_multiple_port/">Sslh的一个端口同时跑多个服务
-</a></li><li><a href="https://zhangrr.github.io/posts/20211109-nginx_multiple_port/">Nginx的一个端口同时跑SSH和HTTPS服务
-</a></li><li><a href="https://zhangrr.github.io/posts/20211109-k8s_rbac/">Kubernetes创建普通账号
-</a></li><li><a href="https://zhangrr.github.io/posts/20211108-clash/">Clash的搭建教程
+    <ul class="related-posts"><li><a href="https://zhangrr.github.io/posts/20220521-javascripts_module/">Javascripts中的module
+</a></li><li><a href="https://zhangrr.github.io/posts/20220520-javascripts_reduce/">Javascripts之数组的reduce
+</a></li><li><a href="https://zhangrr.github.io/posts/20220401-docker_mini_image/">面试之Docker如何打出最小的镜像
+</a></li><li><a href="https://zhangrr.github.io/posts/20220401-nginx_epoll/">面试之Nginx的epoll的优势
+</a></li><li><a href="https://zhangrr.github.io/posts/20220317-kubernetes_flannel/">Kubernetes下Flannel网络
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
