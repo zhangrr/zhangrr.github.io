@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>KVM下宿主机的目录直通到虚机 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://zhangrr.github.io/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>javascripts中的map - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://zhangrr.github.io/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://zhangrr.github.io/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://zhangrr.github.io/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://zhangrr.github.io/images/favicons/manifest.json">
 <link rel="icon" href="https://zhangrr.github.io/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="KVM下宿主机的目录直通到虚机">
-<meta itemprop="description" content="这个需求也很有点意思，DBA 要求做 MySQL 的卸载从库，数据量会很大，硬盘空间后期需要扩容，但是 cpu 反倒占的不多。 单独 MySQL 是无法限制其 CPU 核使用的，这样的"><meta itemprop="datePublished" content="2022-02-23T09:30:11+08:00" />
-<meta itemprop="dateModified" content="2022-02-23T09:30:11+08:00" />
-<meta itemprop="wordCount" content="859">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="KVM下宿主机的目录直通到虚机" />
-<meta property="og:description" content="这个需求也很有点意思，DBA 要求做 MySQL 的卸载从库，数据量会很大，硬盘空间后期需要扩容，但是 cpu 反倒占的不多。 单独 MySQL 是无法限制其 CPU 核使用的，这样的" />
+<meta name="description" content="" /><meta itemprop="name" content="javascripts中的map">
+<meta itemprop="description" content="Javascripts 中的 map 说到map，如果我们有循环的话，不停遍历，会把时间搞成 O(n)。如果有map，时间就变成了O(1)，所以还是相当有效率的。 map 是 ES2015 中新"><meta itemprop="datePublished" content="2022-05-23T09:30:11+08:00" />
+<meta itemprop="dateModified" content="2022-05-23T09:30:11+08:00" />
+<meta itemprop="wordCount" content="711">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="javascripts中的map" />
+<meta property="og:description" content="Javascripts 中的 map 说到map，如果我们有循环的话，不停遍历，会把时间搞成 O(n)。如果有map，时间就变成了O(1)，所以还是相当有效率的。 map 是 ES2015 中新" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://zhangrr.github.io/posts/20220223-kvm_passthrouth/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2022-02-23T09:30:11+08:00" />
-<meta property="article:modified_time" content="2022-02-23T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+<meta property="og:url" content="https://zhangrr.github.io/posts/20220523-javascripts_map/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-05-23T09:30:11+08:00" />
+<meta property="article:modified_time" content="2022-05-23T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="KVM下宿主机的目录直通到虚机"/>
-<meta name="twitter:description" content="这个需求也很有点意思，DBA 要求做 MySQL 的卸载从库，数据量会很大，硬盘空间后期需要扩容，但是 cpu 反倒占的不多。 单独 MySQL 是无法限制其 CPU 核使用的，这样的"/>
+<meta name="twitter:title" content="javascripts中的map"/>
+<meta name="twitter:description" content="Javascripts 中的 map 说到map，如果我们有循环的话，不停遍历，会把时间搞成 O(n)。如果有map，时间就变成了O(1)，所以还是相当有效率的。 map 是 ES2015 中新"/>
 <link rel="preload" href="https://zhangrr.github.io/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://zhangrr.github.io/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://zhangrr.github.io/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
   <body><script src="https://zhangrr.github.io/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=KVM%e4%b8%8b%e5%ae%bf%e4%b8%bb%e6%9c%ba%e7%9a%84%e7%9b%ae%e5%bd%95%e7%9b%b4%e9%80%9a%e5%88%b0%e8%99%9a%e6%9c%ba&url=https%3a%2f%2fzhangrr.github.io%2fposts%2f20220223-kvm_passthrouth%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=javascripts%e4%b8%ad%e7%9a%84map&url=https%3a%2f%2fzhangrr.github.io%2fposts%2f20220523-javascripts_map%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fzhangrr.github.io%2fposts%2f20220223-kvm_passthrouth%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fzhangrr.github.io%2fposts%2f20220523-javascripts_map%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://zhangrr.github.io/">主页</a></li><li class="breadcrumb-item"><a href="https://zhangrr.github.io/posts/">文章</a></li><li class="breadcrumb-item active">KVM下宿主机的目录直通到虚机</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://zhangrr.github.io/">主页</a></li><li class="breadcrumb-item"><a href="https://zhangrr.github.io/posts/">文章</a></li><li class="breadcrumb-item active">Javascripts中的map</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -204,148 +204,75 @@
 ">
   <i class="fas fa-fw fa-copyright"></i>
 </a>
-    <a data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
-  <i class="fas fa-fw fa-list-alt"></i>
-</a>
+    
   </div>
 </div>
-<h1 class="card-title my-3">KVM下宿主机的目录直通到虚机
+<h1 class="card-title my-3">Javascripts中的map
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-02-23
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-05-23
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
   </span></div>
-<div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
-  <div class="offcanvas-header">
-    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
-      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
-        <i class="fas fa-times"></i>
-      </button>
-  </div>
-  <div class="offcanvas-body">
-    <nav id="TableOfContents">
-  <ul>
-    <li><a href="#一编译宿主机的qemu新包">一、编译宿主机的qemu新包</a></li>
-    <li><a href="#二生产虚机做好passthrough">二、生产虚机，做好passthrough</a></li>
-  </ul>
-</nav>
-  </div>
-</div><div class="post-content mb-3"><p>这个需求也很有点意思，DBA 要求做 MySQL 的卸载从库，数据量会很大，硬盘空间后期需要扩容，但是 cpu 反倒占的不多。</p>
-<p>单独 MySQL 是无法限制其 CPU 核使用的，这样的话，最好就是做个虚机来控制 MySQL 总 CPU 核数的使用，然后硬盘扩容的话，比如要拉伸虚机的附加第二块硬盘，如果是 QEMU 格式，会花费很长时间，所以干脆把宿主机的目录直接透传进虚机，之后如果要扩容加硬盘，直接把新的大硬盘 mount 出来再透进去即可，新旧硬盘拷贝数据也比拉伸虚机硬盘快。</p>
-<p>CentOS7 下的做法如下：</p>
-<p>两个大前提：</p>
-<p>一、宿主机的 KVM qemu 系统需要使用新的 rpm 包，需要编译</p>
-<p>二、虚机的内核需要升级，mount 命令需要支持 -t p9 的新格式</p>
-<p>我们做好准备，就可以开始了</p>
-<h2 id="一编译宿主机的qemu新包">一、编译宿主机的qemu新包</h2>
-<p>现在已经是2022年了，所以编译的方式也发生变化了，最佳编译方式是干脆启动一个 Docker 虚拟机，来编译出来 rpm 包，也不污染环境。</p>
-<p>首先克隆下来项目：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln">1</span>git clone https://github.com/AlekseyChudov/qemu-kvm-virtfs.git
-<span class="ln">2</span>
-<span class="ln">3</span>cd qemu-kvm-virtfs
-<span class="ln">4</span>
-</code></pre></div><p>看一下最后的 build 脚本，有一个地方需要修改：</p>
-<p>现在的 CentOS 最新版是 7.9.2009 ，这个版本树里是没有 qemu 的 Source Code 的，需要修改 baseurl，降低到 7.8.2003 才有 Source 的 repo</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span><span class="na">baseurl</span><span class="o">=</span><span class="s">https://mirrors.tripadvisor.com/centos-vault/centos/\$releasever/virt/Source/kvm-common/</span>
-<span class="ln">2</span>
-<span class="ln">3</span><span class="na">改成：</span>
-<span class="ln">4</span>
-<span class="ln">5</span><span class="na">baseurl</span><span class="o">=</span><span class="s">https://mirrors.tripadvisor.com/centos-vault/centos/7.8.2003/virt/Source/kvm-common/</span>
-</code></pre></div><p>改好后 build 脚本如下</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="cp">#!/bin/bash
-</span><span class="ln"> 2</span><span class="cp"></span>
-<span class="ln"> 3</span><span class="nb">set</span> -ex
-<span class="ln"> 4</span>
-<span class="ln"> 5</span>yum -y update
-<span class="ln"> 6</span>
-<span class="ln"> 7</span>yum -y install <span class="se">\
-</span><span class="ln"> 8</span><span class="se"></span>    <span class="s2">&#34;@Development Tools&#34;</span> <span class="se">\
-</span><span class="ln"> 9</span><span class="se"></span>    centos-release-qemu-ev <span class="se">\
-</span><span class="ln">10</span><span class="se"></span>    glusterfs-api-devel <span class="se">\
-</span><span class="ln">11</span><span class="se"></span>    glusterfs-devel <span class="se">\
-</span><span class="ln">12</span><span class="se"></span>    iasl <span class="se">\
-</span><span class="ln">13</span><span class="se"></span>    kernel-devel <span class="se">\
-</span><span class="ln">14</span><span class="se"></span>    libcacard-devel <span class="se">\
-</span><span class="ln">15</span><span class="se"></span>    libepoxy-devel <span class="se">\
-</span><span class="ln">16</span><span class="se"></span>    mesa-libgbm-devel <span class="se">\
-</span><span class="ln">17</span><span class="se"></span>    nss-devel <span class="se">\
-</span><span class="ln">18</span><span class="se"></span>    spice-protocol <span class="se">\
-</span><span class="ln">19</span><span class="se"></span>    spice-server-devel <span class="se">\
-</span><span class="ln">20</span><span class="se"></span>    usbredir-devel
-<span class="ln">21</span>
-<span class="ln">22</span>cat <span class="s">&lt;&lt; EOF &gt;&gt; /etc/yum.repos.d/CentOS-QEMU-EV.repo
-</span><span class="ln">23</span><span class="s">[centos-qemu-ev-source]
-</span><span class="ln">24</span><span class="s">name=CentOS-\$releasever - QEMU EV Sources
-</span><span class="ln">25</span><span class="s">baseurl=https://mirrors.tripadvisor.com/centos-vault/centos/7.8.2003/virt/Source/kvm-common/
-</span><span class="ln">26</span><span class="s">gpgcheck=1
-</span><span class="ln">27</span><span class="s">enabled=0
-</span><span class="ln">28</span><span class="s">gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-Virtualization
-</span><span class="ln">29</span><span class="s">EOF</span>
-<span class="ln">30</span>
-<span class="ln">31</span>yum-builddep -y qemu-kvm-ev
-<span class="ln">32</span>
-<span class="ln">33</span>yumdownloader --source qemu-kvm-ev
-<span class="ln">34</span>
-<span class="ln">35</span>rpm -Uvh qemu-kvm-ev-*.src.rpm
-<span class="ln">36</span>
-<span class="ln">37</span>sed -i <span class="s1">&#39;s/--disable-virtfs/--enable-virtfs/&#39;</span> /root/rpmbuild/SOURCES/build_configure.sh
-<span class="ln">38</span>
-<span class="ln">39</span>sed -i -e <span class="s1">&#39;/^%files -n qemu-kvm-common/,/^$/s/^$/%{_bindir}\/virtfs-proxy-helper\n%{_mandir}\/man1\/virtfs-proxy-helper.1.gz\n/&#39;</span> <span class="se">\
-</span><span class="ln">40</span><span class="se"></span>    -e <span class="s1">&#39;/^%if %{rhev}$/,/^%else$/s/pkgsuffix -ev/pkgsuffix -virtfs/&#39;</span> <span class="se">\
-</span><span class="ln">41</span><span class="se"></span>    -e <span class="s1">&#39;/%define rhel_rhev_conflicts()/ a Provides: %1-ev = %{epoch}:%{version}-%{release} \\\nObsoletes: %1-ev &lt; %{obsoletes_version} \\&#39;</span> <span class="se">\
-</span><span class="ln">42</span><span class="se"></span>    /root/rpmbuild/SPECS/qemu-kvm.spec
-<span class="ln">43</span>
-<span class="ln">44</span>rpmbuild -ba --clean /root/rpmbuild/SPECS/qemu-kvm.spec
-</code></pre></div><p>然后一句话执行 Build：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="nb">cd</span> qemu-kvm-virtfs
+<div class="post-content mb-3"><p>Javascripts 中的 map</p>
+<p>说到map，如果我们有循环的话，不停遍历，会把时间搞成 O(n)。如果有map，时间就变成了O(1)，所以还是相当有效率的。</p>
+<p>map 是 ES2015 中新增加的，是一种新的 Object 类型，允许存放各种 key-value 对。</p>
+<p>map 最大的特性是，key 可以是任何类型，包括 object 和 function；可以调用 size 得到 map 的大小；迭代的时候，是严格按照添加的顺序进行迭代的。</p>
+<p>map 的方法如下： set, get, size, has, delete, clear:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="ln"> 1</span><span class="kd">let</span> <span class="nx">things</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Map</span><span class="p">();</span>
 <span class="ln"> 2</span>
-<span class="ln"> 3</span>docker run -it --privileged -v <span class="s2">&#34;</span><span class="nv">$PWD</span><span class="s2">/rpmbuild:/root/rpmbuild&#34;</span> <span class="se">\
-</span><span class="ln"> 4</span><span class="se"></span>    docker.io/centos:7 /root/rpmbuild/build
-<span class="ln"> 5</span>
-<span class="ln"> 6</span>会得到如下的包，版本是 2.12.0-44.1.el7_8.1 ：
+<span class="ln"> 3</span><span class="kr">const</span> <span class="nx">myFunc</span> <span class="o">=</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="s1">&#39;🍕&#39;</span><span class="p">;</span>
+<span class="ln"> 4</span>
+<span class="ln"> 5</span><span class="nx">things</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;🚗&#39;</span><span class="p">,</span> <span class="s1">&#39;Car&#39;</span><span class="p">);</span>
+<span class="ln"> 6</span><span class="nx">things</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;🏠&#39;</span><span class="p">,</span> <span class="s1">&#39;House&#39;</span><span class="p">);</span>
+<span class="ln"> 7</span><span class="nx">things</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;✈️&#39;</span><span class="p">,</span> <span class="s1">&#39;Airplane&#39;</span><span class="p">);</span>
+<span class="ln"> 8</span><span class="nx">things</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">myFunc</span><span class="p">,</span> <span class="s1">&#39;😄 Key is a function!&#39;</span><span class="p">);</span>
+<span class="ln"> 9</span>
+<span class="ln">10</span><span class="nx">things</span><span class="p">.</span><span class="nx">size</span><span class="p">;</span> <span class="c1">// 4
+</span><span class="ln">11</span><span class="c1"></span>
+<span class="ln">12</span><span class="nx">things</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="s1">&#39;🚗&#39;</span><span class="p">);</span> <span class="c1">// true
+</span><span class="ln">13</span><span class="c1"></span>
+<span class="ln">14</span><span class="nx">things</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">myFunc</span><span class="p">)</span> <span class="c1">// true
+</span><span class="ln">15</span><span class="c1"></span><span class="nx">things</span><span class="p">.</span><span class="nx">has</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="s1">&#39;🍕&#39;</span><span class="p">);</span> <span class="c1">// false, not the same reference
+</span><span class="ln">16</span><span class="c1"></span><span class="nx">things</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">myFunc</span><span class="p">);</span> <span class="c1">// &#39;😄 Key is a function!&#39;
+</span><span class="ln">17</span><span class="c1"></span>
+<span class="ln">18</span><span class="nx">things</span><span class="p">.</span><span class="k">delete</span><span class="p">(</span><span class="s1">&#39;✈️&#39;</span><span class="p">);</span>
+<span class="ln">19</span><span class="nx">things</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="s1">&#39;✈️&#39;</span><span class="p">);</span> <span class="c1">// false
+</span><span class="ln">20</span><span class="c1"></span>
+<span class="ln">21</span><span class="nx">things</span><span class="p">.</span><span class="nx">clear</span><span class="p">();</span>
+<span class="ln">22</span><span class="nx">things</span><span class="p">.</span><span class="nx">size</span><span class="p">;</span> <span class="c1">// 0
+</span><span class="ln">23</span><span class="c1"></span>
+<span class="ln">24</span><span class="c1">// setting key-value pairs is chainable
+</span><span class="ln">25</span><span class="c1"></span><span class="nx">things</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;🔧&#39;</span><span class="p">,</span> <span class="s1">&#39;Wrench&#39;</span><span class="p">)</span>
+<span class="ln">26</span>      <span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;🎸&#39;</span><span class="p">,</span> <span class="s1">&#39;Guitar&#39;</span><span class="p">)</span>
+<span class="ln">27</span>      <span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;🕹&#39;</span><span class="p">,</span> <span class="s1">&#39;Joystick&#39;</span><span class="p">);</span>
+<span class="ln">28</span>
+<span class="ln">29</span><span class="kr">const</span> <span class="nx">myMap</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Map</span><span class="p">();</span>
+<span class="ln">30</span>
+<span class="ln">31</span><span class="c1">// Even another map can be a key
+</span><span class="ln">32</span><span class="c1"></span><span class="nx">things</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">myMap</span><span class="p">,</span> <span class="s1">&#39;Oh gosh!&#39;</span><span class="p">);</span>
+<span class="ln">33</span><span class="nx">things</span><span class="p">.</span><span class="nx">size</span><span class="p">;</span> <span class="c1">// 4
+</span><span class="ln">34</span><span class="c1"></span><span class="nx">things</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">myMap</span><span class="p">);</span> <span class="c1">// &#39;Oh gosh!&#39;
+</span></code></pre></div><p>迭代它的方法，可以用 for &hellip; of，顺序是严格按照你插入的顺序来的：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln"> 1</span>let activities = new Map();
+<span class="ln"> 2</span>
+<span class="ln"> 3</span>activities.set(1, &#39;🏂&#39;);
+<span class="ln"> 4</span>activities.set(2, &#39;🏎&#39;);
+<span class="ln"> 5</span>activities.set(3, &#39;🚣&#39;);
+<span class="ln"> 6</span>activities.set(4, &#39;🤾&#39;);
 <span class="ln"> 7</span>
-<span class="ln"> 8</span>rpmbuild/RPMS/x86_64/qemu-img-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm
-<span class="ln"> 9</span>rpmbuild/RPMS/x86_64/qemu-kvm-common-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm
-<span class="ln">10</span>rpmbuild/RPMS/x86_64/qemu-kvm-tools-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm
-<span class="ln">11</span>rpmbuild/RPMS/x86_64/qemu-kvm-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm
-<span class="ln">12</span>rpmbuild/RPMS/x86_64/qemu-kvm-virtfs-debuginfo-2.12.0-44.1.el7_8.1.x86_64.rpm
-<span class="ln">13</span>rpmbuild/SRPMS/qemu-kvm-virtfs-2.12.0-44.1.el7_8.1.src.rpm
-<span class="ln">14</span>
-</code></pre></div><p>我们在宿主机上安装替换新的 qemu 包，并重启 libvirtd</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>yum -y install <span class="se">\
-</span><span class="ln"> 2</span><span class="se"></span>    cloud-utils <span class="se">\
-</span><span class="ln"> 3</span><span class="se"></span>    libvirt-client <span class="se">\
-</span><span class="ln"> 4</span><span class="se"></span>    libvirt-daemon-config-network <span class="se">\
-</span><span class="ln"> 5</span><span class="se"></span>    libvirt-daemon-config-nwfilter <span class="se">\
-</span><span class="ln"> 6</span><span class="se"></span>    libvirt-daemon-driver-interface <span class="se">\
-</span><span class="ln"> 7</span><span class="se"></span>    libvirt-daemon-driver-qemu <span class="se">\
-</span><span class="ln"> 8</span><span class="se"></span>    virt-install <span class="se">\
-</span><span class="ln"> 9</span><span class="se"></span>    rpmbuild/RPMS/x86_64/qemu-img-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm <span class="se">\
-</span><span class="ln">10</span><span class="se"></span>    rpmbuild/RPMS/x86_64/qemu-kvm-common-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm <span class="se">\
-</span><span class="ln">11</span><span class="se"></span>    rpmbuild/RPMS/x86_64/qemu-kvm-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm
-<span class="ln">12</span>
-<span class="ln">13</span>systemctl restart libvirtd
-</code></pre></div><p>这样宿主机就准备好了。</p>
-<h2 id="二生产虚机做好passthrough">二、生产虚机，做好passthrough</h2>
-<p>生产虚机的时候，需要做好内外文件目录的直通，宿主机目录是  /opt/test，对应虚机目录是 /test</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>&lt;domains ...&gt;
-<span class="ln">2</span>  ...
-<span class="ln">3</span>  &lt;devices ...&gt;
-<span class="ln">4</span>    &lt;filesystem <span class="nv">type</span><span class="o">=</span><span class="s1">&#39;mount&#39;</span> <span class="nv">accessmode</span><span class="o">=</span><span class="s1">&#39;passthrough&#39;</span>&gt;
-<span class="ln">5</span>      &lt;<span class="nb">source</span> <span class="nv">dir</span><span class="o">=</span><span class="s1">&#39;/opt/test&#39;</span>/&gt;
-<span class="ln">6</span>      &lt;target <span class="nv">dir</span><span class="o">=</span><span class="s1">&#39;/test&#39;</span>/&gt;
-<span class="ln">7</span>    &lt;/filesystem&gt;
-<span class="ln">8</span>  &lt;/devices&gt;
-<span class="ln">9</span>&lt;/domains&gt;
-</code></pre></div><p>虚机启动后，需要升级核心，支持新的 mount 选项</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>yum -y update
-<span class="ln">2</span>yum -y --enablerepo centosplus install kernel-plus
-<span class="ln">3</span>reboot
-<span class="ln">4</span>
-<span class="ln">5</span><span class="c1"># 把宿主机提供的 /test 点 mount 出来</span>
-<span class="ln">6</span>mount -t 9p -o <span class="nv">trans</span><span class="o">=</span>virtio,version<span class="o">=</span>9p2000.L /test /opt/test
-</code></pre></div><p>也可以把挂载点写进虚机的 fstab，下次就会自动 mount 了</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span><span class="na">/test /opt/test 9p trans</span><span class="o">=</span><span class="s">virtio,version=9p2000.L,nofail,_netdev,x-mount.mkdir 0 0</span>
+<span class="ln"> 8</span>for (let [nb, activity] of activities) {
+<span class="ln"> 9</span>  console.log(`Activity ${nb} is ${activity}`);
+<span class="ln">10</span>}
+<span class="ln">11</span>
+<span class="ln">12</span>// Activity 1 is 🏂
+<span class="ln">13</span>// Activity 2 is 🏎
+<span class="ln">14</span>// Activity 3 is 🚣
+<span class="ln">15</span>// Activity 4 is 🤾
+<span class="ln">16</span>
+</code></pre></div><p>也可以用 forEach 来迭代，注意一点即可，forEach 的 callback 函数，第一个参数是 value，第二个参数是 key，跟 for &hellip; of 是相反的：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln">1</span>activities.forEach((value, key) =&gt; {
+<span class="ln">2</span>  console.log(`Activity ${key} is ${value}`);
+<span class="ln">3</span>});
 </code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -373,19 +300,15 @@
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://zhangrr.github.io/posts/20220222-eth_matic/">如何用CPU挖Polygon网络的MATIC币
+    <a href="https://zhangrr.github.io/posts/20220522-javascirpts_fs/">Javascript的实际应用-Fs模块
 </a>
-  </div><div class="post-nav post-next">
-    <a href="https://zhangrr.github.io/posts/20220224-gost_tunnel/">Gost Tunnel的使用
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://zhangrr.github.io/posts/20220222-eth_matic/">如何用CPU挖Polygon网络的MATIC币
-</a></li><li><a href="https://zhangrr.github.io/posts/20220118-grafana_prometheus/">Grafana画出prometheus的图
-</a></li><li><a href="https://zhangrr.github.io/posts/20220104-javascript_babel_eslint/">Javascript的项目与babel和eslint
-</a></li><li><a href="https://zhangrr.github.io/posts/20211222-hubot_wechat/">Hubot集成企业微信&#43;jenkins&#43;ansible
-</a></li><li><a href="https://zhangrr.github.io/posts/20211217-nodejs_nvm/">Nodejs多版本的安装与管理
+    <ul class="related-posts"><li><a href="https://zhangrr.github.io/posts/20220522-javascirpts_fs/">Javascript的实际应用-Fs模块
+</a></li><li><a href="https://zhangrr.github.io/posts/20220521-javascripts_module/">Javascripts中的module
+</a></li><li><a href="https://zhangrr.github.io/posts/20220520-javascripts_reduce/">Javascripts之数组的reduce
+</a></li><li><a href="https://zhangrr.github.io/posts/20220401-docker_mini_image/">面试之Docker如何打出最小的镜像
+</a></li><li><a href="https://zhangrr.github.io/posts/20220401-nginx_epoll/">面试之Nginx的epoll的优势
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
