@@ -3,29 +3,29 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>javascripts中的promise - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://zhangrr.github.io/images/favicons/apple-touch-icon.png" sizes="180x180">
-<link rel="icon" href="https://zhangrr.github.io/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
-<link rel="icon" href="https://zhangrr.github.io/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
-<link rel="manifest" href="https://zhangrr.github.io/images/favicons/manifest.json">
-<link rel="icon" href="https://zhangrr.github.io/images/favicons/favicon.ico">
+    <title>javascripts中的promise - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
 <meta name="description" content="" /><meta itemprop="name" content="javascripts中的promise">
 <meta itemprop="description" content="一、基本概念 1. 异步 所谓 &quot; 异步 &ldquo;，简单说就是一个任务分成两段， 先执行第一段， 然后转而执行其他任务去， 等做好了准备， 再回过头执行第二"><meta itemprop="datePublished" content="2022-05-24T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2022-05-24T09:30:11+08:00" />
-<meta itemprop="wordCount" content="1359">
+<meta itemprop="wordCount" content="1620">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="javascripts中的promise" />
 <meta property="og:description" content="一、基本概念 1. 异步 所谓 &quot; 异步 &ldquo;，简单说就是一个任务分成两段， 先执行第一段， 然后转而执行其他任务去， 等做好了准备， 再回过头执行第二" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://zhangrr.github.io/posts/20220524-javascripts_promise/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="https://bajie.dev/posts/20220524-javascripts_promise/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2022-05-24T09:30:11+08:00" />
 <meta property="article:modified_time" content="2022-05-24T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="javascripts中的promise"/>
 <meta name="twitter:description" content="一、基本概念 1. 异步 所谓 &quot; 异步 &ldquo;，简单说就是一个任务分成两段， 先执行第一段， 然后转而执行其他任务去， 等做好了准备， 再回过头执行第二"/>
-<link rel="preload" href="https://zhangrr.github.io/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://zhangrr.github.io/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://zhangrr.github.io/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://zhangrr.github.io/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=javascripts%e4%b8%ad%e7%9a%84promise&url=https%3a%2f%2fzhangrr.github.io%2fposts%2f20220524-javascripts_promise%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=javascripts%e4%b8%ad%e7%9a%84promise&url=https%3a%2f%2fbajie.dev%2fposts%2f20220524-javascripts_promise%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fzhangrr.github.io%2fposts%2f20220524-javascripts_promise%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20220524-javascripts_promise%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -126,7 +126,7 @@
 
 </div>
 </div>
-<a class="navbar-brand me-3" href="https://zhangrr.github.io"><img class="logo" alt="Logo" src="https://zhangrr.github.io/images/logo.webp" loading="lazy"
+<a class="navbar-brand me-3" href="https://bajie.dev"><img class="logo" alt="Logo" src="https://bajie.dev/images/logo.webp" loading="lazy"
    width="136" height="69"
    />
 八戒
@@ -136,7 +136,7 @@
       <i class="fas fa-ellipsis-v"></i>
     </button>
     <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
-      <form class="search-bar my-1" action="https://zhangrr.github.io/search">
+      <form class="search-bar my-1" action="https://bajie.dev/search">
   <div class="input-group input-group-sm">
     <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
     <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
@@ -144,19 +144,19 @@
 </form>
 
       <ul class="navbar-nav ms-auto"><li class="nav-item">
-          <a class="nav-link" href="https://zhangrr.github.io/archives/">
+          <a class="nav-link" href="https://bajie.dev/archives/">
             <i class="fas fa-fw fa-file-archive"></i>归档
           </a>
         </li><li class="nav-item">
-          <a class="nav-link" href="https://zhangrr.github.io/categories/">
+          <a class="nav-link" href="https://bajie.dev/categories/">
             <i class="fas fa-fw fa-folder"></i>分类
           </a>
         </li><li class="nav-item">
-          <a class="nav-link" href="https://zhangrr.github.io/tags/">
+          <a class="nav-link" href="https://bajie.dev/tags/">
             <i class="fas fa-fw fa-tags"></i>标签
           </a>
         </li><li class="nav-item">
-          <a class="nav-link" href="https://zhangrr.github.io/series/">
+          <a class="nav-link" href="https://bajie.dev/series/">
             <i class="fas fa-fw fa-columns"></i>专栏
           </a>
         </li><li class="nav-item dropdown">
@@ -170,7 +170,7 @@
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://zhangrr.github.io/zh-cn/series/manual">
+                href="https://bajie.dev/zh-cn/series/manual">
                 用户手册
               </a>
             </li></ul>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://zhangrr.github.io/">主页</a></li><li class="breadcrumb-item"><a href="https://zhangrr.github.io/posts/">文章</a></li><li class="breadcrumb-item active">Javascripts中的promise</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">Javascripts中的promise</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -211,7 +211,7 @@
 </h1><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2022-05-24
   </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
+    <i class="fas fa-fw fa-coffee"></i>4 分钟阅读
   </span></div>
 <div class="post-content mb-3"><p><strong>一、基本概念</strong></p>
 <p><strong>1. 异步</strong></p>
@@ -237,7 +237,7 @@
 <li>Rejected: 妈妈不高兴，你没有得到一部手机</li>
 </ol>
 <p>状态图如下：</p>
-<p><img class="img-fluid" alt="image-20220527222312367" src="https://zhangrr.github.io/posts/20220524-javascripts_promise/image-20220527222312367.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20220527222312367" src="https://bajie.dev/posts/20220524-javascripts_promise/image-20220527222312367.png" loading="lazy"
    width="537" height="282"
    />
 
@@ -248,6 +248,13 @@
 <span class="ln">3</span>
 </code></pre></div><p>再看一下上面问题的解决方法：</p>
 <p>首先确定 Mom 的状态是 unhappy，然后建立一个 Promise 来确定是否得到手机，最后用一个函数 askMom 来调用这个 Promise</p>
+<p>resolve() 中可以放置一个参数用于向下一个 then 传递一个值，then 中的函数也可以返回一个值传递给 then。但是，如果  then 中返回的是一个 Promise 对象，那么下一个 then 将相当于对这个返回的 Promise  进行操作。</p>
+<p>reject() 参数中一般会传递一个异常给之后的 catch 函数用于处理异常。</p>
+<p>但是请注意以下两点：</p>
+<ul>
+<li>resolve 和 reject 的作用域只有起始函数，不包括 then 以及其他序列；</li>
+<li>resolve 和 reject 并不能够使起始函数停止运行，别忘了 return。</li>
+</ul>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln"> 1</span>var isMomHappy = false;
 <span class="ln"> 2</span>
 <span class="ln"> 3</span>// Promise
@@ -283,7 +290,7 @@
 <span class="ln">33</span>
 <span class="ln">34</span>askMom();
 </code></pre></div><p>很有点意思吧。抽象了，那就实际点。</p>
-<p>javascripts 中的 fetch 函数返回的就是一个 promise，promise 随后的 then函数，同样也是promise，两个参数，resolve 和 reject ，缺省一个参数呢就是 resolve</p>
+<p>javascripts 中的 fetch 函数就是基于Promise范式的，Promise 类有 .then() .catch() 和 .finally() 三个方法，这三个方法的参数都是一个函数，.then()  可以将参数中的函数添加到当前 Promise 的正常执行序列，.catch() 则是设定 Promise 的异常处理序列，.finally()  是在 Promise 执行的最后一定会执行的序列。 .then() 传入的函数会按顺序依次执行，有任何异常都会直接跳到 catch 序列：</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="ln"> 1</span>    <span class="nx">fetch</span><span class="p">(</span><span class="s2">&#34;http://192.168.1.6/graph_image_hubot.php?action=view&amp;local_graph_id=13619&amp;rra_id=5&#34;</span><span class="p">)</span>
 <span class="ln"> 2</span>    <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">response</span> <span class="p">=&gt;</span>  <span class="p">{</span>
 <span class="ln"> 3</span>      <span class="k">if</span> <span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">ok</span><span class="p">)</span> <span class="p">{</span>
@@ -297,7 +304,7 @@
 <span class="ln">11</span>      <span class="nx">robot</span><span class="p">.</span><span class="nx">wwork</span><span class="p">.</span><span class="nx">sendImageMessage</span><span class="p">(</span><span class="nx">owner</span><span class="p">,</span> <span class="nx">formData</span><span class="p">);</span>
 <span class="ln">12</span>    <span class="p">});</span>
 <span class="ln">13</span>
-</code></pre></div><p>上面的程序实际上是从 cacti 服务器拿到一张流量图片，然后 fetch 的结果 anyway，response总是有东西的，都会是成功的，所以我们必须再用 response.ok 来判断，成功就继续得到 buffer 流，最终送到 hubot 中去。三个过程用 then 串了起来，每一步都是成功才会进行下一步。</p>
+</code></pre></div><p>上面的程序实际上是从 cacti 服务器拿到一张流量图片，然后 fetch 的结果 anyway，response总是有东西的，都会是成功的，所以我们必须再用 response.ok 来判断，成功就继续得到 buffer 流，最终送到 hubot 中去。三个过程用 then 串了起来，每一步都成功才会进行下一步。</p>
 <p>这样写避免了回调地狱，看起来也比较舒服。</p>
 <p>那什么时候用 promise 呢，它是异步的，有大IO读写硬盘、读写网络的时候用，上面是读写网络。下面再来一个读写磁盘的：</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="ln">1</span><span class="kr">const</span> <span class="p">{</span><span class="nx">promise</span><span class="o">:</span> <span class="p">{</span><span class="nx">readFile</span><span class="p">,</span> <span class="nx">writeFile</span><span class="p">}}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;fs&#39;</span><span class="p">);</span>
@@ -325,24 +332,24 @@
             </a>
           </li></ul>
         <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
-            <img class="img-fluid post-reward-img" src="https://zhangrr.github.io/images/reward/alipay.png" loading="lazy" />
+            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/alipay.png" loading="lazy" />
           </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
-            <img class="img-fluid post-reward-img" src="https://zhangrr.github.io/images/reward/wechat.png" loading="lazy" />
+            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/wechat.png" loading="lazy" />
           </div></div>
       </div>
     </div>
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://zhangrr.github.io/posts/20220523-javascripts_map/">Javascripts中的map
+    <a href="https://bajie.dev/posts/20220523-javascripts_map/">Javascripts中的map
 </a>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://zhangrr.github.io/posts/20220523-javascripts_map/">Javascripts中的map
-</a></li><li><a href="https://zhangrr.github.io/posts/20220522-javascirpts_fs/">Javascript的实际应用-Fs模块
-</a></li><li><a href="https://zhangrr.github.io/posts/20220521-javascripts_module/">Javascripts中的module
-</a></li><li><a href="https://zhangrr.github.io/posts/20220520-javascripts_reduce/">Javascripts之数组的reduce
-</a></li><li><a href="https://zhangrr.github.io/posts/20220401-docker_mini_image/">面试之Docker如何打出最小的镜像
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20220523-javascripts_map/">Javascripts中的map
+</a></li><li><a href="https://bajie.dev/posts/20220522-javascirpts_fs/">Javascript的实际应用-Fs模块
+</a></li><li><a href="https://bajie.dev/posts/20220521-javascripts_module/">Javascripts中的module
+</a></li><li><a href="https://bajie.dev/posts/20220520-javascripts_reduce/">Javascripts之数组的reduce
+</a></li><li><a href="https://bajie.dev/posts/20220401-docker_mini_image/">面试之Docker如何打出最小的镜像
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
@@ -372,7 +379,7 @@
     
     <section class="card row text-center profile component">
   <div class="card-body">
-    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Zhang Ranrui" src="https://zhangrr.github.io/images/bajie_01.jpg" loading="lazy"
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Zhang Ranrui" src="https://bajie.dev/images/bajie_01.jpg" loading="lazy"
    width="391" height="644"
    />
 </div>
@@ -382,38 +389,38 @@
   <section class="featured-posts row card component">
     <div class="card-body">
       <h2 class="card-title">精选文章</h2>
-      <ul><li><a href="https://zhangrr.github.io/posts/markdown-syntax/">Markdown Syntax Guide
+      <ul><li><a href="https://bajie.dev/posts/markdown-syntax/">Markdown Syntax Guide
 </a></li></ul>
     </div>
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://zhangrr.github.io/posts/20220524-javascripts_promise/">Javascripts中的promise
-</a></li><li><a href="https://zhangrr.github.io/posts/20220523-javascripts_map/">Javascripts中的map
-</a></li><li><a href="https://zhangrr.github.io/posts/20220522-javascirpts_fs/">Javascript的实际应用-Fs模块
-</a></li><li><a href="https://zhangrr.github.io/posts/20220521-javascripts_module/">Javascripts中的module
-</a></li><li><a href="https://zhangrr.github.io/posts/20220520-javascripts_reduce/">Javascripts之数组的reduce
+    <ul><li><a href="https://bajie.dev/posts/20220524-javascripts_promise/">Javascripts中的promise
+</a></li><li><a href="https://bajie.dev/posts/20220523-javascripts_map/">Javascripts中的map
+</a></li><li><a href="https://bajie.dev/posts/20220522-javascirpts_fs/">Javascript的实际应用-Fs模块
+</a></li><li><a href="https://bajie.dev/posts/20220521-javascripts_module/">Javascripts中的module
+</a></li><li><a href="https://bajie.dev/posts/20220520-javascripts_reduce/">Javascripts之数组的reduce
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
       <div class="card-body">
         <h2 class="card-title">
-          <a href="https://zhangrr.github.io/series">专栏</a>
+          <a href="https://bajie.dev/series">专栏</a>
         </h2>
-        <div><a href="https://zhangrr.github.io/series/manual/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Manual">
+        <div><a href="https://bajie.dev/series/manual/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Manual">
             Manual
           </a></div>
       </div>
     </section><section class="taxonomies row card component">
       <div class="card-body">
         <h2 class="card-title">
-          <a href="https://zhangrr.github.io/tags">标签</a>
+          <a href="https://bajie.dev/tags">标签</a>
         </h2>
-        <div><a href="https://zhangrr.github.io/tags/css/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="CSS">
+        <div><a href="https://bajie.dev/tags/css/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="CSS">
             CSS
-          </a><a href="https://zhangrr.github.io/tags/html/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="HTML">
+          </a><a href="https://bajie.dev/tags/html/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="HTML">
             HTML
-          </a><a href="https://zhangrr.github.io/tags/markdown/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Markdown">
+          </a><a href="https://bajie.dev/tags/markdown/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Markdown">
             Markdown
           </a></div>
       </div>

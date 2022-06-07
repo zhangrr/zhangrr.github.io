@@ -3,11 +3,11 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>CentOS7的救援模式和紧急模式 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://zhangrr.github.io/images/favicons/apple-touch-icon.png" sizes="180x180">
-<link rel="icon" href="https://zhangrr.github.io/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
-<link rel="icon" href="https://zhangrr.github.io/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
-<link rel="manifest" href="https://zhangrr.github.io/images/favicons/manifest.json">
-<link rel="icon" href="https://zhangrr.github.io/images/favicons/favicon.ico">
+    <title>CentOS7的救援模式和紧急模式 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
 <meta name="description" content="" /><meta itemprop="name" content="CentOS7的救援模式和紧急模式">
 <meta itemprop="description" content="说到 CentOS7 的紧急模式与救援模式，网上可以搜到漫天飞的帖子，说一下区别 RESCUE 救援模式： 救援模式启动的系统没有挂载硬盘，可以将硬盘 mount 出然后拷出数据。 EMERGENCY 紧"><meta itemprop="datePublished" content="2021-11-19T09:30:11+08:00" />
@@ -16,16 +16,16 @@
 <meta itemprop="keywords" content="" /><meta property="og:title" content="CentOS7的救援模式和紧急模式" />
 <meta property="og:description" content="说到 CentOS7 的紧急模式与救援模式，网上可以搜到漫天飞的帖子，说一下区别 RESCUE 救援模式： 救援模式启动的系统没有挂载硬盘，可以将硬盘 mount 出然后拷出数据。 EMERGENCY 紧" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://zhangrr.github.io/posts/20211119-linux_rescue/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="https://bajie.dev/posts/20211119-linux_rescue/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-11-19T09:30:11+08:00" />
 <meta property="article:modified_time" content="2021-11-19T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="CentOS7的救援模式和紧急模式"/>
 <meta name="twitter:description" content="说到 CentOS7 的紧急模式与救援模式，网上可以搜到漫天飞的帖子，说一下区别 RESCUE 救援模式： 救援模式启动的系统没有挂载硬盘，可以将硬盘 mount 出然后拷出数据。 EMERGENCY 紧"/>
-<link rel="preload" href="https://zhangrr.github.io/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://zhangrr.github.io/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://zhangrr.github.io/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://zhangrr.github.io/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=CentOS7%e7%9a%84%e6%95%91%e6%8f%b4%e6%a8%a1%e5%bc%8f%e5%92%8c%e7%b4%a7%e6%80%a5%e6%a8%a1%e5%bc%8f&url=https%3a%2f%2fzhangrr.github.io%2fposts%2f20211119-linux_rescue%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=CentOS7%e7%9a%84%e6%95%91%e6%8f%b4%e6%a8%a1%e5%bc%8f%e5%92%8c%e7%b4%a7%e6%80%a5%e6%a8%a1%e5%bc%8f&url=https%3a%2f%2fbajie.dev%2fposts%2f20211119-linux_rescue%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fzhangrr.github.io%2fposts%2f20211119-linux_rescue%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20211119-linux_rescue%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -126,7 +126,7 @@
 
 </div>
 </div>
-<a class="navbar-brand me-3" href="https://zhangrr.github.io"><img class="logo" alt="Logo" src="https://zhangrr.github.io/images/logo.webp" loading="lazy"
+<a class="navbar-brand me-3" href="https://bajie.dev"><img class="logo" alt="Logo" src="https://bajie.dev/images/logo.webp" loading="lazy"
    width="136" height="69"
    />
 八戒
@@ -136,7 +136,7 @@
       <i class="fas fa-ellipsis-v"></i>
     </button>
     <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
-      <form class="search-bar my-1" action="https://zhangrr.github.io/search">
+      <form class="search-bar my-1" action="https://bajie.dev/search">
   <div class="input-group input-group-sm">
     <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
     <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
@@ -144,19 +144,19 @@
 </form>
 
       <ul class="navbar-nav ms-auto"><li class="nav-item">
-          <a class="nav-link" href="https://zhangrr.github.io/archives/">
+          <a class="nav-link" href="https://bajie.dev/archives/">
             <i class="fas fa-fw fa-file-archive"></i>归档
           </a>
         </li><li class="nav-item">
-          <a class="nav-link" href="https://zhangrr.github.io/categories/">
+          <a class="nav-link" href="https://bajie.dev/categories/">
             <i class="fas fa-fw fa-folder"></i>分类
           </a>
         </li><li class="nav-item">
-          <a class="nav-link" href="https://zhangrr.github.io/tags/">
+          <a class="nav-link" href="https://bajie.dev/tags/">
             <i class="fas fa-fw fa-tags"></i>标签
           </a>
         </li><li class="nav-item">
-          <a class="nav-link" href="https://zhangrr.github.io/series/">
+          <a class="nav-link" href="https://bajie.dev/series/">
             <i class="fas fa-fw fa-columns"></i>专栏
           </a>
         </li><li class="nav-item dropdown">
@@ -170,7 +170,7 @@
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://zhangrr.github.io/zh-cn/series/manual">
+                href="https://bajie.dev/zh-cn/series/manual">
                 用户手册
               </a>
             </li></ul>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://zhangrr.github.io/">主页</a></li><li class="breadcrumb-item"><a href="https://zhangrr.github.io/posts/">文章</a></li><li class="breadcrumb-item active">CentOS7的救援模式和紧急模式</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">CentOS7的救援模式和紧急模式</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -257,28 +257,28 @@
             </a>
           </li></ul>
         <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
-            <img class="img-fluid post-reward-img" src="https://zhangrr.github.io/images/reward/alipay.png" loading="lazy" />
+            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/alipay.png" loading="lazy" />
           </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
-            <img class="img-fluid post-reward-img" src="https://zhangrr.github.io/images/reward/wechat.png" loading="lazy" />
+            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/wechat.png" loading="lazy" />
           </div></div>
       </div>
     </div>
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://zhangrr.github.io/posts/20211116-pacproxy/">Linux下web Pacproxy的用法
+    <a href="https://bajie.dev/posts/20211116-pacproxy/">Linux下web Pacproxy的用法
 </a>
   </div><div class="post-nav post-next">
-    <a href="https://zhangrr.github.io/posts/20211119-kvm_disk_passthrough/">KVM下附加硬盘的passthrough直通
+    <a href="https://bajie.dev/posts/20211119-kvm_disk_passthrough/">KVM下附加硬盘的passthrough直通
 </a>
     <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://zhangrr.github.io/posts/20211116-pacproxy/">Linux下web Pacproxy的用法
-</a></li><li><a href="https://zhangrr.github.io/posts/20211115-tomcat_config/">Tomcat Server.xml配置详细解释
-</a></li><li><a href="https://zhangrr.github.io/posts/20211115-gluster_tuning/">GlusterFS文件系统的优化
-</a></li><li><a href="https://zhangrr.github.io/posts/20211112-python_aiohttp/">Python的协程详细解释
-</a></li><li><a href="https://zhangrr.github.io/posts/20211111-k8s_filebeat/">Kubernetes使用filebeat Multiline自定义收集日志
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20211116-pacproxy/">Linux下web Pacproxy的用法
+</a></li><li><a href="https://bajie.dev/posts/20211115-tomcat_config/">Tomcat Server.xml配置详细解释
+</a></li><li><a href="https://bajie.dev/posts/20211115-gluster_tuning/">GlusterFS文件系统的优化
+</a></li><li><a href="https://bajie.dev/posts/20211112-python_aiohttp/">Python的协程详细解释
+</a></li><li><a href="https://bajie.dev/posts/20211111-k8s_filebeat/">Kubernetes使用filebeat Multiline自定义收集日志
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
@@ -308,7 +308,7 @@
     
     <section class="card row text-center profile component">
   <div class="card-body">
-    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Zhang Ranrui" src="https://zhangrr.github.io/images/bajie_01.jpg" loading="lazy"
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Zhang Ranrui" src="https://bajie.dev/images/bajie_01.jpg" loading="lazy"
    width="391" height="644"
    />
 </div>
@@ -318,38 +318,38 @@
   <section class="featured-posts row card component">
     <div class="card-body">
       <h2 class="card-title">精选文章</h2>
-      <ul><li><a href="https://zhangrr.github.io/posts/markdown-syntax/">Markdown Syntax Guide
+      <ul><li><a href="https://bajie.dev/posts/markdown-syntax/">Markdown Syntax Guide
 </a></li></ul>
     </div>
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://zhangrr.github.io/posts/20220524-javascripts_promise/">Javascripts中的promise
-</a></li><li><a href="https://zhangrr.github.io/posts/20220523-javascripts_map/">Javascripts中的map
-</a></li><li><a href="https://zhangrr.github.io/posts/20220522-javascirpts_fs/">Javascript的实际应用-Fs模块
-</a></li><li><a href="https://zhangrr.github.io/posts/20220521-javascripts_module/">Javascripts中的module
-</a></li><li><a href="https://zhangrr.github.io/posts/20220520-javascripts_reduce/">Javascripts之数组的reduce
+    <ul><li><a href="https://bajie.dev/posts/20220524-javascripts_promise/">Javascripts中的promise
+</a></li><li><a href="https://bajie.dev/posts/20220523-javascripts_map/">Javascripts中的map
+</a></li><li><a href="https://bajie.dev/posts/20220522-javascirpts_fs/">Javascript的实际应用-Fs模块
+</a></li><li><a href="https://bajie.dev/posts/20220521-javascripts_module/">Javascripts中的module
+</a></li><li><a href="https://bajie.dev/posts/20220520-javascripts_reduce/">Javascripts之数组的reduce
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
       <div class="card-body">
         <h2 class="card-title">
-          <a href="https://zhangrr.github.io/series">专栏</a>
+          <a href="https://bajie.dev/series">专栏</a>
         </h2>
-        <div><a href="https://zhangrr.github.io/series/manual/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Manual">
+        <div><a href="https://bajie.dev/series/manual/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Manual">
             Manual
           </a></div>
       </div>
     </section><section class="taxonomies row card component">
       <div class="card-body">
         <h2 class="card-title">
-          <a href="https://zhangrr.github.io/tags">标签</a>
+          <a href="https://bajie.dev/tags">标签</a>
         </h2>
-        <div><a href="https://zhangrr.github.io/tags/css/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="CSS">
+        <div><a href="https://bajie.dev/tags/css/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="CSS">
             CSS
-          </a><a href="https://zhangrr.github.io/tags/html/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="HTML">
+          </a><a href="https://bajie.dev/tags/html/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="HTML">
             HTML
-          </a><a href="https://zhangrr.github.io/tags/markdown/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Markdown">
+          </a><a href="https://bajie.dev/tags/markdown/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Markdown">
             Markdown
           </a></div>
       </div>
