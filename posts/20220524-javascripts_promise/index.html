@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="javascripts中的promise">
 <meta itemprop="description" content="一、基本概念 1. 异步 所谓 &quot; 异步 &ldquo;，简单说就是一个任务分成两段， 先执行第一段， 然后转而执行其他任务去， 等做好了准备， 再回过头执行第二"><meta itemprop="datePublished" content="2022-05-24T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2022-05-24T09:30:11+08:00" />
-<meta itemprop="wordCount" content="1620">
+<meta itemprop="wordCount" content="1635">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="javascripts中的promise" />
 <meta property="og:description" content="一、基本概念 1. 异步 所谓 &quot; 异步 &ldquo;，简单说就是一个任务分成两段， 先执行第一段， 然后转而执行其他任务去， 等做好了准备， 再回过头执行第二" />
 <meta property="og:type" content="article" />
@@ -290,7 +290,7 @@
 <span class="ln">33</span>
 <span class="ln">34</span>askMom();
 </code></pre></div><p>很有点意思吧。抽象了，那就实际点。</p>
-<p>javascripts 中的 fetch 函数就是基于Promise范式的，Promise 类有 .then() .catch() 和 .finally() 三个方法，这三个方法的参数都是一个函数，.then()  可以将参数中的函数添加到当前 Promise 的正常执行序列，.catch() 则是设定 Promise 的异常处理序列，.finally()  是在 Promise 执行的最后一定会执行的序列。 .then() 传入的函数会按顺序依次执行，有任何异常都会直接跳到 catch 序列：</p>
+<p>javascripts 中的 fetch 函数就是基于Promise范式的，promise 的 resolves 绑在了 Response 上。Promise 类有 .then() .catch() 和 .finally() 三个方法，这三个方法的参数都是一个函数，.then()  可以将参数中的函数添加到当前 Promise 的正常执行序列，.catch() 则是设定 Promise 的异常处理序列，.finally()  是在 Promise 执行的最后一定会执行的序列。 .then() 传入的函数会按顺序依次执行，有任何异常都会直接跳到 catch 序列：</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="ln"> 1</span>    <span class="nx">fetch</span><span class="p">(</span><span class="s2">&#34;http://192.168.1.6/graph_image_hubot.php?action=view&amp;local_graph_id=13619&amp;rra_id=5&#34;</span><span class="p">)</span>
 <span class="ln"> 2</span>    <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">response</span> <span class="p">=&gt;</span>  <span class="p">{</span>
 <span class="ln"> 3</span>      <span class="k">if</span> <span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">ok</span><span class="p">)</span> <span class="p">{</span>
@@ -343,6 +343,10 @@
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://bajie.dev/posts/20220523-javascripts_map/">Javascripts中的map
 </a>
+  </div><div class="post-nav post-next">
+    <a href="https://bajie.dev/posts/20220609-shell_tips/">Shell进阶技巧
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
     <ul class="related-posts"><li><a href="https://bajie.dev/posts/20220523-javascripts_map/">Javascripts中的map
@@ -395,11 +399,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220524-javascripts_promise/">Javascripts中的promise
+    <ul><li><a href="https://bajie.dev/posts/20220609-shell_tips/">Shell进阶技巧
+</a></li><li><a href="https://bajie.dev/posts/20220524-javascripts_promise/">Javascripts中的promise
 </a></li><li><a href="https://bajie.dev/posts/20220523-javascripts_map/">Javascripts中的map
 </a></li><li><a href="https://bajie.dev/posts/20220522-javascirpts_fs/">Javascript的实际应用-Fs模块
 </a></li><li><a href="https://bajie.dev/posts/20220521-javascripts_module/">Javascripts中的module
-</a></li><li><a href="https://bajie.dev/posts/20220520-javascripts_reduce/">Javascripts之数组的reduce
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

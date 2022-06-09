@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>onedev构建一个实际java spring应用 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>Shell进阶技巧 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="onedev构建一个实际java spring应用">
-<meta itemprop="description" content="上篇简单介绍了 onedev ，这篇我们具体拿个 java spring 的项目来实际编译一下 首先必须确认环境： onedev 和 agent 都是用 root 安装运行的，然后已经安装了 docker，且 selinux 设置为"><meta itemprop="datePublished" content="2021-11-08T09:30:11+08:00" />
-<meta itemprop="dateModified" content="2021-11-08T09:30:11+08:00" />
-<meta itemprop="wordCount" content="729">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="onedev构建一个实际java spring应用" />
-<meta property="og:description" content="上篇简单介绍了 onedev ，这篇我们具体拿个 java spring 的项目来实际编译一下 首先必须确认环境： onedev 和 agent 都是用 root 安装运行的，然后已经安装了 docker，且 selinux 设置为" />
+<meta name="description" content="" /><meta itemprop="name" content="Shell进阶技巧">
+<meta itemprop="description" content="Shell脚本的进阶技巧： 一、String 类的技巧 String类当作数组来使用，注意范围的下标，0:4，4最后要被踢掉，实际是0-3，共4个"><meta itemprop="datePublished" content="2022-06-09T09:30:11+08:00" />
+<meta itemprop="dateModified" content="2022-06-09T09:30:11+08:00" />
+<meta itemprop="wordCount" content="573">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="Shell进阶技巧" />
+<meta property="og:description" content="Shell脚本的进阶技巧： 一、String 类的技巧 String类当作数组来使用，注意范围的下标，0:4，4最后要被踢掉，实际是0-3，共4个" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://bajie.dev/posts/20211108-onedev_maven/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2021-11-08T09:30:11+08:00" />
-<meta property="article:modified_time" content="2021-11-08T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+<meta property="og:url" content="https://bajie.dev/posts/20220609-shell_tips/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-06-09T09:30:11+08:00" />
+<meta property="article:modified_time" content="2022-06-09T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="onedev构建一个实际java spring应用"/>
-<meta name="twitter:description" content="上篇简单介绍了 onedev ，这篇我们具体拿个 java spring 的项目来实际编译一下 首先必须确认环境： onedev 和 agent 都是用 root 安装运行的，然后已经安装了 docker，且 selinux 设置为"/>
+<meta name="twitter:title" content="Shell进阶技巧"/>
+<meta name="twitter:description" content="Shell脚本的进阶技巧： 一、String 类的技巧 String类当作数组来使用，注意范围的下标，0:4，4最后要被踢掉，实际是0-3，共4个"/>
 <link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
   <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=onedev%e6%9e%84%e5%bb%ba%e4%b8%80%e4%b8%aa%e5%ae%9e%e9%99%85java%20spring%e5%ba%94%e7%94%a8&url=https%3a%2f%2fbajie.dev%2fposts%2f20211108-onedev_maven%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=Shell%e8%bf%9b%e9%98%b6%e6%8a%80%e5%b7%a7&url=https%3a%2f%2fbajie.dev%2fposts%2f20220609-shell_tips%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20211108-onedev_maven%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20220609-shell_tips%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">Onedev构建一个实际java Spring应用</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">Shell进阶技巧</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -204,116 +204,111 @@
 ">
   <i class="fas fa-fw fa-copyright"></i>
 </a>
-    
+    <a data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+  <i class="fas fa-fw fa-list-alt"></i>
+</a>
   </div>
 </div>
-<h1 class="card-title my-3">Onedev构建一个实际java Spring应用
+<h1 class="card-title my-3">Shell进阶技巧
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-08
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-06-09
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
   </span></div>
-<div class="post-content mb-3"><p>上篇简单介绍了 onedev ，这篇我们具体拿个 java spring 的项目来实际编译一下</p>
-<p>首先必须确认环境：</p>
-<p>onedev 和 agent 都是用 root 安装运行的，然后已经安装了 docker，且 selinux 设置为 disabled，否则会出权限麻烦。</p>
-<p>我们用的例子是 spring 的 petclinic，正常的 build 的步骤如下：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>git clone https://github.com/spring-projects/spring-petclinic.git
-<span class="ln">2</span><span class="nb">cd</span> spring-petclinic
-<span class="ln">3</span>./mvnw package
-</code></pre></div><p>我们首先在 onedev 的 projects 新建一个项目 spring-boot</p>
-<p>然后到 clone 下来的源代码目录下</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span><span class="nb">cd</span> spring-petclinic
+<div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+  </div>
+  <div class="offcanvas-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div><div class="post-content mb-3"><p>Shell脚本的进阶技巧：</p>
+<h4 id="一string-类的技巧">一、String 类的技巧</h4>
+<p>String类当作数组来使用，注意范围的下标，0:4，4最后要被踢掉，实际是0-3，共4个字符：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln">1</span>string=&#34;Bash is great!&#34;
 <span class="ln">2</span>
-<span class="ln">3</span>git init
-<span class="ln">4</span>git add .
-<span class="ln">5</span>git commit -m <span class="s2">&#34;Spring boot demo project&#34;</span>
-<span class="ln">6</span>
-<span class="ln">7</span>git remote add origin http://192.168.86.101:6610/spring-boot
-<span class="ln">8</span>git push --set-upstream origin master
-</code></pre></div><p>这样就可以在 spring-boot 里看到代码了</p>
-<p><img class="img-fluid" alt="image-20211105113350311" src="https://bajie.dev/posts/20211108-onedev_maven/image-20211105113350311.png" loading="lazy"
-   width="910" height="290"
-   />
-
-</p>
-<p>然后看上图，有个紫色灯泡，<code>Enable build support by adding.onedev-buildspec.yml</code>，点那个链接</p>
-<p>我们增加一个 build 的步骤，里面再增加两个 job，一个是 Get code ，一个是 build</p>
-<p><img class="img-fluid" alt="image-20211108110126299" src="https://bajie.dev/posts/20211108-onedev_maven/image-20211108110126299.png" loading="lazy"
-   width="839" height="693"
-   />
-
-</p>
-<p>第一步肯定是把代码拿下来，选择 Checkout Code ，命名为 Get code ，然后其他保持缺省配置，保存</p>
-<p><img class="img-fluid" alt="image-20211108110303911" src="https://bajie.dev/posts/20211108-onedev_maven/image-20211108110303911.png" loading="lazy"
-   width="794" height="819"
-   />
-
-</p>
-<p>第二步就是 build 代码，选择 Execute Shell/Batch Commands，然后实际是启动了一个 docker 镜像来执行 build 的过程</p>
-<p><img class="img-fluid" alt="image-20211108110435271" src="https://bajie.dev/posts/20211108-onedev_maven/image-20211108110435271.png" loading="lazy"
-   width="785" height="727"
-   />
-
-</p>
-<ul>
-<li>
-<p>Image 填入：maven:3.5-jdk-8-alphine</p>
-</li>
-<li>
-<p>Commands 填入：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="nb">unset</span> MAVEN_CONFIG
-<span class="ln"> 2</span>cat <span class="s">&lt;&lt; EOF &gt;&gt; /root/.m2/settings.xml 
-</span><span class="ln"> 3</span><span class="s">&lt;settings&gt;
-</span><span class="ln"> 4</span><span class="s">  &lt;proxies&gt;
-</span><span class="ln"> 5</span><span class="s">    &lt;proxy&gt;
-</span><span class="ln"> 6</span><span class="s">      &lt;id&gt;default&lt;/id&gt;
-</span><span class="ln"> 7</span><span class="s">      &lt;active&gt;true&lt;/active&gt;
-</span><span class="ln"> 8</span><span class="s">      &lt;protocol&gt;http&lt;/protocol&gt;
-</span><span class="ln"> 9</span><span class="s">      &lt;host&gt;192.168.1.10&lt;/host&gt;
-</span><span class="ln">10</span><span class="s">      &lt;port&gt;3128&lt;/port&gt;
-</span><span class="ln">11</span><span class="s">    &lt;/proxy&gt;
-</span><span class="ln">12</span><span class="s">  &lt;/proxies&gt;
-</span><span class="ln">13</span><span class="s">&lt;/settings&gt;
-</span><span class="ln">14</span><span class="s">EOF</span>
-<span class="ln">15</span>./mvnw package
-</code></pre></div><p>解释一下，maven:3.5-jdk-8-alphine 这个镜像，如果在里面执行 mvnw package ，会报错 repository 的错，所以必须把 MAVEN_CONFIG 的环境变量给删除，另外整个 build 过程会去拉 N 多包和配置，大概200多兆，如果不翻墙，基本是失败。所以这里强制 mvn 使用了代理！！！否则 build 一天都不会成功。</p>
-</li>
-</ul>
-<p>第三步是配置 mvn repository的缓存，大家不想每次build都去下一遍依赖包吧，在 More Settings 设置</p>
-<p><img class="img-fluid" alt="image-20211108111027932" src="https://bajie.dev/posts/20211108-onedev_maven/image-20211108111027932.png" loading="lazy"
-   width="869" height="725"
-   />
-
-</p>
-<p>在Caches里填入：</p>
-<ul>
-<li>
-<p>key:   maven-cache</p>
-</li>
-<li>
-<p>path: /root/.m2/repository</p>
-</li>
-</ul>
-<p><img class="img-fluid" alt="image-20211108111208785" src="https://bajie.dev/posts/20211108-onedev_maven/image-20211108111208785.png" loading="lazy"
-   width="1006" height="238"
-   />
-
-</p>
-<p>然后执行 Build ,  然后等待，第一次时间会很长，终于 Successful 了</p>
-<p><img class="img-fluid" alt="image-20211108111629258" src="https://bajie.dev/posts/20211108-onedev_maven/image-20211108111629258.png" loading="lazy"
-   width="708" height="531"
-   />
-
-</p>
-<p>接下来的步骤就可以用 Dockerfile 生成镜像，然后推到 Harbor，再下载或者 gitops下载来各种 yaml 文件，拉 kubectl 和配置文件，就可以推送到 kubernetes 了。</p>
-<p>补充一下，在别的地方突然看到有 maven 的阿里镜像地址，记录一下：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span>    <span class="na">&lt;mirror&gt;</span>
-<span class="ln">2</span>      <span class="na">&lt;id&gt;alimaven&lt;/id&gt;</span>
-<span class="ln">3</span>      <span class="na">&lt;name&gt;aliyun maven&lt;/name&gt;</span>
-<span class="ln">4</span>      <span class="na">&lt;url&gt;http://maven.aliyun.com/nexus/content/groups/public/&lt;/url&gt;</span>
-<span class="ln">5</span>      <span class="na">&lt;mirrorOf&gt;*&lt;/mirrorOf&gt;</span>
-<span class="ln">6</span>    <span class="na">&lt;/mirror&gt;</span>
-</code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<span class="ln">3</span>echo ${string:8} # great!
+<span class="ln">4</span>echo ${string:0:4} # Bash
+<span class="ln">5</span>echo ${string:8:-1} # great (-1: upto 1st element from right)
+</code></pre></div><p>数组的长度：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln">1</span>string=&#34;Bash is great!&#34;;
+<span class="ln">2</span>len=${#string}
+<span class="ln">3</span>echo &#34;len = $len&#34;
+</code></pre></div><p>字符串的替换：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln">1</span>string=&#34;Bash is great!!&#34;
+<span class="ln">2</span>echo ${string/Bash/GNU Bash} # GNU Bash is great!!
+<span class="ln">3</span>echo ${string//!/.} # Bash is great..
+</code></pre></div><p>大小写替换:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln">1</span>string=&#34;Bash&#34;
+<span class="ln">2</span>echo ${string^^} # BASH
+<span class="ln">3</span>echo ${string,,} # bash
+</code></pre></div><p>按index存取数组中字符在shell中不可用，但是可以用function变相实现：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln">1</span>function charAt() {
+<span class="ln">2</span>    string=$1
+<span class="ln">3</span>    i=$2
+<span class="ln">4</span>    echo ${string:i:1}
+<span class="ln">5</span>}
+<span class="ln">6</span>echo $(charAt &#34;Hello&#34; 2) # l
+<span class="ln">7</span>echo $(charAt &#34;Hello&#34; 1) # e
+</code></pre></div><h4 id="二数组和字典">二、数组和字典</h4>
+<p>定义一个数组并且遍历它：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln">1</span>A=(2 4 5 6 4)
+<span class="ln">2</span>for i in ${A[@]}; do
+<span class="ln">3</span>    echo -n &#34;${i} &#34; # 2 4 5 6 4
+<span class="ln">4</span>done
+</code></pre></div><p>同样对数组进行切割：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln">1</span>A=(2 4 5 6 4)
+<span class="ln">2</span>echo ${A[@]:2:3} # 5 6 4
+<span class="ln">3</span>echo ${A[@]:0:1} # 2
+</code></pre></div><p>Bash 中的数组需要使用 <code>[@]</code> 符号来引用整个数组，可以用简洁的语法对数组增加元素</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln">1</span>A=(1 2 3)
+<span class="ln">2</span>A+=(4)
+<span class="ln">3</span>echo ${A[@]} # 1 2 3 4
+<span class="ln">4</span>A+=(5 6)
+<span class="ln">5</span>echo ${A[@]} # 1 2 3 4 5 6
+</code></pre></div><p>字典也一样</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln">1</span>declare -A D
+<span class="ln">2</span>D=([&#34;one&#34;]=1 [&#34;two&#34;]=2 [&#34;three&#34;]=3)
+<span class="ln">3</span>for i in ${!D[@]}; do
+<span class="ln">4</span>    echo &#34;$i -&gt; ${D[$i]}&#34; # one -&gt; 1 ....
+<span class="ln">5</span>done
+</code></pre></div><h4 id="三数学计算">三、数学计算</h4>
+<p>简单的数学计算可以用 <code>$((...))</code> 来完成：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln">1</span>a=10
+<span class="ln">2</span>b=5
+<span class="ln">3</span>
+<span class="ln">4</span>echo &#34;$a + $b = $((a + b))&#34; # 10 + 5 = 15
+<span class="ln">5</span>echo &#34;$a - $b = $((a - b))&#34; # 10 - 5 = 5
+<span class="ln">6</span>echo &#34;$a x $b = $((a * b))&#34; # 10 x 5 = 50
+<span class="ln">7</span>echo &#34;$a / $b = $((a / b))&#34; # 10 / 5 = 2
+<span class="ln">8</span>echo &#34;$a % $b = $((a % b))&#34; # 10 % 5 = 0
+</code></pre></div><p>或者借助复杂一点的 bc 来完成：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln">1</span>a=10
+<span class="ln">2</span>b=5.7
+<span class="ln">3</span>
+<span class="ln">4</span>echo &#34;$a / $b = $(echo &#34;scale = 2; $a / $b&#34; | bc)&#34; # 10 / 5.7 = 1.75
+</code></pre></div><p>随机数的产生：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln">1</span>echo $(($RANDOM % 10)) # Random number between 0 and 10
+</code></pre></div><h4 id="四输入">四、输入</h4>
+<p>控制输入变量：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln">1</span>read -p &#34;Enter your name: &#34; name
+<span class="ln">2</span>echo &#34;Hello, $name&#34;
+</code></pre></div><p>如果要输入数组：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln">1</span>read -p &#34;Enter numbers: &#34; -a A
+<span class="ln">2</span>echo ${A[@]}
+</code></pre></div><p>借助上面的技巧，我们可以写出一些复杂的 shell 脚本了</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -340,19 +335,15 @@
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://bajie.dev/posts/20211105-n2n_vpn/">N2n一种peer to Peer的VPN的使用
+    <a href="https://bajie.dev/posts/20220524-javascripts_promise/">Javascripts中的promise
 </a>
-  </div><div class="post-nav post-next">
-    <a href="https://bajie.dev/posts/20211108-clash/">Clash的搭建教程
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20211105-n2n_vpn/">N2n一种peer to Peer的VPN的使用
-</a></li><li><a href="https://bajie.dev/posts/20211105-onedev/">一站式Git软件onedev的安装使用
-</a></li><li><a href="https://bajie.dev/posts/20211104-haproxy_restart/">Haproxy的Zero Downtime重启如何做
-</a></li><li><a href="https://bajie.dev/posts/20211104-alphine_usage/">Alphine镜像的使用技巧
-</a></li><li><a href="https://bajie.dev/posts/20211103-alphine_timezone/">Alphine镜像中timezone的设定
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20220524-javascripts_promise/">Javascripts中的promise
+</a></li><li><a href="https://bajie.dev/posts/20220523-javascripts_map/">Javascripts中的map
+</a></li><li><a href="https://bajie.dev/posts/20220522-javascirpts_fs/">Javascript的实际应用-Fs模块
+</a></li><li><a href="https://bajie.dev/posts/20220521-javascripts_module/">Javascripts中的module
+</a></li><li><a href="https://bajie.dev/posts/20220520-javascripts_reduce/">Javascripts之数组的reduce
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
