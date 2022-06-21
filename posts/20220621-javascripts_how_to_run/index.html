@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="JavaScript 到底是如何执行的呢 -- JS的作原理">
 <meta itemprop="description" content="JavaScript 到底是如何工作的？ 一、工作原理 JavaScript到底是： 同步还是异步？ 单线程还是多线程？ JavaScript 中的一切都发生在 Execution Context （执行上下文）中 您可以假设"><meta itemprop="datePublished" content="2022-06-21T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2022-06-21T09:30:11+08:00" />
-<meta itemprop="wordCount" content="1851">
+<meta itemprop="wordCount" content="1837">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="JavaScript 到底是如何执行的呢 -- JS的作原理" />
 <meta property="og:description" content="JavaScript 到底是如何工作的？ 一、工作原理 JavaScript到底是： 同步还是异步？ 单线程还是多线程？ JavaScript 中的一切都发生在 Execution Context （执行上下文）中 您可以假设" />
 <meta property="og:type" content="article" />
@@ -250,8 +250,8 @@
 <li>您可以假设这个<em>执行上下文</em> 是一个大盒子或一个容器，在其中执行整个 JavaScript 代码。</li>
 <li>这个大盒子里有两个组件：
 <ul>
-<li><strong>Memory（内存组件）：<strong>这是所有变量和函数存储为</strong>键值对</strong>的地方。这个*“内存组件”*也称为**变量环境**。因此，它是一种环境，其中所有这些变量和函数都存储为键值对。</li>
-<li><em><em>Code（代码组件）：<em><em>这是代码逐行执行的地方。这个</em>“代码组件”*也称为</em></em>执行线程</em>*。所以，这个*执行线程*是一个单线程，整个代码一次只执行一行。</li>
+<li><strong>Memory（内存组件）：<strong>这是所有变量和函数存储为</strong>键值对</strong>的地方。这个**“内存组件”**也称为**变量环境**。因此，它是一种环境，其中所有这些变量和函数都存储为键值对。</li>
+<li><strong>Code（代码组件）：<strong>这是代码逐行执行的地方。这个</strong>“代码组件”<strong>也称为</strong>执行线程</strong>。所以，这个<strong>执行线程</strong>是一个单线程，整个代码一次只执行一行。</li>
 </ul>
 </li>
 </ul>
@@ -259,12 +259,12 @@
 <li>
 <p>结论：JavaScript 是一种<em>同步单线程</em>语言。</p>
 <ul>
-<li><strong>单线程</strong>意味着 JavaScript 一次只能执行一个命令。</li>
-<li><strong>同步单线程</strong>意味着 JavaScript 一次只能以特定顺序每次执行一个命令。这意味着它只能在当前行完成执行后转到下一行。这就是***同步单线程***的意思。</li>
+<li><strong>单线程</strong> 意味着 JavaScript 一次只能执行一个命令。</li>
+<li><strong>同步单线程</strong> 意味着 JavaScript 一次只能以特定顺序每次执行一个命令。这意味着它只能在当前行完成执行后转到下一行。这就是<strong>同步单线程</strong>的意思。</li>
 </ul>
 </li>
 </ul>
-<p>很惊诧吧，javascripts 有单线程 event loop 大循环来完成很多不可思议的事情。</p>
+<p>很惊诧吧，实际 javascripts 有单线程 event loop 大循环来完成很多不可思议的事情。</p>
 <h4 id="二实际工作过程分析">二、实际工作过程分析</h4>
 <h4 id="javascript-代码是如何执行的">JavaScript 代码是如何执行的？</h4>
 <p><strong>当你运行 JavaScript 代码时会发生什么？</strong></p>
@@ -321,7 +321,7 @@
 <li>当它遇到 时<code>var square2 = square(n);</code>，我们现在正在调用一个函数。</li>
 <li>函数是 JavaScript 的核心。它们在 JavaScript 中的行为与在任何其他语言中的行为非常不同。</li>
 <li>每当调用一个函数时，都会创建一个全新的<strong>Execution Context（执行上下文）</strong>。</li>
-<li>因此，从技术上讲，在整个<strong>Execution Context ** 的代码组件中创建了一个全新的</strong>Execution Context ** 。</li>
+<li>因此，从技术上讲，在整个**Execution Context <strong>的代码组件中又创建了一个全新的</strong>Execution Context ** 。</li>
 <li>这个新的<strong>内部 Exection Context 执行上下文</strong>也有它自己的<strong>内存组件</strong>和<strong>代码组件</strong>。</li>
 <li>现在在内部发生的事情是：
 <ul>
