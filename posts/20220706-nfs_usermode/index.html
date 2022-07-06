@@ -1,25 +1,29 @@
 <!doctype html><html lang="zh-cn"
   >
   <head>
-	<meta name="generator" content="Hugo 0.88.1" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>八戒的技术博客 第 5 页</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>用户态的NFS Server - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
-<meta name="keywords" content="Hugo, Bootstrap, 博客主题" />
-<meta name="description" content="一个极快、响应式和功能丰富的 Hugo 博客主题" /><meta itemprop="name" content="八戒的技术博客">
-<meta itemprop="description" content="一个极快、响应式和功能丰富的 Hugo 博客主题"><meta property="og:title" content="八戒的技术博客" />
-<meta property="og:description" content="一个极快、响应式和功能丰富的 Hugo 博客主题" />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="https://bajie.dev/" /><meta property="og:site_name" content="八戒的技术博客" />
+<meta name="keywords" content="" />
+<meta name="description" content="" /><meta itemprop="name" content="用户态的NFS Server">
+<meta itemprop="description" content="NFS Server 很常用，但是坑也是巨大的。之前在京东运维 Hadoop 集群的时候碰到过脑裂，原因就是 NFS 引起的。 关键 NFS 是内核态的，一旦崩溃，那么客户端的所有命令，ls"><meta itemprop="datePublished" content="2022-07-06T09:30:11+08:00" />
+<meta itemprop="dateModified" content="2022-07-06T09:30:11+08:00" />
+<meta itemprop="wordCount" content="337">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="用户态的NFS Server" />
+<meta property="og:description" content="NFS Server 很常用，但是坑也是巨大的。之前在京东运维 Hadoop 集群的时候碰到过脑裂，原因就是 NFS 引起的。 关键 NFS 是内核态的，一旦崩溃，那么客户端的所有命令，ls" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://bajie.dev/posts/20220706-nfs_usermode/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-07-06T09:30:11+08:00" />
+<meta property="article:modified_time" content="2022-07-06T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="八戒的技术博客"/>
-<meta name="twitter:description" content="一个极快、响应式和功能丰富的 Hugo 博客主题"/>
-<link rel="alternate" type="application/rss+xml" href="https://bajie.dev/index.xml" title="八戒的技术博客" /><link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<meta name="twitter:title" content="用户态的NFS Server"/>
+<meta name="twitter:description" content="NFS Server 很常用，但是坑也是巨大的。之前在京东运维 Hadoop 集群的时候碰到过脑裂，原因就是 NFS 引起的。 关键 NFS 是内核态的，一旦崩溃，那么客户端的所有命令，ls"/>
+<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
   <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
@@ -110,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=%e5%85%ab%e6%88%92%e7%9a%84%e6%8a%80%e6%9c%af%e5%8d%9a%e5%ae%a2&url=https%3a%2f%2fbajie.dev%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=%e7%94%a8%e6%88%b7%e6%80%81%e7%9a%84NFS%20Server&url=https%3a%2f%2fbajie.dev%2fposts%2f20220706-nfs_usermode%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20220706-nfs_usermode%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -122,7 +126,7 @@
 
 </div>
 </div>
-<a class="navbar-brand me-3 active" href="https://bajie.dev"><img class="logo" alt="Logo" src="https://bajie.dev/images/logo.webp" loading="lazy"
+<a class="navbar-brand me-3" href="https://bajie.dev"><img class="logo" alt="Logo" src="https://bajie.dev/images/logo.webp" loading="lazy"
    width="136" height="69"
    />
 八戒
@@ -178,168 +182,132 @@
 <main role="main" class="container">
       <div class="row content">
 <div class="col-lg-8">
-  <div class="container"><div class="posts mb-4"><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211109-k8s_rbac/">Kubernetes创建普通账号
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-09
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          kubernetes 装好正常运行一段时间后，会出现要把研发和运维权限分开的场景： 比如： 给某个用户某一指定名称空间下的管理权限 给用户赋予集群的只读权限 … 非常麻烦
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211108-clash/">Clash的搭建教程
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-08
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          没啊办法，翻墙翻墙还是翻墙。 上游有若干 trojian 、v2ray 、sock5 、http各种各样的代理，这样多种的选择，那么就装一个 clash 客户端就可以全接管了
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211108-onedev_maven/">Onedev构建一个实际java Spring应用
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-08
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          上篇简单介绍了 onedev ，这篇我们具体拿个 java spring 的项目来实际编译一下 首先必须确认环境： onedev 和 agent 都是用 root 安装运行的，然后已经安装了 docker，且 selinux 设置为
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211105-n2n_vpn/">N2n一种peer to Peer的VPN的使用
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-05
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          vpn的搭建一直是一个难解的题目，openvpn、ipsec、tinc 都在用，都不够简洁。 n2n 是一种 peer to peer 端到端的 vpn，搭建起来非常简单方便
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211105-onedev/">一站式Git软件onedev的安装使用
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-05
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          其实一直在用 github、gitlab、jenkins，但是 github 时不时的抽风， gitlab 的 runner 套 Docker in docker 的方法委实很难用。 所以 CI/CD 这一块反倒挺喜欢阿里云效这
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211104-haproxy_restart/">Haproxy的Zero Downtime重启如何做
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-04
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          Nginx 可以用 kill -HUP 来重启，不会丢失已建连接。Haproxy 如何做才能做到 zero downtime 无缝重载呢？ 做法如下： 一、配置 编译harpoxy的时候带上参数 USE_
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211104-alphine_usage/">Alphine镜像的使用技巧
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-04
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          用 alphine 镜像的一些常用技巧： 会随时增加： 一、修改源，用国外的源非常慢，替换成国内的中科大源 1sed -i &#39;s/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g&#39; /etc/apk/repositories 二、更新apk库 1apk update 三、安装软件 1#安装tel
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211103-alphine_timezone/">Alphine镜像中timezone的设定
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-03
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          我们都喜欢用 alphine 的镜像做底包，来生产自己的镜像 alphine 的底包的时间设定就非常重要了 直接给出 Dockerfile 1FROM alpine:3.12 2 3# latest certs 4RUN apk add ca-certificates --no-cache &amp;&amp; update-ca-certificates 5 6# timezone support 7ENV TZ=Asia/Shanghai 8RUN apk add --update tzdata --no-cache &amp;&amp;\ 9 cp
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211103-proxmox/">生产环境Proxmox 7.02的安装和配置
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-03
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          其实我们的生产环境一直是 KVM ，然后用 shell 脚本控制虚机的生成，也是用到了 Cloud-init 的标准镜像。 听说 Proxmox 也很不错，于是想看看能否也在生产环境中用上 如果在生产环
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211102-ingress_nginx/">K8s中nginx Ingress的性能优化
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-02
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          kubernetes 中 nginx ingress 的优化分两部分 一、系统sysctl部分优化 首先是对nginx启动前的系统性能进行优化，这部分调整网络的缓冲区，减小闲置 socket 关闭的时间 以
-        </div>
-      </div>
-    </article></div><div class="row table-responsive mb-3">
-    <ul class="pagination pagination-default">
-      <li class="page-item">
-        <a href="/" aria-label="First" class="page-link" role="button"><span aria-hidden="true">&laquo;&laquo;</span></a>
-      </li>
-      <li class="page-item">
-        <a href="/page/4/" aria-label="Previous" class="page-link" role="button"><span aria-hidden="true">&laquo;</span></a>
-      </li>
-      <li class="page-item">
-        <a href="/page/3/" aria-label="Page 3" class="page-link" role="button">3</a>
-      </li>
-      <li class="page-item">
-        <a href="/page/4/" aria-label="Page 4" class="page-link" role="button">4</a>
-      </li>
-      <li class="page-item active">
-        <a href="#" aria-current="page" aria-label="Page 5" class="page-link" role="button">5</a>
-      </li>
-      <li class="page-item">
-        <a href="/page/6/" aria-label="Page 6" class="page-link" role="button">6</a>
-      </li>
-      <li class="page-item">
-        <a href="/page/7/" aria-label="Page 7" class="page-link" role="button">7</a>
-      </li>
-      <li class="page-item">
-        <a href="/page/6/" aria-label="Next" class="page-link" role="button"><span aria-hidden="true">&raquo;</span></a>
-      </li>
-      <li class="page-item">
-        <a href="/page/8/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
-      </li>
-    </ul></div>
-</div>
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body">
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">用户态的NFS Server</li></ol>
+  </div>
+</nav><article class="post row card mb-4 component">
+  <div class="card-body"><div class="post-panel-wrapper">
+  <div class="post-panel d-flex flex-column">
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+  <i class="fas fa-fw fa-expand-arrows-alt"></i>
+</a>
+  
+    
 
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
+  <i class="fas fa-fw fa-coffee"></i>
+</a>
+    <a class="action" data-bs-container="body" data-bs-toggle="popover" data-bs-html="true" data-bs-placement="bottom"
+  data-bs-trigger="focus" tabindex="0" type="button" aria-label="Copyright" 
+  data-bs-content="&lt;a target=&#34;_blank&#34; rel=&#34;license noopener noreferrer&#34; href=&#34;https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh&#34;&gt;CC BY-NC-ND 4.0 &lt;i class=&#34;fab fa-fw fa-creative-commons&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-by&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-nc&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-nd&#34;&gt;&lt;/i&gt;&lt;/a&gt;
+">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
+    
+  </div>
+</div>
+<h1 class="card-title my-3">用户态的NFS Server
+</h1><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-07-06
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-content mb-3"><p>NFS Server 很常用，但是坑也是巨大的。之前在京东运维 Hadoop 集群的时候碰到过脑裂，原因就是 NFS 引起的。</p>
+<p>关键 NFS 是内核态的，一旦崩溃，那么客户端的所有命令，ls、df、du等等，统统无反应，结果是很悲剧的。</p>
+<p>下面要推荐一下 nfs-ganesha ，它是用户态的nfs-server，支持v3和v4，而nfs缺省是内核态的v3。</p>
+<p>强烈推荐大家用这个，而不是用内核态的，并且 nfs-ganesha 还是支持 glusterFS 的。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>yum install -y centos-release-nfs-ganesha30.noarch
+<span class="ln"> 2</span>    
+<span class="ln"> 3</span>vi /etc/ganesha/ganesha.conf
+<span class="ln"> 4</span>%include /etc/ganesha/exports/gv0.conf
+<span class="ln"> 5</span>    
+<span class="ln"> 6</span>vi /etc/ganesha/exports/gv0.conf
+<span class="ln"> 7</span>EXPORT<span class="o">{</span>
+<span class="ln"> 8</span>    <span class="nv">Export_Id</span> <span class="o">=</span> <span class="m">1</span> <span class="p">;</span>   <span class="c1"># Export ID unique to each export</span>
+<span class="ln"> 9</span>    <span class="nv">Path</span> <span class="o">=</span> <span class="s2">&#34;/mnt/upload&#34;</span><span class="p">;</span>
+<span class="ln">10</span>    <span class="nv">Pseudo</span> <span class="o">=</span> /upload<span class="p">;</span>
+<span class="ln">11</span>    FSAL <span class="o">{</span>
+<span class="ln">12</span>        <span class="nv">name</span> <span class="o">=</span> VFS<span class="p">;</span>
+<span class="ln">13</span>    <span class="o">}</span>
+<span class="ln">14</span>    <span class="nv">Access_type</span> <span class="o">=</span> RW<span class="p">;</span>    <span class="c1"># Access permissions</span>
+<span class="ln">15</span>    <span class="nv">Squash</span> <span class="o">=</span> No_root_squash<span class="p">;</span> <span class="c1"># To enable/disable root squashing</span>
+<span class="ln">16</span>    <span class="nv">Disable_ACL</span> <span class="o">=</span> TRUE<span class="p">;</span>  <span class="c1"># To enable/disable ACL</span>
+<span class="ln">17</span>    <span class="nv">Protocols</span> <span class="o">=</span> <span class="s2">&#34;4&#34;</span> <span class="p">;</span>    <span class="c1"># NFS protocols supported</span>
+<span class="ln">18</span>    <span class="nv">Transports</span> <span class="o">=</span> <span class="s2">&#34;UDP&#34;</span>,<span class="s2">&#34;TCP&#34;</span> <span class="p">;</span> <span class="c1"># Transport protocols supported</span>
+<span class="ln">19</span>    <span class="nv">SecType</span> <span class="o">=</span> <span class="s2">&#34;sys&#34;</span><span class="p">;</span>     <span class="c1"># Security flavors supported</span>
+<span class="ln">20</span><span class="o">}</span>
+<span class="ln">21</span>
+<span class="ln">22</span><span class="c1">#启动</span>
+<span class="ln">23</span>systemctl restart nfs-ganesha
+<span class="ln">24</span>
+<span class="ln">25</span><span class="c1">#手动mount的方法</span>
+<span class="ln">26</span>mount -t nfs -o soft,intr,rsize<span class="o">=</span>8192,wsize<span class="o">=</span>8192,timeo<span class="o">=</span>900,proto<span class="o">=</span>tcp,vers<span class="o">=</span><span class="m">4</span> 192.168.31.2:/upload /mnt/nfs-upload
+<span class="ln">27</span>    
+<span class="ln">28</span><span class="c1">#自动mount的方法</span>
+<span class="ln">29</span>cat /etc/fstab
+<span class="ln">30</span>192.168.31.2:/upload /mnt/nfs-upload nfs rw,vers<span class="o">=</span>4,addr<span class="o">=</span>192.168.31.2,clientaddr<span class="o">=</span>192.168.31.8 <span class="m">0</span> <span class="m">0</span>
+</code></pre></div><p>注意id对齐问题可能要用到rpcidmapd</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-coffee"></i>打赏</h5>
+        <a href="#" data-bs-dismiss="modal" class="btn btn-sm btn-outline-primary" aria-label="Close"><i class="fas fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs flex-nowrap mb-3" role="tablist"><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>支付宝
+            </a>
+          </li><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>微信
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+  <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
+    <a href="https://bajie.dev/posts/20220621-javascripts_how_to_run/">JavaScript 到底是如何执行的呢 -- JS的作原理
+</a>
+  </div></div><section class="related-posts-wrapper">
+    <h3>相关文章</h3>
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20220621-javascripts_how_to_run/">JavaScript 到底是如何执行的呢 -- JS的作原理
+</a></li><li><a href="https://bajie.dev/posts/20220615-javascripts_if/">Javascripts中if的优化
+</a></li><li><a href="https://bajie.dev/posts/20220609-shell_tips/">Shell进阶技巧
+</a></li><li><a href="https://bajie.dev/posts/20220524-javascripts_promise/">Javascripts中的promise
+</a></li><li><a href="https://bajie.dev/posts/20220523-javascripts_map/">Javascripts中的map
+</a></li></ul>
+  </section></div>
+</article><div class="post-comments card row component">
+  <div class="card-body"><div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-zhangrr-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a></div>
+</div></div>
 </div><aside class="col-lg-4 sidebar d-flex">
   <div class="container">
     
@@ -403,9 +371,7 @@
         <i class="fa-fw fa-2x fab fa-reddit"></i>
       </a><a class="nav-link social-link" target="_blank" href="https://t.me/defunct9" title="Telegram" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
-      </a><a class="nav-link social-link" target="_blank" href="https://bajie.dev/index.xml" title="RSS" rel="noopener noreferrer">
-      <i class="fas fa-fw fa-2x fa-rss"></i>
-    </a></nav>
+      </a></nav>
 <div class="copyright mb-2">
   Copyright © 2020-2022 Zhang Ranrui. All Rights Reserved.
 </div>
