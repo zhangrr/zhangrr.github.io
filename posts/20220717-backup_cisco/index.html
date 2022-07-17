@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>没有装Docker如何从镜像中释放出文件 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>Cisco设备自动执行和备份的脚本 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="没有装Docker如何从镜像中释放出文件">
-<meta itemprop="description" content="用 kubernetes 越多，用 docker 越多，就愈发感觉到好处多多。 简简单单的一个可执行文件，用 docker 基板 alphine 封装，就可以运行起一个 pod ，然后指定 deployment、svc"><meta itemprop="datePublished" content="2021-10-27T10:30:11+08:00" />
-<meta itemprop="dateModified" content="2021-10-27T10:30:11+08:00" />
-<meta itemprop="wordCount" content="546">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="没有装Docker如何从镜像中释放出文件" />
-<meta property="og:description" content="用 kubernetes 越多，用 docker 越多，就愈发感觉到好处多多。 简简单单的一个可执行文件，用 docker 基板 alphine 封装，就可以运行起一个 pod ，然后指定 deployment、svc" />
+<meta name="description" content="" /><meta itemprop="name" content="Cisco设备自动执行和备份的脚本">
+<meta itemprop="description" content="在日常工作中我们经常要对 Cisco 的网络设备的配置进行备份，或者和 suricata 联动的时候要执行操作。 方法其实很简单，调用 python 的相应模块即可。 准备工作如下： 首选需"><meta itemprop="datePublished" content="2022-07-17T09:30:11+08:00" />
+<meta itemprop="dateModified" content="2022-07-17T09:30:11+08:00" />
+<meta itemprop="wordCount" content="305">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="Cisco设备自动执行和备份的脚本" />
+<meta property="og:description" content="在日常工作中我们经常要对 Cisco 的网络设备的配置进行备份，或者和 suricata 联动的时候要执行操作。 方法其实很简单，调用 python 的相应模块即可。 准备工作如下： 首选需" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://bajie.dev/posts/20211027-docker_extract_file/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2021-10-27T10:30:11+08:00" />
-<meta property="article:modified_time" content="2021-10-27T10:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+<meta property="og:url" content="https://bajie.dev/posts/20220717-backup_cisco/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-07-17T09:30:11+08:00" />
+<meta property="article:modified_time" content="2022-07-17T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="没有装Docker如何从镜像中释放出文件"/>
-<meta name="twitter:description" content="用 kubernetes 越多，用 docker 越多，就愈发感觉到好处多多。 简简单单的一个可执行文件，用 docker 基板 alphine 封装，就可以运行起一个 pod ，然后指定 deployment、svc"/>
+<meta name="twitter:title" content="Cisco设备自动执行和备份的脚本"/>
+<meta name="twitter:description" content="在日常工作中我们经常要对 Cisco 的网络设备的配置进行备份，或者和 suricata 联动的时候要执行操作。 方法其实很简单，调用 python 的相应模块即可。 准备工作如下： 首选需"/>
 <link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
   <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=%e6%b2%a1%e6%9c%89%e8%a3%85Docker%e5%a6%82%e4%bd%95%e4%bb%8e%e9%95%9c%e5%83%8f%e4%b8%ad%e9%87%8a%e6%94%be%e5%87%ba%e6%96%87%e4%bb%b6&url=https%3a%2f%2fbajie.dev%2fposts%2f20211027-docker_extract_file%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=Cisco%e8%ae%be%e5%a4%87%e8%87%aa%e5%8a%a8%e6%89%a7%e8%a1%8c%e5%92%8c%e5%a4%87%e4%bb%bd%e7%9a%84%e8%84%9a%e6%9c%ac&url=https%3a%2f%2fbajie.dev%2fposts%2f20220717-backup_cisco%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20211027-docker_extract_file%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20220717-backup_cisco%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">没有装Docker如何从镜像中释放出文件</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">Cisco设备自动执行和备份的脚本</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -207,61 +207,78 @@
     
   </div>
 </div>
-<h1 class="card-title my-3">没有装Docker如何从镜像中释放出文件
+<h1 class="card-title my-3">Cisco设备自动执行和备份的脚本
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-27
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-07-17
   </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
-<div class="post-content mb-3"><p>用 kubernetes 越多，用 docker 越多，就愈发感觉到好处多多。</p>
-<p>简简单单的一个可执行文件，用 docker 基板 alphine 封装，就可以运行起一个 pod ，然后指定 deployment、svc、ingress，就可以将服务暴露出去。</p>
-<p>其实很多情况下单可执行文件 + systemd也是不错的选择。</p>
-<p>这不就遇到个问题，ghostunnel 这个软件，github 只释放出了源代码以及 windows 、linux 和 mac 的三个可执行版本。</p>
-<p>可我的执行环境是 nanopi ，是个 arm7 的架构，就无计可施了。</p>
-<p>无奈下，在 nanopi 上装了 go ，编译了个 arm7 的出来。</p>
-<p>但是遇到 vaultwanden ，rust 的，就没法弄了，vps 太弱，根本无法用 cargo 编译。</p>
-<p>那怎么办呢？方法如下，不安装 Docker ，也可以把镜像中的文件抽取出来</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln"> 1</span>$ mkdir vm
-<span class="ln"> 2</span>$ wget https://raw.githubusercontent.com/jjlin/docker-image-extract/main/docker-image-extract
-<span class="ln"> 3</span>$ chmod +x docker-image-extract
-<span class="ln"> 4</span>$ ./docker-image-extract vaultwarden/server:alpine
-<span class="ln"> 5</span>Getting API token...
-<span class="ln"> 6</span>Getting image manifest <span class="k">for</span> vaultwarden/server:alpine...
-<span class="ln"> 7</span>Fetching and extracting layer a0d0a0d46f8b52473982a3c466318f479767577551a53ffc9074c9fa7035982e...
-<span class="ln"> 8</span>Fetching and extracting layer 3a9a529931676767ec84d35ab19774b24bd94e20f6fff7e6bda57ef5f2a66cfc...
-<span class="ln"> 9</span>Fetching and extracting layer f9dcfa9aefe67ce52ab2a73e515ea715d242348b8fc338dbe4ca72a853ea0318...
-<span class="ln">10</span>Fetching and extracting layer 4249d8cece35148b5faca2c6a98d566a271a1996b127b14480793ee8825e43c0...
-<span class="ln">11</span>Fetching and extracting layer 72f4873a62cc82eaf28905077df3791e3b235bf5d17670e7aff6d5fb5e280739...
-<span class="ln">12</span>Fetching and extracting layer 8eb772c524f9d998c8c7c92acc5ba96e3e9ebfb175dbb2441fe6e7b7598874f5...
-<span class="ln">13</span>Fetching and extracting layer 663794f103b44abb8a90e1376dce14735905e2f938b4ca7e0ff379b09cbf6148...
-<span class="ln">14</span>Image contents extracted into ./output.
-<span class="ln">15</span>
-</code></pre></div><p>这样我们就可以在 output 目录下得到 vaultwarden 和 web-vault</p>
-<p><img class="img-fluid" alt="image-20211027172244666" src="https://bajie.dev/posts/20211027-docker_extract_file/image-20211027172244666.png" loading="lazy"
-   width="474" height="361"
-   />
-
-</p>
-<p>如果我们要拿到 arm7 的镜像，还需要再费点劲，以 ghostunnel 为例：</p>
-<p>访问： <a href="https://hub.docker.com/r/ghostunnel/ghostunnel/tags" target="_blank" rel="noopener noreferrer">https://hub.docker.com/r/ghostunnel/ghostunnel/tags</a>
-</p>
-<p>找到 linux/arm/v7 的 tag，<a href="https://hub.docker.com/layers/ghostunnel/ghostunnel/latest/images/sha256-40247f4b49c364046ebf47696dbd31752b4db2ae2b9edf1fd4c52c2573f06e04?context=explore" target="_blank" rel="noopener noreferrer">40247f4b49c3</a>
-</p>
-<p><img class="img-fluid" alt="image-20211027172546788" src="https://bajie.dev/posts/20211027-docker_extract_file/image-20211027172546788.png" loading="lazy"
-   width="1242" height="207"
-   />
-
-</p>
-<p>点开后，找到 DIGEST: ，复制sha256以及后面的字串，sha256:40247f4b49c364046ebf47696dbd31752b4db2ae2b9edf1fd4c52c2573f06e04</p>
-<p><img class="img-fluid" alt="image-20211027172728110" src="https://bajie.dev/posts/20211027-docker_extract_file/image-20211027172728110.png" loading="lazy"
-   width="841" height="197"
-   />
-
-</p>
-<p>按如下方法释放即可：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>$ ./docker-image-extract ghostunnel/ghostunnel:sha256:40247f4b49c364046ebf47696dbd31752b4db2ae2b9edf1fd4c52c2573f06e04
-</code></pre></div><p>不用担心目录结构，释放出来的文件会放到当前 output 目录下。</p>
-</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="post-content mb-3"><p>在日常工作中我们经常要对 Cisco 的网络设备的配置进行备份，或者和 suricata 联动的时候要执行操作。</p>
+<p>方法其实很简单，调用 python 的相应模块即可。</p>
+<p>准备工作如下：</p>
+<p>首选需要在/export/servers/python363装好 python 3.6,  pip install netmiko</p>
+<p>其次，在路由器上可以配置en的密码</p>
+<p>然后依次执行备份就可以了。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="ln"> 1</span><span class="ch">#!/export/servers/python363/bin/python3.6</span>
+<span class="ln"> 2</span><span class="kn">from</span> <span class="nn">netmiko</span> <span class="kn">import</span> <span class="n">Netmiko</span>
+<span class="ln"> 3</span><span class="kn">import</span> <span class="nn">time</span>
+<span class="ln"> 4</span><span class="n">tw_bgp</span> <span class="o">=</span> <span class="p">{</span>
+<span class="ln"> 5</span>        <span class="s2">&#34;device_type&#34;</span><span class="p">:</span> <span class="s2">&#34;cisco_ios&#34;</span><span class="p">,</span>
+<span class="ln"> 6</span>        <span class="s2">&#34;host&#34;</span><span class="p">:</span> <span class="s2">&#34;tw-bgp&#34;</span><span class="p">,</span>
+<span class="ln"> 7</span>        <span class="s2">&#34;ip&#34;</span><span class="p">:</span> <span class="s2">&#34;192.168.1.10&#34;</span><span class="p">,</span>
+<span class="ln"> 8</span>        <span class="s2">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;noc&#34;</span><span class="p">,</span>
+<span class="ln"> 9</span>        <span class="s2">&#34;use_keys&#34;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+<span class="ln">10</span>        <span class="s2">&#34;secret&#34;</span> <span class="p">:</span> <span class="s2">&#34;xxxxxxxx&#34;</span><span class="p">,</span>
+<span class="ln">11</span>        <span class="s2">&#34;key_file&#34;</span><span class="p">:</span> <span class="s2">&#34;/root/.ssh/id_jump_rsa_new&#34;</span><span class="p">,</span>
+<span class="ln">12</span><span class="p">}</span>
+<span class="ln">13</span><span class="n">tw_r1_e1</span> <span class="o">=</span> <span class="p">{</span>
+<span class="ln">14</span>        <span class="s2">&#34;device_type&#34;</span><span class="p">:</span> <span class="s2">&#34;cisco_ios&#34;</span><span class="p">,</span>
+<span class="ln">15</span>        <span class="s2">&#34;host&#34;</span><span class="p">:</span> <span class="s2">&#34;tw-r1-e1&#34;</span><span class="p">,</span>
+<span class="ln">16</span>        <span class="s2">&#34;ip&#34;</span><span class="p">:</span> <span class="s2">&#34;192.168.1.11&#34;</span><span class="p">,</span>
+<span class="ln">17</span>        <span class="s2">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;noc&#34;</span><span class="p">,</span>
+<span class="ln">18</span>        <span class="s2">&#34;use_keys&#34;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+<span class="ln">19</span>        <span class="s2">&#34;key_file&#34;</span><span class="p">:</span> <span class="s2">&#34;/root/.ssh/id_jump_rsa_new&#34;</span><span class="p">,</span>
+<span class="ln">20</span><span class="p">}</span>
+<span class="ln">21</span><span class="n">tw_r1_e2</span> <span class="o">=</span> <span class="p">{</span>
+<span class="ln">22</span>        <span class="s2">&#34;device_type&#34;</span><span class="p">:</span> <span class="s2">&#34;cisco_ios&#34;</span><span class="p">,</span>
+<span class="ln">23</span>        <span class="s2">&#34;host&#34;</span><span class="p">:</span> <span class="s2">&#34;tw-r1-e2&#34;</span><span class="p">,</span>
+<span class="ln">24</span>        <span class="s2">&#34;ip&#34;</span><span class="p">:</span> <span class="s2">&#34;192.168.1.12&#34;</span><span class="p">,</span>
+<span class="ln">25</span>        <span class="s2">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;noc&#34;</span><span class="p">,</span>
+<span class="ln">26</span>        <span class="s2">&#34;use_keys&#34;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+<span class="ln">27</span>        <span class="s2">&#34;key_file&#34;</span><span class="p">:</span> <span class="s2">&#34;/root/.ssh/id_jump_rsa_new&#34;</span><span class="p">,</span>
+<span class="ln">28</span><span class="p">}</span>
+<span class="ln">29</span><span class="n">tw_r2_e1</span> <span class="o">=</span> <span class="p">{</span>
+<span class="ln">30</span>        <span class="s2">&#34;device_type&#34;</span><span class="p">:</span> <span class="s2">&#34;cisco_ios&#34;</span><span class="p">,</span>
+<span class="ln">31</span>        <span class="s2">&#34;host&#34;</span><span class="p">:</span> <span class="s2">&#34;tw-r2-e1&#34;</span><span class="p">,</span>
+<span class="ln">32</span>        <span class="s2">&#34;ip&#34;</span><span class="p">:</span> <span class="s2">&#34;192.168.1.13&#34;</span><span class="p">,</span>
+<span class="ln">33</span>        <span class="s2">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;noc&#34;</span><span class="p">,</span>
+<span class="ln">34</span>        <span class="s2">&#34;use_keys&#34;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+<span class="ln">35</span>        <span class="s2">&#34;key_file&#34;</span><span class="p">:</span> <span class="s2">&#34;/root/.ssh/id_jump_rsa_new&#34;</span><span class="p">,</span>
+<span class="ln">36</span><span class="p">}</span>
+<span class="ln">37</span><span class="n">tw_r2_e2</span> <span class="o">=</span> <span class="p">{</span>
+<span class="ln">38</span>        <span class="s2">&#34;device_type&#34;</span><span class="p">:</span> <span class="s2">&#34;cisco_ios&#34;</span><span class="p">,</span>
+<span class="ln">39</span>        <span class="s2">&#34;host&#34;</span><span class="p">:</span> <span class="s2">&#34;tw-r2-e2&#34;</span><span class="p">,</span>
+<span class="ln">40</span>        <span class="s2">&#34;ip&#34;</span><span class="p">:</span> <span class="s2">&#34;192.168.1.14&#34;</span><span class="p">,</span>
+<span class="ln">41</span>        <span class="s2">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;noc&#34;</span><span class="p">,</span>
+<span class="ln">42</span>        <span class="s2">&#34;use_keys&#34;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+<span class="ln">43</span>        <span class="s2">&#34;key_file&#34;</span><span class="p">:</span> <span class="s2">&#34;/root/.ssh/id_jump_rsa_new&#34;</span><span class="p">,</span>
+<span class="ln">44</span><span class="p">}</span>
+<span class="ln">45</span>
+<span class="ln">46</span><span class="n">devices</span><span class="o">=</span><span class="p">[</span><span class="n">tw_bgp</span><span class="p">,</span> <span class="n">tw_r1_e1</span><span class="p">,</span> <span class="n">tw_r1_e2</span><span class="p">,</span> <span class="n">tw_r2_e1</span><span class="p">,</span> <span class="n">tw_r2_e2</span><span class="p">]</span>
+<span class="ln">47</span>
+<span class="ln">48</span><span class="k">for</span> <span class="n">dev</span> <span class="ow">in</span> <span class="n">devices</span><span class="p">:</span>
+<span class="ln">49</span>    <span class="n">name</span> <span class="o">=</span> <span class="n">dev</span><span class="p">[</span><span class="s2">&#34;ip&#34;</span><span class="p">]</span>
+<span class="ln">50</span>    <span class="n">connection</span> <span class="o">=</span> <span class="n">Netmiko</span><span class="p">(</span><span class="o">**</span><span class="n">dev</span><span class="p">)</span>
+<span class="ln">51</span>    <span class="n">connection</span><span class="o">.</span><span class="n">enable</span><span class="p">()</span>
+<span class="ln">52</span>    <span class="n">out</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&#34;show running-config&#34;</span><span class="p">)</span>
+<span class="ln">53</span>    <span class="n">calender</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&#34;%Y%m</span><span class="si">%d</span><span class="s2">&#34;</span><span class="p">)</span>
+<span class="ln">54</span>    <span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">-</span><span class="si">{}</span><span class="s1">.txt&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dev</span><span class="p">[</span><span class="s2">&#34;host&#34;</span><span class="p">],</span><span class="n">calender</span><span class="p">)</span>
+<span class="ln">55</span>    <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span> <span class="p">,</span><span class="s2">&#34;w&#34;</span><span class="p">)</span>
+<span class="ln">56</span>    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+<span class="ln">57</span>    <span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="ln">58</span>    <span class="n">connection</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
+<span class="ln">59</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;BACKUP for </span><span class="si">%s</span><span class="s2"> done&#34;</span> <span class="o">%</span><span class="n">dev</span><span class="p">[</span><span class="s2">&#34;host&#34;</span><span class="p">])</span>
+</code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -288,19 +305,15 @@
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://bajie.dev/posts/20211027-bitwarden/">Bitwarden（vaultwarden）如何在非Docker环境下安装使用
+    <a href="https://bajie.dev/posts/20220706-nfs_usermode/">用户态的NFS Server
 </a>
-  </div><div class="post-nav post-next">
-    <a href="https://bajie.dev/posts/20211028-php_syslog/">PHP程序如何发送syslog到远程服务器
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20211027-bitwarden/">Bitwarden（vaultwarden）如何在非Docker环境下安装使用
-</a></li><li><a href="https://bajie.dev/posts/20211026-ack_build/">阿里云ACK完全生产环境规划和搭建
-</a></li><li><a href="https://bajie.dev/posts/20211025-autoinstall_cd/">Centos Auto Install Cdrom自动安装cdrom的制作
-</a></li><li><a href="https://bajie.dev/posts/20211025-vsftpd/">Vsftpd的日志设置
-</a></li><li><a href="https://bajie.dev/posts/20211022-pypxe/">PyPXE-一个牛逼的一站式PXE安装包
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20220706-nfs_usermode/">用户态的NFS Server
+</a></li><li><a href="https://bajie.dev/posts/20220621-javascripts_how_to_run/">JavaScript 到底是如何执行的呢 -- JS的作原理
+</a></li><li><a href="https://bajie.dev/posts/20220615-javascripts_if/">Javascripts中if的优化
+</a></li><li><a href="https://bajie.dev/posts/20220609-shell_tips/">Shell进阶技巧
+</a></li><li><a href="https://bajie.dev/posts/20220524-javascripts_promise/">Javascripts中的promise
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
