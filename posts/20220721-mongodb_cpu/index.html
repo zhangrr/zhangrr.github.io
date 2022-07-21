@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>如何用CPU挖狗币Dogecoin - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>一次mongodb cpu很high的解决方法 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="如何用CPU挖狗币Dogecoin">
-<meta itemprop="description" content="这是个娱乐话题，Dogecoin 狗币在马斯克的吹捧鼓动下，冲上云霄 其实真的用CPU挖币，应该是挖 xmb 门罗币才是对的选择，挖狗币只是娱乐一下 废话"><meta itemprop="datePublished" content="2021-10-21T09:30:11+08:00" />
-<meta itemprop="dateModified" content="2021-10-21T09:30:11+08:00" />
-<meta itemprop="wordCount" content="317">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="如何用CPU挖狗币Dogecoin" />
-<meta property="og:description" content="这是个娱乐话题，Dogecoin 狗币在马斯克的吹捧鼓动下，冲上云霄 其实真的用CPU挖币，应该是挖 xmb 门罗币才是对的选择，挖狗币只是娱乐一下 废话" />
+<meta name="description" content="" /><meta itemprop="name" content="一次mongodb cpu很high的解决方法">
+<meta itemprop="description" content="接到同事的通知，说mongodb的cpu很高，下不去，看有什么办法。 看了一下图，cpu都99.4%了，确实很高： 登上机器，首先去看mongo"><meta itemprop="datePublished" content="2022-07-21T09:30:11+08:00" />
+<meta itemprop="dateModified" content="2022-07-21T09:30:11+08:00" />
+<meta itemprop="wordCount" content="860">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="一次mongodb cpu很high的解决方法" />
+<meta property="og:description" content="接到同事的通知，说mongodb的cpu很高，下不去，看有什么办法。 看了一下图，cpu都99.4%了，确实很高： 登上机器，首先去看mongo" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://bajie.dev/posts/20211021-dogecoin/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2021-10-21T09:30:11+08:00" />
-<meta property="article:modified_time" content="2021-10-21T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+<meta property="og:url" content="https://bajie.dev/posts/20220721-mongodb_cpu/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-07-21T09:30:11+08:00" />
+<meta property="article:modified_time" content="2022-07-21T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="如何用CPU挖狗币Dogecoin"/>
-<meta name="twitter:description" content="这是个娱乐话题，Dogecoin 狗币在马斯克的吹捧鼓动下，冲上云霄 其实真的用CPU挖币，应该是挖 xmb 门罗币才是对的选择，挖狗币只是娱乐一下 废话"/>
+<meta name="twitter:title" content="一次mongodb cpu很high的解决方法"/>
+<meta name="twitter:description" content="接到同事的通知，说mongodb的cpu很高，下不去，看有什么办法。 看了一下图，cpu都99.4%了，确实很高： 登上机器，首先去看mongo"/>
 <link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
   <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=%e5%a6%82%e4%bd%95%e7%94%a8CPU%e6%8c%96%e7%8b%97%e5%b8%81Dogecoin&url=https%3a%2f%2fbajie.dev%2fposts%2f20211021-dogecoin%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=%e4%b8%80%e6%ac%a1mongodb%20cpu%e5%be%88high%e7%9a%84%e8%a7%a3%e5%86%b3%e6%96%b9%e6%b3%95&url=https%3a%2f%2fbajie.dev%2fposts%2f20220721-mongodb_cpu%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20211021-dogecoin%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20220721-mongodb_cpu%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">如何用CPU挖狗币Dogecoin</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">一次mongodb Cpu很high的解决方法</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -204,68 +204,101 @@
 ">
   <i class="fas fa-fw fa-copyright"></i>
 </a>
-    <a data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
-  <i class="fas fa-fw fa-list-alt"></i>
-</a>
+    
   </div>
 </div>
-<h1 class="card-title my-3">如何用CPU挖狗币Dogecoin
+<h1 class="card-title my-3">一次mongodb Cpu很high的解决方法
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-21
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-07-21
   </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
   </span></div>
-<div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
-  <div class="offcanvas-header">
-    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
-      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
-        <i class="fas fa-times"></i>
-      </button>
-  </div>
-  <div class="offcanvas-body">
-    <nav id="TableOfContents">
-  <ul>
-    <li><a href="#一下载xmrig挖矿软件">一、下载xmrig挖矿软件</a></li>
-    <li><a href="#二做好加密通道">二、做好加密通道</a></li>
-    <li><a href="#三用screen后台开挖">三、用screen后台开挖</a></li>
-    <li><a href="#四查看挖了多少">四、查看挖了多少</a></li>
-  </ul>
-</nav>
-  </div>
-</div><div class="post-content mb-3"><p>这是个娱乐话题，Dogecoin 狗币在马斯克的吹捧鼓动下，冲上云霄</p>
-<p>其实真的用CPU挖币，应该是挖 xmb 门罗币才是对的选择，挖狗币只是娱乐一下</p>
-<p>废话不多说，直接放上教程，我的机器是 CentoOS</p>
-<p>首先需要有个狗币钱包地址，这个我就不教大家了</p>
-<h2 id="一下载xmrig挖矿软件">一、下载xmrig挖矿软件</h2>
-<p>下载地址：https://github.com/xmrig/xmrig/releases</p>
-<p>我们选择最近的下载就好</p>
-<p><img class="img-fluid" alt="Float Left" src="https://bajie.dev/posts/20211021-dogecoin/image-20211021101957637.png" loading="lazy"
-   width="997" height="443"
+<div class="post-content mb-3"><p>接到同事的通知，说mongodb的cpu很高，下不去，看有什么办法。</p>
+<p>看了一下图，cpu都99.4%了，确实很高：</p>
+<p><img class="img-fluid" alt="image-20220721152856848" src="https://bajie.dev/posts/20220721-mongodb_cpu/image-20220721152856848.png" loading="lazy"
+   width="1490" height="726"
    />
 
 </p>
-<h2 id="二做好加密通道">二、做好加密通道</h2>
-<p>我们需要做好一条加密tcp通道</p>
-<p>用 ghostunnel,    localhost:9999 &mdash;&gt; vps:9999 &mdash;&gt; rx.unmineable.com:3333</p>
-<h2 id="三用screen后台开挖">三、用screen后台开挖</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>screen
-<span class="ln">2</span>
-<span class="ln">3</span><span class="c1">#./xmrig -o localhost:9999 -a rx -k -u DOGE:狗币地址.矿工名#heyt-3711</span>
-<span class="ln">4</span>./xmrig -o localhost:9999 -a rx -k -u DOGE:DLR3DZGucJiSdahARW1vV5B1h3WYiw454a.work01
-<span class="ln">5</span>
-<span class="ln">6</span>ctrl+a+d
-</code></pre></div><p><img class="img-fluid" alt="image-20211021102338089" src="https://bajie.dev/posts/20211021-dogecoin/image-20211021102338089.png" loading="lazy"
-   width="769" height="735"
+<p>登上机器，首先去看mongod的log，都试如下的查询，都很慢：</p>
+<p><img class="img-fluid" alt="image-20220721153814123" src="https://bajie.dev/posts/20220721-mongodb_cpu/image-20220721153814123.png" loading="lazy"
+   width="1269" height="454"
    />
 
 </p>
-<h2 id="四查看挖了多少">四、查看挖了多少</h2>
-<p>查看地址：https://unmineable.com/coins/DOGE/address/</p>
-<p><img class="img-fluid" alt="image-20211021102710484" src="https://bajie.dev/posts/20211021-dogecoin/image-20211021102710484.png" loading="lazy"
-   width="1101" height="691"
+<p>copy出一条来，备用</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln">1</span>2022-07-17T21:30:42.556+0800 I COMMAND  [conn196670] command beyou.behaviorAnalysis command: find { find: &#34;behaviorAnalysis&#34;, filter: { behavior: { $regex: &#34;.*互动操作.*&#34;, $options: &#34;i&#34; }, log: { $regex: &#34;.*\Q观看：《罗马的房子》,\E.*&#34;, $options: &#34;i&#34; }, userId: 7345, _class: { $in: [ &#34;com.linkyee.api.domain.po.BehaviorAnalysis&#34; ] } }, $db: &#34;beyou&#34; } planSummary: IXSCAN { _class: 1, behavior: 1, log: 1, userId: 1 } keysExamined:111564 docsExamined:2 cursorExhausted:1 numYields:890 nreturned:2 reslen:571 locks:{ Global: { acquireCount: { r: 891 } }, Database: { acquireCount: { r: 891 } }, Collection: { acquireCount: { r: 891 } } } storage:{} protocol:op_msg 2268ms
+</code></pre></div><p>发现确实很慢啊，op_msg 居然要2268ms，但是mongodb的数据目录总共才6G多，不客观啊。</p>
+<p>看看表结构和索引：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>&gt; show dbs<span class="p">;</span>
+<span class="ln"> 2</span>admin   0.000GB
+<span class="ln"> 3</span>beyou   0.063GB
+<span class="ln"> 4</span>config  0.000GB
+<span class="ln"> 5</span><span class="nb">local</span>   0.000GB
+<span class="ln"> 6</span>
+<span class="ln"> 7</span>&gt; use beyou<span class="p">;</span>
+<span class="ln"> 8</span>switched to db beyou
+<span class="ln"> 9</span>
+<span class="ln">10</span>&gt; show collections<span class="p">;</span>
+<span class="ln">11</span>activityLog
+<span class="ln">12</span>behaviorAnalysis
+<span class="ln">13</span>
+<span class="ln">14</span>&gt; db.behaviorAnalysis.find<span class="o">({}</span>,<span class="o">{</span>_id:0<span class="o">})</span>.limit<span class="o">(</span>1<span class="o">)</span><span class="p">;</span>
+<span class="ln">15</span><span class="o">{</span> <span class="s2">&#34;name&#34;</span> : <span class="s2">&#34;812304163055734784&#34;</span>, <span class="s2">&#34;createTime&#34;</span> : ISODate<span class="o">(</span><span class="s2">&#34;2022-02-19T12:46:44.360Z&#34;</span><span class="o">)</span>, <span class="s2">&#34;behavior&#34;</span> : <span class="s2">&#34;互动操作&#34;</span>, <span class="s2">&#34;log&#34;</span> : <span class="s2">&#34;加入看单：《爱的迫降》&#34;</span>, <span class="s2">&#34;userId&#34;</span> : 2, <span class="s2">&#34;_class&#34;</span> : <span class="s2">&#34;com.linkyee.api.domain.po.BehaviorAnalysis&#34;</span> <span class="o">}</span>
+<span class="ln">16</span>
+<span class="ln">17</span>&gt; db.behaviorAnalysis.getIndexes<span class="o">()</span><span class="p">;</span>
+<span class="ln">18</span><span class="o">[</span>
+<span class="ln">19</span>        <span class="o">{</span>
+<span class="ln">20</span>                <span class="s2">&#34;v&#34;</span> : 2,
+<span class="ln">21</span>                <span class="s2">&#34;key&#34;</span> : <span class="o">{</span>
+<span class="ln">22</span>                        <span class="s2">&#34;_id&#34;</span> : <span class="m">1</span>
+<span class="ln">23</span>                <span class="o">}</span>,
+<span class="ln">24</span>                <span class="s2">&#34;name&#34;</span> : <span class="s2">&#34;_id_&#34;</span>,
+<span class="ln">25</span>                <span class="s2">&#34;ns&#34;</span> : <span class="s2">&#34;beyou.behaviorAnalysis&#34;</span>
+<span class="ln">26</span>        <span class="o">}</span>,
+<span class="ln">27</span>        <span class="o">{</span>
+<span class="ln">28</span>                <span class="s2">&#34;v&#34;</span> : 2,
+<span class="ln">29</span>                <span class="s2">&#34;key&#34;</span> : <span class="o">{</span>
+<span class="ln">30</span>                        <span class="s2">&#34;_class&#34;</span> : 1,
+<span class="ln">31</span>                        <span class="s2">&#34;behavior&#34;</span> : 1,
+<span class="ln">32</span>                        <span class="s2">&#34;log&#34;</span> : 1,
+<span class="ln">33</span>                        <span class="s2">&#34;userId&#34;</span> : <span class="m">1</span>
+<span class="ln">34</span>                <span class="o">}</span>,
+<span class="ln">35</span>                <span class="s2">&#34;name&#34;</span> : <span class="s2">&#34;_class_1_behavior_1_log_1_userId_1&#34;</span>,
+<span class="ln">36</span>                <span class="s2">&#34;ns&#34;</span> : <span class="s2">&#34;beyou.behaviorAnalysis&#34;</span>
+<span class="ln">37</span>        <span class="o">}</span>
+<span class="ln">38</span><span class="o">]</span>
+<span class="ln">39</span>
+</code></pre></div><p>发现表结构不复杂，索引呢有两个，一个缺省的单字段索引_id，另一个是多字段索引，4合一的（ _class、behavior、log、userId ）</p>
+<p>继续，来看看查询：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>find <span class="o">{</span> 
+<span class="ln"> 2</span>  find: <span class="s2">&#34;behaviorAnalysis&#34;</span>, 
+<span class="ln"> 3</span>  filter: <span class="o">{</span> 
+<span class="ln"> 4</span>      behavior: <span class="o">{</span> <span class="nv">$regex</span>: <span class="s2">&#34;.*互动操作.*&#34;</span>, <span class="nv">$options</span>: <span class="s2">&#34;i&#34;</span> <span class="o">}</span>, 
+<span class="ln"> 5</span>      log: <span class="o">{</span> <span class="nv">$regex</span>: <span class="s2">&#34;.*\Q观看：《罗马的房子》,\E.*&#34;</span>, <span class="nv">$options</span>: <span class="s2">&#34;i&#34;</span> <span class="o">}</span>, 
+<span class="ln"> 6</span>      userId: 7345, 
+<span class="ln"> 7</span>      _class: <span class="o">{</span> <span class="nv">$in</span>: <span class="o">[</span> <span class="s2">&#34;com.linkyee.api.domain.po.BehaviorAnalysis&#34;</span> <span class="o">]</span> <span class="o">}</span>
+<span class="ln"> 8</span>  <span class="o">}</span>, 
+<span class="ln"> 9</span>  <span class="nv">$db</span>: <span class="s2">&#34;beyou&#34;</span> <span class="o">}</span>
+<span class="ln">10</span>  planSummary: IXSCAN <span class="o">{</span> _class: 1, behavior: 1, log: 1, userId: <span class="m">1</span> <span class="o">}</span> keysExamined:111564
+</code></pre></div><p>planSummary里，IXSCAN是查了索引，但是keyExamined居然有111564个，太多了吧。</p>
+<p>再看看索引，明显4合一的效率有问题。</p>
+<p>那就简单了，删掉这个4合一的索引，新建一个userId的索引，既然叫userId，那推测它是唯一的，重建索引需要后台执行，并且在业务不繁忙的时候再跑</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>db.behaviorAnalysis.createIndex<span class="o">({</span><span class="s2">&#34;userId&#34;</span>:1<span class="o">}</span>,<span class="o">{</span><span class="s2">&#34;name&#34;</span>:<span class="s1">&#39;idx_userId&#39;</span>,background:true,unique:true<span class="o">})</span><span class="p">;</span>
+</code></pre></div><p>同事执行的时候报错：</p>
+<p><img class="img-fluid" alt="image-20220721154134916" src="https://bajie.dev/posts/20220721-mongodb_cpu/image-20220721154134916.png" loading="lazy"
+   width="611" height="241"
    />
 
 </p>
+<p>居然key重复了，那就把 unique:true 去掉了再执行，就成功了。</p>
+<p>然后cpu就立竿见影，从100%降低到了2.8%</p>
+<p><img class="img-fluid" alt="image-20220721154304621" src="https://bajie.dev/posts/20220721-mongodb_cpu/image-20220721154304621.png" loading="lazy"
+   width="1338" height="548"
+   />
+
+</p>
+<p>over，如果再遇到瓶颈，估计就只能采用分片大法了。</p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -293,19 +326,15 @@
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://bajie.dev/posts/20211020-chrony/">Chrony的几个详细配置细节
+    <a href="https://bajie.dev/posts/20220717-terraform/">Infrastructure as Code中packer的使用
 </a>
-  </div><div class="post-nav post-next">
-    <a href="https://bajie.dev/posts/20211021-libguestfs/">Libguestfs的救援手段
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20211020-chrony/">Chrony的几个详细配置细节
-</a></li><li><a href="https://bajie.dev/posts/20211019-ghostunnel/">Ghostunnel使用TLS加密TCP流量
-</a></li><li><a href="https://bajie.dev/posts/20211019-certik/">Certik 证书签发软件
-</a></li><li><a href="https://bajie.dev/posts/20211018-ipset_block_cn/">使用IPSET封掉某个国家整个的访问
-</a></li><li><a href="https://bajie.dev/posts/20211018-openvpn_limit_bandwidth/">OpenVPN 限制流量带宽
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20220717-terraform/">Infrastructure as Code中packer的使用
+</a></li><li><a href="https://bajie.dev/posts/20220717-backup_cisco/">Cisco设备自动执行和备份的脚本
+</a></li><li><a href="https://bajie.dev/posts/20220706-nfs_usermode/">用户态的NFS Server
+</a></li><li><a href="https://bajie.dev/posts/20220621-javascripts_how_to_run/">JavaScript 到底是如何执行的呢 -- JS的作原理
+</a></li><li><a href="https://bajie.dev/posts/20220615-javascripts_if/">Javascripts中if的优化
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
