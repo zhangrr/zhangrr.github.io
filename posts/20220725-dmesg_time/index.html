@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>一站式Git软件onedev的安装使用 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>dmesg -T 无时间戳的解决方法 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="一站式Git软件onedev的安装使用">
-<meta itemprop="description" content="其实一直在用 github、gitlab、jenkins，但是 github 时不时的抽风， gitlab 的 runner 套 Docker in docker 的方法委实很难用。 所以 CI/CD 这一块反倒挺喜欢阿里云效这"><meta itemprop="datePublished" content="2021-11-05T09:30:11+08:00" />
-<meta itemprop="dateModified" content="2021-11-05T09:30:11+08:00" />
-<meta itemprop="wordCount" content="490">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="一站式Git软件onedev的安装使用" />
-<meta property="og:description" content="其实一直在用 github、gitlab、jenkins，但是 github 时不时的抽风， gitlab 的 runner 套 Docker in docker 的方法委实很难用。 所以 CI/CD 这一块反倒挺喜欢阿里云效这" />
+<meta name="description" content="" /><meta itemprop="name" content="dmesg -T 无时间戳的解决方法">
+<meta itemprop="description" content="现在版本的 dmesg -T 都是带时间戳的。 但是老的机器，很有可能是没有 -T 这个参数的，直接 dmesg 是这样的： 这个时间戳是天书啊，这还算好的，好歹有。还有更差的，"><meta itemprop="datePublished" content="2022-07-25T09:30:11+08:00" />
+<meta itemprop="dateModified" content="2022-07-25T09:30:11+08:00" />
+<meta itemprop="wordCount" content="285">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="dmesg -T 无时间戳的解决方法" />
+<meta property="og:description" content="现在版本的 dmesg -T 都是带时间戳的。 但是老的机器，很有可能是没有 -T 这个参数的，直接 dmesg 是这样的： 这个时间戳是天书啊，这还算好的，好歹有。还有更差的，" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://bajie.dev/posts/20211105-onedev/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2021-11-05T09:30:11+08:00" />
-<meta property="article:modified_time" content="2021-11-05T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+<meta property="og:url" content="https://bajie.dev/posts/20220725-dmesg_time/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-07-25T09:30:11+08:00" />
+<meta property="article:modified_time" content="2022-07-25T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="一站式Git软件onedev的安装使用"/>
-<meta name="twitter:description" content="其实一直在用 github、gitlab、jenkins，但是 github 时不时的抽风， gitlab 的 runner 套 Docker in docker 的方法委实很难用。 所以 CI/CD 这一块反倒挺喜欢阿里云效这"/>
+<meta name="twitter:title" content="dmesg -T 无时间戳的解决方法"/>
+<meta name="twitter:description" content="现在版本的 dmesg -T 都是带时间戳的。 但是老的机器，很有可能是没有 -T 这个参数的，直接 dmesg 是这样的： 这个时间戳是天书啊，这还算好的，好歹有。还有更差的，"/>
 <link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
   <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=%e4%b8%80%e7%ab%99%e5%bc%8fGit%e8%bd%af%e4%bb%b6onedev%e7%9a%84%e5%ae%89%e8%a3%85%e4%bd%bf%e7%94%a8&url=https%3a%2f%2fbajie.dev%2fposts%2f20211105-onedev%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=dmesg%20-T%20%e6%97%a0%e6%97%b6%e9%97%b4%e6%88%b3%e7%9a%84%e8%a7%a3%e5%86%b3%e6%96%b9%e6%b3%95&url=https%3a%2f%2fbajie.dev%2fposts%2f20220725-dmesg_time%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20211105-onedev%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20220725-dmesg_time%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">一站式Git软件onedev的安装使用</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">Dmesg -T 无时间戳的解决方法</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -204,88 +204,65 @@
 ">
   <i class="fas fa-fw fa-copyright"></i>
 </a>
-    <a data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
-  <i class="fas fa-fw fa-list-alt"></i>
-</a>
+    
   </div>
 </div>
-<h1 class="card-title my-3">一站式Git软件onedev的安装使用
+<h1 class="card-title my-3">Dmesg -T 无时间戳的解决方法
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-05
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-07-25
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
-<div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
-  <div class="offcanvas-header">
-    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
-      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
-        <i class="fas fa-times"></i>
-      </button>
-  </div>
-  <div class="offcanvas-body">
-    <nav id="TableOfContents">
-  <ul>
-    <li><a href="#一安装--java-18-版本">一、安装  java 1.8 版本</a></li>
-    <li><a href="#二安装-git-高版本">二、安装 git 高版本</a></li>
-    <li><a href="#三安装配置-onedev">三、安装配置 onedev</a></li>
-    <li><a href="#三例子">三、例子</a></li>
-  </ul>
-</nav>
-  </div>
-</div><div class="post-content mb-3"><p>其实一直在用 github、gitlab、jenkins，但是 github 时不时的抽风， gitlab 的 runner 套 Docker in docker 的方法委实很难用。</p>
-<p>所以 CI/CD 这一块反倒挺喜欢阿里云效这种简便易行的。但确实找不到其他合适且类似的软件。</p>
-<p>从 V2EX 上看到一个老哥发的 onedev，是一个一站式的开源软件，这不就试试先</p>
-<p>以 centos7 为例，安装过程如下：</p>
-<h2 id="一安装--java-18-版本">一、安装  java 1.8 版本</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>rpm -ivh jdk-8u201-linux-x64.rpm
-</code></pre></div><h2 id="二安装-git-高版本">二、安装 git 高版本</h2>
-<p>缺省 centos7 和 epel 带的 git 版本太低，不符合要求，得加个新的源装新版本</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>yum -y install https://packages.endpoint.com/rhel/7/os/x86_64/endpoint-repo-1.7-1.x86_64.rpm
-<span class="ln">2</span>yum -y install git curl
-</code></pre></div><h2 id="三安装配置-onedev">三、安装配置 onedev</h2>
-<p><a href="https://github.com/theonedev/onedev" target="_blank" rel="noopener noreferrer">https://github.com/theonedev/onedev</a>
-</p>
-<p>下载压缩包，然后解压运行 bin/server.sh start ，很简洁，不错！</p>
-<p>运行完打开 http://192.168.86.101:6610 进行初始配置，就两步就 ok 了。</p>
-<p><img class="img-fluid" alt="image-20211105110253646" src="https://bajie.dev/posts/20211105-onedev/image-20211105110253646.png" loading="lazy"
-   width="522" height="800"
+<div class="post-content mb-3"><p>现在版本的 dmesg -T 都是带时间戳的。</p>
+<p><img class="img-fluid" alt="image-20220725172454313" src="https://bajie.dev/posts/20220725-dmesg_time/image-20220725172454313.png" loading="lazy"
+   width="1152" height="221"
    />
 
 </p>
-<p><img class="img-fluid" alt="image-20211105110326330" src="https://bajie.dev/posts/20211105-onedev/image-20211105110326330.png" loading="lazy"
-   width="440" height="496"
+<p>但是老的机器，很有可能是没有 -T 这个参数的，直接 dmesg 是这样的：</p>
+<p><img class="img-fluid" alt="image-20220725172554722" src="https://bajie.dev/posts/20220725-dmesg_time/image-20220725172554722.png" loading="lazy"
+   width="810" height="397"
    />
 
 </p>
-<h2 id="三例子">三、例子</h2>
-<p>我们是要在正式生产环境用的，所以在 projects 新建一个项目 spring-boot，以 spring-petclinic 为例：</p>
-<p>然后到源代码目录下</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>git clone https://github.com/spring-projects/spring-petclinic.git
-<span class="ln"> 2</span><span class="nb">cd</span> spring-petclinic
-<span class="ln"> 3</span>./mvnw package
-<span class="ln"> 4</span>
-<span class="ln"> 5</span><span class="nb">cd</span> spring-petclinic
+<p>这个时间戳是天书啊，这还算好的，好歹有。还有更差的，连戳子都没有：</p>
+<p><img class="img-fluid" alt="image-20220725172816958" src="https://bajie.dev/posts/20220725-dmesg_time/image-20220725172816958.png" loading="lazy"
+   width="1163" height="310"
+   />
+
+</p>
+<p>戳子都没有的，需要做以下步骤来加上，机器重启后必须再执行一遍：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span><span class="nb">echo</span> <span class="m">1</span> &gt; /sys/module/printk/parameters/printk_time
+</code></pre></div><p>同时写个脚本，/usr/local/bin/dmesgt.sh</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="cp">#!/bin/bash
+</span><span class="ln"> 2</span><span class="cp"></span><span class="c1"># Translate dmesg timestamps to human readable format</span>
+<span class="ln"> 3</span>
+<span class="ln"> 4</span><span class="c1"># desired date format</span>
+<span class="ln"> 5</span><span class="nv">date_format</span><span class="o">=</span><span class="s2">&#34;%a %b %d %T %Y&#34;</span>
 <span class="ln"> 6</span>
-<span class="ln"> 7</span>git init
-<span class="ln"> 8</span>git add .
-<span class="ln"> 9</span>git commit -m <span class="s2">&#34;Spring boot demo project&#34;</span>
-<span class="ln">10</span>
-<span class="ln">11</span>git remote add origin http://192.168.86.101:6610/spring-boot
-<span class="ln">12</span>git push --set-upstream origin master
-</code></pre></div><p>这样就可以在 spring-boot 里看到代码了</p>
-<p><img class="img-fluid" alt="image-20211105113350311" src="https://bajie.dev/posts/20211105-onedev/image-20211105113350311.png" loading="lazy"
-   width="910" height="290"
-   />
-
-</p>
-<p>然后看上图，有个紫色灯泡，<code>Enable build support by adding.onedev-buildspec.yml</code>，点那个链接就可以进入一系列 build 、push、deploy 的 pipeline 了。</p>
-<p>友情提示，单机的话，机器需要装 onedev 的 agent，然后还有 docker，就可以build了。用起来感觉跟云效差不多，很不错。</p>
-<p><img class="img-fluid" alt="image-20211105154524885" src="https://bajie.dev/posts/20211105-onedev/image-20211105154524885.png" loading="lazy"
-   width="821" height="559"
-   />
-
-</p>
-</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<span class="ln"> 7</span><span class="c1"># uptime in seconds</span>
+<span class="ln"> 8</span><span class="nv">uptime</span><span class="o">=</span><span class="k">$(</span>cut -d <span class="s2">&#34; &#34;</span> -f <span class="m">1</span> /proc/uptime<span class="k">)</span>
+<span class="ln"> 9</span>
+<span class="ln">10</span><span class="c1"># run only if timestamps are enabled</span>
+<span class="ln">11</span><span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;Y&#34;</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="k">$(</span>cat /sys/module/printk/parameters/time<span class="k">)</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+<span class="ln">12</span>  dmesg <span class="p">|</span> sed <span class="s2">&#34;s/^\[[ ]*\?\([0-9.]*\)\] \(.*\)/\\1 \\2/&#34;</span> <span class="p">|</span> <span class="k">while</span> <span class="nb">read</span> timestamp message<span class="p">;</span> <span class="k">do</span>
+<span class="ln">13</span>    <span class="nb">printf</span> <span class="s2">&#34;[%s] %s\n&#34;</span> <span class="s2">&#34;</span><span class="k">$(</span>date --date <span class="s2">&#34;now - </span><span class="nv">$uptime</span><span class="s2"> seconds + </span><span class="nv">$timestamp</span><span class="s2"> seconds&#34;</span> +<span class="s2">&#34;</span><span class="si">${</span><span class="nv">date_format</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span><span class="s2">&#34;</span> <span class="s2">&#34;</span><span class="nv">$message</span><span class="s2">&#34;</span>
+<span class="ln">14</span>  <span class="k">done</span>
+<span class="ln">15</span><span class="k">else</span>
+<span class="ln">16</span>  <span class="nb">echo</span> <span class="s2">&#34;Timestamps are disabled (/sys/module/printk/parameters/time)&#34;</span>
+<span class="ln">17</span><span class="k">fi</span>
+</code></pre></div><p>这样就可以了，最后我们测试一下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span><span class="nb">echo</span> <span class="s2">&#34;Enabled timestamps&#34;</span> <span class="p">|</span> tee /dev/kmsg
+</code></pre></div><p>看到带时间戳的信息就可以了：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>$ dmesg
+<span class="ln">2</span><span class="o">[</span>...<span class="o">]</span>
+<span class="ln">3</span>Bluetooth: RFCOMM TTY layer initialized
+<span class="ln">4</span>Bluetooth: RFCOMM socket layer initialized
+<span class="ln">5</span>Bluetooth: RFCOMM ver 1.11
+<span class="ln">6</span><span class="o">[</span>...<span class="o">]</span>
+<span class="ln">7</span><span class="o">[</span>271309.434405<span class="o">]</span> Enabled timestamps
+<span class="ln">8</span><span class="o">[</span>...<span class="o">]</span>
+</code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -312,19 +289,15 @@
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://bajie.dev/posts/20211104-haproxy_restart/">Haproxy的Zero Downtime重启如何做
+    <a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a>
-  </div><div class="post-nav post-next">
-    <a href="https://bajie.dev/posts/20211105-n2n_vpn/">N2n一种peer to Peer的VPN的使用
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20211104-haproxy_restart/">Haproxy的Zero Downtime重启如何做
-</a></li><li><a href="https://bajie.dev/posts/20211104-alphine_usage/">Alphine镜像的使用技巧
-</a></li><li><a href="https://bajie.dev/posts/20211103-alphine_timezone/">Alphine镜像中timezone的设定
-</a></li><li><a href="https://bajie.dev/posts/20211103-proxmox/">生产环境Proxmox 7.02的安装和配置
-</a></li><li><a href="https://bajie.dev/posts/20211102-ingress_nginx/">K8s中nginx Ingress的性能优化
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220717-terraform/">Infrastructure as Code中packer的使用
+</a></li><li><a href="https://bajie.dev/posts/20220717-backup_cisco/">Cisco设备自动执行和备份的脚本
+</a></li><li><a href="https://bajie.dev/posts/20220706-nfs_usermode/">用户态的NFS Server
+</a></li><li><a href="https://bajie.dev/posts/20220621-javascripts_how_to_run/">JavaScript 到底是如何执行的呢 -- JS的作原理
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
