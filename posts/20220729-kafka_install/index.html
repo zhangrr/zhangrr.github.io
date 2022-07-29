@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ucarp的安装配置 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>Kafka的安装和验证 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="ucarp的安装配置">
-<meta itemprop="description" content="有 V2EX 的坛友问到如何静态编译 keepalived 的问题，实际上 keepalived 确实配置比较麻烦。那还有一个简单易行的 ucarp，生产也可以用这个。 ucarp 跟 keepalived 一样，都是用于高可用的"><meta itemprop="datePublished" content="2022-02-25T09:30:11+08:00" />
-<meta itemprop="dateModified" content="2022-02-25T09:30:11+08:00" />
-<meta itemprop="wordCount" content="589">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="ucarp的安装配置" />
-<meta property="og:description" content="有 V2EX 的坛友问到如何静态编译 keepalived 的问题，实际上 keepalived 确实配置比较麻烦。那还有一个简单易行的 ucarp，生产也可以用这个。 ucarp 跟 keepalived 一样，都是用于高可用的" />
+<meta name="description" content="" /><meta itemprop="name" content="Kafka的安装和验证">
+<meta itemprop="description" content="生产环境要用到kafka，记录一下安装过程，其实最重要的不是安装，而是使用。 时间节点是2022年7月10日，zookeeper的版本是3.4"><meta itemprop="datePublished" content="2022-07-29T10:30:11+08:00" />
+<meta itemprop="dateModified" content="2022-07-29T10:30:11+08:00" />
+<meta itemprop="wordCount" content="671">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="Kafka的安装和验证" />
+<meta property="og:description" content="生产环境要用到kafka，记录一下安装过程，其实最重要的不是安装，而是使用。 时间节点是2022年7月10日，zookeeper的版本是3.4" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://bajie.dev/posts/20220225-ucarp/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2022-02-25T09:30:11+08:00" />
-<meta property="article:modified_time" content="2022-02-25T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+<meta property="og:url" content="https://bajie.dev/posts/20220729-kafka_install/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-07-29T10:30:11+08:00" />
+<meta property="article:modified_time" content="2022-07-29T10:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="ucarp的安装配置"/>
-<meta name="twitter:description" content="有 V2EX 的坛友问到如何静态编译 keepalived 的问题，实际上 keepalived 确实配置比较麻烦。那还有一个简单易行的 ucarp，生产也可以用这个。 ucarp 跟 keepalived 一样，都是用于高可用的"/>
+<meta name="twitter:title" content="Kafka的安装和验证"/>
+<meta name="twitter:description" content="生产环境要用到kafka，记录一下安装过程，其实最重要的不是安装，而是使用。 时间节点是2022年7月10日，zookeeper的版本是3.4"/>
 <link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
   <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=ucarp%e7%9a%84%e5%ae%89%e8%a3%85%e9%85%8d%e7%bd%ae&url=https%3a%2f%2fbajie.dev%2fposts%2f20220225-ucarp%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=Kafka%e7%9a%84%e5%ae%89%e8%a3%85%e5%92%8c%e9%aa%8c%e8%af%81&url=https%3a%2f%2fbajie.dev%2fposts%2f20220729-kafka_install%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20220225-ucarp%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20220729-kafka_install%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">Ucarp的安装配置</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">Kafka的安装和验证</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -207,74 +207,94 @@
     
   </div>
 </div>
-<h1 class="card-title my-3">Ucarp的安装配置
+<h1 class="card-title my-3">Kafka的安装和验证
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-02-25
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-07-29
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
   </span></div>
-<div class="post-content mb-3"><p>有 V2EX 的坛友问到如何静态编译 keepalived 的问题，实际上 keepalived 确实配置比较麻烦。那还有一个简单易行的 ucarp，生产也可以用这个。</p>
-<p>ucarp 跟 keepalived 一样，都是用于高可用的 IP 漂移</p>
-<p>但是比 keepalived 配置简单，而且 opnsense 就是用的这个做的高可用，opnsense 是个非常可靠的防火墙软件。</p>
-<p>首先有两台虚机，172.18.19.1和172.18.19.2，虚拟ip是172.18.19.3</p>
-<p>先配置172.18.19.1</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>yum install epel-release
-<span class="ln"> 2</span>yum install psmisc
-<span class="ln"> 3</span>yum install ucarp
+<div class="post-content mb-3"><p>生产环境要用到kafka，记录一下安装过程，其实最重要的不是安装，而是使用。</p>
+<p>时间节点是2022年7月10日，zookeeper的版本是3.4.14：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>wget https://mirrors.cnnic.cn/apache/zookeeper/stable/zookeeper-3.4.14.tar.gz
+</code></pre></div><p>kafka的版本是3.2，注意前面的2.13是scala的版本</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>wget http://archive.apache.org/dist/kafka/3.2.0/kafka_2.13-3.2.0.tgz
+</code></pre></div><p>软件都下载好以后，找三台服务器，软件都放到 /usr/local 路径下：</p>
+<p>服务器的ip是：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>172.18.31.50
+<span class="ln">2</span>172.18.31.51
+<span class="ln">3</span>172.18.31.52
+</code></pre></div><p>移动软件：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>tar zxvf zookeeper-3.4.14.tar.gz
+<span class="ln">2</span>mv apache-zookeeper-3.6.3-bin /usr/local
+<span class="ln">3</span>
+<span class="ln">4</span>tar zxvf kafka_2.13-3.2.0.tgz
+<span class="ln">5</span>mv kafka_2.13-3.2.0 /usr/local
+</code></pre></div><p>然后得装 java 了，centos 版本</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>yum -y install epel-release
+<span class="ln">2</span>yum -y install java-11-openjdk-devel
+</code></pre></div><p>首先去编辑zookeeper的配置文件，然后启动</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>cp /usr/local/apache-zookeeper-3.6.3-bin/conf/zoo_sample.cfg /usr/local/apache-zookeeper-3.6.3-bin/conf/zoo.cfg
+<span class="ln"> 2</span>
+<span class="ln"> 3</span><span class="c1"># 编辑zoo.cfg，增加几行</span>
+<span class="ln"> 4</span><span class="nv">dataDir</span><span class="o">=</span>/data/zookeeper
+<span class="ln"> 5</span>
+<span class="ln"> 6</span>metricsProvider.className<span class="o">=</span>org.apache.zookeeper.metrics.prometheus.PrometheusMetricsProvider
+<span class="ln"> 7</span>metricsProvider.httpPort<span class="o">=</span><span class="m">7000</span>
+<span class="ln"> 8</span>metricsProvider.exportJvmInfo<span class="o">=</span><span class="nb">true</span>
+<span class="ln"> 9</span>
+<span class="ln">10</span>server.0<span class="o">=</span>172.18.31.50:20881:30881
+<span class="ln">11</span>server.1<span class="o">=</span>172.18.31.51:20881:30881
+<span class="ln">12</span>server.2<span class="o">=</span>172.18.31.52:20881:30881
+</code></pre></div><p>注意上面，我们的数据目录是在/data/zookeeper，所以要先建立好目录结构</p>
+<p>然后有三台服务器么，把各自的id放到文件中，然后20881是三台服务器之间的通讯端口，30881是选举端口</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>mkdir /data/zookeeper -p
+<span class="ln">2</span><span class="nb">echo</span> <span class="m">0</span> &gt;/data/zookeeper/myid
+</code></pre></div><p>三台服务器分别启动</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>/usr/local/apache-zookeeper-3.6.3-bin/bin/zkServer.sh start
+</code></pre></div><p>验证一下</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>/usr/local/apache-zookeeper-3.6.3-bin/bin/zkCli.sh
+<span class="ln">2</span>
+<span class="ln">3</span><span class="o">[</span>zk: localhost:2181<span class="o">(</span>CONNECTED<span class="o">)</span> 1<span class="o">]</span> ls /
+<span class="ln">4</span><span class="o">[</span>admin, brokers, cluster, config, consumers, controller, controller_epoch, feature, isr_change_notification, latest_producer_id_block, log_dir_event_notification, zookeeper<span class="o">]</span>
+</code></pre></div><p>看看 / 下有东西就行了，上面是已经装好了 kafka 和 cruisecontrol的情形，东西就比较多了</p>
+<p>然后装 kafka，先修改配置文件</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>vi /usr/local/kafka_2.13-3.2.0/config/server.properties
+<span class="ln">2</span>
+<span class="ln">3</span><span class="c1">#需要修改的地方</span>
+<span class="ln">4</span>
+<span class="ln">5</span>broker.id<span class="o">=</span><span class="m">0</span>
+<span class="ln">6</span>log.dirs<span class="o">=</span>/data/kafka
+<span class="ln">7</span>zookeeper.connect<span class="o">=</span>172.18.31.50:2181,172.18.31.51:2181,172.18.31.52:2181
+<span class="ln">8</span>
+</code></pre></div><p>然后启动就可以了</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>/usr/local/kafka_2.13-3.2.0/bin/kafka-server-start.sh -daemon /usr/local/kafka_2.13-3.2.0/config/server.properties
+</code></pre></div><p>验证一下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="c1"># 新版的 kafka-topics.sh 命令已经变了</span>
+<span class="ln"> 2</span>
+<span class="ln"> 3</span><span class="nb">cd</span> /usr/local/kafka_2.13-3.2.0/bin
 <span class="ln"> 4</span>
-<span class="ln"> 5</span>cat<span class="s">&lt;&lt; EOF &gt;&gt; /etc/systemd/system/ucarp.service
-</span><span class="ln"> 6</span><span class="s">[Unit]
-</span><span class="ln"> 7</span><span class="s">Description=UCARP virtual interface
-</span><span class="ln"> 8</span><span class="s">After=network.target
-</span><span class="ln"> 9</span><span class="s">
-</span><span class="ln">10</span><span class="s">[Service]
-</span><span class="ln">11</span><span class="s">Type=simple
-</span><span class="ln">12</span><span class="s">ExecStart=/usr/local/bin/ucarp.sh
-</span><span class="ln">13</span><span class="s">RemainAfterExit=true
-</span><span class="ln">14</span><span class="s">ExecStop=/usr/bin/killall -SIGTERM ucarp
-</span><span class="ln">15</span><span class="s">ExecStop=/bin/sleep 10
-</span><span class="ln">16</span><span class="s">TimeoutStopSec=30
-</span><span class="ln">17</span><span class="s">StandardOutput=journal
-</span><span class="ln">18</span><span class="s">
-</span><span class="ln">19</span><span class="s">[Install]
-</span><span class="ln">20</span><span class="s">WantedBy=multi-user.target
-</span><span class="ln">21</span><span class="s">EOF</span>
-<span class="ln">22</span>
-<span class="ln">23</span>注意，上面我们的systemd是直接调用了ucarp.sh来启动，这样更简单。
-<span class="ln">24</span>三个脚本，注意权限是755
-<span class="ln">25</span>
-<span class="ln">26</span>cat<span class="s">&lt;&lt; EOF &gt;&gt; /usr/local/bin/ucarp.sh
-</span><span class="ln">27</span><span class="s">#!/bin/bash&#39;
-</span><span class="ln">28</span><span class="s">/usr/sbin/ucarp -i eth0 -B -p nb1Dshiwode -v 001 -a 172.18.19.3 -s 172.18.19.1 --shutdown --preempt -u /usr/local/bin/vip-up.sh -d /usr/local/bin/vip-down.sh
-</span><span class="ln">29</span><span class="s">EOF</span>
-<span class="ln">30</span>
-<span class="ln">31</span>cat<span class="s">&lt;&lt; EOF &gt;&gt; /usr/local/bin/vip-up.sh 
-</span><span class="ln">32</span><span class="s">#!/bin/sh
-</span><span class="ln">33</span><span class="s">/sbin/ip addr add ${2}/24 dev ${1}
-</span><span class="ln">34</span><span class="s">/sbin/ip neigh flush dev ${1}
-</span><span class="ln">35</span><span class="s">EOF</span>
-<span class="ln">36</span>
-<span class="ln">37</span>cat<span class="s">&lt;&lt; EOF &gt;&gt; /usr/local/bin/vip-down.sh
-</span><span class="ln">38</span><span class="s">#!/bin/sh
-</span><span class="ln">39</span><span class="s">/sbin/ip addr del ${2}/24 dev ${1}
-</span><span class="ln">40</span><span class="s">/usr/sbin/arp -d ${2}
-</span><span class="ln">41</span><span class="s">EOF</span>
-<span class="ln">42</span>
-<span class="ln">43</span>chmod <span class="m">755</span> /usr/local/bin/ucarp.sh /usr/local/bin/vip-up.sh /usr/local/bin/vip-down.sh
-</code></pre></div><p>ok，第一台机器就配置好了</p>
-<p>所有的东西都在ucarp.sh的那一行的参数上，直接用ucarp -h来查看</p>
-<p>配置第二台172.18.19.2，其他的东西都一样，唯一不同的就是ucapr.sh的一处不一样</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>cat<span class="s">&lt;&lt; EOF &gt;&gt; /usr/local/bin/ucarp.sh
-</span><span class="ln">2</span><span class="s">#!/bin/bash&#39;
-</span><span class="ln">3</span><span class="s">/usr/sbin/ucarp -i eth0 -B -p nb1Dshiwode -v 001 -a 172.18.19.3 -s 172.18.19.2 --shutdown --preempt -u /usr/local/bin/vip-up.sh -d /usr/local/bin/vip-down.sh
-</span><span class="ln">4</span><span class="s">EOF</span>
-<span class="ln">5</span>
-<span class="ln">6</span><span class="c1"># -s 172.18.19.2 源ip和19.1不同</span>
-</code></pre></div><p>ok，两台都配置完毕, 分别执行启动</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>systemctl daemon-reload
-<span class="ln">2</span>systemctl <span class="nb">enable</span> --now ucarp
-</code></pre></div><p>可以再找一台机器，一直长 ping 172.18.19.3，然后随机杀掉 19.1 和 19.2 上面的 ucarp 进程，可以看到 vip 172.18.19.3 会来回飘</p>
-<p>注意：如果主掉了，从接管了 vip 变成 master，那么主再起来的时候不会去抢从的 master。</p>
+<span class="ln"> 5</span><span class="c1"># bootstrap-server 写一个就好，我们建立了一个 topic ，叫做 swimmingpool</span>
+<span class="ln"> 6</span>./kafka-topics.sh --create --bootstrap-server 172.18.31.50:9092 --replication-factor <span class="m">3</span> --partitions <span class="m">3</span> --topic swimmingpool
+<span class="ln"> 7</span>
+<span class="ln"> 8</span><span class="c1"># 看看细节</span>
+<span class="ln"> 9</span>./kafka-topics.sh --describe --bootstrap-server 172.18.31.50:9092 --topic swimmingpool 
+<span class="ln">10</span>Topic: swimmingpool     TopicId: gOLXSh5NQPKMAwEroi_HcQ PartitionCount: <span class="m">3</span>       ReplicationFactor: <span class="m">3</span>    Configs: segment.bytes<span class="o">=</span><span class="m">1073741824</span>
+<span class="ln">11</span>        Topic: swimmingpool     Partition: <span class="m">0</span>    Leader: <span class="m">2</span>       Replicas: 0,2,1 Isr: 2,1,0
+<span class="ln">12</span>        Topic: swimmingpool     Partition: <span class="m">1</span>    Leader: <span class="m">2</span>       Replicas: 2,1,0 Isr: 2,0,1
+<span class="ln">13</span>        Topic: swimmingpool     Partition: <span class="m">2</span>    Leader: <span class="m">2</span>       Replicas: 1,0,2 Isr: 2,0,1
+<span class="ln">14</span>        
+<span class="ln">15</span><span class="c1"># 生产一些消息，ctrl+c 断出</span>
+<span class="ln">16</span>./kafka-console-producer.sh --bootstrap-server 172.18.31.50:9092 --topic swimmingpool
+<span class="ln">17</span>&gt;i am ok
+<span class="ln">18</span>&gt;i am fine
+<span class="ln">19</span>&gt;i am good
+<span class="ln">20</span>
+<span class="ln">21</span><span class="c1"># 消费这些消息，同样用 ctrl+c 断出，注意看，消息是倒序的</span>
+<span class="ln">22</span>./kafka-consoconsumer.sh --bootstrap-server 172.18.31.50:9092 --topic swimmingpool --from-beginning
+<span class="ln">23</span>i am good
+<span class="ln">24</span>i am fine
+<span class="ln">25</span>i am ok
+</code></pre></div><p>这样就装好了，但是安装只是第一步，重要的是 topic 的 reblance 以及 partion 的重新分布</p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -302,19 +322,15 @@
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://bajie.dev/posts/20220224-gost_tunnel/">Gost Tunnel的使用
+    <a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a>
-  </div><div class="post-nav post-next">
-    <a href="https://bajie.dev/posts/20220317-kubernetes_flannel/">Kubernetes下Flannel网络
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20220224-gost_tunnel/">Gost Tunnel的使用
-</a></li><li><a href="https://bajie.dev/posts/20220223-kvm_passthrouth/">KVM下宿主机的目录直通到虚机
-</a></li><li><a href="https://bajie.dev/posts/20220222-eth_matic/">如何用CPU挖Polygon网络的MATIC币
-</a></li><li><a href="https://bajie.dev/posts/20220118-grafana_prometheus/">Grafana画出prometheus的图
-</a></li><li><a href="https://bajie.dev/posts/20220104-javascript_babel_eslint/">Javascript的项目与babel和eslint
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
+</a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
+</a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220717-terraform/">Infrastructure as Code中packer的使用
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">

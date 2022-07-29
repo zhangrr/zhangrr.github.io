@@ -180,6 +180,32 @@
 <div class="col-lg-8">
   <div class="container"><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211126-kubernetes_minio_oss_gateway/">Kubernetes搭建minio作为阿里OSS的Gateway
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-26
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          阿里的云的 OSS 并不是完全版本的 AWS S3 兼容。 我们如果需要用 S3 协议访问 OSS，就比较麻烦了。 所以搭建一个 minio 来做网关，代理OSS，minio 是基本兼容
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211125-kubernetes_crontab_kala/">替代kubernetes Crontab的神器kala
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-25
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>4 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          本来 k8s 的 crontab 是启动一个容器来运行的，很简单，如下： 1apiVersion:batch/v1beta12kind:CronJob3metadata:4name:curl-cron5spec:6schedule:&#34;*/1 * * * *&#34;7jobTemplate:8spec:9template:10spec:11containers:12- name:curl-cron13image:radial/busyboxplus:curl14imagePullPolicy:IfNotPresent15command:16- /bin/sh17- -c18- date;echo &#34;run …
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
         <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211125-kubernetes_hpa/">Kubernetes的hpa和自定义指标hpa
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-11-25
@@ -282,32 +308,6 @@
           公司用了6年的GlusterFS终于到了要调整卷参数的地步了。 小文件已经多到要影响 IO 的地步了。 首先说一下结论，GlusterFS 安装完成后，
         </div>
       </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211112-python_aiohttp/">Python的协程详细解释
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-12
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>4 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          在实际中遇到这样一个问题，公司软件发布上线自动化。 说简单点，就是需要去登录一个上线的内部网站，然后爬下所有的上线数据。 然后根据爬下来的数据整
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211111-k8s_filebeat/">Kubernetes使用filebeat Multiline自定义收集日志
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-11
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          我们介绍了如何在 kubernetes 环境中使用 filebeat sidecar 方式收集日志 使用的是 filebeat 的 moudle 模块，但凡是常用的软件，基本都有对应的模块可用，所以我们首先应该使用模块来收集日志
-        </div>
-      </div>
     </article></div><div class="row table-responsive mb-3">
     <ul class="pagination pagination-default">
       <li class="page-item">
@@ -361,11 +361,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
+    <ul><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+</a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
+</a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
 </a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
-</a></li><li><a href="https://bajie.dev/posts/20220717-terraform/">Infrastructure as Code中packer的使用
-</a></li><li><a href="https://bajie.dev/posts/20220717-backup_cisco/">Cisco设备自动执行和备份的脚本
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
