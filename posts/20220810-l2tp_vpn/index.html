@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Cisco设备自动执行和备份的脚本 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>L2TP VPN在CentOS7系统下的搭建 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="Cisco设备自动执行和备份的脚本">
-<meta itemprop="description" content="在日常工作中我们经常要对 Cisco 的网络设备的配置进行备份，或者和 suricata 联动的时候要执行操作。 方法其实很简单，调用 python 的相应模块即可。 准备工作如下： 首选需"><meta itemprop="datePublished" content="2022-07-17T09:30:11+08:00" />
-<meta itemprop="dateModified" content="2022-07-17T09:30:11+08:00" />
-<meta itemprop="wordCount" content="305">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="Cisco设备自动执行和备份的脚本" />
-<meta property="og:description" content="在日常工作中我们经常要对 Cisco 的网络设备的配置进行备份，或者和 suricata 联动的时候要执行操作。 方法其实很简单，调用 python 的相应模块即可。 准备工作如下： 首选需" />
+<meta name="description" content="" /><meta itemprop="name" content="L2TP VPN在CentOS7系统下的搭建">
+<meta itemprop="description" content="这是个很奇怪的事情，应聘了一家搞 CDN 的公司，结果上去看了一下根本不对路。就立刻辞了，但是发现它给员工开的 L2TP VPN 很好用。 于是就自己也搭一个，方便自"><meta itemprop="datePublished" content="2022-08-10T09:30:11+08:00" />
+<meta itemprop="dateModified" content="2022-08-10T09:30:11+08:00" />
+<meta itemprop="wordCount" content="753">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="L2TP VPN在CentOS7系统下的搭建" />
+<meta property="og:description" content="这是个很奇怪的事情，应聘了一家搞 CDN 的公司，结果上去看了一下根本不对路。就立刻辞了，但是发现它给员工开的 L2TP VPN 很好用。 于是就自己也搭一个，方便自" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://bajie.dev/posts/20220717-backup_cisco/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2022-07-17T09:30:11+08:00" />
-<meta property="article:modified_time" content="2022-07-17T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+<meta property="og:url" content="https://bajie.dev/posts/20220810-l2tp_vpn/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-08-10T09:30:11+08:00" />
+<meta property="article:modified_time" content="2022-08-10T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Cisco设备自动执行和备份的脚本"/>
-<meta name="twitter:description" content="在日常工作中我们经常要对 Cisco 的网络设备的配置进行备份，或者和 suricata 联动的时候要执行操作。 方法其实很简单，调用 python 的相应模块即可。 准备工作如下： 首选需"/>
+<meta name="twitter:title" content="L2TP VPN在CentOS7系统下的搭建"/>
+<meta name="twitter:description" content="这是个很奇怪的事情，应聘了一家搞 CDN 的公司，结果上去看了一下根本不对路。就立刻辞了，但是发现它给员工开的 L2TP VPN 很好用。 于是就自己也搭一个，方便自"/>
 <link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
   <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=Cisco%e8%ae%be%e5%a4%87%e8%87%aa%e5%8a%a8%e6%89%a7%e8%a1%8c%e5%92%8c%e5%a4%87%e4%bb%bd%e7%9a%84%e8%84%9a%e6%9c%ac&url=https%3a%2f%2fbajie.dev%2fposts%2f20220717-backup_cisco%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=L2TP%20VPN%e5%9c%a8CentOS7%e7%b3%bb%e7%bb%9f%e4%b8%8b%e7%9a%84%e6%90%ad%e5%bb%ba&url=https%3a%2f%2fbajie.dev%2fposts%2f20220810-l2tp_vpn%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20220717-backup_cisco%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20220810-l2tp_vpn%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">Cisco设备自动执行和备份的脚本</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">L2TP VPN在CentOS7系统下的搭建</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -204,81 +204,169 @@
 ">
   <i class="fas fa-fw fa-copyright"></i>
 </a>
-    
+    <a data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+  <i class="fas fa-fw fa-list-alt"></i>
+</a>
   </div>
 </div>
-<h1 class="card-title my-3">Cisco设备自动执行和备份的脚本
+<h1 class="card-title my-3">L2TP VPN在CentOS7系统下的搭建
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-07-17
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-08-10
   </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
   </span></div>
-<div class="post-content mb-3"><p>在日常工作中我们经常要对 Cisco 的网络设备的配置进行备份，或者和 suricata 联动的时候要执行操作。</p>
-<p>方法其实很简单，调用 python 的相应模块即可。</p>
-<p>准备工作如下：</p>
-<p>首选需要在/export/servers/python363装好 python 3.6,  pip install netmiko</p>
-<p>其次，在路由器上可以配置en的密码</p>
-<p>然后依次执行备份就可以了。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="ln"> 1</span><span class="ch">#!/export/servers/python363/bin/python3.6</span>
-<span class="ln"> 2</span><span class="kn">from</span> <span class="nn">netmiko</span> <span class="kn">import</span> <span class="n">Netmiko</span>
-<span class="ln"> 3</span><span class="kn">import</span> <span class="nn">time</span>
-<span class="ln"> 4</span><span class="n">tw_bgp</span> <span class="o">=</span> <span class="p">{</span>
-<span class="ln"> 5</span>        <span class="s2">&#34;device_type&#34;</span><span class="p">:</span> <span class="s2">&#34;cisco_ios&#34;</span><span class="p">,</span>
-<span class="ln"> 6</span>        <span class="s2">&#34;host&#34;</span><span class="p">:</span> <span class="s2">&#34;tw-bgp&#34;</span><span class="p">,</span>
-<span class="ln"> 7</span>        <span class="s2">&#34;ip&#34;</span><span class="p">:</span> <span class="s2">&#34;192.168.1.10&#34;</span><span class="p">,</span>
-<span class="ln"> 8</span>        <span class="s2">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;noc&#34;</span><span class="p">,</span>
-<span class="ln"> 9</span>        <span class="s2">&#34;use_keys&#34;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-<span class="ln">10</span>        <span class="s2">&#34;secret&#34;</span> <span class="p">:</span> <span class="s2">&#34;xxxxxxxx&#34;</span><span class="p">,</span>
-<span class="ln">11</span>        <span class="s2">&#34;key_file&#34;</span><span class="p">:</span> <span class="s2">&#34;/root/.ssh/id_jump_rsa_new&#34;</span><span class="p">,</span>
-<span class="ln">12</span><span class="p">}</span>
-<span class="ln">13</span><span class="n">tw_r1_e1</span> <span class="o">=</span> <span class="p">{</span>
-<span class="ln">14</span>        <span class="s2">&#34;device_type&#34;</span><span class="p">:</span> <span class="s2">&#34;cisco_ios&#34;</span><span class="p">,</span>
-<span class="ln">15</span>        <span class="s2">&#34;host&#34;</span><span class="p">:</span> <span class="s2">&#34;tw-r1-e1&#34;</span><span class="p">,</span>
-<span class="ln">16</span>        <span class="s2">&#34;ip&#34;</span><span class="p">:</span> <span class="s2">&#34;192.168.1.11&#34;</span><span class="p">,</span>
-<span class="ln">17</span>        <span class="s2">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;noc&#34;</span><span class="p">,</span>
-<span class="ln">18</span>        <span class="s2">&#34;use_keys&#34;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-<span class="ln">19</span>        <span class="s2">&#34;key_file&#34;</span><span class="p">:</span> <span class="s2">&#34;/root/.ssh/id_jump_rsa_new&#34;</span><span class="p">,</span>
-<span class="ln">20</span><span class="p">}</span>
-<span class="ln">21</span><span class="n">tw_r1_e2</span> <span class="o">=</span> <span class="p">{</span>
-<span class="ln">22</span>        <span class="s2">&#34;device_type&#34;</span><span class="p">:</span> <span class="s2">&#34;cisco_ios&#34;</span><span class="p">,</span>
-<span class="ln">23</span>        <span class="s2">&#34;host&#34;</span><span class="p">:</span> <span class="s2">&#34;tw-r1-e2&#34;</span><span class="p">,</span>
-<span class="ln">24</span>        <span class="s2">&#34;ip&#34;</span><span class="p">:</span> <span class="s2">&#34;192.168.1.12&#34;</span><span class="p">,</span>
-<span class="ln">25</span>        <span class="s2">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;noc&#34;</span><span class="p">,</span>
-<span class="ln">26</span>        <span class="s2">&#34;use_keys&#34;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-<span class="ln">27</span>        <span class="s2">&#34;key_file&#34;</span><span class="p">:</span> <span class="s2">&#34;/root/.ssh/id_jump_rsa_new&#34;</span><span class="p">,</span>
-<span class="ln">28</span><span class="p">}</span>
-<span class="ln">29</span><span class="n">tw_r2_e1</span> <span class="o">=</span> <span class="p">{</span>
-<span class="ln">30</span>        <span class="s2">&#34;device_type&#34;</span><span class="p">:</span> <span class="s2">&#34;cisco_ios&#34;</span><span class="p">,</span>
-<span class="ln">31</span>        <span class="s2">&#34;host&#34;</span><span class="p">:</span> <span class="s2">&#34;tw-r2-e1&#34;</span><span class="p">,</span>
-<span class="ln">32</span>        <span class="s2">&#34;ip&#34;</span><span class="p">:</span> <span class="s2">&#34;192.168.1.13&#34;</span><span class="p">,</span>
-<span class="ln">33</span>        <span class="s2">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;noc&#34;</span><span class="p">,</span>
-<span class="ln">34</span>        <span class="s2">&#34;use_keys&#34;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-<span class="ln">35</span>        <span class="s2">&#34;key_file&#34;</span><span class="p">:</span> <span class="s2">&#34;/root/.ssh/id_jump_rsa_new&#34;</span><span class="p">,</span>
-<span class="ln">36</span><span class="p">}</span>
-<span class="ln">37</span><span class="n">tw_r2_e2</span> <span class="o">=</span> <span class="p">{</span>
-<span class="ln">38</span>        <span class="s2">&#34;device_type&#34;</span><span class="p">:</span> <span class="s2">&#34;cisco_ios&#34;</span><span class="p">,</span>
-<span class="ln">39</span>        <span class="s2">&#34;host&#34;</span><span class="p">:</span> <span class="s2">&#34;tw-r2-e2&#34;</span><span class="p">,</span>
-<span class="ln">40</span>        <span class="s2">&#34;ip&#34;</span><span class="p">:</span> <span class="s2">&#34;192.168.1.14&#34;</span><span class="p">,</span>
-<span class="ln">41</span>        <span class="s2">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;noc&#34;</span><span class="p">,</span>
-<span class="ln">42</span>        <span class="s2">&#34;use_keys&#34;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-<span class="ln">43</span>        <span class="s2">&#34;key_file&#34;</span><span class="p">:</span> <span class="s2">&#34;/root/.ssh/id_jump_rsa_new&#34;</span><span class="p">,</span>
-<span class="ln">44</span><span class="p">}</span>
-<span class="ln">45</span>
-<span class="ln">46</span><span class="n">devices</span><span class="o">=</span><span class="p">[</span><span class="n">tw_bgp</span><span class="p">,</span> <span class="n">tw_r1_e1</span><span class="p">,</span> <span class="n">tw_r1_e2</span><span class="p">,</span> <span class="n">tw_r2_e1</span><span class="p">,</span> <span class="n">tw_r2_e2</span><span class="p">]</span>
-<span class="ln">47</span>
-<span class="ln">48</span><span class="k">for</span> <span class="n">dev</span> <span class="ow">in</span> <span class="n">devices</span><span class="p">:</span>
-<span class="ln">49</span>    <span class="n">name</span> <span class="o">=</span> <span class="n">dev</span><span class="p">[</span><span class="s2">&#34;ip&#34;</span><span class="p">]</span>
-<span class="ln">50</span>    <span class="n">connection</span> <span class="o">=</span> <span class="n">Netmiko</span><span class="p">(</span><span class="o">**</span><span class="n">dev</span><span class="p">)</span>
-<span class="ln">51</span>    <span class="n">connection</span><span class="o">.</span><span class="n">enable</span><span class="p">()</span>
-<span class="ln">52</span>    <span class="n">out</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&#34;show running-config&#34;</span><span class="p">)</span>
-<span class="ln">53</span>    <span class="n">calender</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&#34;%Y%m</span><span class="si">%d</span><span class="s2">&#34;</span><span class="p">)</span>
-<span class="ln">54</span>    <span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">-</span><span class="si">{}</span><span class="s1">.txt&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dev</span><span class="p">[</span><span class="s2">&#34;host&#34;</span><span class="p">],</span><span class="n">calender</span><span class="p">)</span>
-<span class="ln">55</span>    <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span> <span class="p">,</span><span class="s2">&#34;w&#34;</span><span class="p">)</span>
-<span class="ln">56</span>    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
-<span class="ln">57</span>    <span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-<span class="ln">58</span>    <span class="n">connection</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
-<span class="ln">59</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;BACKUP for </span><span class="si">%s</span><span class="s2"> done&#34;</span> <span class="o">%</span><span class="n">dev</span><span class="p">[</span><span class="s2">&#34;host&#34;</span><span class="p">])</span>
-</code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+  </div>
+  <div class="offcanvas-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div><div class="post-content mb-3"><p>这是个很奇怪的事情，应聘了一家搞 CDN 的公司，结果上去看了一下根本不对路。就立刻辞了，但是发现它给员工开的 L2TP VPN 很好用。</p>
+<p>于是就自己也搭一个，方便自用。下面记录一下安装过程，环境是CentOS 7</p>
+<h4 id="一装l2tp">一、装L2TP</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span><span class="c1"># yum install epel-release</span>
+<span class="ln">2</span><span class="c1"># yum install xl2tpd libreswan</span>
+</code></pre></div><h4 id="二修改核心参数">二、修改核心参数</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="c1"># vi /etc/sysctl.conf</span>
+<span class="ln"> 2</span>
+<span class="ln"> 3</span>vm.swappiness <span class="o">=</span> <span class="m">0</span>
+<span class="ln"> 4</span>net.ipv4.neigh.default.gc_stale_time<span class="o">=</span><span class="m">120</span>
+<span class="ln"> 5</span>net.ipv4.conf.all.rp_filter<span class="o">=</span><span class="m">0</span>
+<span class="ln"> 6</span>net.ipv4.conf.default.rp_filter<span class="o">=</span><span class="m">0</span>
+<span class="ln"> 7</span>net.ipv4.conf.default.arp_announce <span class="o">=</span> <span class="m">2</span>
+<span class="ln"> 8</span>net.ipv4.conf.all.arp_announce<span class="o">=</span><span class="m">2</span>
+<span class="ln"> 9</span>net.ipv4.tcp_max_tw_buckets <span class="o">=</span> <span class="m">5000</span>
+<span class="ln">10</span>net.ipv4.tcp_syncookies <span class="o">=</span> <span class="m">1</span>
+<span class="ln">11</span>net.ipv4.tcp_max_syn_backlog <span class="o">=</span> <span class="m">1024</span>
+<span class="ln">12</span>net.ipv4.tcp_synack_retries <span class="o">=</span> <span class="m">2</span>
+<span class="ln">13</span>net.ipv4.conf.lo.arp_announce<span class="o">=</span><span class="m">2</span>
+<span class="ln">14</span>net.ipv4.ip_forward <span class="o">=</span> <span class="m">1</span>
+<span class="ln">15</span>net.ipv4.conf.default.accept_redirects <span class="o">=</span> <span class="m">0</span>
+<span class="ln">16</span>net.ipv4.conf.default.send_redirects <span class="o">=</span> <span class="m">0</span>
+<span class="ln">17</span>net.ipv4.conf.default.accept_source_route <span class="o">=</span> <span class="m">0</span>
+<span class="ln">18</span>
+<span class="ln">19</span><span class="c1"># sysctl -p</span>
+</code></pre></div><h4 id="三配置-ipsec">三、配置 IPSEC</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln"> 1</span># vi /etc/ipsec.d/l2tp_psk.conf
+<span class="ln"> 2</span>
+<span class="ln"> 3</span>conn L2TP-PSK-NAT
+<span class="ln"> 4</span>     rightsubnet=vhost:%priv
+<span class="ln"> 5</span>     also=L2TP-PSK-noNAT
+<span class="ln"> 6</span>conn L2TP-PSK-noNAT
+<span class="ln"> 7</span>     authby=secret
+<span class="ln"> 8</span>     pfs=no
+<span class="ln"> 9</span>     auto=add
+<span class="ln">10</span>     keyingtries=3
+<span class="ln">11</span>     dpddelay=30
+<span class="ln">12</span>     dpdtimeout=120
+<span class="ln">13</span>     dpdaction=clear
+<span class="ln">14</span>     rekey=no
+<span class="ln">15</span>     ikelifetime=8h
+<span class="ln">16</span>     keylife=1h
+<span class="ln">17</span>     type=transport
+<span class="ln">18</span>     left=192.168.10.232
+<span class="ln">19</span>     leftprotoport=17/1701
+<span class="ln">20</span>     right=%any
+<span class="ln">21</span>     rightprotoport=17/%any
+<span class="ln">22</span>
+</code></pre></div><p>注意上面的 left=192.168.10.232，这是服务器的ip地址，要更换为自己服务器的地址（如果在防火墙后，写内网地址，非映射后的公网IP）</p>
+<p>然后修改密钥，之后建立L2TP的 iphone 连接时会用到：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span><span class="c1"># vim /etc/ipsec.secrets</span>
+<span class="ln">2</span>
+<span class="ln">3</span>192.168.10.232 %any: PSK <span class="s2">&#34;123456789&#34;</span>
+<span class="ln">4</span>
+</code></pre></div><p>验证一下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span><span class="c1"># ipsec setup start</span>
+<span class="ln">2</span>
+<span class="ln">3</span><span class="c1"># ipsec verify</span>
+<span class="ln">4</span>
+</code></pre></div><p><img class="img-fluid" alt="image-20220810094316262" src="https://bajie.dev/posts/20220810-l2tp_vpn/image-20220810094316262.png" loading="lazy"
+   width="643" height="453"
+   />
+
+</p>
+<p>看到上面两行红字不要慌张，Ignore，忽略掉即可。是内核特性中的reverse path filter特性，没关系。</p>
+<p>然后让 ipsec 自启动</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span><span class="c1"># systemctl enable ipsec</span>
+</code></pre></div><h4 id="四配置xl2tpd">四、配置xl2tpd</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="c1"># 先备份</span>
+<span class="ln"> 2</span><span class="c1"># mv /etc/xl2tpd/xl2tpd.conf /etc/xl2tpd/xl2tpd.conf.old</span>
+<span class="ln"> 3</span>
+<span class="ln"> 4</span><span class="c1"># vim /etc/xl2tpd/xl2tpd.conf</span>
+<span class="ln"> 5</span><span class="o">[</span>global<span class="o">]</span>
+<span class="ln"> 6</span>listen-addr <span class="o">=</span> 192.168.10.232
+<span class="ln"> 7</span>ipsec <span class="nv">saref</span> <span class="o">=</span> yes
+<span class="ln"> 8</span><span class="o">[</span>lns default<span class="o">]</span>
+<span class="ln"> 9</span>ip <span class="nv">range</span> <span class="o">=</span> 192.168.100.128-192.168.100.254
+<span class="ln">10</span><span class="nb">local</span> <span class="nv">ip</span> <span class="o">=</span> 192.168.100.99
+<span class="ln">11</span>require <span class="nv">chap</span> <span class="o">=</span> yes
+<span class="ln">12</span>refuse <span class="nv">pap</span> <span class="o">=</span> yes
+<span class="ln">13</span>require <span class="nv">authentication</span> <span class="o">=</span> yes
+<span class="ln">14</span><span class="nv">name</span> <span class="o">=</span> LinuxVPNserver
+<span class="ln">15</span>ppp <span class="nv">debug</span> <span class="o">=</span> yes
+<span class="ln">16</span><span class="nv">pppoptfile</span> <span class="o">=</span> /etc/ppp/options.xl2tpd
+<span class="ln">17</span>length <span class="nv">bit</span> <span class="o">=</span> yes
+<span class="ln">18</span>
+</code></pre></div><p>注意更换上面 192.168.10.232 的服务器ip地址，同时记住name=LinuxVPNserver</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="c1"># 先备份</span>
+<span class="ln"> 2</span><span class="c1"># mv /etc/ppp/options.xl2tpd /etc/ppp/options.xl2tpd.old</span>
+<span class="ln"> 3</span>
+<span class="ln"> 4</span><span class="c1"># vim /etc/ppp/options.xl2tpd</span>
+<span class="ln"> 5</span>ipcp-accept-local
+<span class="ln"> 6</span>ipcp-accept-remote
+<span class="ln"> 7</span>ms-dns  8.8.8.8
+<span class="ln"> 8</span>ms-dns  4.2.2.4
+<span class="ln"> 9</span>noccp
+<span class="ln">10</span><span class="c1">#noauth</span>
+<span class="ln">11</span>crtscts
+<span class="ln">12</span>idle <span class="m">1800</span>
+<span class="ln">13</span>mtu <span class="m">1410</span>
+<span class="ln">14</span>mru <span class="m">1410</span>
+<span class="ln">15</span>nodefaultroute
+<span class="ln">16</span>debug
+<span class="ln">17</span>lock
+<span class="ln">18</span>proxyarp
+<span class="ln">19</span>connect-delay <span class="m">5000</span>
+<span class="ln">20</span>
+</code></pre></div><p>最后编辑用户名和密码</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>vim /etc/ppp/chap-secrets
+<span class="ln">2</span>
+<span class="ln">3</span><span class="c1"># Secrets for authentication using CHAP</span>
+<span class="ln">4</span><span class="c1"># client        server  secret                  IP addresses</span>
+<span class="ln">5</span><span class="nb">test</span>     LinuxVPNserver <span class="nb">test</span> *
+</code></pre></div><p>注意格式，第一列是用户名，第二列是上面xl2tpd.conf中记住的name名，第三列是密码，第四列是获取到的ip地址</p>
+<p>然后启动</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span><span class="c1"># systemctl start xl2tpd</span>
+<span class="ln">2</span><span class="c1"># systemctl enable xl2tpd</span>
+<span class="ln">3</span><span class="c1"># systemctl status xl2tpd</span>
+</code></pre></div><h4 id="五配置防火墙">五、配置防火墙</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>iptables -A INPUT -p gre -j ACCEPT
+<span class="ln">2</span>iptables -A OUTPUT -p gre -j ACCEPT
+<span class="ln">3</span>iptables -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
+<span class="ln">4</span>iptables -A FORWARD -s 192.168.100.0/24 -j ACCEPT
+<span class="ln">5</span>iptables -t nat -A POSTROUTING -s 192.168.100.0/24 -o eth0 -j MASQUERADE
+</code></pre></div><p>注意上面的eth0，根据服务器的具体情况进行修改</p>
+<p>然后这样就完成了。</p>
+<h4 id="六配置iphone手机">六、配置iphone手机</h4>
+<p><img class="img-fluid" alt="image-20220810095400410" src="https://bajie.dev/posts/20220810-l2tp_vpn/image-20220810095400410.png" loading="lazy"
+   width="340" height="650"
+   />
+
+</p>
+<p>配置好服务器ip，账户，密码以及密钥就可以了。</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -305,19 +393,15 @@
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://bajie.dev/posts/20220706-nfs_usermode/">用户态的NFS Server
+    <a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
 </a>
-  </div><div class="post-nav post-next">
-    <a href="https://bajie.dev/posts/20220717-terraform/">Infrastructure as Code中packer的使用
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20220706-nfs_usermode/">用户态的NFS Server
-</a></li><li><a href="https://bajie.dev/posts/20220621-javascripts_how_to_run/">JavaScript 到底是如何执行的呢 -- JS的作原理
-</a></li><li><a href="https://bajie.dev/posts/20220615-javascripts_if/">Javascripts中if的优化
-</a></li><li><a href="https://bajie.dev/posts/20220609-shell_tips/">Shell进阶技巧
-</a></li><li><a href="https://bajie.dev/posts/20220524-javascripts_promise/">Javascripts中的promise
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+</a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
+</a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
+</a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
