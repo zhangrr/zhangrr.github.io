@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="etcd单节点应用">
 <meta itemprop="description" content="由于使用到了阿里的 K8S 托管集群 ACK，于是想占便宜。想用到托管 master node 的 etcd 来保存数据。 结果是，未遂！！无法使用。 阿里有单独的配置管理服务，复杂化了"><meta itemprop="datePublished" content="2021-10-21T11:30:11+08:00" />
 <meta itemprop="dateModified" content="2021-10-21T11:30:11+08:00" />
-<meta itemprop="wordCount" content="758">
+<meta itemprop="wordCount" content="774">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="etcd单节点应用" />
 <meta property="og:description" content="由于使用到了阿里的 K8S 托管集群 ACK，于是想占便宜。想用到托管 master node 的 etcd 来保存数据。 结果是，未遂！！无法使用。 阿里有单独的配置管理服务，复杂化了" />
 <meta property="og:type" content="article" />
@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="etcd单节点应用"/>
 <meta name="twitter:description" content="由于使用到了阿里的 K8S 托管集群 ACK，于是想占便宜。想用到托管 master node 的 etcd 来保存数据。 结果是，未遂！！无法使用。 阿里有单独的配置管理服务，复杂化了"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -236,136 +236,134 @@
 <p>那么解决方案就是，启动只有一个节点副本的 etcd pod，然后数据持久化到 OSS 的 S3 桶中。</p>
 <h2 id="一实现etcd的单节点docker化">一、实现etcd的单节点docker化</h2>
 <p>首先我们只想在测试环境中跑一个单节点的 etcd，还没有用到 k8s，做法如下：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln"> 1</span><span class="cp">#!/bin/bash
-</span><span class="ln"> 2</span><span class="cp"></span>
-<span class="ln"> 3</span><span class="nv">NODE1</span><span class="o">=</span>172.18.31.33
-<span class="ln"> 4</span><span class="nv">REGISTRY</span><span class="o">=</span>quay.io/coreos/etcd
-<span class="ln"> 5</span><span class="c1"># available from v3.2.5</span>
-<span class="ln"> 6</span><span class="c1">#REGISTRY=gcr.io/etcd-development/etcd</span>
-<span class="ln"> 7</span>
-<span class="ln"> 8</span>docker run <span class="se">\
-</span><span class="ln"> 9</span><span class="se"></span>  -p 2379:2379 <span class="se">\
-</span><span class="ln">10</span><span class="se"></span>  -p 2380:2380 <span class="se">\
-</span><span class="ln">11</span><span class="se"></span>  --volume<span class="o">=</span>/data/etcd:/etcd-data <span class="se">\
-</span><span class="ln">12</span><span class="se"></span>  --name etcd <span class="si">${</span><span class="nv">REGISTRY</span><span class="si">}</span>:latest <span class="se">\
-</span><span class="ln">13</span><span class="se"></span>  /usr/local/bin/etcd <span class="se">\
-</span><span class="ln">14</span><span class="se"></span>  --data-dir<span class="o">=</span>/etcd-data --name node1 <span class="se">\
-</span><span class="ln">15</span><span class="se"></span>  --initial-advertise-peer-urls http://<span class="si">${</span><span class="nv">NODE1</span><span class="si">}</span>:2380 --listen-peer-urls http://0.0.0.0:2380 <span class="se">\
-</span><span class="ln">16</span><span class="se"></span>  --advertise-client-urls http://<span class="si">${</span><span class="nv">NODE1</span><span class="si">}</span>:2379 --listen-client-urls http://0.0.0.0:2379 <span class="se">\
-</span><span class="ln">17</span><span class="se"></span>  --initial-cluster <span class="nv">node1</span><span class="o">=</span>http://<span class="si">${</span><span class="nv">NODE1</span><span class="si">}</span>:2380
-<span class="ln">18</span>
-<span class="ln">19</span>
-</code></pre></div><p>如上就可以了，容器跑起来以后进入容器测试一下：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>docker <span class="nb">exec</span> -it 425f26903466 /bin/sh
-<span class="ln">2</span>
-<span class="ln">3</span>etcdctl -C http://127.0.0.1:2379 member list
-<span class="ln">4</span>c3511611548b7c7c: <span class="nv">name</span><span class="o">=</span>node1 <span class="nv">peerURLs</span><span class="o">=</span>http://172.18.31.33:2380 <span class="nv">clientURLs</span><span class="o">=</span>http://172.18.31.33:2379 <span class="nv">isLeader</span><span class="o">=</span><span class="nb">true</span>
-<span class="ln">5</span>
-<span class="ln">6</span>etcdctl ls --recursive /
-</code></pre></div><p>这样一个单节点的 etcd 就弄好了，对外暴露的是 2379 和 2380 端口</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="cp">#!/bin/bash
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="nv">NODE1</span><span class="o">=</span>172.18.31.33
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="nv">REGISTRY</span><span class="o">=</span>quay.io/coreos/etcd
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="c1"># available from v3.2.5</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="c1">#REGISTRY=gcr.io/etcd-development/etcd</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">docker run <span class="se">\
+</span></span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="se"></span>  -p 2379:2379 <span class="se">\
+</span></span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="se"></span>  -p 2380:2380 <span class="se">\
+</span></span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="se"></span>  --volume<span class="o">=</span>/data/etcd:/etcd-data <span class="se">\
+</span></span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="se"></span>  --name etcd <span class="si">${</span><span class="nv">REGISTRY</span><span class="si">}</span>:latest <span class="se">\
+</span></span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="se"></span>  /usr/local/bin/etcd <span class="se">\
+</span></span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="se"></span>  --data-dir<span class="o">=</span>/etcd-data --name node1 <span class="se">\
+</span></span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="se"></span>  --initial-advertise-peer-urls http://<span class="si">${</span><span class="nv">NODE1</span><span class="si">}</span>:2380 --listen-peer-urls http://0.0.0.0:2380 <span class="se">\
+</span></span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="se"></span>  --advertise-client-urls http://<span class="si">${</span><span class="nv">NODE1</span><span class="si">}</span>:2379 --listen-client-urls http://0.0.0.0:2379 <span class="se">\
+</span></span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="se"></span>  --initial-cluster <span class="nv">node1</span><span class="o">=</span>http://<span class="si">${</span><span class="nv">NODE1</span><span class="si">}</span>:2380
+</span></span></code></pre></div><p>如上就可以了，容器跑起来以后进入容器测试一下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">docker <span class="nb">exec</span> -it 425f26903466 /bin/sh
+</span></span><span class="line"><span class="ln">2</span><span class="cl">
+</span></span><span class="line"><span class="ln">3</span><span class="cl">etcdctl -C http://127.0.0.1:2379 member list
+</span></span><span class="line"><span class="ln">4</span><span class="cl">c3511611548b7c7c: <span class="nv">name</span><span class="o">=</span>node1 <span class="nv">peerURLs</span><span class="o">=</span>http://172.18.31.33:2380 <span class="nv">clientURLs</span><span class="o">=</span>http://172.18.31.33:2379 <span class="nv">isLeader</span><span class="o">=</span><span class="nb">true</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl">
+</span></span><span class="line"><span class="ln">6</span><span class="cl">etcdctl ls --recursive /
+</span></span></code></pre></div><p>这样一个单节点的 etcd 就弄好了，对外暴露的是 2379 和 2380 端口</p>
 <h2 id="二实现-etcd-的单节点-k8s-化">二、实现 etcd 的单节点 k8s 化</h2>
 <p>首先编写一个deployment文件etcd-deploy.yaml：</p>
 <p>下载：<a href="etcd-deploy.yaml">etcd-deploy.yaml</a>
 </p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span><span class="na">apiVersion: apps/v1 </span>
-<span class="ln"> 2</span><span class="na">kind: Deployment </span>
-<span class="ln"> 3</span><span class="na">metadata: </span>
-<span class="ln"> 4</span>  <span class="na">name: etcd-deploy</span>
-<span class="ln"> 5</span>  <span class="na">labels: </span>
-<span class="ln"> 6</span>    <span class="na">app: etcd</span>
-<span class="ln"> 7</span><span class="na">spec: </span>
-<span class="ln"> 8</span>  <span class="na">replicas: 1 </span>
-<span class="ln"> 9</span>  <span class="na">selector: </span>
-<span class="ln">10</span>    <span class="na">matchLabels: </span>
-<span class="ln">11</span>      <span class="na">app: etcd</span>
-<span class="ln">12</span>  <span class="na">template: </span>
-<span class="ln">13</span>    <span class="na">metadata: </span>
-<span class="ln">14</span>      <span class="na">labels: </span>
-<span class="ln">15</span>        <span class="na">app: etcd</span>
-<span class="ln">16</span>    <span class="na">spec: </span>
-<span class="ln">17</span>      <span class="na">containers: </span>
-<span class="ln">18</span>      <span class="na">- name: etcd</span>
-<span class="ln">19</span>        <span class="na">image: quay.io/coreos/etcd:latest</span>
-<span class="ln">20</span>        <span class="na">ports:</span>
-<span class="ln">21</span>        <span class="na">- containerPort: 2379</span>
-<span class="ln">22</span>          <span class="na">name: client</span>
-<span class="ln">23</span>          <span class="na">protocol: TCP</span>
-<span class="ln">24</span>        <span class="na">- containerPort: 2380</span>
-<span class="ln">25</span>          <span class="na">name: server</span>
-<span class="ln">26</span>          <span class="na">protocol: TCP</span>
-<span class="ln">27</span>        <span class="na">command:</span>
-<span class="ln">28</span>        <span class="na">- /usr/local/bin/etcd</span>
-<span class="ln">29</span>        <span class="na">- --name</span>
-<span class="ln">30</span>        <span class="na">- etcd</span>
-<span class="ln">31</span>        <span class="na">- --initial-advertise-peer-urls</span>
-<span class="ln">32</span>        <span class="na">- http://etcd:2380</span>
-<span class="ln">33</span>        <span class="na">- --listen-peer-urls</span>
-<span class="ln">34</span>        <span class="na">- http://0.0.0.0:2380</span>
-<span class="ln">35</span>        <span class="na">- --listen-client-urls</span>
-<span class="ln">36</span>        <span class="na">- http://0.0.0.0:2379</span>
-<span class="ln">37</span>        <span class="na">- --advertise-client-urls</span>
-<span class="ln">38</span>        <span class="na">- http://etcd:2379</span>
-<span class="ln">39</span>        <span class="na">- --initial-cluster</span>
-<span class="ln">40</span>        <span class="na">- etcd</span><span class="o">=</span><span class="s">http://etcd:2380
-</span><span class="ln">41</span><span class="s">        - --data-dir
-</span><span class="ln">42</span><span class="s">        - /etcd-data 
-</span><span class="ln">43</span><span class="s">        volumeMounts:
-</span><span class="ln">44</span><span class="s">        - mountPath: /etcd-data
-</span><span class="ln">45</span><span class="s">          name: etcd-data
-</span><span class="ln">46</span><span class="s">        lifecycle:
-</span><span class="ln">47</span><span class="s">          postStart:
-</span><span class="ln">48</span><span class="s">            exec:
-</span><span class="ln">49</span><span class="s">              command:
-</span><span class="ln">50</span><span class="s">                 - &#34;sh&#34;
-</span><span class="ln">51</span><span class="s">                 - &#34;-c&#34;
-</span><span class="ln">52</span><span class="s">                 - &gt;
-</span><span class="ln">53</span><span class="s">                   echo &#34;127.0.0.1 etcd&#34; &gt;&gt; /etc/hosts;
-</span><span class="ln">54</span><span class="s">      volumes:
-</span><span class="ln">55</span><span class="s">        - name: etcd-data
-</span><span class="ln">56</span><span class="s">          persistentVolumeClaim:
-</span><span class="ln">57</span><span class="s">            claimName: k8s-etcd-20g
-</span><span class="ln">58</span><span class="s">      restartPolicy: Always</span>
-</code></pre></div><p>注意上面，我们使用了一个 pvc 卷 k8s-etcd-20g，这个卷挂在 /etcd-data，是由 OSS 建立的，用于持久话数据，省得重启 etcd 的 pod，数据消失不见了。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="na">apiVersion: apps/v1 </span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="na">kind: Deployment </span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="na">metadata: </span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">  <span class="na">name: etcd-deploy</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">  <span class="na">labels: </span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">    <span class="na">app: etcd</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="na">spec: </span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">  <span class="na">replicas: 1 </span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">  <span class="na">selector: </span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">    <span class="na">matchLabels: </span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">      <span class="na">app: etcd</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">  <span class="na">template: </span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">    <span class="na">metadata: </span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">      <span class="na">labels: </span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl">        <span class="na">app: etcd</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">    <span class="na">spec: </span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl">      <span class="na">containers: </span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl">      <span class="na">- name: etcd</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl">        <span class="na">image: quay.io/coreos/etcd:latest</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl">        <span class="na">ports:</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl">        <span class="na">- containerPort: 2379</span>
+</span></span><span class="line"><span class="ln">22</span><span class="cl">          <span class="na">name: client</span>
+</span></span><span class="line"><span class="ln">23</span><span class="cl">          <span class="na">protocol: TCP</span>
+</span></span><span class="line"><span class="ln">24</span><span class="cl">        <span class="na">- containerPort: 2380</span>
+</span></span><span class="line"><span class="ln">25</span><span class="cl">          <span class="na">name: server</span>
+</span></span><span class="line"><span class="ln">26</span><span class="cl">          <span class="na">protocol: TCP</span>
+</span></span><span class="line"><span class="ln">27</span><span class="cl">        <span class="na">command:</span>
+</span></span><span class="line"><span class="ln">28</span><span class="cl">        <span class="na">- /usr/local/bin/etcd</span>
+</span></span><span class="line"><span class="ln">29</span><span class="cl">        <span class="na">- --name</span>
+</span></span><span class="line"><span class="ln">30</span><span class="cl">        <span class="na">- etcd</span>
+</span></span><span class="line"><span class="ln">31</span><span class="cl">        <span class="na">- --initial-advertise-peer-urls</span>
+</span></span><span class="line"><span class="ln">32</span><span class="cl">        <span class="na">- http://etcd:2380</span>
+</span></span><span class="line"><span class="ln">33</span><span class="cl">        <span class="na">- --listen-peer-urls</span>
+</span></span><span class="line"><span class="ln">34</span><span class="cl">        <span class="na">- http://0.0.0.0:2380</span>
+</span></span><span class="line"><span class="ln">35</span><span class="cl">        <span class="na">- --listen-client-urls</span>
+</span></span><span class="line"><span class="ln">36</span><span class="cl">        <span class="na">- http://0.0.0.0:2379</span>
+</span></span><span class="line"><span class="ln">37</span><span class="cl">        <span class="na">- --advertise-client-urls</span>
+</span></span><span class="line"><span class="ln">38</span><span class="cl">        <span class="na">- http://etcd:2379</span>
+</span></span><span class="line"><span class="ln">39</span><span class="cl">        <span class="na">- --initial-cluster</span>
+</span></span><span class="line"><span class="ln">40</span><span class="cl">        <span class="na">- etcd</span><span class="o">=</span><span class="s">http://etcd:2380
+</span></span></span><span class="line"><span class="ln">41</span><span class="cl"><span class="s">        - --data-dir
+</span></span></span><span class="line"><span class="ln">42</span><span class="cl"><span class="s">        - /etcd-data 
+</span></span></span><span class="line"><span class="ln">43</span><span class="cl"><span class="s">        volumeMounts:
+</span></span></span><span class="line"><span class="ln">44</span><span class="cl"><span class="s">        - mountPath: /etcd-data
+</span></span></span><span class="line"><span class="ln">45</span><span class="cl"><span class="s">          name: etcd-data
+</span></span></span><span class="line"><span class="ln">46</span><span class="cl"><span class="s">        lifecycle:
+</span></span></span><span class="line"><span class="ln">47</span><span class="cl"><span class="s">          postStart:
+</span></span></span><span class="line"><span class="ln">48</span><span class="cl"><span class="s">            exec:
+</span></span></span><span class="line"><span class="ln">49</span><span class="cl"><span class="s">              command:
+</span></span></span><span class="line"><span class="ln">50</span><span class="cl"><span class="s">                 - &#34;sh&#34;
+</span></span></span><span class="line"><span class="ln">51</span><span class="cl"><span class="s">                 - &#34;-c&#34;
+</span></span></span><span class="line"><span class="ln">52</span><span class="cl"><span class="s">                 - &gt;
+</span></span></span><span class="line"><span class="ln">53</span><span class="cl"><span class="s">                   echo &#34;127.0.0.1 etcd&#34; &gt;&gt; /etc/hosts;
+</span></span></span><span class="line"><span class="ln">54</span><span class="cl"><span class="s">      volumes:
+</span></span></span><span class="line"><span class="ln">55</span><span class="cl"><span class="s">        - name: etcd-data
+</span></span></span><span class="line"><span class="ln">56</span><span class="cl"><span class="s">          persistentVolumeClaim:
+</span></span></span><span class="line"><span class="ln">57</span><span class="cl"><span class="s">            claimName: k8s-etcd-20g
+</span></span></span><span class="line"><span class="ln">58</span><span class="cl"><span class="s">      restartPolicy: Always</span>
+</span></span></code></pre></div><p>注意上面，我们使用了一个 pvc 卷 k8s-etcd-20g，这个卷挂在 /etcd-data，是由 OSS 建立的，用于持久话数据，省得重启 etcd 的 pod，数据消失不见了。</p>
 <p>然后，我们需要把这个 deployment 作为 svc 服务暴露在集群中，再编写一个etcd-svc.yaml</p>
 <p>下载：<a href="etcd-svc.yaml">etcd-svc.yaml</a>
 </p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span><span class="na">apiVersion: v1</span>
-<span class="ln"> 2</span><span class="na">kind: Service</span>
-<span class="ln"> 3</span><span class="na">metadata:</span>
-<span class="ln"> 4</span> <span class="na">name: etcd-svc</span>
-<span class="ln"> 5</span><span class="na">spec:</span>
-<span class="ln"> 6</span> <span class="na">ports:</span>
-<span class="ln"> 7</span> <span class="na">- port: 2379</span>
-<span class="ln"> 8</span>   <span class="na">name: tcp2379</span>
-<span class="ln"> 9</span>   <span class="na">protocol: TCP</span>
-<span class="ln">10</span>   <span class="na">targetPort: 2379</span>
-<span class="ln">11</span> <span class="na">- port: 2380</span>
-<span class="ln">12</span>   <span class="na">name: tcp2380</span>
-<span class="ln">13</span>   <span class="na">protocol: TCP</span>
-<span class="ln">14</span>   <span class="na">targetPort: 2380</span>
-<span class="ln">15</span> <span class="na">selector:</span>
-<span class="ln">16</span>   <span class="na">app: etcd</span>
-<span class="ln">17</span> <span class="na">type: ClusterIP</span>
-</code></pre></div><p>kubectl apply 部署到 k8s 中，这样就可以了。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="na">apiVersion: v1</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="na">kind: Service</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="na">metadata:</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"> <span class="na">name: etcd-svc</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="na">spec:</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"> <span class="na">ports:</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"> <span class="na">- port: 2379</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">   <span class="na">name: tcp2379</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">   <span class="na">protocol: TCP</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">   <span class="na">targetPort: 2379</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl"> <span class="na">- port: 2380</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">   <span class="na">name: tcp2380</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">   <span class="na">protocol: TCP</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">   <span class="na">targetPort: 2380</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl"> <span class="na">selector:</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">   <span class="na">app: etcd</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl"> <span class="na">type: ClusterIP</span>
+</span></span></code></pre></div><p>kubectl apply 部署到 k8s 中，这样就可以了。</p>
 <p>k8s测试方法，随便启动一个 busybox pod，进去测试一下：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln"> 1</span>kubectl run curl --image<span class="o">=</span>radial/busyboxplus:curl -i --tty --rm
-<span class="ln"> 2</span>
-<span class="ln"> 3</span>curl http://etcd-svc:2379/version
-<span class="ln"> 4</span>
-<span class="ln"> 5</span>curl http://etcd-svc.default:2379/version
-<span class="ln"> 6</span>
-<span class="ln"> 7</span>curl http://etcd-svc.default:2379/v2/keys
-<span class="ln"> 8</span>
-<span class="ln"> 9</span>curl http://etcd-svc.default:2379/v2/keys/?recursive<span class="o">=</span><span class="nb">true</span>
-<span class="ln">10</span>
-<span class="ln">11</span>curl http://etcd-svc.default:2379/v2/keys/service/nginx
-<span class="ln">12</span>
-<span class="ln">13</span>curl http://etcd-svc.default:2379/v2/keys/service/nginx/127.0.0.1
-<span class="ln">14</span>
-<span class="ln">15</span>curl --location --request PUT <span class="s1">&#39;http://etcd-svc:2379/v2/keys/service/nginx/10.240.0.41&#39;</span> --header <span class="s1">&#39;Content-Type: application/x-www-form-urlencoded&#39;</span> --data-urlencode <span class="s1">&#39;value=10.240.0.41:9000&#39;</span>
-<span class="ln">16</span>
-<span class="ln">17</span>curl http://etcd-svc.default:2379/v2/keys/service/nginx/
-</code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln"> 1</span><span class="cl">kubectl run curl --image<span class="o">=</span>radial/busyboxplus:curl -i --tty --rm
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">curl http://etcd-svc:2379/version
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">curl http://etcd-svc.default:2379/version
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">curl http://etcd-svc.default:2379/v2/keys
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">curl http://etcd-svc.default:2379/v2/keys/?recursive<span class="o">=</span><span class="nb">true</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">
+</span></span><span class="line"><span class="ln">11</span><span class="cl">curl http://etcd-svc.default:2379/v2/keys/service/nginx
+</span></span><span class="line"><span class="ln">12</span><span class="cl">
+</span></span><span class="line"><span class="ln">13</span><span class="cl">curl http://etcd-svc.default:2379/v2/keys/service/nginx/127.0.0.1
+</span></span><span class="line"><span class="ln">14</span><span class="cl">
+</span></span><span class="line"><span class="ln">15</span><span class="cl">curl --location --request PUT <span class="s1">&#39;http://etcd-svc:2379/v2/keys/service/nginx/10.240.0.41&#39;</span> --header <span class="s1">&#39;Content-Type: application/x-www-form-urlencoded&#39;</span> --data-urlencode <span class="s1">&#39;value=10.240.0.41:9000&#39;</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">
+</span></span><span class="line"><span class="ln">17</span><span class="cl">curl http://etcd-svc.default:2379/v2/keys/service/nginx/
+</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -410,7 +408,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -450,11 +448,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

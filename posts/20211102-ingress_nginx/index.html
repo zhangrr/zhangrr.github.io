@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="k8s中nginx ingress的性能优化">
 <meta itemprop="description" content="kubernetes 中 nginx ingress 的优化分两部分 一、系统sysctl部分优化 首先是对nginx启动前的系统性能进行优化，这部分调整网络的缓冲区，减小闲置 socket 关闭的时间 以"><meta itemprop="datePublished" content="2021-11-02T11:00:11+08:00" />
 <meta itemprop="dateModified" content="2021-11-02T11:00:11+08:00" />
-<meta itemprop="wordCount" content="284">
+<meta itemprop="wordCount" content="290">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="k8s中nginx ingress的性能优化" />
 <meta property="og:description" content="kubernetes 中 nginx ingress 的优化分两部分 一、系统sysctl部分优化 首先是对nginx启动前的系统性能进行优化，这部分调整网络的缓冲区，减小闲置 socket 关闭的时间 以" />
 <meta property="og:type" content="article" />
@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="k8s中nginx ingress的性能优化"/>
 <meta name="twitter:description" content="kubernetes 中 nginx ingress 的优化分两部分 一、系统sysctl部分优化 首先是对nginx启动前的系统性能进行优化，这部分调整网络的缓冲区，减小闲置 socket 关闭的时间 以"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -234,47 +234,47 @@
 <h2 id="一系统sysctl部分优化">一、系统sysctl部分优化</h2>
 <p>首先是对nginx启动前的系统性能进行优化，这部分调整网络的缓冲区，减小闲置 socket 关闭的时间</p>
 <p>以阿里 ACK 为例，我们可以编辑 deployments 的 nginx-ingress-controller</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span>      <span class="na">initContainers:</span>
-<span class="ln"> 2</span>      <span class="na">- command:</span>
-<span class="ln"> 3</span>        <span class="na">- /bin/sh</span>
-<span class="ln"> 4</span>        <span class="na">- -c</span>
-<span class="ln"> 5</span>        <span class="na">- |</span>
-<span class="ln"> 6</span>          <span class="na">mount -o remount rw /proc/sys</span>
-<span class="ln"> 7</span>          <span class="na">sysctl -w net.core.somaxconn</span><span class="o">=</span><span class="s">65535
-</span><span class="ln"> 8</span><span class="s">          sysctl -w net.ipv4.ip_local_port_range=&#34;1024 65535&#34;
-</span><span class="ln"> 9</span><span class="s">          sysctl -w net.ipv4.tcp_tw_reuse=1
-</span><span class="ln">10</span><span class="s">          sysctl -w fs.file-max=1048576
-</span><span class="ln">11</span><span class="s">          sysctl -w net.ipv4.tcp_keepalive_time = 300
-</span><span class="ln">12</span><span class="s">          sysctl -w net.ipv4.tcp_keepalive_probes = 5
-</span><span class="ln">13</span><span class="s">          sysctl -w net.ipv4.tcp_keepalive_intvl = 15
-</span><span class="ln">14</span><span class="s">          </span>
-</code></pre></div><h2 id="二nginx-ingress-参数优化">二、nginx ingress 参数优化</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln"> 1</span><span class="cl">      <span class="na">initContainers:</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">      <span class="na">- command:</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">        <span class="na">- /bin/sh</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">        <span class="na">- -c</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">        <span class="na">- |</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">          <span class="na">mount -o remount rw /proc/sys</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">          <span class="na">sysctl -w net.core.somaxconn</span><span class="o">=</span><span class="s">65535
+</span></span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="s">          sysctl -w net.ipv4.ip_local_port_range=&#34;1024 65535&#34;
+</span></span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="s">          sysctl -w net.ipv4.tcp_tw_reuse=1
+</span></span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="s">          sysctl -w fs.file-max=1048576
+</span></span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="s">          sysctl -w net.ipv4.tcp_keepalive_time = 300
+</span></span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="s">          sysctl -w net.ipv4.tcp_keepalive_probes = 5
+</span></span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="s">          sysctl -w net.ipv4.tcp_keepalive_intvl = 15
+</span></span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="s">          </span>
+</span></span></code></pre></div><h2 id="二nginx-ingress-参数优化">二、nginx ingress 参数优化</h2>
 <p>大家制动，nginx ingree 其实是做为一个中间代理，所以上下游的socket参数也需要优化</p>
 <p>同样以阿里ACK为例，我们可以编辑 configmaps 的 nginx-configuration</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span><span class="na">apiVersion: v1</span>
-<span class="ln"> 2</span><span class="na">data:</span>
-<span class="ln"> 3</span>  <span class="na">allow-backend-server-header: &#34;true&#34;</span>
-<span class="ln"> 4</span>  <span class="na">enable-underscores-in-headers: &#34;true&#34;</span>
-<span class="ln"> 5</span>  <span class="na">generate-request-id: &#34;true&#34;</span>
-<span class="ln"> 6</span>  <span class="na">ignore-invalid-headers: &#34;true&#34;</span>
-<span class="ln"> 7</span>  <span class="na">log-format-upstream: $remote_addr - [$remote_addr] - $remote_user [$time_local]</span>
-<span class="ln"> 8</span>    <span class="na">&#34;$request&#34; $status $body_bytes_sent &#34;$http_referer&#34; &#34;$http_user_agent&#34; $request_length</span>
-<span class="ln"> 9</span>    <span class="na">$request_time [$proxy_upstream_name] $upstream_addr $upstream_response_length</span>
-<span class="ln">10</span>    <span class="na">$upstream_response_time $upstream_status $req_id $host [$proxy_alternative_upstream_name]</span>
-<span class="ln">11</span>  <span class="na">proxy-body-size: 20m</span>
-<span class="ln">12</span>  <span class="na">proxy-connect-timeout: &#34;10&#34;</span>
-<span class="ln">13</span>  <span class="na">reuse-port: &#34;true&#34;</span>
-<span class="ln">14</span>  <span class="na">server-tokens: &#34;false&#34;</span>
-<span class="ln">15</span>  <span class="na">ssl-redirect: &#34;false&#34;</span>
-<span class="ln">16</span>
-<span class="ln">17</span>  <span class="na">upstream-keepalive-timeout: &#34;900&#34;</span>
-<span class="ln">18</span>  <span class="na">keep-alive-requests: &#34;10000&#34;</span>
-<span class="ln">19</span>  <span class="na">upstream-keepalive-connections: &#34;500&#34;</span>
-<span class="ln">20</span>  <span class="na">max-worker-connections: &#34;65536&#34;</span>
-<span class="ln">21</span>
-<span class="ln">22</span>  <span class="na">worker-cpu-affinity: auto</span>
-<span class="ln">23</span><span class="na">kind: ConfigMap</span>
-</code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="na">apiVersion: v1</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="na">data:</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">  <span class="na">allow-backend-server-header: &#34;true&#34;</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">  <span class="na">enable-underscores-in-headers: &#34;true&#34;</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">  <span class="na">generate-request-id: &#34;true&#34;</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">  <span class="na">ignore-invalid-headers: &#34;true&#34;</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">  <span class="na">log-format-upstream: $remote_addr - [$remote_addr] - $remote_user [$time_local]</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">    <span class="na">&#34;$request&#34; $status $body_bytes_sent &#34;$http_referer&#34; &#34;$http_user_agent&#34; $request_length</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">    <span class="na">$request_time [$proxy_upstream_name] $upstream_addr $upstream_response_length</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">    <span class="na">$upstream_response_time $upstream_status $req_id $host [$proxy_alternative_upstream_name]</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">  <span class="na">proxy-body-size: 20m</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">  <span class="na">proxy-connect-timeout: &#34;10&#34;</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">  <span class="na">reuse-port: &#34;true&#34;</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">  <span class="na">server-tokens: &#34;false&#34;</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl">  <span class="na">ssl-redirect: &#34;false&#34;</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">
+</span></span><span class="line"><span class="ln">17</span><span class="cl">  <span class="na">upstream-keepalive-timeout: &#34;900&#34;</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl">  <span class="na">keep-alive-requests: &#34;10000&#34;</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl">  <span class="na">upstream-keepalive-connections: &#34;500&#34;</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl">  <span class="na">max-worker-connections: &#34;65536&#34;</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl">
+</span></span><span class="line"><span class="ln">22</span><span class="cl">  <span class="na">worker-cpu-affinity: auto</span>
+</span></span><span class="line"><span class="ln">23</span><span class="cl"><span class="na">kind: ConfigMap</span>
+</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -319,7 +319,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -359,11 +359,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

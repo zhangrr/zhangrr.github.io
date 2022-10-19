@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Kubernetes下Flannel网络"/>
 <meta name="twitter:description" content="现在各大公有云的 k8s 网络插件基本用的都是 vxlan，我们也需要对这个进行一下详细了解，以便用于公司的正式生产环境。 一、原理 首先，kuberne"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -280,12 +280,12 @@
 </p>
 <p>container-1 首先建立 IP 包， <code>src: 100.96.1.2 -&gt; dst: 100.96.2.3</code>, 包发到 docker0 网桥，docker0 是 container-1 的缺省 gateway 网关。</p>
 <p>在每个 Node 上，flannel 都会跑一个<code>flanneld</code>的守护进程，它会在 Linux 的 kernel 路由表中建立若干条路由，  Node1 的路由表如下:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln">1</span>admin@ip-172-20-33-102:~$ ip route
-<span class="ln">2</span>default via 172.20.32.1 dev eth0
-<span class="ln">3</span>100.96.0.0/16 dev flannel0  proto kernel  scope link  src 100.96.1.0
-<span class="ln">4</span>100.96.1.0/24 dev docker0  proto kernel  scope link  src 100.96.1.1
-<span class="ln">5</span>172.20.32.0/19 dev eth0  proto kernel  scope link  src 172.20.33.102
-</code></pre></div><p>对照路由表，<code>dst 100.96.2.3</code> 的路由会落到 <code>100.96.0.0/16</code> 这一条上，也就是说会落到 <code>flannel0</code> 这个设备上继续转发出去。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln">1</span><span class="cl">admin@ip-172-20-33-102:~$ ip route
+</span></span><span class="line"><span class="ln">2</span><span class="cl">default via 172.20.32.1 dev eth0
+</span></span><span class="line"><span class="ln">3</span><span class="cl">100.96.0.0/16 dev flannel0  proto kernel  scope link  src 100.96.1.0
+</span></span><span class="line"><span class="ln">4</span><span class="cl">100.96.1.0/24 dev docker0  proto kernel  scope link  src 100.96.1.1
+</span></span><span class="line"><span class="ln">5</span><span class="cl">172.20.32.0/19 dev eth0  proto kernel  scope link  src 172.20.33.102
+</span></span></code></pre></div><p>对照路由表，<code>dst 100.96.2.3</code> 的路由会落到 <code>100.96.0.0/16</code> 这一条上，也就是说会落到 <code>flannel0</code> 这个设备上继续转发出去。</p>
 <p><code>flannel0</code> 呢本质上是一个由<code>flanneld</code> 进程建立的 TUN 虚拟网卡设备：</p>
 <ul>
 <li>写TUN：当 IP 包写到<code>flannel0</code>后，会转发到 kernel，然后 kernel 查路由表再转发</li>
@@ -293,22 +293,22 @@
 </ul>
 <p>看上图，IP 包首先到达 Docker0，因为它是网关，然后查内核路由表，到达<code>flannel0</code>虚拟网卡，然后就到达<code>flanneld</code>进程读包， 这时候<code>flanneld</code>会做什么呢？</p>
 <p><code>flanneld</code>从 etcd 中获得各个主机网段对应的节点信息：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln">1</span>admin@ip-172-20-33-102:~$ etcdctl ls /coreos.com/network/subnets
-<span class="ln">2</span>/coreos.com/network/subnets/100.96.1.0-24
-<span class="ln">3</span>/coreos.com/network/subnets/100.96.2.0-24
-<span class="ln">4</span>/coreos.com/network/subnets/100.96.3.0-24
-<span class="ln">5</span>
-<span class="ln">6</span>admin@ip-172-20-33-102:~$ etcdctl get /coreos.com/network/subnets/100.96.2.0-24
-<span class="ln">7</span>{&#34;PublicIP&#34;:&#34;172.20.54.98&#34;}
-</code></pre></div><p>于是乎 Node1 上面的 flanneld 进程得知 100.96.2.3 IP对应的网段是 100.96.2.0/24 ，再进一步对应到 Node2 的公网IP 172.20.54.98，然后它就会继续封装这个IP包，用UDP或者VXLAN，把这个 IP 包再包裹一层封起来送到 Node2 的 flanneld 进程去。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln">1</span><span class="cl">admin@ip-172-20-33-102:~$ etcdctl ls /coreos.com/network/subnets
+</span></span><span class="line"><span class="ln">2</span><span class="cl">/coreos.com/network/subnets/100.96.1.0-24
+</span></span><span class="line"><span class="ln">3</span><span class="cl">/coreos.com/network/subnets/100.96.2.0-24
+</span></span><span class="line"><span class="ln">4</span><span class="cl">/coreos.com/network/subnets/100.96.3.0-24
+</span></span><span class="line"><span class="ln">5</span><span class="cl">
+</span></span><span class="line"><span class="ln">6</span><span class="cl">admin@ip-172-20-33-102:~$ etcdctl get /coreos.com/network/subnets/100.96.2.0-24
+</span></span><span class="line"><span class="ln">7</span><span class="cl">{&#34;PublicIP&#34;:&#34;172.20.54.98&#34;}
+</span></span></code></pre></div><p>于是乎 Node1 上面的 flanneld 进程得知 100.96.2.3 IP对应的网段是 100.96.2.0/24 ，再进一步对应到 Node2 的公网IP 172.20.54.98，然后它就会继续封装这个IP包，用UDP或者VXLAN，把这个 IP 包再包裹一层封起来送到 Node2 的 flanneld 进程去。</p>
 <p>Node2：包首先从网卡到达 Node2 的核心 kernel，路由表显示下一跳是flannel0 虚拟网卡，包就转发到 flanneld 进程读包，flanneld接收到包后，就会做拆包，拆完包直接写包到 TUN，然后包到达本地核心路由，再查路由表转发到docker0，最终到达 container-2</p>
 <p>我们同样可以查看 Node2 的路由表，应该显示如下结果：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln">1</span>admin@ip-172-20-54-98:~$ ip route
-<span class="ln">2</span>default via 172.20.32.1 dev eth0
-<span class="ln">3</span>100.96.0.0/16 dev flannel0  proto kernel  scope link  src 100.96.2.0
-<span class="ln">4</span>100.96.2.0/24 dev docker0  proto kernel  scope link  src 100.96.2.1
-<span class="ln">5</span>172.20.32.0/19 dev eth0  proto kernel  scope link  src 172.20.54.98
-</code></pre></div><p>这样整个过程就明晰了。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln">1</span><span class="cl">admin@ip-172-20-54-98:~$ ip route
+</span></span><span class="line"><span class="ln">2</span><span class="cl">default via 172.20.32.1 dev eth0
+</span></span><span class="line"><span class="ln">3</span><span class="cl">100.96.0.0/16 dev flannel0  proto kernel  scope link  src 100.96.2.0
+</span></span><span class="line"><span class="ln">4</span><span class="cl">100.96.2.0/24 dev docker0  proto kernel  scope link  src 100.96.2.1
+</span></span><span class="line"><span class="ln">5</span><span class="cl">172.20.32.0/19 dev eth0  proto kernel  scope link  src 172.20.54.98
+</span></span></code></pre></div><p>这样整个过程就明晰了。</p>
 <p>道理明晰了，下面我们就需要来实际操作了。</p>
 <h2 id="二实战">二、实战</h2>
 <p>直接在 k8s 里装就很简单，用 yaml 一步操作就行了，这里我们不做任何介绍。</p>
@@ -318,83 +318,83 @@
 </p>
 <p>这里也给出不用Docker，用systemctl来运行的方案：</p>
 <p>准备工作，关闭selinux，打开包转发：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span><span class="nb">echo</span> <span class="m">1</span> &gt; /proc/sys/net/ipv4/ip_forward
-<span class="ln">2</span><span class="c1">#或者修改/etc/sysctl.conf，然后sysctl -p</span>
-<span class="ln">3</span><span class="c1">#net.ipv4.ip_forward = 1</span>
-<span class="ln">4</span>
-<span class="ln">5</span>systemctl disable firewalld.service
-<span class="ln">6</span>systemctl stop firewalld.service
-<span class="ln">7</span>
-<span class="ln">8</span>iptables -P FORWARD ACCEPT
-</code></pre></div><p>安装 etcd ：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>yum install etcd -y
-<span class="ln"> 2</span>
-<span class="ln"> 3</span>cp /etc/etcd/etcd.conf/etc/etcd/etcd.conf.bak
-<span class="ln"> 4</span>
-<span class="ln"> 5</span>vi /etc/etcd/etcd.conf
-<span class="ln"> 6</span><span class="nv">ETCD_LISTEN_PEER_URLS</span><span class="o">=</span><span class="s2">&#34;http://172.16.9.110:2380&#34;</span>
-<span class="ln"> 7</span><span class="nv">ETCD_LISTEN_CLIENT_URLS</span><span class="o">=</span>http://172.16.9.110:2379,http://127.0.0.1:2379
-<span class="ln"> 8</span><span class="nv">ETCD_NAME</span><span class="o">=</span><span class="s2">&#34;default&#34;</span>
-<span class="ln"> 9</span><span class="nv">ETCD_INITIAL_ADVERTISE_PEER_URLS</span><span class="o">=</span><span class="s2">&#34;http://172.16.9.110:2380&#34;</span>
-<span class="ln">10</span><span class="nv">ETCD_ADVERTISE_CLIENT_URLS</span><span class="o">=</span>http://172.16.9.110:2379
-<span class="ln">11</span>
-<span class="ln">12</span>systemctl <span class="nb">enable</span> --now etcd
-</code></pre></div><p>配置 etcd：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>vi /root/etcd.sh
-<span class="ln">2</span><span class="o">{</span> <span class="s2">&#34;Network&#34;</span>: <span class="s2">&#34;10.10.0.0/16&#34;</span>,<span class="s2">&#34;SubnetLen&#34;</span>: 24,<span class="s2">&#34;Backend&#34;</span>: <span class="o">{</span><span class="s2">&#34;Type&#34;</span>:<span class="s2">&#34;vxlan&#34;</span><span class="o">}</span> <span class="o">}</span>
-<span class="ln">3</span>
-<span class="ln">4</span>etcdctl --endpoints<span class="o">=</span>http://172.16.9.110:2379 <span class="nb">set</span> kubernetes‑cluster/network/config &lt; /root/etcd.sh
-<span class="ln">5</span>
-<span class="ln">6</span>etcdctl ls kubernetes‑cluster/network/config
-<span class="ln">7</span>
-<span class="ln">8</span>curl -s http://172.16.9.110:2379/v2/keys/kubernetes‑cluster/network/subnets 
-</code></pre></div><p>解释一下：pod 的网段是 10.10.0.0/16，掩码是 /16 ，本地 Node 主机的掩码是/24，也就是说一台宿主机上最多产256台container。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="nb">echo</span> <span class="m">1</span> &gt; /proc/sys/net/ipv4/ip_forward
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="c1">#或者修改/etc/sysctl.conf，然后sysctl -p</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="c1">#net.ipv4.ip_forward = 1</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">
+</span></span><span class="line"><span class="ln">5</span><span class="cl">systemctl disable firewalld.service
+</span></span><span class="line"><span class="ln">6</span><span class="cl">systemctl stop firewalld.service
+</span></span><span class="line"><span class="ln">7</span><span class="cl">
+</span></span><span class="line"><span class="ln">8</span><span class="cl">iptables -P FORWARD ACCEPT
+</span></span></code></pre></div><p>安装 etcd ：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">yum install etcd -y
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">cp /etc/etcd/etcd.conf/etc/etcd/etcd.conf.bak
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">vi /etc/etcd/etcd.conf
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="nv">ETCD_LISTEN_PEER_URLS</span><span class="o">=</span><span class="s2">&#34;http://172.16.9.110:2380&#34;</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="nv">ETCD_LISTEN_CLIENT_URLS</span><span class="o">=</span>http://172.16.9.110:2379,http://127.0.0.1:2379
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="nv">ETCD_NAME</span><span class="o">=</span><span class="s2">&#34;default&#34;</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="nv">ETCD_INITIAL_ADVERTISE_PEER_URLS</span><span class="o">=</span><span class="s2">&#34;http://172.16.9.110:2380&#34;</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="nv">ETCD_ADVERTISE_CLIENT_URLS</span><span class="o">=</span>http://172.16.9.110:2379
+</span></span><span class="line"><span class="ln">11</span><span class="cl">
+</span></span><span class="line"><span class="ln">12</span><span class="cl">systemctl <span class="nb">enable</span> --now etcd
+</span></span></code></pre></div><p>配置 etcd：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">vi /root/etcd.sh
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="o">{</span> <span class="s2">&#34;Network&#34;</span>: <span class="s2">&#34;10.10.0.0/16&#34;</span>,<span class="s2">&#34;SubnetLen&#34;</span>: 24,<span class="s2">&#34;Backend&#34;</span>: <span class="o">{</span><span class="s2">&#34;Type&#34;</span>:<span class="s2">&#34;vxlan&#34;</span><span class="o">}</span> <span class="o">}</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">
+</span></span><span class="line"><span class="ln">4</span><span class="cl">etcdctl --endpoints<span class="o">=</span>http://172.16.9.110:2379 <span class="nb">set</span> kubernetes‑cluster/network/config &lt; /root/etcd.sh
+</span></span><span class="line"><span class="ln">5</span><span class="cl">
+</span></span><span class="line"><span class="ln">6</span><span class="cl">etcdctl ls kubernetes‑cluster/network/config
+</span></span><span class="line"><span class="ln">7</span><span class="cl">
+</span></span><span class="line"><span class="ln">8</span><span class="cl">curl -s http://172.16.9.110:2379/v2/keys/kubernetes‑cluster/network/subnets 
+</span></span></code></pre></div><p>解释一下：pod 的网段是 10.10.0.0/16，掩码是 /16 ，本地 Node 主机的掩码是/24，也就是说一台宿主机上最多产256台container。</p>
 <p>然后 etcd 的 key 是 kubernetes‑cluster/network</p>
 <h3 id="2然后装-flannel">2、然后装 flannel：</h3>
 <p>注意 etcd 的配置跟上面一致：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>yum install flannel -y
-<span class="ln">2</span>
-<span class="ln">3</span>cp /etc/sysconfig/flanneld/etc/sysconfig/flanneld.bak
-<span class="ln">4</span>
-<span class="ln">5</span>vi/etc/sysconfig/flanneld
-<span class="ln">6</span><span class="nv">FLANNEL_ETCD_ENDPOINTS</span><span class="o">=</span>http://172.16.9.110:2379
-<span class="ln">7</span><span class="nv">FLANNEL_ETCD_PREFIX</span><span class="o">=</span><span class="s2">&#34;kubernetes‑cluster/network&#34;</span>
-<span class="ln">8</span>
-<span class="ln">9</span>systemctl <span class="nb">enable</span> --now flanneld
-</code></pre></div><h3 id="3重启docker">3、重启Docker</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">yum install flannel -y
+</span></span><span class="line"><span class="ln">2</span><span class="cl">
+</span></span><span class="line"><span class="ln">3</span><span class="cl">cp /etc/sysconfig/flanneld/etc/sysconfig/flanneld.bak
+</span></span><span class="line"><span class="ln">4</span><span class="cl">
+</span></span><span class="line"><span class="ln">5</span><span class="cl">vi/etc/sysconfig/flanneld
+</span></span><span class="line"><span class="ln">6</span><span class="cl"><span class="nv">FLANNEL_ETCD_ENDPOINTS</span><span class="o">=</span>http://172.16.9.110:2379
+</span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="nv">FLANNEL_ETCD_PREFIX</span><span class="o">=</span><span class="s2">&#34;kubernetes‑cluster/network&#34;</span>
+</span></span><span class="line"><span class="ln">8</span><span class="cl">
+</span></span><span class="line"><span class="ln">9</span><span class="cl">systemctl <span class="nb">enable</span> --now flanneld
+</span></span></code></pre></div><h3 id="3重启docker">3、重启Docker</h3>
 <p>编辑docker启动配置文件：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>cat /run/flannel/subnet.env
-<span class="ln"> 2</span><span class="nv">FLANNEL_NETWORK</span><span class="o">=</span>10.10.0.0/16
-<span class="ln"> 3</span><span class="nv">FLANNEL_SUBNET</span><span class="o">=</span>10.10.1.1/24
-<span class="ln"> 4</span><span class="nv">FLANNEL_MTU</span><span class="o">=</span><span class="m">1450</span>
-<span class="ln"> 5</span><span class="nv">FLANNEL_IPMASQ</span><span class="o">=</span><span class="nb">false</span>
-<span class="ln"> 6</span>
-<span class="ln"> 7</span>/usr/lib/systemd/system/docker.service
-<span class="ln"> 8</span>
-<span class="ln"> 9</span><span class="c1"># Add: --bip= and --mtu=</span>
-<span class="ln">10</span>
-<span class="ln">11</span>vi /usr/lib/systemd/system/docker.service
-<span class="ln">12</span>dockerd --bip<span class="o">=</span><span class="nv">$FLANNEL_SUBNET</span> --mtu<span class="o">=</span><span class="nv">$FLANNEL_MTU</span>
-<span class="ln">13</span>
-<span class="ln">14</span>或者
-<span class="ln">15</span>cat /run/flannel/docker
-<span class="ln">16</span><span class="nv">DOCKER_OPT_BIP</span><span class="o">=</span><span class="s2">&#34;‑‑bip=10.10.1.1/24&#34;</span>
-<span class="ln">17</span><span class="nv">DOCKER_OPT_IPMASQ</span><span class="o">=</span><span class="s2">&#34;‑‑ip‑masq=true&#34;</span>
-<span class="ln">18</span><span class="nv">DOCKER_OPT_MTU</span><span class="o">=</span><span class="s2">&#34;‑‑mtu=1450&#34;</span>
-<span class="ln">19</span><span class="nv">DOCKER_NETWORK_OPTIONS</span><span class="o">=</span><span class="s2">&#34; ‑‑bip=10.10.1.1/24 ‑‑ip‑masq=false ‑‑mtu=1450 &#34;</span>
-<span class="ln">20</span>
-<span class="ln">21</span>cat /etc/systemd/system/docker.service.d/docker.conf
-<span class="ln">22</span><span class="nv">ServiceEnvironmentFile</span><span class="o">=</span>‑/etc/sysconfig/docker
-<span class="ln">23</span><span class="nv">EnvironmentFile</span><span class="o">=</span>‑/etc/sysconfig/docker‑storage
-<span class="ln">24</span><span class="nv">EnvironmentFile</span><span class="o">=</span>‑/etc/sysconfig/docker‑network
-<span class="ln">25</span><span class="nv">EnvironmentFile</span><span class="o">=</span>‑/run/flannel/docker
-<span class="ln">26</span><span class="nv">ExecStart</span><span class="o">=</span>
-<span class="ln">27</span><span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/dockerd <span class="nv">$OPTIONS</span> 
-<span class="ln">28</span>          <span class="nv">$DOCKER_STORAGE_OPTIONS</span> 
-<span class="ln">29</span>          <span class="nv">$DOCKER_NETWORK_OPTIONS</span> 
-<span class="ln">30</span>          <span class="nv">$BLOCK_REGISTRY</span> 
-<span class="ln">31</span>          <span class="nv">$INSECURE_REGISTRY</span>
-</code></pre></div><p>然后就可以了。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">cat /run/flannel/subnet.env
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="nv">FLANNEL_NETWORK</span><span class="o">=</span>10.10.0.0/16
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="nv">FLANNEL_SUBNET</span><span class="o">=</span>10.10.1.1/24
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="nv">FLANNEL_MTU</span><span class="o">=</span><span class="m">1450</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="nv">FLANNEL_IPMASQ</span><span class="o">=</span><span class="nb">false</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">/usr/lib/systemd/system/docker.service
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="c1"># Add: --bip= and --mtu=</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">
+</span></span><span class="line"><span class="ln">11</span><span class="cl">vi /usr/lib/systemd/system/docker.service
+</span></span><span class="line"><span class="ln">12</span><span class="cl">dockerd --bip<span class="o">=</span><span class="nv">$FLANNEL_SUBNET</span> --mtu<span class="o">=</span><span class="nv">$FLANNEL_MTU</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">
+</span></span><span class="line"><span class="ln">14</span><span class="cl">或者
+</span></span><span class="line"><span class="ln">15</span><span class="cl">cat /run/flannel/docker
+</span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="nv">DOCKER_OPT_BIP</span><span class="o">=</span><span class="s2">&#34;‑‑bip=10.10.1.1/24&#34;</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="nv">DOCKER_OPT_IPMASQ</span><span class="o">=</span><span class="s2">&#34;‑‑ip‑masq=true&#34;</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="nv">DOCKER_OPT_MTU</span><span class="o">=</span><span class="s2">&#34;‑‑mtu=1450&#34;</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl"><span class="nv">DOCKER_NETWORK_OPTIONS</span><span class="o">=</span><span class="s2">&#34; ‑‑bip=10.10.1.1/24 ‑‑ip‑masq=false ‑‑mtu=1450 &#34;</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl">
+</span></span><span class="line"><span class="ln">21</span><span class="cl">cat /etc/systemd/system/docker.service.d/docker.conf
+</span></span><span class="line"><span class="ln">22</span><span class="cl"><span class="nv">ServiceEnvironmentFile</span><span class="o">=</span>‑/etc/sysconfig/docker
+</span></span><span class="line"><span class="ln">23</span><span class="cl"><span class="nv">EnvironmentFile</span><span class="o">=</span>‑/etc/sysconfig/docker‑storage
+</span></span><span class="line"><span class="ln">24</span><span class="cl"><span class="nv">EnvironmentFile</span><span class="o">=</span>‑/etc/sysconfig/docker‑network
+</span></span><span class="line"><span class="ln">25</span><span class="cl"><span class="nv">EnvironmentFile</span><span class="o">=</span>‑/run/flannel/docker
+</span></span><span class="line"><span class="ln">26</span><span class="cl"><span class="nv">ExecStart</span><span class="o">=</span>
+</span></span><span class="line"><span class="ln">27</span><span class="cl"><span class="nv">ExecStart</span><span class="o">=</span>/usr/bin/dockerd <span class="nv">$OPTIONS</span> 
+</span></span><span class="line"><span class="ln">28</span><span class="cl">          <span class="nv">$DOCKER_STORAGE_OPTIONS</span> 
+</span></span><span class="line"><span class="ln">29</span><span class="cl">          <span class="nv">$DOCKER_NETWORK_OPTIONS</span> 
+</span></span><span class="line"><span class="ln">30</span><span class="cl">          <span class="nv">$BLOCK_REGISTRY</span> 
+</span></span><span class="line"><span class="ln">31</span><span class="cl">          <span class="nv">$INSECURE_REGISTRY</span>
+</span></span></code></pre></div><p>然后就可以了。</p>
 <p>那么为什么 flannel 不用 UDP 呢？</p>
 <p><img class="img-fluid" alt="image-20220317130659132" src="https://bajie.dev/posts/20220317-kubernetes_flannel/image-20220317130659132.png" loading="lazy"
    width="534" height="265"
@@ -455,7 +455,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -495,11 +495,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

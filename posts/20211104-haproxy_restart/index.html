@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="Haproxy的Zero downtime重启如何做">
 <meta itemprop="description" content="Nginx 可以用 kill -HUP 来重启，不会丢失已建连接。Haproxy 如何做才能做到 zero downtime 无缝重载呢？ 做法如下： 一、配置 编译harpoxy的时候带上参数 USE_"><meta itemprop="datePublished" content="2021-11-04T10:30:11+08:00" />
 <meta itemprop="dateModified" content="2021-11-04T10:30:11+08:00" />
-<meta itemprop="wordCount" content="775">
+<meta itemprop="wordCount" content="773">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="Haproxy的Zero downtime重启如何做" />
 <meta property="og:description" content="Nginx 可以用 kill -HUP 来重启，不会丢失已建连接。Haproxy 如何做才能做到 zero downtime 无缝重载呢？ 做法如下： 一、配置 编译harpoxy的时候带上参数 USE_" />
 <meta property="og:type" content="article" />
@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Haproxy的Zero downtime重启如何做"/>
 <meta name="twitter:description" content="Nginx 可以用 kill -HUP 来重启，不会丢失已建连接。Haproxy 如何做才能做到 zero downtime 无缝重载呢？ 做法如下： 一、配置 编译harpoxy的时候带上参数 USE_"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -234,10 +234,10 @@
 <p>做法如下：</p>
 <h2 id="一配置">一、配置</h2>
 <p>编译harpoxy的时候带上参数 USE_SYSTEMD，选择 Haproxy 1.8 以上版本</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>make <span class="nv">TARGET</span><span class="o">=</span>linux2628 <span class="nv">USE_GETADDRINFO</span><span class="o">=</span><span class="m">1</span> <span class="nv">USE_ZLIB</span><span class="o">=</span><span class="m">1</span> <span class="nv">USE_REGPARM</span><span class="o">=</span><span class="m">1</span> <span class="nv">USE_OPENSSL</span><span class="o">=</span><span class="m">1</span> <span class="se">\
-</span><span class="ln">2</span><span class="se"></span>  <span class="nv">USE_SYSTEMD</span><span class="o">=</span><span class="m">1</span> <span class="nv">USE_PCRE</span><span class="o">=</span><span class="m">1</span> <span class="nv">USE_PCRE_JIT</span><span class="o">=</span><span class="m">1</span> <span class="nv">USE_NS</span><span class="o">=</span><span class="m">1</span>
-<span class="ln">3</span>make install
-</code></pre></div><p>Haproxy无缝重载技术：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">make <span class="nv">TARGET</span><span class="o">=</span>linux2628 <span class="nv">USE_GETADDRINFO</span><span class="o">=</span><span class="m">1</span> <span class="nv">USE_ZLIB</span><span class="o">=</span><span class="m">1</span> <span class="nv">USE_REGPARM</span><span class="o">=</span><span class="m">1</span> <span class="nv">USE_OPENSSL</span><span class="o">=</span><span class="m">1</span> <span class="se">\
+</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="se"></span>  <span class="nv">USE_SYSTEMD</span><span class="o">=</span><span class="m">1</span> <span class="nv">USE_PCRE</span><span class="o">=</span><span class="m">1</span> <span class="nv">USE_PCRE_JIT</span><span class="o">=</span><span class="m">1</span> <span class="nv">USE_NS</span><span class="o">=</span><span class="m">1</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">make install
+</span></span></code></pre></div><p>Haproxy无缝重载技术：</p>
 <ul>
 <li>
 <p>旧进程当前管理的连接根据 file descriptor 文件描述符通过 socket 套接字传输到新进程。</p>
@@ -251,71 +251,69 @@
 </ul>
 <p>综上所述，通过使用unix socket来维护连接状态并在旧进程和新进程之间传递，防止了连接丢失。</p>
 <p>haproxy 的运行使用 Systemd 重载，使用 -Ws 方式。 （此外，在构建时必须启用 USE_SYSTEMD）</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span>  <span class="na">-D : start as a daemon. The process detaches from the current terminal after</span>
-<span class="ln"> 2</span>    <span class="na">forking, and errors are not reported anymore in the terminal. It is</span>
-<span class="ln"> 3</span>    <span class="na">equivalent to the &#34;daemon&#34; keyword in the &#34;global&#34; section of the</span>
-<span class="ln"> 4</span>    <span class="na">configuration. It is recommended to always force it in any init script so</span>
-<span class="ln"> 5</span>    <span class="na">that a faulty configuration doesn&#39;t prevent the system from booting.</span>
-<span class="ln"> 6</span>
-<span class="ln"> 7</span>  <span class="na">-W : master-worker mode. It is equivalent to the &#34;master-worker&#34; keyword in</span>
-<span class="ln"> 8</span>    <span class="na">the &#34;global&#34; section of the configuration. This mode will launch a &#34;master&#34;</span>
-<span class="ln"> 9</span>    <span class="na">which will monitor the &#34;workers&#34;. Using this mode, you can reload HAProxy</span>
-<span class="ln">10</span>    <span class="na">directly by sending a SIGUSR2 signal to the master.  The master-worker mode</span>
-<span class="ln">11</span>    <span class="na">is compatible either with the foreground or daemon mode.  It is</span>
-<span class="ln">12</span>    <span class="na">recommended to use this mode with multiprocess and systemd.</span>
-<span class="ln">13</span>
-<span class="ln">14</span>  <span class="na">-Ws : master-worker mode with support of `notify` type of systemd service.</span>
-<span class="ln">15</span>    <span class="na">This option is only available when HAProxy was built with `USE_SYSTEMD`</span>
-<span class="ln">16</span>    <span class="na">build option enabled.</span>
-<span class="ln">17</span>
-<span class="ln">18</span>
-</code></pre></div><p>具体的启动脚本：/etc/systemd/system/haproxy.service</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span><span class="k">[Unit]</span>
-<span class="ln"> 2</span><span class="na">Description</span><span class="o">=</span><span class="s">HAProxy Load Balancer</span>
-<span class="ln"> 3</span><span class="na">After</span><span class="o">=</span><span class="s">network-online.target</span>
-<span class="ln"> 4</span><span class="na">Wants</span><span class="o">=</span><span class="s">network-online.target</span>
-<span class="ln"> 5</span>
-<span class="ln"> 6</span><span class="k">[Service]</span>
-<span class="ln"> 7</span><span class="na">Environment</span><span class="o">=</span><span class="s">&#34;CONFIG=/etc/haproxy/haproxy.cfg&#34; &#34;PIDFILE=/run/haproxy.pid&#34;</span>
-<span class="ln"> 8</span><span class="na">ExecStartPre</span><span class="o">=</span><span class="s">/usr/sbin/haproxy -f $CONFIG -c -q</span>
-<span class="ln"> 9</span><span class="na">ExecStart</span><span class="o">=</span><span class="s">/usr/sbin/haproxy -Ws -f $CONFIG -p $PIDFILE</span>
-<span class="ln">10</span><span class="na">ExecReload</span><span class="o">=</span><span class="s">/usr/sbin/haproxy -f $CONFIG -c -q</span>
-<span class="ln">11</span><span class="na">ExecReload</span><span class="o">=</span><span class="s">/bin/kill -USR2 $MAINPID</span>
-<span class="ln">12</span><span class="na">KillMode</span><span class="o">=</span><span class="s">mixed</span>
-<span class="ln">13</span><span class="na">Restart</span><span class="o">=</span><span class="s">always</span>
-<span class="ln">14</span><span class="na">SuccessExitStatus</span><span class="o">=</span><span class="s">143</span>
-<span class="ln">15</span><span class="na">Type</span><span class="o">=</span><span class="s">notify</span>
-<span class="ln">16</span>
-<span class="ln">17</span><span class="c1"># The following lines leverage SystemD&#39;s sandboxing options to provide</span>
-<span class="ln">18</span><span class="c1"># defense in depth protection at the expense of restricting some flexibility</span>
-<span class="ln">19</span><span class="c1"># in your setup (e.g. placement of your configuration files) or possibly</span>
-<span class="ln">20</span><span class="c1"># reduced performance. See systemd.service(5) and systemd.exec(5) for further</span>
-<span class="ln">21</span><span class="c1"># information.</span>
-<span class="ln">22</span>
-<span class="ln">23</span><span class="c1"># NoNewPrivileges=true</span>
-<span class="ln">24</span><span class="c1"># ProtectHome=true</span>
-<span class="ln">25</span><span class="c1"># If you want to use &#39;ProtectSystem=strict&#39; you should whitelist the PIDFILE,</span>
-<span class="ln">26</span><span class="c1"># any state files and any other files written using &#39;ReadWritePaths&#39; or</span>
-<span class="ln">27</span><span class="c1"># &#39;RuntimeDirectory&#39;.</span>
-<span class="ln">28</span><span class="c1"># ProtectSystem=true</span>
-<span class="ln">29</span><span class="c1"># ProtectKernelTunables=true</span>
-<span class="ln">30</span><span class="c1"># ProtectKernelModules=true</span>
-<span class="ln">31</span><span class="c1"># ProtectControlGroups=true</span>
-<span class="ln">32</span><span class="c1"># If your SystemD version supports them, you can add: @reboot, @swap, @sync</span>
-<span class="ln">33</span><span class="c1"># SystemCallFilter=~@cpu-emulation @keyring @module @obsolete @raw-io</span>
-<span class="ln">34</span>
-<span class="ln">35</span><span class="k">[Install]</span>
-<span class="ln">36</span><span class="na">WantedBy</span><span class="o">=</span><span class="s">multi-user.target</span>
-</code></pre></div><h2 id="二验证">二、验证</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln"> 1</span><span class="cl">  <span class="na">-D : start as a daemon. The process detaches from the current terminal after</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">    <span class="na">forking, and errors are not reported anymore in the terminal. It is</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">    <span class="na">equivalent to the &#34;daemon&#34; keyword in the &#34;global&#34; section of the</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">    <span class="na">configuration. It is recommended to always force it in any init script so</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">    <span class="na">that a faulty configuration doesn&#39;t prevent the system from booting.</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">  <span class="na">-W : master-worker mode. It is equivalent to the &#34;master-worker&#34; keyword in</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">    <span class="na">the &#34;global&#34; section of the configuration. This mode will launch a &#34;master&#34;</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">    <span class="na">which will monitor the &#34;workers&#34;. Using this mode, you can reload HAProxy</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">    <span class="na">directly by sending a SIGUSR2 signal to the master.  The master-worker mode</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">    <span class="na">is compatible either with the foreground or daemon mode.  It is</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">    <span class="na">recommended to use this mode with multiprocess and systemd.</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">
+</span></span><span class="line"><span class="ln">14</span><span class="cl">  <span class="na">-Ws : master-worker mode with support of `notify` type of systemd service.</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl">    <span class="na">This option is only available when HAProxy was built with `USE_SYSTEMD`</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">    <span class="na">build option enabled.</span>
+</span></span></code></pre></div><p>具体的启动脚本：/etc/systemd/system/haproxy.service</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="k">[Unit]</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="na">Description</span><span class="o">=</span><span class="s">HAProxy Load Balancer</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="na">After</span><span class="o">=</span><span class="s">network-online.target</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="na">Wants</span><span class="o">=</span><span class="s">network-online.target</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="k">[Service]</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="na">Environment</span><span class="o">=</span><span class="s">&#34;CONFIG=/etc/haproxy/haproxy.cfg&#34; &#34;PIDFILE=/run/haproxy.pid&#34;</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="na">ExecStartPre</span><span class="o">=</span><span class="s">/usr/sbin/haproxy -f $CONFIG -c -q</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="na">ExecStart</span><span class="o">=</span><span class="s">/usr/sbin/haproxy -Ws -f $CONFIG -p $PIDFILE</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="na">ExecReload</span><span class="o">=</span><span class="s">/usr/sbin/haproxy -f $CONFIG -c -q</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="na">ExecReload</span><span class="o">=</span><span class="s">/bin/kill -USR2 $MAINPID</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="na">KillMode</span><span class="o">=</span><span class="s">mixed</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="na">Restart</span><span class="o">=</span><span class="s">always</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="na">SuccessExitStatus</span><span class="o">=</span><span class="s">143</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="na">Type</span><span class="o">=</span><span class="s">notify</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">
+</span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="c1"># The following lines leverage SystemD&#39;s sandboxing options to provide</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="c1"># defense in depth protection at the expense of restricting some flexibility</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl"><span class="c1"># in your setup (e.g. placement of your configuration files) or possibly</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="c1"># reduced performance. See systemd.service(5) and systemd.exec(5) for further</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl"><span class="c1"># information.</span>
+</span></span><span class="line"><span class="ln">22</span><span class="cl">
+</span></span><span class="line"><span class="ln">23</span><span class="cl"><span class="c1"># NoNewPrivileges=true</span>
+</span></span><span class="line"><span class="ln">24</span><span class="cl"><span class="c1"># ProtectHome=true</span>
+</span></span><span class="line"><span class="ln">25</span><span class="cl"><span class="c1"># If you want to use &#39;ProtectSystem=strict&#39; you should whitelist the PIDFILE,</span>
+</span></span><span class="line"><span class="ln">26</span><span class="cl"><span class="c1"># any state files and any other files written using &#39;ReadWritePaths&#39; or</span>
+</span></span><span class="line"><span class="ln">27</span><span class="cl"><span class="c1"># &#39;RuntimeDirectory&#39;.</span>
+</span></span><span class="line"><span class="ln">28</span><span class="cl"><span class="c1"># ProtectSystem=true</span>
+</span></span><span class="line"><span class="ln">29</span><span class="cl"><span class="c1"># ProtectKernelTunables=true</span>
+</span></span><span class="line"><span class="ln">30</span><span class="cl"><span class="c1"># ProtectKernelModules=true</span>
+</span></span><span class="line"><span class="ln">31</span><span class="cl"><span class="c1"># ProtectControlGroups=true</span>
+</span></span><span class="line"><span class="ln">32</span><span class="cl"><span class="c1"># If your SystemD version supports them, you can add: @reboot, @swap, @sync</span>
+</span></span><span class="line"><span class="ln">33</span><span class="cl"><span class="c1"># SystemCallFilter=~@cpu-emulation @keyring @module @obsolete @raw-io</span>
+</span></span><span class="line"><span class="ln">34</span><span class="cl">
+</span></span><span class="line"><span class="ln">35</span><span class="cl"><span class="k">[Install]</span>
+</span></span><span class="line"><span class="ln">36</span><span class="cl"><span class="na">WantedBy</span><span class="o">=</span><span class="s">multi-user.target</span>
+</span></span></code></pre></div><h2 id="二验证">二、验证</h2>
 <p>验证是否真的是无缝重载的步骤如下：</p>
 <p>在haproxy.cfg的global段落中加入stat的配置：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span><span class="na">stats socket /var/run/haproxy.sock level admin expose-fd listeners process 1</span>
-</code></pre></div><p>运行一个不断循环重启的脚本：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span><span class="k">while</span> <span class="nb">true</span> <span class="p">;</span> <span class="k">do</span> systemctl reload haproxy <span class="p">;</span> sleep <span class="m">3</span> <span class="p">;</span> <span class="k">done</span>
-</code></pre></div><p>用 apache 的压测工具 ab 来压一下。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln">1</span><span class="cl"><span class="na">stats socket /var/run/haproxy.sock level admin expose-fd listeners process 1</span>
+</span></span></code></pre></div><p>运行一个不断循环重启的脚本：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="k">while</span> <span class="nb">true</span> <span class="p">;</span> <span class="k">do</span> systemctl reload haproxy <span class="p">;</span> sleep <span class="m">3</span> <span class="p">;</span> <span class="k">done</span>
+</span></span></code></pre></div><p>用 apache 的压测工具 ab 来压一下。</p>
 <p>Send request while service is reloading:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>ab -r -c <span class="m">20</span> -n <span class="m">100000</span> http://127.0.0.1/
-</code></pre></div><p>最后检查结果中 &ldquo;Failed requests&rdquo; 是否为零就可以了</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">ab -r -c <span class="m">20</span> -n <span class="m">100000</span> http://127.0.0.1/
+</span></span></code></pre></div><p>最后检查结果中 &ldquo;Failed requests&rdquo; 是否为零就可以了</p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -361,7 +359,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -401,11 +399,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

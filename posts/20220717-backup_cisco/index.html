@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="Cisco设备自动执行和备份的脚本">
 <meta itemprop="description" content="在日常工作中我们经常要对 Cisco 的网络设备的配置进行备份，或者和 suricata 联动的时候要执行操作。 方法其实很简单，调用 python 的相应模块即可。 准备工作如下： 首选需"><meta itemprop="datePublished" content="2022-07-17T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2022-07-17T09:30:11+08:00" />
-<meta itemprop="wordCount" content="305">
+<meta itemprop="wordCount" content="306">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="Cisco设备自动执行和备份的脚本" />
 <meta property="og:description" content="在日常工作中我们经常要对 Cisco 的网络设备的配置进行备份，或者和 suricata 联动的时候要执行操作。 方法其实很简单，调用 python 的相应模块即可。 准备工作如下： 首选需" />
 <meta property="og:type" content="article" />
@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Cisco设备自动执行和备份的脚本"/>
 <meta name="twitter:description" content="在日常工作中我们经常要对 Cisco 的网络设备的配置进行备份，或者和 suricata 联动的时候要执行操作。 方法其实很简单，调用 python 的相应模块即可。 准备工作如下： 首选需"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -219,66 +219,66 @@
 <p>首选需要在/export/servers/python363装好 python 3.6,  pip install netmiko</p>
 <p>其次，在路由器上可以配置en的密码</p>
 <p>然后依次执行备份就可以了。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="ln"> 1</span><span class="ch">#!/export/servers/python363/bin/python3.6</span>
-<span class="ln"> 2</span><span class="kn">from</span> <span class="nn">netmiko</span> <span class="kn">import</span> <span class="n">Netmiko</span>
-<span class="ln"> 3</span><span class="kn">import</span> <span class="nn">time</span>
-<span class="ln"> 4</span><span class="n">tw_bgp</span> <span class="o">=</span> <span class="p">{</span>
-<span class="ln"> 5</span>        <span class="s2">&#34;device_type&#34;</span><span class="p">:</span> <span class="s2">&#34;cisco_ios&#34;</span><span class="p">,</span>
-<span class="ln"> 6</span>        <span class="s2">&#34;host&#34;</span><span class="p">:</span> <span class="s2">&#34;tw-bgp&#34;</span><span class="p">,</span>
-<span class="ln"> 7</span>        <span class="s2">&#34;ip&#34;</span><span class="p">:</span> <span class="s2">&#34;192.168.1.10&#34;</span><span class="p">,</span>
-<span class="ln"> 8</span>        <span class="s2">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;noc&#34;</span><span class="p">,</span>
-<span class="ln"> 9</span>        <span class="s2">&#34;use_keys&#34;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-<span class="ln">10</span>        <span class="s2">&#34;secret&#34;</span> <span class="p">:</span> <span class="s2">&#34;xxxxxxxx&#34;</span><span class="p">,</span>
-<span class="ln">11</span>        <span class="s2">&#34;key_file&#34;</span><span class="p">:</span> <span class="s2">&#34;/root/.ssh/id_jump_rsa_new&#34;</span><span class="p">,</span>
-<span class="ln">12</span><span class="p">}</span>
-<span class="ln">13</span><span class="n">tw_r1_e1</span> <span class="o">=</span> <span class="p">{</span>
-<span class="ln">14</span>        <span class="s2">&#34;device_type&#34;</span><span class="p">:</span> <span class="s2">&#34;cisco_ios&#34;</span><span class="p">,</span>
-<span class="ln">15</span>        <span class="s2">&#34;host&#34;</span><span class="p">:</span> <span class="s2">&#34;tw-r1-e1&#34;</span><span class="p">,</span>
-<span class="ln">16</span>        <span class="s2">&#34;ip&#34;</span><span class="p">:</span> <span class="s2">&#34;192.168.1.11&#34;</span><span class="p">,</span>
-<span class="ln">17</span>        <span class="s2">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;noc&#34;</span><span class="p">,</span>
-<span class="ln">18</span>        <span class="s2">&#34;use_keys&#34;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-<span class="ln">19</span>        <span class="s2">&#34;key_file&#34;</span><span class="p">:</span> <span class="s2">&#34;/root/.ssh/id_jump_rsa_new&#34;</span><span class="p">,</span>
-<span class="ln">20</span><span class="p">}</span>
-<span class="ln">21</span><span class="n">tw_r1_e2</span> <span class="o">=</span> <span class="p">{</span>
-<span class="ln">22</span>        <span class="s2">&#34;device_type&#34;</span><span class="p">:</span> <span class="s2">&#34;cisco_ios&#34;</span><span class="p">,</span>
-<span class="ln">23</span>        <span class="s2">&#34;host&#34;</span><span class="p">:</span> <span class="s2">&#34;tw-r1-e2&#34;</span><span class="p">,</span>
-<span class="ln">24</span>        <span class="s2">&#34;ip&#34;</span><span class="p">:</span> <span class="s2">&#34;192.168.1.12&#34;</span><span class="p">,</span>
-<span class="ln">25</span>        <span class="s2">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;noc&#34;</span><span class="p">,</span>
-<span class="ln">26</span>        <span class="s2">&#34;use_keys&#34;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-<span class="ln">27</span>        <span class="s2">&#34;key_file&#34;</span><span class="p">:</span> <span class="s2">&#34;/root/.ssh/id_jump_rsa_new&#34;</span><span class="p">,</span>
-<span class="ln">28</span><span class="p">}</span>
-<span class="ln">29</span><span class="n">tw_r2_e1</span> <span class="o">=</span> <span class="p">{</span>
-<span class="ln">30</span>        <span class="s2">&#34;device_type&#34;</span><span class="p">:</span> <span class="s2">&#34;cisco_ios&#34;</span><span class="p">,</span>
-<span class="ln">31</span>        <span class="s2">&#34;host&#34;</span><span class="p">:</span> <span class="s2">&#34;tw-r2-e1&#34;</span><span class="p">,</span>
-<span class="ln">32</span>        <span class="s2">&#34;ip&#34;</span><span class="p">:</span> <span class="s2">&#34;192.168.1.13&#34;</span><span class="p">,</span>
-<span class="ln">33</span>        <span class="s2">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;noc&#34;</span><span class="p">,</span>
-<span class="ln">34</span>        <span class="s2">&#34;use_keys&#34;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-<span class="ln">35</span>        <span class="s2">&#34;key_file&#34;</span><span class="p">:</span> <span class="s2">&#34;/root/.ssh/id_jump_rsa_new&#34;</span><span class="p">,</span>
-<span class="ln">36</span><span class="p">}</span>
-<span class="ln">37</span><span class="n">tw_r2_e2</span> <span class="o">=</span> <span class="p">{</span>
-<span class="ln">38</span>        <span class="s2">&#34;device_type&#34;</span><span class="p">:</span> <span class="s2">&#34;cisco_ios&#34;</span><span class="p">,</span>
-<span class="ln">39</span>        <span class="s2">&#34;host&#34;</span><span class="p">:</span> <span class="s2">&#34;tw-r2-e2&#34;</span><span class="p">,</span>
-<span class="ln">40</span>        <span class="s2">&#34;ip&#34;</span><span class="p">:</span> <span class="s2">&#34;192.168.1.14&#34;</span><span class="p">,</span>
-<span class="ln">41</span>        <span class="s2">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;noc&#34;</span><span class="p">,</span>
-<span class="ln">42</span>        <span class="s2">&#34;use_keys&#34;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-<span class="ln">43</span>        <span class="s2">&#34;key_file&#34;</span><span class="p">:</span> <span class="s2">&#34;/root/.ssh/id_jump_rsa_new&#34;</span><span class="p">,</span>
-<span class="ln">44</span><span class="p">}</span>
-<span class="ln">45</span>
-<span class="ln">46</span><span class="n">devices</span><span class="o">=</span><span class="p">[</span><span class="n">tw_bgp</span><span class="p">,</span> <span class="n">tw_r1_e1</span><span class="p">,</span> <span class="n">tw_r1_e2</span><span class="p">,</span> <span class="n">tw_r2_e1</span><span class="p">,</span> <span class="n">tw_r2_e2</span><span class="p">]</span>
-<span class="ln">47</span>
-<span class="ln">48</span><span class="k">for</span> <span class="n">dev</span> <span class="ow">in</span> <span class="n">devices</span><span class="p">:</span>
-<span class="ln">49</span>    <span class="n">name</span> <span class="o">=</span> <span class="n">dev</span><span class="p">[</span><span class="s2">&#34;ip&#34;</span><span class="p">]</span>
-<span class="ln">50</span>    <span class="n">connection</span> <span class="o">=</span> <span class="n">Netmiko</span><span class="p">(</span><span class="o">**</span><span class="n">dev</span><span class="p">)</span>
-<span class="ln">51</span>    <span class="n">connection</span><span class="o">.</span><span class="n">enable</span><span class="p">()</span>
-<span class="ln">52</span>    <span class="n">out</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&#34;show running-config&#34;</span><span class="p">)</span>
-<span class="ln">53</span>    <span class="n">calender</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&#34;%Y%m</span><span class="si">%d</span><span class="s2">&#34;</span><span class="p">)</span>
-<span class="ln">54</span>    <span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">-</span><span class="si">{}</span><span class="s1">.txt&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dev</span><span class="p">[</span><span class="s2">&#34;host&#34;</span><span class="p">],</span><span class="n">calender</span><span class="p">)</span>
-<span class="ln">55</span>    <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span> <span class="p">,</span><span class="s2">&#34;w&#34;</span><span class="p">)</span>
-<span class="ln">56</span>    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
-<span class="ln">57</span>    <span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-<span class="ln">58</span>    <span class="n">connection</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
-<span class="ln">59</span>    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;BACKUP for </span><span class="si">%s</span><span class="s2"> done&#34;</span> <span class="o">%</span><span class="n">dev</span><span class="p">[</span><span class="s2">&#34;host&#34;</span><span class="p">])</span>
-</code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="ch">#!/export/servers/python363/bin/python3.6</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="kn">from</span> <span class="nn">netmiko</span> <span class="kn">import</span> <span class="n">Netmiko</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="kn">import</span> <span class="nn">time</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="n">tw_bgp</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">        <span class="s2">&#34;device_type&#34;</span><span class="p">:</span> <span class="s2">&#34;cisco_ios&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">        <span class="s2">&#34;host&#34;</span><span class="p">:</span> <span class="s2">&#34;tw-bgp&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">        <span class="s2">&#34;ip&#34;</span><span class="p">:</span> <span class="s2">&#34;192.168.1.10&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">        <span class="s2">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;noc&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">        <span class="s2">&#34;use_keys&#34;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">        <span class="s2">&#34;secret&#34;</span> <span class="p">:</span> <span class="s2">&#34;xxxxxxxx&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">        <span class="s2">&#34;key_file&#34;</span><span class="p">:</span> <span class="s2">&#34;/root/.ssh/id_jump_rsa_new&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="n">tw_r1_e1</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">        <span class="s2">&#34;device_type&#34;</span><span class="p">:</span> <span class="s2">&#34;cisco_ios&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl">        <span class="s2">&#34;host&#34;</span><span class="p">:</span> <span class="s2">&#34;tw-r1-e1&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">        <span class="s2">&#34;ip&#34;</span><span class="p">:</span> <span class="s2">&#34;192.168.1.11&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl">        <span class="s2">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;noc&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl">        <span class="s2">&#34;use_keys&#34;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl">        <span class="s2">&#34;key_file&#34;</span><span class="p">:</span> <span class="s2">&#34;/root/.ssh/id_jump_rsa_new&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl"><span class="n">tw_r1_e2</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">22</span><span class="cl">        <span class="s2">&#34;device_type&#34;</span><span class="p">:</span> <span class="s2">&#34;cisco_ios&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">23</span><span class="cl">        <span class="s2">&#34;host&#34;</span><span class="p">:</span> <span class="s2">&#34;tw-r1-e2&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">24</span><span class="cl">        <span class="s2">&#34;ip&#34;</span><span class="p">:</span> <span class="s2">&#34;192.168.1.12&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">25</span><span class="cl">        <span class="s2">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;noc&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">26</span><span class="cl">        <span class="s2">&#34;use_keys&#34;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">27</span><span class="cl">        <span class="s2">&#34;key_file&#34;</span><span class="p">:</span> <span class="s2">&#34;/root/.ssh/id_jump_rsa_new&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">28</span><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="ln">29</span><span class="cl"><span class="n">tw_r2_e1</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">30</span><span class="cl">        <span class="s2">&#34;device_type&#34;</span><span class="p">:</span> <span class="s2">&#34;cisco_ios&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">31</span><span class="cl">        <span class="s2">&#34;host&#34;</span><span class="p">:</span> <span class="s2">&#34;tw-r2-e1&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">32</span><span class="cl">        <span class="s2">&#34;ip&#34;</span><span class="p">:</span> <span class="s2">&#34;192.168.1.13&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">33</span><span class="cl">        <span class="s2">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;noc&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">34</span><span class="cl">        <span class="s2">&#34;use_keys&#34;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">35</span><span class="cl">        <span class="s2">&#34;key_file&#34;</span><span class="p">:</span> <span class="s2">&#34;/root/.ssh/id_jump_rsa_new&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">36</span><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="ln">37</span><span class="cl"><span class="n">tw_r2_e2</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">38</span><span class="cl">        <span class="s2">&#34;device_type&#34;</span><span class="p">:</span> <span class="s2">&#34;cisco_ios&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">39</span><span class="cl">        <span class="s2">&#34;host&#34;</span><span class="p">:</span> <span class="s2">&#34;tw-r2-e2&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">40</span><span class="cl">        <span class="s2">&#34;ip&#34;</span><span class="p">:</span> <span class="s2">&#34;192.168.1.14&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">41</span><span class="cl">        <span class="s2">&#34;username&#34;</span><span class="p">:</span> <span class="s2">&#34;noc&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">42</span><span class="cl">        <span class="s2">&#34;use_keys&#34;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">43</span><span class="cl">        <span class="s2">&#34;key_file&#34;</span><span class="p">:</span> <span class="s2">&#34;/root/.ssh/id_jump_rsa_new&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">44</span><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="ln">45</span><span class="cl">
+</span></span><span class="line"><span class="ln">46</span><span class="cl"><span class="n">devices</span><span class="o">=</span><span class="p">[</span><span class="n">tw_bgp</span><span class="p">,</span> <span class="n">tw_r1_e1</span><span class="p">,</span> <span class="n">tw_r1_e2</span><span class="p">,</span> <span class="n">tw_r2_e1</span><span class="p">,</span> <span class="n">tw_r2_e2</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln">47</span><span class="cl">
+</span></span><span class="line"><span class="ln">48</span><span class="cl"><span class="k">for</span> <span class="n">dev</span> <span class="ow">in</span> <span class="n">devices</span><span class="p">:</span>
+</span></span><span class="line"><span class="ln">49</span><span class="cl">    <span class="n">name</span> <span class="o">=</span> <span class="n">dev</span><span class="p">[</span><span class="s2">&#34;ip&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln">50</span><span class="cl">    <span class="n">connection</span> <span class="o">=</span> <span class="n">Netmiko</span><span class="p">(</span><span class="o">**</span><span class="n">dev</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">51</span><span class="cl">    <span class="n">connection</span><span class="o">.</span><span class="n">enable</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln">52</span><span class="cl">    <span class="n">out</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&#34;show running-config&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">53</span><span class="cl">    <span class="n">calender</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&#34;%Y%m</span><span class="si">%d</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">54</span><span class="cl">    <span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">-</span><span class="si">{}</span><span class="s1">.txt&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dev</span><span class="p">[</span><span class="s2">&#34;host&#34;</span><span class="p">],</span><span class="n">calender</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">55</span><span class="cl">    <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span> <span class="p">,</span><span class="s2">&#34;w&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">56</span><span class="cl">    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">57</span><span class="cl">    <span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln">58</span><span class="cl">    <span class="n">connection</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln">59</span><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;BACKUP for </span><span class="si">%s</span><span class="s2"> done&#34;</span> <span class="o">%</span><span class="n">dev</span><span class="p">[</span><span class="s2">&#34;host&#34;</span><span class="p">])</span>
+</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -323,7 +323,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -363,11 +363,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

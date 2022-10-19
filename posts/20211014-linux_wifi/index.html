@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Ubuntu下自建一个wifi热点供手机使用"/>
 <meta name="twitter:description" content="公司的wifi信号很弱，也不保险。省事起见，还是自己建立一个好 usb无线网卡设备必须是一个 nl80211 兼容的无线设备，所以驱动就是这个：nl80211"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -237,68 +237,68 @@
 <p>我的操作系统是Ubuntu，如果是CentOS命令基本一样</p>
 <p>插上wifi usb卡后 ip a 看一下网卡的名称，我这里是：wlx00a1b0817651，够长</p>
 <h2 id="一安装hostapd软件">一、安装hostapd软件</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>sudo apt install -y hostapd
-</code></pre></div><h2 id="二建立hostapdconf文件">二、建立hostapd.conf文件</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span><span class="na">vi /etc/hostapd/hostapd.conf</span>
-<span class="ln">2</span><span class="na">driver</span><span class="o">=</span><span class="s">nl80211</span>
-<span class="ln">3</span><span class="na">ssid</span><span class="o">=</span><span class="s">Fast_8188 </span>
-<span class="ln">4</span><span class="na">channel</span><span class="o">=</span><span class="s">10</span>
-<span class="ln">5</span><span class="na">interface</span><span class="o">=</span><span class="s">wlx00a1b0817651</span>
-<span class="ln">6</span><span class="na">wpa</span><span class="o">=</span><span class="s">2</span>
-<span class="ln">7</span><span class="na">wpa_passphrase</span><span class="o">=</span><span class="s">GreatWall2021!</span>
-<span class="ln">8</span><span class="na">wpa_key_mgmt</span><span class="o">=</span><span class="s">WPA-PSK</span>
-<span class="ln">9</span><span class="na">wpa_pairwise</span><span class="o">=</span><span class="s">TKIP</span>
-</code></pre></div><h2 id="三建立启动脚本usrlocalbininitapsh">三、建立启动脚本/usr/local/bin/initAP.sh</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span><span class="na">cat /usr/local/bin/initAP.sh</span>
-<span class="ln"> 2</span>
-<span class="ln"> 3</span><span class="c1">#!/bin/bash</span>
-<span class="ln"> 4</span>
-<span class="ln"> 5</span><span class="na">start() {  </span>
-<span class="ln"> 6</span><span class="na">rfkill unblock all</span>
-<span class="ln"> 7</span><span class="na">ifconfig wlx00a1b0817651 up 192.168.222.1 netmask 255.255.255.0</span>
-<span class="ln"> 8</span><span class="na">sleep 2</span>
-<span class="ln"> 9</span>
-<span class="ln">10</span><span class="na">dnsmasq -i wlx00a1b0817651 --dhcp-range</span><span class="o">=</span><span class="s">192.168.222.10,192.168.222.20,2h</span>
-<span class="ln">11</span>
-<span class="ln">12</span><span class="c1">#Enable NAT</span>
-<span class="ln">13</span><span class="na">sysctl -w net.ipv4.ip_forward</span><span class="o">=</span><span class="s">1</span>
-<span class="ln">14</span><span class="na">iptables -F  </span>
-<span class="ln">15</span><span class="na">iptables -X  </span>
-<span class="ln">16</span><span class="na">iptables -t nat -A POSTROUTING -s 192.168.222.0/24 -j SNAT --to 192.168.41.15</span>
-<span class="ln">17</span>
-<span class="ln">18</span><span class="na">hostapd -B /etc/hostapd/hostapd.conf  </span>
-<span class="ln">19</span><span class="na">}</span>
-<span class="ln">20</span>
-<span class="ln">21</span><span class="na">stop() {</span>
-<span class="ln">22</span><span class="na">iptables -P INPUT ACCEPT</span>
-<span class="ln">23</span><span class="na">iptables -P FORWARD ACCEPT</span>
-<span class="ln">24</span><span class="na">iptables -P OUTPUT ACCEPT</span>
-<span class="ln">25</span><span class="na">iptables -F</span>
-<span class="ln">26</span><span class="na">iptables -X</span>
-<span class="ln">27</span><span class="na">iptables -t nat -F</span>
-<span class="ln">28</span><span class="na">iptables -t nat -X</span>
-<span class="ln">29</span><span class="na">iptables -t mangle -F</span>
-<span class="ln">30</span><span class="na">iptables -t mangle -X</span>
-<span class="ln">31</span><span class="na">systemctl stop dnsmasq</span>
-<span class="ln">32</span><span class="na">pkill hostapd</span>
-<span class="ln">33</span><span class="na">/sbin/ip link set down dev wlx00a1b0817651</span>
-<span class="ln">34</span><span class="na">}</span>
-<span class="ln">35</span>
-<span class="ln">36</span><span class="na">case $1 in  </span>
-<span class="ln">37</span>        <span class="na">start)</span>
-<span class="ln">38</span>                <span class="na">start</span>
-<span class="ln">39</span>        <span class="c1">;;</span>
-<span class="ln">40</span>        <span class="na">stop)</span>
-<span class="ln">41</span>                <span class="na">stop</span>
-<span class="ln">42</span>        <span class="c1">;;</span>
-<span class="ln">43</span>        <span class="na">*)</span>
-<span class="ln">44</span>        <span class="na">echo &#34;Usage: $0 {start|stop}&#34;</span>
-<span class="ln">45</span>        <span class="na">exit 2</span>
-<span class="ln">46</span><span class="na">esac</span>
-</code></pre></div><h2 id="四用root身份执行即可">四、用root身份执行即可</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>sudo chmod <span class="m">755</span> /usr/local/bin/initAP.sh
-<span class="ln">2</span>sudo /usr/local/bin/initAP.sh start
-</code></pre></div><p>这样就可以用自己的手机连上这个wifi热点，尽情冲浪啦。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">sudo apt install -y hostapd
+</span></span></code></pre></div><h2 id="二建立hostapdconf文件">二、建立hostapd.conf文件</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln">1</span><span class="cl"><span class="na">vi /etc/hostapd/hostapd.conf</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="na">driver</span><span class="o">=</span><span class="s">nl80211</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="na">ssid</span><span class="o">=</span><span class="s">Fast_8188 </span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="na">channel</span><span class="o">=</span><span class="s">10</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="na">interface</span><span class="o">=</span><span class="s">wlx00a1b0817651</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl"><span class="na">wpa</span><span class="o">=</span><span class="s">2</span>
+</span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="na">wpa_passphrase</span><span class="o">=</span><span class="s">GreatWall2021!</span>
+</span></span><span class="line"><span class="ln">8</span><span class="cl"><span class="na">wpa_key_mgmt</span><span class="o">=</span><span class="s">WPA-PSK</span>
+</span></span><span class="line"><span class="ln">9</span><span class="cl"><span class="na">wpa_pairwise</span><span class="o">=</span><span class="s">TKIP</span>
+</span></span></code></pre></div><h2 id="三建立启动脚本usrlocalbininitapsh">三、建立启动脚本/usr/local/bin/initAP.sh</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="na">cat /usr/local/bin/initAP.sh</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="c1">#!/bin/bash</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="na">start() {  </span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="na">rfkill unblock all</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="na">ifconfig wlx00a1b0817651 up 192.168.222.1 netmask 255.255.255.0</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="na">sleep 2</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">
+</span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="na">dnsmasq -i wlx00a1b0817651 --dhcp-range</span><span class="o">=</span><span class="s">192.168.222.10,192.168.222.20,2h</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">
+</span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="c1">#Enable NAT</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="na">sysctl -w net.ipv4.ip_forward</span><span class="o">=</span><span class="s">1</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="na">iptables -F  </span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="na">iptables -X  </span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="na">iptables -t nat -A POSTROUTING -s 192.168.222.0/24 -j SNAT --to 192.168.41.15</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl">
+</span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="na">hostapd -B /etc/hostapd/hostapd.conf  </span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl"><span class="na">}</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl">
+</span></span><span class="line"><span class="ln">21</span><span class="cl"><span class="na">stop() {</span>
+</span></span><span class="line"><span class="ln">22</span><span class="cl"><span class="na">iptables -P INPUT ACCEPT</span>
+</span></span><span class="line"><span class="ln">23</span><span class="cl"><span class="na">iptables -P FORWARD ACCEPT</span>
+</span></span><span class="line"><span class="ln">24</span><span class="cl"><span class="na">iptables -P OUTPUT ACCEPT</span>
+</span></span><span class="line"><span class="ln">25</span><span class="cl"><span class="na">iptables -F</span>
+</span></span><span class="line"><span class="ln">26</span><span class="cl"><span class="na">iptables -X</span>
+</span></span><span class="line"><span class="ln">27</span><span class="cl"><span class="na">iptables -t nat -F</span>
+</span></span><span class="line"><span class="ln">28</span><span class="cl"><span class="na">iptables -t nat -X</span>
+</span></span><span class="line"><span class="ln">29</span><span class="cl"><span class="na">iptables -t mangle -F</span>
+</span></span><span class="line"><span class="ln">30</span><span class="cl"><span class="na">iptables -t mangle -X</span>
+</span></span><span class="line"><span class="ln">31</span><span class="cl"><span class="na">systemctl stop dnsmasq</span>
+</span></span><span class="line"><span class="ln">32</span><span class="cl"><span class="na">pkill hostapd</span>
+</span></span><span class="line"><span class="ln">33</span><span class="cl"><span class="na">/sbin/ip link set down dev wlx00a1b0817651</span>
+</span></span><span class="line"><span class="ln">34</span><span class="cl"><span class="na">}</span>
+</span></span><span class="line"><span class="ln">35</span><span class="cl">
+</span></span><span class="line"><span class="ln">36</span><span class="cl"><span class="na">case $1 in  </span>
+</span></span><span class="line"><span class="ln">37</span><span class="cl">        <span class="na">start)</span>
+</span></span><span class="line"><span class="ln">38</span><span class="cl">                <span class="na">start</span>
+</span></span><span class="line"><span class="ln">39</span><span class="cl">        <span class="c1">;;</span>
+</span></span><span class="line"><span class="ln">40</span><span class="cl">        <span class="na">stop)</span>
+</span></span><span class="line"><span class="ln">41</span><span class="cl">                <span class="na">stop</span>
+</span></span><span class="line"><span class="ln">42</span><span class="cl">        <span class="c1">;;</span>
+</span></span><span class="line"><span class="ln">43</span><span class="cl">        <span class="na">*)</span>
+</span></span><span class="line"><span class="ln">44</span><span class="cl">        <span class="na">echo &#34;Usage: $0 {start|stop}&#34;</span>
+</span></span><span class="line"><span class="ln">45</span><span class="cl">        <span class="na">exit 2</span>
+</span></span><span class="line"><span class="ln">46</span><span class="cl"><span class="na">esac</span>
+</span></span></code></pre></div><h2 id="四用root身份执行即可">四、用root身份执行即可</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">sudo chmod <span class="m">755</span> /usr/local/bin/initAP.sh
+</span></span><span class="line"><span class="ln">2</span><span class="cl">sudo /usr/local/bin/initAP.sh start
+</span></span></code></pre></div><p>这样就可以用自己的手机连上这个wifi热点，尽情冲浪啦。</p>
 <hr>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -342,7 +342,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -382,11 +382,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

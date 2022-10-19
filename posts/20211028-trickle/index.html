@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Linux下的程序限速软件Trickle"/>
 <meta name="twitter:description" content="之前讲过如何对 opnvpn 总体限速，这次来了一个更严格的程序限速需求： 场景如下： 两个机房间有一条专线 100M 两个机房间需要同步数据，同步需要限制到60M，给"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -246,45 +246,45 @@
 </li>
 </ul>
 <p>分析了一下脚本的核心部分</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>find . -type f  <span class="p">|</span> grep <span class="k">$(</span>date -d<span class="s2">&#34;-1 day&#34;</span> +<span class="s1">&#39;%Y%m%d&#39;</span><span class="k">)</span> <span class="p">|</span>xargs -I % -P <span class="m">30</span> rsync -auvPR % 192.168.9.17::mysql
-</code></pre></div><p>发现是利用 xargs 的并发，-P 30 最大并发30个，启动了 rsync 同步</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">find . -type f  <span class="p">|</span> grep <span class="k">$(</span>date -d<span class="s2">&#34;-1 day&#34;</span> +<span class="s1">&#39;%Y%m%d&#39;</span><span class="k">)</span> <span class="p">|</span>xargs -I % -P <span class="m">30</span> rsync -auvPR % 192.168.9.17::mysql
+</span></span></code></pre></div><p>发现是利用 xargs 的并发，-P 30 最大并发30个，启动了 rsync 同步</p>
 <p>rsync 没有限速，这就麻烦了。</p>
 <h2 id="一单文件单独限速">一、单文件单独限速</h2>
 <p>首先是使用 rsync 的 &ndash;bwlimit=600 参数，把速度限制为 600KB/s ，600×8=4800，单进程基本是5M的速度，最多只能跑12个了，就会跑到60M。</p>
 <p>这样也不太对，尤其是 rsync 并发进程逐渐减少，少于12个的时候，这样就出现跑不满60M的现象。</p>
 <h2 id="二多文件整体限速">二、多文件整体限速</h2>
 <p>那么 rsync 支持多文件传输 ，使用如下格式整体限速</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>rsync --bwlimit<span class="o">=</span><span class="m">7200</span> -auvPR 文件1 文件2 文件3 192.168.9.17::mysql 
-</code></pre></div><p>问题又来了，文件1 文件2 文件3 的路径非常长，而文件个数不定，有撑爆命令行单行长度限制的可能，也不可行</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">rsync --bwlimit<span class="o">=</span><span class="m">7200</span> -auvPR 文件1 文件2 文件3 192.168.9.17::mysql 
+</span></span></code></pre></div><p>问题又来了，文件1 文件2 文件3 的路径非常长，而文件个数不定，有撑爆命令行单行长度限制的可能，也不可行</p>
 <h2 id="三tc">三、tc</h2>
 <p>使用 tc 可以控制源ip或者目的ip的带宽，但是本机网卡是万兆光卡，生产环境，每时每刻都有数据读写。</p>
 <p>一旦错了，就直接完蛋了。也不太可行</p>
 <h2 id="四杀器trickle">四、杀器trickle</h2>
 <p>寻找了半天，终于找到了个大杀器trickle，可以对程序单独限速，也可以对一堆程序整体限速</p>
 <p>安装：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>$ yum install -y epel-release
-<span class="ln">2</span>$ yum install trickle
-</code></pre></div><p>参数解释：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">$ yum install -y epel-release
+</span></span><span class="line"><span class="ln">2</span><span class="cl">$ yum install trickle
+</span></span></code></pre></div><p>参数解释：</p>
 <ul>
 <li>-u 上载速度 KB/s ，乘以8换算成网络速度</li>
 <li>-d 下载速度 KB/s ，乘以8换算成网络速度</li>
 <li>-s standalone独立模式，不参与 trickled 的整体模式</li>
 </ul>
 <p>如果要对一个程序单独限速，10KB</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>trickle -s -u <span class="m">10</span> -d <span class="m">10</span> wget http://mirrors.163.com/rocky/8/isos/x86_64/Rocky-8.4-x86_64-dvd1.iso
-</code></pre></div><p><img class="img-fluid" alt="image-20211028151940122" src="https://bajie.dev/posts/20211028-trickle/image-20211028151940122.png" loading="lazy"
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">trickle -s -u <span class="m">10</span> -d <span class="m">10</span> wget http://mirrors.163.com/rocky/8/isos/x86_64/Rocky-8.4-x86_64-dvd1.iso
+</span></span></code></pre></div><p><img class="img-fluid" alt="image-20211028151940122" src="https://bajie.dev/posts/20211028-trickle/image-20211028151940122.png" loading="lazy"
    width="1807" height="198"
    />
 
 </p>
 <p>wget 的下载完全被限制在了10KB</p>
 <p>如过要对使用trickle的所有程序做整体限速</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span><span class="c1"># 首先启动守护进程 trickled</span>
-<span class="ln">2</span>$ trickled -u <span class="m">7200</span> -d <span class="m">7200</span>
-<span class="ln">3</span>
-<span class="ln">4</span><span class="c1"># 然后所有用trickle执行的命令就会整理限速在7200KB/s （网络速度60M）</span>
-<span class="ln">5</span>find . -type f  <span class="p">|</span> grep <span class="k">$(</span>date -d<span class="s2">&#34;-1 day&#34;</span> +<span class="s1">&#39;%Y%m%d&#39;</span><span class="k">)</span> <span class="p">|</span>xargs -I % -P <span class="m">30</span> trickle rsync -auvPR % 192.168.9.17::mysql
-</code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1"># 首先启动守护进程 trickled</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">$ trickled -u <span class="m">7200</span> -d <span class="m">7200</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">
+</span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="c1"># 然后所有用trickle执行的命令就会整理限速在7200KB/s （网络速度60M）</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl">find . -type f  <span class="p">|</span> grep <span class="k">$(</span>date -d<span class="s2">&#34;-1 day&#34;</span> +<span class="s1">&#39;%Y%m%d&#39;</span><span class="k">)</span> <span class="p">|</span>xargs -I % -P <span class="m">30</span> trickle rsync -auvPR % 192.168.9.17::mysql
+</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -329,7 +329,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -369,11 +369,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

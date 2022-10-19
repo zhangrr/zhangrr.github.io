@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="alphine镜像的使用技巧"/>
 <meta name="twitter:description" content="用 alphine 镜像的一些常用技巧： 会随时增加： 一、修改源，用国外的源非常慢，替换成国内的中科大源 1sed -i &#39;s/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g&#39; /etc/apk/repositories 二、更新apk库 1apk update 三、安装软件 1#安装tel"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -238,45 +238,45 @@
 </div><div class="post-content mb-3"><p>用 alphine 镜像的一些常用技巧：</p>
 <p>会随时增加：</p>
 <h2 id="一修改源用国外的源非常慢替换成国内的中科大源">一、修改源，用国外的源非常慢，替换成国内的中科大源</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>sed -i <span class="s1">&#39;s/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g&#39;</span> /etc/apk/repositories
-</code></pre></div><h2 id="二更新apk库">二、更新apk库</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>apk update
-</code></pre></div><h2 id="三安装软件">三、安装软件</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="c1">#安装telnet</span>
-<span class="ln"> 2</span>apk add busybox-extras
-<span class="ln"> 3</span>
-<span class="ln"> 4</span><span class="c1">#安装curl</span>
-<span class="ln"> 5</span>apk add curl
-<span class="ln"> 6</span>
-<span class="ln"> 7</span><span class="c1">#安装时间组件</span>
-<span class="ln"> 8</span>apk add tzdata
-<span class="ln"> 9</span>
-<span class="ln">10</span><span class="c1">#更新并且安装软件</span>
-<span class="ln">11</span>apk add --update tzdata
-</code></pre></div><h2 id="四进入容器一步执行换源更新安装">四、进入容器一步执行换源、更新、安装</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>sed -i <span class="s1">&#39;s/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g&#39;</span> /etc/apk/repositories <span class="o">&amp;&amp;</span> apk update <span class="o">&amp;&amp;</span> apk add curl <span class="o">&amp;&amp;</span> apk add busybox-extras
-</code></pre></div><h2 id="五解决缺少glibc库的问题">五、解决缺少glibc库的问题</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">sed -i <span class="s1">&#39;s/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g&#39;</span> /etc/apk/repositories
+</span></span></code></pre></div><h2 id="二更新apk库">二、更新apk库</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">apk update
+</span></span></code></pre></div><h2 id="三安装软件">三、安装软件</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1">#安装telnet</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">apk add busybox-extras
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="c1">#安装curl</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">apk add curl
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="c1">#安装时间组件</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">apk add tzdata
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">
+</span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="c1">#更新并且安装软件</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">apk add --update tzdata
+</span></span></code></pre></div><h2 id="四进入容器一步执行换源更新安装">四、进入容器一步执行换源、更新、安装</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">sed -i <span class="s1">&#39;s/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g&#39;</span> /etc/apk/repositories <span class="o">&amp;&amp;</span> apk update <span class="o">&amp;&amp;</span> apk add curl <span class="o">&amp;&amp;</span> apk add busybox-extras
+</span></span></code></pre></div><h2 id="五解决缺少glibc库的问题">五、解决缺少glibc库的问题</h2>
 <p>如果不ln会报错，原因是缺少glibc库！！！解决方法如下：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>RUN mkdir /lib64 <span class="o">&amp;&amp;</span> <span class="se">\ </span> 
-<span class="ln">2</span>    ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2  
-</code></pre></div><h2 id="六一些调试的cmd">六、一些调试的CMD</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>CMD <span class="o">[</span><span class="s2">&#34;/bin/bash&#34;</span>, <span class="s2">&#34;-c&#34;</span>, <span class="s2">&#34;while true; do echo hi; sleep 10; done&#34;</span><span class="o">]</span>
-<span class="ln">2</span>
-<span class="ln">3</span>kubectl run curlpod --image<span class="o">=</span>radial/busyboxplus:curl --command -- /bin/sh -c <span class="s2">&#34;while true; do echo hi; sleep 10; done&#34;</span>
-</code></pre></div><h2 id="七pod的等待技巧">七、pod的等待技巧</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">RUN mkdir /lib64 <span class="o">&amp;&amp;</span> <span class="se">\ </span> 
+</span></span><span class="line"><span class="ln">2</span><span class="cl">    ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2  
+</span></span></code></pre></div><h2 id="六一些调试的cmd">六、一些调试的CMD</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">CMD <span class="o">[</span><span class="s2">&#34;/bin/bash&#34;</span>, <span class="s2">&#34;-c&#34;</span>, <span class="s2">&#34;while true; do echo hi; sleep 10; done&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">
+</span></span><span class="line"><span class="ln">3</span><span class="cl">kubectl run curlpod --image<span class="o">=</span>radial/busyboxplus:curl --command -- /bin/sh -c <span class="s2">&#34;while true; do echo hi; sleep 10; done&#34;</span>
+</span></span></code></pre></div><h2 id="七pod的等待技巧">七、pod的等待技巧</h2>
 <p>这儿里启动正式的pod之前，先临时起了两个容器等待其他服务的完成</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>  containers: 
-<span class="ln"> 2</span>  - name: myapp-container 
-<span class="ln"> 3</span>    image: busybox 
-<span class="ln"> 4</span>    command: <span class="o">[</span><span class="s1">&#39;sh&#39;</span>, <span class="s1">&#39;-c&#39;</span>, <span class="s1">&#39;echo The app is running! &amp;&amp; sleep 3600&#39;</span><span class="o">]</span> 
-<span class="ln"> 5</span>  initContainers: 
-<span class="ln"> 6</span>  - name: init-myservice 
-<span class="ln"> 7</span>    image: busybox 
-<span class="ln"> 8</span>    command: <span class="o">[</span><span class="s1">&#39;sh&#39;</span>, <span class="s1">&#39;-c&#39;</span>, <span class="s1">&#39;until nslookup myservice; do echo waiting for myservice; sleep 2; done;&#39;</span><span class="o">]</span> 
-<span class="ln"> 9</span>  - name: init-mydb 
-<span class="ln">10</span>    image: busybox 
-<span class="ln">11</span>    command: <span class="o">[</span><span class="s1">&#39;sh&#39;</span>, <span class="s1">&#39;-c&#39;</span>, <span class="s1">&#39;until nslookup mydb; do echo waiting for mydb; sleep 2; done;&#39;</span><span class="o">]</span> 
-</code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">  containers: 
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">  - name: myapp-container 
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">    image: busybox 
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">    command: <span class="o">[</span><span class="s1">&#39;sh&#39;</span>, <span class="s1">&#39;-c&#39;</span>, <span class="s1">&#39;echo The app is running! &amp;&amp; sleep 3600&#39;</span><span class="o">]</span> 
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">  initContainers: 
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">  - name: init-myservice 
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">    image: busybox 
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">    command: <span class="o">[</span><span class="s1">&#39;sh&#39;</span>, <span class="s1">&#39;-c&#39;</span>, <span class="s1">&#39;until nslookup myservice; do echo waiting for myservice; sleep 2; done;&#39;</span><span class="o">]</span> 
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">  - name: init-mydb 
+</span></span><span class="line"><span class="ln">10</span><span class="cl">    image: busybox 
+</span></span><span class="line"><span class="ln">11</span><span class="cl">    command: <span class="o">[</span><span class="s1">&#39;sh&#39;</span>, <span class="s1">&#39;-c&#39;</span>, <span class="s1">&#39;until nslookup mydb; do echo waiting for mydb; sleep 2; done;&#39;</span><span class="o">]</span> 
+</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -321,7 +321,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -361,11 +361,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

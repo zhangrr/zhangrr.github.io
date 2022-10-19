@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="hubot集成企业微信&#43;jenkins&#43;ansible">
 <meta itemprop="description" content="Hubot是一个通用的聊天机器人，能和很多聊天软件集成，比如slack、rockchat、telegram、企业微信、IRC等。 公司用的是企"><meta itemprop="datePublished" content="2021-12-22T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2021-12-22T09:30:11+08:00" />
-<meta itemprop="wordCount" content="3180">
+<meta itemprop="wordCount" content="3190">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="hubot集成企业微信&#43;jenkins&#43;ansible" />
 <meta property="og:description" content="Hubot是一个通用的聊天机器人，能和很多聊天软件集成，比如slack、rockchat、telegram、企业微信、IRC等。 公司用的是企" />
 <meta property="og:type" content="article" />
@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="hubot集成企业微信&#43;jenkins&#43;ansible"/>
 <meta name="twitter:description" content="Hubot是一个通用的聊天机器人，能和很多聊天软件集成，比如slack、rockchat、telegram、企业微信、IRC等。 公司用的是企"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -310,13 +310,13 @@
 <h2 id="三安装hubot">三、安装Hubot</h2>
 <p>首先安装nvm，参看文章 <a href="/posts/20211217-nodejs_nvm/">Nodejs多版本的安装与管理</a>
 </p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh <span class="p">|</span> bash
-</code></pre></div><p>安装的时候最好加个 https_proxy 代理，因为这个 shell 脚本不翻墙很难下下来。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh <span class="p">|</span> bash
+</span></span></code></pre></div><p>安装的时候最好加个 https_proxy 代理，因为这个 shell 脚本不翻墙很难下下来。</p>
 <p>然后务必关了代理，退出终端并重新进入，安装 nodejs 的最新版本</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>nvm ls-remote
-<span class="ln">2</span>nvm install v16.13.1
-<span class="ln">3</span>nvm list
-</code></pre></div><p><img class="img-fluid" alt="image-20211222154655729" src="https://bajie.dev/posts/20211222-hubot_wechat/image-20211222154655729.png" loading="lazy"
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">nvm ls-remote
+</span></span><span class="line"><span class="ln">2</span><span class="cl">nvm install v16.13.1
+</span></span><span class="line"><span class="ln">3</span><span class="cl">nvm list
+</span></span></code></pre></div><p><img class="img-fluid" alt="image-20211222154655729" src="https://bajie.dev/posts/20211222-hubot_wechat/image-20211222154655729.png" loading="lazy"
    width="386" height="273"
    />
 
@@ -324,13 +324,13 @@
 <p>确认一下，nodejs 的版本缺省是 v16.13.1</p>
 <p>这里千万不要手欠把 npm 的源换成国内的腾讯等，就是国外源</p>
 <p>然后安装hubot，并初始化</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>su - bot
-<span class="ln">2</span>npm install -g yo generator-hubot
-<span class="ln">3</span>
-<span class="ln">4</span>mkdir /home/bot/myhubot
-<span class="ln">5</span><span class="nb">cd</span> /home/bot/myhubot
-<span class="ln">6</span>yo hubot
-</code></pre></div><p>会问几个问题：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">su - bot
+</span></span><span class="line"><span class="ln">2</span><span class="cl">npm install -g yo generator-hubot
+</span></span><span class="line"><span class="ln">3</span><span class="cl">
+</span></span><span class="line"><span class="ln">4</span><span class="cl">mkdir /home/bot/myhubot
+</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="nb">cd</span> /home/bot/myhubot
+</span></span><span class="line"><span class="ln">6</span><span class="cl">yo hubot
+</span></span></code></pre></div><p>会问几个问题：</p>
 <ul>
 <li>Ower：写自己邮箱就行</li>
 <li>Bot name: bot</li>
@@ -338,103 +338,103 @@
 <li>Bot adapter: campfire</li>
 </ul>
 <p>注意最后一个，选campfire就好，我们稍后再装wechatwork</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span>                     <span class="na">_____________________________  </span>
-<span class="ln"> 2</span>                    <span class="na">/                             \ </span>
-<span class="ln"> 3</span>   <span class="na">//\              |      Extracting input for    |</span>
-<span class="ln"> 4</span>  <span class="na">////\    _____    |   self-replication process   |</span>
-<span class="ln"> 5</span> <span class="na">//////\  /_____\   \                             / </span>
-<span class="ln"> 6</span> <span class="o">=</span><span class="s">====== |[^_/\_]|   /----------------------------  
-</span><span class="ln"> 7</span><span class="s">  |   | _|___@@__|__                                
-</span><span class="ln"> 8</span><span class="s">  +===+/  ///     \_\                               
-</span><span class="ln"> 9</span><span class="s">   | |_\ /// HUBOT/\\                             
-</span><span class="ln">10</span><span class="s">   |___/\//      /  \\                            
-</span><span class="ln">11</span><span class="s">         \      /   +---+                            
-</span><span class="ln">12</span><span class="s">          \____/    |   |                            
-</span><span class="ln">13</span><span class="s">           | //|    +===+                            
-</span><span class="ln">14</span><span class="s">            \//      |xx|                            </span>
-<span class="ln">15</span>
-<span class="ln">16</span><span class="na">? Owner zhangranrui@rendoumi.com</span>
-<span class="ln">17</span><span class="na">? Bot name bot</span>
-<span class="ln">18</span><span class="na">? Description rendoumi corp</span>
-<span class="ln">19</span><span class="na">? Bot adapter campfire</span>
-</code></pre></div><p>然后就会是漫长的等待：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln"> 1</span><span class="cl">                     <span class="na">_____________________________  </span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">                    <span class="na">/                             \ </span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">   <span class="na">//\              |      Extracting input for    |</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">  <span class="na">////\    _____    |   self-replication process   |</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"> <span class="na">//////\  /_____\   \                             / </span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"> <span class="o">=</span><span class="s">====== |[^_/\_]|   /----------------------------  
+</span></span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="s">  |   | _|___@@__|__                                
+</span></span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="s">  +===+/  ///     \_\                               
+</span></span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="s">   | |_\ /// HUBOT/\\                             
+</span></span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="s">   |___/\//      /  \\                            
+</span></span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="s">         \      /   +---+                            
+</span></span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="s">          \____/    |   |                            
+</span></span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="s">           | //|    +===+                            
+</span></span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="s">            \//      |xx|                            </span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl">
+</span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="na">? Owner zhangranrui@rendoumi.com</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="na">? Bot name bot</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="na">? Description rendoumi corp</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl"><span class="na">? Bot adapter campfire</span>
+</span></span></code></pre></div><p>然后就会是漫长的等待：</p>
 <p><img class="img-fluid" alt="image-20211222155430133" src="https://bajie.dev/posts/20211222-hubot_wechat/image-20211222155430133.png" loading="lazy"
    width="996" height="813"
    />
 
 </p>
 <p>最后会报几个警告，不用管，忽略即可。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>npm notice created a lockfile as package-lock.json. You should commit this file.
-<span class="ln"> 2</span>+ hubot-help@1.0.1
-<span class="ln"> 3</span>+ hubot-google-images@0.2.7
-<span class="ln"> 4</span>+ hubot-rules@1.0.0
-<span class="ln"> 5</span>+ hubot-shipit@0.2.1
-<span class="ln"> 6</span>+ hubot-redis-brain@1.0.0
-<span class="ln"> 7</span>+ hubot-google-translate@0.2.1
-<span class="ln"> 8</span>+ hubot-diagnostics@1.0.0
-<span class="ln"> 9</span>+ hubot-scripts@2.17.2
-<span class="ln">10</span>+ hubot@3.3.2
-<span class="ln">11</span>+ hubot-maps@0.0.3
-<span class="ln">12</span>+ hubot-heroku-keepalive@1.0.3
-<span class="ln">13</span>+ hubot-pugme@0.1.1
-<span class="ln">14</span>added <span class="m">99</span> packages from <span class="m">53</span> contributors and audited <span class="m">99</span> packages in 20.176s
-<span class="ln">15</span>
-<span class="ln">16</span><span class="m">2</span> packages are looking <span class="k">for</span> funding
-<span class="ln">17</span>  run <span class="sb">`</span>npm fund<span class="sb">`</span> <span class="k">for</span> details
-<span class="ln">18</span>
-<span class="ln">19</span>found <span class="m">1</span> low severity vulnerability
-<span class="ln">20</span>  run <span class="sb">`</span>npm audit fix<span class="sb">`</span> to fix them, or <span class="sb">`</span>npm audit<span class="sb">`</span> <span class="k">for</span> details
-</code></pre></div><p>我们先跑一下，简单测一下功能，我们的bot name输入的是bot</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span><span class="nb">cd</span> /home/bot/myhubot
-<span class="ln">2</span>
-<span class="ln">3</span>./bin/hubot
-<span class="ln">4</span>
-<span class="ln">5</span><span class="c1">#进入后</span>
-<span class="ln">6</span>bot ping
-<span class="ln">7</span>
-<span class="ln">8</span><span class="c1">#得到回应</span>
-<span class="ln">9</span>PONG
-</code></pre></div><p>这样就装好了 hubot，我们做一下修改，去掉 heroku 和 redis，否则会不停丢出报错信息，但是不要用 npm 去删除这两个包，放着那里备用也不占多少空间的</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="nb">cd</span> /home/bot/myhubot
-<span class="ln"> 2</span>
-<span class="ln"> 3</span>vi external-scripts.json
-<span class="ln"> 4</span><span class="o">[</span>
-<span class="ln"> 5</span>  <span class="s2">&#34;hubot-diagnostics&#34;</span>,
-<span class="ln"> 6</span>  <span class="s2">&#34;hubot-help&#34;</span>,
-<span class="ln"> 7</span>  <span class="s2">&#34;hubot-heroku-keepalive&#34;</span>,
-<span class="ln"> 8</span>  <span class="s2">&#34;hubot-google-images&#34;</span>,
-<span class="ln"> 9</span>  <span class="s2">&#34;hubot-google-translate&#34;</span>,
-<span class="ln">10</span>  <span class="s2">&#34;hubot-pugme&#34;</span>,
-<span class="ln">11</span>  <span class="s2">&#34;hubot-maps&#34;</span>,
-<span class="ln">12</span>  <span class="s2">&#34;hubot-redis-brain&#34;</span>,
-<span class="ln">13</span>  <span class="s2">&#34;hubot-rules&#34;</span>,
-<span class="ln">14</span>  <span class="s2">&#34;hubot-shipit&#34;</span>
-<span class="ln">15</span><span class="o">]</span>
-<span class="ln">16</span>
-<span class="ln">17</span><span class="c1">#去掉下面两行</span>
-<span class="ln">18</span>hubot-heroku-keepalive
-<span class="ln">19</span>hubot-redis-brain
-</code></pre></div><h2 id="三安装微信-adapter">三、安装微信 Adapter</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">npm notice created a lockfile as package-lock.json. You should commit this file.
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">+ hubot-help@1.0.1
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">+ hubot-google-images@0.2.7
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">+ hubot-rules@1.0.0
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">+ hubot-shipit@0.2.1
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">+ hubot-redis-brain@1.0.0
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">+ hubot-google-translate@0.2.1
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">+ hubot-diagnostics@1.0.0
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">+ hubot-scripts@2.17.2
+</span></span><span class="line"><span class="ln">10</span><span class="cl">+ hubot@3.3.2
+</span></span><span class="line"><span class="ln">11</span><span class="cl">+ hubot-maps@0.0.3
+</span></span><span class="line"><span class="ln">12</span><span class="cl">+ hubot-heroku-keepalive@1.0.3
+</span></span><span class="line"><span class="ln">13</span><span class="cl">+ hubot-pugme@0.1.1
+</span></span><span class="line"><span class="ln">14</span><span class="cl">added <span class="m">99</span> packages from <span class="m">53</span> contributors and audited <span class="m">99</span> packages in 20.176s
+</span></span><span class="line"><span class="ln">15</span><span class="cl">
+</span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="m">2</span> packages are looking <span class="k">for</span> funding
+</span></span><span class="line"><span class="ln">17</span><span class="cl">  run <span class="sb">`</span>npm fund<span class="sb">`</span> <span class="k">for</span> details
+</span></span><span class="line"><span class="ln">18</span><span class="cl">
+</span></span><span class="line"><span class="ln">19</span><span class="cl">found <span class="m">1</span> low severity vulnerability
+</span></span><span class="line"><span class="ln">20</span><span class="cl">  run <span class="sb">`</span>npm audit fix<span class="sb">`</span> to fix them, or <span class="sb">`</span>npm audit<span class="sb">`</span> <span class="k">for</span> details
+</span></span></code></pre></div><p>我们先跑一下，简单测一下功能，我们的bot name输入的是bot</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="nb">cd</span> /home/bot/myhubot
+</span></span><span class="line"><span class="ln">2</span><span class="cl">
+</span></span><span class="line"><span class="ln">3</span><span class="cl">./bin/hubot
+</span></span><span class="line"><span class="ln">4</span><span class="cl">
+</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="c1">#进入后</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl">bot ping
+</span></span><span class="line"><span class="ln">7</span><span class="cl">
+</span></span><span class="line"><span class="ln">8</span><span class="cl"><span class="c1">#得到回应</span>
+</span></span><span class="line"><span class="ln">9</span><span class="cl">PONG
+</span></span></code></pre></div><p>这样就装好了 hubot，我们做一下修改，去掉 heroku 和 redis，否则会不停丢出报错信息，但是不要用 npm 去删除这两个包，放着那里备用也不占多少空间的</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="nb">cd</span> /home/bot/myhubot
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">vi external-scripts.json
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="o">[</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">  <span class="s2">&#34;hubot-diagnostics&#34;</span>,
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">  <span class="s2">&#34;hubot-help&#34;</span>,
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">  <span class="s2">&#34;hubot-heroku-keepalive&#34;</span>,
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">  <span class="s2">&#34;hubot-google-images&#34;</span>,
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">  <span class="s2">&#34;hubot-google-translate&#34;</span>,
+</span></span><span class="line"><span class="ln">10</span><span class="cl">  <span class="s2">&#34;hubot-pugme&#34;</span>,
+</span></span><span class="line"><span class="ln">11</span><span class="cl">  <span class="s2">&#34;hubot-maps&#34;</span>,
+</span></span><span class="line"><span class="ln">12</span><span class="cl">  <span class="s2">&#34;hubot-redis-brain&#34;</span>,
+</span></span><span class="line"><span class="ln">13</span><span class="cl">  <span class="s2">&#34;hubot-rules&#34;</span>,
+</span></span><span class="line"><span class="ln">14</span><span class="cl">  <span class="s2">&#34;hubot-shipit&#34;</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="o">]</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">
+</span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="c1">#去掉下面两行</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl">hubot-heroku-keepalive
+</span></span><span class="line"><span class="ln">19</span><span class="cl">hubot-redis-brain
+</span></span></code></pre></div><h2 id="三安装微信-adapter">三、安装微信 Adapter</h2>
 <p>Adapter 插件，hubot是一套系统，通过各种插件跟各种聊天软件进行交互</p>
 <p>微信插件原始地址：https://github.com/billtt/hubot-wechatwork</p>
 <p>八戒稍微改了一下：https://github.com/zhangrr/hubot-wechatwork</p>
 <p>主要是添加了个自动回应和添加了一些调试信息，否则不知道加载成不成功。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span><span class="c1">#先装那个老的</span>
-<span class="ln">2</span><span class="nb">cd</span> /home/bot/myhubot
-<span class="ln">3</span>npm install hubot-wechatwork
-<span class="ln">4</span>
-<span class="ln">5</span><span class="c1">#覆盖掉老的模块</span>
-<span class="ln">6</span><span class="nb">cd</span> /home/bot/myhubot/node_modules
-<span class="ln">7</span>git clone https://github.com/zhangrr/hubot-wechatwork
-</code></pre></div><p>启动之前普及一下 hubot 基本知识，hubot 中变量的传入都是通过环境变量导入的，启动测试一下wechatwork</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span><span class="nb">export</span> <span class="nv">WECHATWORK_CORP_ID</span><span class="o">=</span>aaaa
-<span class="ln">2</span><span class="nb">export</span> <span class="nv">WECHATWORK_APP_AGENT_ID</span><span class="o">=</span>bbbb
-<span class="ln">3</span><span class="nb">export</span> <span class="nv">WECHATWORK_APP_SECRET</span><span class="o">=</span>cccc
-<span class="ln">4</span><span class="nb">export</span> <span class="nv">WECHATWORK_AES_KEY</span><span class="o">=</span>dddd
-<span class="ln">5</span>
-<span class="ln">6</span><span class="nb">cd</span> /home/bot/myhubot
-<span class="ln">7</span>./bin/hubot -a wechatwork
-</code></pre></div><p>看到信息，INFO Yunwei: loading wechatwork Adapter，说明启动没啥毛病</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1">#先装那个老的</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="nb">cd</span> /home/bot/myhubot
+</span></span><span class="line"><span class="ln">3</span><span class="cl">npm install hubot-wechatwork
+</span></span><span class="line"><span class="ln">4</span><span class="cl">
+</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="c1">#覆盖掉老的模块</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl"><span class="nb">cd</span> /home/bot/myhubot/node_modules
+</span></span><span class="line"><span class="ln">7</span><span class="cl">git clone https://github.com/zhangrr/hubot-wechatwork
+</span></span></code></pre></div><p>启动之前普及一下 hubot 基本知识，hubot 中变量的传入都是通过环境变量导入的，启动测试一下wechatwork</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="nb">export</span> <span class="nv">WECHATWORK_CORP_ID</span><span class="o">=</span>aaaa
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="nb">export</span> <span class="nv">WECHATWORK_APP_AGENT_ID</span><span class="o">=</span>bbbb
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="nb">export</span> <span class="nv">WECHATWORK_APP_SECRET</span><span class="o">=</span>cccc
+</span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="nb">export</span> <span class="nv">WECHATWORK_AES_KEY</span><span class="o">=</span>dddd
+</span></span><span class="line"><span class="ln">5</span><span class="cl">
+</span></span><span class="line"><span class="ln">6</span><span class="cl"><span class="nb">cd</span> /home/bot/myhubot
+</span></span><span class="line"><span class="ln">7</span><span class="cl">./bin/hubot -a wechatwork
+</span></span></code></pre></div><p>看到信息，INFO Yunwei: loading wechatwork Adapter，说明启动没啥毛病</p>
 <p><img class="img-fluid" alt="image-20211228152907465" src="https://bajie.dev/posts/20211222-hubot_wechat/image-20211228152907465.png" loading="lazy"
    width="914" height="371"
    />
@@ -480,39 +480,39 @@
 <h2 id="四准备systemd启动hubot">四、准备systemd启动hubot</h2>
 <p>这样不能每次用个终端启动 hubot 吧，写个 systemd 文件来处理吧</p>
 <p>由于我们用到了nvm，这里确实需要一些技巧，<code>cat /etc/systemd/system/hubot.service</code></p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="o">[</span>Unit<span class="o">]</span>
-<span class="ln"> 2</span><span class="nv">Description</span><span class="o">=</span>Hubot
-<span class="ln"> 3</span><span class="nv">Requires</span><span class="o">=</span>network.target
-<span class="ln"> 4</span><span class="nv">After</span><span class="o">=</span>network.target
-<span class="ln"> 5</span>
-<span class="ln"> 6</span><span class="o">[</span>Service<span class="o">]</span>
-<span class="ln"> 7</span><span class="nv">Type</span><span class="o">=</span>simple
-<span class="ln"> 8</span><span class="nv">WorkingDirectory</span><span class="o">=</span>/home/bot/myhubot
-<span class="ln"> 9</span><span class="nv">User</span><span class="o">=</span>bot
-<span class="ln">10</span>
-<span class="ln">11</span><span class="nv">Restart</span><span class="o">=</span>always
-<span class="ln">12</span><span class="nv">TimeoutStartSec</span><span class="o">=</span><span class="m">10</span>
-<span class="ln">13</span><span class="nv">RestartSec</span><span class="o">=</span><span class="m">10</span>
-<span class="ln">14</span>
-<span class="ln">15</span><span class="p">;</span> Configure Hubot environment variables, use quotes around vars with whitespace as shown below.
-<span class="ln">16</span><span class="p">;</span> <span class="nv">Environment</span><span class="o">=</span><span class="s2">&#34;HUBOT_SLACK_TOKEN=SLACK_TOKEN&#34;</span>
-<span class="ln">17</span><span class="p">;</span> <span class="nv">Environment</span><span class="o">=</span><span class="s2">&#34;HUBOT_JENKINS_AUTH=pe:x837491lkaflajksdf7&#34;</span>
-<span class="ln">18</span><span class="p">;</span> <span class="nv">Environment</span><span class="o">=</span><span class="s2">&#34;HUBOT_JENKINS_URL=http://192.168.1.90:8080/&#34;</span>
-<span class="ln">19</span><span class="nv">Environment</span><span class="o">=</span><span class="s2">&#34;NODE_VERSION=default&#34;</span>
-<span class="ln">20</span><span class="nv">Environment</span><span class="o">=</span><span class="s2">&#34;WECHATWORK_CORP_ID=aaaa&#34;</span>
-<span class="ln">21</span><span class="nv">Environment</span><span class="o">=</span><span class="s2">&#34;WECHATWORK_APP_AGENT_ID=bbbb&#34;</span>
-<span class="ln">22</span><span class="nv">Environment</span><span class="o">=</span><span class="s2">&#34;WECHATWORK_APP_SECRET=cccc&#34;</span>
-<span class="ln">23</span><span class="nv">Environment</span><span class="o">=</span><span class="s2">&#34;WECHATWORK_AES_KEY=dddd&#34;</span>
-<span class="ln">24</span>
-<span class="ln">25</span><span class="nv">ExecStart</span><span class="o">=</span>/home/bot/.nvm/nvm-exec /home/bot/myhubot/bin/hubot --adapter wechatwork
-<span class="ln">26</span>
-<span class="ln">27</span><span class="o">[</span>Install<span class="o">]</span>
-<span class="ln">28</span><span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
-</code></pre></div><p>注意上面，我们指定了环境变量 NODE_VERSION=default，以及最下的 ExecStart，确定用 nvm-exec 引动 node</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="o">[</span>Unit<span class="o">]</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="nv">Description</span><span class="o">=</span>Hubot
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="nv">Requires</span><span class="o">=</span>network.target
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="nv">After</span><span class="o">=</span>network.target
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="o">[</span>Service<span class="o">]</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="nv">Type</span><span class="o">=</span>simple
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="nv">WorkingDirectory</span><span class="o">=</span>/home/bot/myhubot
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="nv">User</span><span class="o">=</span>bot
+</span></span><span class="line"><span class="ln">10</span><span class="cl">
+</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="nv">Restart</span><span class="o">=</span>always
+</span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="nv">TimeoutStartSec</span><span class="o">=</span><span class="m">10</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="nv">RestartSec</span><span class="o">=</span><span class="m">10</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">
+</span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="p">;</span> Configure Hubot environment variables, use quotes around vars with whitespace as shown below.
+</span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="p">;</span> <span class="nv">Environment</span><span class="o">=</span><span class="s2">&#34;HUBOT_SLACK_TOKEN=SLACK_TOKEN&#34;</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="p">;</span> <span class="nv">Environment</span><span class="o">=</span><span class="s2">&#34;HUBOT_JENKINS_AUTH=pe:x837491lkaflajksdf7&#34;</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="p">;</span> <span class="nv">Environment</span><span class="o">=</span><span class="s2">&#34;HUBOT_JENKINS_URL=http://192.168.1.90:8080/&#34;</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl"><span class="nv">Environment</span><span class="o">=</span><span class="s2">&#34;NODE_VERSION=default&#34;</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="nv">Environment</span><span class="o">=</span><span class="s2">&#34;WECHATWORK_CORP_ID=aaaa&#34;</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl"><span class="nv">Environment</span><span class="o">=</span><span class="s2">&#34;WECHATWORK_APP_AGENT_ID=bbbb&#34;</span>
+</span></span><span class="line"><span class="ln">22</span><span class="cl"><span class="nv">Environment</span><span class="o">=</span><span class="s2">&#34;WECHATWORK_APP_SECRET=cccc&#34;</span>
+</span></span><span class="line"><span class="ln">23</span><span class="cl"><span class="nv">Environment</span><span class="o">=</span><span class="s2">&#34;WECHATWORK_AES_KEY=dddd&#34;</span>
+</span></span><span class="line"><span class="ln">24</span><span class="cl">
+</span></span><span class="line"><span class="ln">25</span><span class="cl"><span class="nv">ExecStart</span><span class="o">=</span>/home/bot/.nvm/nvm-exec /home/bot/myhubot/bin/hubot --adapter wechatwork
+</span></span><span class="line"><span class="ln">26</span><span class="cl">
+</span></span><span class="line"><span class="ln">27</span><span class="cl"><span class="o">[</span>Install<span class="o">]</span>
+</span></span><span class="line"><span class="ln">28</span><span class="cl"><span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
+</span></span></code></pre></div><p>注意上面，我们指定了环境变量 NODE_VERSION=default，以及最下的 ExecStart，确定用 nvm-exec 引动 node</p>
 <p>另外把 wechatwork 所需的4个参数也放进环境变量中，这样重启就可以了</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>systemctl daemon-reload
-<span class="ln">2</span>systemctl start hubot
-</code></pre></div><h2 id="五集成jenkins">五、集成jenkins</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">systemctl daemon-reload
+</span></span><span class="line"><span class="ln">2</span><span class="cl">systemctl start hubot
+</span></span></code></pre></div><h2 id="五集成jenkins">五、集成jenkins</h2>
 <p>准备知识，我们必须在 jenkins 拿到用户名和 token（token是用来代替密码的），用来访问 jenkins</p>
 <p>首先登录 jenkins，访问网址：$JENKINS_URL/me/configure，新建一个 API Token，记录下来</p>
 <p><img class="img-fluid" alt="image-20211228155054104" src="https://bajie.dev/posts/20211222-hubot_wechat/image-20211228155054104.png" loading="lazy"
@@ -521,37 +521,37 @@
 
 </p>
 <p>用法很简单：token替代密码用于 url 认证即可。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="nb">cd</span> /home/bot/myhubot
-<span class="ln"> 2</span>npm install hubot-jenkins-optimised 
-<span class="ln"> 3</span>
-<span class="ln"> 4</span><span class="c1">#编辑external-scripts.json</span>
-<span class="ln"> 5</span>vi external-scripts.json
-<span class="ln"> 6</span><span class="o">[</span>
-<span class="ln"> 7</span>  <span class="s2">&#34;hubot-diagnostics&#34;</span>,
-<span class="ln"> 8</span>  <span class="s2">&#34;hubot-help&#34;</span>,
-<span class="ln"> 9</span>  <span class="s2">&#34;hubot-google-images&#34;</span>,
-<span class="ln">10</span>  <span class="s2">&#34;hubot-google-translate&#34;</span>,
-<span class="ln">11</span>  <span class="s2">&#34;hubot-pugme&#34;</span>,
-<span class="ln">12</span>  <span class="s2">&#34;hubot-maps&#34;</span>,
-<span class="ln">13</span>  <span class="s2">&#34;hubot-rules&#34;</span>,
-<span class="ln">14</span>  <span class="s2">&#34;hubot-shipit&#34;</span>,
-<span class="ln">15</span>  <span class="s2">&#34;hubot-jenkins-optimised&#34;</span>
-<span class="ln">16</span><span class="o">]</span>
-<span class="ln">17</span>
-<span class="ln">18</span><span class="c1">#上面增加了一行</span>
-<span class="ln">19</span>hubot-jenkins-optimised
-<span class="ln">20</span>
-<span class="ln">21</span><span class="c1">#编辑 /etc/systemd/system/hubot.service ，添加 jenkins 的环境变量</span>
-<span class="ln">22</span><span class="c1">#jenkins的用户名是pe，所有auth是 &#34;pe:x837491lkaflajksdf7&#34;</span>
-<span class="ln">23</span>......
-<span class="ln">24</span><span class="nv">Environment</span><span class="o">=</span><span class="s2">&#34;HUBOT_JENKINS_AUTH=pe:x837491lkaflajksdf7&#34;</span>
-<span class="ln">25</span><span class="nv">Environment</span><span class="o">=</span><span class="s2">&#34;HUBOT_JENKINS_URL=http://192.168.1.90:8080/&#34;</span>
-<span class="ln">26</span>......
-<span class="ln">27</span>
-<span class="ln">28</span><span class="c1"># 重启 hubot</span>
-<span class="ln">29</span>systemctl daemon-reload
-<span class="ln">30</span>systemctl restart hubot
-</code></pre></div><p>然后我们私聊这个机器人，对它说: jenkins list，就可以看到项目了， jenkins b 3 就可以开始build第三个项目了，所有命令可以通过对机器人说 help 来获得</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="nb">cd</span> /home/bot/myhubot
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">npm install hubot-jenkins-optimised 
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="c1">#编辑external-scripts.json</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">vi external-scripts.json
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="o">[</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">  <span class="s2">&#34;hubot-diagnostics&#34;</span>,
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">  <span class="s2">&#34;hubot-help&#34;</span>,
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">  <span class="s2">&#34;hubot-google-images&#34;</span>,
+</span></span><span class="line"><span class="ln">10</span><span class="cl">  <span class="s2">&#34;hubot-google-translate&#34;</span>,
+</span></span><span class="line"><span class="ln">11</span><span class="cl">  <span class="s2">&#34;hubot-pugme&#34;</span>,
+</span></span><span class="line"><span class="ln">12</span><span class="cl">  <span class="s2">&#34;hubot-maps&#34;</span>,
+</span></span><span class="line"><span class="ln">13</span><span class="cl">  <span class="s2">&#34;hubot-rules&#34;</span>,
+</span></span><span class="line"><span class="ln">14</span><span class="cl">  <span class="s2">&#34;hubot-shipit&#34;</span>,
+</span></span><span class="line"><span class="ln">15</span><span class="cl">  <span class="s2">&#34;hubot-jenkins-optimised&#34;</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="o">]</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl">
+</span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="c1">#上面增加了一行</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl">hubot-jenkins-optimised
+</span></span><span class="line"><span class="ln">20</span><span class="cl">
+</span></span><span class="line"><span class="ln">21</span><span class="cl"><span class="c1">#编辑 /etc/systemd/system/hubot.service ，添加 jenkins 的环境变量</span>
+</span></span><span class="line"><span class="ln">22</span><span class="cl"><span class="c1">#jenkins的用户名是pe，所有auth是 &#34;pe:x837491lkaflajksdf7&#34;</span>
+</span></span><span class="line"><span class="ln">23</span><span class="cl">......
+</span></span><span class="line"><span class="ln">24</span><span class="cl"><span class="nv">Environment</span><span class="o">=</span><span class="s2">&#34;HUBOT_JENKINS_AUTH=pe:x837491lkaflajksdf7&#34;</span>
+</span></span><span class="line"><span class="ln">25</span><span class="cl"><span class="nv">Environment</span><span class="o">=</span><span class="s2">&#34;HUBOT_JENKINS_URL=http://192.168.1.90:8080/&#34;</span>
+</span></span><span class="line"><span class="ln">26</span><span class="cl">......
+</span></span><span class="line"><span class="ln">27</span><span class="cl">
+</span></span><span class="line"><span class="ln">28</span><span class="cl"><span class="c1"># 重启 hubot</span>
+</span></span><span class="line"><span class="ln">29</span><span class="cl">systemctl daemon-reload
+</span></span><span class="line"><span class="ln">30</span><span class="cl">systemctl restart hubot
+</span></span></code></pre></div><p>然后我们私聊这个机器人，对它说: jenkins list，就可以看到项目了， jenkins b 3 就可以开始build第三个项目了，所有命令可以通过对机器人说 help 来获得</p>
 <p><img class="img-fluid" alt="image-20211228155834837" src="https://bajie.dev/posts/20211222-hubot_wechat/image-20211228155834837.png" loading="lazy"
    width="964" height="281"
    />
@@ -559,79 +559,79 @@
 </p>
 <h2 id="六集成ansible">六、集成ansible</h2>
 <p>集成 ansible，其实就是集成一个 shell，也很简单</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="nb">cd</span> /home/bot/myhubot
-<span class="ln"> 2</span>npm install hubot-script-shellcmd
-<span class="ln"> 3</span>
-<span class="ln"> 4</span><span class="c1">#编辑external-scripts.json</span>
-<span class="ln"> 5</span>vi external-scripts.json
-<span class="ln"> 6</span><span class="o">[</span>
-<span class="ln"> 7</span>  <span class="s2">&#34;hubot-diagnostics&#34;</span>,
-<span class="ln"> 8</span>  <span class="s2">&#34;hubot-help&#34;</span>,
-<span class="ln"> 9</span>  <span class="s2">&#34;hubot-google-images&#34;</span>,
-<span class="ln">10</span>  <span class="s2">&#34;hubot-google-translate&#34;</span>,
-<span class="ln">11</span>  <span class="s2">&#34;hubot-pugme&#34;</span>,
-<span class="ln">12</span>  <span class="s2">&#34;hubot-maps&#34;</span>,
-<span class="ln">13</span>  <span class="s2">&#34;hubot-rules&#34;</span>,
-<span class="ln">14</span>  <span class="s2">&#34;hubot-shipit&#34;</span>,
-<span class="ln">15</span>  <span class="s2">&#34;hubot-jenkins-optimised&#34;</span>,
-<span class="ln">16</span>  <span class="s2">&#34;hubot-script-shellcmd&#34;</span>
-<span class="ln">17</span><span class="o">]</span>
-<span class="ln">18</span>
-<span class="ln">19</span><span class="c1">#上面增加了一行</span>
-<span class="ln">20</span>hubot-script-shellcmd
-<span class="ln">21</span>
-<span class="ln">22</span><span class="c1">#把shellcmd目录下的bash目录，复制一份到/home/bot/myhubot/bash</span>
-<span class="ln">23</span>cp -R node_modules/hubot-script-shellcmd/bash ./
-<span class="ln">24</span>
-<span class="ln">25</span><span class="c1">#我们把ansible的yml都放到/homebot/myhubot/bash/ansible目录下</span>
-<span class="ln">26</span><span class="nb">cd</span> /home/bot/myhubot/bash
-<span class="ln">27</span>mkdir ansible
-<span class="ln">28</span>
-<span class="ln">29</span><span class="c1">#把ansible-playbook的yml都放进去</span>
-<span class="ln">30</span>....
-<span class="ln">31</span>
-<span class="ln">32</span><span class="c1">#然后编写命令脚本</span>
-<span class="ln">33</span><span class="nb">cd</span> /home/bot/myhubot/bash/handles
-<span class="ln">34</span>
-<span class="ln">35</span>cat &lt; EOF &gt;&gt; fuse
-<span class="ln">36</span><span class="c1">#!/bin/bash</span>
-<span class="ln">37</span>
-<span class="ln">38</span><span class="k">if</span> <span class="o">[</span> -n <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">]</span> <span class="p">;</span> <span class="k">then</span> 
-<span class="ln">39</span>  <span class="k">if</span> <span class="o">[</span> -n <span class="s2">&#34;</span><span class="nv">$2</span><span class="s2">&#34;</span> <span class="o">]</span> <span class="p">;</span> <span class="k">then</span> 
-<span class="ln">40</span>     ansible-playbook /home/bot/myhubot/bash/ansible/check-disk.yml  -e <span class="s2">&#34;ip=</span><span class="nv">$1</span><span class="s2"> fs=</span><span class="nv">$2</span><span class="s2">&#34;</span>
-<span class="ln">41</span>  <span class="k">else</span>
-<span class="ln">42</span>     ansible-playbook /home/bot/myhubot/bash/ansible/check-disk.yml  -e <span class="s2">&#34;ip=</span><span class="nv">$1</span><span class="s2"> fs=/&#34;</span>
-<span class="ln">43</span>  <span class="k">fi</span>
-<span class="ln">44</span><span class="k">fi</span>
-<span class="ln">45</span>
-<span class="ln">46</span><span class="nb">exit</span> <span class="m">0</span>
-<span class="ln">47</span>EOF
-<span class="ln">48</span>
-<span class="ln">49</span><span class="c1">#给执行权</span>
-<span class="ln">50</span>chmod <span class="m">755</span> /home/bot/myhubot/bash/handles/fuse
-<span class="ln">51</span>
-<span class="ln">52</span><span class="c1">#重启hubot</span>
-<span class="ln">53</span>systemctl restart hubot
-</code></pre></div><p>check-disk.yml 的真身，是在远程机器上调用本机才有的rust dust命令，来算出远程机器的某个目录的使用情况</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>---
-<span class="ln"> 2</span>- name:  check machine disk space
-<span class="ln"> 3</span>  hosts: <span class="s2">&#34;{{ ip }}&#34;</span>
-<span class="ln"> 4</span>  gather_facts: <span class="nb">false</span>
-<span class="ln"> 5</span>  vars:
-<span class="ln"> 6</span>  - ip: <span class="s2">&#34;{{ ip }}&#34;</span>
-<span class="ln"> 7</span>  - fs: <span class="s2">&#34;{{ fs }}&#34;</span>
-<span class="ln"> 8</span>  - ansible_ssh_user: <span class="s2">&#34;root&#34;</span>
-<span class="ln"> 9</span>  - ansible_ssh_pass: <span class="s2">&#34;Fuck2021!&#34;</span>
-<span class="ln">10</span>  - ansible_ssh_common_args: <span class="s2">&#34;-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null&#34;</span>
-<span class="ln">11</span>  - host_key_checking: False
-<span class="ln">12</span>  tasks:
-<span class="ln">13</span>  - name: Run a script with arguments <span class="o">(</span>using <span class="s1">&#39;cmd&#39;</span> parameter<span class="o">)</span>
-<span class="ln">14</span>    ansible.builtin.script:
-<span class="ln">15</span>      cmd: /usr/local/bin/dust -bcr <span class="o">{{</span> fs <span class="o">}}</span>
-<span class="ln">16</span>    register: output
-<span class="ln">17</span>
-<span class="ln">18</span>  - debug: <span class="nv">var</span><span class="o">=</span>output.stdout_lines
-</code></pre></div><p>我们在企业微信对机器说 shell ，就会得到所有命令列表</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="nb">cd</span> /home/bot/myhubot
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">npm install hubot-script-shellcmd
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="c1">#编辑external-scripts.json</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">vi external-scripts.json
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="o">[</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">  <span class="s2">&#34;hubot-diagnostics&#34;</span>,
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">  <span class="s2">&#34;hubot-help&#34;</span>,
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">  <span class="s2">&#34;hubot-google-images&#34;</span>,
+</span></span><span class="line"><span class="ln">10</span><span class="cl">  <span class="s2">&#34;hubot-google-translate&#34;</span>,
+</span></span><span class="line"><span class="ln">11</span><span class="cl">  <span class="s2">&#34;hubot-pugme&#34;</span>,
+</span></span><span class="line"><span class="ln">12</span><span class="cl">  <span class="s2">&#34;hubot-maps&#34;</span>,
+</span></span><span class="line"><span class="ln">13</span><span class="cl">  <span class="s2">&#34;hubot-rules&#34;</span>,
+</span></span><span class="line"><span class="ln">14</span><span class="cl">  <span class="s2">&#34;hubot-shipit&#34;</span>,
+</span></span><span class="line"><span class="ln">15</span><span class="cl">  <span class="s2">&#34;hubot-jenkins-optimised&#34;</span>,
+</span></span><span class="line"><span class="ln">16</span><span class="cl">  <span class="s2">&#34;hubot-script-shellcmd&#34;</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="o">]</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl">
+</span></span><span class="line"><span class="ln">19</span><span class="cl"><span class="c1">#上面增加了一行</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl">hubot-script-shellcmd
+</span></span><span class="line"><span class="ln">21</span><span class="cl">
+</span></span><span class="line"><span class="ln">22</span><span class="cl"><span class="c1">#把shellcmd目录下的bash目录，复制一份到/home/bot/myhubot/bash</span>
+</span></span><span class="line"><span class="ln">23</span><span class="cl">cp -R node_modules/hubot-script-shellcmd/bash ./
+</span></span><span class="line"><span class="ln">24</span><span class="cl">
+</span></span><span class="line"><span class="ln">25</span><span class="cl"><span class="c1">#我们把ansible的yml都放到/homebot/myhubot/bash/ansible目录下</span>
+</span></span><span class="line"><span class="ln">26</span><span class="cl"><span class="nb">cd</span> /home/bot/myhubot/bash
+</span></span><span class="line"><span class="ln">27</span><span class="cl">mkdir ansible
+</span></span><span class="line"><span class="ln">28</span><span class="cl">
+</span></span><span class="line"><span class="ln">29</span><span class="cl"><span class="c1">#把ansible-playbook的yml都放进去</span>
+</span></span><span class="line"><span class="ln">30</span><span class="cl">....
+</span></span><span class="line"><span class="ln">31</span><span class="cl">
+</span></span><span class="line"><span class="ln">32</span><span class="cl"><span class="c1">#然后编写命令脚本</span>
+</span></span><span class="line"><span class="ln">33</span><span class="cl"><span class="nb">cd</span> /home/bot/myhubot/bash/handles
+</span></span><span class="line"><span class="ln">34</span><span class="cl">
+</span></span><span class="line"><span class="ln">35</span><span class="cl">cat &lt; EOF &gt;&gt; fuse
+</span></span><span class="line"><span class="ln">36</span><span class="cl"><span class="c1">#!/bin/bash</span>
+</span></span><span class="line"><span class="ln">37</span><span class="cl">
+</span></span><span class="line"><span class="ln">38</span><span class="cl"><span class="k">if</span> <span class="o">[</span> -n <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">]</span> <span class="p">;</span> <span class="k">then</span> 
+</span></span><span class="line"><span class="ln">39</span><span class="cl">  <span class="k">if</span> <span class="o">[</span> -n <span class="s2">&#34;</span><span class="nv">$2</span><span class="s2">&#34;</span> <span class="o">]</span> <span class="p">;</span> <span class="k">then</span> 
+</span></span><span class="line"><span class="ln">40</span><span class="cl">     ansible-playbook /home/bot/myhubot/bash/ansible/check-disk.yml  -e <span class="s2">&#34;ip=</span><span class="nv">$1</span><span class="s2"> fs=</span><span class="nv">$2</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="ln">41</span><span class="cl">  <span class="k">else</span>
+</span></span><span class="line"><span class="ln">42</span><span class="cl">     ansible-playbook /home/bot/myhubot/bash/ansible/check-disk.yml  -e <span class="s2">&#34;ip=</span><span class="nv">$1</span><span class="s2"> fs=/&#34;</span>
+</span></span><span class="line"><span class="ln">43</span><span class="cl">  <span class="k">fi</span>
+</span></span><span class="line"><span class="ln">44</span><span class="cl"><span class="k">fi</span>
+</span></span><span class="line"><span class="ln">45</span><span class="cl">
+</span></span><span class="line"><span class="ln">46</span><span class="cl"><span class="nb">exit</span> <span class="m">0</span>
+</span></span><span class="line"><span class="ln">47</span><span class="cl">EOF
+</span></span><span class="line"><span class="ln">48</span><span class="cl">
+</span></span><span class="line"><span class="ln">49</span><span class="cl"><span class="c1">#给执行权</span>
+</span></span><span class="line"><span class="ln">50</span><span class="cl">chmod <span class="m">755</span> /home/bot/myhubot/bash/handles/fuse
+</span></span><span class="line"><span class="ln">51</span><span class="cl">
+</span></span><span class="line"><span class="ln">52</span><span class="cl"><span class="c1">#重启hubot</span>
+</span></span><span class="line"><span class="ln">53</span><span class="cl">systemctl restart hubot
+</span></span></code></pre></div><p>check-disk.yml 的真身，是在远程机器上调用本机才有的rust dust命令，来算出远程机器的某个目录的使用情况</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">---
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">- name:  check machine disk space
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">  hosts: <span class="s2">&#34;{{ ip }}&#34;</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">  gather_facts: <span class="nb">false</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">  vars:
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">  - ip: <span class="s2">&#34;{{ ip }}&#34;</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">  - fs: <span class="s2">&#34;{{ fs }}&#34;</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">  - ansible_ssh_user: <span class="s2">&#34;root&#34;</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">  - ansible_ssh_pass: <span class="s2">&#34;Fuck2021!&#34;</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">  - ansible_ssh_common_args: <span class="s2">&#34;-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null&#34;</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">  - host_key_checking: False
+</span></span><span class="line"><span class="ln">12</span><span class="cl">  tasks:
+</span></span><span class="line"><span class="ln">13</span><span class="cl">  - name: Run a script with arguments <span class="o">(</span>using <span class="s1">&#39;cmd&#39;</span> parameter<span class="o">)</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">    ansible.builtin.script:
+</span></span><span class="line"><span class="ln">15</span><span class="cl">      cmd: /usr/local/bin/dust -bcr <span class="o">{{</span> fs <span class="o">}}</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">    register: output
+</span></span><span class="line"><span class="ln">17</span><span class="cl">
+</span></span><span class="line"><span class="ln">18</span><span class="cl">  - debug: <span class="nv">var</span><span class="o">=</span>output.stdout_lines
+</span></span></code></pre></div><p>我们在企业微信对机器说 shell ，就会得到所有命令列表</p>
 <p><img class="img-fluid" alt="image-20211228161435568" src="https://bajie.dev/posts/20211222-hubot_wechat/image-20211228161435568.png" loading="lazy"
    width="975" height="157"
    />
@@ -693,7 +693,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -733,11 +733,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

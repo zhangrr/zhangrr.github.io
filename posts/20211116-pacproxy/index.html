@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="linux下web pacproxy的用法">
 <meta itemprop="description" content="说实在话，这个场景非常怪异，客户在 linux 下要动态根据 url 选择代理： 看图，中间的是前端代理，地址是 192.168.1.1:8080，然后客户设置使用"><meta itemprop="datePublished" content="2021-11-16T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2021-11-16T09:30:11+08:00" />
-<meta itemprop="wordCount" content="410">
+<meta itemprop="wordCount" content="422">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="linux下web pacproxy的用法" />
 <meta property="og:description" content="说实在话，这个场景非常怪异，客户在 linux 下要动态根据 url 选择代理： 看图，中间的是前端代理，地址是 192.168.1.1:8080，然后客户设置使用" />
 <meta property="og:type" content="article" />
@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="linux下web pacproxy的用法"/>
 <meta name="twitter:description" content="说实在话，这个场景非常怪异，客户在 linux 下要动态根据 url 选择代理： 看图，中间的是前端代理，地址是 192.168.1.1:8080，然后客户设置使用"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -237,49 +237,49 @@
 
 </p>
 <p>看图，中间的是前端代理，地址是 192.168.1.1:8080，然后客户设置使用这个代理</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span><span class="nb">export</span> <span class="nv">http_proxy</span><span class="o">=</span>http://192.168.1.1:8080
-<span class="ln">2</span><span class="nb">export</span> <span class="nv">https_proxy</span><span class="o">=</span>http://192.168.1.1:8080
-</code></pre></div><p>然后对应后端有三个代理，两个 http 代理，一个 socks 代理</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>http  192.168.2.1:3128
-<span class="ln">2</span>socks 192.168.2.2:1080
-<span class="ln">3</span>http  192.168.2.3:3128
-</code></pre></div><p>我们要根据客户的请求 URL 来决定具体要使用后端的哪个代理</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="nb">export</span> <span class="nv">http_proxy</span><span class="o">=</span>http://192.168.1.1:8080
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="nb">export</span> <span class="nv">https_proxy</span><span class="o">=</span>http://192.168.1.1:8080
+</span></span></code></pre></div><p>然后对应后端有三个代理，两个 http 代理，一个 socks 代理</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">http  192.168.2.1:3128
+</span></span><span class="line"><span class="ln">2</span><span class="cl">socks 192.168.2.2:1080
+</span></span><span class="line"><span class="ln">3</span><span class="cl">http  192.168.2.3:3128
+</span></span></code></pre></div><p>我们要根据客户的请求 URL 来决定具体要使用后端的哪个代理</p>
 <p>这个如果在浏览器上设置非常容易，设置 PAC 即可。但是偏偏客户端不是浏览器，而是一个程序，那么麻烦就来了。怎么设置呢？</p>
 <p>步骤很简单：</p>
 <h2 id="一安装-pacproxy">一、安装 pacproxy</h2>
 <p>网址：https://github.com/williambailey/pacproxy</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>wget https://github.com/williambailey/pacproxy/releases/download/v.2.0.4/pacproxy_2.0.4_linux_amd64.tar.gz
-<span class="ln">2</span>tar zxvf pacproxy_2.0.4_linux_amd64.tar.gz
-</code></pre></div><p>拷出来 pacproxy 备用</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">wget https://github.com/williambailey/pacproxy/releases/download/v.2.0.4/pacproxy_2.0.4_linux_amd64.tar.gz
+</span></span><span class="line"><span class="ln">2</span><span class="cl">tar zxvf pacproxy_2.0.4_linux_amd64.tar.gz
+</span></span></code></pre></div><p>拷出来 pacproxy 备用</p>
 <h2 id="二生成配置文件">二、生成配置文件</h2>
 <p>最主要的就是 PAC 文件的生成</p>
 <p>我们给个例子：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>cat <span class="s">&lt;&lt; EOF &gt;&gt; pac
-</span><span class="ln"> 2</span><span class="s">function FindProxyForURL(url, host)
-</span><span class="ln"> 3</span><span class="s">{
-</span><span class="ln"> 4</span><span class="s">    if (host == &#34;www.baidu.com&#34;) {
-</span><span class="ln"> 5</span><span class="s">        return &#34;PROXY 192.168.2.1:3128&#34;;
-</span><span class="ln"> 6</span><span class="s">    }
-</span><span class="ln"> 7</span><span class="s">    else if (host == &#34;www.sina.com.cn&#34;) {
-</span><span class="ln"> 8</span><span class="s">        return &#34;SOCKS 192.168.2.2:1080&#34;;
-</span><span class="ln"> 9</span><span class="s">    }
-</span><span class="ln">10</span><span class="s">    else if (host == &#34;www.sohu.com&#34;) {
-</span><span class="ln">11</span><span class="s">        return &#34;SOCKS 192.168.2.3:1080&#34;;
-</span><span class="ln">12</span><span class="s">    }    
-</span><span class="ln">13</span><span class="s">    else {
-</span><span class="ln">14</span><span class="s">        return &#34;DIRECT&#34;;
-</span><span class="ln">15</span><span class="s">    }
-</span><span class="ln">16</span><span class="s">}
-</span><span class="ln">17</span><span class="s">EOF</span>
-</code></pre></div><p>其实 PAC 文件的内容就是一段 javascript，用来返回代理的地址</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">cat <span class="s">&lt;&lt; EOF &gt;&gt; pac
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="s">function FindProxyForURL(url, host)
+</span></span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="s">{
+</span></span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="s">    if (host == &#34;www.baidu.com&#34;) {
+</span></span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="s">        return &#34;PROXY 192.168.2.1:3128&#34;;
+</span></span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="s">    }
+</span></span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="s">    else if (host == &#34;www.sina.com.cn&#34;) {
+</span></span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="s">        return &#34;SOCKS 192.168.2.2:1080&#34;;
+</span></span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="s">    }
+</span></span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="s">    else if (host == &#34;www.sohu.com&#34;) {
+</span></span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="s">        return &#34;SOCKS 192.168.2.3:1080&#34;;
+</span></span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="s">    }    
+</span></span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="s">    else {
+</span></span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="s">        return &#34;DIRECT&#34;;
+</span></span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="s">    }
+</span></span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="s">}
+</span></span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="s">EOF</span>
+</span></span></code></pre></div><p>其实 PAC 文件的内容就是一段 javascript，用来返回代理的地址</p>
 <p>运行并测试：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>pacproxy -c pac -l 0.0.0.0:8080 -v
-<span class="ln">2</span>
-<span class="ln">3</span>
-<span class="ln">4</span><span class="nb">export</span> <span class="nv">http_proxy</span><span class="o">=</span>http://192.168.1.1:8080
-<span class="ln">5</span><span class="nb">export</span> <span class="nv">https_proxy</span><span class="o">=</span>http://192.168.1.1:8080
-<span class="ln">6</span>curl -I www.baidu.com
-</code></pre></div><p>这样就在 Linux 搭建了一个动态的 PAC 代理</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">pacproxy -c pac -l 0.0.0.0:8080 -v
+</span></span><span class="line"><span class="ln">2</span><span class="cl">
+</span></span><span class="line"><span class="ln">3</span><span class="cl">
+</span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="nb">export</span> <span class="nv">http_proxy</span><span class="o">=</span>http://192.168.1.1:8080
+</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="nb">export</span> <span class="nv">https_proxy</span><span class="o">=</span>http://192.168.1.1:8080
+</span></span><span class="line"><span class="ln">6</span><span class="cl">curl -I www.baidu.com
+</span></span></code></pre></div><p>这样就在 Linux 搭建了一个动态的 PAC 代理</p>
 <p>PAC文件的参考资料：</p>
 <ul>
 <li>
@@ -340,7 +340,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -380,11 +380,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="javascripts中的module">
 <meta itemprop="description" content="JavaScript Module 是什么 一个 JavaScript module 模块准确的说就是一个文件，它允许你把代码 export 导出来复用，这样别的 JavaScript 文件可以 import 这个文件把它作为库文件来使用了。 模块主要是用在工"><meta itemprop="datePublished" content="2022-05-21T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2022-05-21T09:30:11+08:00" />
-<meta itemprop="wordCount" content="1994">
+<meta itemprop="wordCount" content="1997">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="javascripts中的module" />
 <meta property="og:description" content="JavaScript Module 是什么 一个 JavaScript module 模块准确的说就是一个文件，它允许你把代码 export 导出来复用，这样别的 JavaScript 文件可以 import 这个文件把它作为库文件来使用了。 模块主要是用在工" />
 <meta property="og:type" content="article" />
@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="javascripts中的module"/>
 <meta name="twitter:description" content="JavaScript Module 是什么 一个 JavaScript module 模块准确的说就是一个文件，它允许你把代码 export 导出来复用，这样别的 JavaScript 文件可以 import 这个文件把它作为库文件来使用了。 模块主要是用在工"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -255,21 +255,21 @@
 </ol>
 <h5 id="3-添加-javascript-文件的引用到-html-文件中">3: 添加 JavaScript 文件的引用到 HTML 文件中</h5>
 <p>打开<code>index.html</code> 编辑它：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="ln"> 1</span><span class="cp">&lt;!DOCTYPE html&gt;</span>
-<span class="ln"> 2</span><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
-<span class="ln"> 3</span>  <span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
-<span class="ln"> 4</span>    <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">&#34;UTF-8&#34;</span><span class="p">&gt;</span>
-<span class="ln"> 5</span>    <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;viewport&#34;</span> <span class="na">content</span><span class="o">=</span><span class="s">&#34;width=device-width, initial-scale=1.0&#34;</span><span class="p">&gt;</span>
-<span class="ln"> 6</span>    <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>ES Module - zhang ranrui<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
-<span class="ln"> 7</span>  <span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
-<span class="ln"> 8</span>  <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
-<span class="ln"> 9</span>    <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>ES Module Tutorial<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
-<span class="ln">10</span>
-<span class="ln">11</span>    <span class="c">&lt;!-- Add the &#34;index.js&#34; JavaScript file to this HTML document --&gt;</span>
-<span class="ln">12</span>    <span class="p">&lt;</span><span class="nt">script</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;module&#34;</span> <span class="na">src</span><span class="o">=</span><span class="s">&#34;index.js&#34;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
-<span class="ln">13</span>  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
-<span class="ln">14</span><span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
-</code></pre></div><p>上面的代码中，我们引用了 index.js , 并定义它 type=&ldquo;module&rdquo;，这显式指明了 index.js 是一个 ES 的module。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="cp">&lt;!DOCTYPE html&gt;</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">  <span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">    <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">&#34;UTF-8&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">    <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;viewport&#34;</span> <span class="na">content</span><span class="o">=</span><span class="s">&#34;width=device-width, initial-scale=1.0&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">    <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>ES Module - zhang ranrui<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">  <span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">  <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">    <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>ES Module Tutorial<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">
+</span></span><span class="line"><span class="ln">11</span><span class="cl">    <span class="c">&lt;!-- Add the &#34;index.js&#34; JavaScript file to this HTML document --&gt;</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">    <span class="p">&lt;</span><span class="nt">script</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;module&#34;</span> <span class="na">src</span><span class="o">=</span><span class="s">&#34;index.js&#34;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</span></span></code></pre></div><p>上面的代码中，我们引用了 index.js , 并定义它 type=&ldquo;module&rdquo;，这显式指明了 index.js 是一个 ES 的module。</p>
 <p>那么，如果有了一个 ES 的 module，如何使用它呢，也举个例子：</p>
 <h4 id="如何使用一个-es-的-module">如何使用一个 ES 的 Module</h4>
 <h5 id="1-建立一个-project-目录">1: 建立一个 project 目录</h5>
@@ -283,22 +283,22 @@
 </ol>
 <h5 id="3-增加-modules-文件的引用到-html-文件">3: 增加 modules 文件的引用到 HTML 文件</h5>
 <p>编辑 <code>index.html</code> 文件，增加对 module 的引用:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="ln"> 1</span><span class="cp">&lt;!DOCTYPE html&gt;</span>
-<span class="ln"> 2</span><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
-<span class="ln"> 3</span>  <span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
-<span class="ln"> 4</span>    <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">&#34;UTF-8&#34;</span><span class="p">&gt;</span>
-<span class="ln"> 5</span>    <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;viewport&#34;</span> <span class="na">content</span><span class="o">=</span><span class="s">&#34;width=device-width, initial-scale=1.0&#34;</span><span class="p">&gt;</span>
-<span class="ln"> 6</span>    <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>ES Module - zhang ranrui<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
-<span class="ln"> 7</span>  <span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
-<span class="ln"> 8</span>  <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
-<span class="ln"> 9</span>    <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>ES Module Tutorial<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
-<span class="ln">10</span>    <span class="p">&lt;</span><span class="nt">h2</span><span class="p">&gt;</span>Check the console<span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
-<span class="ln">11</span>
-<span class="ln">12</span>    <span class="p">&lt;</span><span class="nt">script</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;module&#34;</span> <span class="na">src</span><span class="o">=</span><span class="s">&#34;module-1.js&#34;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
-<span class="ln">13</span>    <span class="p">&lt;</span><span class="nt">script</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;module&#34;</span> <span class="na">src</span><span class="o">=</span><span class="s">&#34;module-2.js&#34;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
-<span class="ln">14</span>  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
-<span class="ln">15</span><span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
-</code></pre></div><h5 id="4-浏览你的-indexhtml">4: 浏览你的 index.html</h5>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="cp">&lt;!DOCTYPE html&gt;</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">  <span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">    <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">&#34;UTF-8&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">    <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">name</span><span class="o">=</span><span class="s">&#34;viewport&#34;</span> <span class="na">content</span><span class="o">=</span><span class="s">&#34;width=device-width, initial-scale=1.0&#34;</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">    <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>ES Module - zhang ranrui<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">  <span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">  <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">    <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>ES Module Tutorial<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">    <span class="p">&lt;</span><span class="nt">h2</span><span class="p">&gt;</span>Check the console<span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">
+</span></span><span class="line"><span class="ln">12</span><span class="cl">    <span class="p">&lt;</span><span class="nt">script</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;module&#34;</span> <span class="na">src</span><span class="o">=</span><span class="s">&#34;module-1.js&#34;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">    <span class="p">&lt;</span><span class="nt">script</span> <span class="na">type</span><span class="o">=</span><span class="s">&#34;module&#34;</span> <span class="na">src</span><span class="o">=</span><span class="s">&#34;module-2.js&#34;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">  <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</span></span></code></pre></div><h5 id="4-浏览你的-indexhtml">4: 浏览你的 index.html</h5>
 <p>注意，这里只能在 localhost 的服务器上浏览，直接浏览本地文件会报 cors 的错。</p>
 <h4 id="怎么-export-导出一个-module-中的代码">怎么 Export 导出一个 Module 中的代码</h4>
 <p>有两种使用方法</p>
@@ -308,54 +308,54 @@
 </ol>
 <h5 id="一在代码前使用-export-关键字">一、在代码前使用 <code>export</code> 关键字</h5>
 <p>注意：是在正式代码之前</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="ln">1</span><span class="c1">// module-1.js
-</span><span class="ln">2</span><span class="c1"></span>
-<span class="ln">3</span><span class="c1">// Export the &#34;bestClub&#34; variable:
-</span><span class="ln">4</span><span class="c1"></span><span class="kr">export</span> <span class="kr">const</span> <span class="nx">bestClub</span> <span class="o">=</span> <span class="s2">&#34;Your Club&#34;</span><span class="p">;</span>
-</code></pre></div><p>另外一个例子：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="ln">1</span><span class="c1">// Export the &#34;multiply&#34; function:
-</span><span class="ln">2</span><span class="c1"></span><span class="kr">export</span> <span class="kd">function</span> <span class="nx">multiply</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">)</span> <span class="p">{</span>
-<span class="ln">3</span>  <span class="k">return</span> <span class="nx">x</span> <span class="o">*</span> <span class="nx">y</span><span class="p">;</span>
-<span class="ln">4</span><span class="p">}</span>
-</code></pre></div><h5 id="二使用-export-声明语句">二、使用 export 声明语句</h5>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1">// module-1.js
+</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="c1">// Export the &#34;bestClub&#34; variable:
+</span></span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="c1"></span><span class="kr">export</span> <span class="kr">const</span> <span class="nx">bestClub</span> <span class="o">=</span> <span class="s2">&#34;Your Club&#34;</span><span class="p">;</span>
+</span></span></code></pre></div><p>另外一个例子：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1">// Export the &#34;multiply&#34; function:
+</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="c1"></span><span class="kr">export</span> <span class="kd">function</span> <span class="nx">multiply</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">  <span class="k">return</span> <span class="nx">x</span> <span class="o">*</span> <span class="nx">y</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h5 id="二使用-export-声明语句">二、使用 export 声明语句</h5>
 <p>另一种方法是使用 export 声明语句，这种方式用 {} 包裹 要导出的变量，中间的变量名用逗号来隔开。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="ln"> 1</span><span class="c1">// Create a variable named &#34;bestClub&#34;:
-</span><span class="ln"> 2</span><span class="c1"></span><span class="kr">const</span> <span class="nx">bestClub</span> <span class="o">=</span> <span class="s2">&#34;Your Club&#34;</span><span class="p">;</span>
-<span class="ln"> 3</span>
-<span class="ln"> 4</span><span class="c1">// Create a function named &#34;multiply&#34;:
-</span><span class="ln"> 5</span><span class="c1"></span><span class="kd">function</span> <span class="nx">multiply</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">)</span> <span class="p">{</span>
-<span class="ln"> 6</span>  <span class="k">return</span> <span class="nx">x</span> <span class="o">*</span> <span class="nx">y</span><span class="p">;</span>
-<span class="ln"> 7</span><span class="p">}</span>
-<span class="ln"> 8</span>
-<span class="ln"> 9</span><span class="c1">// Create an array named &#34;fruits&#34;:
-</span><span class="ln">10</span><span class="c1"></span><span class="kr">const</span> <span class="nx">fruits</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;Mango&#34;</span><span class="p">,</span> <span class="s2">&#34;Apple&#34;</span><span class="p">,</span> <span class="s2">&#34;Orange&#34;</span><span class="p">,</span> <span class="s2">&#34;Lemon&#34;</span><span class="p">];</span>
-<span class="ln">11</span>
-<span class="ln">12</span><span class="c1">// Export the three statements above:
-</span><span class="ln">13</span><span class="c1"></span><span class="kr">export</span> <span class="p">{</span> <span class="nx">bestClub</span><span class="p">,</span> <span class="nx">multiply</span><span class="p">,</span> <span class="nx">fruits</span> <span class="p">};</span>
-</code></pre></div><h4 id="导出有了怎样导入别的模块-exported-的代码呢">导出有了，怎样导入别的模块 Exported 的代码呢？</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1">// Create a variable named &#34;bestClub&#34;:
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="c1"></span><span class="kr">const</span> <span class="nx">bestClub</span> <span class="o">=</span> <span class="s2">&#34;Your Club&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="c1">// Create a function named &#34;multiply&#34;:
+</span></span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="c1"></span><span class="kd">function</span> <span class="nx">multiply</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">  <span class="k">return</span> <span class="nx">x</span> <span class="o">*</span> <span class="nx">y</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="c1">// Create an array named &#34;fruits&#34;:
+</span></span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="c1"></span><span class="kr">const</span> <span class="nx">fruits</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;Mango&#34;</span><span class="p">,</span> <span class="s2">&#34;Apple&#34;</span><span class="p">,</span> <span class="s2">&#34;Orange&#34;</span><span class="p">,</span> <span class="s2">&#34;Lemon&#34;</span><span class="p">];</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">
+</span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="c1">// Export the three statements above:
+</span></span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="c1"></span><span class="kr">export</span> <span class="p">{</span> <span class="nx">bestClub</span><span class="p">,</span> <span class="nx">multiply</span><span class="p">,</span> <span class="nx">fruits</span> <span class="p">};</span>
+</span></span></code></pre></div><h4 id="导出有了怎样导入别的模块-exported-的代码呢">导出有了，怎样导入别的模块 Exported 的代码呢？</h4>
 <p>接上的例子，只导入一个变量：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="ln">1</span><span class="c1">// module-2.js
-</span><span class="ln">2</span><span class="c1"></span>
-<span class="ln">3</span><span class="kr">import</span> <span class="p">{</span> <span class="nx">bestClub</span> <span class="p">}</span> <span class="nx">from</span> <span class="s2">&#34;./module-1.js&#34;</span><span class="p">;</span>
-</code></pre></div><p>导入所有变量</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="ln">1</span><span class="c1">// Import three items from the module-1.js file:
-</span><span class="ln">2</span><span class="c1"></span><span class="kr">import</span> <span class="p">{</span> <span class="nx">bestClub</span><span class="p">,</span> <span class="nx">multiply</span><span class="p">,</span> <span class="nx">fruits</span> <span class="p">}</span> <span class="nx">from</span> <span class="s2">&#34;./module-1.js&#34;</span><span class="p">;</span>
-</code></pre></div><p>注意<code>./</code>是表示当前路径，如果路径不对，有可能需要全路径导入</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="ln">1</span><span class="c1">// Import three items from the module-1.js file:
-</span><span class="ln">2</span><span class="c1"></span><span class="kr">import</span> <span class="p">{</span> <span class="nx">bestClub</span><span class="p">,</span> <span class="nx">multiply</span><span class="p">,</span> <span class="nx">fruits</span> <span class="p">}</span> <span class="nx">from</span> <span class="s2">&#34;/codesweetly/blog/notes/modular-javascript/es-modules/module-1.js&#34;</span><span class="p">;</span>
-</code></pre></div><p>注意在后端 Node.js 和 module bundlers 中，是允许你不写文件名后缀的，比如下面</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="ln">1</span><span class="c1">// Import three items from the module-1.js file:
-</span><span class="ln">2</span><span class="c1"></span><span class="kr">import</span> <span class="p">{</span> <span class="nx">bestClub</span><span class="p">,</span> <span class="nx">multiply</span><span class="p">,</span> <span class="nx">fruits</span> <span class="p">}</span> <span class="nx">from</span> <span class="s2">&#34;module-1&#34;</span><span class="p">;</span>
-</code></pre></div><p>但是，在 ES modules 中，不允许省略文件后缀。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1">// module-2.js
+</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="kr">import</span> <span class="p">{</span> <span class="nx">bestClub</span> <span class="p">}</span> <span class="nx">from</span> <span class="s2">&#34;./module-1.js&#34;</span><span class="p">;</span>
+</span></span></code></pre></div><p>导入所有变量</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1">// Import three items from the module-1.js file:
+</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="c1"></span><span class="kr">import</span> <span class="p">{</span> <span class="nx">bestClub</span><span class="p">,</span> <span class="nx">multiply</span><span class="p">,</span> <span class="nx">fruits</span> <span class="p">}</span> <span class="nx">from</span> <span class="s2">&#34;./module-1.js&#34;</span><span class="p">;</span>
+</span></span></code></pre></div><p>注意<code>./</code>是表示当前路径，如果路径不对，有可能需要全路径导入</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1">// Import three items from the module-1.js file:
+</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="c1"></span><span class="kr">import</span> <span class="p">{</span> <span class="nx">bestClub</span><span class="p">,</span> <span class="nx">multiply</span><span class="p">,</span> <span class="nx">fruits</span> <span class="p">}</span> <span class="nx">from</span> <span class="s2">&#34;/codesweetly/blog/notes/modular-javascript/es-modules/module-1.js&#34;</span><span class="p">;</span>
+</span></span></code></pre></div><p>注意在后端 Node.js 和 module bundlers 中，是允许你不写文件名后缀的，比如下面</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1">// Import three items from the module-1.js file:
+</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="c1"></span><span class="kr">import</span> <span class="p">{</span> <span class="nx">bestClub</span><span class="p">,</span> <span class="nx">multiply</span><span class="p">,</span> <span class="nx">fruits</span> <span class="p">}</span> <span class="nx">from</span> <span class="s2">&#34;module-1&#34;</span><span class="p">;</span>
+</span></span></code></pre></div><p>但是，在 ES modules 中，不允许省略文件后缀。</p>
 <h4 id="如何使用从别的模块-imported-导入的代码">如何使用从别的模块 Imported 导入的代码</h4>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="ln">1</span><span class="c1">// module-2.js
-</span><span class="ln">2</span><span class="c1"></span>
-<span class="ln">3</span><span class="kr">import</span> <span class="p">{</span> <span class="nx">bestClub</span> <span class="p">}</span> <span class="nx">from</span> <span class="s2">&#34;./module-1.js&#34;</span><span class="p">;</span>
-<span class="ln">4</span>
-<span class="ln">5</span><span class="kr">const</span> <span class="nx">myBestClub</span> <span class="o">=</span> <span class="nx">bestClub</span> <span class="o">+</span> <span class="s2">&#34; &#34;</span> <span class="o">+</span> <span class="s2">&#34;is my best club.&#34;</span><span class="p">;</span>
-<span class="ln">6</span>
-<span class="ln">7</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myBestClub</span><span class="p">);</span>
-</code></pre></div><p><strong>注意:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1">// module-2.js
+</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="kr">import</span> <span class="p">{</span> <span class="nx">bestClub</span> <span class="p">}</span> <span class="nx">from</span> <span class="s2">&#34;./module-1.js&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">
+</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="kr">const</span> <span class="nx">myBestClub</span> <span class="o">=</span> <span class="nx">bestClub</span> <span class="o">+</span> <span class="s2">&#34; &#34;</span> <span class="o">+</span> <span class="s2">&#34;is my best club.&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl">
+</span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myBestClub</span><span class="p">);</span>
+</span></span></code></pre></div><p><strong>注意:</strong></p>
 <ul>
 <li><code>import</code> 关键字只能出现在 modules 文件中，不能出现在通常的  JavaScript 程序文件中。</li>
 <li>一个被 imported 导入的模块只能作用于本文件中，而不是全局可用。你只能在这个文件中使用。</li>
@@ -364,110 +364,110 @@
 </ul>
 <h4 id="如何将-exports-和-imports-导入导出的模块重命名">如何将 Exports 和 Imports 导入导出的模块重命名</h4>
 <p>用 <code>as</code> 即可：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="ln">1</span><span class="c1">// module-1.js
-</span><span class="ln">2</span><span class="c1"></span>
-<span class="ln">3</span><span class="c1">// Create a variable named &#34;bestClub&#34;:
-</span><span class="ln">4</span><span class="c1"></span><span class="kr">const</span> <span class="nx">bestClub</span> <span class="o">=</span> <span class="s2">&#34;Your Club&#34;</span><span class="p">;</span>
-<span class="ln">5</span>
-<span class="ln">6</span><span class="c1">// Export the bestClub variable as &#34;favoriteTeam&#34;:
-</span><span class="ln">7</span><span class="c1"></span><span class="kr">export</span> <span class="p">{</span> <span class="nx">bestClub</span> <span class="nx">as</span> <span class="nx">favoriteTeam</span> <span class="p">};</span>
-</code></pre></div><p>接下来使用就不能是 bestclub , 而是 favoriteTeam 了：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="ln">1</span><span class="c1">// module-2.js
-</span><span class="ln">2</span><span class="c1"></span>
-<span class="ln">3</span><span class="kr">import</span> <span class="p">{</span> <span class="nx">favoriteTeam</span> <span class="p">}</span> <span class="nx">from</span> <span class="s2">&#34;./module-1.js&#34;</span><span class="p">;</span>
-<span class="ln">4</span>
-<span class="ln">5</span><span class="kr">const</span> <span class="nx">myBestClub</span> <span class="o">=</span> <span class="nx">favoriteTeam</span> <span class="o">+</span> <span class="s2">&#34; &#34;</span> <span class="o">+</span> <span class="s2">&#34;is my best club.&#34;</span><span class="p">;</span>
-<span class="ln">6</span>
-<span class="ln">7</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myBestClub</span><span class="p">);</span>
-</code></pre></div><p>同样可以在 import 的时候使用 as</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="ln"> 1</span><span class="c1">// module-1.js
-</span><span class="ln"> 2</span><span class="c1">// Create a variable named &#34;bestClub&#34;:
-</span><span class="ln"> 3</span><span class="c1"></span><span class="kr">const</span> <span class="nx">bestClub</span> <span class="o">=</span> <span class="s2">&#34;Your Club&#34;</span><span class="p">;</span>
-<span class="ln"> 4</span><span class="c1">// Export the bestClub variable:
-</span><span class="ln"> 5</span><span class="c1"></span><span class="kr">export</span> <span class="p">{</span> <span class="nx">bestClub</span> <span class="p">};</span>
-<span class="ln"> 6</span>
-<span class="ln"> 7</span><span class="c1">// module-2.js
-</span><span class="ln"> 8</span><span class="c1"></span><span class="kr">import</span> <span class="p">{</span> <span class="nx">bestClub</span> <span class="nx">as</span> <span class="nx">favoriteTeam</span> <span class="p">}</span> <span class="nx">from</span> <span class="s2">&#34;./module-1.js&#34;</span><span class="p">;</span>
-<span class="ln"> 9</span><span class="kr">const</span> <span class="nx">myBestClub</span> <span class="o">=</span> <span class="nx">favoriteTeam</span> <span class="o">+</span> <span class="s2">&#34; &#34;</span> <span class="o">+</span> <span class="s2">&#34;is my best club.&#34;</span><span class="p">;</span>
-<span class="ln">10</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myBestClub</span><span class="p">);</span>
-</code></pre></div><h4 id="如何在-es-module-中重命名多个-exports-导出">如何在 ES Module 中重命名多个 Exports 导出</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1">// module-1.js
+</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="c1">// Create a variable named &#34;bestClub&#34;:
+</span></span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="c1"></span><span class="kr">const</span> <span class="nx">bestClub</span> <span class="o">=</span> <span class="s2">&#34;Your Club&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl">
+</span></span><span class="line"><span class="ln">6</span><span class="cl"><span class="c1">// Export the bestClub variable as &#34;favoriteTeam&#34;:
+</span></span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="c1"></span><span class="kr">export</span> <span class="p">{</span> <span class="nx">bestClub</span> <span class="nx">as</span> <span class="nx">favoriteTeam</span> <span class="p">};</span>
+</span></span></code></pre></div><p>接下来使用就不能是 bestclub , 而是 favoriteTeam 了：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1">// module-2.js
+</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="kr">import</span> <span class="p">{</span> <span class="nx">favoriteTeam</span> <span class="p">}</span> <span class="nx">from</span> <span class="s2">&#34;./module-1.js&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">
+</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="kr">const</span> <span class="nx">myBestClub</span> <span class="o">=</span> <span class="nx">favoriteTeam</span> <span class="o">+</span> <span class="s2">&#34; &#34;</span> <span class="o">+</span> <span class="s2">&#34;is my best club.&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl">
+</span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myBestClub</span><span class="p">);</span>
+</span></span></code></pre></div><p>同样可以在 import 的时候使用 as</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1">// module-1.js
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="c1">// Create a variable named &#34;bestClub&#34;:
+</span></span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="c1"></span><span class="kr">const</span> <span class="nx">bestClub</span> <span class="o">=</span> <span class="s2">&#34;Your Club&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="c1">// Export the bestClub variable:
+</span></span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="c1"></span><span class="kr">export</span> <span class="p">{</span> <span class="nx">bestClub</span> <span class="p">};</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="c1">// module-2.js
+</span></span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="c1"></span><span class="kr">import</span> <span class="p">{</span> <span class="nx">bestClub</span> <span class="nx">as</span> <span class="nx">favoriteTeam</span> <span class="p">}</span> <span class="nx">from</span> <span class="s2">&#34;./module-1.js&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="kr">const</span> <span class="nx">myBestClub</span> <span class="o">=</span> <span class="nx">favoriteTeam</span> <span class="o">+</span> <span class="s2">&#34; &#34;</span> <span class="o">+</span> <span class="s2">&#34;is my best club.&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myBestClub</span><span class="p">);</span>
+</span></span></code></pre></div><h4 id="如何在-es-module-中重命名多个-exports-导出">如何在 ES Module 中重命名多个 Exports 导出</h4>
 <p>很简单，用as加上逗号分割符号</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="ln"> 1</span><span class="c1">// module-1.js
-</span><span class="ln"> 2</span><span class="c1"></span>
-<span class="ln"> 3</span><span class="kr">const</span> <span class="nx">bestClub</span> <span class="o">=</span> <span class="s2">&#34;Your Club&#34;</span><span class="p">;</span>
-<span class="ln"> 4</span><span class="kr">const</span> <span class="nx">fruits</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;Grape&#34;</span><span class="p">,</span> <span class="s2">&#34;Apple&#34;</span><span class="p">,</span> <span class="s2">&#34;Pineapple&#34;</span><span class="p">,</span> <span class="s2">&#34;Lemon&#34;</span><span class="p">];</span>
-<span class="ln"> 5</span>
-<span class="ln"> 6</span><span class="kd">function</span> <span class="nx">multiply</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">)</span> <span class="p">{</span>
-<span class="ln"> 7</span>  <span class="k">return</span> <span class="nx">x</span> <span class="o">*</span> <span class="nx">y</span><span class="p">;</span>
-<span class="ln"> 8</span><span class="p">}</span>
-<span class="ln"> 9</span>
-<span class="ln">10</span><span class="c1">// Export the three statements above:
-</span><span class="ln">11</span><span class="c1"></span><span class="kr">export</span> <span class="p">{</span> 
-<span class="ln">12</span>  <span class="nx">bestClub</span> <span class="nx">as</span> <span class="nx">favoriteTeam</span><span class="p">,</span> 
-<span class="ln">13</span>  <span class="nx">fruits</span> <span class="nx">as</span> <span class="nx">crops</span><span class="p">,</span> 
-<span class="ln">14</span>  <span class="nx">multiply</span> <span class="nx">as</span> <span class="nx">product</span> 
-<span class="ln">15</span><span class="p">};</span>
-<span class="ln">16</span><span class="c1">// module-2.js
-</span><span class="ln">17</span><span class="c1"></span>
-<span class="ln">18</span><span class="kr">import</span> <span class="p">{</span> <span class="nx">favoriteTeam</span><span class="p">,</span> <span class="nx">crops</span><span class="p">,</span> <span class="nx">product</span> <span class="p">}</span> <span class="nx">from</span> <span class="s2">&#34;./module-1.js&#34;</span><span class="p">;</span>
-<span class="ln">19</span>
-<span class="ln">20</span><span class="kr">const</span> <span class="nx">bestClub</span> <span class="o">=</span> <span class="sb">`I bought </span><span class="si">${</span><span class="nx">product</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">11</span><span class="p">)</span><span class="si">}</span><span class="sb"> </span><span class="si">${</span><span class="nx">crops</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="sb">s at </span><span class="si">${</span><span class="nx">favoriteTeam</span><span class="si">}</span><span class="sb">.`</span><span class="p">;</span>
-<span class="ln">21</span>
-<span class="ln">22</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">bestClub</span><span class="p">);</span>
-</code></pre></div><h4 id="如何在-es-module-中重命名多个-import-导入">如何在 ES Module 中重命名多个 Import 导入</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1">// module-1.js
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="kr">const</span> <span class="nx">bestClub</span> <span class="o">=</span> <span class="s2">&#34;Your Club&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="kr">const</span> <span class="nx">fruits</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;Grape&#34;</span><span class="p">,</span> <span class="s2">&#34;Apple&#34;</span><span class="p">,</span> <span class="s2">&#34;Pineapple&#34;</span><span class="p">,</span> <span class="s2">&#34;Lemon&#34;</span><span class="p">];</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="kd">function</span> <span class="nx">multiply</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">  <span class="k">return</span> <span class="nx">x</span> <span class="o">*</span> <span class="nx">y</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">
+</span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="c1">// Export the three statements above:
+</span></span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="c1"></span><span class="kr">export</span> <span class="p">{</span> 
+</span></span><span class="line"><span class="ln">12</span><span class="cl">  <span class="nx">bestClub</span> <span class="nx">as</span> <span class="nx">favoriteTeam</span><span class="p">,</span> 
+</span></span><span class="line"><span class="ln">13</span><span class="cl">  <span class="nx">fruits</span> <span class="nx">as</span> <span class="nx">crops</span><span class="p">,</span> 
+</span></span><span class="line"><span class="ln">14</span><span class="cl">  <span class="nx">multiply</span> <span class="nx">as</span> <span class="nx">product</span> 
+</span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="c1">// module-2.js
+</span></span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="kr">import</span> <span class="p">{</span> <span class="nx">favoriteTeam</span><span class="p">,</span> <span class="nx">crops</span><span class="p">,</span> <span class="nx">product</span> <span class="p">}</span> <span class="nx">from</span> <span class="s2">&#34;./module-1.js&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl">
+</span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="kr">const</span> <span class="nx">bestClub</span> <span class="o">=</span> <span class="sb">`I bought </span><span class="si">${</span><span class="nx">product</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">11</span><span class="p">)</span><span class="si">}</span><span class="sb"> </span><span class="si">${</span><span class="nx">crops</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="sb">s at </span><span class="si">${</span><span class="nx">favoriteTeam</span><span class="si">}</span><span class="sb">.`</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl">
+</span></span><span class="line"><span class="ln">22</span><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">bestClub</span><span class="p">);</span>
+</span></span></code></pre></div><h4 id="如何在-es-module-中重命名多个-import-导入">如何在 ES Module 中重命名多个 Import 导入</h4>
 <p>跟上面一样：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="ln"> 1</span><span class="c1">// module-1.js
-</span><span class="ln"> 2</span><span class="c1"></span>
-<span class="ln"> 3</span><span class="kr">const</span> <span class="nx">bestClub</span> <span class="o">=</span> <span class="s2">&#34;Your Club&#34;</span><span class="p">;</span>
-<span class="ln"> 4</span><span class="kr">const</span> <span class="nx">fruits</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;Grape&#34;</span><span class="p">,</span> <span class="s2">&#34;Apple&#34;</span><span class="p">,</span> <span class="s2">&#34;Pineapple&#34;</span><span class="p">,</span> <span class="s2">&#34;Lemon&#34;</span><span class="p">];</span>
-<span class="ln"> 5</span><span class="kd">function</span> <span class="nx">multiply</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">)</span> <span class="p">{</span>
-<span class="ln"> 6</span>  <span class="k">return</span> <span class="nx">x</span> <span class="o">*</span> <span class="nx">y</span><span class="p">;</span>
-<span class="ln"> 7</span><span class="p">}</span>
-<span class="ln"> 8</span>
-<span class="ln"> 9</span><span class="c1">// Export the three statements above:
-</span><span class="ln">10</span><span class="c1"></span><span class="kr">export</span> <span class="p">{</span> <span class="nx">bestClub</span><span class="p">,</span> <span class="nx">fruits</span><span class="p">,</span> <span class="nx">multiply</span> <span class="p">};</span>
-<span class="ln">11</span><span class="c1">// module-2.js
-</span><span class="ln">12</span><span class="c1"></span>
-<span class="ln">13</span><span class="kr">import</span> <span class="p">{</span> 
-<span class="ln">14</span>  <span class="nx">bestClub</span> <span class="nx">as</span> <span class="nx">favoriteTeam</span><span class="p">,</span> 
-<span class="ln">15</span>  <span class="nx">fruits</span> <span class="nx">as</span> <span class="nx">crops</span><span class="p">,</span> 
-<span class="ln">16</span>  <span class="nx">multiply</span> <span class="nx">as</span> <span class="nx">product</span> 
-<span class="ln">17</span><span class="p">}</span> <span class="nx">from</span> <span class="s2">&#34;./module-1.js&#34;</span><span class="p">;</span>
-<span class="ln">18</span>
-<span class="ln">19</span><span class="kr">const</span> <span class="nx">bestClub</span> <span class="o">=</span> <span class="sb">`I bought </span><span class="si">${</span><span class="nx">product</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">11</span><span class="p">)</span><span class="si">}</span><span class="sb"> </span><span class="si">${</span><span class="nx">crops</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="sb">s at </span><span class="si">${</span><span class="nx">favoriteTeam</span><span class="si">}</span><span class="sb">.`</span><span class="p">;</span>
-<span class="ln">20</span>
-<span class="ln">21</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">bestClub</span><span class="p">);</span>
-</code></pre></div><h2 id="如何在-es-module-一句话-import-导入所有导出变量">如何在 ES Module 一句话 import 导入所有导出变量</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1">// module-1.js
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="kr">const</span> <span class="nx">bestClub</span> <span class="o">=</span> <span class="s2">&#34;Your Club&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="kr">const</span> <span class="nx">fruits</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;Grape&#34;</span><span class="p">,</span> <span class="s2">&#34;Apple&#34;</span><span class="p">,</span> <span class="s2">&#34;Pineapple&#34;</span><span class="p">,</span> <span class="s2">&#34;Lemon&#34;</span><span class="p">];</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="kd">function</span> <span class="nx">multiply</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">  <span class="k">return</span> <span class="nx">x</span> <span class="o">*</span> <span class="nx">y</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="c1">// Export the three statements above:
+</span></span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="c1"></span><span class="kr">export</span> <span class="p">{</span> <span class="nx">bestClub</span><span class="p">,</span> <span class="nx">fruits</span><span class="p">,</span> <span class="nx">multiply</span> <span class="p">};</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="c1">// module-2.js
+</span></span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="kr">import</span> <span class="p">{</span> 
+</span></span><span class="line"><span class="ln">14</span><span class="cl">  <span class="nx">bestClub</span> <span class="nx">as</span> <span class="nx">favoriteTeam</span><span class="p">,</span> 
+</span></span><span class="line"><span class="ln">15</span><span class="cl">  <span class="nx">fruits</span> <span class="nx">as</span> <span class="nx">crops</span><span class="p">,</span> 
+</span></span><span class="line"><span class="ln">16</span><span class="cl">  <span class="nx">multiply</span> <span class="nx">as</span> <span class="nx">product</span> 
+</span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="p">}</span> <span class="nx">from</span> <span class="s2">&#34;./module-1.js&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl">
+</span></span><span class="line"><span class="ln">19</span><span class="cl"><span class="kr">const</span> <span class="nx">bestClub</span> <span class="o">=</span> <span class="sb">`I bought </span><span class="si">${</span><span class="nx">product</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">11</span><span class="p">)</span><span class="si">}</span><span class="sb"> </span><span class="si">${</span><span class="nx">crops</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="sb">s at </span><span class="si">${</span><span class="nx">favoriteTeam</span><span class="si">}</span><span class="sb">.`</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl">
+</span></span><span class="line"><span class="ln">21</span><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">bestClub</span><span class="p">);</span>
+</span></span></code></pre></div><h2 id="如何在-es-module-一句话-import-导入所有导出变量">如何在 ES Module 一句话 import 导入所有导出变量</h2>
 <p>用*号：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="ln">1</span><span class="c1">// Import all exportable features from the &#34;countries.js&#34; module:
-</span><span class="ln">2</span><span class="c1"></span><span class="kr">import</span> <span class="o">*</span> <span class="nx">as</span> <span class="nx">allCountries</span> <span class="nx">from</span> <span class="s2">&#34;./countries.js&#34;</span><span class="p">;</span>
-</code></pre></div><p>例子如下：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="ln"> 1</span><span class="c1">// module-1.js
-</span><span class="ln"> 2</span><span class="c1"></span>
-<span class="ln"> 3</span><span class="kr">const</span> <span class="nx">bestClub</span> <span class="o">=</span> <span class="s2">&#34;Your Club&#34;</span><span class="p">;</span>
-<span class="ln"> 4</span><span class="kr">const</span> <span class="nx">fruits</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;Grape&#34;</span><span class="p">,</span> <span class="s2">&#34;Apple&#34;</span><span class="p">,</span> <span class="s2">&#34;Pineapple&#34;</span><span class="p">,</span> <span class="s2">&#34;Lemon&#34;</span><span class="p">];</span>
-<span class="ln"> 5</span><span class="kd">function</span> <span class="nx">multiply</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">)</span> <span class="p">{</span>
-<span class="ln"> 6</span>  <span class="k">return</span> <span class="nx">x</span> <span class="o">*</span> <span class="nx">y</span><span class="p">;</span>
-<span class="ln"> 7</span><span class="p">}</span>
-<span class="ln"> 8</span>
-<span class="ln"> 9</span><span class="c1">// Export the three statements above:
-</span><span class="ln">10</span><span class="c1"></span><span class="kr">export</span> <span class="p">{</span> <span class="nx">bestClub</span><span class="p">,</span> <span class="nx">fruits</span><span class="p">,</span> <span class="nx">multiply</span> <span class="p">};</span>
-<span class="ln">11</span><span class="c1">// module-2.js
-</span><span class="ln">12</span><span class="c1"></span>
-<span class="ln">13</span><span class="kr">import</span> <span class="o">*</span> <span class="nx">as</span> <span class="nx">firstModule</span> <span class="nx">from</span> <span class="s2">&#34;./module-1.js&#34;</span><span class="p">;</span>
-<span class="ln">14</span>
-<span class="ln">15</span><span class="kr">const</span> <span class="nx">bestClub</span> <span class="o">=</span> <span class="sb">`I bought </span><span class="si">${</span><span class="nx">firstModule</span><span class="p">.</span><span class="nx">multiply</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">11</span><span class="p">)</span><span class="si">}</span><span class="sb"> </span><span class="si">${</span><span class="nx">firstModule</span><span class="p">.</span><span class="nx">fruits</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="sb">s at </span><span class="si">${</span><span class="nx">firstModule</span><span class="p">.</span><span class="nx">bestClub</span><span class="si">}</span><span class="sb">.`</span><span class="p">;</span>
-<span class="ln">16</span>
-<span class="ln">17</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">bestClub</span><span class="p">);</span>
-</code></pre></div><h4 id="如何在-es-module-中-export-指定-default-缺省导出">如何在 ES Module 中 Export 指定 default 缺省导出</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1">// Import all exportable features from the &#34;countries.js&#34; module:
+</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="c1"></span><span class="kr">import</span> <span class="o">*</span> <span class="nx">as</span> <span class="nx">allCountries</span> <span class="nx">from</span> <span class="s2">&#34;./countries.js&#34;</span><span class="p">;</span>
+</span></span></code></pre></div><p>例子如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1">// module-1.js
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="kr">const</span> <span class="nx">bestClub</span> <span class="o">=</span> <span class="s2">&#34;Your Club&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="kr">const</span> <span class="nx">fruits</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;Grape&#34;</span><span class="p">,</span> <span class="s2">&#34;Apple&#34;</span><span class="p">,</span> <span class="s2">&#34;Pineapple&#34;</span><span class="p">,</span> <span class="s2">&#34;Lemon&#34;</span><span class="p">];</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="kd">function</span> <span class="nx">multiply</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">  <span class="k">return</span> <span class="nx">x</span> <span class="o">*</span> <span class="nx">y</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="c1">// Export the three statements above:
+</span></span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="c1"></span><span class="kr">export</span> <span class="p">{</span> <span class="nx">bestClub</span><span class="p">,</span> <span class="nx">fruits</span><span class="p">,</span> <span class="nx">multiply</span> <span class="p">};</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="c1">// module-2.js
+</span></span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="kr">import</span> <span class="o">*</span> <span class="nx">as</span> <span class="nx">firstModule</span> <span class="nx">from</span> <span class="s2">&#34;./module-1.js&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">
+</span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="kr">const</span> <span class="nx">bestClub</span> <span class="o">=</span> <span class="sb">`I bought </span><span class="si">${</span><span class="nx">firstModule</span><span class="p">.</span><span class="nx">multiply</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">11</span><span class="p">)</span><span class="si">}</span><span class="sb"> </span><span class="si">${</span><span class="nx">firstModule</span><span class="p">.</span><span class="nx">fruits</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="sb">s at </span><span class="si">${</span><span class="nx">firstModule</span><span class="p">.</span><span class="nx">bestClub</span><span class="si">}</span><span class="sb">.`</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">
+</span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">bestClub</span><span class="p">);</span>
+</span></span></code></pre></div><h4 id="如何在-es-module-中-export-指定-default-缺省导出">如何在 ES Module 中 Export 指定 default 缺省导出</h4>
 <p>如果导出的时候指定 default ，就是缺省导出。<strong>Default export</strong></p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="ln">1</span><span class="c1">// module-1.js
-</span><span class="ln">2</span><span class="c1"></span>
-<span class="ln">3</span><span class="kr">const</span> <span class="nx">bestClub</span> <span class="o">=</span> <span class="s2">&#34;Your Club&#34;</span><span class="p">;</span>
-<span class="ln">4</span>
-<span class="ln">5</span><span class="c1">// Export the bestClub variable as a default export:
-</span><span class="ln">6</span><span class="c1"></span><span class="kr">export</span> <span class="k">default</span> <span class="nx">bestClub</span><span class="p">;</span>
-</code></pre></div><p>注意：default 两边没有花括号，因为 default 只能有一个，而且缺省导出不能是 var , let 或者 const</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1">// module-1.js
+</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="kr">const</span> <span class="nx">bestClub</span> <span class="o">=</span> <span class="s2">&#34;Your Club&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">
+</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="c1">// Export the bestClub variable as a default export:
+</span></span></span><span class="line"><span class="ln">6</span><span class="cl"><span class="c1"></span><span class="kr">export</span> <span class="k">default</span> <span class="nx">bestClub</span><span class="p">;</span>
+</span></span></code></pre></div><p>注意：default 两边没有花括号，因为 default 只能有一个，而且缺省导出不能是 var , let 或者 const</p>
 <h4 id="如何-import-导入缺省导出">如何 import 导入缺省导出</h4>
 <p>依然两种方法：</p>
 <ul>
@@ -475,35 +475,35 @@
 <li>直接命名缺省导出</li>
 </ul>
 <h5 id="一使用-default-as-语法">一、使用 <code>default as</code> 语法</h5>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="ln">1</span><span class="kr">import</span> <span class="p">{</span> <span class="k">default</span> <span class="nx">as</span> <span class="nx">newName</span> <span class="p">}</span> <span class="nx">from</span> <span class="s2">&#34;./module-relative-path.js&#34;</span><span class="p">;</span>
-</code></pre></div><p>例子：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="ln"> 1</span><span class="c1">// module-1.js
-</span><span class="ln"> 2</span><span class="c1"></span>
-<span class="ln"> 3</span><span class="c1">// Export the string value as a default export:
-</span><span class="ln"> 4</span><span class="c1"></span><span class="kr">export</span> <span class="k">default</span> <span class="s2">&#34;Your Club&#34;</span><span class="p">;</span>
-<span class="ln"> 5</span><span class="c1">// module-2.js
-</span><span class="ln"> 6</span><span class="c1"></span>
-<span class="ln"> 7</span><span class="kr">import</span> <span class="p">{</span> <span class="k">default</span> <span class="nx">as</span> <span class="nx">favoriteTeam</span> <span class="p">}</span> <span class="nx">from</span> <span class="s2">&#34;./module-1.js&#34;</span><span class="p">;</span>
-<span class="ln"> 8</span>
-<span class="ln"> 9</span><span class="kr">const</span> <span class="nx">bestClub</span> <span class="o">=</span> <span class="nx">favoriteTeam</span> <span class="o">+</span> <span class="s2">&#34; &#34;</span> <span class="o">+</span> <span class="s2">&#34;is my best club.&#34;</span><span class="p">;</span>
-<span class="ln">10</span>
-<span class="ln">11</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">bestClub</span><span class="p">);</span>
-</code></pre></div><h5 id="二直接命名缺省导出">二、直接命名缺省导出</h5>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="ln">1</span><span class="cl"><span class="kr">import</span> <span class="p">{</span> <span class="k">default</span> <span class="nx">as</span> <span class="nx">newName</span> <span class="p">}</span> <span class="nx">from</span> <span class="s2">&#34;./module-relative-path.js&#34;</span><span class="p">;</span>
+</span></span></code></pre></div><p>例子：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1">// module-1.js
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="c1">// Export the string value as a default export:
+</span></span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="c1"></span><span class="kr">export</span> <span class="k">default</span> <span class="s2">&#34;Your Club&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="c1">// module-2.js
+</span></span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="kr">import</span> <span class="p">{</span> <span class="k">default</span> <span class="nx">as</span> <span class="nx">favoriteTeam</span> <span class="p">}</span> <span class="nx">from</span> <span class="s2">&#34;./module-1.js&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="kr">const</span> <span class="nx">bestClub</span> <span class="o">=</span> <span class="nx">favoriteTeam</span> <span class="o">+</span> <span class="s2">&#34; &#34;</span> <span class="o">+</span> <span class="s2">&#34;is my best club.&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">
+</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">bestClub</span><span class="p">);</span>
+</span></span></code></pre></div><h5 id="二直接命名缺省导出">二、直接命名缺省导出</h5>
 <p>这种方式，可以看作是第一种去掉花括号，去掉 default as 后的简略写法：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="ln">1</span><span class="kr">import</span> <span class="nx">newName</span> <span class="nx">from</span> <span class="s2">&#34;./module-relative-path.js&#34;</span><span class="p">;</span>
-</code></pre></div><p>例子：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="ln"> 1</span><span class="c1">// module-1.js
-</span><span class="ln"> 2</span><span class="c1"></span>
-<span class="ln"> 3</span><span class="c1">// Export the string value as a default export:
-</span><span class="ln"> 4</span><span class="c1"></span><span class="kr">export</span> <span class="k">default</span> <span class="s2">&#34;Your Club&#34;</span><span class="p">;</span>
-<span class="ln"> 5</span><span class="c1">// module-2.js
-</span><span class="ln"> 6</span><span class="c1"></span>
-<span class="ln"> 7</span><span class="kr">import</span> <span class="nx">favoriteTeam</span> <span class="nx">from</span> <span class="s2">&#34;./module-1.js&#34;</span><span class="p">;</span>
-<span class="ln"> 8</span>
-<span class="ln"> 9</span><span class="kr">const</span> <span class="nx">bestClub</span> <span class="o">=</span> <span class="nx">favoriteTeam</span> <span class="o">+</span> <span class="s2">&#34; &#34;</span> <span class="o">+</span> <span class="s2">&#34;is my best club.&#34;</span><span class="p">;</span>
-<span class="ln">10</span>
-<span class="ln">11</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">bestClub</span><span class="p">);</span>
-</code></pre></div><p>over，这么多，大家应该会了吧。回头会另开一篇说说如何把模块都压到一起，那就是 webpack 的功能了。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="ln">1</span><span class="cl"><span class="kr">import</span> <span class="nx">newName</span> <span class="nx">from</span> <span class="s2">&#34;./module-relative-path.js&#34;</span><span class="p">;</span>
+</span></span></code></pre></div><p>例子：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1">// module-1.js
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="c1">// Export the string value as a default export:
+</span></span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="c1"></span><span class="kr">export</span> <span class="k">default</span> <span class="s2">&#34;Your Club&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="c1">// module-2.js
+</span></span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="kr">import</span> <span class="nx">favoriteTeam</span> <span class="nx">from</span> <span class="s2">&#34;./module-1.js&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="kr">const</span> <span class="nx">bestClub</span> <span class="o">=</span> <span class="nx">favoriteTeam</span> <span class="o">+</span> <span class="s2">&#34; &#34;</span> <span class="o">+</span> <span class="s2">&#34;is my best club.&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">
+</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">bestClub</span><span class="p">);</span>
+</span></span></code></pre></div><p>over，这么多，大家应该会了吧。回头会另开一篇说说如何把模块都压到一起，那就是 webpack 的功能了。</p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -549,7 +549,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -589,11 +589,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

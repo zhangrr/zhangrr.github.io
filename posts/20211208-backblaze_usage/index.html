@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Backblaze类S3免费免备案对象存储"/>
 <meta name="twitter:description" content="S3 的桶存储可以用 minio 来模拟。 网上有个 Backblaze 的网站，提供 10GB 的免费空间，且如果是公网访问，1GB流量是免费的，如果前面套了 Cloudflare 的CDN，那基本是全免了。"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -242,9 +242,9 @@
 <p><a href="https://github.com/Backblaze/B2_Command_Line_Tool" target="_blank" rel="noopener noreferrer">https://github.com/Backblaze/B2_Command_Line_Tool</a>
 </p>
 <p>下载后直接改名为 b2 ，然后放到 /usr/local/bin 中</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>wget -O /usr/local/bin/b2 https://github.com/Backblaze/B2_Command_Line_Tool/releases/download/v3.1.0/b2-linux
-<span class="ln">2</span>chmod <span class="m">755</span> /usr/lcoal/b2
-</code></pre></div><p>运行一下，有很多命令参数：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">wget -O /usr/local/bin/b2 https://github.com/Backblaze/B2_Command_Line_Tool/releases/download/v3.1.0/b2-linux
+</span></span><span class="line"><span class="ln">2</span><span class="cl">chmod <span class="m">755</span> /usr/lcoal/b2
+</span></span></code></pre></div><p>运行一下，有很多命令参数：</p>
 <p><img class="img-fluid" alt="image-20211208142026377" src="https://bajie.dev/posts/20211208-backblaze_usage/image-20211208142026377.png" loading="lazy"
    width="1821" height="798"
    />
@@ -254,10 +254,10 @@
 <p><a href="https://b2-command-line-tool.readthedocs.io/en/master/" target="_blank" rel="noopener noreferrer">https://b2-command-line-tool.readthedocs.io/en/master/</a>
 </p>
 <p>先去配置帐号，输入applicationKeyId和applicationKey</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>b2 authorize-account
-</code></pre></div><p>然后就可以往桶里传东西了，把当前目录下的东西传到 rendoumi 这个桶里，并且不要传 .git 目录</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>b2 sync --excludeDirRegex .git . b2://rendoumi/ 
-</code></pre></div><p>套 Cloudflare 就随意了。full ssl，建个 CNAME 且用 Page rule 做 url 转发就可以了。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">b2 authorize-account
+</span></span></code></pre></div><p>然后就可以往桶里传东西了，把当前目录下的东西传到 rendoumi 这个桶里，并且不要传 .git 目录</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">b2 sync --excludeDirRegex .git . b2://rendoumi/ 
+</span></span></code></pre></div><p>套 Cloudflare 就随意了。full ssl，建个 CNAME 且用 Page rule 做 url 转发就可以了。</p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -303,7 +303,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -343,11 +343,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

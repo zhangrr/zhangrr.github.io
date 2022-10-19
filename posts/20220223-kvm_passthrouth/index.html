@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="KVM下宿主机的目录直通到虚机">
 <meta itemprop="description" content="这个需求也很有点意思，DBA 要求做 MySQL 的卸载从库，数据量会很大，硬盘空间后期需要扩容，但是 cpu 反倒占的不多。 单独 MySQL 是无法限制其 CPU 核使用的，这样的"><meta itemprop="datePublished" content="2022-02-23T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2022-02-23T09:30:11+08:00" />
-<meta itemprop="wordCount" content="859">
+<meta itemprop="wordCount" content="857">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="KVM下宿主机的目录直通到虚机" />
 <meta property="og:description" content="这个需求也很有点意思，DBA 要求做 MySQL 的卸载从库，数据量会很大，硬盘空间后期需要扩容，但是 cpu 反倒占的不多。 单独 MySQL 是无法限制其 CPU 核使用的，这样的" />
 <meta property="og:type" content="article" />
@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="KVM下宿主机的目录直通到虚机"/>
 <meta name="twitter:description" content="这个需求也很有点意思，DBA 要求做 MySQL 的卸载从库，数据量会很大，硬盘空间后期需要扩容，但是 cpu 反倒占的不多。 单独 MySQL 是无法限制其 CPU 核使用的，这样的"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -240,113 +240,111 @@
 <h2 id="一编译宿主机的qemu新包">一、编译宿主机的qemu新包</h2>
 <p>现在已经是2022年了，所以编译的方式也发生变化了，最佳编译方式是干脆启动一个 Docker 虚拟机，来编译出来 rpm 包，也不污染环境。</p>
 <p>首先克隆下来项目：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln">1</span>git clone https://github.com/AlekseyChudov/qemu-kvm-virtfs.git
-<span class="ln">2</span>
-<span class="ln">3</span>cd qemu-kvm-virtfs
-<span class="ln">4</span>
-</code></pre></div><p>看一下最后的 build 脚本，有一个地方需要修改：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln">1</span><span class="cl">git clone https://github.com/AlekseyChudov/qemu-kvm-virtfs.git
+</span></span><span class="line"><span class="ln">2</span><span class="cl">
+</span></span><span class="line"><span class="ln">3</span><span class="cl">cd qemu-kvm-virtfs
+</span></span></code></pre></div><p>看一下最后的 build 脚本，有一个地方需要修改：</p>
 <p>现在的 CentOS 最新版是 7.9.2009 ，这个版本树里是没有 qemu 的 Source Code 的，需要修改 baseurl，降低到 7.8.2003 才有 Source 的 repo</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span><span class="na">baseurl</span><span class="o">=</span><span class="s">https://mirrors.tripadvisor.com/centos-vault/centos/\$releasever/virt/Source/kvm-common/</span>
-<span class="ln">2</span>
-<span class="ln">3</span><span class="na">改成：</span>
-<span class="ln">4</span>
-<span class="ln">5</span><span class="na">baseurl</span><span class="o">=</span><span class="s">https://mirrors.tripadvisor.com/centos-vault/centos/7.8.2003/virt/Source/kvm-common/</span>
-</code></pre></div><p>改好后 build 脚本如下</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="cp">#!/bin/bash
-</span><span class="ln"> 2</span><span class="cp"></span>
-<span class="ln"> 3</span><span class="nb">set</span> -ex
-<span class="ln"> 4</span>
-<span class="ln"> 5</span>yum -y update
-<span class="ln"> 6</span>
-<span class="ln"> 7</span>yum -y install <span class="se">\
-</span><span class="ln"> 8</span><span class="se"></span>    <span class="s2">&#34;@Development Tools&#34;</span> <span class="se">\
-</span><span class="ln"> 9</span><span class="se"></span>    centos-release-qemu-ev <span class="se">\
-</span><span class="ln">10</span><span class="se"></span>    glusterfs-api-devel <span class="se">\
-</span><span class="ln">11</span><span class="se"></span>    glusterfs-devel <span class="se">\
-</span><span class="ln">12</span><span class="se"></span>    iasl <span class="se">\
-</span><span class="ln">13</span><span class="se"></span>    kernel-devel <span class="se">\
-</span><span class="ln">14</span><span class="se"></span>    libcacard-devel <span class="se">\
-</span><span class="ln">15</span><span class="se"></span>    libepoxy-devel <span class="se">\
-</span><span class="ln">16</span><span class="se"></span>    mesa-libgbm-devel <span class="se">\
-</span><span class="ln">17</span><span class="se"></span>    nss-devel <span class="se">\
-</span><span class="ln">18</span><span class="se"></span>    spice-protocol <span class="se">\
-</span><span class="ln">19</span><span class="se"></span>    spice-server-devel <span class="se">\
-</span><span class="ln">20</span><span class="se"></span>    usbredir-devel
-<span class="ln">21</span>
-<span class="ln">22</span>cat <span class="s">&lt;&lt; EOF &gt;&gt; /etc/yum.repos.d/CentOS-QEMU-EV.repo
-</span><span class="ln">23</span><span class="s">[centos-qemu-ev-source]
-</span><span class="ln">24</span><span class="s">name=CentOS-\$releasever - QEMU EV Sources
-</span><span class="ln">25</span><span class="s">baseurl=https://mirrors.tripadvisor.com/centos-vault/centos/7.8.2003/virt/Source/kvm-common/
-</span><span class="ln">26</span><span class="s">gpgcheck=1
-</span><span class="ln">27</span><span class="s">enabled=0
-</span><span class="ln">28</span><span class="s">gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-Virtualization
-</span><span class="ln">29</span><span class="s">EOF</span>
-<span class="ln">30</span>
-<span class="ln">31</span>yum-builddep -y qemu-kvm-ev
-<span class="ln">32</span>
-<span class="ln">33</span>yumdownloader --source qemu-kvm-ev
-<span class="ln">34</span>
-<span class="ln">35</span>rpm -Uvh qemu-kvm-ev-*.src.rpm
-<span class="ln">36</span>
-<span class="ln">37</span>sed -i <span class="s1">&#39;s/--disable-virtfs/--enable-virtfs/&#39;</span> /root/rpmbuild/SOURCES/build_configure.sh
-<span class="ln">38</span>
-<span class="ln">39</span>sed -i -e <span class="s1">&#39;/^%files -n qemu-kvm-common/,/^$/s/^$/%{_bindir}\/virtfs-proxy-helper\n%{_mandir}\/man1\/virtfs-proxy-helper.1.gz\n/&#39;</span> <span class="se">\
-</span><span class="ln">40</span><span class="se"></span>    -e <span class="s1">&#39;/^%if %{rhev}$/,/^%else$/s/pkgsuffix -ev/pkgsuffix -virtfs/&#39;</span> <span class="se">\
-</span><span class="ln">41</span><span class="se"></span>    -e <span class="s1">&#39;/%define rhel_rhev_conflicts()/ a Provides: %1-ev = %{epoch}:%{version}-%{release} \\\nObsoletes: %1-ev &lt; %{obsoletes_version} \\&#39;</span> <span class="se">\
-</span><span class="ln">42</span><span class="se"></span>    /root/rpmbuild/SPECS/qemu-kvm.spec
-<span class="ln">43</span>
-<span class="ln">44</span>rpmbuild -ba --clean /root/rpmbuild/SPECS/qemu-kvm.spec
-</code></pre></div><p>然后一句话执行 Build：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="nb">cd</span> qemu-kvm-virtfs
-<span class="ln"> 2</span>
-<span class="ln"> 3</span>docker run -it --privileged -v <span class="s2">&#34;</span><span class="nv">$PWD</span><span class="s2">/rpmbuild:/root/rpmbuild&#34;</span> <span class="se">\
-</span><span class="ln"> 4</span><span class="se"></span>    docker.io/centos:7 /root/rpmbuild/build
-<span class="ln"> 5</span>
-<span class="ln"> 6</span>会得到如下的包，版本是 2.12.0-44.1.el7_8.1 ：
-<span class="ln"> 7</span>
-<span class="ln"> 8</span>rpmbuild/RPMS/x86_64/qemu-img-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm
-<span class="ln"> 9</span>rpmbuild/RPMS/x86_64/qemu-kvm-common-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm
-<span class="ln">10</span>rpmbuild/RPMS/x86_64/qemu-kvm-tools-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm
-<span class="ln">11</span>rpmbuild/RPMS/x86_64/qemu-kvm-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm
-<span class="ln">12</span>rpmbuild/RPMS/x86_64/qemu-kvm-virtfs-debuginfo-2.12.0-44.1.el7_8.1.x86_64.rpm
-<span class="ln">13</span>rpmbuild/SRPMS/qemu-kvm-virtfs-2.12.0-44.1.el7_8.1.src.rpm
-<span class="ln">14</span>
-</code></pre></div><p>我们在宿主机上安装替换新的 qemu 包，并重启 libvirtd</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>yum -y install <span class="se">\
-</span><span class="ln"> 2</span><span class="se"></span>    cloud-utils <span class="se">\
-</span><span class="ln"> 3</span><span class="se"></span>    libvirt-client <span class="se">\
-</span><span class="ln"> 4</span><span class="se"></span>    libvirt-daemon-config-network <span class="se">\
-</span><span class="ln"> 5</span><span class="se"></span>    libvirt-daemon-config-nwfilter <span class="se">\
-</span><span class="ln"> 6</span><span class="se"></span>    libvirt-daemon-driver-interface <span class="se">\
-</span><span class="ln"> 7</span><span class="se"></span>    libvirt-daemon-driver-qemu <span class="se">\
-</span><span class="ln"> 8</span><span class="se"></span>    virt-install <span class="se">\
-</span><span class="ln"> 9</span><span class="se"></span>    rpmbuild/RPMS/x86_64/qemu-img-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm <span class="se">\
-</span><span class="ln">10</span><span class="se"></span>    rpmbuild/RPMS/x86_64/qemu-kvm-common-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm <span class="se">\
-</span><span class="ln">11</span><span class="se"></span>    rpmbuild/RPMS/x86_64/qemu-kvm-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm
-<span class="ln">12</span>
-<span class="ln">13</span>systemctl restart libvirtd
-</code></pre></div><p>这样宿主机就准备好了。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln">1</span><span class="cl"><span class="na">baseurl</span><span class="o">=</span><span class="s">https://mirrors.tripadvisor.com/centos-vault/centos/\$releasever/virt/Source/kvm-common/</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="na">改成：</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">
+</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="na">baseurl</span><span class="o">=</span><span class="s">https://mirrors.tripadvisor.com/centos-vault/centos/7.8.2003/virt/Source/kvm-common/</span>
+</span></span></code></pre></div><p>改好后 build 脚本如下</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="cp">#!/bin/bash
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="nb">set</span> -ex
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">yum -y update
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">yum -y install <span class="se">\
+</span></span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="se"></span>    <span class="s2">&#34;@Development Tools&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="se"></span>    centos-release-qemu-ev <span class="se">\
+</span></span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="se"></span>    glusterfs-api-devel <span class="se">\
+</span></span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="se"></span>    glusterfs-devel <span class="se">\
+</span></span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="se"></span>    iasl <span class="se">\
+</span></span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="se"></span>    kernel-devel <span class="se">\
+</span></span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="se"></span>    libcacard-devel <span class="se">\
+</span></span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="se"></span>    libepoxy-devel <span class="se">\
+</span></span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="se"></span>    mesa-libgbm-devel <span class="se">\
+</span></span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="se"></span>    nss-devel <span class="se">\
+</span></span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="se"></span>    spice-protocol <span class="se">\
+</span></span></span><span class="line"><span class="ln">19</span><span class="cl"><span class="se"></span>    spice-server-devel <span class="se">\
+</span></span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="se"></span>    usbredir-devel
+</span></span><span class="line"><span class="ln">21</span><span class="cl">
+</span></span><span class="line"><span class="ln">22</span><span class="cl">cat <span class="s">&lt;&lt; EOF &gt;&gt; /etc/yum.repos.d/CentOS-QEMU-EV.repo
+</span></span></span><span class="line"><span class="ln">23</span><span class="cl"><span class="s">[centos-qemu-ev-source]
+</span></span></span><span class="line"><span class="ln">24</span><span class="cl"><span class="s">name=CentOS-\$releasever - QEMU EV Sources
+</span></span></span><span class="line"><span class="ln">25</span><span class="cl"><span class="s">baseurl=https://mirrors.tripadvisor.com/centos-vault/centos/7.8.2003/virt/Source/kvm-common/
+</span></span></span><span class="line"><span class="ln">26</span><span class="cl"><span class="s">gpgcheck=1
+</span></span></span><span class="line"><span class="ln">27</span><span class="cl"><span class="s">enabled=0
+</span></span></span><span class="line"><span class="ln">28</span><span class="cl"><span class="s">gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-Virtualization
+</span></span></span><span class="line"><span class="ln">29</span><span class="cl"><span class="s">EOF</span>
+</span></span><span class="line"><span class="ln">30</span><span class="cl">
+</span></span><span class="line"><span class="ln">31</span><span class="cl">yum-builddep -y qemu-kvm-ev
+</span></span><span class="line"><span class="ln">32</span><span class="cl">
+</span></span><span class="line"><span class="ln">33</span><span class="cl">yumdownloader --source qemu-kvm-ev
+</span></span><span class="line"><span class="ln">34</span><span class="cl">
+</span></span><span class="line"><span class="ln">35</span><span class="cl">rpm -Uvh qemu-kvm-ev-*.src.rpm
+</span></span><span class="line"><span class="ln">36</span><span class="cl">
+</span></span><span class="line"><span class="ln">37</span><span class="cl">sed -i <span class="s1">&#39;s/--disable-virtfs/--enable-virtfs/&#39;</span> /root/rpmbuild/SOURCES/build_configure.sh
+</span></span><span class="line"><span class="ln">38</span><span class="cl">
+</span></span><span class="line"><span class="ln">39</span><span class="cl">sed -i -e <span class="s1">&#39;/^%files -n qemu-kvm-common/,/^$/s/^$/%{_bindir}\/virtfs-proxy-helper\n%{_mandir}\/man1\/virtfs-proxy-helper.1.gz\n/&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="ln">40</span><span class="cl"><span class="se"></span>    -e <span class="s1">&#39;/^%if %{rhev}$/,/^%else$/s/pkgsuffix -ev/pkgsuffix -virtfs/&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="ln">41</span><span class="cl"><span class="se"></span>    -e <span class="s1">&#39;/%define rhel_rhev_conflicts()/ a Provides: %1-ev = %{epoch}:%{version}-%{release} \\\nObsoletes: %1-ev &lt; %{obsoletes_version} \\&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="ln">42</span><span class="cl"><span class="se"></span>    /root/rpmbuild/SPECS/qemu-kvm.spec
+</span></span><span class="line"><span class="ln">43</span><span class="cl">
+</span></span><span class="line"><span class="ln">44</span><span class="cl">rpmbuild -ba --clean /root/rpmbuild/SPECS/qemu-kvm.spec
+</span></span></code></pre></div><p>然后一句话执行 Build：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="nb">cd</span> qemu-kvm-virtfs
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">docker run -it --privileged -v <span class="s2">&#34;</span><span class="nv">$PWD</span><span class="s2">/rpmbuild:/root/rpmbuild&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="se"></span>    docker.io/centos:7 /root/rpmbuild/build
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">会得到如下的包，版本是 2.12.0-44.1.el7_8.1 ：
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">rpmbuild/RPMS/x86_64/qemu-img-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">rpmbuild/RPMS/x86_64/qemu-kvm-common-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm
+</span></span><span class="line"><span class="ln">10</span><span class="cl">rpmbuild/RPMS/x86_64/qemu-kvm-tools-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm
+</span></span><span class="line"><span class="ln">11</span><span class="cl">rpmbuild/RPMS/x86_64/qemu-kvm-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm
+</span></span><span class="line"><span class="ln">12</span><span class="cl">rpmbuild/RPMS/x86_64/qemu-kvm-virtfs-debuginfo-2.12.0-44.1.el7_8.1.x86_64.rpm
+</span></span><span class="line"><span class="ln">13</span><span class="cl">rpmbuild/SRPMS/qemu-kvm-virtfs-2.12.0-44.1.el7_8.1.src.rpm
+</span></span></code></pre></div><p>我们在宿主机上安装替换新的 qemu 包，并重启 libvirtd</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">yum -y install <span class="se">\
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="se"></span>    cloud-utils <span class="se">\
+</span></span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="se"></span>    libvirt-client <span class="se">\
+</span></span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="se"></span>    libvirt-daemon-config-network <span class="se">\
+</span></span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="se"></span>    libvirt-daemon-config-nwfilter <span class="se">\
+</span></span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="se"></span>    libvirt-daemon-driver-interface <span class="se">\
+</span></span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="se"></span>    libvirt-daemon-driver-qemu <span class="se">\
+</span></span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="se"></span>    virt-install <span class="se">\
+</span></span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="se"></span>    rpmbuild/RPMS/x86_64/qemu-img-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm <span class="se">\
+</span></span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="se"></span>    rpmbuild/RPMS/x86_64/qemu-kvm-common-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm <span class="se">\
+</span></span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="se"></span>    rpmbuild/RPMS/x86_64/qemu-kvm-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm
+</span></span><span class="line"><span class="ln">12</span><span class="cl">
+</span></span><span class="line"><span class="ln">13</span><span class="cl">systemctl restart libvirtd
+</span></span></code></pre></div><p>这样宿主机就准备好了。</p>
 <h2 id="二生产虚机做好passthrough">二、生产虚机，做好passthrough</h2>
 <p>生产虚机的时候，需要做好内外文件目录的直通，宿主机目录是  /opt/test，对应虚机目录是 /test</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>&lt;domains ...&gt;
-<span class="ln">2</span>  ...
-<span class="ln">3</span>  &lt;devices ...&gt;
-<span class="ln">4</span>    &lt;filesystem <span class="nv">type</span><span class="o">=</span><span class="s1">&#39;mount&#39;</span> <span class="nv">accessmode</span><span class="o">=</span><span class="s1">&#39;passthrough&#39;</span>&gt;
-<span class="ln">5</span>      &lt;<span class="nb">source</span> <span class="nv">dir</span><span class="o">=</span><span class="s1">&#39;/opt/test&#39;</span>/&gt;
-<span class="ln">6</span>      &lt;target <span class="nv">dir</span><span class="o">=</span><span class="s1">&#39;/test&#39;</span>/&gt;
-<span class="ln">7</span>    &lt;/filesystem&gt;
-<span class="ln">8</span>  &lt;/devices&gt;
-<span class="ln">9</span>&lt;/domains&gt;
-</code></pre></div><p>虚机启动后，需要升级核心，支持新的 mount 选项</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>yum -y update
-<span class="ln">2</span>yum -y --enablerepo centosplus install kernel-plus
-<span class="ln">3</span>reboot
-<span class="ln">4</span>
-<span class="ln">5</span><span class="c1"># 把宿主机提供的 /test 点 mount 出来</span>
-<span class="ln">6</span>mount -t 9p -o <span class="nv">trans</span><span class="o">=</span>virtio,version<span class="o">=</span>9p2000.L /test /opt/test
-</code></pre></div><p>也可以把挂载点写进虚机的 fstab，下次就会自动 mount 了</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span><span class="na">/test /opt/test 9p trans</span><span class="o">=</span><span class="s">virtio,version=9p2000.L,nofail,_netdev,x-mount.mkdir 0 0</span>
-</code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">&lt;domains ...&gt;
+</span></span><span class="line"><span class="ln">2</span><span class="cl">  ...
+</span></span><span class="line"><span class="ln">3</span><span class="cl">  &lt;devices ...&gt;
+</span></span><span class="line"><span class="ln">4</span><span class="cl">    &lt;filesystem <span class="nv">type</span><span class="o">=</span><span class="s1">&#39;mount&#39;</span> <span class="nv">accessmode</span><span class="o">=</span><span class="s1">&#39;passthrough&#39;</span>&gt;
+</span></span><span class="line"><span class="ln">5</span><span class="cl">      &lt;<span class="nb">source</span> <span class="nv">dir</span><span class="o">=</span><span class="s1">&#39;/opt/test&#39;</span>/&gt;
+</span></span><span class="line"><span class="ln">6</span><span class="cl">      &lt;target <span class="nv">dir</span><span class="o">=</span><span class="s1">&#39;/test&#39;</span>/&gt;
+</span></span><span class="line"><span class="ln">7</span><span class="cl">    &lt;/filesystem&gt;
+</span></span><span class="line"><span class="ln">8</span><span class="cl">  &lt;/devices&gt;
+</span></span><span class="line"><span class="ln">9</span><span class="cl">&lt;/domains&gt;
+</span></span></code></pre></div><p>虚机启动后，需要升级核心，支持新的 mount 选项</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">yum -y update
+</span></span><span class="line"><span class="ln">2</span><span class="cl">yum -y --enablerepo centosplus install kernel-plus
+</span></span><span class="line"><span class="ln">3</span><span class="cl">reboot
+</span></span><span class="line"><span class="ln">4</span><span class="cl">
+</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="c1"># 把宿主机提供的 /test 点 mount 出来</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl">mount -t 9p -o <span class="nv">trans</span><span class="o">=</span>virtio,version<span class="o">=</span>9p2000.L /test /opt/test
+</span></span></code></pre></div><p>也可以把挂载点写进虚机的 fstab，下次就会自动 mount 了</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln">1</span><span class="cl"><span class="na">/test /opt/test 9p trans</span><span class="o">=</span><span class="s">virtio,version=9p2000.L,nofail,_netdev,x-mount.mkdir 0 0</span>
+</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -391,7 +389,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -431,11 +429,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

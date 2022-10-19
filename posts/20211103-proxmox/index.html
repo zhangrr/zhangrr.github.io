@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="生产环境Proxmox 7.02的安装和配置">
 <meta itemprop="description" content="其实我们的生产环境一直是 KVM ，然后用 shell 脚本控制虚机的生成，也是用到了 Cloud-init 的标准镜像。 听说 Proxmox 也很不错，于是想看看能否也在生产环境中用上 如果在生产环"><meta itemprop="datePublished" content="2021-11-03T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2021-11-03T09:30:11+08:00" />
-<meta itemprop="wordCount" content="1138">
+<meta itemprop="wordCount" content="1139">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="生产环境Proxmox 7.02的安装和配置" />
 <meta property="og:description" content="其实我们的生产环境一直是 KVM ，然后用 shell 脚本控制虚机的生成，也是用到了 Cloud-init 的标准镜像。 听说 Proxmox 也很不错，于是想看看能否也在生产环境中用上 如果在生产环" />
 <meta property="og:type" content="article" />
@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="生产环境Proxmox 7.02的安装和配置"/>
 <meta name="twitter:description" content="其实我们的生产环境一直是 KVM ，然后用 shell 脚本控制虚机的生成，也是用到了 Cloud-init 的标准镜像。 听说 Proxmox 也很不错，于是想看看能否也在生产环境中用上 如果在生产环"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -276,49 +276,49 @@
 
 </p>
 <p>ssh登录系统，首先换成中科大的 apt 源，并升级一下系统：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>sed -i <span class="s1">&#39;s|^deb http://ftp.debian.org|deb https://mirrors.ustc.edu.cn|g&#39;</span> /etc/apt/sources.list
-<span class="ln">2</span>sed -i <span class="s1">&#39;s|^deb http://security.debian.org|deb https://mirrors.ustc.edu.cn/debian-security|g&#39;</span> /etc/apt/sources.list
-<span class="ln">3</span><span class="nv">CODENAME</span><span class="o">=</span><span class="sb">`</span>cat /etc/os-release <span class="p">|</span>grep CODENAME <span class="p">|</span>cut -f <span class="m">2</span> -d <span class="s2">&#34;=&#34;</span><span class="sb">`</span>
-<span class="ln">4</span><span class="nb">echo</span> <span class="s2">&#34;deb https://mirrors.ustc.edu.cn/proxmox/debian </span><span class="nv">$CODENAME</span><span class="s2"> pve-no-subscription&#34;</span> &gt; /etc/apt/sources.list.d/pve-no-subscription.list
-<span class="ln">5</span>cat /etc/apt/sources.list.d/pve-no-subscription.list
-<span class="ln">6</span>rm /etc/apt/sources.list.d/pve-enterprise.list 
-<span class="ln">7</span>apt update
-<span class="ln">8</span>apt upgrade
-</code></pre></div><p>那生产使用，是必须用 Cloud-init 的标准化镜像的。我们需要造出一个 template 。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">sed -i <span class="s1">&#39;s|^deb http://ftp.debian.org|deb https://mirrors.ustc.edu.cn|g&#39;</span> /etc/apt/sources.list
+</span></span><span class="line"><span class="ln">2</span><span class="cl">sed -i <span class="s1">&#39;s|^deb http://security.debian.org|deb https://mirrors.ustc.edu.cn/debian-security|g&#39;</span> /etc/apt/sources.list
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="nv">CODENAME</span><span class="o">=</span><span class="sb">`</span>cat /etc/os-release <span class="p">|</span>grep CODENAME <span class="p">|</span>cut -f <span class="m">2</span> -d <span class="s2">&#34;=&#34;</span><span class="sb">`</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;deb https://mirrors.ustc.edu.cn/proxmox/debian </span><span class="nv">$CODENAME</span><span class="s2"> pve-no-subscription&#34;</span> &gt; /etc/apt/sources.list.d/pve-no-subscription.list
+</span></span><span class="line"><span class="ln">5</span><span class="cl">cat /etc/apt/sources.list.d/pve-no-subscription.list
+</span></span><span class="line"><span class="ln">6</span><span class="cl">rm /etc/apt/sources.list.d/pve-enterprise.list 
+</span></span><span class="line"><span class="ln">7</span><span class="cl">apt update
+</span></span><span class="line"><span class="ln">8</span><span class="cl">apt upgrade
+</span></span></code></pre></div><p>那生产使用，是必须用 Cloud-init 的标准化镜像的。我们需要造出一个 template 。</p>
 <p>以 Centos7 为例子</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>wget http://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2
-<span class="ln">2</span>apt-get install libguestfs-tools
-</code></pre></div><p>然后准备脚本 <a href="modify.sh">modify.sh</a>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">wget http://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2
+</span></span><span class="line"><span class="ln">2</span><span class="cl">apt-get install libguestfs-tools
+</span></span></code></pre></div><p>然后准备脚本 <a href="modify.sh">modify.sh</a>
 ：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="cp">#!/bin/sh
-</span><span class="ln"> 2</span><span class="cp"></span><span class="nv">image_name</span><span class="o">=</span>CentOS-7-x86_64-GenericCloud.qcow2
-<span class="ln"> 3</span><span class="c1"># virt-edit -a ${image_name} /etc/cloud/cloud.cfg</span>
-<span class="ln"> 4</span>virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/cloud/cloud.cfg -e <span class="s1">&#39;s/disable_root: [Tt]rue/disable_root: False/&#39;</span>
-<span class="ln"> 5</span>virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/cloud/cloud.cfg -e <span class="s1">&#39;s/disable_root: 1/disable_root: 0/&#39;</span> 
-<span class="ln"> 6</span>virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/cloud/cloud.cfg -e <span class="s1">&#39;s/lock_passwd: [Tt]rue/lock_passwd: False/&#39;</span>
-<span class="ln"> 7</span>virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/cloud/cloud.cfg -e <span class="s1">&#39;s/lock_passwd: 1/lock_passwd: 0/&#39;</span> 
-<span class="ln"> 8</span>virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/cloud/cloud.cfg -e <span class="s1">&#39;s/ssh_pwauth:   0/ssh_pwauth:   1/&#39;</span>
-<span class="ln"> 9</span>virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/ssh/sshd_config -e <span class="s1">&#39;s/PasswordAuthentication no/PasswordAuthentication yes/&#39;</span>
-<span class="ln">10</span>virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/ssh/sshd_config -e <span class="s1">&#39;s/PermitRootLogin [Nn]o/PermitRootLogin yes/&#39;</span>
-<span class="ln">11</span>virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/ssh/sshd_config -e <span class="s1">&#39;s/#PermitRootLogin [Yy]es/PermitRootLogin yes/&#39;</span>
-<span class="ln">12</span>virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/ssh/sshd_config -e <span class="s1">&#39;s/#PermitRootLogin prohibit-password/PermitRootLogin yes/&#39;</span>
-<span class="ln">13</span>virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/ssh/sshd_config -e <span class="s1">&#39;s/[#M]axAuthTries 6/MaxAuthTries 20/&#39;</span>
-<span class="ln">14</span>virt-customize --install cloud-init,atop,htop,nano,vim,qemu-guest-agent,curl,wget,telnet,lsof,screen -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span>
-</code></pre></div><p>运行它，以上命令其实是侵入镜像，修改 sshd_config 允许 root 用 password 登录，然后又安了几个常用软件，大家可以按需修改。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="cp">#!/bin/sh
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="cp"></span><span class="nv">image_name</span><span class="o">=</span>CentOS-7-x86_64-GenericCloud.qcow2
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="c1"># virt-edit -a ${image_name} /etc/cloud/cloud.cfg</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/cloud/cloud.cfg -e <span class="s1">&#39;s/disable_root: [Tt]rue/disable_root: False/&#39;</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/cloud/cloud.cfg -e <span class="s1">&#39;s/disable_root: 1/disable_root: 0/&#39;</span> 
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/cloud/cloud.cfg -e <span class="s1">&#39;s/lock_passwd: [Tt]rue/lock_passwd: False/&#39;</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/cloud/cloud.cfg -e <span class="s1">&#39;s/lock_passwd: 1/lock_passwd: 0/&#39;</span> 
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/cloud/cloud.cfg -e <span class="s1">&#39;s/ssh_pwauth:   0/ssh_pwauth:   1/&#39;</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/ssh/sshd_config -e <span class="s1">&#39;s/PasswordAuthentication no/PasswordAuthentication yes/&#39;</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/ssh/sshd_config -e <span class="s1">&#39;s/PermitRootLogin [Nn]o/PermitRootLogin yes/&#39;</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/ssh/sshd_config -e <span class="s1">&#39;s/#PermitRootLogin [Yy]es/PermitRootLogin yes/&#39;</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/ssh/sshd_config -e <span class="s1">&#39;s/#PermitRootLogin prohibit-password/PermitRootLogin yes/&#39;</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">virt-edit -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> /etc/ssh/sshd_config -e <span class="s1">&#39;s/[#M]axAuthTries 6/MaxAuthTries 20/&#39;</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">virt-customize --install cloud-init,atop,htop,nano,vim,qemu-guest-agent,curl,wget,telnet,lsof,screen -a <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span>
+</span></span></code></pre></div><p>运行它，以上命令其实是侵入镜像，修改 sshd_config 允许 root 用 password 登录，然后又安了几个常用软件，大家可以按需修改。</p>
 <p>最后生成 template , 脚本： <a href="vm.sh">vm.sh</a>
 </p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="cp">#!/bin/sh
-</span><span class="ln"> 2</span><span class="cp"></span><span class="nv">vm_id</span><span class="o">=</span><span class="m">9999</span>
-<span class="ln"> 3</span><span class="nv">image_name</span><span class="o">=</span>CentOS-7-x86_64-GenericCloud.qcow2
-<span class="ln"> 4</span>
-<span class="ln"> 5</span>qm create <span class="si">${</span><span class="nv">vm_id</span><span class="si">}</span> --memory <span class="m">8196</span> --net0 virtio,bridge<span class="o">=</span>vmbr0
-<span class="ln"> 6</span>qm importdisk <span class="si">${</span><span class="nv">vm_id</span><span class="si">}</span> <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> local-lvm
-<span class="ln"> 7</span>qm <span class="nb">set</span> <span class="si">${</span><span class="nv">vm_id</span><span class="si">}</span> --scsihw virtio-scsi-pci --scsi0 local-lvm:vm-<span class="si">${</span><span class="nv">vm_id</span><span class="si">}</span>-disk-0
-<span class="ln"> 8</span>qm <span class="nb">set</span> <span class="si">${</span><span class="nv">vm_id</span><span class="si">}</span> --ide2 local-lvm:cloudinit
-<span class="ln"> 9</span>qm <span class="nb">set</span> <span class="si">${</span><span class="nv">vm_id</span><span class="si">}</span> --boot c --bootdisk scsi0
-<span class="ln">10</span>qm <span class="nb">set</span> <span class="si">${</span><span class="nv">vm_id</span><span class="si">}</span> --serial0 socket --vga serial0
-<span class="ln">11</span>qm template <span class="si">${</span><span class="nv">vm_id</span><span class="si">}</span>
-</code></pre></div><p>cloud-init 技术的核心其实就是用配置文件，在虚机启动的时候动态修改，这里把配置放到了 ide2 的一个虚拟 cdrom 中</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="cp">#!/bin/sh
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="cp"></span><span class="nv">vm_id</span><span class="o">=</span><span class="m">9999</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="nv">image_name</span><span class="o">=</span>CentOS-7-x86_64-GenericCloud.qcow2
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">qm create <span class="si">${</span><span class="nv">vm_id</span><span class="si">}</span> --memory <span class="m">8196</span> --net0 virtio,bridge<span class="o">=</span>vmbr0
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">qm importdisk <span class="si">${</span><span class="nv">vm_id</span><span class="si">}</span> <span class="si">${</span><span class="nv">image_name</span><span class="si">}</span> local-lvm
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">qm <span class="nb">set</span> <span class="si">${</span><span class="nv">vm_id</span><span class="si">}</span> --scsihw virtio-scsi-pci --scsi0 local-lvm:vm-<span class="si">${</span><span class="nv">vm_id</span><span class="si">}</span>-disk-0
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">qm <span class="nb">set</span> <span class="si">${</span><span class="nv">vm_id</span><span class="si">}</span> --ide2 local-lvm:cloudinit
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">qm <span class="nb">set</span> <span class="si">${</span><span class="nv">vm_id</span><span class="si">}</span> --boot c --bootdisk scsi0
+</span></span><span class="line"><span class="ln">10</span><span class="cl">qm <span class="nb">set</span> <span class="si">${</span><span class="nv">vm_id</span><span class="si">}</span> --serial0 socket --vga serial0
+</span></span><span class="line"><span class="ln">11</span><span class="cl">qm template <span class="si">${</span><span class="nv">vm_id</span><span class="si">}</span>
+</span></span></code></pre></div><p>cloud-init 技术的核心其实就是用配置文件，在虚机启动的时候动态修改，这里把配置放到了 ide2 的一个虚拟 cdrom 中</p>
 <p>最终会生成一个 id 为 9999 的 template</p>
 <p><img class="img-fluid" alt="image-20211103111301527" src="https://bajie.dev/posts/20211103-proxmox/image-20211103111301527.png" loading="lazy"
    width="286" height="183"
@@ -391,7 +391,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -431,11 +431,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

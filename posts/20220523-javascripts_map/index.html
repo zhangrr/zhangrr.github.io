@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="javascripts中的map">
 <meta itemprop="description" content="Javascripts 中的 map 说到map，如果我们有循环的话，不停遍历，会把时间搞成 O(n)。如果有map，时间就变成了O(1)，所以还是相当有效率的。 map 是 ES2015 中新"><meta itemprop="datePublished" content="2022-05-23T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2022-05-23T09:30:11+08:00" />
-<meta itemprop="wordCount" content="711">
+<meta itemprop="wordCount" content="710">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="javascripts中的map" />
 <meta property="og:description" content="Javascripts 中的 map 说到map，如果我们有循环的话，不停遍历，会把时间搞成 O(n)。如果有map，时间就变成了O(1)，所以还是相当有效率的。 map 是 ES2015 中新" />
 <meta property="og:type" content="article" />
@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="javascripts中的map"/>
 <meta name="twitter:description" content="Javascripts 中的 map 说到map，如果我们有循环的话，不停遍历，会把时间搞成 O(n)。如果有map，时间就变成了O(1)，所以还是相当有效率的。 map 是 ES2015 中新"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -218,62 +218,61 @@
 <p>map 是 ES2015 中新增加的，是一种新的 Object 类型，允许存放各种 key-value 对。</p>
 <p>map 最大的特性是，key 可以是任何类型，包括 object 和 function；可以调用 size 得到 map 的大小；迭代的时候，是严格按照添加的顺序进行迭代的。</p>
 <p>map 的方法如下： set, get, size, has, delete, clear:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="ln"> 1</span><span class="kd">let</span> <span class="nx">things</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Map</span><span class="p">();</span>
-<span class="ln"> 2</span>
-<span class="ln"> 3</span><span class="kr">const</span> <span class="nx">myFunc</span> <span class="o">=</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="s1">&#39;🍕&#39;</span><span class="p">;</span>
-<span class="ln"> 4</span>
-<span class="ln"> 5</span><span class="nx">things</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;🚗&#39;</span><span class="p">,</span> <span class="s1">&#39;Car&#39;</span><span class="p">);</span>
-<span class="ln"> 6</span><span class="nx">things</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;🏠&#39;</span><span class="p">,</span> <span class="s1">&#39;House&#39;</span><span class="p">);</span>
-<span class="ln"> 7</span><span class="nx">things</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;✈️&#39;</span><span class="p">,</span> <span class="s1">&#39;Airplane&#39;</span><span class="p">);</span>
-<span class="ln"> 8</span><span class="nx">things</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">myFunc</span><span class="p">,</span> <span class="s1">&#39;😄 Key is a function!&#39;</span><span class="p">);</span>
-<span class="ln"> 9</span>
-<span class="ln">10</span><span class="nx">things</span><span class="p">.</span><span class="nx">size</span><span class="p">;</span> <span class="c1">// 4
-</span><span class="ln">11</span><span class="c1"></span>
-<span class="ln">12</span><span class="nx">things</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="s1">&#39;🚗&#39;</span><span class="p">);</span> <span class="c1">// true
-</span><span class="ln">13</span><span class="c1"></span>
-<span class="ln">14</span><span class="nx">things</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">myFunc</span><span class="p">)</span> <span class="c1">// true
-</span><span class="ln">15</span><span class="c1"></span><span class="nx">things</span><span class="p">.</span><span class="nx">has</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="s1">&#39;🍕&#39;</span><span class="p">);</span> <span class="c1">// false, not the same reference
-</span><span class="ln">16</span><span class="c1"></span><span class="nx">things</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">myFunc</span><span class="p">);</span> <span class="c1">// &#39;😄 Key is a function!&#39;
-</span><span class="ln">17</span><span class="c1"></span>
-<span class="ln">18</span><span class="nx">things</span><span class="p">.</span><span class="k">delete</span><span class="p">(</span><span class="s1">&#39;✈️&#39;</span><span class="p">);</span>
-<span class="ln">19</span><span class="nx">things</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="s1">&#39;✈️&#39;</span><span class="p">);</span> <span class="c1">// false
-</span><span class="ln">20</span><span class="c1"></span>
-<span class="ln">21</span><span class="nx">things</span><span class="p">.</span><span class="nx">clear</span><span class="p">();</span>
-<span class="ln">22</span><span class="nx">things</span><span class="p">.</span><span class="nx">size</span><span class="p">;</span> <span class="c1">// 0
-</span><span class="ln">23</span><span class="c1"></span>
-<span class="ln">24</span><span class="c1">// setting key-value pairs is chainable
-</span><span class="ln">25</span><span class="c1"></span><span class="nx">things</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;🔧&#39;</span><span class="p">,</span> <span class="s1">&#39;Wrench&#39;</span><span class="p">)</span>
-<span class="ln">26</span>      <span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;🎸&#39;</span><span class="p">,</span> <span class="s1">&#39;Guitar&#39;</span><span class="p">)</span>
-<span class="ln">27</span>      <span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;🕹&#39;</span><span class="p">,</span> <span class="s1">&#39;Joystick&#39;</span><span class="p">);</span>
-<span class="ln">28</span>
-<span class="ln">29</span><span class="kr">const</span> <span class="nx">myMap</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Map</span><span class="p">();</span>
-<span class="ln">30</span>
-<span class="ln">31</span><span class="c1">// Even another map can be a key
-</span><span class="ln">32</span><span class="c1"></span><span class="nx">things</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">myMap</span><span class="p">,</span> <span class="s1">&#39;Oh gosh!&#39;</span><span class="p">);</span>
-<span class="ln">33</span><span class="nx">things</span><span class="p">.</span><span class="nx">size</span><span class="p">;</span> <span class="c1">// 4
-</span><span class="ln">34</span><span class="c1"></span><span class="nx">things</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">myMap</span><span class="p">);</span> <span class="c1">// &#39;Oh gosh!&#39;
-</span></code></pre></div><p>迭代它的方法，可以用 for &hellip; of，顺序是严格按照你插入的顺序来的：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln"> 1</span>let activities = new Map();
-<span class="ln"> 2</span>
-<span class="ln"> 3</span>activities.set(1, &#39;🏂&#39;);
-<span class="ln"> 4</span>activities.set(2, &#39;🏎&#39;);
-<span class="ln"> 5</span>activities.set(3, &#39;🚣&#39;);
-<span class="ln"> 6</span>activities.set(4, &#39;🤾&#39;);
-<span class="ln"> 7</span>
-<span class="ln"> 8</span>for (let [nb, activity] of activities) {
-<span class="ln"> 9</span>  console.log(`Activity ${nb} is ${activity}`);
-<span class="ln">10</span>}
-<span class="ln">11</span>
-<span class="ln">12</span>// Activity 1 is 🏂
-<span class="ln">13</span>// Activity 2 is 🏎
-<span class="ln">14</span>// Activity 3 is 🚣
-<span class="ln">15</span>// Activity 4 is 🤾
-<span class="ln">16</span>
-</code></pre></div><p>也可以用 forEach 来迭代，注意一点即可，forEach 的 callback 函数，第一个参数是 value，第二个参数是 key，跟 for &hellip; of 是相反的：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln">1</span>activities.forEach((value, key) =&gt; {
-<span class="ln">2</span>  console.log(`Activity ${key} is ${value}`);
-<span class="ln">3</span>});
-</code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="kd">let</span> <span class="nx">things</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Map</span><span class="p">();</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="kr">const</span> <span class="nx">myFunc</span> <span class="o">=</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="s1">&#39;🍕&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="nx">things</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;🚗&#39;</span><span class="p">,</span> <span class="s1">&#39;Car&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="nx">things</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;🏠&#39;</span><span class="p">,</span> <span class="s1">&#39;House&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="nx">things</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;✈️&#39;</span><span class="p">,</span> <span class="s1">&#39;Airplane&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="nx">things</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">myFunc</span><span class="p">,</span> <span class="s1">&#39;😄 Key is a function!&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">
+</span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="nx">things</span><span class="p">.</span><span class="nx">size</span><span class="p">;</span> <span class="c1">// 4
+</span></span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="nx">things</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="s1">&#39;🚗&#39;</span><span class="p">);</span> <span class="c1">// true
+</span></span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="nx">things</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">myFunc</span><span class="p">)</span> <span class="c1">// true
+</span></span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="c1"></span><span class="nx">things</span><span class="p">.</span><span class="nx">has</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="s1">&#39;🍕&#39;</span><span class="p">);</span> <span class="c1">// false, not the same reference
+</span></span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="c1"></span><span class="nx">things</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">myFunc</span><span class="p">);</span> <span class="c1">// &#39;😄 Key is a function!&#39;
+</span></span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="nx">things</span><span class="p">.</span><span class="k">delete</span><span class="p">(</span><span class="s1">&#39;✈️&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl"><span class="nx">things</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="s1">&#39;✈️&#39;</span><span class="p">);</span> <span class="c1">// false
+</span></span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl"><span class="nx">things</span><span class="p">.</span><span class="nx">clear</span><span class="p">();</span>
+</span></span><span class="line"><span class="ln">22</span><span class="cl"><span class="nx">things</span><span class="p">.</span><span class="nx">size</span><span class="p">;</span> <span class="c1">// 0
+</span></span></span><span class="line"><span class="ln">23</span><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="ln">24</span><span class="cl"><span class="c1">// setting key-value pairs is chainable
+</span></span></span><span class="line"><span class="ln">25</span><span class="cl"><span class="c1"></span><span class="nx">things</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;🔧&#39;</span><span class="p">,</span> <span class="s1">&#39;Wrench&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">26</span><span class="cl">      <span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;🎸&#39;</span><span class="p">,</span> <span class="s1">&#39;Guitar&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">27</span><span class="cl">      <span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;🕹&#39;</span><span class="p">,</span> <span class="s1">&#39;Joystick&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">28</span><span class="cl">
+</span></span><span class="line"><span class="ln">29</span><span class="cl"><span class="kr">const</span> <span class="nx">myMap</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Map</span><span class="p">();</span>
+</span></span><span class="line"><span class="ln">30</span><span class="cl">
+</span></span><span class="line"><span class="ln">31</span><span class="cl"><span class="c1">// Even another map can be a key
+</span></span></span><span class="line"><span class="ln">32</span><span class="cl"><span class="c1"></span><span class="nx">things</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">myMap</span><span class="p">,</span> <span class="s1">&#39;Oh gosh!&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">33</span><span class="cl"><span class="nx">things</span><span class="p">.</span><span class="nx">size</span><span class="p">;</span> <span class="c1">// 4
+</span></span></span><span class="line"><span class="ln">34</span><span class="cl"><span class="c1"></span><span class="nx">things</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">myMap</span><span class="p">);</span> <span class="c1">// &#39;Oh gosh!&#39;
+</span></span></span></code></pre></div><p>迭代它的方法，可以用 for &hellip; of，顺序是严格按照你插入的顺序来的：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln"> 1</span><span class="cl">let activities = new Map();
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">activities.set(1, &#39;🏂&#39;);
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">activities.set(2, &#39;🏎&#39;);
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">activities.set(3, &#39;🚣&#39;);
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">activities.set(4, &#39;🤾&#39;);
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">for (let [nb, activity] of activities) {
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">  console.log(`Activity ${nb} is ${activity}`);
+</span></span><span class="line"><span class="ln">10</span><span class="cl">}
+</span></span><span class="line"><span class="ln">11</span><span class="cl">
+</span></span><span class="line"><span class="ln">12</span><span class="cl">// Activity 1 is 🏂
+</span></span><span class="line"><span class="ln">13</span><span class="cl">// Activity 2 is 🏎
+</span></span><span class="line"><span class="ln">14</span><span class="cl">// Activity 3 is 🚣
+</span></span><span class="line"><span class="ln">15</span><span class="cl">// Activity 4 is 🤾
+</span></span></code></pre></div><p>也可以用 forEach 来迭代，注意一点即可，forEach 的 callback 函数，第一个参数是 value，第二个参数是 key，跟 for &hellip; of 是相反的：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln">1</span><span class="cl">activities.forEach((value, key) =&gt; {
+</span></span><span class="line"><span class="ln">2</span><span class="cl">  console.log(`Activity ${key} is ${value}`);
+</span></span><span class="line"><span class="ln">3</span><span class="cl">});
+</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -318,7 +317,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -358,11 +357,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

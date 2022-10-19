@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="一次mongodb cpu很high的解决方法">
 <meta itemprop="description" content="接到同事的通知，说mongodb的cpu很高，下不去，看有什么办法。 看了一下图，cpu都99.4%了，确实很高： 登上机器，首先去看mongo"><meta itemprop="datePublished" content="2022-07-21T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2022-07-21T09:30:11+08:00" />
-<meta itemprop="wordCount" content="860">
+<meta itemprop="wordCount" content="859">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="一次mongodb cpu很high的解决方法" />
 <meta property="og:description" content="接到同事的通知，说mongodb的cpu很高，下不去，看有什么办法。 看了一下图，cpu都99.4%了，确实很高： 登上机器，首先去看mongo" />
 <meta property="og:type" content="article" />
@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="一次mongodb cpu很high的解决方法"/>
 <meta name="twitter:description" content="接到同事的通知，说mongodb的cpu很高，下不去，看有什么办法。 看了一下图，cpu都99.4%了，确实很高： 登上机器，首先去看mongo"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -227,65 +227,64 @@
 
 </p>
 <p>copy出一条来，备用</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln">1</span>2022-07-17T21:30:42.556+0800 I COMMAND  [conn196670] command beyou.behaviorAnalysis command: find { find: &#34;behaviorAnalysis&#34;, filter: { behavior: { $regex: &#34;.*互动操作.*&#34;, $options: &#34;i&#34; }, log: { $regex: &#34;.*\Q观看：《罗马的房子》,\E.*&#34;, $options: &#34;i&#34; }, userId: 7345, _class: { $in: [ &#34;com.linkyee.api.domain.po.BehaviorAnalysis&#34; ] } }, $db: &#34;beyou&#34; } planSummary: IXSCAN { _class: 1, behavior: 1, log: 1, userId: 1 } keysExamined:111564 docsExamined:2 cursorExhausted:1 numYields:890 nreturned:2 reslen:571 locks:{ Global: { acquireCount: { r: 891 } }, Database: { acquireCount: { r: 891 } }, Collection: { acquireCount: { r: 891 } } } storage:{} protocol:op_msg 2268ms
-</code></pre></div><p>发现确实很慢啊，op_msg 居然要2268ms，但是mongodb的数据目录总共才6G多，不客观啊。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln">1</span><span class="cl">2022-07-17T21:30:42.556+0800 I COMMAND  [conn196670] command beyou.behaviorAnalysis command: find { find: &#34;behaviorAnalysis&#34;, filter: { behavior: { $regex: &#34;.*互动操作.*&#34;, $options: &#34;i&#34; }, log: { $regex: &#34;.*\Q观看：《罗马的房子》,\E.*&#34;, $options: &#34;i&#34; }, userId: 7345, _class: { $in: [ &#34;com.linkyee.api.domain.po.BehaviorAnalysis&#34; ] } }, $db: &#34;beyou&#34; } planSummary: IXSCAN { _class: 1, behavior: 1, log: 1, userId: 1 } keysExamined:111564 docsExamined:2 cursorExhausted:1 numYields:890 nreturned:2 reslen:571 locks:{ Global: { acquireCount: { r: 891 } }, Database: { acquireCount: { r: 891 } }, Collection: { acquireCount: { r: 891 } } } storage:{} protocol:op_msg 2268ms
+</span></span></code></pre></div><p>发现确实很慢啊，op_msg 居然要2268ms，但是mongodb的数据目录总共才6G多，不客观啊。</p>
 <p>看看表结构和索引：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>&gt; show dbs<span class="p">;</span>
-<span class="ln"> 2</span>admin   0.000GB
-<span class="ln"> 3</span>beyou   0.063GB
-<span class="ln"> 4</span>config  0.000GB
-<span class="ln"> 5</span><span class="nb">local</span>   0.000GB
-<span class="ln"> 6</span>
-<span class="ln"> 7</span>&gt; use beyou<span class="p">;</span>
-<span class="ln"> 8</span>switched to db beyou
-<span class="ln"> 9</span>
-<span class="ln">10</span>&gt; show collections<span class="p">;</span>
-<span class="ln">11</span>activityLog
-<span class="ln">12</span>behaviorAnalysis
-<span class="ln">13</span>
-<span class="ln">14</span>&gt; db.behaviorAnalysis.find<span class="o">({}</span>,<span class="o">{</span>_id:0<span class="o">})</span>.limit<span class="o">(</span>1<span class="o">)</span><span class="p">;</span>
-<span class="ln">15</span><span class="o">{</span> <span class="s2">&#34;name&#34;</span> : <span class="s2">&#34;812304163055734784&#34;</span>, <span class="s2">&#34;createTime&#34;</span> : ISODate<span class="o">(</span><span class="s2">&#34;2022-02-19T12:46:44.360Z&#34;</span><span class="o">)</span>, <span class="s2">&#34;behavior&#34;</span> : <span class="s2">&#34;互动操作&#34;</span>, <span class="s2">&#34;log&#34;</span> : <span class="s2">&#34;加入看单：《爱的迫降》&#34;</span>, <span class="s2">&#34;userId&#34;</span> : 2, <span class="s2">&#34;_class&#34;</span> : <span class="s2">&#34;com.linkyee.api.domain.po.BehaviorAnalysis&#34;</span> <span class="o">}</span>
-<span class="ln">16</span>
-<span class="ln">17</span>&gt; db.behaviorAnalysis.getIndexes<span class="o">()</span><span class="p">;</span>
-<span class="ln">18</span><span class="o">[</span>
-<span class="ln">19</span>        <span class="o">{</span>
-<span class="ln">20</span>                <span class="s2">&#34;v&#34;</span> : 2,
-<span class="ln">21</span>                <span class="s2">&#34;key&#34;</span> : <span class="o">{</span>
-<span class="ln">22</span>                        <span class="s2">&#34;_id&#34;</span> : <span class="m">1</span>
-<span class="ln">23</span>                <span class="o">}</span>,
-<span class="ln">24</span>                <span class="s2">&#34;name&#34;</span> : <span class="s2">&#34;_id_&#34;</span>,
-<span class="ln">25</span>                <span class="s2">&#34;ns&#34;</span> : <span class="s2">&#34;beyou.behaviorAnalysis&#34;</span>
-<span class="ln">26</span>        <span class="o">}</span>,
-<span class="ln">27</span>        <span class="o">{</span>
-<span class="ln">28</span>                <span class="s2">&#34;v&#34;</span> : 2,
-<span class="ln">29</span>                <span class="s2">&#34;key&#34;</span> : <span class="o">{</span>
-<span class="ln">30</span>                        <span class="s2">&#34;_class&#34;</span> : 1,
-<span class="ln">31</span>                        <span class="s2">&#34;behavior&#34;</span> : 1,
-<span class="ln">32</span>                        <span class="s2">&#34;log&#34;</span> : 1,
-<span class="ln">33</span>                        <span class="s2">&#34;userId&#34;</span> : <span class="m">1</span>
-<span class="ln">34</span>                <span class="o">}</span>,
-<span class="ln">35</span>                <span class="s2">&#34;name&#34;</span> : <span class="s2">&#34;_class_1_behavior_1_log_1_userId_1&#34;</span>,
-<span class="ln">36</span>                <span class="s2">&#34;ns&#34;</span> : <span class="s2">&#34;beyou.behaviorAnalysis&#34;</span>
-<span class="ln">37</span>        <span class="o">}</span>
-<span class="ln">38</span><span class="o">]</span>
-<span class="ln">39</span>
-</code></pre></div><p>发现表结构不复杂，索引呢有两个，一个缺省的单字段索引_id，另一个是多字段索引，4合一的（ _class、behavior、log、userId ）</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">&gt; show dbs<span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">admin   0.000GB
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">beyou   0.063GB
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">config  0.000GB
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="nb">local</span>   0.000GB
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">&gt; use beyou<span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">switched to db beyou
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">
+</span></span><span class="line"><span class="ln">10</span><span class="cl">&gt; show collections<span class="p">;</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">activityLog
+</span></span><span class="line"><span class="ln">12</span><span class="cl">behaviorAnalysis
+</span></span><span class="line"><span class="ln">13</span><span class="cl">
+</span></span><span class="line"><span class="ln">14</span><span class="cl">&gt; db.behaviorAnalysis.find<span class="o">({}</span>,<span class="o">{</span>_id:0<span class="o">})</span>.limit<span class="o">(</span>1<span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="o">{</span> <span class="s2">&#34;name&#34;</span> : <span class="s2">&#34;812304163055734784&#34;</span>, <span class="s2">&#34;createTime&#34;</span> : ISODate<span class="o">(</span><span class="s2">&#34;2022-02-19T12:46:44.360Z&#34;</span><span class="o">)</span>, <span class="s2">&#34;behavior&#34;</span> : <span class="s2">&#34;互动操作&#34;</span>, <span class="s2">&#34;log&#34;</span> : <span class="s2">&#34;加入看单：《爱的迫降》&#34;</span>, <span class="s2">&#34;userId&#34;</span> : 2, <span class="s2">&#34;_class&#34;</span> : <span class="s2">&#34;com.linkyee.api.domain.po.BehaviorAnalysis&#34;</span> <span class="o">}</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">
+</span></span><span class="line"><span class="ln">17</span><span class="cl">&gt; db.behaviorAnalysis.getIndexes<span class="o">()</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="o">[</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl">        <span class="o">{</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl">                <span class="s2">&#34;v&#34;</span> : 2,
+</span></span><span class="line"><span class="ln">21</span><span class="cl">                <span class="s2">&#34;key&#34;</span> : <span class="o">{</span>
+</span></span><span class="line"><span class="ln">22</span><span class="cl">                        <span class="s2">&#34;_id&#34;</span> : <span class="m">1</span>
+</span></span><span class="line"><span class="ln">23</span><span class="cl">                <span class="o">}</span>,
+</span></span><span class="line"><span class="ln">24</span><span class="cl">                <span class="s2">&#34;name&#34;</span> : <span class="s2">&#34;_id_&#34;</span>,
+</span></span><span class="line"><span class="ln">25</span><span class="cl">                <span class="s2">&#34;ns&#34;</span> : <span class="s2">&#34;beyou.behaviorAnalysis&#34;</span>
+</span></span><span class="line"><span class="ln">26</span><span class="cl">        <span class="o">}</span>,
+</span></span><span class="line"><span class="ln">27</span><span class="cl">        <span class="o">{</span>
+</span></span><span class="line"><span class="ln">28</span><span class="cl">                <span class="s2">&#34;v&#34;</span> : 2,
+</span></span><span class="line"><span class="ln">29</span><span class="cl">                <span class="s2">&#34;key&#34;</span> : <span class="o">{</span>
+</span></span><span class="line"><span class="ln">30</span><span class="cl">                        <span class="s2">&#34;_class&#34;</span> : 1,
+</span></span><span class="line"><span class="ln">31</span><span class="cl">                        <span class="s2">&#34;behavior&#34;</span> : 1,
+</span></span><span class="line"><span class="ln">32</span><span class="cl">                        <span class="s2">&#34;log&#34;</span> : 1,
+</span></span><span class="line"><span class="ln">33</span><span class="cl">                        <span class="s2">&#34;userId&#34;</span> : <span class="m">1</span>
+</span></span><span class="line"><span class="ln">34</span><span class="cl">                <span class="o">}</span>,
+</span></span><span class="line"><span class="ln">35</span><span class="cl">                <span class="s2">&#34;name&#34;</span> : <span class="s2">&#34;_class_1_behavior_1_log_1_userId_1&#34;</span>,
+</span></span><span class="line"><span class="ln">36</span><span class="cl">                <span class="s2">&#34;ns&#34;</span> : <span class="s2">&#34;beyou.behaviorAnalysis&#34;</span>
+</span></span><span class="line"><span class="ln">37</span><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="ln">38</span><span class="cl"><span class="o">]</span>
+</span></span></code></pre></div><p>发现表结构不复杂，索引呢有两个，一个缺省的单字段索引_id，另一个是多字段索引，4合一的（ _class、behavior、log、userId ）</p>
 <p>继续，来看看查询：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>find <span class="o">{</span> 
-<span class="ln"> 2</span>  find: <span class="s2">&#34;behaviorAnalysis&#34;</span>, 
-<span class="ln"> 3</span>  filter: <span class="o">{</span> 
-<span class="ln"> 4</span>      behavior: <span class="o">{</span> <span class="nv">$regex</span>: <span class="s2">&#34;.*互动操作.*&#34;</span>, <span class="nv">$options</span>: <span class="s2">&#34;i&#34;</span> <span class="o">}</span>, 
-<span class="ln"> 5</span>      log: <span class="o">{</span> <span class="nv">$regex</span>: <span class="s2">&#34;.*\Q观看：《罗马的房子》,\E.*&#34;</span>, <span class="nv">$options</span>: <span class="s2">&#34;i&#34;</span> <span class="o">}</span>, 
-<span class="ln"> 6</span>      userId: 7345, 
-<span class="ln"> 7</span>      _class: <span class="o">{</span> <span class="nv">$in</span>: <span class="o">[</span> <span class="s2">&#34;com.linkyee.api.domain.po.BehaviorAnalysis&#34;</span> <span class="o">]</span> <span class="o">}</span>
-<span class="ln"> 8</span>  <span class="o">}</span>, 
-<span class="ln"> 9</span>  <span class="nv">$db</span>: <span class="s2">&#34;beyou&#34;</span> <span class="o">}</span>
-<span class="ln">10</span>  planSummary: IXSCAN <span class="o">{</span> _class: 1, behavior: 1, log: 1, userId: <span class="m">1</span> <span class="o">}</span> keysExamined:111564
-</code></pre></div><p>planSummary里，IXSCAN是查了索引，但是keyExamined居然有111564个，太多了吧。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">find <span class="o">{</span> 
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">  find: <span class="s2">&#34;behaviorAnalysis&#34;</span>, 
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">  filter: <span class="o">{</span> 
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">      behavior: <span class="o">{</span> <span class="nv">$regex</span>: <span class="s2">&#34;.*互动操作.*&#34;</span>, <span class="nv">$options</span>: <span class="s2">&#34;i&#34;</span> <span class="o">}</span>, 
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">      log: <span class="o">{</span> <span class="nv">$regex</span>: <span class="s2">&#34;.*\Q观看：《罗马的房子》,\E.*&#34;</span>, <span class="nv">$options</span>: <span class="s2">&#34;i&#34;</span> <span class="o">}</span>, 
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">      userId: 7345, 
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">      _class: <span class="o">{</span> <span class="nv">$in</span>: <span class="o">[</span> <span class="s2">&#34;com.linkyee.api.domain.po.BehaviorAnalysis&#34;</span> <span class="o">]</span> <span class="o">}</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">  <span class="o">}</span>, 
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">  <span class="nv">$db</span>: <span class="s2">&#34;beyou&#34;</span> <span class="o">}</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">  planSummary: IXSCAN <span class="o">{</span> _class: 1, behavior: 1, log: 1, userId: <span class="m">1</span> <span class="o">}</span> keysExamined:111564
+</span></span></code></pre></div><p>planSummary里，IXSCAN是查了索引，但是keyExamined居然有111564个，太多了吧。</p>
 <p>再看看索引，明显4合一的效率有问题。</p>
 <p>那就简单了，删掉这个4合一的索引，新建一个userId的索引，既然叫userId，那推测它是唯一的，重建索引需要后台执行，并且在业务不繁忙的时候再跑</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>db.behaviorAnalysis.createIndex<span class="o">({</span><span class="s2">&#34;userId&#34;</span>:1<span class="o">}</span>,<span class="o">{</span><span class="s2">&#34;name&#34;</span>:<span class="s1">&#39;idx_userId&#39;</span>,background:true,unique:true<span class="o">})</span><span class="p">;</span>
-</code></pre></div><p>同事执行的时候报错：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">db.behaviorAnalysis.createIndex<span class="o">({</span><span class="s2">&#34;userId&#34;</span>:1<span class="o">}</span>,<span class="o">{</span><span class="s2">&#34;name&#34;</span>:<span class="s1">&#39;idx_userId&#39;</span>,background:true,unique:true<span class="o">})</span><span class="p">;</span>
+</span></span></code></pre></div><p>同事执行的时候报错：</p>
 <p><img class="img-fluid" alt="image-20220721154134916" src="https://bajie.dev/posts/20220721-mongodb_cpu/image-20220721154134916.png" loading="lazy"
    width="611" height="241"
    />
@@ -344,7 +343,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -384,11 +383,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

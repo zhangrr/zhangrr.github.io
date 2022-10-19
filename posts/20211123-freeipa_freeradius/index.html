@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="使用FreeIPA和FreeRadius搭建双因子认证服务器">
 <meta itemprop="description" content="审计啊审计，公司使用的华为防火墙需要配置双因子登录认证，这下麻烦了。 查了一下华为手册，支持 Radius 认证，那么没办法，最省钱的办法就是用 FreeIPA 和 FreeRadius 搭一套"><meta itemprop="datePublished" content="2021-11-23T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2021-11-23T09:30:11+08:00" />
-<meta itemprop="wordCount" content="1441">
+<meta itemprop="wordCount" content="1451">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="使用FreeIPA和FreeRadius搭建双因子认证服务器" />
 <meta property="og:description" content="审计啊审计，公司使用的华为防火墙需要配置双因子登录认证，这下麻烦了。 查了一下华为手册，支持 Radius 认证，那么没办法，最省钱的办法就是用 FreeIPA 和 FreeRadius 搭一套" />
 <meta property="og:type" content="article" />
@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="使用FreeIPA和FreeRadius搭建双因子认证服务器"/>
 <meta name="twitter:description" content="审计啊审计，公司使用的华为防火墙需要配置双因子登录认证，这下麻烦了。 查了一下华为手册，支持 Radius 认证，那么没办法，最省钱的办法就是用 FreeIPA 和 FreeRadius 搭一套"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -235,10 +235,10 @@
 <p>系统是 CentOS 7 ，已关闭防火墙服务，方法如下：</p>
 <h2 id="一搭建freeipa">一、搭建FreeIPA</h2>
 <p>首先设置 hostname</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>hostnamectl set-hostname freeipa.rendoumi.local
-<span class="ln">2</span>
-<span class="ln">3</span><span class="nb">echo</span> <span class="s2">&#34;192.168.1.5 freeipa.rendoumi.local&#34;</span> &gt;&gt; /etc/hosts
-</code></pre></div><p>然后安装 FreeIPA，注意要回答的几个问题</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">hostnamectl set-hostname freeipa.rendoumi.local
+</span></span><span class="line"><span class="ln">2</span><span class="cl">
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;192.168.1.5 freeipa.rendoumi.local&#34;</span> &gt;&gt; /etc/hosts
+</span></span></code></pre></div><p>然后安装 FreeIPA，注意要回答的几个问题</p>
 <ul>
 <li>不装bind，无论是 dnsmasq 或 coredns，都比 bind 轻，要装也装那两个。</li>
 <li>server hostname 是 freeipa.rendoumi.local</li>
@@ -246,83 +246,82 @@
 <li>realm name 是大写的 RENDOUMI.LOCAL</li>
 <li>有两个密码，第一个是 LDAP 的密码，第二个是 IPA 的密码</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>yum -y install deltarpm
-<span class="ln"> 2</span>yum update
-<span class="ln"> 3</span>
-<span class="ln"> 4</span>yum -y install freeipa-server
-<span class="ln"> 5</span>ipa-server-install
-<span class="ln"> 6</span>
-<span class="ln"> 7</span>This program will <span class="nb">set</span> up the IPA Server.
-<span class="ln"> 8</span>
-<span class="ln"> 9</span>This includes:
-<span class="ln">10</span>  * Configure a stand-alone CA <span class="o">(</span>dogtag<span class="o">)</span> <span class="k">for</span> certificate management
-<span class="ln">11</span>  * Configure the Network Time Daemon <span class="o">(</span>ntpd<span class="o">)</span>
-<span class="ln">12</span>  * Create and configure an instance of Directory Server
-<span class="ln">13</span>  * Create and configure a Kerberos Key Distribution Center <span class="o">(</span>KDC<span class="o">)</span>
-<span class="ln">14</span>  * Configure Apache <span class="o">(</span>httpd<span class="o">)</span>
-<span class="ln">15</span>
-<span class="ln">16</span>To accept the default shown in brackets, press the Enter key.
-<span class="ln">17</span>
-<span class="ln">18</span>WARNING: conflicting time<span class="p">&amp;</span>date synchronization service <span class="s1">&#39;chronyd&#39;</span> will be disabled in favor of ntpd
-<span class="ln">19</span>
-<span class="ln">20</span>Do you want to configure integrated DNS <span class="o">(</span>BIND<span class="o">)</span>? <span class="o">[</span>no<span class="o">]</span>:no
-<span class="ln">21</span>
-<span class="ln">22</span>Server host name <span class="o">[</span>freeipa.rendoumi.local<span class="o">]</span>:
-<span class="ln">23</span>
-<span class="ln">24</span>Please confirm the domain name <span class="o">[</span>rendoumi.local<span class="o">]</span>:
-<span class="ln">25</span>
-<span class="ln">26</span>Please provide a realm name <span class="o">[</span>RENDOUMI.LOCAL<span class="o">]</span>:
-<span class="ln">27</span>
-<span class="ln">28</span>Directory Manager password:
-<span class="ln">29</span>Password <span class="o">(</span>confirm<span class="o">)</span>:
-<span class="ln">30</span>...
-<span class="ln">31</span>IPA admin password:
-<span class="ln">32</span>Password <span class="o">(</span>confirm<span class="o">)</span>:
-<span class="ln">33</span>
-<span class="ln">34</span>The IPA Master Server will be configured with:
-<span class="ln">35</span>Hostname:       freeipa.rendoumi.local
-<span class="ln">36</span>IP address<span class="o">(</span>es<span class="o">)</span>: 192.168.1.5
-<span class="ln">37</span>Domain name:    rendoumi.local
-<span class="ln">38</span>Realm name:     RENDOUMI.LOCAL
-<span class="ln">39</span>
-<span class="ln">40</span>Continue to configure the system with these values? <span class="o">[</span>no<span class="o">]</span>: yes
-<span class="ln">41</span>
-<span class="ln">42</span>The following operations may take some minutes to complete.
-<span class="ln">43</span>Please <span class="nb">wait</span> <span class="k">until</span> the prompt is returned.
-<span class="ln">44</span>
-<span class="ln">45</span>Configuring NTP daemon <span class="o">(</span>ntpd<span class="o">)</span>
-<span class="ln">46</span>
-<span class="ln">47</span>...
-<span class="ln">48</span>
-<span class="ln">49</span>Setup <span class="nb">complete</span>
-<span class="ln">50</span>
-<span class="ln">51</span>Next steps:
-<span class="ln">52</span>        1. You must make sure these network ports are open:
-<span class="ln">53</span>                TCP Ports:
-<span class="ln">54</span>                  * 80, 443: HTTP/HTTPS
-<span class="ln">55</span>                  * 389, 636: LDAP/LDAPS
-<span class="ln">56</span>                  * 88, 464: kerberos
-<span class="ln">57</span>                UDP Ports:
-<span class="ln">58</span>                  * 88, 464: kerberos
-<span class="ln">59</span>                  * 123: ntp
-<span class="ln">60</span>
-<span class="ln">61</span>        2. You can now obtain a kerberos ticket using the command: <span class="s1">&#39;kinit admin&#39;</span>
-<span class="ln">62</span>           This ticket will allow you to use the IPA tools <span class="o">(</span>e.g., ipa user-add<span class="o">)</span>
-<span class="ln">63</span>           and the web user interface.
-<span class="ln">64</span>
-<span class="ln">65</span>Be sure to back up the CA certificate stored in /root/cacert.p12
-<span class="ln">66</span>This file is required to create replicas. The password <span class="k">for</span> this file is the Directory Manager password
-<span class="ln">67</span>
-</code></pre></div><p>以上，就装好了 FreeIPA，配置文件在 /etc/ipa/default.conf</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">yum -y install deltarpm
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">yum update
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">yum -y install freeipa-server
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">ipa-server-install
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">This program will <span class="nb">set</span> up the IPA Server.
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">This includes:
+</span></span><span class="line"><span class="ln">10</span><span class="cl">  * Configure a stand-alone CA <span class="o">(</span>dogtag<span class="o">)</span> <span class="k">for</span> certificate management
+</span></span><span class="line"><span class="ln">11</span><span class="cl">  * Configure the Network Time Daemon <span class="o">(</span>ntpd<span class="o">)</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">  * Create and configure an instance of Directory Server
+</span></span><span class="line"><span class="ln">13</span><span class="cl">  * Create and configure a Kerberos Key Distribution Center <span class="o">(</span>KDC<span class="o">)</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">  * Configure Apache <span class="o">(</span>httpd<span class="o">)</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl">
+</span></span><span class="line"><span class="ln">16</span><span class="cl">To accept the default shown in brackets, press the Enter key.
+</span></span><span class="line"><span class="ln">17</span><span class="cl">
+</span></span><span class="line"><span class="ln">18</span><span class="cl">WARNING: conflicting time<span class="p">&amp;</span>date synchronization service <span class="s1">&#39;chronyd&#39;</span> will be disabled in favor of ntpd
+</span></span><span class="line"><span class="ln">19</span><span class="cl">
+</span></span><span class="line"><span class="ln">20</span><span class="cl">Do you want to configure integrated DNS <span class="o">(</span>BIND<span class="o">)</span>? <span class="o">[</span>no<span class="o">]</span>:no
+</span></span><span class="line"><span class="ln">21</span><span class="cl">
+</span></span><span class="line"><span class="ln">22</span><span class="cl">Server host name <span class="o">[</span>freeipa.rendoumi.local<span class="o">]</span>:
+</span></span><span class="line"><span class="ln">23</span><span class="cl">
+</span></span><span class="line"><span class="ln">24</span><span class="cl">Please confirm the domain name <span class="o">[</span>rendoumi.local<span class="o">]</span>:
+</span></span><span class="line"><span class="ln">25</span><span class="cl">
+</span></span><span class="line"><span class="ln">26</span><span class="cl">Please provide a realm name <span class="o">[</span>RENDOUMI.LOCAL<span class="o">]</span>:
+</span></span><span class="line"><span class="ln">27</span><span class="cl">
+</span></span><span class="line"><span class="ln">28</span><span class="cl">Directory Manager password:
+</span></span><span class="line"><span class="ln">29</span><span class="cl">Password <span class="o">(</span>confirm<span class="o">)</span>:
+</span></span><span class="line"><span class="ln">30</span><span class="cl">...
+</span></span><span class="line"><span class="ln">31</span><span class="cl">IPA admin password:
+</span></span><span class="line"><span class="ln">32</span><span class="cl">Password <span class="o">(</span>confirm<span class="o">)</span>:
+</span></span><span class="line"><span class="ln">33</span><span class="cl">
+</span></span><span class="line"><span class="ln">34</span><span class="cl">The IPA Master Server will be configured with:
+</span></span><span class="line"><span class="ln">35</span><span class="cl">Hostname:       freeipa.rendoumi.local
+</span></span><span class="line"><span class="ln">36</span><span class="cl">IP address<span class="o">(</span>es<span class="o">)</span>: 192.168.1.5
+</span></span><span class="line"><span class="ln">37</span><span class="cl">Domain name:    rendoumi.local
+</span></span><span class="line"><span class="ln">38</span><span class="cl">Realm name:     RENDOUMI.LOCAL
+</span></span><span class="line"><span class="ln">39</span><span class="cl">
+</span></span><span class="line"><span class="ln">40</span><span class="cl">Continue to configure the system with these values? <span class="o">[</span>no<span class="o">]</span>: yes
+</span></span><span class="line"><span class="ln">41</span><span class="cl">
+</span></span><span class="line"><span class="ln">42</span><span class="cl">The following operations may take some minutes to complete.
+</span></span><span class="line"><span class="ln">43</span><span class="cl">Please <span class="nb">wait</span> <span class="k">until</span> the prompt is returned.
+</span></span><span class="line"><span class="ln">44</span><span class="cl">
+</span></span><span class="line"><span class="ln">45</span><span class="cl">Configuring NTP daemon <span class="o">(</span>ntpd<span class="o">)</span>
+</span></span><span class="line"><span class="ln">46</span><span class="cl">
+</span></span><span class="line"><span class="ln">47</span><span class="cl">...
+</span></span><span class="line"><span class="ln">48</span><span class="cl">
+</span></span><span class="line"><span class="ln">49</span><span class="cl">Setup <span class="nb">complete</span>
+</span></span><span class="line"><span class="ln">50</span><span class="cl">
+</span></span><span class="line"><span class="ln">51</span><span class="cl">Next steps:
+</span></span><span class="line"><span class="ln">52</span><span class="cl">        1. You must make sure these network ports are open:
+</span></span><span class="line"><span class="ln">53</span><span class="cl">                TCP Ports:
+</span></span><span class="line"><span class="ln">54</span><span class="cl">                  * 80, 443: HTTP/HTTPS
+</span></span><span class="line"><span class="ln">55</span><span class="cl">                  * 389, 636: LDAP/LDAPS
+</span></span><span class="line"><span class="ln">56</span><span class="cl">                  * 88, 464: kerberos
+</span></span><span class="line"><span class="ln">57</span><span class="cl">                UDP Ports:
+</span></span><span class="line"><span class="ln">58</span><span class="cl">                  * 88, 464: kerberos
+</span></span><span class="line"><span class="ln">59</span><span class="cl">                  * 123: ntp
+</span></span><span class="line"><span class="ln">60</span><span class="cl">
+</span></span><span class="line"><span class="ln">61</span><span class="cl">        2. You can now obtain a kerberos ticket using the command: <span class="s1">&#39;kinit admin&#39;</span>
+</span></span><span class="line"><span class="ln">62</span><span class="cl">           This ticket will allow you to use the IPA tools <span class="o">(</span>e.g., ipa user-add<span class="o">)</span>
+</span></span><span class="line"><span class="ln">63</span><span class="cl">           and the web user interface.
+</span></span><span class="line"><span class="ln">64</span><span class="cl">
+</span></span><span class="line"><span class="ln">65</span><span class="cl">Be sure to back up the CA certificate stored in /root/cacert.p12
+</span></span><span class="line"><span class="ln">66</span><span class="cl">This file is required to create replicas. The password <span class="k">for</span> this file is the Directory Manager password
+</span></span></code></pre></div><p>以上，就装好了 FreeIPA，配置文件在 /etc/ipa/default.conf</p>
 <p>验证一下：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span><span class="c1"># 输入ipa密码</span>
-<span class="ln">2</span>kinit admin
-<span class="ln">3</span>klist
-<span class="ln">4</span>
-<span class="ln">5</span>ipactl status
-<span class="ln">6</span><span class="c1"># sn 输入 01</span>
-<span class="ln">7</span>ipa cert-show
-</code></pre></div><p>登录： <a href="http://freeipa.rendoumi.com" target="_blank" rel="noopener noreferrer">http://freeipa.rendoumi.com</a>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1"># 输入ipa密码</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">kinit admin
+</span></span><span class="line"><span class="ln">3</span><span class="cl">klist
+</span></span><span class="line"><span class="ln">4</span><span class="cl">
+</span></span><span class="line"><span class="ln">5</span><span class="cl">ipactl status
+</span></span><span class="line"><span class="ln">6</span><span class="cl"><span class="c1"># sn 输入 01</span>
+</span></span><span class="line"><span class="ln">7</span><span class="cl">ipa cert-show
+</span></span></code></pre></div><p>登录： <a href="http://freeipa.rendoumi.com" target="_blank" rel="noopener noreferrer">http://freeipa.rendoumi.com</a>
 ，（注意你访问的机器必须能解析到这个域名）用户名 admin ，密码是上面填入的 ipa 密码，建立一个新用户</p>
 <p><img class="img-fluid" alt="image-20211124084419289" src="https://bajie.dev/posts/20211123-freeipa_freeradius/image-20211124084419289.png" loading="lazy"
    width="561" height="464"
@@ -359,84 +358,84 @@
 <h2 id="二搭建freeradius">二、搭建FreeRadius</h2>
 <p>上面的部分其实是 FreeIPA 充当了用户数据库，用 LDAP 存放数据，而 Radius 需要从 IPA 拿到用户信息。</p>
 <p>安装：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>yum -y install freeradius freeradius-utils freeradius-ldap freeradius-krb5
-</code></pre></div><p>Radius 的配置都在 /etc/raddb 目录下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">yum -y install freeradius freeradius-utils freeradius-ldap freeradius-krb5
+</span></span></code></pre></div><p>Radius 的配置都在 /etc/raddb 目录下：</p>
 <p>编辑 <code>/etc/raddb/client.conf</code> ，增加一个网段的认证，允许 172.0.0.0/8 访问</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span><span class="na">client localnet {</span>
-<span class="ln"> 2</span>        <span class="na">ipaddr</span> <span class="o">=</span> <span class="s">172.0.0.0/8
-</span><span class="ln"> 3</span><span class="s">        proto = *
-</span><span class="ln"> 4</span><span class="s">        secret = Fuck2021
-</span><span class="ln"> 5</span><span class="s">        nas_type = other
-</span><span class="ln"> 6</span><span class="s">        limit {
-</span><span class="ln"> 7</span><span class="s">                max_connections = 16
-</span><span class="ln"> 8</span><span class="s">                lifetime = 0
-</span><span class="ln"> 9</span><span class="s">                idle_timeout = 30
-</span><span class="ln">10</span><span class="s">        }</span>
-<span class="ln">11</span><span class="na">}</span>
-</code></pre></div><p>同时修改下面的 <code>clinet localhost</code> 部分，修改 secret，之后我们要从本地登录做测试</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span><span class="na">client localhost {</span>
-<span class="ln">2</span>        <span class="na">secret</span> <span class="o">=</span> <span class="s">ChinaBank2021
-</span><span class="ln">3</span><span class="s">        </span>
-</code></pre></div><p>再修改 <code>/etc/raddb/sites-enabled/default</code> and <code>/etc/raddb/sites-enabled/inner-tunnel</code> ，支持 LDAP，有二处地方</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="na">client localnet {</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">        <span class="na">ipaddr</span> <span class="o">=</span> <span class="s">172.0.0.0/8
+</span></span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="s">        proto = *
+</span></span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="s">        secret = Fuck2021
+</span></span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="s">        nas_type = other
+</span></span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="s">        limit {
+</span></span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="s">                max_connections = 16
+</span></span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="s">                lifetime = 0
+</span></span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="s">                idle_timeout = 30
+</span></span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="s">        }</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="na">}</span>
+</span></span></code></pre></div><p>同时修改下面的 <code>clinet localhost</code> 部分，修改 secret，之后我们要从本地登录做测试</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln">1</span><span class="cl"><span class="na">client localhost {</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">        <span class="na">secret</span> <span class="o">=</span> <span class="s">ChinaBank2021
+</span></span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="s">        </span>
+</span></span></code></pre></div><p>再修改 <code>/etc/raddb/sites-enabled/default</code> and <code>/etc/raddb/sites-enabled/inner-tunnel</code> ，支持 LDAP，有二处地方</p>
 <p>把</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span>        <span class="c1">#</span>
-<span class="ln">2</span>        <span class="c1">#  The ldap module reads passwords from the LDAP database.</span>
-<span class="ln">3</span>        <span class="na">-ldap</span>
-</code></pre></div><p>换成：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span>        <span class="c1">#</span>
-<span class="ln">2</span>        <span class="c1">#  The ldap module reads passwords from the LDAP database.</span>
-<span class="ln">3</span>        <span class="na">ldap</span>
-<span class="ln">4</span>        <span class="na">if ((ok || updated) &amp;&amp; User-Password) {</span>
-<span class="ln">5</span>            <span class="na">update {</span>
-<span class="ln">6</span>                <span class="na">control:Auth-Type :</span><span class="o">=</span> <span class="s">ldap
-</span><span class="ln">7</span><span class="s">            }
-</span><span class="ln">8</span><span class="s">        }</span>
-</code></pre></div><p>把</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span><span class="c1">#       Auth-Type LDAP {</span>
-<span class="ln">2</span><span class="c1">#               ldap</span>
-<span class="ln">3</span><span class="c1">#       }</span>
-</code></pre></div><p>换成：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span>        <span class="na">Auth-Type LDAP {</span>
-<span class="ln">2</span>                <span class="na">ldap</span>
-<span class="ln">3</span>        <span class="na">}</span>
-</code></pre></div><p>然后 ldap 模块配置一下</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>ln -s /etc/raddb/mods-available/ldap /etc/raddb/mods-enabled/
-</code></pre></div><p>我们先用 ldapsearch 搜索一下，看看具体的 dn 信息，这里输入之前设置的 ldap 密码</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>ldapsearch -x -v -W -D <span class="s1">&#39;cn=Directory Manager&#39;</span>  <span class="nv">uid</span><span class="o">=</span>test<span class="p">|</span>grep <span class="nb">test</span>
-<span class="ln">2</span>ldap_initialize<span class="o">(</span> &lt;DEFAULT&gt; <span class="o">)</span>
-<span class="ln">3</span>Enter LDAP Password: 
-<span class="ln">4</span>filter: <span class="nv">uid</span><span class="o">=</span><span class="nb">test</span>
-<span class="ln">5</span>requesting: All userApplication attributes
-<span class="ln">6</span>memberOf: <span class="nv">cn</span><span class="o">=</span>test,cn<span class="o">=</span>groups,cn<span class="o">=</span>accounts,dc<span class="o">=</span>rendoumi,dc<span class="o">=</span><span class="nb">local</span>
-</code></pre></div><p>得到 <code>cn=accounts,dc=rendoumi,dc=local</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln">1</span><span class="cl">        <span class="c1">#</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">        <span class="c1">#  The ldap module reads passwords from the LDAP database.</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">        <span class="na">-ldap</span>
+</span></span></code></pre></div><p>换成：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln">1</span><span class="cl">        <span class="c1">#</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">        <span class="c1">#  The ldap module reads passwords from the LDAP database.</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">        <span class="na">ldap</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">        <span class="na">if ((ok || updated) &amp;&amp; User-Password) {</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl">            <span class="na">update {</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl">                <span class="na">control:Auth-Type :</span><span class="o">=</span> <span class="s">ldap
+</span></span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="s">            }
+</span></span></span><span class="line"><span class="ln">8</span><span class="cl"><span class="s">        }</span>
+</span></span></code></pre></div><p>把</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1">#       Auth-Type LDAP {</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="c1">#               ldap</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="c1">#       }</span>
+</span></span></code></pre></div><p>换成：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln">1</span><span class="cl">        <span class="na">Auth-Type LDAP {</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">                <span class="na">ldap</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">        <span class="na">}</span>
+</span></span></code></pre></div><p>然后 ldap 模块配置一下</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">ln -s /etc/raddb/mods-available/ldap /etc/raddb/mods-enabled/
+</span></span></code></pre></div><p>我们先用 ldapsearch 搜索一下，看看具体的 dn 信息，这里输入之前设置的 ldap 密码</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">ldapsearch -x -v -W -D <span class="s1">&#39;cn=Directory Manager&#39;</span>  <span class="nv">uid</span><span class="o">=</span>test<span class="p">|</span>grep <span class="nb">test</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">ldap_initialize<span class="o">(</span> &lt;DEFAULT&gt; <span class="o">)</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">Enter LDAP Password: 
+</span></span><span class="line"><span class="ln">4</span><span class="cl">filter: <span class="nv">uid</span><span class="o">=</span><span class="nb">test</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl">requesting: All userApplication attributes
+</span></span><span class="line"><span class="ln">6</span><span class="cl">memberOf: <span class="nv">cn</span><span class="o">=</span>test,cn<span class="o">=</span>groups,cn<span class="o">=</span>accounts,dc<span class="o">=</span>rendoumi,dc<span class="o">=</span><span class="nb">local</span>
+</span></span></code></pre></div><p>得到 <code>cn=accounts,dc=rendoumi,dc=local</code></p>
 <p>再去修改 <code>/etc/raddb/mods-enabled/ldap</code> 文件，修改 server 和 base_dn 与之对应：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span>        <span class="na">server</span> <span class="o">=</span> <span class="s">&#39;freeipa.rendoumi.local&#39;
-</span><span class="ln">2</span><span class="s">        base_dn = &#39;cn=accounts,dc=rendoumi,dc=local&#39;</span>
-</code></pre></div><p>注意，上面我们没装 bind，所以必须在 <code>/etc/hosts</code> 存在记录，否则本地就访问不到了</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln">1</span><span class="cl">        <span class="na">server</span> <span class="o">=</span> <span class="s">&#39;freeipa.rendoumi.local&#39;
+</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="s">        base_dn = &#39;cn=accounts,dc=rendoumi,dc=local&#39;</span>
+</span></span></code></pre></div><p>注意，上面我们没装 bind，所以必须在 <code>/etc/hosts</code> 存在记录，否则本地就访问不到了</p>
 <p>启动 radiusd 的调试模式：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>radiusd –X
-<span class="ln"> 2</span>...
-<span class="ln"> 3</span>Listening on auth address * port <span class="m">1812</span> as server default
-<span class="ln"> 4</span>Listening on acct address * port <span class="m">1813</span> as server default
-<span class="ln"> 5</span>Listening on auth address :: port <span class="m">1812</span> as server default
-<span class="ln"> 6</span>Listening on acct address :: port <span class="m">1813</span> as server default
-<span class="ln"> 7</span>Listening on auth address 127.0.0.1 port <span class="m">18120</span> as server inner-tunnel
-<span class="ln"> 8</span>Opening new proxy socket <span class="s1">&#39;proxy address * port 0&#39;</span>
-<span class="ln"> 9</span>Listening on proxy address * port <span class="m">36752</span>
-<span class="ln">10</span>Ready to process requests
-</code></pre></div><p>再开一个终端测试一下，注意，我们是从本地(127.0.0.1)发起测试的，所以对应要用到上面设置的 secret，用 admin 登录，就避免要用到 freeotp 的口令，这里 xxxxxxxx 是 admin 的密码：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>radtest admin xxxxxxxx freeipa.rendoumi.local <span class="m">1812</span> ChinaBank2021
-<span class="ln">2</span>Sent Access-Request Id <span class="m">57</span> from 0.0.0.0:45247 to 172.18.31.41:1812 length <span class="m">75</span>
-<span class="ln">3</span>        User-Name <span class="o">=</span> <span class="s2">&#34;admin&#34;</span>
-<span class="ln">4</span>        User-Password <span class="o">=</span> <span class="s2">&#34;xxxxxxxx&#34;</span>
-<span class="ln">5</span>        NAS-IP-Address <span class="o">=</span> 172.18.31.41
-<span class="ln">6</span>        NAS-Port <span class="o">=</span> <span class="m">1812</span>
-<span class="ln">7</span>        Message-Authenticator <span class="o">=</span> 0x00
-<span class="ln">8</span>        Cleartext-Password <span class="o">=</span> <span class="s2">&#34;xxxxxxxx&#34;</span>
-<span class="ln">9</span>Received Access-Accept Id <span class="m">57</span> from 172.18.31.41:1812 to 0.0.0.0:0 length <span class="m">20</span>
-</code></pre></div><p>看到上面 Access-Accept 就ok了，<code>ctrl-c</code> 终止 radiusd 的运行，开启 radiusd 服务。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>systemctl <span class="nb">enable</span> --now radiusd
-</code></pre></div><p>然后在华为防火墙设置这个 radiusd 服务器就可以了。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">radiusd –X
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">...
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">Listening on auth address * port <span class="m">1812</span> as server default
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">Listening on acct address * port <span class="m">1813</span> as server default
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">Listening on auth address :: port <span class="m">1812</span> as server default
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">Listening on acct address :: port <span class="m">1813</span> as server default
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">Listening on auth address 127.0.0.1 port <span class="m">18120</span> as server inner-tunnel
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">Opening new proxy socket <span class="s1">&#39;proxy address * port 0&#39;</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">Listening on proxy address * port <span class="m">36752</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">Ready to process requests
+</span></span></code></pre></div><p>再开一个终端测试一下，注意，我们是从本地(127.0.0.1)发起测试的，所以对应要用到上面设置的 secret，用 admin 登录，就避免要用到 freeotp 的口令，这里 xxxxxxxx 是 admin 的密码：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">radtest admin xxxxxxxx freeipa.rendoumi.local <span class="m">1812</span> ChinaBank2021
+</span></span><span class="line"><span class="ln">2</span><span class="cl">Sent Access-Request Id <span class="m">57</span> from 0.0.0.0:45247 to 172.18.31.41:1812 length <span class="m">75</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">        User-Name <span class="o">=</span> <span class="s2">&#34;admin&#34;</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">        User-Password <span class="o">=</span> <span class="s2">&#34;xxxxxxxx&#34;</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl">        NAS-IP-Address <span class="o">=</span> 172.18.31.41
+</span></span><span class="line"><span class="ln">6</span><span class="cl">        NAS-Port <span class="o">=</span> <span class="m">1812</span>
+</span></span><span class="line"><span class="ln">7</span><span class="cl">        Message-Authenticator <span class="o">=</span> 0x00
+</span></span><span class="line"><span class="ln">8</span><span class="cl">        Cleartext-Password <span class="o">=</span> <span class="s2">&#34;xxxxxxxx&#34;</span>
+</span></span><span class="line"><span class="ln">9</span><span class="cl">Received Access-Accept Id <span class="m">57</span> from 172.18.31.41:1812 to 0.0.0.0:0 length <span class="m">20</span>
+</span></span></code></pre></div><p>看到上面 Access-Accept 就ok了，<code>ctrl-c</code> 终止 radiusd 的运行，开启 radiusd 服务。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">systemctl <span class="nb">enable</span> --now radiusd
+</span></span></code></pre></div><p>然后在华为防火墙设置这个 radiusd 服务器就可以了。</p>
 <p>参考资料：</p>
 <p><a href="https://www.freeipa.org/page/Using_FreeIPA_and_FreeRadius_as_a_RADIUS_based_software_token_OTP_system_with_CentOS/RedHat_7" target="_blank" rel="noopener noreferrer">https://www.freeipa.org/page/Using_FreeIPA_and_FreeRadius_as_a_RADIUS_based_software_token_OTP_system_with_CentOS/RedHat_7</a>
 </p>
@@ -485,7 +484,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -525,11 +524,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

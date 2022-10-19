@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="KVM下附加硬盘的passthrough直通">
 <meta itemprop="description" content="这个比较有意思，同事要存放 2TB 的数据，但是系统是 1.7TB 的 4 块 600G 盘组成的 Raid10。 很明显盘空间不够了，去库房找两块 10TB 的大盘组成 Raid1 给他用好了。 问题"><meta itemprop="datePublished" content="2021-11-19T10:30:11+08:00" />
 <meta itemprop="dateModified" content="2021-11-19T10:30:11+08:00" />
-<meta itemprop="wordCount" content="733">
+<meta itemprop="wordCount" content="737">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="KVM下附加硬盘的passthrough直通" />
 <meta property="og:description" content="这个比较有意思，同事要存放 2TB 的数据，但是系统是 1.7TB 的 4 块 600G 盘组成的 Raid10。 很明显盘空间不够了，去库房找两块 10TB 的大盘组成 Raid1 给他用好了。 问题" />
 <meta property="og:type" content="article" />
@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="KVM下附加硬盘的passthrough直通"/>
 <meta name="twitter:description" content="这个比较有意思，同事要存放 2TB 的数据，但是系统是 1.7TB 的 4 块 600G 盘组成的 Raid10。 很明显盘空间不够了，去库房找两块 10TB 的大盘组成 Raid1 给他用好了。 问题"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -223,52 +223,52 @@
 </blockquote>
 <p>注意上面的说明，是不建议将整个硬盘送进虚机里面去的，建议是送<strong>分区</strong>进去，避免会写坏整个盘。</p>
 <p>所以先把盘的分区做好，格式化并挂载，以 /dev/sdb 为例</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>parted -s /dev/sdb mklabel gpt mkpart primary 0% 100%
-<span class="ln">2</span>mkfs.xfs /dev/sdb1
-<span class="ln">3</span>mount -t xfs /dev/sdb1 /mnt/sdb1
-</code></pre></div><p>然后到实体机的磁盘目录</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="c1"># cd /dev/disk/</span>
-<span class="ln"> 2</span><span class="c1"># ls</span>
-<span class="ln"> 3</span>by-id  by-path  by-uuid
-<span class="ln"> 4</span>
-<span class="ln"> 5</span><span class="c1"># cd by-id</span>
-<span class="ln"> 6</span><span class="c1"># ll</span>
-<span class="ln"> 7</span>total <span class="m">0</span>
-<span class="ln"> 8</span>lrwxrwxrwx <span class="m">1</span> root root  <span class="m">9</span> 3月  <span class="m">26</span> <span class="m">2018</span> scsi-36b083fe0e4f71a001c36c36716543d4d -&gt; ../../sda
-<span class="ln"> 9</span>lrwxrwxrwx <span class="m">1</span> root root <span class="m">10</span> 3月  <span class="m">26</span> <span class="m">2018</span> scsi-36b083fe0e4f71a001c36c36716543d4d-part1 -&gt; ../../sda1
-<span class="ln">10</span>lrwxrwxrwx <span class="m">1</span> root root <span class="m">10</span> 3月  <span class="m">26</span> <span class="m">2018</span> scsi-36b083fe0e4f71a001c36c36716543d4d-part2 -&gt; ../../sda2
-<span class="ln">11</span>lrwxrwxrwx <span class="m">1</span> root root <span class="m">10</span> 3月  <span class="m">26</span> <span class="m">2018</span> scsi-36b083fe0e4f71a001c36c36716543d4d-part3 -&gt; ../../sda3
-<span class="ln">12</span>lrwxrwxrwx <span class="m">1</span> root root  <span class="m">9</span> 11月 <span class="m">18</span> 16:02 scsi-36b083fe0e4f71a002928bf63ef284827 -&gt; ../../sdb
-<span class="ln">13</span>lrwxrwxrwx <span class="m">1</span> root root <span class="m">10</span> 11月 <span class="m">18</span> 16:24 scsi-36b083fe0e4f71a002928bf63ef284827-part1 -&gt; ../../sdb1
-<span class="ln">14</span>lrwxrwxrwx <span class="m">1</span> root root  <span class="m">9</span> 3月  <span class="m">26</span> <span class="m">2018</span> wwn-0x6b083fe0e4f71a001c36c36716543d4d -&gt; ../../sda
-<span class="ln">15</span>lrwxrwxrwx <span class="m">1</span> root root <span class="m">10</span> 3月  <span class="m">26</span> <span class="m">2018</span> wwn-0x6b083fe0e4f71a001c36c36716543d4d-part1 -&gt; ../../sda1
-<span class="ln">16</span>lrwxrwxrwx <span class="m">1</span> root root <span class="m">10</span> 3月  <span class="m">26</span> <span class="m">2018</span> wwn-0x6b083fe0e4f71a001c36c36716543d4d-part2 -&gt; ../../sda2
-<span class="ln">17</span>lrwxrwxrwx <span class="m">1</span> root root <span class="m">10</span> 3月  <span class="m">26</span> <span class="m">2018</span> wwn-0x6b083fe0e4f71a001c36c36716543d4d-part3 -&gt; ../../sda3
-<span class="ln">18</span>lrwxrwxrwx <span class="m">1</span> root root  <span class="m">9</span> 11月 <span class="m">18</span> 16:02 wwn-0x6b083fe0e4f71a002928bf63ef284827 -&gt; ../../sdb
-<span class="ln">19</span>lrwxrwxrwx <span class="m">1</span> root root <span class="m">10</span> 11月 <span class="m">18</span> 16:24 wwn-0x6b083fe0e4f71a002928bf63ef284827-part1 -&gt; ../../sdb1
-</code></pre></div><p><img class="img-fluid" alt="image-20211119163327664" src="https://bajie.dev/posts/20211119-kvm_disk_passthrough/image-20211119163327664.png" loading="lazy"
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">parted -s /dev/sdb mklabel gpt mkpart primary 0% 100%
+</span></span><span class="line"><span class="ln">2</span><span class="cl">mkfs.xfs /dev/sdb1
+</span></span><span class="line"><span class="ln">3</span><span class="cl">mount -t xfs /dev/sdb1 /mnt/sdb1
+</span></span></code></pre></div><p>然后到实体机的磁盘目录</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1"># cd /dev/disk/</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="c1"># ls</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">by-id  by-path  by-uuid
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="c1"># cd by-id</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="c1"># ll</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">total <span class="m">0</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">lrwxrwxrwx <span class="m">1</span> root root  <span class="m">9</span> 3月  <span class="m">26</span> <span class="m">2018</span> scsi-36b083fe0e4f71a001c36c36716543d4d -&gt; ../../sda
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">lrwxrwxrwx <span class="m">1</span> root root <span class="m">10</span> 3月  <span class="m">26</span> <span class="m">2018</span> scsi-36b083fe0e4f71a001c36c36716543d4d-part1 -&gt; ../../sda1
+</span></span><span class="line"><span class="ln">10</span><span class="cl">lrwxrwxrwx <span class="m">1</span> root root <span class="m">10</span> 3月  <span class="m">26</span> <span class="m">2018</span> scsi-36b083fe0e4f71a001c36c36716543d4d-part2 -&gt; ../../sda2
+</span></span><span class="line"><span class="ln">11</span><span class="cl">lrwxrwxrwx <span class="m">1</span> root root <span class="m">10</span> 3月  <span class="m">26</span> <span class="m">2018</span> scsi-36b083fe0e4f71a001c36c36716543d4d-part3 -&gt; ../../sda3
+</span></span><span class="line"><span class="ln">12</span><span class="cl">lrwxrwxrwx <span class="m">1</span> root root  <span class="m">9</span> 11月 <span class="m">18</span> 16:02 scsi-36b083fe0e4f71a002928bf63ef284827 -&gt; ../../sdb
+</span></span><span class="line"><span class="ln">13</span><span class="cl">lrwxrwxrwx <span class="m">1</span> root root <span class="m">10</span> 11月 <span class="m">18</span> 16:24 scsi-36b083fe0e4f71a002928bf63ef284827-part1 -&gt; ../../sdb1
+</span></span><span class="line"><span class="ln">14</span><span class="cl">lrwxrwxrwx <span class="m">1</span> root root  <span class="m">9</span> 3月  <span class="m">26</span> <span class="m">2018</span> wwn-0x6b083fe0e4f71a001c36c36716543d4d -&gt; ../../sda
+</span></span><span class="line"><span class="ln">15</span><span class="cl">lrwxrwxrwx <span class="m">1</span> root root <span class="m">10</span> 3月  <span class="m">26</span> <span class="m">2018</span> wwn-0x6b083fe0e4f71a001c36c36716543d4d-part1 -&gt; ../../sda1
+</span></span><span class="line"><span class="ln">16</span><span class="cl">lrwxrwxrwx <span class="m">1</span> root root <span class="m">10</span> 3月  <span class="m">26</span> <span class="m">2018</span> wwn-0x6b083fe0e4f71a001c36c36716543d4d-part2 -&gt; ../../sda2
+</span></span><span class="line"><span class="ln">17</span><span class="cl">lrwxrwxrwx <span class="m">1</span> root root <span class="m">10</span> 3月  <span class="m">26</span> <span class="m">2018</span> wwn-0x6b083fe0e4f71a001c36c36716543d4d-part3 -&gt; ../../sda3
+</span></span><span class="line"><span class="ln">18</span><span class="cl">lrwxrwxrwx <span class="m">1</span> root root  <span class="m">9</span> 11月 <span class="m">18</span> 16:02 wwn-0x6b083fe0e4f71a002928bf63ef284827 -&gt; ../../sdb
+</span></span><span class="line"><span class="ln">19</span><span class="cl">lrwxrwxrwx <span class="m">1</span> root root <span class="m">10</span> 11月 <span class="m">18</span> 16:24 wwn-0x6b083fe0e4f71a002928bf63ef284827-part1 -&gt; ../../sdb1
+</span></span></code></pre></div><p><img class="img-fluid" alt="image-20211119163327664" src="https://bajie.dev/posts/20211119-kvm_disk_passthrough/image-20211119163327664.png" loading="lazy"
    width="912" height="237"
    />
 
 </p>
 <p>看中间一行，scsi-36b083fe0e4f71a002928bf63ef284827-part1 指向 /dev/sdb1，记录下来</p>
 <p>然后 virsh-edit 编辑 KVM 虚机文件，增加硬盘部分：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span>    <span class="na">&lt;disk type</span><span class="o">=</span><span class="s">&#39;block&#39; device=&#39;disk&#39;&gt;
-</span><span class="ln">2</span><span class="s">      &lt;driver name=&#39;qemu&#39; type=&#39;raw&#39;/&gt;
-</span><span class="ln">3</span><span class="s">      &lt;source dev=&#39;/dev/disk/by-id/scsi-36b083fe0e4f71a002928bf63ef284827-part1&#39;/&gt;
-</span><span class="ln">4</span><span class="s">      &lt;target dev=&#39;vda&#39; bus=&#39;virtio&#39;/&gt;
-</span><span class="ln">5</span><span class="s">    &lt;/disk&gt;</span>
-</code></pre></div><p>注：上面我们是使用了 by-id，当然也可以使用 by-path 和 by-uuid  来指定源盘</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln">1</span><span class="cl">    <span class="na">&lt;disk type</span><span class="o">=</span><span class="s">&#39;block&#39; device=&#39;disk&#39;&gt;
+</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="s">      &lt;driver name=&#39;qemu&#39; type=&#39;raw&#39;/&gt;
+</span></span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="s">      &lt;source dev=&#39;/dev/disk/by-id/scsi-36b083fe0e4f71a002928bf63ef284827-part1&#39;/&gt;
+</span></span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="s">      &lt;target dev=&#39;vda&#39; bus=&#39;virtio&#39;/&gt;
+</span></span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="s">    &lt;/disk&gt;</span>
+</span></span></code></pre></div><p>注：上面我们是使用了 by-id，当然也可以使用 by-path 和 by-uuid  来指定源盘</p>
 <p>重启虚机并进入查看，我们能看到这块盘盘符是 /dev/vda</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>fdisk -l
-<span class="ln">2</span>
-<span class="ln">3</span>Disk /dev/vda: 11755.9 GB, <span class="m">11755860262912</span> bytes, <span class="m">22960664576</span> sectors
-<span class="ln">4</span><span class="nv">Units</span> <span class="o">=</span> sectors of <span class="m">1</span> * <span class="nv">512</span> <span class="o">=</span> <span class="m">512</span> bytes
-<span class="ln">5</span>Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: <span class="m">512</span> bytes / <span class="m">512</span> bytes
-<span class="ln">6</span>I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span class="m">512</span> bytes / <span class="m">512</span> bytes
-</code></pre></div><p>接下来就比较怪异了，这个盘分明没有分区，我们却可以直接 mount</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>mount -t xfs /dev/vda /material
-</code></pre></div><p>然后 df -h 再看</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">fdisk -l
+</span></span><span class="line"><span class="ln">2</span><span class="cl">
+</span></span><span class="line"><span class="ln">3</span><span class="cl">Disk /dev/vda: 11755.9 GB, <span class="m">11755860262912</span> bytes, <span class="m">22960664576</span> sectors
+</span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="nv">Units</span> <span class="o">=</span> sectors of <span class="m">1</span> * <span class="nv">512</span> <span class="o">=</span> <span class="m">512</span> bytes
+</span></span><span class="line"><span class="ln">5</span><span class="cl">Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: <span class="m">512</span> bytes / <span class="m">512</span> bytes
+</span></span><span class="line"><span class="ln">6</span><span class="cl">I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span class="m">512</span> bytes / <span class="m">512</span> bytes
+</span></span></code></pre></div><p>接下来就比较怪异了，这个盘分明没有分区，我们却可以直接 mount</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">mount -t xfs /dev/vda /material
+</span></span></code></pre></div><p>然后 df -h 再看</p>
 <p><img class="img-fluid" alt="image-20211119164054485" src="https://bajie.dev/posts/20211119-kvm_disk_passthrough/image-20211119164054485.png" loading="lazy"
    width="493" height="204"
    />
@@ -322,7 +322,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -362,11 +362,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

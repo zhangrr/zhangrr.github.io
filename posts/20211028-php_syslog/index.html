@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="PHP程序如何发送syslog到远程服务器">
 <meta itemprop="description" content="给同事做了个 PHP 接口，转发发送短信的请求，同时要把发送记录发送到远程的 cacti 的 syslog 去 很简单，但是也不简单 首先是 PHP 服务器，是最简化编译的，php -m 查了"><meta itemprop="datePublished" content="2021-10-28T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2021-10-28T09:30:11+08:00" />
-<meta itemprop="wordCount" content="644">
+<meta itemprop="wordCount" content="638">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="PHP程序如何发送syslog到远程服务器" />
 <meta property="og:description" content="给同事做了个 PHP 接口，转发发送短信的请求，同时要把发送记录发送到远程的 cacti 的 syslog 去 很简单，但是也不简单 首先是 PHP 服务器，是最简化编译的，php -m 查了" />
 <meta property="og:type" content="article" />
@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="PHP程序如何发送syslog到远程服务器"/>
 <meta name="twitter:description" content="给同事做了个 PHP 接口，转发发送短信的请求，同时要把发送记录发送到远程的 cacti 的 syslog 去 很简单，但是也不简单 首先是 PHP 服务器，是最简化编译的，php -m 查了"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -216,101 +216,101 @@
 <div class="post-content mb-3"><p>给同事做了个 PHP 接口，转发发送短信的请求，同时要把发送记录发送到远程的 cacti 的 syslog 去</p>
 <p>很简单，但是也不简单</p>
 <p>首先是 PHP 服务器，是最简化编译的，php  -m 查了一下</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span><span class="na">php -m</span>
-<span class="ln"> 2</span><span class="k">[PHP Modules]</span>
-<span class="ln"> 3</span><span class="na">Core</span>
-<span class="ln"> 4</span><span class="na">ctype</span>
-<span class="ln"> 5</span><span class="na">curl</span>
-<span class="ln"> 6</span><span class="na">date</span>
-<span class="ln"> 7</span><span class="na">dom</span>
-<span class="ln"> 8</span><span class="na">fileinfo</span>
-<span class="ln"> 9</span><span class="na">filter</span>
-<span class="ln">10</span><span class="na">gettext</span>
-<span class="ln">11</span><span class="na">hash</span>
-<span class="ln">12</span><span class="na">iconv</span>
-<span class="ln">13</span><span class="na">json</span>
-<span class="ln">14</span><span class="na">libxml</span>
-<span class="ln">15</span><span class="na">openssl</span>
-<span class="ln">16</span><span class="na">pcre</span>
-<span class="ln">17</span><span class="na">PDO</span>
-<span class="ln">18</span><span class="na">pdo_sqlite</span>
-<span class="ln">19</span><span class="na">Phar</span>
-<span class="ln">20</span><span class="na">posix</span>
-<span class="ln">21</span><span class="na">Reflection</span>
-<span class="ln">22</span><span class="na">session</span>
-<span class="ln">23</span><span class="na">SimpleXML</span>
-<span class="ln">24</span><span class="na">SPL</span>
-<span class="ln">25</span><span class="na">sqlite3</span>
-<span class="ln">26</span><span class="na">standard</span>
-<span class="ln">27</span><span class="na">tokenizer</span>
-<span class="ln">28</span><span class="na">xml</span>
-<span class="ln">29</span><span class="na">xmlreader</span>
-<span class="ln">30</span><span class="na">xmlwriter</span>
-<span class="ln">31</span>
-<span class="ln">32</span><span class="k">[Zend Modules]</span>
-</code></pre></div><p>居然没有 socket 模块，没办法，找到源代码，编译一个安装，原有的 php 安装路径是 /export/servers/php</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>$ tar zxvf php-7.4.0.tar.gz 
-<span class="ln">2</span>$ <span class="nb">cd</span> php-7.4.0/sockets
-<span class="ln">3</span>$ /export/servers/php/bin/phpize
-<span class="ln">4</span>$ ./configure --enable-sockets --with-php-config<span class="o">=</span>/export/servers/php/bin/php-config
-<span class="ln">5</span>$ make
-<span class="ln">6</span>$ make install
-</code></pre></div><p>又看了一眼，是 php-fpm，居然没有 php.ini ，得，再生成一个，放在 /export/servers/php/lib/php.ini</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span><span class="na">extension_dir</span> <span class="o">=</span> <span class="s">&#34;/export/servers/php740/lib/php/extensions/no-debug-non-zts-20190902/&#34;</span>
-<span class="ln">2</span><span class="na">extension</span> <span class="o">=</span> <span class="s">sockets.so</span>
-</code></pre></div><p>然后重启 php-fpm ，重新 php -m 检查，发现有 socket 模块就 ok 了。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="na">php -m</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="k">[PHP Modules]</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="na">Core</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="na">ctype</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="na">curl</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="na">date</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="na">dom</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="na">fileinfo</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="na">filter</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="na">gettext</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="na">hash</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="na">iconv</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="na">json</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="na">libxml</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="na">openssl</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="na">pcre</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="na">PDO</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="na">pdo_sqlite</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl"><span class="na">Phar</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="na">posix</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl"><span class="na">Reflection</span>
+</span></span><span class="line"><span class="ln">22</span><span class="cl"><span class="na">session</span>
+</span></span><span class="line"><span class="ln">23</span><span class="cl"><span class="na">SimpleXML</span>
+</span></span><span class="line"><span class="ln">24</span><span class="cl"><span class="na">SPL</span>
+</span></span><span class="line"><span class="ln">25</span><span class="cl"><span class="na">sqlite3</span>
+</span></span><span class="line"><span class="ln">26</span><span class="cl"><span class="na">standard</span>
+</span></span><span class="line"><span class="ln">27</span><span class="cl"><span class="na">tokenizer</span>
+</span></span><span class="line"><span class="ln">28</span><span class="cl"><span class="na">xml</span>
+</span></span><span class="line"><span class="ln">29</span><span class="cl"><span class="na">xmlreader</span>
+</span></span><span class="line"><span class="ln">30</span><span class="cl"><span class="na">xmlwriter</span>
+</span></span><span class="line"><span class="ln">31</span><span class="cl">
+</span></span><span class="line"><span class="ln">32</span><span class="cl"><span class="k">[Zend Modules]</span>
+</span></span></code></pre></div><p>居然没有 socket 模块，没办法，找到源代码，编译一个安装，原有的 php 安装路径是 /export/servers/php</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">$ tar zxvf php-7.4.0.tar.gz 
+</span></span><span class="line"><span class="ln">2</span><span class="cl">$ <span class="nb">cd</span> php-7.4.0/sockets
+</span></span><span class="line"><span class="ln">3</span><span class="cl">$ /export/servers/php/bin/phpize
+</span></span><span class="line"><span class="ln">4</span><span class="cl">$ ./configure --enable-sockets --with-php-config<span class="o">=</span>/export/servers/php/bin/php-config
+</span></span><span class="line"><span class="ln">5</span><span class="cl">$ make
+</span></span><span class="line"><span class="ln">6</span><span class="cl">$ make install
+</span></span></code></pre></div><p>又看了一眼，是 php-fpm，居然没有 php.ini ，得，再生成一个，放在 /export/servers/php/lib/php.ini</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln">1</span><span class="cl"><span class="na">extension_dir</span> <span class="o">=</span> <span class="s">&#34;/export/servers/php740/lib/php/extensions/no-debug-non-zts-20190902/&#34;</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="na">extension</span> <span class="o">=</span> <span class="s">sockets.so</span>
+</span></span></code></pre></div><p>然后重启 php-fpm ，重新 php -m 检查，发现有 socket 模块就 ok 了。</p>
 <p>接下来就是 php 源代码了</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-php" data-lang="php"><span class="ln"> 1</span><span class="o">&lt;?</span><span class="nx">php</span>
-<span class="ln"> 2</span><span class="nx">date_default_timezone_set</span><span class="p">(</span><span class="s1">&#39;Asia/Shanghai&#39;</span><span class="p">);</span>
-<span class="ln"> 3</span>
-<span class="ln"> 4</span><span class="k">function</span> <span class="nf">send_remote_syslog</span><span class="p">(</span><span class="nv">$message</span><span class="p">)</span> <span class="p">{</span>
-<span class="ln"> 5</span>    <span class="nv">$sock</span> <span class="o">=</span> <span class="nx">socket_create</span><span class="p">(</span><span class="nx">AF_INET</span><span class="p">,</span> <span class="nx">SOCK_DGRAM</span><span class="p">,</span> <span class="nx">SOL_UDP</span><span class="p">);</span>
-<span class="ln"> 6</span>    <span class="k">foreach</span><span class="p">(</span><span class="nx">explode</span><span class="p">(</span><span class="s2">&#34;</span><span class="se">\n</span><span class="s2">&#34;</span><span class="p">,</span> <span class="nv">$message</span><span class="p">)</span> <span class="k">as</span> <span class="nv">$line</span><span class="p">)</span> <span class="p">{</span>
-<span class="ln"> 7</span>      <span class="nv">$syslog_message</span> <span class="o">=</span> <span class="s2">&#34;&lt;22&gt;&#34;</span> <span class="o">.</span> <span class="nx">date</span><span class="p">(</span><span class="s1">&#39;M d H:i:s &#39;</span><span class="p">)</span> <span class="o">.</span> <span class="s1">&#39;Qi_an_xin sms_log: &#39;</span> <span class="o">.</span> <span class="nv">$line</span><span class="p">;</span>
-<span class="ln"> 8</span>      <span class="nx">socket_sendto</span><span class="p">(</span><span class="nv">$sock</span><span class="p">,</span> <span class="nv">$syslog_message</span><span class="p">,</span> <span class="nx">strlen</span><span class="p">(</span><span class="nv">$syslog_message</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;172.18.31.6&#39;</span><span class="p">,</span> <span class="mi">514</span><span class="p">);</span>
-<span class="ln"> 9</span>    <span class="p">}</span>
-<span class="ln">10</span>    <span class="nx">socket_close</span><span class="p">(</span><span class="nv">$sock</span><span class="p">);</span>
-<span class="ln">11</span><span class="p">}</span>
-<span class="ln">12</span>
-<span class="ln">13</span>    <span class="nx">send_remote_syslog</span><span class="p">(</span><span class="s2">&#34;ABC 验证码: 39792192&#34;</span><span class="p">);</span>
-<span class="ln">14</span><span class="cp">?&gt;</span><span class="err">    
-</span></code></pre></div><p>这样就可以了，上面代码比较难理解的是&lt;22&gt;，那是报错级别的计算方法，Facility + Severity：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span> <span class="na">*   Facility values:</span>
-<span class="ln"> 2</span> <span class="na">*      0 kernel messages</span>
-<span class="ln"> 3</span> <span class="na">*      1 user-level messages</span>
-<span class="ln"> 4</span> <span class="na">*      2 mail system</span>
-<span class="ln"> 5</span> <span class="na">*      3 system daemons</span>
-<span class="ln"> 6</span> <span class="na">*      4 security/authorization messages</span>
-<span class="ln"> 7</span> <span class="na">*      5 messages generated internally by syslogd</span>
-<span class="ln"> 8</span> <span class="na">*      6 line printer subsystem</span>
-<span class="ln"> 9</span> <span class="na">*      7 network news subsystem</span>
-<span class="ln">10</span> <span class="na">*      8 UUCP subsystem</span>
-<span class="ln">11</span> <span class="na">*      9 clock daemon</span>
-<span class="ln">12</span> <span class="na">*     10 security/authorization messages</span>
-<span class="ln">13</span> <span class="na">*     11 FTP daemon</span>
-<span class="ln">14</span> <span class="na">*     12 NTP subsystem</span>
-<span class="ln">15</span> <span class="na">*     13 log audit</span>
-<span class="ln">16</span> <span class="na">*     14 log alert</span>
-<span class="ln">17</span> <span class="na">*     15 clock daemon</span>
-<span class="ln">18</span> <span class="na">*     16 local user 0 (local0) (default value)</span>
-<span class="ln">19</span> <span class="na">*     17 local user 1 (local1)</span>
-<span class="ln">20</span> <span class="na">*     18 local user 2 (local2)</span>
-<span class="ln">21</span> <span class="na">*     19 local user 3 (local3)</span>
-<span class="ln">22</span> <span class="na">*     20 local user 4 (local4)</span>
-<span class="ln">23</span> <span class="na">*     21 local user 5 (local5)</span>
-<span class="ln">24</span> <span class="na">*     22 local user 6 (local6)</span>
-<span class="ln">25</span> <span class="na">*     23 local user 7 (local7)</span>
-<span class="ln">26</span> <span class="na">*</span>
-<span class="ln">27</span> <span class="na">*   Severity values:</span>
-<span class="ln">28</span> <span class="na">*     0 Emergency: system is unusable</span>
-<span class="ln">29</span> <span class="na">*     1 Alert: action must be taken immediately</span>
-<span class="ln">30</span> <span class="na">*     2 Critical: critical conditions</span>
-<span class="ln">31</span> <span class="na">*     3 Error: error conditions</span>
-<span class="ln">32</span> <span class="na">*     4 Warning: warning conditions</span>
-<span class="ln">33</span> <span class="na">*     5 Notice: normal but significant condition (default value)</span>
-<span class="ln">34</span> <span class="na">*     6 Informational: informational messages</span>
-<span class="ln">35</span> <span class="na">*     7 Debug: debug-level messages</span>
-</code></pre></div><p>计算方法就是 （facility*8 + severity），这里的22+0，可以理解成 local6 ，就是级别6</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-php" data-lang="php"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="o">&lt;?</span><span class="nx">php</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="nx">date_default_timezone_set</span><span class="p">(</span><span class="s1">&#39;Asia/Shanghai&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="k">function</span> <span class="nf">send_remote_syslog</span><span class="p">(</span><span class="nv">$message</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">    <span class="nv">$sock</span> <span class="o">=</span> <span class="nx">socket_create</span><span class="p">(</span><span class="nx">AF_INET</span><span class="p">,</span> <span class="nx">SOCK_DGRAM</span><span class="p">,</span> <span class="nx">SOL_UDP</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">    <span class="k">foreach</span><span class="p">(</span><span class="nx">explode</span><span class="p">(</span><span class="s2">&#34;</span><span class="se">\n</span><span class="s2">&#34;</span><span class="p">,</span> <span class="nv">$message</span><span class="p">)</span> <span class="k">as</span> <span class="nv">$line</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">      <span class="nv">$syslog_message</span> <span class="o">=</span> <span class="s2">&#34;&lt;22&gt;&#34;</span> <span class="o">.</span> <span class="nx">date</span><span class="p">(</span><span class="s1">&#39;M d H:i:s &#39;</span><span class="p">)</span> <span class="o">.</span> <span class="s1">&#39;Qi_an_xin sms_log: &#39;</span> <span class="o">.</span> <span class="nv">$line</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">      <span class="nx">socket_sendto</span><span class="p">(</span><span class="nv">$sock</span><span class="p">,</span> <span class="nv">$syslog_message</span><span class="p">,</span> <span class="nx">strlen</span><span class="p">(</span><span class="nv">$syslog_message</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;172.18.31.6&#39;</span><span class="p">,</span> <span class="mi">514</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">    <span class="nx">socket_close</span><span class="p">(</span><span class="nv">$sock</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">
+</span></span><span class="line"><span class="ln">13</span><span class="cl">    <span class="nx">send_remote_syslog</span><span class="p">(</span><span class="s2">&#34;ABC 验证码: 39792192&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="cp">?&gt;</span><span class="err">    
+</span></span></span></code></pre></div><p>这样就可以了，上面代码比较难理解的是&lt;22&gt;，那是报错级别的计算方法，Facility + Severity：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln"> 1</span><span class="cl"> <span class="na">*   Facility values:</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"> <span class="na">*      0 kernel messages</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"> <span class="na">*      1 user-level messages</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"> <span class="na">*      2 mail system</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"> <span class="na">*      3 system daemons</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"> <span class="na">*      4 security/authorization messages</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"> <span class="na">*      5 messages generated internally by syslogd</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl"> <span class="na">*      6 line printer subsystem</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl"> <span class="na">*      7 network news subsystem</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl"> <span class="na">*      8 UUCP subsystem</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl"> <span class="na">*      9 clock daemon</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl"> <span class="na">*     10 security/authorization messages</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl"> <span class="na">*     11 FTP daemon</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl"> <span class="na">*     12 NTP subsystem</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl"> <span class="na">*     13 log audit</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl"> <span class="na">*     14 log alert</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl"> <span class="na">*     15 clock daemon</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl"> <span class="na">*     16 local user 0 (local0) (default value)</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl"> <span class="na">*     17 local user 1 (local1)</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl"> <span class="na">*     18 local user 2 (local2)</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl"> <span class="na">*     19 local user 3 (local3)</span>
+</span></span><span class="line"><span class="ln">22</span><span class="cl"> <span class="na">*     20 local user 4 (local4)</span>
+</span></span><span class="line"><span class="ln">23</span><span class="cl"> <span class="na">*     21 local user 5 (local5)</span>
+</span></span><span class="line"><span class="ln">24</span><span class="cl"> <span class="na">*     22 local user 6 (local6)</span>
+</span></span><span class="line"><span class="ln">25</span><span class="cl"> <span class="na">*     23 local user 7 (local7)</span>
+</span></span><span class="line"><span class="ln">26</span><span class="cl"> <span class="na">*</span>
+</span></span><span class="line"><span class="ln">27</span><span class="cl"> <span class="na">*   Severity values:</span>
+</span></span><span class="line"><span class="ln">28</span><span class="cl"> <span class="na">*     0 Emergency: system is unusable</span>
+</span></span><span class="line"><span class="ln">29</span><span class="cl"> <span class="na">*     1 Alert: action must be taken immediately</span>
+</span></span><span class="line"><span class="ln">30</span><span class="cl"> <span class="na">*     2 Critical: critical conditions</span>
+</span></span><span class="line"><span class="ln">31</span><span class="cl"> <span class="na">*     3 Error: error conditions</span>
+</span></span><span class="line"><span class="ln">32</span><span class="cl"> <span class="na">*     4 Warning: warning conditions</span>
+</span></span><span class="line"><span class="ln">33</span><span class="cl"> <span class="na">*     5 Notice: normal but significant condition (default value)</span>
+</span></span><span class="line"><span class="ln">34</span><span class="cl"> <span class="na">*     6 Informational: informational messages</span>
+</span></span><span class="line"><span class="ln">35</span><span class="cl"> <span class="na">*     7 Debug: debug-level messages</span>
+</span></span></code></pre></div><p>计算方法就是 （facility*8 + severity），这里的22+0，可以理解成 local6 ，就是级别6</p>
 <p><img class="img-fluid" alt="image-20211028114512589" src="https://bajie.dev/posts/20211028-php_syslog/image-20211028114512589.png" loading="lazy"
    width="1163" height="51"
    />
@@ -362,7 +362,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -402,11 +402,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

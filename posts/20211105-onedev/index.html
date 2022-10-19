@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="一站式Git软件onedev的安装使用"/>
 <meta name="twitter:description" content="其实一直在用 github、gitlab、jenkins，但是 github 时不时的抽风， gitlab 的 runner 套 Docker in docker 的方法委实很难用。 所以 CI/CD 这一块反倒挺喜欢阿里云效这"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -237,12 +237,12 @@
 <p>从 V2EX 上看到一个老哥发的 onedev，是一个一站式的开源软件，这不就试试先</p>
 <p>以 centos7 为例，安装过程如下：</p>
 <h2 id="一安装--java-18-版本">一、安装  java 1.8 版本</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>rpm -ivh jdk-8u201-linux-x64.rpm
-</code></pre></div><h2 id="二安装-git-高版本">二、安装 git 高版本</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">rpm -ivh jdk-8u201-linux-x64.rpm
+</span></span></code></pre></div><h2 id="二安装-git-高版本">二、安装 git 高版本</h2>
 <p>缺省 centos7 和 epel 带的 git 版本太低，不符合要求，得加个新的源装新版本</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>yum -y install https://packages.endpoint.com/rhel/7/os/x86_64/endpoint-repo-1.7-1.x86_64.rpm
-<span class="ln">2</span>yum -y install git curl
-</code></pre></div><h2 id="三安装配置-onedev">三、安装配置 onedev</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">yum -y install https://packages.endpoint.com/rhel/7/os/x86_64/endpoint-repo-1.7-1.x86_64.rpm
+</span></span><span class="line"><span class="ln">2</span><span class="cl">yum -y install git curl
+</span></span></code></pre></div><h2 id="三安装配置-onedev">三、安装配置 onedev</h2>
 <p><a href="https://github.com/theonedev/onedev" target="_blank" rel="noopener noreferrer">https://github.com/theonedev/onedev</a>
 </p>
 <p>下载压缩包，然后解压运行 bin/server.sh start ，很简洁，不错！</p>
@@ -260,19 +260,19 @@
 <h2 id="三例子">三、例子</h2>
 <p>我们是要在正式生产环境用的，所以在 projects 新建一个项目 spring-boot，以 spring-petclinic 为例：</p>
 <p>然后到源代码目录下</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>git clone https://github.com/spring-projects/spring-petclinic.git
-<span class="ln"> 2</span><span class="nb">cd</span> spring-petclinic
-<span class="ln"> 3</span>./mvnw package
-<span class="ln"> 4</span>
-<span class="ln"> 5</span><span class="nb">cd</span> spring-petclinic
-<span class="ln"> 6</span>
-<span class="ln"> 7</span>git init
-<span class="ln"> 8</span>git add .
-<span class="ln"> 9</span>git commit -m <span class="s2">&#34;Spring boot demo project&#34;</span>
-<span class="ln">10</span>
-<span class="ln">11</span>git remote add origin http://192.168.86.101:6610/spring-boot
-<span class="ln">12</span>git push --set-upstream origin master
-</code></pre></div><p>这样就可以在 spring-boot 里看到代码了</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">git clone https://github.com/spring-projects/spring-petclinic.git
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="nb">cd</span> spring-petclinic
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">./mvnw package
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="nb">cd</span> spring-petclinic
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">git init
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">git add .
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">git commit -m <span class="s2">&#34;Spring boot demo project&#34;</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">
+</span></span><span class="line"><span class="ln">11</span><span class="cl">git remote add origin http://192.168.86.101:6610/spring-boot
+</span></span><span class="line"><span class="ln">12</span><span class="cl">git push --set-upstream origin master
+</span></span></code></pre></div><p>这样就可以在 spring-boot 里看到代码了</p>
 <p><img class="img-fluid" alt="image-20211105113350311" src="https://bajie.dev/posts/20211105-onedev/image-20211105113350311.png" loading="lazy"
    width="910" height="290"
    />
@@ -330,7 +330,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -370,11 +370,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Chrony的几个详细配置细节"/>
 <meta name="twitter:description" content="chrony 已经成了事实标准，替代了ntp。 但是，有几个细节，需要非常注意。 给出我们的配置，/etc/chrony.conf 1 2# Use public servers from the pool.ntp.org project. 3# Please consider joining"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -236,44 +236,44 @@
 </div><div class="post-content mb-3"><p>chrony 已经成了事实标准，替代了ntp。</p>
 <p>但是，有几个细节，需要非常注意。</p>
 <p>给出我们的配置，/etc/chrony.conf</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span>
-<span class="ln"> 2</span><span class="c1"># Use public servers from the pool.ntp.org project.</span>
-<span class="ln"> 3</span><span class="c1"># Please consider joining the pool (http://www.pool.ntp.org/join.html).</span>
-<span class="ln"> 4</span><span class="na">server 172.10.1.1 iburst prefer minpoll 6 maxpoll 10</span>
-<span class="ln"> 5</span><span class="na">server 172.10.1.2 iburst</span>
-<span class="ln"> 6</span>
-<span class="ln"> 7</span><span class="c1"># Record the rate at which the system clock gains/losses time.</span>
-<span class="ln"> 8</span><span class="na">driftfile /var/lib/chrony/drift</span>
-<span class="ln"> 9</span>
-<span class="ln">10</span><span class="c1"># Allow the system clock to be stepped in the first three updates</span>
-<span class="ln">11</span><span class="c1"># if its offset is larger than 1 second.</span>
-<span class="ln">12</span><span class="na">makestep 1.0 3</span>
-<span class="ln">13</span>
-<span class="ln">14</span><span class="c1"># Enable kernel synchronization of the real-time clock (RTC).</span>
-<span class="ln">15</span><span class="na">rtcsync</span>
-<span class="ln">16</span>
-<span class="ln">17</span><span class="c1"># Enable hardware timestamping on all interfaces that support it.</span>
-<span class="ln">18</span><span class="c1">#hwtimestamp *</span>
-<span class="ln">19</span>
-<span class="ln">20</span><span class="c1"># Increase the minimum number of selectable sources required to adjust</span>
-<span class="ln">21</span><span class="c1"># the system clock.</span>
-<span class="ln">22</span><span class="c1">#minsources 2</span>
-<span class="ln">23</span>
-<span class="ln">24</span><span class="c1"># Allow NTP client access from local network.</span>
-<span class="ln">25</span><span class="c1">#allow 192.168.0.0/16</span>
-<span class="ln">26</span>
-<span class="ln">27</span><span class="c1"># Serve time even if not synchronized to a time source.</span>
-<span class="ln">28</span><span class="c1">#local stratum 10</span>
-<span class="ln">29</span>
-<span class="ln">30</span><span class="c1"># Specify file containing keys for NTP authentication.</span>
-<span class="ln">31</span><span class="c1">#keyfile /etc/chrony.keys</span>
-<span class="ln">32</span>
-<span class="ln">33</span><span class="c1"># Specify directory for log files.</span>
-<span class="ln">34</span><span class="na">logdir /var/log/chrony</span>
-<span class="ln">35</span><span class="na">logchange 0.5</span>
-<span class="ln">36</span><span class="c1"># Select which information is logged.</span>
-<span class="ln">37</span><span class="c1">#log measurements statistics tracking rtc</span>
-</code></pre></div><p>里面有好几个细节，下面逐一解释一下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln"> 1</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="c1"># Use public servers from the pool.ntp.org project.</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="c1"># Please consider joining the pool (http://www.pool.ntp.org/join.html).</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="na">server 172.10.1.1 iburst prefer minpoll 6 maxpoll 10</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="na">server 172.10.1.2 iburst</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="c1"># Record the rate at which the system clock gains/losses time.</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="na">driftfile /var/lib/chrony/drift</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">
+</span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="c1"># Allow the system clock to be stepped in the first three updates</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="c1"># if its offset is larger than 1 second.</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="na">makestep 1.0 3</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">
+</span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="c1"># Enable kernel synchronization of the real-time clock (RTC).</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="na">rtcsync</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">
+</span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="c1"># Enable hardware timestamping on all interfaces that support it.</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="c1">#hwtimestamp *</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl">
+</span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="c1"># Increase the minimum number of selectable sources required to adjust</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl"><span class="c1"># the system clock.</span>
+</span></span><span class="line"><span class="ln">22</span><span class="cl"><span class="c1">#minsources 2</span>
+</span></span><span class="line"><span class="ln">23</span><span class="cl">
+</span></span><span class="line"><span class="ln">24</span><span class="cl"><span class="c1"># Allow NTP client access from local network.</span>
+</span></span><span class="line"><span class="ln">25</span><span class="cl"><span class="c1">#allow 192.168.0.0/16</span>
+</span></span><span class="line"><span class="ln">26</span><span class="cl">
+</span></span><span class="line"><span class="ln">27</span><span class="cl"><span class="c1"># Serve time even if not synchronized to a time source.</span>
+</span></span><span class="line"><span class="ln">28</span><span class="cl"><span class="c1">#local stratum 10</span>
+</span></span><span class="line"><span class="ln">29</span><span class="cl">
+</span></span><span class="line"><span class="ln">30</span><span class="cl"><span class="c1"># Specify file containing keys for NTP authentication.</span>
+</span></span><span class="line"><span class="ln">31</span><span class="cl"><span class="c1">#keyfile /etc/chrony.keys</span>
+</span></span><span class="line"><span class="ln">32</span><span class="cl">
+</span></span><span class="line"><span class="ln">33</span><span class="cl"><span class="c1"># Specify directory for log files.</span>
+</span></span><span class="line"><span class="ln">34</span><span class="cl"><span class="na">logdir /var/log/chrony</span>
+</span></span><span class="line"><span class="ln">35</span><span class="cl"><span class="na">logchange 0.5</span>
+</span></span><span class="line"><span class="ln">36</span><span class="cl"><span class="c1"># Select which information is logged.</span>
+</span></span><span class="line"><span class="ln">37</span><span class="cl"><span class="c1">#log measurements statistics tracking rtc</span>
+</span></span></code></pre></div><p>里面有好几个细节，下面逐一解释一下：</p>
 <h2 id="一server">一、server</h2>
 <p>这里可以添加很多时间服务器，172.10.1.1 和 172.10.1.2 是两台自建的时间服务器。</p>
 <p>ibust 会在 chrony 启动的2秒内，去快速poll服务器4次来快速矫正当前系统时间</p>
@@ -293,9 +293,9 @@
 <h2 id="五验证调试">五、验证调试</h2>
 <p>开发人员会问，什么时候同步的服务器啊，多长时间同步一次，时间到底准不准啊，有没有发生跳跃啊</p>
 <p>我们就用chronyc sources来验证，配置中</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span><span class="na">server 172.10.1.1 iburst prefer minpoll 4 maxpoll 5</span>
-<span class="ln">2</span><span class="na">server 172.10.1.2 iburst</span>
-</code></pre></div><p><img class="img-fluid" alt="Float left" src="https://bajie.dev/posts/20211020-chrony/image-20211020172226980.png" loading="lazy"
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln">1</span><span class="cl"><span class="na">server 172.10.1.1 iburst prefer minpoll 4 maxpoll 5</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="na">server 172.10.1.2 iburst</span>
+</span></span></code></pre></div><p><img class="img-fluid" alt="Float left" src="https://bajie.dev/posts/20211020-chrony/image-20211020172226980.png" loading="lazy"
    width="730" height="437"
    />
 
@@ -350,7 +350,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -390,11 +390,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

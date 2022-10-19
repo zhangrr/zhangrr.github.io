@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="Kubernetes创建普通账号">
 <meta itemprop="description" content="kubernetes 装好正常运行一段时间后，会出现要把研发和运维权限分开的场景： 比如： 给某个用户某一指定名称空间下的管理权限 给用户赋予集群的只读权限 … 非常麻烦"><meta itemprop="datePublished" content="2021-11-09T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2021-11-09T09:30:11+08:00" />
-<meta itemprop="wordCount" content="1372">
+<meta itemprop="wordCount" content="1434">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="Kubernetes创建普通账号" />
 <meta property="og:description" content="kubernetes 装好正常运行一段时间后，会出现要把研发和运维权限分开的场景： 比如： 给某个用户某一指定名称空间下的管理权限 给用户赋予集群的只读权限 … 非常麻烦" />
 <meta property="og:type" content="article" />
@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Kubernetes创建普通账号"/>
 <meta name="twitter:description" content="kubernetes 装好正常运行一段时间后，会出现要把研发和运维权限分开的场景： 比如： 给某个用户某一指定名称空间下的管理权限 给用户赋予集群的只读权限 … 非常麻烦"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -252,86 +252,86 @@
 <h2 id="一创建客户端证书">一、创建客户端证书</h2>
 <p><strong>我们以已建好的阿里 ACK 为例，或者自建好的 Kubernetes 也行；确定已经有了 .kube/config 配置文件，拥有集群最高权限，并且可以正常执行 kubectl 命令。</strong></p>
 <p>首先是生成证书，并向集群提出证书请求并签发，脚本如下：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="cp">#!/bin/sh  
-</span><span class="ln"> 2</span><span class="cp"></span>
-<span class="ln"> 3</span><span class="nv">useraccount</span><span class="o">=</span>reader
-<span class="ln"> 4</span>
-<span class="ln"> 5</span>openssl req -new -newkey rsa:4096 -nodes -keyout <span class="nv">$useraccount</span>-k8s.key -out <span class="nv">$useraccount</span>-k8s.csr -subj <span class="s2">&#34;/CN=</span><span class="nv">$useraccount</span><span class="s2">/O=devops&#34;</span>  
-<span class="ln"> 6</span><span class="nv">csr</span><span class="o">=</span><span class="k">$(</span>cat <span class="nv">$useraccount</span>-k8s.csr <span class="p">|</span> base64 <span class="p">|</span> tr -d <span class="s1">&#39;\n&#39;</span><span class="k">)</span>  
-<span class="ln"> 7</span>cat <span class="s">&lt;&lt; EOF &gt; k8s-csr.yaml  
-</span><span class="ln"> 8</span><span class="s">apiVersion: certificates.k8s.io/v1beta1
-</span><span class="ln"> 9</span><span class="s">kind: CertificateSigningRequest
-</span><span class="ln">10</span><span class="s">metadata:
-</span><span class="ln">11</span><span class="s">  name: $useraccount-k8s-access
-</span><span class="ln">12</span><span class="s">spec:
-</span><span class="ln">13</span><span class="s">  groups:
-</span><span class="ln">14</span><span class="s">  - system:authenticated
-</span><span class="ln">15</span><span class="s">  request: $csr
-</span><span class="ln">16</span><span class="s">  usages:
-</span><span class="ln">17</span><span class="s">  - client auth
-</span><span class="ln">18</span><span class="s">EOF</span>
-<span class="ln">19</span> 
-<span class="ln">20</span>
-<span class="ln">21</span>kubectl create -f k8s-csr.yaml  
-<span class="ln">22</span>kubectl certificate approve <span class="nv">$useraccount</span>-k8s-access  
-<span class="ln">23</span>
-<span class="ln">24</span>kubectl get csr <span class="nv">$useraccount</span>-k8s-access -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.status.certificate}&#39;</span> <span class="p">|</span> base64 --decode &gt; <span class="nv">$useraccount</span>-k8s-access.crt  
-<span class="ln">25</span>kubectl config view -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.clusters[0].cluster.certificate-authority-data}&#39;</span> --raw <span class="p">|</span> base64 --decode - &gt; k8s-ca.crt
-</code></pre></div><p>解释一下：我们定义了一个用户CN=reader，然后向集群发送了证书请求并签发，最终从集群获得了 reader-k8s-access.crt 的客户端证书和 k8s-ca.crt 的 CA 证书。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="cp">#!/bin/sh  
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="nv">useraccount</span><span class="o">=</span>reader
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">openssl req -new -newkey rsa:4096 -nodes -keyout <span class="nv">$useraccount</span>-k8s.key -out <span class="nv">$useraccount</span>-k8s.csr -subj <span class="s2">&#34;/CN=</span><span class="nv">$useraccount</span><span class="s2">/O=devops&#34;</span>  
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="nv">csr</span><span class="o">=</span><span class="k">$(</span>cat <span class="nv">$useraccount</span>-k8s.csr <span class="p">|</span> base64 <span class="p">|</span> tr -d <span class="s1">&#39;\n&#39;</span><span class="k">)</span>  
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">cat <span class="s">&lt;&lt; EOF &gt; k8s-csr.yaml  
+</span></span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="s">apiVersion: certificates.k8s.io/v1beta1
+</span></span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="s">kind: CertificateSigningRequest
+</span></span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="s">metadata:
+</span></span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="s">  name: $useraccount-k8s-access
+</span></span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="s">spec:
+</span></span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="s">  groups:
+</span></span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="s">  - system:authenticated
+</span></span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="s">  request: $csr
+</span></span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="s">  usages:
+</span></span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="s">  - client auth
+</span></span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="s">EOF</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl"> 
+</span></span><span class="line"><span class="ln">20</span><span class="cl">
+</span></span><span class="line"><span class="ln">21</span><span class="cl">kubectl create -f k8s-csr.yaml  
+</span></span><span class="line"><span class="ln">22</span><span class="cl">kubectl certificate approve <span class="nv">$useraccount</span>-k8s-access  
+</span></span><span class="line"><span class="ln">23</span><span class="cl">
+</span></span><span class="line"><span class="ln">24</span><span class="cl">kubectl get csr <span class="nv">$useraccount</span>-k8s-access -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.status.certificate}&#39;</span> <span class="p">|</span> base64 --decode &gt; <span class="nv">$useraccount</span>-k8s-access.crt  
+</span></span><span class="line"><span class="ln">25</span><span class="cl">kubectl config view -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.clusters[0].cluster.certificate-authority-data}&#39;</span> --raw <span class="p">|</span> base64 --decode - &gt; k8s-ca.crt
+</span></span></code></pre></div><p>解释一下：我们定义了一个用户CN=reader，然后向集群发送了证书请求并签发，最终从集群获得了 reader-k8s-access.crt 的客户端证书和 k8s-ca.crt 的 CA 证书。</p>
 <p>k8s-csr.yaml 和 reader-k8s.csr 都是中间产物，最终我们有了客户端私钥 reader-k8s.key ，客户端证书 reader-k8s-access.crt ，CA 证书 k8s-ca.crt 这三个有用的文件。</p>
 <h2 id="二创建-role-角色">二、创建 Role 角色</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>cat <span class="s">&lt;&lt; EOF &gt;&gt; role.yaml
-</span><span class="ln"> 2</span><span class="s">apiVersion: rbac.authorization.k8s.io/v1
-</span><span class="ln"> 3</span><span class="s">kind: Role
-</span><span class="ln"> 4</span><span class="s">metadata:
-</span><span class="ln"> 5</span><span class="s">  name: role-pods_reader
-</span><span class="ln"> 6</span><span class="s">  namespace: default
-</span><span class="ln"> 7</span><span class="s">rules:
-</span><span class="ln"> 8</span><span class="s">- apiGroups:
-</span><span class="ln"> 9</span><span class="s">  - &#34;&#34;
-</span><span class="ln">10</span><span class="s">  resources:
-</span><span class="ln">11</span><span class="s">  - pods
-</span><span class="ln">12</span><span class="s">  - pods/log
-</span><span class="ln">13</span><span class="s">  verbs:
-</span><span class="ln">14</span><span class="s">  - get
-</span><span class="ln">15</span><span class="s">  - list
-</span><span class="ln">16</span><span class="s">  - watch
-</span><span class="ln">17</span><span class="s">EOF</span>
-<span class="ln">18</span>
-<span class="ln">19</span>kubectl apply -f role.yaml
-</code></pre></div><p>解释：我们创建了一个 role 角色，名字叫做 role-pods_reader，所属命名空间是 default ，它对 pods 和 pods/log 有 get 、list、watch的权限，也就是说role-pods_reader 可以查看 default 空间的 pods 和 pods 的日志。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">cat <span class="s">&lt;&lt; EOF &gt;&gt; role.yaml
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="s">apiVersion: rbac.authorization.k8s.io/v1
+</span></span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="s">kind: Role
+</span></span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="s">metadata:
+</span></span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="s">  name: role-pods_reader
+</span></span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="s">  namespace: default
+</span></span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="s">rules:
+</span></span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="s">- apiGroups:
+</span></span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="s">  - &#34;&#34;
+</span></span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="s">  resources:
+</span></span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="s">  - pods
+</span></span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="s">  - pods/log
+</span></span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="s">  verbs:
+</span></span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="s">  - get
+</span></span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="s">  - list
+</span></span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="s">  - watch
+</span></span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="s">EOF</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl">
+</span></span><span class="line"><span class="ln">19</span><span class="cl">kubectl apply -f role.yaml
+</span></span></code></pre></div><p>解释：我们创建了一个 role 角色，名字叫做 role-pods_reader，所属命名空间是 default ，它对 pods 和 pods/log 有 get 、list、watch的权限，也就是说role-pods_reader 可以查看 default 空间的 pods 和 pods 的日志。</p>
 <h2 id="三创建-rolebinding">三、创建 Rolebinding</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>cat <span class="s">&lt;&lt; EOF &gt;&gt; rolebinding.yaml
-</span><span class="ln"> 2</span><span class="s">apiVersion: rbac.authorization.k8s.io/v1
-</span><span class="ln"> 3</span><span class="s">kind: RoleBinding
-</span><span class="ln"> 4</span><span class="s">metadata:
-</span><span class="ln"> 5</span><span class="s">  name: rolebinding-default_pods_reader
-</span><span class="ln"> 6</span><span class="s">  namespace: default
-</span><span class="ln"> 7</span><span class="s">roleRef:
-</span><span class="ln"> 8</span><span class="s">  apiGroup: rbac.authorization.k8s.io
-</span><span class="ln"> 9</span><span class="s">  kind: Role
-</span><span class="ln">10</span><span class="s">  name: role-pods_reader
-</span><span class="ln">11</span><span class="s">subjects:
-</span><span class="ln">12</span><span class="s">- apiGroup: rbac.authorization.k8s.io
-</span><span class="ln">13</span><span class="s">  kind: User
-</span><span class="ln">14</span><span class="s">  name: reader
-</span><span class="ln">15</span><span class="s">EOF</span>
-<span class="ln">16</span>
-<span class="ln">17</span>kubectl apply -f rolebinding.yaml
-</code></pre></div><p>解释：我们创建了一个 rolebinding，名字叫做 rolebinding-default_pods_reader，同样所属命名空间是 default，它绑了两个东西，一个是 role，就是上面第二步创建的 role-pods_reader；另一个是 subject，对应了一个用户，就是我们第一步创建的那个 reader。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">cat <span class="s">&lt;&lt; EOF &gt;&gt; rolebinding.yaml
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="s">apiVersion: rbac.authorization.k8s.io/v1
+</span></span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="s">kind: RoleBinding
+</span></span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="s">metadata:
+</span></span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="s">  name: rolebinding-default_pods_reader
+</span></span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="s">  namespace: default
+</span></span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="s">roleRef:
+</span></span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="s">  apiGroup: rbac.authorization.k8s.io
+</span></span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="s">  kind: Role
+</span></span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="s">  name: role-pods_reader
+</span></span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="s">subjects:
+</span></span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="s">- apiGroup: rbac.authorization.k8s.io
+</span></span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="s">  kind: User
+</span></span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="s">  name: reader
+</span></span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="s">EOF</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">
+</span></span><span class="line"><span class="ln">17</span><span class="cl">kubectl apply -f rolebinding.yaml
+</span></span></code></pre></div><p>解释：我们创建了一个 rolebinding，名字叫做 rolebinding-default_pods_reader，同样所属命名空间是 default，它绑了两个东西，一个是 role，就是上面第二步创建的 role-pods_reader；另一个是 subject，对应了一个用户，就是我们第一步创建的那个 reader。</p>
 <h2 id="四生成-kubectl-配置文件">四、生成 kubectl 配置文件</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="cp">#!/bin/sh
-</span><span class="ln"> 2</span><span class="cp"></span><span class="nv">useraccount</span><span class="o">=</span>reader
-<span class="ln"> 3</span><span class="nv">namespace</span><span class="o">=</span>default
-<span class="ln"> 4</span>
-<span class="ln"> 5</span>kubectl config set-cluster <span class="k">$(</span>kubectl config view -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.clusters[0].name}&#39;</span><span class="k">)</span> --server<span class="o">=</span><span class="k">$(</span>kubectl config view -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.clusters[0].cluster.server}&#39;</span><span class="k">)</span> --certificate-authority<span class="o">=</span>k8s-ca.crt --embed-certs --kubeconfig<span class="o">=</span><span class="nv">$useraccount</span>-k8s-config
-<span class="ln"> 6</span>
-<span class="ln"> 7</span>kubectl config set-credentials <span class="nv">$useraccount</span> --client-certificate<span class="o">=</span><span class="nv">$useraccount</span>-k8s-access.crt --client-key<span class="o">=</span><span class="nv">$useraccount</span>-k8s.key --embed-certs --kubeconfig<span class="o">=</span><span class="nv">$useraccount</span>-k8s-config
-<span class="ln"> 8</span>
-<span class="ln"> 9</span>kubectl config set-context <span class="nv">$useraccount</span> --cluster<span class="o">=</span><span class="k">$(</span>kubectl config view -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.clusters[0].name}&#39;</span><span class="k">)</span> --namespace<span class="o">=</span><span class="nv">$namespace</span> --user<span class="o">=</span><span class="nv">$useraccount</span> --kubeconfig<span class="o">=</span><span class="nv">$useraccount</span>-k8s-config
-<span class="ln">10</span>
-<span class="ln">11</span>kubectl config use-context <span class="nv">$useraccount</span> --kubeconfig<span class="o">=</span><span class="nv">$useraccount</span>-k8s-config
-</code></pre></div><p>解释：上面看起来很复杂，其实就是四步，在配置文件里设置 cluster 、设置  credentials 证书、设置 context 上下文、设置当前上下文。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="cp">#!/bin/sh
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="cp"></span><span class="nv">useraccount</span><span class="o">=</span>reader
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="nv">namespace</span><span class="o">=</span>default
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">kubectl config set-cluster <span class="k">$(</span>kubectl config view -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.clusters[0].name}&#39;</span><span class="k">)</span> --server<span class="o">=</span><span class="k">$(</span>kubectl config view -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.clusters[0].cluster.server}&#39;</span><span class="k">)</span> --certificate-authority<span class="o">=</span>k8s-ca.crt --embed-certs --kubeconfig<span class="o">=</span><span class="nv">$useraccount</span>-k8s-config
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">kubectl config set-credentials <span class="nv">$useraccount</span> --client-certificate<span class="o">=</span><span class="nv">$useraccount</span>-k8s-access.crt --client-key<span class="o">=</span><span class="nv">$useraccount</span>-k8s.key --embed-certs --kubeconfig<span class="o">=</span><span class="nv">$useraccount</span>-k8s-config
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">kubectl config set-context <span class="nv">$useraccount</span> --cluster<span class="o">=</span><span class="k">$(</span>kubectl config view -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.clusters[0].name}&#39;</span><span class="k">)</span> --namespace<span class="o">=</span><span class="nv">$namespace</span> --user<span class="o">=</span><span class="nv">$useraccount</span> --kubeconfig<span class="o">=</span><span class="nv">$useraccount</span>-k8s-config
+</span></span><span class="line"><span class="ln">10</span><span class="cl">
+</span></span><span class="line"><span class="ln">11</span><span class="cl">kubectl config use-context <span class="nv">$useraccount</span> --kubeconfig<span class="o">=</span><span class="nv">$useraccount</span>-k8s-config
+</span></span></code></pre></div><p>解释：上面看起来很复杂，其实就是四步，在配置文件里设置 cluster 、设置  credentials 证书、设置 context 上下文、设置当前上下文。</p>
 <p>完事后会产生一个完整的 reader-k8s-config 文件，如下：</p>
 <p><img class="img-fluid" alt="image-20211109133307250" src="https://bajie.dev/posts/20211109-k8s_rbac/image-20211109133307250.png" loading="lazy"
    width="904" height="725"
@@ -340,74 +340,73 @@
 </p>
 <h2 id="五测试">五、测试</h2>
 <p>我们验证一下：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span><span class="nv">KUBECONFIG</span><span class="o">=</span>reader-k8s-config kubectl get pods
-<span class="ln">2</span>
-<span class="ln">3</span><span class="nv">KUBECONFIG</span><span class="o">=</span>reader-k8s-config kubectl auth can-i delete pods
-<span class="ln">4</span>
-<span class="ln">5</span><span class="nv">KUBECONFIG</span><span class="o">=</span>reader-k8s-config kubectl auth can-i delete svc
-<span class="ln">6</span>
-</code></pre></div><p>这样一个对 default 空间的只读用户就建立好了</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="nv">KUBECONFIG</span><span class="o">=</span>reader-k8s-config kubectl get pods
+</span></span><span class="line"><span class="ln">2</span><span class="cl">
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="nv">KUBECONFIG</span><span class="o">=</span>reader-k8s-config kubectl auth can-i delete pods
+</span></span><span class="line"><span class="ln">4</span><span class="cl">
+</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="nv">KUBECONFIG</span><span class="o">=</span>reader-k8s-config kubectl auth can-i delete svc
+</span></span></code></pre></div><p>这样一个对 default 空间的只读用户就建立好了</p>
 <h2 id="六集群只读用户">六、集群只读用户</h2>
 <p>我们这里给出集群只读用户的 role，命名 role-cluster_reader</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>kubectl apply -f - <span class="s">&lt;&lt;EOF
-</span><span class="ln"> 2</span><span class="s">apiVersion: rbac.authorization.k8s.io/v1
-</span><span class="ln"> 3</span><span class="s">kind: ClusterRole
-</span><span class="ln"> 4</span><span class="s">metadata:
-</span><span class="ln"> 5</span><span class="s">  name: role-cluster_reader
-</span><span class="ln"> 6</span><span class="s">rules:
-</span><span class="ln"> 7</span><span class="s">- apiGroups:
-</span><span class="ln"> 8</span><span class="s">  - &#34;&#34;
-</span><span class="ln"> 9</span><span class="s">  resources:
-</span><span class="ln">10</span><span class="s">  - nodes
-</span><span class="ln">11</span><span class="s">  - pods
-</span><span class="ln">12</span><span class="s">  - pods/exec
-</span><span class="ln">13</span><span class="s">  - pods/log
-</span><span class="ln">14</span><span class="s">  - services
-</span><span class="ln">15</span><span class="s">  - configmaps
-</span><span class="ln">16</span><span class="s">  - secrets
-</span><span class="ln">17</span><span class="s">  - serviceaccounts
-</span><span class="ln">18</span><span class="s">  - endpoints
-</span><span class="ln">19</span><span class="s">  verbs:
-</span><span class="ln">20</span><span class="s">  - get
-</span><span class="ln">21</span><span class="s">  - list
-</span><span class="ln">22</span><span class="s">  - watch
-</span><span class="ln">23</span><span class="s">- apiGroups:
-</span><span class="ln">24</span><span class="s">  - apps
-</span><span class="ln">25</span><span class="s">  resources:
-</span><span class="ln">26</span><span class="s">  - deployments
-</span><span class="ln">27</span><span class="s">  - replicasets
-</span><span class="ln">28</span><span class="s">  - daemonsets
-</span><span class="ln">29</span><span class="s">  - statefulsets
-</span><span class="ln">30</span><span class="s">  verbs:
-</span><span class="ln">31</span><span class="s">  - get
-</span><span class="ln">32</span><span class="s">  - list
-</span><span class="ln">33</span><span class="s">  - watch
-</span><span class="ln">34</span><span class="s">- apiGroups:
-</span><span class="ln">35</span><span class="s">  - batch
-</span><span class="ln">36</span><span class="s">  resources:
-</span><span class="ln">37</span><span class="s">  - jobs
-</span><span class="ln">38</span><span class="s">  - cronjobs
-</span><span class="ln">39</span><span class="s">  verbs:
-</span><span class="ln">40</span><span class="s">  - get
-</span><span class="ln">41</span><span class="s">  - list
-</span><span class="ln">42</span><span class="s">  - watch
-</span><span class="ln">43</span><span class="s">EOF</span>
-</code></pre></div><p>以及 rolebinding，还是绑到第一步的用户 reader 的例子</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>kubectl apply -f - <span class="s">&lt;&lt;EOF
-</span><span class="ln"> 2</span><span class="s">apiVersion: rbac.authorization.k8s.io/v1
-</span><span class="ln"> 3</span><span class="s">kind: ClusterRoleBinding
-</span><span class="ln"> 4</span><span class="s">metadata:
-</span><span class="ln"> 5</span><span class="s">  name: rolebinding-cluster_reader
-</span><span class="ln"> 6</span><span class="s">roleRef:
-</span><span class="ln"> 7</span><span class="s">  apiGroup: rbac.authorization.k8s.io
-</span><span class="ln"> 8</span><span class="s">  kind: ClusterRole
-</span><span class="ln"> 9</span><span class="s">  name: role-cluster_reader
-</span><span class="ln">10</span><span class="s">subjects:
-</span><span class="ln">11</span><span class="s">- apiGroup: rbac.authorization.k8s.io
-</span><span class="ln">12</span><span class="s">  kind: User
-</span><span class="ln">13</span><span class="s">  name: reader
-</span><span class="ln">14</span><span class="s">EOF</span>
-</code></pre></div><p>生成配置文件的步骤跟上一步是一样的。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">kubectl apply -f - <span class="s">&lt;&lt;EOF
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="s">apiVersion: rbac.authorization.k8s.io/v1
+</span></span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="s">kind: ClusterRole
+</span></span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="s">metadata:
+</span></span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="s">  name: role-cluster_reader
+</span></span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="s">rules:
+</span></span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="s">- apiGroups:
+</span></span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="s">  - &#34;&#34;
+</span></span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="s">  resources:
+</span></span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="s">  - nodes
+</span></span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="s">  - pods
+</span></span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="s">  - pods/exec
+</span></span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="s">  - pods/log
+</span></span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="s">  - services
+</span></span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="s">  - configmaps
+</span></span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="s">  - secrets
+</span></span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="s">  - serviceaccounts
+</span></span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="s">  - endpoints
+</span></span></span><span class="line"><span class="ln">19</span><span class="cl"><span class="s">  verbs:
+</span></span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="s">  - get
+</span></span></span><span class="line"><span class="ln">21</span><span class="cl"><span class="s">  - list
+</span></span></span><span class="line"><span class="ln">22</span><span class="cl"><span class="s">  - watch
+</span></span></span><span class="line"><span class="ln">23</span><span class="cl"><span class="s">- apiGroups:
+</span></span></span><span class="line"><span class="ln">24</span><span class="cl"><span class="s">  - apps
+</span></span></span><span class="line"><span class="ln">25</span><span class="cl"><span class="s">  resources:
+</span></span></span><span class="line"><span class="ln">26</span><span class="cl"><span class="s">  - deployments
+</span></span></span><span class="line"><span class="ln">27</span><span class="cl"><span class="s">  - replicasets
+</span></span></span><span class="line"><span class="ln">28</span><span class="cl"><span class="s">  - daemonsets
+</span></span></span><span class="line"><span class="ln">29</span><span class="cl"><span class="s">  - statefulsets
+</span></span></span><span class="line"><span class="ln">30</span><span class="cl"><span class="s">  verbs:
+</span></span></span><span class="line"><span class="ln">31</span><span class="cl"><span class="s">  - get
+</span></span></span><span class="line"><span class="ln">32</span><span class="cl"><span class="s">  - list
+</span></span></span><span class="line"><span class="ln">33</span><span class="cl"><span class="s">  - watch
+</span></span></span><span class="line"><span class="ln">34</span><span class="cl"><span class="s">- apiGroups:
+</span></span></span><span class="line"><span class="ln">35</span><span class="cl"><span class="s">  - batch
+</span></span></span><span class="line"><span class="ln">36</span><span class="cl"><span class="s">  resources:
+</span></span></span><span class="line"><span class="ln">37</span><span class="cl"><span class="s">  - jobs
+</span></span></span><span class="line"><span class="ln">38</span><span class="cl"><span class="s">  - cronjobs
+</span></span></span><span class="line"><span class="ln">39</span><span class="cl"><span class="s">  verbs:
+</span></span></span><span class="line"><span class="ln">40</span><span class="cl"><span class="s">  - get
+</span></span></span><span class="line"><span class="ln">41</span><span class="cl"><span class="s">  - list
+</span></span></span><span class="line"><span class="ln">42</span><span class="cl"><span class="s">  - watch
+</span></span></span><span class="line"><span class="ln">43</span><span class="cl"><span class="s">EOF</span>
+</span></span></code></pre></div><p>以及 rolebinding，还是绑到第一步的用户 reader 的例子</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">kubectl apply -f - <span class="s">&lt;&lt;EOF
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="s">apiVersion: rbac.authorization.k8s.io/v1
+</span></span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="s">kind: ClusterRoleBinding
+</span></span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="s">metadata:
+</span></span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="s">  name: rolebinding-cluster_reader
+</span></span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="s">roleRef:
+</span></span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="s">  apiGroup: rbac.authorization.k8s.io
+</span></span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="s">  kind: ClusterRole
+</span></span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="s">  name: role-cluster_reader
+</span></span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="s">subjects:
+</span></span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="s">- apiGroup: rbac.authorization.k8s.io
+</span></span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="s">  kind: User
+</span></span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="s">  name: reader
+</span></span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="s">EOF</span>
+</span></span></code></pre></div><p>生成配置文件的步骤跟上一步是一样的。</p>
 <p>从上面大家可以看到，其实最主要的就是 role 的 yaml 文件，里面控制着到底有怎么样的权限。</p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -454,7 +453,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -494,11 +493,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

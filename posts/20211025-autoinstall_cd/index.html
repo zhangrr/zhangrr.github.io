@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Centos auto install cdrom自动安装cdrom的制作"/>
 <meta name="twitter:description" content="之前介绍过如何制作一个 centos live cdrom 系统 那么，某些情况下我们可能无法弄一个 pxe 系统，而只能通过 idrac 挂载 iso 的方式安装系统 该如何去做呢？ 步骤如下： 一、下载C"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -237,149 +237,149 @@
 <p>该如何去做呢？</p>
 <p>步骤如下：</p>
 <h2 id="一下载centos的minimal安装光盘">一、下载Centos的minimal安装光盘</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>wget http://mirrors.163.com/centos/7.9.2009/isos/x86_64/CentOS-7-x86_64-Minimal-2009.iso
-<span class="ln">2</span>yum install -y mkisofs
-</code></pre></div><h2 id="二准备kickstart安装文件">二、准备kickstart安装文件</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">wget http://mirrors.163.com/centos/7.9.2009/isos/x86_64/CentOS-7-x86_64-Minimal-2009.iso
+</span></span><span class="line"><span class="ln">2</span><span class="cl">yum install -y mkisofs
+</span></span></code></pre></div><h2 id="二准备kickstart安装文件">二、准备kickstart安装文件</h2>
 <p>下载： <a href="centos7.ks">centos7.ks</a>
 </p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">  1</span><span class="na">text</span>
-<span class="ln">  2</span><span class="na">skipx</span>
-<span class="ln">  3</span><span class="na">install</span>
-<span class="ln">  4</span>
-<span class="ln">  5</span><span class="na">auth  --useshadow  --enablemd5</span>
-<span class="ln">  6</span><span class="na">authconfig --enableshadow --passalgo</span><span class="o">=</span><span class="s">sha512</span>
-<span class="ln">  7</span>
-<span class="ln">  8</span><span class="na">firstboot --disable</span>
-<span class="ln">  9</span><span class="na">keyboard us</span>
-<span class="ln"> 10</span><span class="na">lang en_US.UTF-8</span>
-<span class="ln"> 11</span><span class="na">reboot</span>
-<span class="ln"> 12</span><span class="na">cdrom</span>
-<span class="ln"> 13</span>
-<span class="ln"> 14</span><span class="na">firewall --disable</span>
-<span class="ln"> 15</span><span class="na">selinux  --disabled</span>
-<span class="ln"> 16</span>
-<span class="ln"> 17</span><span class="na">services --enabled</span><span class="o">=</span><span class="s">&#34;chronyd&#34;</span>
-<span class="ln"> 18</span><span class="na">logging level</span><span class="o">=</span><span class="s">info</span>
-<span class="ln"> 19</span>
-<span class="ln"> 20</span>
-<span class="ln"> 21</span><span class="c1">#ignoredisk --only-use=vda</span>
-<span class="ln"> 22</span><span class="na">ignoredisk --only-use</span><span class="o">=</span><span class="s">sda</span>
-<span class="ln"> 23</span><span class="c1">#bootloader --location=mbr --append=&#34;net.ifnames=0 biosdevname=0 crashkernel=auto&#34;</span>
-<span class="ln"> 24</span><span class="na">bootloader --location</span><span class="o">=</span><span class="s">mbr --append=&#34;crashkernel=auto&#34;</span>
-<span class="ln"> 25</span>
-<span class="ln"> 26</span><span class="na">rootpw --plaintext Renren2021!</span>
-<span class="ln"> 27</span><span class="na">timezone Asia/Shanghai --isUtc</span>
-<span class="ln"> 28</span>
-<span class="ln"> 29</span><span class="na">network  --device</span><span class="o">=</span><span class="s">lo --hostname=localhost.localdomain</span>
-<span class="ln"> 30</span><span class="na">user --name</span><span class="o">=</span><span class="s">supdev --gid=511 --groups=&#34;supdev&#34; --uid=511 --password=&#34;Renren2021!&#34;</span>
-<span class="ln"> 31</span>
-<span class="ln"> 32</span><span class="na">zerombr</span>
-<span class="ln"> 33</span><span class="na">clearpart --all --initlabel </span>
-<span class="ln"> 34</span>
-<span class="ln"> 35</span><span class="na">part biosboot --fstype</span><span class="o">=</span><span class="s">biosboot --size=1</span>
-<span class="ln"> 36</span><span class="na">part /boot --fstype ext4 --size</span><span class="o">=</span><span class="s">2048 </span>
-<span class="ln"> 37</span><span class="na">part swap  --asprimary   --size</span><span class="o">=</span><span class="s">8192</span>
-<span class="ln"> 38</span><span class="na">part /     --fstype ext4 --size</span><span class="o">=</span><span class="s">1 --grow</span>
-<span class="ln"> 39</span>
-<span class="ln"> 40</span><span class="c1">#part biosboot --fstype=biosboot --size=1</span>
-<span class="ln"> 41</span><span class="c1">#part /boot --fstype ext2 --size 250</span>
-<span class="ln"> 42</span><span class="c1">#part pv.01 --size 1 --grow</span>
-<span class="ln"> 43</span><span class="c1">#volgroup vg pv.01</span>
-<span class="ln"> 44</span><span class="c1">#logvol / --vgname=vg --size=1 --grow --fstype ext4 --fsoptions=discard,noatime --name=root</span>
-<span class="ln"> 45</span><span class="c1">#logvol /tmp --vgname=vg --size=1024 --fstype ext4 --fsoptions=discard,noatime --name=tmp</span>
-<span class="ln"> 46</span><span class="c1">#logvol swap --vgname=vg --recommended --name=swap</span>
-<span class="ln"> 47</span>
-<span class="ln"> 48</span><span class="c1">#uefi</span>
-<span class="ln"> 49</span><span class="c1">#partition /boot/efi --asprimary --fstype=vfat --label EFI  --size=200</span>
-<span class="ln"> 50</span><span class="c1">#partition /boot     --asprimary --fstype=ext4 --label BOOT --size=500</span>
-<span class="ln"> 51</span><span class="c1">#partition /         --asprimary --fstype=ext4 --label ROOT --size=4096 --grow</span>
-<span class="ln"> 52</span>
-<span class="ln"> 53</span>
-<span class="ln"> 54</span><span class="na">services --enabled</span><span class="o">=</span><span class="s">network</span>
-<span class="ln"> 55</span>
-<span class="ln"> 56</span><span class="na">reboot</span>
-<span class="ln"> 57</span>
-<span class="ln"> 58</span><span class="na">%pre</span>
-<span class="ln"> 59</span><span class="na">parted -s /dev/sda mklabel gpt</span>
-<span class="ln"> 60</span><span class="na">%end</span>
-<span class="ln"> 61</span>
-<span class="ln"> 62</span><span class="na">%packages</span>
-<span class="ln"> 63</span><span class="na">@core</span>
-<span class="ln"> 64</span><span class="na">@system-admin-tools</span>
-<span class="ln"> 65</span><span class="na">@additional-devel</span>
-<span class="ln"> 66</span><span class="na">@virtualization-client</span>
-<span class="ln"> 67</span><span class="na">@virtualization-platform</span>
-<span class="ln"> 68</span><span class="na">@virtualization-tools</span>
-<span class="ln"> 69</span><span class="na">libguestfs-tools-c</span>
-<span class="ln"> 70</span><span class="na">perl-Sys-Virt</span>
-<span class="ln"> 71</span><span class="na">qemu-guest-agent</span>
-<span class="ln"> 72</span><span class="na">qemu-kvm-tools</span>
-<span class="ln"> 73</span><span class="na">curl</span>
-<span class="ln"> 74</span><span class="na">dstat</span>
-<span class="ln"> 75</span><span class="na">expect</span>
-<span class="ln"> 76</span><span class="na">openssl</span>
-<span class="ln"> 77</span><span class="na">initscripts</span>
-<span class="ln"> 78</span><span class="na">ipmitool</span>
-<span class="ln"> 79</span><span class="na">lrzsz</span>
-<span class="ln"> 80</span><span class="na">lsof</span>
-<span class="ln"> 81</span><span class="na">mtools</span>
-<span class="ln"> 82</span><span class="na">nc</span>
-<span class="ln"> 83</span><span class="na">nmap</span>
-<span class="ln"> 84</span><span class="na">perl</span>
-<span class="ln"> 85</span><span class="na">perl-CPAN</span>
-<span class="ln"> 86</span><span class="na">procps</span>
-<span class="ln"> 87</span><span class="na">python</span>
-<span class="ln"> 88</span><span class="na">screen</span>
-<span class="ln"> 89</span><span class="na">sysstat</span>
-<span class="ln"> 90</span><span class="na">systemtap</span>
-<span class="ln"> 91</span><span class="na">systemtap-client</span>
-<span class="ln"> 92</span><span class="na">systemtap-devel</span>
-<span class="ln"> 93</span><span class="na">tcpdump</span>
-<span class="ln"> 94</span><span class="na">telnet</span>
-<span class="ln"> 95</span><span class="na">vim</span>
-<span class="ln"> 96</span><span class="na">wget</span>
-<span class="ln"> 97</span><span class="na">wsmancli</span>
-<span class="ln"> 98</span><span class="na">zip</span>
-<span class="ln"> 99</span><span class="na">chrony</span>
-<span class="ln">100</span><span class="na">kexec-tools</span>
-<span class="ln">101</span><span class="na">net-tools</span>
-<span class="ln">102</span><span class="na">ntp</span>
-<span class="ln">103</span><span class="na">ntpdate</span>
-<span class="ln">104</span><span class="na">man</span>
-<span class="ln">105</span><span class="na">acpid</span>
-<span class="ln">106</span><span class="na">chrony</span>
-<span class="ln">107</span><span class="na">telnet</span>
-<span class="ln">108</span><span class="na">%end</span>
-</code></pre></div><h2 id="三准备生成iso的脚本">三、准备生成iso的脚本</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln">  1</span><span class="cl"><span class="na">text</span>
+</span></span><span class="line"><span class="ln">  2</span><span class="cl"><span class="na">skipx</span>
+</span></span><span class="line"><span class="ln">  3</span><span class="cl"><span class="na">install</span>
+</span></span><span class="line"><span class="ln">  4</span><span class="cl">
+</span></span><span class="line"><span class="ln">  5</span><span class="cl"><span class="na">auth  --useshadow  --enablemd5</span>
+</span></span><span class="line"><span class="ln">  6</span><span class="cl"><span class="na">authconfig --enableshadow --passalgo</span><span class="o">=</span><span class="s">sha512</span>
+</span></span><span class="line"><span class="ln">  7</span><span class="cl">
+</span></span><span class="line"><span class="ln">  8</span><span class="cl"><span class="na">firstboot --disable</span>
+</span></span><span class="line"><span class="ln">  9</span><span class="cl"><span class="na">keyboard us</span>
+</span></span><span class="line"><span class="ln"> 10</span><span class="cl"><span class="na">lang en_US.UTF-8</span>
+</span></span><span class="line"><span class="ln"> 11</span><span class="cl"><span class="na">reboot</span>
+</span></span><span class="line"><span class="ln"> 12</span><span class="cl"><span class="na">cdrom</span>
+</span></span><span class="line"><span class="ln"> 13</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 14</span><span class="cl"><span class="na">firewall --disable</span>
+</span></span><span class="line"><span class="ln"> 15</span><span class="cl"><span class="na">selinux  --disabled</span>
+</span></span><span class="line"><span class="ln"> 16</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 17</span><span class="cl"><span class="na">services --enabled</span><span class="o">=</span><span class="s">&#34;chronyd&#34;</span>
+</span></span><span class="line"><span class="ln"> 18</span><span class="cl"><span class="na">logging level</span><span class="o">=</span><span class="s">info</span>
+</span></span><span class="line"><span class="ln"> 19</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 20</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 21</span><span class="cl"><span class="c1">#ignoredisk --only-use=vda</span>
+</span></span><span class="line"><span class="ln"> 22</span><span class="cl"><span class="na">ignoredisk --only-use</span><span class="o">=</span><span class="s">sda</span>
+</span></span><span class="line"><span class="ln"> 23</span><span class="cl"><span class="c1">#bootloader --location=mbr --append=&#34;net.ifnames=0 biosdevname=0 crashkernel=auto&#34;</span>
+</span></span><span class="line"><span class="ln"> 24</span><span class="cl"><span class="na">bootloader --location</span><span class="o">=</span><span class="s">mbr --append=&#34;crashkernel=auto&#34;</span>
+</span></span><span class="line"><span class="ln"> 25</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 26</span><span class="cl"><span class="na">rootpw --plaintext Renren2021!</span>
+</span></span><span class="line"><span class="ln"> 27</span><span class="cl"><span class="na">timezone Asia/Shanghai --isUtc</span>
+</span></span><span class="line"><span class="ln"> 28</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 29</span><span class="cl"><span class="na">network  --device</span><span class="o">=</span><span class="s">lo --hostname=localhost.localdomain</span>
+</span></span><span class="line"><span class="ln"> 30</span><span class="cl"><span class="na">user --name</span><span class="o">=</span><span class="s">supdev --gid=511 --groups=&#34;supdev&#34; --uid=511 --password=&#34;Renren2021!&#34;</span>
+</span></span><span class="line"><span class="ln"> 31</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 32</span><span class="cl"><span class="na">zerombr</span>
+</span></span><span class="line"><span class="ln"> 33</span><span class="cl"><span class="na">clearpart --all --initlabel </span>
+</span></span><span class="line"><span class="ln"> 34</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 35</span><span class="cl"><span class="na">part biosboot --fstype</span><span class="o">=</span><span class="s">biosboot --size=1</span>
+</span></span><span class="line"><span class="ln"> 36</span><span class="cl"><span class="na">part /boot --fstype ext4 --size</span><span class="o">=</span><span class="s">2048 </span>
+</span></span><span class="line"><span class="ln"> 37</span><span class="cl"><span class="na">part swap  --asprimary   --size</span><span class="o">=</span><span class="s">8192</span>
+</span></span><span class="line"><span class="ln"> 38</span><span class="cl"><span class="na">part /     --fstype ext4 --size</span><span class="o">=</span><span class="s">1 --grow</span>
+</span></span><span class="line"><span class="ln"> 39</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 40</span><span class="cl"><span class="c1">#part biosboot --fstype=biosboot --size=1</span>
+</span></span><span class="line"><span class="ln"> 41</span><span class="cl"><span class="c1">#part /boot --fstype ext2 --size 250</span>
+</span></span><span class="line"><span class="ln"> 42</span><span class="cl"><span class="c1">#part pv.01 --size 1 --grow</span>
+</span></span><span class="line"><span class="ln"> 43</span><span class="cl"><span class="c1">#volgroup vg pv.01</span>
+</span></span><span class="line"><span class="ln"> 44</span><span class="cl"><span class="c1">#logvol / --vgname=vg --size=1 --grow --fstype ext4 --fsoptions=discard,noatime --name=root</span>
+</span></span><span class="line"><span class="ln"> 45</span><span class="cl"><span class="c1">#logvol /tmp --vgname=vg --size=1024 --fstype ext4 --fsoptions=discard,noatime --name=tmp</span>
+</span></span><span class="line"><span class="ln"> 46</span><span class="cl"><span class="c1">#logvol swap --vgname=vg --recommended --name=swap</span>
+</span></span><span class="line"><span class="ln"> 47</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 48</span><span class="cl"><span class="c1">#uefi</span>
+</span></span><span class="line"><span class="ln"> 49</span><span class="cl"><span class="c1">#partition /boot/efi --asprimary --fstype=vfat --label EFI  --size=200</span>
+</span></span><span class="line"><span class="ln"> 50</span><span class="cl"><span class="c1">#partition /boot     --asprimary --fstype=ext4 --label BOOT --size=500</span>
+</span></span><span class="line"><span class="ln"> 51</span><span class="cl"><span class="c1">#partition /         --asprimary --fstype=ext4 --label ROOT --size=4096 --grow</span>
+</span></span><span class="line"><span class="ln"> 52</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 53</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 54</span><span class="cl"><span class="na">services --enabled</span><span class="o">=</span><span class="s">network</span>
+</span></span><span class="line"><span class="ln"> 55</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 56</span><span class="cl"><span class="na">reboot</span>
+</span></span><span class="line"><span class="ln"> 57</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 58</span><span class="cl"><span class="na">%pre</span>
+</span></span><span class="line"><span class="ln"> 59</span><span class="cl"><span class="na">parted -s /dev/sda mklabel gpt</span>
+</span></span><span class="line"><span class="ln"> 60</span><span class="cl"><span class="na">%end</span>
+</span></span><span class="line"><span class="ln"> 61</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 62</span><span class="cl"><span class="na">%packages</span>
+</span></span><span class="line"><span class="ln"> 63</span><span class="cl"><span class="na">@core</span>
+</span></span><span class="line"><span class="ln"> 64</span><span class="cl"><span class="na">@system-admin-tools</span>
+</span></span><span class="line"><span class="ln"> 65</span><span class="cl"><span class="na">@additional-devel</span>
+</span></span><span class="line"><span class="ln"> 66</span><span class="cl"><span class="na">@virtualization-client</span>
+</span></span><span class="line"><span class="ln"> 67</span><span class="cl"><span class="na">@virtualization-platform</span>
+</span></span><span class="line"><span class="ln"> 68</span><span class="cl"><span class="na">@virtualization-tools</span>
+</span></span><span class="line"><span class="ln"> 69</span><span class="cl"><span class="na">libguestfs-tools-c</span>
+</span></span><span class="line"><span class="ln"> 70</span><span class="cl"><span class="na">perl-Sys-Virt</span>
+</span></span><span class="line"><span class="ln"> 71</span><span class="cl"><span class="na">qemu-guest-agent</span>
+</span></span><span class="line"><span class="ln"> 72</span><span class="cl"><span class="na">qemu-kvm-tools</span>
+</span></span><span class="line"><span class="ln"> 73</span><span class="cl"><span class="na">curl</span>
+</span></span><span class="line"><span class="ln"> 74</span><span class="cl"><span class="na">dstat</span>
+</span></span><span class="line"><span class="ln"> 75</span><span class="cl"><span class="na">expect</span>
+</span></span><span class="line"><span class="ln"> 76</span><span class="cl"><span class="na">openssl</span>
+</span></span><span class="line"><span class="ln"> 77</span><span class="cl"><span class="na">initscripts</span>
+</span></span><span class="line"><span class="ln"> 78</span><span class="cl"><span class="na">ipmitool</span>
+</span></span><span class="line"><span class="ln"> 79</span><span class="cl"><span class="na">lrzsz</span>
+</span></span><span class="line"><span class="ln"> 80</span><span class="cl"><span class="na">lsof</span>
+</span></span><span class="line"><span class="ln"> 81</span><span class="cl"><span class="na">mtools</span>
+</span></span><span class="line"><span class="ln"> 82</span><span class="cl"><span class="na">nc</span>
+</span></span><span class="line"><span class="ln"> 83</span><span class="cl"><span class="na">nmap</span>
+</span></span><span class="line"><span class="ln"> 84</span><span class="cl"><span class="na">perl</span>
+</span></span><span class="line"><span class="ln"> 85</span><span class="cl"><span class="na">perl-CPAN</span>
+</span></span><span class="line"><span class="ln"> 86</span><span class="cl"><span class="na">procps</span>
+</span></span><span class="line"><span class="ln"> 87</span><span class="cl"><span class="na">python</span>
+</span></span><span class="line"><span class="ln"> 88</span><span class="cl"><span class="na">screen</span>
+</span></span><span class="line"><span class="ln"> 89</span><span class="cl"><span class="na">sysstat</span>
+</span></span><span class="line"><span class="ln"> 90</span><span class="cl"><span class="na">systemtap</span>
+</span></span><span class="line"><span class="ln"> 91</span><span class="cl"><span class="na">systemtap-client</span>
+</span></span><span class="line"><span class="ln"> 92</span><span class="cl"><span class="na">systemtap-devel</span>
+</span></span><span class="line"><span class="ln"> 93</span><span class="cl"><span class="na">tcpdump</span>
+</span></span><span class="line"><span class="ln"> 94</span><span class="cl"><span class="na">telnet</span>
+</span></span><span class="line"><span class="ln"> 95</span><span class="cl"><span class="na">vim</span>
+</span></span><span class="line"><span class="ln"> 96</span><span class="cl"><span class="na">wget</span>
+</span></span><span class="line"><span class="ln"> 97</span><span class="cl"><span class="na">wsmancli</span>
+</span></span><span class="line"><span class="ln"> 98</span><span class="cl"><span class="na">zip</span>
+</span></span><span class="line"><span class="ln"> 99</span><span class="cl"><span class="na">chrony</span>
+</span></span><span class="line"><span class="ln">100</span><span class="cl"><span class="na">kexec-tools</span>
+</span></span><span class="line"><span class="ln">101</span><span class="cl"><span class="na">net-tools</span>
+</span></span><span class="line"><span class="ln">102</span><span class="cl"><span class="na">ntp</span>
+</span></span><span class="line"><span class="ln">103</span><span class="cl"><span class="na">ntpdate</span>
+</span></span><span class="line"><span class="ln">104</span><span class="cl"><span class="na">man</span>
+</span></span><span class="line"><span class="ln">105</span><span class="cl"><span class="na">acpid</span>
+</span></span><span class="line"><span class="ln">106</span><span class="cl"><span class="na">chrony</span>
+</span></span><span class="line"><span class="ln">107</span><span class="cl"><span class="na">telnet</span>
+</span></span><span class="line"><span class="ln">108</span><span class="cl"><span class="na">%end</span>
+</span></span></code></pre></div><h2 id="三准备生成iso的脚本">三、准备生成iso的脚本</h2>
 <p>下载： <a href="makeiso.sh">makeiso.sh</a>
 </p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln"> 1</span><span class="cp">#!/bin/bash
-</span><span class="ln"> 2</span><span class="cp"></span>rm -rf /tmp/bootiso /tmp/bootcustom /tmp/boot.iso
-<span class="ln"> 3</span>mkdir /tmp/bootiso 
-<span class="ln"> 4</span>mount -o loop CentOS-7-x86_64-Minimal-2009.iso /tmp/bootiso
-<span class="ln"> 5</span>
-<span class="ln"> 6</span>mkdir /tmp/bootcustom
-<span class="ln"> 7</span>cp -r /tmp/bootiso/* /tmp/bootcustom
-<span class="ln"> 8</span>umount /tmp/bootiso 
-<span class="ln"> 9</span>rmdir /tmp/bootiso
-<span class="ln">10</span>
-<span class="ln">11</span>
-<span class="ln">12</span>chmod -R u+w /tmp/bootcustom
-<span class="ln">13</span>
-<span class="ln">14</span>cp centos7.ks /tmp/bootcustom/isolinux/ks.cfg
-<span class="ln">15</span>
-<span class="ln">16</span>sed -i <span class="s1">&#39;/menu\ default/d&#39;</span> /tmp/bootcustom/isolinux/isolinux.cfg
-<span class="ln">17</span>sed -i <span class="s1">&#39;s/^timeout\ .*/timeout 10/g&#39;</span> /tmp/bootcustom/isolinux/isolinux.cfg
-<span class="ln">18</span>sed -i <span class="s1">&#39;/^label\ linux/i label\ kickstart&#39;</span> /tmp/bootcustom/isolinux/isolinux.cfg
-<span class="ln">19</span>sed -i <span class="s1">&#39;/^label\ linux/i \ \ menu\ label\ ^Install\ Using\ Kickstart\ CentOS 7&#39;</span> /tmp/bootcustom/isolinux/isolinux.cfg
-<span class="ln">20</span>sed -i <span class="s1">&#39;/^label\ linux/i \ \ menu\ default&#39;</span> /tmp/bootcustom/isolinux/isolinux.cfg
-<span class="ln">21</span>sed -i <span class="s1">&#39;/^label\ linux/i \ \ kernel\ vmlinuz\ biosdevname=0&#39;</span> /tmp/bootcustom/isolinux/isolinux.cfg
-<span class="ln">22</span>sed -i <span class="s1">&#39;/^label\ linux/i \ \ append\ initrd=initrd.img\ ks=cdrom:\/ks.cfg&#39;</span> /tmp/bootcustom/isolinux/isolinux.cfg
-<span class="ln">23</span>sed -i <span class="s1">&#39;/^label\ linux/i \\n&#39;</span> /tmp/bootcustom/isolinux/isolinux.cfg
-<span class="ln">24</span>
-<span class="ln">25</span><span class="nb">cd</span> /tmp/bootcustom
-<span class="ln">26</span>mkisofs -o /tmp/boot.iso -b isolinux.bin -c boot.cat -no-emul-boot -boot-load-size <span class="m">4</span> -boot-info-table -V <span class="s2">&#34;CentOS 7 x86_64&#34;</span> -R -J -v -T isolinux/. .
-</code></pre></div><p>生成的自动安装光盘文件在 /tmp/boot.iso ，在 idrac 中 mount 出来，就可以用 virtual CD-ROM 自动安装了</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="cp">#!/bin/bash
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="cp"></span>rm -rf /tmp/bootiso /tmp/bootcustom /tmp/boot.iso
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">mkdir /tmp/bootiso 
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">mount -o loop CentOS-7-x86_64-Minimal-2009.iso /tmp/bootiso
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">mkdir /tmp/bootcustom
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">cp -r /tmp/bootiso/* /tmp/bootcustom
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">umount /tmp/bootiso 
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">rmdir /tmp/bootiso
+</span></span><span class="line"><span class="ln">10</span><span class="cl">
+</span></span><span class="line"><span class="ln">11</span><span class="cl">
+</span></span><span class="line"><span class="ln">12</span><span class="cl">chmod -R u+w /tmp/bootcustom
+</span></span><span class="line"><span class="ln">13</span><span class="cl">
+</span></span><span class="line"><span class="ln">14</span><span class="cl">cp centos7.ks /tmp/bootcustom/isolinux/ks.cfg
+</span></span><span class="line"><span class="ln">15</span><span class="cl">
+</span></span><span class="line"><span class="ln">16</span><span class="cl">sed -i <span class="s1">&#39;/menu\ default/d&#39;</span> /tmp/bootcustom/isolinux/isolinux.cfg
+</span></span><span class="line"><span class="ln">17</span><span class="cl">sed -i <span class="s1">&#39;s/^timeout\ .*/timeout 10/g&#39;</span> /tmp/bootcustom/isolinux/isolinux.cfg
+</span></span><span class="line"><span class="ln">18</span><span class="cl">sed -i <span class="s1">&#39;/^label\ linux/i label\ kickstart&#39;</span> /tmp/bootcustom/isolinux/isolinux.cfg
+</span></span><span class="line"><span class="ln">19</span><span class="cl">sed -i <span class="s1">&#39;/^label\ linux/i \ \ menu\ label\ ^Install\ Using\ Kickstart\ CentOS 7&#39;</span> /tmp/bootcustom/isolinux/isolinux.cfg
+</span></span><span class="line"><span class="ln">20</span><span class="cl">sed -i <span class="s1">&#39;/^label\ linux/i \ \ menu\ default&#39;</span> /tmp/bootcustom/isolinux/isolinux.cfg
+</span></span><span class="line"><span class="ln">21</span><span class="cl">sed -i <span class="s1">&#39;/^label\ linux/i \ \ kernel\ vmlinuz\ biosdevname=0&#39;</span> /tmp/bootcustom/isolinux/isolinux.cfg
+</span></span><span class="line"><span class="ln">22</span><span class="cl">sed -i <span class="s1">&#39;/^label\ linux/i \ \ append\ initrd=initrd.img\ ks=cdrom:\/ks.cfg&#39;</span> /tmp/bootcustom/isolinux/isolinux.cfg
+</span></span><span class="line"><span class="ln">23</span><span class="cl">sed -i <span class="s1">&#39;/^label\ linux/i \\n&#39;</span> /tmp/bootcustom/isolinux/isolinux.cfg
+</span></span><span class="line"><span class="ln">24</span><span class="cl">
+</span></span><span class="line"><span class="ln">25</span><span class="cl"><span class="nb">cd</span> /tmp/bootcustom
+</span></span><span class="line"><span class="ln">26</span><span class="cl">mkisofs -o /tmp/boot.iso -b isolinux.bin -c boot.cat -no-emul-boot -boot-load-size <span class="m">4</span> -boot-info-table -V <span class="s2">&#34;CentOS 7 x86_64&#34;</span> -R -J -v -T isolinux/. .
+</span></span></code></pre></div><p>生成的自动安装光盘文件在 /tmp/boot.iso ，在 idrac 中 mount 出来，就可以用 virtual CD-ROM 自动安装了</p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -425,7 +425,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -465,11 +465,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

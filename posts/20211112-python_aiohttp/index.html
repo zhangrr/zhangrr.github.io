@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="Python的协程详细解释">
 <meta itemprop="description" content="在实际中遇到这样一个问题，公司软件发布上线自动化。 说简单点，就是需要去登录一个上线的内部网站，然后爬下所有的上线数据。 然后根据爬下来的数据整"><meta itemprop="datePublished" content="2021-11-12T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2021-11-12T09:30:11+08:00" />
-<meta itemprop="wordCount" content="1911">
+<meta itemprop="wordCount" content="1917">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="Python的协程详细解释" />
 <meta property="og:description" content="在实际中遇到这样一个问题，公司软件发布上线自动化。 说简单点，就是需要去登录一个上线的内部网站，然后爬下所有的上线数据。 然后根据爬下来的数据整" />
 <meta property="og:type" content="article" />
@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Python的协程详细解释"/>
 <meta name="twitter:description" content="在实际中遇到这样一个问题，公司软件发布上线自动化。 说简单点，就是需要去登录一个上线的内部网站，然后爬下所有的上线数据。 然后根据爬下来的数据整"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -241,102 +241,102 @@
 <p>举个例子：如果在 g() 这个函数中执行了 await f()，那么g()函数会被挂起，并等待 f() 函数有结果结束，然后返回 g() 继续执行。</p>
 </li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="ln">1</span><span class="k">async</span> <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
-<span class="ln">2</span>    <span class="k">async</span> <span class="k">with</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
-<span class="ln">3</span>        <span class="k">async</span> <span class="k">with</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span> 
-<span class="ln">4</span>            <span class="k">return</span> <span class="k">await</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">()</span> 
-</code></pre></div><p>最后一行 await 是挂起命令，挂起当前函数 get() ，并执行 response.text() 和注册回调，等待 response.text() 执行完成后重新激活当前函數get()继续执行，返回。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="ln">1</span><span class="cl"><span class="k">async</span> <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">    <span class="k">async</span> <span class="k">with</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">        <span class="k">async</span> <span class="k">with</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span> 
+</span></span><span class="line"><span class="ln">4</span><span class="cl">            <span class="k">return</span> <span class="k">await</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">()</span> 
+</span></span></code></pre></div><p>最后一行 await 是挂起命令，挂起当前函数 get() ，并执行 response.text() 和注册回调，等待 response.text() 执行完成后重新激活当前函數get()继续执行，返回。</p>
 <p>所以 await 只叫做挂起是不太对的，感觉应该叫做 <strong>挂起并注册回调</strong> 比较合适。</p>
 <p>看以下程序，在 Python 3.7 之前，协程是这么用的：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="ln"> 1</span><span class="kn">import</span> <span class="nn">time</span>
-<span class="ln"> 2</span><span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="ln"> 3</span>
-<span class="ln"> 4</span><span class="n">now</span> <span class="o">=</span> <span class="k">lambda</span> <span class="p">:</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="ln"> 5</span>
-<span class="ln"> 6</span><span class="k">async</span> <span class="k">def</span> <span class="nf">do_some_work</span><span class="p">(</span><span class="n">x</span><span class="p">):</span> 
-<span class="ln"> 7</span>    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Waiting: &#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> 
-<span class="ln"> 8</span>
-<span class="ln"> 9</span><span class="n">start</span> <span class="o">=</span> <span class="n">now</span><span class="p">()</span>
-<span class="ln">10</span><span class="n">coroutine</span> <span class="o">=</span> <span class="n">do_some_work</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-<span class="ln">11</span><span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_event_loop</span><span class="p">()</span>
-<span class="ln">12</span><span class="n">loop</span><span class="o">.</span><span class="n">run_until_complete</span><span class="p">(</span><span class="n">coroutine</span><span class="p">)</span>
-<span class="ln">13</span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;TIME: &#39;</span><span class="p">,</span> <span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
-</code></pre></div><p>我们指定了一个协程 coroutine ，然后定义了一个事件循环 loop，loop 是需要 run_until_complete 所有的协程，然后交出控制权，返回正常的主进程。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="kn">import</span> <span class="nn">time</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="kn">import</span> <span class="nn">asyncio</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="n">now</span> <span class="o">=</span> <span class="k">lambda</span> <span class="p">:</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="k">async</span> <span class="k">def</span> <span class="nf">do_some_work</span><span class="p">(</span><span class="n">x</span><span class="p">):</span> 
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Waiting: &#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> 
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="n">start</span> <span class="o">=</span> <span class="n">now</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="n">coroutine</span> <span class="o">=</span> <span class="n">do_some_work</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_event_loop</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="n">loop</span><span class="o">.</span><span class="n">run_until_complete</span><span class="p">(</span><span class="n">coroutine</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;TIME: &#39;</span><span class="p">,</span> <span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+</span></span></code></pre></div><p>我们指定了一个协程 coroutine ，然后定义了一个事件循环 loop，loop 是需要 run_until_complete 所有的协程，然后交出控制权，返回正常的主进程。</p>
 <p>跟上图完全匹配。</p>
 <p><strong>在 Python 3.7 之后，简化了用法，一句 asyncio.run 就可以了：</strong></p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="ln">1</span><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">do_some_work</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
-</code></pre></div><p>上面程序就变了，省了好多，但是副作用是第一次看到的人会不明白它是怎么进化过来的：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="ln"> 1</span><span class="kn">import</span> <span class="nn">time</span>
-<span class="ln"> 2</span><span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="ln"> 3</span>
-<span class="ln"> 4</span><span class="n">now</span> <span class="o">=</span> <span class="k">lambda</span> <span class="p">:</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="ln"> 5</span>
-<span class="ln"> 6</span><span class="k">async</span> <span class="k">def</span> <span class="nf">do_some_work</span><span class="p">(</span><span class="n">x</span><span class="p">):</span> 
-<span class="ln"> 7</span>    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Waiting: &#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> 
-<span class="ln"> 8</span>
-<span class="ln"> 9</span><span class="n">start</span> <span class="o">=</span> <span class="n">now</span><span class="p">()</span>
-<span class="ln">10</span><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">do_some_work</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
-<span class="ln">11</span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;TIME: &#39;</span><span class="p">,</span> <span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
-</code></pre></div><p>如果我们要访问一个网站的100个网页，单线程的做法是：请求一次，回来一次，然后进行下一个</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="ln">1</span><span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">urls</span><span class="err">：</span>
-<span class="ln">2</span>  <span class="n">response</span><span class="o">=</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-<span class="ln">3</span>  <span class="n">results</span><span class="o">=</span><span class="n">parse</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
-</code></pre></div><p>这样效率很低，协程呢，做法就不同了，一次发起100个请求（准确的说也是一个一个发），不同的是协程不会死等返回，而是发一个请求，挂起，再发一个再挂起，发起100个，就挂起100个，然后注册并等待100个返回，效率提升了100倍。可以理解为同时做了100件事，做到由自己调度而不是交给CPU，程序的并发由自己来控制，而不是交由 OS 去调度，效率极大的提高了。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="ln">1</span><span class="cl"><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">do_some_work</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+</span></span></code></pre></div><p>上面程序就变了，省了好多，但是副作用是第一次看到的人会不明白它是怎么进化过来的：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="kn">import</span> <span class="nn">time</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="kn">import</span> <span class="nn">asyncio</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="n">now</span> <span class="o">=</span> <span class="k">lambda</span> <span class="p">:</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="k">async</span> <span class="k">def</span> <span class="nf">do_some_work</span><span class="p">(</span><span class="n">x</span><span class="p">):</span> 
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Waiting: &#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> 
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="n">start</span> <span class="o">=</span> <span class="n">now</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">do_some_work</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;TIME: &#39;</span><span class="p">,</span> <span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+</span></span></code></pre></div><p>如果我们要访问一个网站的100个网页，单线程的做法是：请求一次，回来一次，然后进行下一个</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="ln">1</span><span class="cl"><span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">urls</span><span class="err">：</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">  <span class="n">response</span><span class="o">=</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">  <span class="n">results</span><span class="o">=</span><span class="n">parse</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</span></span></code></pre></div><p>这样效率很低，协程呢，做法就不同了，一次发起100个请求（准确的说也是一个一个发），不同的是协程不会死等返回，而是发一个请求，挂起，再发一个再挂起，发起100个，就挂起100个，然后注册并等待100个返回，效率提升了100倍。可以理解为同时做了100件事，做到由自己调度而不是交给CPU，程序的并发由自己来控制，而不是交由 OS 去调度，效率极大的提高了。</p>
 <p>进化到协程，我们把费 IO 的 get 函数抽出来放到协程里：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="ln"> 1</span><span class="k">async</span> <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">url</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
-<span class="ln"> 2</span>    <span class="n">my_conn</span> <span class="o">=</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">TCPConnector</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="ln"> 3</span>    <span class="k">async</span> <span class="k">with</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">(</span><span class="n">connector</span><span class="o">=</span><span class="n">my_conn</span><span class="p">)</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
-<span class="ln"> 4</span>        <span class="k">async</span> <span class="k">with</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span> <span class="k">as</span> <span class="n">resp</span><span class="p">:</span>
-<span class="ln"> 5</span>            <span class="k">return</span> <span class="k">await</span> <span class="n">resp</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
-<span class="ln"> 6</span>
-<span class="ln"> 7</span>
-<span class="ln"> 8</span><span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">urls</span><span class="err">：</span>
-<span class="ln"> 9</span>  <span class="n">response</span><span class="o">=</span><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">))</span>
-<span class="ln">10</span>  <span class="n">results</span><span class="o">=</span><span class="n">parse</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
-<span class="ln">11</span>        
-</code></pre></div><p>具体到我们的项目，我们首先要登录一个网页拿到 cookie，这个过程其实就一个协程，没人会登录个几百次吧。然后把放了 cookie 的 session 取出来，供后面的协程再复用就可以了，示例代码如下：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="ln"> 1</span><span class="kn">import</span> <span class="nn">aiohttp</span>
-<span class="ln"> 2</span><span class="kn">import</span> <span class="nn">asyncio</span> 
-<span class="ln"> 3</span>
-<span class="ln"> 4</span><span class="k">async</span> <span class="k">def</span> <span class="nf">login</span><span class="p">():</span>
-<span class="ln"> 5</span>    <span class="n">my_conn</span> <span class="o">=</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">TCPConnector</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="ln"> 6</span>    <span class="k">async</span> <span class="k">with</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">(</span><span class="n">connector</span><span class="o">=</span><span class="n">my_conn</span><span class="p">)</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
-<span class="ln"> 7</span>        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;loginname&#39;</span><span class="p">:</span><span class="s1">&#39;wangbadan&#39;</span><span class="p">,</span><span class="s1">&#39;password&#39;</span><span class="p">:</span><span class="s1">&#39;Fuckyouall&#39;</span><span class="p">}</span>
-<span class="ln"> 8</span>        <span class="k">async</span> <span class="k">with</span> <span class="n">session</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;http://192.168.1.3/user/login&#39;</span><span class="p">,</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span> <span class="k">as</span> <span class="n">resp</span><span class="p">:</span>
-<span class="ln"> 9</span>            <span class="nb">print</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
-<span class="ln">10</span>            <span class="nb">print</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
-<span class="ln">11</span>            <span class="nb">print</span><span class="p">(</span><span class="k">await</span> <span class="n">resp</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
-<span class="ln">12</span>            <span class="k">return</span> <span class="n">session</span>
-<span class="ln">13</span>
-<span class="ln">14</span><span class="n">session</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">login</span><span class="p">())</span>
-<span class="ln">15</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;</span><span class="si">{</span><span class="n">session</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
-</code></pre></div><p>再给一个完全版的主函数是进程，下载是协程的例子，注意里面的 aiohttp.TCPConnector(limit=10)，限制一下并发是10个，否则会被服务器 Ban 掉：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="ln"> 1</span><span class="kn">import</span> <span class="nn">asyncio</span>
-<span class="ln"> 2</span><span class="kn">import</span> <span class="nn">time</span> 
-<span class="ln"> 3</span><span class="kn">import</span> <span class="nn">aiohttp</span>
-<span class="ln"> 4</span><span class="kn">from</span> <span class="nn">aiohttp.client</span> <span class="kn">import</span> <span class="n">ClientSession</span>
-<span class="ln"> 5</span>
-<span class="ln"> 6</span><span class="k">async</span> <span class="k">def</span> <span class="nf">download_link</span><span class="p">(</span><span class="n">url</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span><span class="n">session</span><span class="p">:</span><span class="n">ClientSession</span><span class="p">):</span>
-<span class="ln"> 7</span>    <span class="k">async</span> <span class="k">with</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
-<span class="ln"> 8</span>        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
-<span class="ln"> 9</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Read </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="si">}</span><span class="s1"> from </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-<span class="ln">10</span>
-<span class="ln">11</span><span class="k">async</span> <span class="k">def</span> <span class="nf">download_all</span><span class="p">(</span><span class="n">urls</span><span class="p">:</span><span class="nb">list</span><span class="p">):</span>
-<span class="ln">12</span>    <span class="n">my_conn</span> <span class="o">=</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">TCPConnector</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="ln">13</span>    <span class="k">async</span> <span class="k">with</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">(</span><span class="n">connector</span><span class="o">=</span><span class="n">my_conn</span><span class="p">)</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
-<span class="ln">14</span>        <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="ln">15</span>        <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">:</span>
-<span class="ln">16</span>            <span class="n">task</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">ensure_future</span><span class="p">(</span><span class="n">download_link</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span><span class="n">session</span><span class="o">=</span><span class="n">session</span><span class="p">))</span>
-<span class="ln">17</span>            <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
-<span class="ln">18</span>        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">tasks</span><span class="p">,</span><span class="n">return_exceptions</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># the await must be nest inside of the session</span>
-<span class="ln">19</span>
-<span class="ln">20</span><span class="n">url_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;https://www.google.com&#34;</span><span class="p">,</span><span class="s2">&#34;https://www.bing.com&#34;</span><span class="p">]</span><span class="o">*</span><span class="mi">50</span>
-<span class="ln">21</span><span class="nb">print</span><span class="p">(</span><span class="n">url_list</span><span class="p">)</span>
-<span class="ln">22</span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="ln">23</span><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">download_all</span><span class="p">(</span><span class="n">url_list</span><span class="p">))</span>
-<span class="ln">24</span><span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="ln">25</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;download </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">url_list</span><span class="p">)</span><span class="si">}</span><span class="s1"> links in </span><span class="si">{</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="si">}</span><span class="s1"> seconds&#39;</span><span class="p">)</span>
-</code></pre></div><p>协程里的 session 也有很多种用法，参考下面的链接就好：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="k">async</span> <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">url</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">    <span class="n">my_conn</span> <span class="o">=</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">TCPConnector</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">    <span class="k">async</span> <span class="k">with</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">(</span><span class="n">connector</span><span class="o">=</span><span class="n">my_conn</span><span class="p">)</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">        <span class="k">async</span> <span class="k">with</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span> <span class="k">as</span> <span class="n">resp</span><span class="p">:</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">            <span class="k">return</span> <span class="k">await</span> <span class="n">resp</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">urls</span><span class="err">：</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">  <span class="n">response</span><span class="o">=</span><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">))</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">  <span class="n">results</span><span class="o">=</span><span class="n">parse</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">        
+</span></span></code></pre></div><p>具体到我们的项目，我们首先要登录一个网页拿到 cookie，这个过程其实就一个协程，没人会登录个几百次吧。然后把放了 cookie 的 session 取出来，供后面的协程再复用就可以了，示例代码如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="kn">import</span> <span class="nn">aiohttp</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="kn">import</span> <span class="nn">asyncio</span> 
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="k">async</span> <span class="k">def</span> <span class="nf">login</span><span class="p">():</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">    <span class="n">my_conn</span> <span class="o">=</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">TCPConnector</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">    <span class="k">async</span> <span class="k">with</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">(</span><span class="n">connector</span><span class="o">=</span><span class="n">my_conn</span><span class="p">)</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;loginname&#39;</span><span class="p">:</span><span class="s1">&#39;wangbadan&#39;</span><span class="p">,</span><span class="s1">&#39;password&#39;</span><span class="p">:</span><span class="s1">&#39;Fuckyouall&#39;</span><span class="p">}</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">        <span class="k">async</span> <span class="k">with</span> <span class="n">session</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;http://192.168.1.3/user/login&#39;</span><span class="p">,</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span> <span class="k">as</span> <span class="n">resp</span><span class="p">:</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">            <span class="nb">print</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">            <span class="nb">print</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">            <span class="nb">print</span><span class="p">(</span><span class="k">await</span> <span class="n">resp</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">            <span class="k">return</span> <span class="n">session</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">
+</span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="n">session</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">login</span><span class="p">())</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;</span><span class="si">{</span><span class="n">session</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><p>再给一个完全版的主函数是进程，下载是协程的例子，注意里面的 aiohttp.TCPConnector(limit=10)，限制一下并发是10个，否则会被服务器 Ban 掉：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="kn">import</span> <span class="nn">asyncio</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="kn">import</span> <span class="nn">time</span> 
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="kn">import</span> <span class="nn">aiohttp</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="kn">from</span> <span class="nn">aiohttp.client</span> <span class="kn">import</span> <span class="n">ClientSession</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="k">async</span> <span class="k">def</span> <span class="nf">download_link</span><span class="p">(</span><span class="n">url</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span><span class="n">session</span><span class="p">:</span><span class="n">ClientSession</span><span class="p">):</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">    <span class="k">async</span> <span class="k">with</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Read </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="si">}</span><span class="s1"> from </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">
+</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="k">async</span> <span class="k">def</span> <span class="nf">download_all</span><span class="p">(</span><span class="n">urls</span><span class="p">:</span><span class="nb">list</span><span class="p">):</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">    <span class="n">my_conn</span> <span class="o">=</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">TCPConnector</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">    <span class="k">async</span> <span class="k">with</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">(</span><span class="n">connector</span><span class="o">=</span><span class="n">my_conn</span><span class="p">)</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">        <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl">        <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">:</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">            <span class="n">task</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">ensure_future</span><span class="p">(</span><span class="n">download_link</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span><span class="n">session</span><span class="o">=</span><span class="n">session</span><span class="p">))</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl">            <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl">        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">tasks</span><span class="p">,</span><span class="n">return_exceptions</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># the await must be nest inside of the session</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl">
+</span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="n">url_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;https://www.google.com&#34;</span><span class="p">,</span><span class="s2">&#34;https://www.bing.com&#34;</span><span class="p">]</span><span class="o">*</span><span class="mi">50</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">url_list</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">22</span><span class="cl"><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln">23</span><span class="cl"><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">download_all</span><span class="p">(</span><span class="n">url_list</span><span class="p">))</span>
+</span></span><span class="line"><span class="ln">24</span><span class="cl"><span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln">25</span><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;download </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">url_list</span><span class="p">)</span><span class="si">}</span><span class="s1"> links in </span><span class="si">{</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="si">}</span><span class="s1"> seconds&#39;</span><span class="p">)</span>
+</span></span></code></pre></div><p>协程里的 session 也有很多种用法，参考下面的链接就好：</p>
 <p><a href="https://blog.csdn.net/weixin_39643613/article/details/109171090" target="_blank" rel="noopener noreferrer">https://blog.csdn.net/weixin_39643613/article/details/109171090</a>
 </p>
 <p>我们也给出简单易用的线程池版，说不定以后会用上：</p>
@@ -345,34 +345,34 @@
    />
 
 </p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="ln"> 1</span><span class="kn">import</span> <span class="nn">requests</span>
-<span class="ln"> 2</span><span class="kn">from</span> <span class="nn">requests.sessions</span> <span class="kn">import</span> <span class="n">Session</span>
-<span class="ln"> 3</span><span class="kn">import</span> <span class="nn">time</span>
-<span class="ln"> 4</span><span class="kn">from</span> <span class="nn">concurrent.futures</span> <span class="kn">import</span> <span class="n">ThreadPoolExecutor</span>
-<span class="ln"> 5</span><span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Thread</span><span class="p">,</span><span class="n">local</span>
-<span class="ln"> 6</span>
-<span class="ln"> 7</span><span class="n">url_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;https://www.google.com/&#34;</span><span class="p">,</span><span class="s2">&#34;https://www.bing.com&#34;</span><span class="p">]</span><span class="o">*</span><span class="mi">50</span>
-<span class="ln"> 8</span><span class="n">thread_local</span> <span class="o">=</span> <span class="n">local</span><span class="p">()</span>
-<span class="ln"> 9</span>
-<span class="ln">10</span><span class="k">def</span> <span class="nf">get_session</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Session</span><span class="p">:</span>
-<span class="ln">11</span>    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">thread_local</span><span class="p">,</span><span class="s1">&#39;session&#39;</span><span class="p">):</span>
-<span class="ln">12</span>        <span class="n">thread_local</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
-<span class="ln">13</span>    <span class="k">return</span> <span class="n">thread_local</span><span class="o">.</span><span class="n">session</span>
-<span class="ln">14</span>
-<span class="ln">15</span><span class="k">def</span> <span class="nf">download_link</span><span class="p">(</span><span class="n">url</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
-<span class="ln">16</span>    <span class="n">session</span> <span class="o">=</span> <span class="n">get_session</span><span class="p">()</span>
-<span class="ln">17</span>    <span class="k">with</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
-<span class="ln">18</span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Read </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span><span class="si">}</span><span class="s1"> from </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-<span class="ln">19</span>
-<span class="ln">20</span><span class="k">def</span> <span class="nf">download_all</span><span class="p">(</span><span class="n">urls</span><span class="p">:</span><span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="ln">21</span>    <span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
-<span class="ln">22</span>        <span class="n">executor</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">download_link</span><span class="p">,</span><span class="n">url_list</span><span class="p">)</span>
-<span class="ln">23</span>
-<span class="ln">24</span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="ln">25</span><span class="n">download_all</span><span class="p">(</span><span class="n">url_list</span><span class="p">)</span>
-<span class="ln">26</span><span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="ln">27</span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;download </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">url_list</span><span class="p">)</span><span class="si">}</span><span class="s1"> links in </span><span class="si">{</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="si">}</span><span class="s1"> seconds&#39;</span><span class="p">)</span>
-</code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="kn">import</span> <span class="nn">requests</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="kn">from</span> <span class="nn">requests.sessions</span> <span class="kn">import</span> <span class="n">Session</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="kn">import</span> <span class="nn">time</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="kn">from</span> <span class="nn">concurrent.futures</span> <span class="kn">import</span> <span class="n">ThreadPoolExecutor</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Thread</span><span class="p">,</span><span class="n">local</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="n">url_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;https://www.google.com/&#34;</span><span class="p">,</span><span class="s2">&#34;https://www.bing.com&#34;</span><span class="p">]</span><span class="o">*</span><span class="mi">50</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="n">thread_local</span> <span class="o">=</span> <span class="n">local</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">
+</span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="k">def</span> <span class="nf">get_session</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Session</span><span class="p">:</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">thread_local</span><span class="p">,</span><span class="s1">&#39;session&#39;</span><span class="p">):</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">        <span class="n">thread_local</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">    <span class="k">return</span> <span class="n">thread_local</span><span class="o">.</span><span class="n">session</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">
+</span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="k">def</span> <span class="nf">download_link</span><span class="p">(</span><span class="n">url</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">    <span class="n">session</span> <span class="o">=</span> <span class="n">get_session</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl">    <span class="k">with</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Read </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span><span class="si">}</span><span class="s1"> from </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl">
+</span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="k">def</span> <span class="nf">download_all</span><span class="p">(</span><span class="n">urls</span><span class="p">:</span><span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl">    <span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+</span></span><span class="line"><span class="ln">22</span><span class="cl">        <span class="n">executor</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">download_link</span><span class="p">,</span><span class="n">url_list</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">23</span><span class="cl">
+</span></span><span class="line"><span class="ln">24</span><span class="cl"><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln">25</span><span class="cl"><span class="n">download_all</span><span class="p">(</span><span class="n">url_list</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">26</span><span class="cl"><span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln">27</span><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;download </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">url_list</span><span class="p">)</span><span class="si">}</span><span class="s1"> links in </span><span class="si">{</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="si">}</span><span class="s1"> seconds&#39;</span><span class="p">)</span>
+</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -417,7 +417,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -457,11 +457,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

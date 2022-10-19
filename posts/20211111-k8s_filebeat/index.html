@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="kubernetes使用filebeat multiline自定义收集日志">
 <meta itemprop="description" content="我们介绍了如何在 kubernetes 环境中使用 filebeat sidecar 方式收集日志 使用的是 filebeat 的 moudle 模块，但凡是常用的软件，基本都有对应的模块可用，所以我们首先应该使用模块来收集日志"><meta itemprop="datePublished" content="2021-11-11T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2021-11-11T09:30:11+08:00" />
-<meta itemprop="wordCount" content="839">
+<meta itemprop="wordCount" content="844">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="kubernetes使用filebeat multiline自定义收集日志" />
 <meta property="og:description" content="我们介绍了如何在 kubernetes 环境中使用 filebeat sidecar 方式收集日志 使用的是 filebeat 的 moudle 模块，但凡是常用的软件，基本都有对应的模块可用，所以我们首先应该使用模块来收集日志" />
 <meta property="og:type" content="article" />
@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="kubernetes使用filebeat multiline自定义收集日志"/>
 <meta name="twitter:description" content="我们介绍了如何在 kubernetes 环境中使用 filebeat sidecar 方式收集日志 使用的是 filebeat 的 moudle 模块，但凡是常用的软件，基本都有对应的模块可用，所以我们首先应该使用模块来收集日志"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -218,79 +218,78 @@
 <p>那对于一些我们自己写的 Go 软件呢，或者根本不是标准的，那该怎么办呢？</p>
 <p>那就自定义 filebeat.inputs，网上的 filebeat 例子，其实大多都是这样的</p>
 <p>很简单，给个例子</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span><span class="k">[beat-logstash-some-name-832-2015.11.28] IndexNotFoundException[no such index]</span>
-<span class="ln">2</span>    <span class="na">at org.elasticsearch.cluster.metadata.(IndexNameExpressionResolver.java:566)</span>
-<span class="ln">3</span>    <span class="na">at org.elasticsearch.cluster.metadata.(IndexNameExpressionResolver.java:133)</span>
-<span class="ln">4</span>    <span class="na">at org.elasticsearch.cluster.metadata.(IndexNameExpressionResolver.java:77)</span>
-<span class="ln">5</span>    <span class="na">at org.elasticsearch.action.admin..checkBlock(TransportDeleteIndexAction.java:75)</span>
-</code></pre></div><p>看如上日志，如果不用模式匹配的话，那么会送5条记录到 ES， Kibana 看起来就十分割裂了。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln">1</span><span class="cl"><span class="k">[beat-logstash-some-name-832-2015.11.28] IndexNotFoundException[no such index]</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">    <span class="na">at org.elasticsearch.cluster.metadata.(IndexNameExpressionResolver.java:566)</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">    <span class="na">at org.elasticsearch.cluster.metadata.(IndexNameExpressionResolver.java:133)</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">    <span class="na">at org.elasticsearch.cluster.metadata.(IndexNameExpressionResolver.java:77)</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl">    <span class="na">at org.elasticsearch.action.admin..checkBlock(TransportDeleteIndexAction.java:75)</span>
+</span></span></code></pre></div><p>看如上日志，如果不用模式匹配的话，那么会送5条记录到 ES， Kibana 看起来就十分割裂了。</p>
 <p>所以要用正则把底下的4行和上面的第1行合在一起，合并成一条就记录推送到 ES 去</p>
-<p>仔细观察，开头一行是以 [ 开始的，所以正则就是 &lsquo;^\['，我们要匹配的是底下的4行，必须反转一下模式。</p>
+<p>仔细观察，开头一行是以 [ 开始的，所以正则就是 &lsquo;^\[&rsquo;，我们要匹配的是底下的4行，必须反转一下模式。</p>
 <p>multiline 的 negate 属性，这个是指定是否反转匹配到的内容，这里如果是 true 的话，反转，那就是选择不以 [ 开头的行。 netgate 属性的缺省值是 false</p>
 <p>multiline 的 match 属性，after 指追加到上一条事件（向上合并），before 指合并到下一条（向下合并）</p>
 <p>于是，我们就可以写出以下的匹配模式，这样就把匹配到条目追加到上一条，合并在一起了：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span><span class="na">filebeat.inputs:</span>
-<span class="ln"> 2</span>  <span class="na">- type: log</span>
-<span class="ln"> 3</span>    <span class="na">enabled: true</span>
-<span class="ln"> 4</span>    <span class="na">paths:</span>
-<span class="ln"> 5</span>      <span class="na">- /Users/liuxg/data/multiline/multiline.log</span>
-<span class="ln"> 6</span>    <span class="na">multiline.type: pattern</span>
-<span class="ln"> 7</span>    <span class="na">multiline.pattern: &#39;^\[&#39;</span>
-<span class="ln"> 8</span>    <span class="na">multiline.negate: true</span>
-<span class="ln"> 9</span>    <span class="na">multiline.match: after</span>
-<span class="ln">10</span>
-<span class="ln">11</span><span class="na">output.elasticsearch:</span>
-<span class="ln">12</span> <span class="na">hosts: [&#34;localhost:9200&#34;]</span>
-<span class="ln">13</span> <span class="na">index: &#34;multiline&#34;</span>
-<span class="ln">14</span>
-</code></pre></div><p>再给个例子，java 的 stack 调用，日志格式如下：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span><span class="na">Exception in thread &#34;main&#34; java.lang.NullPointerException</span>
-<span class="ln">2</span>        <span class="na">at com.example.myproject.Book.getTitle(Book.java:16)</span>
-<span class="ln">3</span>        <span class="na">at com.example.myproject.Author.getBookTitles(Author.java:25)</span>
-<span class="ln">4</span>        <span class="na">at com.example.myproject.Bootstrap.main(Bootstrap.java:14)</span>
-</code></pre></div><p>分析一下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="na">filebeat.inputs:</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">  <span class="na">- type: log</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">    <span class="na">enabled: true</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">    <span class="na">paths:</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">      <span class="na">- /Users/liuxg/data/multiline/multiline.log</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">    <span class="na">multiline.type: pattern</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">    <span class="na">multiline.pattern: &#39;^\[&#39;</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">    <span class="na">multiline.negate: true</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">    <span class="na">multiline.match: after</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">
+</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="na">output.elasticsearch:</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl"> <span class="na">hosts: [&#34;localhost:9200&#34;]</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl"> <span class="na">index: &#34;multiline&#34;</span>
+</span></span></code></pre></div><p>再给个例子，java 的 stack 调用，日志格式如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln">1</span><span class="cl"><span class="na">Exception in thread &#34;main&#34; java.lang.NullPointerException</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">        <span class="na">at com.example.myproject.Book.getTitle(Book.java:16)</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">        <span class="na">at com.example.myproject.Author.getBookTitles(Author.java:25)</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">        <span class="na">at com.example.myproject.Bootstrap.main(Bootstrap.java:14)</span>
+</span></span></code></pre></div><p>分析一下：</p>
 <ul>
 <li>匹配到开头是空格的那些行，正则 &lsquo;^[[:space]]&rsquo;</li>
 <li>匹配的行不反转，就是要那些空格开头的行，所以 negate 是缺省的 false</li>
 <li>匹配的空格行追加到上一个事件，向上合并，所以 match 是 after</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span><span class="na">filebeat.inputs:</span>
-<span class="ln">2</span>  <span class="na">- type: log</span>
-<span class="ln">3</span>    <span class="na">enabled: true</span>
-<span class="ln">4</span>    <span class="na">paths:</span>
-<span class="ln">5</span>      <span class="na">- /Users/liuxg/data/multiline/multiline.log</span>
-<span class="ln">6</span>    <span class="na">multiline.type: pattern</span>
-<span class="ln">7</span>    <span class="na">multiline.pattern: &#39;^[[:space:]]&#39;</span>
-<span class="ln">8</span>    <span class="na">multiline.negate: false</span>
-<span class="ln">9</span>    <span class="na">multiline.match: after</span>
-</code></pre></div><p>再给个例子，假如你在 Go 程序里定义了输出日志的格式，以 Start new event 开头，以 End event 结尾</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span><span class="na">[2015-08-24 11:49:14,389] Start new event</span>
-<span class="ln">2</span><span class="na">[2015-08-24 11:49:14,395] Content of processing something</span>
-<span class="ln">3</span><span class="na">[2015-08-24 11:49:14,399] End event</span>
-<span class="ln">4</span><span class="na">[2015-08-24 11:50:14,389] Some other log</span>
-<span class="ln">5</span><span class="na">[2015-08-24 11:50:14,395] Some other log</span>
-<span class="ln">6</span><span class="na">[2015-08-24 11:50:14,399] Some other log</span>
-<span class="ln">7</span><span class="na">[2015-08-24 11:51:14,389] Start new event</span>
-<span class="ln">8</span><span class="na">[2015-08-24 11:51:14,395] Content of processing something</span>
-<span class="ln">9</span><span class="na">[2015-08-24 11:51:14,399] End event</span>
-</code></pre></div><p>我们就用到 filebeat multiline 的另一个开关，flush_pattern，来控制如何结束，注意 negate 是 true ，匹配到的是 Start 和 End 中间的部分：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span><span class="na">multiline.type: pattern</span>
-<span class="ln"> 2</span><span class="na">multiline.pattern: &#39;Start new event&#39;</span>
-<span class="ln"> 3</span><span class="na">multiline.negate: true</span>
-<span class="ln"> 4</span><span class="na">multiline.match: after</span>
-<span class="ln"> 5</span><span class="na">multiline.flush_pattern: &#39;End event&#39;</span>
-<span class="ln"> 6</span>
-<span class="ln"> 7</span><span class="na">filebeat.inputs:</span>
-<span class="ln"> 8</span>  <span class="na">- type: log</span>
-<span class="ln"> 9</span>    <span class="na">enabled: true</span>
-<span class="ln">10</span>    <span class="na">paths:</span>
-<span class="ln">11</span>      <span class="na">- /Users/liuxg/data/multiline/multiline.log</span>
-<span class="ln">12</span>    <span class="na">multiline.type: pattern</span>
-<span class="ln">13</span>    <span class="na">multiline.pattern: &#39;Start new event&#39;</span>
-<span class="ln">14</span>    <span class="na">multiline.negate: true</span>
-<span class="ln">15</span>    <span class="na">multiline.match: after</span>
-<span class="ln">16</span>    <span class="na">multiline.flush_pattern: &#39;End event&#39;</span>
-</code></pre></div><p>给两篇参考，大家一定要先看那篇原版英文的，中文的那篇翻得不太好；最好两篇对照着看。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln">1</span><span class="cl"><span class="na">filebeat.inputs:</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">  <span class="na">- type: log</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">    <span class="na">enabled: true</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">    <span class="na">paths:</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl">      <span class="na">- /Users/liuxg/data/multiline/multiline.log</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl">    <span class="na">multiline.type: pattern</span>
+</span></span><span class="line"><span class="ln">7</span><span class="cl">    <span class="na">multiline.pattern: &#39;^[[:space:]]&#39;</span>
+</span></span><span class="line"><span class="ln">8</span><span class="cl">    <span class="na">multiline.negate: false</span>
+</span></span><span class="line"><span class="ln">9</span><span class="cl">    <span class="na">multiline.match: after</span>
+</span></span></code></pre></div><p>再给个例子，假如你在 Go 程序里定义了输出日志的格式，以 Start new event 开头，以 End event 结尾</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln">1</span><span class="cl"><span class="na">[2015-08-24 11:49:14,389] Start new event</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="na">[2015-08-24 11:49:14,395] Content of processing something</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="na">[2015-08-24 11:49:14,399] End event</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="na">[2015-08-24 11:50:14,389] Some other log</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="na">[2015-08-24 11:50:14,395] Some other log</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl"><span class="na">[2015-08-24 11:50:14,399] Some other log</span>
+</span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="na">[2015-08-24 11:51:14,389] Start new event</span>
+</span></span><span class="line"><span class="ln">8</span><span class="cl"><span class="na">[2015-08-24 11:51:14,395] Content of processing something</span>
+</span></span><span class="line"><span class="ln">9</span><span class="cl"><span class="na">[2015-08-24 11:51:14,399] End event</span>
+</span></span></code></pre></div><p>我们就用到 filebeat multiline 的另一个开关，flush_pattern，来控制如何结束，注意 negate 是 true ，匹配到的是 Start 和 End 中间的部分：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="na">multiline.type: pattern</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="na">multiline.pattern: &#39;Start new event&#39;</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="na">multiline.negate: true</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="na">multiline.match: after</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="na">multiline.flush_pattern: &#39;End event&#39;</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="na">filebeat.inputs:</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">  <span class="na">- type: log</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">    <span class="na">enabled: true</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">    <span class="na">paths:</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">      <span class="na">- /Users/liuxg/data/multiline/multiline.log</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">    <span class="na">multiline.type: pattern</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">    <span class="na">multiline.pattern: &#39;Start new event&#39;</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">    <span class="na">multiline.negate: true</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl">    <span class="na">multiline.match: after</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">    <span class="na">multiline.flush_pattern: &#39;End event&#39;</span>
+</span></span></code></pre></div><p>给两篇参考，大家一定要先看那篇原版英文的，中文的那篇翻得不太好；最好两篇对照着看。</p>
 <p>参考：</p>
 <ul>
 <li><a href="https://www.elastic.co/guide/en/beats/filebeat/current/multiline-examples.html" target="_blank" rel="noopener noreferrer">https://www.elastic.co/guide/en/beats/filebeat/current/multiline-examples.html</a>
@@ -343,7 +342,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -383,11 +382,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

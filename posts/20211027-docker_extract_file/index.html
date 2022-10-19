@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="没有装Docker如何从镜像中释放出文件">
 <meta itemprop="description" content="用 kubernetes 越多，用 docker 越多，就愈发感觉到好处多多。 简简单单的一个可执行文件，用 docker 基板 alphine 封装，就可以运行起一个 pod ，然后指定 deployment、svc"><meta itemprop="datePublished" content="2021-10-27T10:30:11+08:00" />
 <meta itemprop="dateModified" content="2021-10-27T10:30:11+08:00" />
-<meta itemprop="wordCount" content="546">
+<meta itemprop="wordCount" content="545">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="没有装Docker如何从镜像中释放出文件" />
 <meta property="og:description" content="用 kubernetes 越多，用 docker 越多，就愈发感觉到好处多多。 简简单单的一个可执行文件，用 docker 基板 alphine 封装，就可以运行起一个 pod ，然后指定 deployment、svc" />
 <meta property="og:type" content="article" />
@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="没有装Docker如何从镜像中释放出文件"/>
 <meta name="twitter:description" content="用 kubernetes 越多，用 docker 越多，就愈发感觉到好处多多。 简简单单的一个可执行文件，用 docker 基板 alphine 封装，就可以运行起一个 pod ，然后指定 deployment、svc"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -221,22 +221,21 @@
 <p>无奈下，在 nanopi 上装了 go ，编译了个 arm7 的出来。</p>
 <p>但是遇到 vaultwanden ，rust 的，就没法弄了，vps 太弱，根本无法用 cargo 编译。</p>
 <p>那怎么办呢？方法如下，不安装 Docker ，也可以把镜像中的文件抽取出来</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln"> 1</span>$ mkdir vm
-<span class="ln"> 2</span>$ wget https://raw.githubusercontent.com/jjlin/docker-image-extract/main/docker-image-extract
-<span class="ln"> 3</span>$ chmod +x docker-image-extract
-<span class="ln"> 4</span>$ ./docker-image-extract vaultwarden/server:alpine
-<span class="ln"> 5</span>Getting API token...
-<span class="ln"> 6</span>Getting image manifest <span class="k">for</span> vaultwarden/server:alpine...
-<span class="ln"> 7</span>Fetching and extracting layer a0d0a0d46f8b52473982a3c466318f479767577551a53ffc9074c9fa7035982e...
-<span class="ln"> 8</span>Fetching and extracting layer 3a9a529931676767ec84d35ab19774b24bd94e20f6fff7e6bda57ef5f2a66cfc...
-<span class="ln"> 9</span>Fetching and extracting layer f9dcfa9aefe67ce52ab2a73e515ea715d242348b8fc338dbe4ca72a853ea0318...
-<span class="ln">10</span>Fetching and extracting layer 4249d8cece35148b5faca2c6a98d566a271a1996b127b14480793ee8825e43c0...
-<span class="ln">11</span>Fetching and extracting layer 72f4873a62cc82eaf28905077df3791e3b235bf5d17670e7aff6d5fb5e280739...
-<span class="ln">12</span>Fetching and extracting layer 8eb772c524f9d998c8c7c92acc5ba96e3e9ebfb175dbb2441fe6e7b7598874f5...
-<span class="ln">13</span>Fetching and extracting layer 663794f103b44abb8a90e1376dce14735905e2f938b4ca7e0ff379b09cbf6148...
-<span class="ln">14</span>Image contents extracted into ./output.
-<span class="ln">15</span>
-</code></pre></div><p>这样我们就可以在 output 目录下得到 vaultwarden 和 web-vault</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln"> 1</span><span class="cl">$ mkdir vm
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">$ wget https://raw.githubusercontent.com/jjlin/docker-image-extract/main/docker-image-extract
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">$ chmod +x docker-image-extract
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">$ ./docker-image-extract vaultwarden/server:alpine
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">Getting API token...
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">Getting image manifest <span class="k">for</span> vaultwarden/server:alpine...
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">Fetching and extracting layer a0d0a0d46f8b52473982a3c466318f479767577551a53ffc9074c9fa7035982e...
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">Fetching and extracting layer 3a9a529931676767ec84d35ab19774b24bd94e20f6fff7e6bda57ef5f2a66cfc...
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">Fetching and extracting layer f9dcfa9aefe67ce52ab2a73e515ea715d242348b8fc338dbe4ca72a853ea0318...
+</span></span><span class="line"><span class="ln">10</span><span class="cl">Fetching and extracting layer 4249d8cece35148b5faca2c6a98d566a271a1996b127b14480793ee8825e43c0...
+</span></span><span class="line"><span class="ln">11</span><span class="cl">Fetching and extracting layer 72f4873a62cc82eaf28905077df3791e3b235bf5d17670e7aff6d5fb5e280739...
+</span></span><span class="line"><span class="ln">12</span><span class="cl">Fetching and extracting layer 8eb772c524f9d998c8c7c92acc5ba96e3e9ebfb175dbb2441fe6e7b7598874f5...
+</span></span><span class="line"><span class="ln">13</span><span class="cl">Fetching and extracting layer 663794f103b44abb8a90e1376dce14735905e2f938b4ca7e0ff379b09cbf6148...
+</span></span><span class="line"><span class="ln">14</span><span class="cl">Image contents extracted into ./output.
+</span></span></code></pre></div><p>这样我们就可以在 output 目录下得到 vaultwarden 和 web-vault</p>
 <p><img class="img-fluid" alt="image-20211027172244666" src="https://bajie.dev/posts/20211027-docker_extract_file/image-20211027172244666.png" loading="lazy"
    width="474" height="361"
    />
@@ -259,8 +258,8 @@
 
 </p>
 <p>按如下方法释放即可：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>$ ./docker-image-extract ghostunnel/ghostunnel:sha256:40247f4b49c364046ebf47696dbd31752b4db2ae2b9edf1fd4c52c2573f06e04
-</code></pre></div><p>不用担心目录结构，释放出来的文件会放到当前 output 目录下。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">$ ./docker-image-extract ghostunnel/ghostunnel:sha256:40247f4b49c364046ebf47696dbd31752b4db2ae2b9edf1fd4c52c2573f06e04
+</span></span></code></pre></div><p>不用担心目录结构，释放出来的文件会放到当前 output 目录下。</p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -306,7 +305,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -346,11 +345,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

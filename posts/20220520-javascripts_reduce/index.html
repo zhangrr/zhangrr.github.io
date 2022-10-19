@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="Javascripts之数组的reduce">
 <meta itemprop="description" content="研究一下 javascripts 的 reduce ，reduce 是既能改变 array 的 size，又能改变数值的函数，filter 是只能改变size，不能改变数值；而 map 是不能改变 size"><meta itemprop="datePublished" content="2022-05-20T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2022-05-20T09:30:11+08:00" />
-<meta itemprop="wordCount" content="1524">
+<meta itemprop="wordCount" content="1523">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="Javascripts之数组的reduce" />
 <meta property="og:description" content="研究一下 javascripts 的 reduce ，reduce 是既能改变 array 的 size，又能改变数值的函数，filter 是只能改变size，不能改变数值；而 map 是不能改变 size" />
 <meta property="og:type" content="article" />
@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Javascripts之数组的reduce"/>
 <meta name="twitter:description" content="研究一下 javascripts 的 reduce ，reduce 是既能改变 array 的 size，又能改变数值的函数，filter 是只能改变size，不能改变数值；而 map 是不能改变 size"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -236,8 +236,8 @@
 </div><div class="post-content mb-3"><p>研究一下 javascripts 的 reduce ，reduce 是既能改变 array 的 size，又能改变数值的函数，filter 是只能改变size，不能改变数值；而 map 是不能改变 size，可以改变数值。很拗口吧，三个兄弟。</p>
 <p>简单介绍一下 reduce。</p>
 <p>假设我们有一个数组:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="ln">1</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
-</code></pre></div><p>我们要对整个数组求和.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="ln">1</span><span class="cl"><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+</span></span></code></pre></div><p>我们要对整个数组求和.</p>
 <p><code>reduce</code> 实际是按照下列的算式来进行求和的:</p>
 <p>((((1) + 2) + 3) + 4)</p>
 <p>那实际 <code>reduce</code> 函数执行中，你可以按你需求来自定义你自己的 + 操作符。数组的值也可以是其他的任意东西。听起来有点意思吧？</p>
@@ -245,16 +245,16 @@
 <p>在一个函数式编程语言中，reduce 其实有很多别的名称，比如 <strong>fold（对折）</strong>, <strong>accumulate（累加器）</strong>, <strong>aggregate（聚合器）</strong>, <strong>compress（压缩）</strong> 甚至叫 <strong>inject（注入）</strong>。</p>
 <h4 id="2-reduce-的参数"><strong>2、</strong> Reduce 的参数</h4>
 <p>常用用法如下：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span><span class="nb">let</span> <span class="nv">myArray</span>      <span class="o">=</span> <span class="o">[</span>/* 首先定义一个数组 */<span class="o">]</span><span class="p">;</span>
-<span class="ln">2</span><span class="nb">let</span> <span class="nv">callbackfn</span>   <span class="o">=</span> /* 再定义一个函数 */ <span class="p">;</span>
-<span class="ln">3</span><span class="nb">let</span> <span class="nv">initialvalue</span> <span class="o">=</span> /* 任意一个初始化的值 */ <span class="p">;</span>
-<span class="ln">4</span>
-<span class="ln">5</span>myArray.reduce<span class="o">(</span>callbackfn<span class="o">)</span>
-<span class="ln">6</span>myArray.reduce<span class="o">(</span>callbackfn, initialValue<span class="o">)</span>
-</code></pre></div><p><code>reduce</code> 的参数如下:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="nb">let</span> <span class="nv">myArray</span>      <span class="o">=</span> <span class="o">[</span>/* 首先定义一个数组 */<span class="o">]</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="nb">let</span> <span class="nv">callbackfn</span>   <span class="o">=</span> /* 再定义一个函数 */ <span class="p">;</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="nb">let</span> <span class="nv">initialvalue</span> <span class="o">=</span> /* 任意一个初始化的值 */ <span class="p">;</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">
+</span></span><span class="line"><span class="ln">5</span><span class="cl">myArray.reduce<span class="o">(</span>callbackfn<span class="o">)</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl">myArray.reduce<span class="o">(</span>callbackfn, initialValue<span class="o">)</span>
+</span></span></code></pre></div><p><code>reduce</code> 的参数如下:</p>
 <p><strong><code>callbackfn</code></strong>: 必须是一个函数，会在整个数组中反复调用，reduce 调用 callbackfn 的时候有4个参数，我们定义它们是 <code>previousValue</code>, <code>currentElement</code>, <code>index</code> 和 <code>array</code> ，看起来像下面一样:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="ln">1</span><span class="nx">callbackfn</span><span class="p">(</span><span class="nx">previousValue</span><span class="p">,</span> <span class="nx">currentElement</span><span class="p">,</span> <span class="nx">index</span><span class="p">,</span> <span class="nx">array</span><span class="p">)</span>
-</code></pre></div><p>解释一下:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="ln">1</span><span class="cl"><span class="nx">callbackfn</span><span class="p">(</span><span class="nx">previousValue</span><span class="p">,</span> <span class="nx">currentElement</span><span class="p">,</span> <span class="nx">index</span><span class="p">,</span> <span class="nx">array</span><span class="p">)</span>
+</span></span></code></pre></div><p>解释一下:</p>
 <ol>
 <li><code>previousValue</code>:  这个参数就是一个累加器。</li>
 <li><code>currentElement</code>: 数组中处理的当前元素。</li>
@@ -304,59 +304,58 @@
 </ol>
 <p>仔细理解，搞完了吧。</p>
 <p>给个实际例子，一群学生，有男有女，先选出女学生，然后计算出她们每个人的平均成绩，最后把她们打印出来：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln"> 1</span>const students = [ 
-<span class="ln"> 2</span>  { 
-<span class="ln"> 3</span>    name: &#34;Anna&#34;, 
-<span class="ln"> 4</span>    sex: &#34;f&#34;, 
-<span class="ln"> 5</span>    grades: [4.5, 3.5, 4] 
-<span class="ln"> 6</span>  }, 
-<span class="ln"> 7</span>
-<span class="ln"> 8</span>  { 
-<span class="ln"> 9</span>    name: &#34;Dennis&#34;, 
-<span class="ln">10</span>    sex: &#34;m&#34;, 
-<span class="ln">11</span>    country: &#34;Germany&#34;, 
-<span class="ln">12</span>    grades: [5, 1.5, 4] 
-<span class="ln">13</span>  }, 
-<span class="ln">14</span>
-<span class="ln">15</span>  { 
-<span class="ln">16</span>    name: &#34;Martha&#34;, 
-<span class="ln">17</span>    sex: &#34;f&#34;, 
-<span class="ln">18</span>    grades: [5, 4, 2.5, 3] 
-<span class="ln">19</span>  }, 
-<span class="ln">20</span>
-<span class="ln">21</span>  { 
-<span class="ln">22</span>    name: &#34;Brock&#34;, 
-<span class="ln">23</span>    sex: &#34;m&#34;, 
-<span class="ln">24</span>    grades: [4, 3, 2] 
-<span class="ln">25</span>  } 
-<span class="ln">26</span>]; 
-<span class="ln">27</span>
-<span class="ln">28</span>   
-<span class="ln">29</span>//TODO: Compute and Return female students results using functional programming. 
-<span class="ln">30</span>
-<span class="ln">31</span>function studentResult(students){ 
-<span class="ln">32</span>  return students.filter(x =&gt; x.sex==&#34;f&#34;).reduce((init,cur)=&gt;{ 
-<span class="ln">33</span>    cur[&#39;grades&#39;]=cur.grades.reduce((acc,cur) =&gt; acc+cur,0)/cur.grades.length; 
-<span class="ln">34</span>    return init.concat(cur);
-<span class="ln">35</span>  },[]); 
-<span class="ln">36</span>} 
-<span class="ln">37</span>
-<span class="ln">38</span>console.log(studentResult(students));
-<span class="ln">39</span>//[ { name: &#39;Anna&#39;, sex: &#39;f&#39;, grades: 4 },   { name: &#39;Martha&#39;, sex: &#39;f&#39;, grades: 3.625 } ] 
-<span class="ln">40</span>
-</code></pre></div><p>注意一点，reduce 可以动 size，也可以动值，上面实际改变了 students 数组元素的值了，不太好。应该赋一个新值 concat 或者 push 进新数组。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln"> 1</span><span class="cl">const students = [ 
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">  { 
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">    name: &#34;Anna&#34;, 
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">    sex: &#34;f&#34;, 
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">    grades: [4.5, 3.5, 4] 
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">  }, 
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">  { 
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">    name: &#34;Dennis&#34;, 
+</span></span><span class="line"><span class="ln">10</span><span class="cl">    sex: &#34;m&#34;, 
+</span></span><span class="line"><span class="ln">11</span><span class="cl">    country: &#34;Germany&#34;, 
+</span></span><span class="line"><span class="ln">12</span><span class="cl">    grades: [5, 1.5, 4] 
+</span></span><span class="line"><span class="ln">13</span><span class="cl">  }, 
+</span></span><span class="line"><span class="ln">14</span><span class="cl">
+</span></span><span class="line"><span class="ln">15</span><span class="cl">  { 
+</span></span><span class="line"><span class="ln">16</span><span class="cl">    name: &#34;Martha&#34;, 
+</span></span><span class="line"><span class="ln">17</span><span class="cl">    sex: &#34;f&#34;, 
+</span></span><span class="line"><span class="ln">18</span><span class="cl">    grades: [5, 4, 2.5, 3] 
+</span></span><span class="line"><span class="ln">19</span><span class="cl">  }, 
+</span></span><span class="line"><span class="ln">20</span><span class="cl">
+</span></span><span class="line"><span class="ln">21</span><span class="cl">  { 
+</span></span><span class="line"><span class="ln">22</span><span class="cl">    name: &#34;Brock&#34;, 
+</span></span><span class="line"><span class="ln">23</span><span class="cl">    sex: &#34;m&#34;, 
+</span></span><span class="line"><span class="ln">24</span><span class="cl">    grades: [4, 3, 2] 
+</span></span><span class="line"><span class="ln">25</span><span class="cl">  } 
+</span></span><span class="line"><span class="ln">26</span><span class="cl">]; 
+</span></span><span class="line"><span class="ln">27</span><span class="cl">
+</span></span><span class="line"><span class="ln">28</span><span class="cl">   
+</span></span><span class="line"><span class="ln">29</span><span class="cl">//TODO: Compute and Return female students results using functional programming. 
+</span></span><span class="line"><span class="ln">30</span><span class="cl">
+</span></span><span class="line"><span class="ln">31</span><span class="cl">function studentResult(students){ 
+</span></span><span class="line"><span class="ln">32</span><span class="cl">  return students.filter(x =&gt; x.sex==&#34;f&#34;).reduce((init,cur)=&gt;{ 
+</span></span><span class="line"><span class="ln">33</span><span class="cl">    cur[&#39;grades&#39;]=cur.grades.reduce((acc,cur) =&gt; acc+cur,0)/cur.grades.length; 
+</span></span><span class="line"><span class="ln">34</span><span class="cl">    return init.concat(cur);
+</span></span><span class="line"><span class="ln">35</span><span class="cl">  },[]); 
+</span></span><span class="line"><span class="ln">36</span><span class="cl">} 
+</span></span><span class="line"><span class="ln">37</span><span class="cl">
+</span></span><span class="line"><span class="ln">38</span><span class="cl">console.log(studentResult(students));
+</span></span><span class="line"><span class="ln">39</span><span class="cl">//[ { name: &#39;Anna&#39;, sex: &#39;f&#39;, grades: 4 },   { name: &#39;Martha&#39;, sex: &#39;f&#39;, grades: 3.625 } ] 
+</span></span></code></pre></div><p>注意一点，reduce 可以动 size，也可以动值，上面实际改变了 students 数组元素的值了，不太好。应该赋一个新值 concat 或者 push 进新数组。</p>
 <p>下面的方法就没有动原数组的数据：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln"> 1</span>function studentResult(students){ 
-<span class="ln"> 2</span>  return students.filter(x =&gt; x.sex==&#34;f&#34;).reduce((init,cur)=&gt;{ 
-<span class="ln"> 3</span>    let newarr = {}; 
-<span class="ln"> 4</span>    newarr[&#39;name&#39;]=cur.name; 
-<span class="ln"> 5</span>    newarr[&#39;sex&#39;]=cur.sex; 
-<span class="ln"> 6</span>    newarr[&#39;grades&#39;]=cur.grades.reduce((acc,cur) =&gt; acc+cur,0)/cur.grades.length; 
-<span class="ln"> 7</span>    init.push(newarr); 
-<span class="ln"> 8</span>    return init; 
-<span class="ln"> 9</span>  },[]); 
-<span class="ln">10</span>} 
-</code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln"> 1</span><span class="cl">function studentResult(students){ 
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">  return students.filter(x =&gt; x.sex==&#34;f&#34;).reduce((init,cur)=&gt;{ 
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">    let newarr = {}; 
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">    newarr[&#39;name&#39;]=cur.name; 
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">    newarr[&#39;sex&#39;]=cur.sex; 
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">    newarr[&#39;grades&#39;]=cur.grades.reduce((acc,cur) =&gt; acc+cur,0)/cur.grades.length; 
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">    init.push(newarr); 
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">    return init; 
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">  },[]); 
+</span></span><span class="line"><span class="ln">10</span><span class="cl">} 
+</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -401,7 +400,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -441,11 +440,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

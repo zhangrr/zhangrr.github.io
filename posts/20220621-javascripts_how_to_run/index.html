@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="JavaScript 到底是如何执行的呢 -- JS的作原理">
 <meta itemprop="description" content="JavaScript 到底是如何工作的？ 一、工作原理 JavaScript到底是： 同步还是异步？ 单线程还是多线程？ JavaScript 中的一切都发生在 Execution Context （执行上下文）中 您可以假设"><meta itemprop="datePublished" content="2022-06-21T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2022-06-21T09:30:11+08:00" />
-<meta itemprop="wordCount" content="1837">
+<meta itemprop="wordCount" content="1829">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="JavaScript 到底是如何执行的呢 -- JS的作原理" />
 <meta property="og:description" content="JavaScript 到底是如何工作的？ 一、工作原理 JavaScript到底是： 同步还是异步？ 单线程还是多线程？ JavaScript 中的一切都发生在 Execution Context （执行上下文）中 您可以假设" />
 <meta property="og:type" content="article" />
@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="JavaScript 到底是如何执行的呢 -- JS的作原理"/>
 <meta name="twitter:description" content="JavaScript 到底是如何工作的？ 一、工作原理 JavaScript到底是： 同步还是异步？ 单线程还是多线程？ JavaScript 中的一切都发生在 Execution Context （执行上下文）中 您可以假设"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -250,7 +250,7 @@
 <li>您可以假设这个<em>执行上下文</em> 是一个大盒子或一个容器，在其中执行整个 JavaScript 代码。</li>
 <li>这个大盒子里有两个组件：
 <ul>
-<li><strong>Memory（内存组件）：<strong>这是所有变量和函数存储为</strong>键值对</strong>的地方。这个**“内存组件”**也称为**变量环境**。因此，它是一种环境，其中所有这些变量和函数都存储为键值对。</li>
+<li><strong>Memory（内存组件）：<strong>这是所有变量和函数存储为</strong>键值对</strong>的地方。这个**“内存组件”<strong>也称为</strong>变量环境**。因此，它是一种环境，其中所有这些变量和函数都存储为键值对。</li>
 <li><strong>Code（代码组件）：<strong>这是代码逐行执行的地方。这个</strong>“代码组件”<strong>也称为</strong>执行线程</strong>。所以，这个<strong>执行线程</strong>是一个单线程，整个代码一次只执行一行。</li>
 </ul>
 </li>
@@ -272,14 +272,14 @@
 <p>会创建一个<strong>Execution Context（执行上下文）</strong>。</p>
 </blockquote>
 <p>让我们使用实际的代码来举个例子：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln">1</span>var n = 2;
-<span class="ln">2</span>function square(num) {
-<span class="ln">3</span>  var ans = num * num;
-<span class="ln">4</span>  return ans;
-<span class="ln">5</span>}
-<span class="ln">6</span>var square2 = square(n);
-<span class="ln">7</span>var square4 = square(4);
-</code></pre></div><ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln">1</span><span class="cl">var n = 2;
+</span></span><span class="line"><span class="ln">2</span><span class="cl">function square(num) {
+</span></span><span class="line"><span class="ln">3</span><span class="cl">  var ans = num * num;
+</span></span><span class="line"><span class="ln">4</span><span class="cl">  return ans;
+</span></span><span class="line"><span class="ln">5</span><span class="cl">}
+</span></span><span class="line"><span class="ln">6</span><span class="cl">var square2 = square(n);
+</span></span><span class="line"><span class="ln">7</span><span class="cl">var square4 = square(4);
+</span></span></code></pre></div><ul>
 <li>
 <p>执行上述代码时，会创建 一个执行上下文</p>
 <ul>
@@ -334,7 +334,7 @@
 </ul>
 </li>
 <li>现在，遇到下一行时遵循相同的过程<code>var square4 = square(4);</code>。</li>
-<li>最后一行成功执行后，<strong>整个执行上下文</strong>也被删除。这种*“整体”*执行上下文也称为**全局执行上下文**。</li>
+<li>最后一行成功执行后，<strong>整个执行上下文</strong>也被删除。这种*“整体”*执行上下文也称为<strong>全局执行上下文</strong>。</li>
 </ul>
 </li>
 </ul>
@@ -418,7 +418,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -458,11 +458,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

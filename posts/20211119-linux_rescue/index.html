@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="CentOS7的救援模式和紧急模式"/>
 <meta name="twitter:description" content="说到 CentOS7 的紧急模式与救援模式，网上可以搜到漫天飞的帖子，说一下区别 RESCUE 救援模式： 救援模式启动的系统没有挂载硬盘，可以将硬盘 mount 出然后拷出数据。 EMERGENCY 紧"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -220,9 +220,9 @@
 紧急模式启动的系统是一个最小的环境。根目录档案系统将会被挂载为仅能读取，而且将不会做任何的设定。</p>
 <p>当然进入的方法也很简单，进入系统的时候按 e 修改 grub 菜单参数，就可以进入不同的模式</p>
 <p>本文讨论的重点不是怎么进去，而是那两句命令，在紧急状态下反正我是记不住的</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>systemd.unit<span class="o">=</span>rescue.target
-<span class="ln">2</span>systemd.unit<span class="o">=</span>emergency.target
-</code></pre></div><p>都没有之前的 single 简单，也完全记不住，既然记不住，那就干脆做到菜单里好了，这才是本文的重点。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">systemd.unit<span class="o">=</span>rescue.target
+</span></span><span class="line"><span class="ln">2</span><span class="cl">systemd.unit<span class="o">=</span>emergency.target
+</span></span></code></pre></div><p>都没有之前的 single 简单，也完全记不住，既然记不住，那就干脆做到菜单里好了，这才是本文的重点。</p>
 <p>现在都是使用 grub2 了，而不是 grub，这很重要。grub2的配置文件是 /boot/grub2/grub.cfg。</p>
 <p>修改 grub2 有两个工具，grub2-mkconfig 和 grubby，不要同时使用这两个工具修改，会覆盖的</p>
 <ul>
@@ -230,16 +230,16 @@
 <li>grubby 很灵活，可以根据当前 grub2 的配置，生成一个内核，多个不同启动参数的多个启动项。</li>
 </ul>
 <p>那么我们要加进去两个只是启动参数不同，内核其实一样的启动项，用 grubby 就好了</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>grubby --add-kernel<span class="o">=</span><span class="se">\$</span><span class="o">(</span>ls -1cat /boot/vmlinuz*<span class="p">|</span>grep rescue<span class="o">)</span> --title<span class="o">=</span><span class="s2">&#34;RESCUE BOOT&#34;</span> --initrd<span class="o">=</span><span class="se">\$</span><span class="o">(</span>ls -1cat /boot/initramfs*<span class="p">|</span>grep rescue<span class="o">)</span> --args<span class="o">=</span><span class="s2">&#34;systemd.unit=rescue.target&#34;</span> --copy-default
-<span class="ln">2</span>
-<span class="ln">3</span>grubby --add-kernel<span class="o">=</span><span class="se">\$</span><span class="o">(</span>ls -1cat /boot/vmlinuz*<span class="p">|</span>grep rescue<span class="o">)</span> --title<span class="o">=</span><span class="s2">&#34;EMERGENCY BOOT&#34;</span> --initrd<span class="o">=</span><span class="se">\$</span><span class="o">(</span>ls -1cat /boot/initramfs*<span class="p">|</span>grep rescue<span class="o">)</span> --args<span class="o">=</span><span class="s2">&#34;systemd.unit=emergency.target&#34;</span> --copy-default
-</code></pre></div><p>切忌我们之后不能运行</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>grub2-mkconfig -o /boot/grub2/grub.cfg
-</code></pre></div><p>否则上面的两个启动项菜单会消失，因为 grub2-mkconfig 配置的话一个内核只能有一个启动项</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">grubby --add-kernel<span class="o">=</span><span class="se">\$</span><span class="o">(</span>ls -1cat /boot/vmlinuz*<span class="p">|</span>grep rescue<span class="o">)</span> --title<span class="o">=</span><span class="s2">&#34;RESCUE BOOT&#34;</span> --initrd<span class="o">=</span><span class="se">\$</span><span class="o">(</span>ls -1cat /boot/initramfs*<span class="p">|</span>grep rescue<span class="o">)</span> --args<span class="o">=</span><span class="s2">&#34;systemd.unit=rescue.target&#34;</span> --copy-default
+</span></span><span class="line"><span class="ln">2</span><span class="cl">
+</span></span><span class="line"><span class="ln">3</span><span class="cl">grubby --add-kernel<span class="o">=</span><span class="se">\$</span><span class="o">(</span>ls -1cat /boot/vmlinuz*<span class="p">|</span>grep rescue<span class="o">)</span> --title<span class="o">=</span><span class="s2">&#34;EMERGENCY BOOT&#34;</span> --initrd<span class="o">=</span><span class="se">\$</span><span class="o">(</span>ls -1cat /boot/initramfs*<span class="p">|</span>grep rescue<span class="o">)</span> --args<span class="o">=</span><span class="s2">&#34;systemd.unit=emergency.target&#34;</span> --copy-default
+</span></span></code></pre></div><p>切忌我们之后不能运行</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">grub2-mkconfig -o /boot/grub2/grub.cfg
+</span></span></code></pre></div><p>否则上面的两个启动项菜单会消失，因为 grub2-mkconfig 配置的话一个内核只能有一个启动项</p>
 <p>grub2-mkconfig 也有自己的强项，如果要修改缺省的菜单超时时间，grubby 就做不到了</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>sed -i <span class="s1">&#39;/^GRUB_TIMEOUT=/s/^.*$/GRUB_TIMEOUT=10/&#39;</span> /etc/default/grub
-<span class="ln">2</span>grub2-mkconfig -o /boot/grub2/grub.cfg
-</code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">sed -i <span class="s1">&#39;/^GRUB_TIMEOUT=/s/^.*$/GRUB_TIMEOUT=10/&#39;</span> /etc/default/grub
+</span></span><span class="line"><span class="ln">2</span><span class="cl">grub2-mkconfig -o /boot/grub2/grub.cfg
+</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -284,7 +284,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -324,11 +324,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

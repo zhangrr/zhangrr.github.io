@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Infrastructure as Code中packer的使用"/>
 <meta name="twitter:description" content="先普及一下概念，Infrastructure as Code，也就是从代码开始定义整个网络环境、虚机、各种资源等等。 简单说就是在云上用代码来管理一"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -265,25 +265,25 @@
 <li>post-processors</li>
 </ul>
 <p>我们先建立一个空目录，名字随便，就叫 test-image</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>mkdir test-images
-<span class="ln">2</span><span class="nb">cd</span> test-image
-</code></pre></div><p>然后在目录下面，建立三个文件：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">mkdir test-images
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="nb">cd</span> test-image
+</span></span></code></pre></div><p>然后在目录下面，建立三个文件：</p>
 <p><strong>packer.json, variable.json, setup.sh</strong></p>
 <p>首先看variable.json，对应AWS长这样</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span><span class="o">{</span> 
-<span class="ln">2</span> 	<span class="s2">&#34;description&#34;</span>: <span class="s2">&#34;test image&#34;</span>, 
-<span class="ln">3</span>    <span class="s2">&#34;access_key&#34;</span>: <span class="s2">&#34;enter-aws-your-key&#34;</span>, 
-<span class="ln">4</span>    <span class="s2">&#34;secret_key&#34;</span>: <span class="s2">&#34;enter-aws-your-secret&#34;</span> 
-<span class="ln">5</span>    <span class="s2">&#34;source_ami&#34;</span>: <span class="s2">&#34;enter-yours&#34;</span> 
-<span class="ln">6</span> <span class="o">}</span>
-</code></pre></div><p>对应腾讯云就是这样</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span><span class="o">{</span>
-<span class="ln">2</span>    <span class="s2">&#34;description&#34;</span>: <span class="s2">&#34;test image&#34;</span>,
-<span class="ln">3</span>    <span class="s2">&#34;tc_secret_id&#34;</span>: <span class="s2">&#34;TENCENTCLOUD_ACCESS_KEY&#34;</span>,
-<span class="ln">4</span>    <span class="s2">&#34;tc_secret_key&#34;</span>: <span class="s2">&#34;TENCENTCLOUD_SECRET_KEY&#34;</span>,
-<span class="ln">5</span>    <span class="s2">&#34;source_tc&#34;</span>: <span class="s2">&#34;enter-yours&#34;</span>
-<span class="ln">6</span><span class="o">}</span>
-</code></pre></div><p>稍微解释一下，无论哪家云，你都需要去申请secret的key，才可以用，然后就是source_ami和source_tc了，这个指镜像的母版</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl"><span class="o">{</span> 
+</span></span><span class="line"><span class="ln">2</span><span class="cl"> 	<span class="s2">&#34;description&#34;</span>: <span class="s2">&#34;test image&#34;</span>, 
+</span></span><span class="line"><span class="ln">3</span><span class="cl">    <span class="s2">&#34;access_key&#34;</span>: <span class="s2">&#34;enter-aws-your-key&#34;</span>, 
+</span></span><span class="line"><span class="ln">4</span><span class="cl">    <span class="s2">&#34;secret_key&#34;</span>: <span class="s2">&#34;enter-aws-your-secret&#34;</span> 
+</span></span><span class="line"><span class="ln">5</span><span class="cl">    <span class="s2">&#34;source_ami&#34;</span>: <span class="s2">&#34;enter-yours&#34;</span> 
+</span></span><span class="line"><span class="ln">6</span><span class="cl"> <span class="o">}</span>
+</span></span></code></pre></div><p>对应腾讯云就是这样</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">    <span class="s2">&#34;description&#34;</span>: <span class="s2">&#34;test image&#34;</span>,
+</span></span><span class="line"><span class="ln">3</span><span class="cl">    <span class="s2">&#34;tc_secret_id&#34;</span>: <span class="s2">&#34;TENCENTCLOUD_ACCESS_KEY&#34;</span>,
+</span></span><span class="line"><span class="ln">4</span><span class="cl">    <span class="s2">&#34;tc_secret_key&#34;</span>: <span class="s2">&#34;TENCENTCLOUD_SECRET_KEY&#34;</span>,
+</span></span><span class="line"><span class="ln">5</span><span class="cl">    <span class="s2">&#34;source_tc&#34;</span>: <span class="s2">&#34;enter-yours&#34;</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>稍微解释一下，无论哪家云，你都需要去申请secret的key，才可以用，然后就是source_ami和source_tc了，这个指镜像的母版</p>
 <p>aws的长这样：</p>
 <p><img class="img-fluid" alt="image-20220717162342308" src="https://bajie.dev/posts/20220717-terraform/image-20220717162342308.png" loading="lazy"
    width="715" height="567"
@@ -299,80 +299,80 @@
 <p>ok，变量都定义好了。</p>
 <p>下面是packer.json的正文</p>
 <p>aws的这样：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="ln"> 1</span><span class="p">{</span> 
-<span class="ln"> 2</span>	<span class="nt">&#34;builders&#34;</span><span class="p">:</span> <span class="p">[</span> 
-<span class="ln"> 3</span>    	<span class="p">{</span> 
-<span class="ln"> 4</span>        	<span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;amazon-ebs&#34;</span><span class="p">,</span> 
-<span class="ln"> 5</span>            <span class="nt">&#34;access_key&#34;</span><span class="p">:</span> <span class="s2">&#34;{{user `access_key` }}&#34;</span><span class="p">,</span> 
-<span class="ln"> 6</span>            <span class="nt">&#34;secret_key&#34;</span><span class="p">:</span> <span class="s2">&#34;{{user `secret_key` }}&#34;</span><span class="p">,</span> 
-<span class="ln"> 7</span>            <span class="nt">&#34;region&#34;</span> <span class="p">:</span> <span class="s2">&#34;us-east-1&#34;</span><span class="p">,</span> 
-<span class="ln"> 8</span>            <span class="nt">&#34;ami_name&#34;</span> <span class="p">:</span> <span class="s2">&#34;myfirstami&#34;</span><span class="p">,</span> 
-<span class="ln"> 9</span>            <span class="nt">&#34;source_ami&#34;</span> <span class="p">:</span> <span class="s2">&#34;{{user `source_ami` }}&#34;</span><span class="p">,</span> 
-<span class="ln">10</span>            <span class="nt">&#34;instance_type&#34;</span> <span class="p">:</span> <span class="s2">&#34;t2.micro&#34;</span><span class="p">,</span> 
-<span class="ln">11</span>            <span class="nt">&#34;ssh_username&#34;</span> <span class="p">:</span> <span class="s2">&#34;ec2-user&#34;</span> 
-<span class="ln">12</span>         <span class="p">}</span> 
-<span class="ln">13</span>    <span class="p">],</span> 
-<span class="ln">14</span>  	<span class="nt">&#34;provisioners&#34;</span><span class="p">:</span> <span class="p">[</span> 
-<span class="ln">15</span>         <span class="p">{</span> 
-<span class="ln">16</span>           	<span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;shell&#34;</span><span class="p">,</span> 
-<span class="ln">17</span>            <span class="nt">&#34;script&#34;</span><span class="p">:</span> <span class="s2">&#34;setup.sh&#34;</span> 
-<span class="ln">18</span>         <span class="p">}</span> 
-<span class="ln">19</span>    <span class="p">],</span>
-<span class="ln">20</span>	<span class="nt">&#34;post-processors&#34;</span><span class="p">:</span> <span class="p">[</span> 
-<span class="ln">21</span>         <span class="p">{</span> 
-<span class="ln">22</span>          	<span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;manifest&#34;</span><span class="p">,</span> 
-<span class="ln">23</span>            <span class="nt">&#34;output&#34;</span><span class="p">:</span> <span class="s2">&#34;out.json&#34;</span> 
-<span class="ln">24</span>         <span class="p">}</span> 
-<span class="ln">25</span>    <span class="p">]</span>
-<span class="ln">26</span><span class="p">}</span> 
-</code></pre></div><p>看见了吧，核心三部分。那么换成腾讯，就长这样</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="ln"> 1</span><span class="p">{</span>
-<span class="ln"> 2</span>  <span class="nt">&#34;builders&#34;</span><span class="p">:</span> <span class="p">[</span>
-<span class="ln"> 3</span>        <span class="p">{</span>
-<span class="ln"> 4</span>            <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;tencentcloud-cvm&#34;</span><span class="p">,</span>
-<span class="ln"> 5</span>            <span class="nt">&#34;secret_id&#34;</span><span class="p">:</span> <span class="s2">&#34;{{user `tc_secret_id`}}&#34;</span><span class="p">,</span>
-<span class="ln"> 6</span>            <span class="nt">&#34;secret_key&#34;</span><span class="p">:</span> <span class="s2">&#34;{{user `tc_secret_key`}}&#34;</span><span class="p">,</span>
-<span class="ln"> 7</span>            <span class="nt">&#34;region&#34;</span><span class="p">:</span> <span class="s2">&#34;ap-guangzhou&#34;</span><span class="p">,</span>
-<span class="ln"> 8</span>            <span class="nt">&#34;zone&#34;</span><span class="p">:</span> <span class="s2">&#34;ap-guangzhou-3&#34;</span><span class="p">,</span>
-<span class="ln"> 9</span>            <span class="nt">&#34;instance_type&#34;</span><span class="p">:</span> <span class="s2">&#34;S2.SMALL1&#34;</span><span class="p">,</span>
-<span class="ln">10</span>            <span class="nt">&#34;disk_type&#34;</span><span class="p">:</span> <span class="s2">&#34;CLOUD_PREMIUM&#34;</span><span class="p">,</span>
-<span class="ln">11</span>            <span class="nt">&#34;associate_public_ip_address&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
-<span class="ln">12</span>            <span class="nt">&#34;image_name&#34;</span><span class="p">:</span> <span class="s2">&#34;myfirsttc&#34;</span><span class="p">,</span>
-<span class="ln">13</span>            <span class="nt">&#34;source_image_id&#34;</span><span class="p">:</span> <span class="s2">&#34;{{user `source_tc` }}&#34;</span><span class="p">,</span>
-<span class="ln">14</span>            <span class="nt">&#34;ssh_username&#34;</span> <span class="p">:</span> <span class="s2">&#34;root&#34;</span>          
-<span class="ln">15</span>         <span class="p">}</span>
-<span class="ln">16</span>    <span class="p">],</span>
-<span class="ln">17</span>  	<span class="nt">&#34;provisioners&#34;</span><span class="p">:</span> <span class="p">[</span> 
-<span class="ln">18</span>         <span class="p">{</span> 
-<span class="ln">19</span>           	<span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;shell&#34;</span><span class="p">,</span> 
-<span class="ln">20</span>            <span class="nt">&#34;script&#34;</span><span class="p">:</span> <span class="s2">&#34;setup.sh&#34;</span> 
-<span class="ln">21</span>         <span class="p">}</span> 
-<span class="ln">22</span>    <span class="p">],</span>
-<span class="ln">23</span>	<span class="nt">&#34;post-processors&#34;</span><span class="p">:</span> <span class="p">[</span> 
-<span class="ln">24</span>         <span class="p">{</span> 
-<span class="ln">25</span>          	<span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;manifest&#34;</span><span class="p">,</span> 
-<span class="ln">26</span>            <span class="nt">&#34;output&#34;</span><span class="p">:</span> <span class="s2">&#34;out.json&#34;</span> 
-<span class="ln">27</span>         <span class="p">}</span> 
-<span class="ln">28</span>    <span class="p">]</span>
-<span class="ln">29</span><span class="p">}</span>
-</code></pre></div><p>大差不差吧。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="p">{</span> 
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">	<span class="nt">&#34;builders&#34;</span><span class="p">:</span> <span class="p">[</span> 
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">    	<span class="p">{</span> 
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">        	<span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;amazon-ebs&#34;</span><span class="p">,</span> 
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">            <span class="nt">&#34;access_key&#34;</span><span class="p">:</span> <span class="s2">&#34;{{user `access_key` }}&#34;</span><span class="p">,</span> 
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">            <span class="nt">&#34;secret_key&#34;</span><span class="p">:</span> <span class="s2">&#34;{{user `secret_key` }}&#34;</span><span class="p">,</span> 
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">            <span class="nt">&#34;region&#34;</span> <span class="p">:</span> <span class="s2">&#34;us-east-1&#34;</span><span class="p">,</span> 
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">            <span class="nt">&#34;ami_name&#34;</span> <span class="p">:</span> <span class="s2">&#34;myfirstami&#34;</span><span class="p">,</span> 
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">            <span class="nt">&#34;source_ami&#34;</span> <span class="p">:</span> <span class="s2">&#34;{{user `source_ami` }}&#34;</span><span class="p">,</span> 
+</span></span><span class="line"><span class="ln">10</span><span class="cl">            <span class="nt">&#34;instance_type&#34;</span> <span class="p">:</span> <span class="s2">&#34;t2.micro&#34;</span><span class="p">,</span> 
+</span></span><span class="line"><span class="ln">11</span><span class="cl">            <span class="nt">&#34;ssh_username&#34;</span> <span class="p">:</span> <span class="s2">&#34;ec2-user&#34;</span> 
+</span></span><span class="line"><span class="ln">12</span><span class="cl">         <span class="p">}</span> 
+</span></span><span class="line"><span class="ln">13</span><span class="cl">    <span class="p">],</span> 
+</span></span><span class="line"><span class="ln">14</span><span class="cl">  	<span class="nt">&#34;provisioners&#34;</span><span class="p">:</span> <span class="p">[</span> 
+</span></span><span class="line"><span class="ln">15</span><span class="cl">         <span class="p">{</span> 
+</span></span><span class="line"><span class="ln">16</span><span class="cl">           	<span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;shell&#34;</span><span class="p">,</span> 
+</span></span><span class="line"><span class="ln">17</span><span class="cl">            <span class="nt">&#34;script&#34;</span><span class="p">:</span> <span class="s2">&#34;setup.sh&#34;</span> 
+</span></span><span class="line"><span class="ln">18</span><span class="cl">         <span class="p">}</span> 
+</span></span><span class="line"><span class="ln">19</span><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl">	<span class="nt">&#34;post-processors&#34;</span><span class="p">:</span> <span class="p">[</span> 
+</span></span><span class="line"><span class="ln">21</span><span class="cl">         <span class="p">{</span> 
+</span></span><span class="line"><span class="ln">22</span><span class="cl">          	<span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;manifest&#34;</span><span class="p">,</span> 
+</span></span><span class="line"><span class="ln">23</span><span class="cl">            <span class="nt">&#34;output&#34;</span><span class="p">:</span> <span class="s2">&#34;out.json&#34;</span> 
+</span></span><span class="line"><span class="ln">24</span><span class="cl">         <span class="p">}</span> 
+</span></span><span class="line"><span class="ln">25</span><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="ln">26</span><span class="cl"><span class="p">}</span> 
+</span></span></code></pre></div><p>看见了吧，核心三部分。那么换成腾讯，就长这样</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">  <span class="nt">&#34;builders&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">            <span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;tencentcloud-cvm&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">            <span class="nt">&#34;secret_id&#34;</span><span class="p">:</span> <span class="s2">&#34;{{user `tc_secret_id`}}&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">            <span class="nt">&#34;secret_key&#34;</span><span class="p">:</span> <span class="s2">&#34;{{user `tc_secret_key`}}&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">            <span class="nt">&#34;region&#34;</span><span class="p">:</span> <span class="s2">&#34;ap-guangzhou&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">            <span class="nt">&#34;zone&#34;</span><span class="p">:</span> <span class="s2">&#34;ap-guangzhou-3&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">            <span class="nt">&#34;instance_type&#34;</span><span class="p">:</span> <span class="s2">&#34;S2.SMALL1&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">            <span class="nt">&#34;disk_type&#34;</span><span class="p">:</span> <span class="s2">&#34;CLOUD_PREMIUM&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">            <span class="nt">&#34;associate_public_ip_address&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">            <span class="nt">&#34;image_name&#34;</span><span class="p">:</span> <span class="s2">&#34;myfirsttc&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">            <span class="nt">&#34;source_image_id&#34;</span><span class="p">:</span> <span class="s2">&#34;{{user `source_tc` }}&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">            <span class="nt">&#34;ssh_username&#34;</span> <span class="p">:</span> <span class="s2">&#34;root&#34;</span>          
+</span></span><span class="line"><span class="ln">15</span><span class="cl">         <span class="p">}</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl">  	<span class="nt">&#34;provisioners&#34;</span><span class="p">:</span> <span class="p">[</span> 
+</span></span><span class="line"><span class="ln">18</span><span class="cl">         <span class="p">{</span> 
+</span></span><span class="line"><span class="ln">19</span><span class="cl">           	<span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;shell&#34;</span><span class="p">,</span> 
+</span></span><span class="line"><span class="ln">20</span><span class="cl">            <span class="nt">&#34;script&#34;</span><span class="p">:</span> <span class="s2">&#34;setup.sh&#34;</span> 
+</span></span><span class="line"><span class="ln">21</span><span class="cl">         <span class="p">}</span> 
+</span></span><span class="line"><span class="ln">22</span><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="ln">23</span><span class="cl">	<span class="nt">&#34;post-processors&#34;</span><span class="p">:</span> <span class="p">[</span> 
+</span></span><span class="line"><span class="ln">24</span><span class="cl">         <span class="p">{</span> 
+</span></span><span class="line"><span class="ln">25</span><span class="cl">          	<span class="nt">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;manifest&#34;</span><span class="p">,</span> 
+</span></span><span class="line"><span class="ln">26</span><span class="cl">            <span class="nt">&#34;output&#34;</span><span class="p">:</span> <span class="s2">&#34;out.json&#34;</span> 
+</span></span><span class="line"><span class="ln">27</span><span class="cl">         <span class="p">}</span> 
+</span></span><span class="line"><span class="ln">28</span><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="ln">29</span><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>大差不差吧。</p>
 <p>详细参数可以去看：https://www.packer.io/plugins/builders/tencentcloud</p>
 <p>那最后就是setup.sh了，举例装个jenkins好了，其他的可以根据需要进行注入：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln"> 1</span>sleep <span class="m">30</span>
-<span class="ln"> 2</span>sudo yum update –y
-<span class="ln"> 3</span>sudo wget -O /etc/yum.repos.d/jenkins.repo <span class="se">\
-</span><span class="ln"> 4</span><span class="se"></span>    https://pkg.jenkins.io/redhat-stable/jenkins.repo
-<span class="ln"> 5</span>sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
-<span class="ln"> 6</span>sudo yum upgrade
-<span class="ln"> 7</span>sudo yum instqll -y epel-release
-<span class="ln"> 8</span>sudo yum install java-openjdk11 -y
-<span class="ln"> 9</span>sudo yum install jenkins -y
-<span class="ln">10</span>sudo systemctl <span class="nb">enable</span> jenkins
-<span class="ln">11</span>sudo systemctl start jenkins
-<span class="ln">12</span>sudo systemctl status jenkins
-</code></pre></div><p>最后run一下：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>packer build -var-file<span class="o">=</span><span class="s2">&#34;variable.json&#34;</span> packer.json
-</code></pre></div><p>叽哩咕噜一顿，就build好了</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln"> 1</span><span class="cl">sleep <span class="m">30</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">sudo yum update –y
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">sudo wget -O /etc/yum.repos.d/jenkins.repo <span class="se">\
+</span></span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="se"></span>    https://pkg.jenkins.io/redhat-stable/jenkins.repo
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">sudo yum upgrade
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">sudo yum instqll -y epel-release
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">sudo yum install java-openjdk11 -y
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">sudo yum install jenkins -y
+</span></span><span class="line"><span class="ln">10</span><span class="cl">sudo systemctl <span class="nb">enable</span> jenkins
+</span></span><span class="line"><span class="ln">11</span><span class="cl">sudo systemctl start jenkins
+</span></span><span class="line"><span class="ln">12</span><span class="cl">sudo systemctl status jenkins
+</span></span></code></pre></div><p>最后run一下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">packer build -var-file<span class="o">=</span><span class="s2">&#34;variable.json&#34;</span> packer.json
+</span></span></code></pre></div><p>叽哩咕噜一顿，就build好了</p>
 <p><img class="img-fluid" alt="image-20220717170447736" src="https://bajie.dev/posts/20220717-terraform/image-20220717170447736.png" loading="lazy"
    width="798" height="471"
    />
@@ -424,7 +424,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -464,11 +464,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

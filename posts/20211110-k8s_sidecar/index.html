@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="kubernetes生产环境使用filebeat sidecar收集日志">
 <meta itemprop="description" content="在生产环境中，ES 通常是不会在 k8s 集群中存在的，一般 MySQL 和 Elasticsearch 都是独立在 k8s 之外。 那么无论哪种 pod，要甩日志到 ES，最轻量的方案肯定是用 filebeat 甩过去了"><meta itemprop="datePublished" content="2021-11-10T12:30:11+08:00" />
 <meta itemprop="dateModified" content="2021-11-10T12:30:11+08:00" />
-<meta itemprop="wordCount" content="1135">
+<meta itemprop="wordCount" content="1163">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="kubernetes生产环境使用filebeat sidecar收集日志" />
 <meta property="og:description" content="在生产环境中，ES 通常是不会在 k8s 集群中存在的，一般 MySQL 和 Elasticsearch 都是独立在 k8s 之外。 那么无论哪种 pod，要甩日志到 ES，最轻量的方案肯定是用 filebeat 甩过去了" />
 <meta property="og:type" content="article" />
@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="kubernetes生产环境使用filebeat sidecar收集日志"/>
 <meta name="twitter:description" content="在生产环境中，ES 通常是不会在 k8s 集群中存在的，一般 MySQL 和 Elasticsearch 都是独立在 k8s 之外。 那么无论哪种 pod，要甩日志到 ES，最轻量的方案肯定是用 filebeat 甩过去了"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -244,82 +244,82 @@
 <p>我们以部署一个 Tomcat 应用为例来说明：</p>
 <h2 id="一打造-filebeat-边车镜像">一、打造 filebeat 边车镜像</h2>
 <p>首先准备 Dockerfile</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span><span class="na">FROM alpine:3.12  </span>
-<span class="ln"> 2</span>
-<span class="ln"> 3</span><span class="na">ARG VERSION</span><span class="o">=</span><span class="s">7.15.1  </span>
-<span class="ln"> 4</span>
-<span class="ln"> 5</span><span class="na">COPY docker-entrypoint.sh /  </span>
-<span class="ln"> 6</span>
-<span class="ln"> 7</span><span class="na">RUN set -x \  </span>
-<span class="ln"> 8</span>    <span class="na">&amp;&amp; cd /tmp \  </span>
-<span class="ln"> 9</span>    <span class="na">&amp;&amp; wget https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-${VERSION}-linux-x86_64.tar.gz \  </span>
-<span class="ln">10</span>    <span class="na">&amp;&amp; tar xzvf filebeat-${VERSION}-linux-x86_64.tar.gz \  </span>
-<span class="ln">11</span>    <span class="na">&amp;&amp; mv filebeat-${VERSION}-linux-x86_64 /opt \  </span>
-<span class="ln">12</span>    <span class="na">&amp;&amp; rm /tmp/* \  </span>
-<span class="ln">13</span>    <span class="na">&amp;&amp; chmod +x /docker-entrypoint.sh  </span>
-<span class="ln">14</span>
-<span class="ln">15</span>
-<span class="ln">16</span><span class="na">ENV PATH $PATH:/opt/filebeat-${VERSION}-linux-x86_64  </span>
-<span class="ln">17</span>
-<span class="ln">18</span><span class="na">WORKDIR /opt/filebeat-${VERSION}-linux-x86_64  </span>
-<span class="ln">19</span>
-<span class="ln">20</span><span class="na">ENTRYPOINT [&#34;/docker-entrypoint.sh&#34;]  </span>
-</code></pre></div><p>我们以 alphine:3.12 为底版，然后下载 filebeat  7.15.1的二进制包并释放到 /opt 下，最后指定入口文件 /docker-entrypoint.sh</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="na">FROM alpine:3.12  </span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="na">ARG VERSION</span><span class="o">=</span><span class="s">7.15.1  </span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="na">COPY docker-entrypoint.sh /  </span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="na">RUN set -x \  </span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">    <span class="na">&amp;&amp; cd /tmp \  </span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">    <span class="na">&amp;&amp; wget https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-${VERSION}-linux-x86_64.tar.gz \  </span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">    <span class="na">&amp;&amp; tar xzvf filebeat-${VERSION}-linux-x86_64.tar.gz \  </span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">    <span class="na">&amp;&amp; mv filebeat-${VERSION}-linux-x86_64 /opt \  </span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">    <span class="na">&amp;&amp; rm /tmp/* \  </span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">    <span class="na">&amp;&amp; chmod +x /docker-entrypoint.sh  </span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">
+</span></span><span class="line"><span class="ln">15</span><span class="cl">
+</span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="na">ENV PATH $PATH:/opt/filebeat-${VERSION}-linux-x86_64  </span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl">
+</span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="na">WORKDIR /opt/filebeat-${VERSION}-linux-x86_64  </span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl">
+</span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="na">ENTRYPOINT [&#34;/docker-entrypoint.sh&#34;]  </span>
+</span></span></code></pre></div><p>我们以 alphine:3.12 为底版，然后下载 filebeat  7.15.1的二进制包并释放到 /opt 下，最后指定入口文件 /docker-entrypoint.sh</p>
 <p>奥妙全在这个 docker-entrypoint.sh 中了</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="cp">#!/bin/bash 
-</span><span class="ln"> 2</span><span class="cp"></span>  
-<span class="ln"> 3</span>cat &gt; /etc/filebeat.yaml <span class="s">&lt;&lt; EOF 
-</span><span class="ln"> 4</span><span class="s">filebeat.config.modules:
-</span><span class="ln"> 5</span><span class="s">  path: /opt/filebeat-7.15.1-linux-x86_64/modules.d/*.yml
-</span><span class="ln"> 6</span><span class="s">  reload.enabled: true
-</span><span class="ln"> 7</span><span class="s">
-</span><span class="ln"> 8</span><span class="s"># 加入自定义的字段
-</span><span class="ln"> 9</span><span class="s">fields_under_root: true
-</span><span class="ln">10</span><span class="s">fields:
-</span><span class="ln">11</span><span class="s">  project: kuaijian-tomcat
-</span><span class="ln">12</span><span class="s">  pod_ip: ${POD_IP}
-</span><span class="ln">13</span><span class="s">  pod_name: ${POD_NAME}
-</span><span class="ln">14</span><span class="s">  node_name: ${NODE_NAME}
-</span><span class="ln">15</span><span class="s">  pod_namespace: ${POD_NAMESPACE}
-</span><span class="ln">16</span><span class="s">  
-</span><span class="ln">17</span><span class="s"># 收集云厂商的数据和docker的变量
-</span><span class="ln">18</span><span class="s">processors:
-</span><span class="ln">19</span><span class="s">  - add_cloud_metadata: ~
-</span><span class="ln">20</span><span class="s">  - add_docker_metadata: ~
-</span><span class="ln">21</span><span class="s">
-</span><span class="ln">22</span><span class="s">filebeat.modules:
-</span><span class="ln">23</span><span class="s">  - module: apache
-</span><span class="ln">24</span><span class="s">    access:
-</span><span class="ln">25</span><span class="s">      enabled: true
-</span><span class="ln">26</span><span class="s">      var.paths:
-</span><span class="ln">27</span><span class="s">      - &#34;/usr/local/tomcat/logs/localhost_access_log.*.txt&#34;
-</span><span class="ln">28</span><span class="s">    error:
-</span><span class="ln">29</span><span class="s">      enabled: true
-</span><span class="ln">30</span><span class="s">      var.paths:
-</span><span class="ln">31</span><span class="s">      - &#34;/usr/local/tomcat/logs/application.log*&#34;
-</span><span class="ln">32</span><span class="s">      - &#34;/usr/local/tomcat/logs/catalina.*.log&#34;
-</span><span class="ln">33</span><span class="s">      - &#34;/usr/local/tomcat/logs/host-manager.*.log&#34;
-</span><span class="ln">34</span><span class="s">      - &#34;/usr/local/tomcat/logs/localhost.*.log&#34;
-</span><span class="ln">35</span><span class="s">      - &#34;/usr/local/tomcat/logs/manager.*.log&#34;
-</span><span class="ln">36</span><span class="s">      
-</span><span class="ln">37</span><span class="s">setup.template.name: &#34;tomcat-logs&#34;
-</span><span class="ln">38</span><span class="s">setup.template.pattern: &#34;tomcat-logs-*&#34;
-</span><span class="ln">39</span><span class="s">output.elasticsearch:
-</span><span class="ln">40</span><span class="s">  hosts: [&#34;172.19.20.xxx:9200&#34;,&#34;172.19.20.xxx:9200&#34;]
-</span><span class="ln">41</span><span class="s">  index: &#34;tomcat-logs-%{+yyyy.MM}&#34;
-</span><span class="ln">42</span><span class="s">EOF</span> 
-<span class="ln">43</span> 
-<span class="ln">44</span><span class="nb">set</span> -xe 
-<span class="ln">45</span>
-<span class="ln">46</span><span class="c1"># If user don&#39;t provide any command </span>
-<span class="ln">47</span><span class="c1"># Run filebeat </span>
-<span class="ln">48</span><span class="k">if</span> <span class="o">[[</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">==</span> <span class="s2">&#34;&#34;</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span> 
-<span class="ln">49</span>     <span class="nb">exec</span> /opt/filebeat-7.15.1-linux-x86_64/filebeat -c /etc/filebeat.yaml  
-<span class="ln">50</span><span class="k">else</span> 
-<span class="ln">51</span>    <span class="c1"># Else allow the user to run arbitrarily commands like bash </span>
-<span class="ln">52</span>    <span class="nb">exec</span> <span class="s2">&#34;</span><span class="nv">$@</span><span class="s2">&#34;</span> 
-<span class="ln">53</span><span class="k">fi</span> 
-</code></pre></div><p>我们为什么不在 k8s 里用 configmap 来配置 filebeat.yml 呢？</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="cp">#!/bin/bash 
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="cp"></span>  
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">cat &gt; /etc/filebeat.yaml <span class="s">&lt;&lt; EOF 
+</span></span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="s">filebeat.config.modules:
+</span></span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="s">  path: /opt/filebeat-7.15.1-linux-x86_64/modules.d/*.yml
+</span></span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="s">  reload.enabled: true
+</span></span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="s">
+</span></span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="s"># 加入自定义的字段
+</span></span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="s">fields_under_root: true
+</span></span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="s">fields:
+</span></span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="s">  project: kuaijian-tomcat
+</span></span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="s">  pod_ip: ${POD_IP}
+</span></span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="s">  pod_name: ${POD_NAME}
+</span></span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="s">  node_name: ${NODE_NAME}
+</span></span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="s">  pod_namespace: ${POD_NAMESPACE}
+</span></span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="s">  
+</span></span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="s"># 收集云厂商的数据和docker的变量
+</span></span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="s">processors:
+</span></span></span><span class="line"><span class="ln">19</span><span class="cl"><span class="s">  - add_cloud_metadata: ~
+</span></span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="s">  - add_docker_metadata: ~
+</span></span></span><span class="line"><span class="ln">21</span><span class="cl"><span class="s">
+</span></span></span><span class="line"><span class="ln">22</span><span class="cl"><span class="s">filebeat.modules:
+</span></span></span><span class="line"><span class="ln">23</span><span class="cl"><span class="s">  - module: apache
+</span></span></span><span class="line"><span class="ln">24</span><span class="cl"><span class="s">    access:
+</span></span></span><span class="line"><span class="ln">25</span><span class="cl"><span class="s">      enabled: true
+</span></span></span><span class="line"><span class="ln">26</span><span class="cl"><span class="s">      var.paths:
+</span></span></span><span class="line"><span class="ln">27</span><span class="cl"><span class="s">      - &#34;/usr/local/tomcat/logs/localhost_access_log.*.txt&#34;
+</span></span></span><span class="line"><span class="ln">28</span><span class="cl"><span class="s">    error:
+</span></span></span><span class="line"><span class="ln">29</span><span class="cl"><span class="s">      enabled: true
+</span></span></span><span class="line"><span class="ln">30</span><span class="cl"><span class="s">      var.paths:
+</span></span></span><span class="line"><span class="ln">31</span><span class="cl"><span class="s">      - &#34;/usr/local/tomcat/logs/application.log*&#34;
+</span></span></span><span class="line"><span class="ln">32</span><span class="cl"><span class="s">      - &#34;/usr/local/tomcat/logs/catalina.*.log&#34;
+</span></span></span><span class="line"><span class="ln">33</span><span class="cl"><span class="s">      - &#34;/usr/local/tomcat/logs/host-manager.*.log&#34;
+</span></span></span><span class="line"><span class="ln">34</span><span class="cl"><span class="s">      - &#34;/usr/local/tomcat/logs/localhost.*.log&#34;
+</span></span></span><span class="line"><span class="ln">35</span><span class="cl"><span class="s">      - &#34;/usr/local/tomcat/logs/manager.*.log&#34;
+</span></span></span><span class="line"><span class="ln">36</span><span class="cl"><span class="s">      
+</span></span></span><span class="line"><span class="ln">37</span><span class="cl"><span class="s">setup.template.name: &#34;tomcat-logs&#34;
+</span></span></span><span class="line"><span class="ln">38</span><span class="cl"><span class="s">setup.template.pattern: &#34;tomcat-logs-*&#34;
+</span></span></span><span class="line"><span class="ln">39</span><span class="cl"><span class="s">output.elasticsearch:
+</span></span></span><span class="line"><span class="ln">40</span><span class="cl"><span class="s">  hosts: [&#34;172.19.20.xxx:9200&#34;,&#34;172.19.20.xxx:9200&#34;]
+</span></span></span><span class="line"><span class="ln">41</span><span class="cl"><span class="s">  index: &#34;tomcat-logs-%{+yyyy.MM}&#34;
+</span></span></span><span class="line"><span class="ln">42</span><span class="cl"><span class="s">EOF</span> 
+</span></span><span class="line"><span class="ln">43</span><span class="cl"> 
+</span></span><span class="line"><span class="ln">44</span><span class="cl"><span class="nb">set</span> -xe 
+</span></span><span class="line"><span class="ln">45</span><span class="cl">
+</span></span><span class="line"><span class="ln">46</span><span class="cl"><span class="c1"># If user don&#39;t provide any command </span>
+</span></span><span class="line"><span class="ln">47</span><span class="cl"><span class="c1"># Run filebeat </span>
+</span></span><span class="line"><span class="ln">48</span><span class="cl"><span class="k">if</span> <span class="o">[[</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">==</span> <span class="s2">&#34;&#34;</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span> 
+</span></span><span class="line"><span class="ln">49</span><span class="cl">     <span class="nb">exec</span> /opt/filebeat-7.15.1-linux-x86_64/filebeat -c /etc/filebeat.yaml  
+</span></span><span class="line"><span class="ln">50</span><span class="cl"><span class="k">else</span> 
+</span></span><span class="line"><span class="ln">51</span><span class="cl">    <span class="c1"># Else allow the user to run arbitrarily commands like bash </span>
+</span></span><span class="line"><span class="ln">52</span><span class="cl">    <span class="nb">exec</span> <span class="s2">&#34;</span><span class="nv">$@</span><span class="s2">&#34;</span> 
+</span></span><span class="line"><span class="ln">53</span><span class="cl"><span class="k">fi</span> 
+</span></span></code></pre></div><p>我们为什么不在 k8s 里用 configmap 来配置 filebeat.yml 呢？</p>
 <p>理由是收集日志文件多且路径、类型各不相同，这么一堆的配置都放在 configmap 里会让人癫狂的。所以干脆放到镜像里，便于调试也便于修改。</p>
 <p>上面我们也充分利用了 filebeat 的 module，有 module 可用就必须用 module，而不是手动指定 filebeat.inputs ，可用的 mudole 实在太多了，一定要善用！！！另外 tomcat 和 apache 的日志格式是一样的。</p>
 <p>我们在最后执行的时候，也加了 <code>exec $@</code> 便于调试，如果没有指定 CMD，就启动 filebeat，如果指定了比如 /bin/bash，就进入调试状态。</p>
@@ -327,60 +327,60 @@
 <p>附录：https://www.elastic.co/guide/en/beats/filebeat/current/configuration-general-options.html filebeat的配置列表</p>
 <h2 id="二sidecar部署">二、sidecar部署</h2>
 <p>我们写一个 k8s 的 tomcat deployment文件：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span><span class="na">apiVersion: apps/v1</span>
-<span class="ln"> 2</span><span class="na">kind: Deployment</span>
-<span class="ln"> 3</span><span class="na">metadata:</span>
-<span class="ln"> 4</span>  <span class="na">name: tomcat</span>
-<span class="ln"> 5</span>  <span class="na">labels:</span>
-<span class="ln"> 6</span>    <span class="na">app: tomcat</span>
-<span class="ln"> 7</span><span class="na">spec:</span>
-<span class="ln"> 8</span>  <span class="na">replicas: 1</span>
-<span class="ln"> 9</span>  <span class="na">selector:</span>
-<span class="ln">10</span>    <span class="na">matchLabels:</span>
-<span class="ln">11</span>      <span class="na">app: tomcat</span>
-<span class="ln">12</span>  <span class="na">template:</span>
-<span class="ln">13</span>    <span class="na">metadata:</span>
-<span class="ln">14</span>      <span class="na">labels:</span>
-<span class="ln">15</span>        <span class="na">app: tomcat</span>
-<span class="ln">16</span>    <span class="na">spec:</span>
-<span class="ln">17</span>      <span class="na">containers:</span>
-<span class="ln">18</span>      <span class="na">- name: filebeat-sidecar</span>
-<span class="ln">19</span>        <span class="na">image: xxxx.xxxx.xxx/filebeat:xxx</span>
-<span class="ln">20</span>        <span class="na">env:</span>
-<span class="ln">21</span>        <span class="na">- name: POD_NAMESPACE</span>
-<span class="ln">22</span>          <span class="na">valueFrom:</span>
-<span class="ln">23</span>            <span class="na">fieldRef:</span>
-<span class="ln">24</span>              <span class="na">apiVersion: v1</span>
-<span class="ln">25</span>              <span class="na">fieldPath: metadata.namespace</span>
-<span class="ln">26</span>        <span class="na">- name: NODE_NAME</span>
-<span class="ln">27</span>          <span class="na">valueFrom:</span>
-<span class="ln">28</span>            <span class="na">fieldRef:</span>
-<span class="ln">29</span>              <span class="na">apiVersion: v1</span>
-<span class="ln">30</span>              <span class="na">fieldPath: spec.nodeName</span>
-<span class="ln">31</span>        <span class="na">- name: POD_IP</span>
-<span class="ln">32</span>          <span class="na">valueFrom:</span>
-<span class="ln">33</span>            <span class="na">fieldRef:</span>
-<span class="ln">34</span>              <span class="na">apiVersion: v1</span>
-<span class="ln">35</span>              <span class="na">fieldPath: status.podIP</span>
-<span class="ln">36</span>        <span class="na">- name: POD_NAME</span>
-<span class="ln">37</span>          <span class="na">valueFrom:</span>
-<span class="ln">38</span>            <span class="na">fieldRef:</span>
-<span class="ln">39</span>              <span class="na">apiVersion: v1</span>
-<span class="ln">40</span>              <span class="na">fieldPath: metadata.name            </span>
-<span class="ln">41</span>        <span class="na">volumeMounts:</span>
-<span class="ln">42</span>        <span class="na">- name: logs-volume</span>
-<span class="ln">43</span>          <span class="na">mountPath: /usr/local/tomcat/logs</span>
-<span class="ln">44</span>      <span class="na">- name: tomcat</span>
-<span class="ln">45</span>        <span class="na">image: tomcat</span>
-<span class="ln">46</span>        <span class="na">ports:</span>
-<span class="ln">47</span>        <span class="na">- containerPort: 8080</span>
-<span class="ln">48</span>        <span class="na">volumeMounts:</span>
-<span class="ln">49</span>        <span class="na">- name: logs-volume</span>
-<span class="ln">50</span>          <span class="na">mountPath: /usr/local/tomcat/logs</span>
-<span class="ln">51</span>      <span class="na">volumes:</span>
-<span class="ln">52</span>      <span class="na">- name: logs-volume</span>
-<span class="ln">53</span>        <span class="na">emptyDir: {}</span>
-</code></pre></div><p>可以看到我们在这个 deployment 里定义了 pod 是单副本，里面跑了两个 container，一个是 filebeat，一个是 tocmat，两者通过同一个 volume 连接在一起，这样就可以做到不修改 tomcat container 而拿到里面的日志了。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="na">apiVersion: apps/v1</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="na">kind: Deployment</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="na">metadata:</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">  <span class="na">name: tomcat</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">  <span class="na">labels:</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">    <span class="na">app: tomcat</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="na">spec:</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">  <span class="na">replicas: 1</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">  <span class="na">selector:</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">    <span class="na">matchLabels:</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">      <span class="na">app: tomcat</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">  <span class="na">template:</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">    <span class="na">metadata:</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">      <span class="na">labels:</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl">        <span class="na">app: tomcat</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">    <span class="na">spec:</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl">      <span class="na">containers:</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl">      <span class="na">- name: filebeat-sidecar</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl">        <span class="na">image: xxxx.xxxx.xxx/filebeat:xxx</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl">        <span class="na">env:</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl">        <span class="na">- name: POD_NAMESPACE</span>
+</span></span><span class="line"><span class="ln">22</span><span class="cl">          <span class="na">valueFrom:</span>
+</span></span><span class="line"><span class="ln">23</span><span class="cl">            <span class="na">fieldRef:</span>
+</span></span><span class="line"><span class="ln">24</span><span class="cl">              <span class="na">apiVersion: v1</span>
+</span></span><span class="line"><span class="ln">25</span><span class="cl">              <span class="na">fieldPath: metadata.namespace</span>
+</span></span><span class="line"><span class="ln">26</span><span class="cl">        <span class="na">- name: NODE_NAME</span>
+</span></span><span class="line"><span class="ln">27</span><span class="cl">          <span class="na">valueFrom:</span>
+</span></span><span class="line"><span class="ln">28</span><span class="cl">            <span class="na">fieldRef:</span>
+</span></span><span class="line"><span class="ln">29</span><span class="cl">              <span class="na">apiVersion: v1</span>
+</span></span><span class="line"><span class="ln">30</span><span class="cl">              <span class="na">fieldPath: spec.nodeName</span>
+</span></span><span class="line"><span class="ln">31</span><span class="cl">        <span class="na">- name: POD_IP</span>
+</span></span><span class="line"><span class="ln">32</span><span class="cl">          <span class="na">valueFrom:</span>
+</span></span><span class="line"><span class="ln">33</span><span class="cl">            <span class="na">fieldRef:</span>
+</span></span><span class="line"><span class="ln">34</span><span class="cl">              <span class="na">apiVersion: v1</span>
+</span></span><span class="line"><span class="ln">35</span><span class="cl">              <span class="na">fieldPath: status.podIP</span>
+</span></span><span class="line"><span class="ln">36</span><span class="cl">        <span class="na">- name: POD_NAME</span>
+</span></span><span class="line"><span class="ln">37</span><span class="cl">          <span class="na">valueFrom:</span>
+</span></span><span class="line"><span class="ln">38</span><span class="cl">            <span class="na">fieldRef:</span>
+</span></span><span class="line"><span class="ln">39</span><span class="cl">              <span class="na">apiVersion: v1</span>
+</span></span><span class="line"><span class="ln">40</span><span class="cl">              <span class="na">fieldPath: metadata.name            </span>
+</span></span><span class="line"><span class="ln">41</span><span class="cl">        <span class="na">volumeMounts:</span>
+</span></span><span class="line"><span class="ln">42</span><span class="cl">        <span class="na">- name: logs-volume</span>
+</span></span><span class="line"><span class="ln">43</span><span class="cl">          <span class="na">mountPath: /usr/local/tomcat/logs</span>
+</span></span><span class="line"><span class="ln">44</span><span class="cl">      <span class="na">- name: tomcat</span>
+</span></span><span class="line"><span class="ln">45</span><span class="cl">        <span class="na">image: tomcat</span>
+</span></span><span class="line"><span class="ln">46</span><span class="cl">        <span class="na">ports:</span>
+</span></span><span class="line"><span class="ln">47</span><span class="cl">        <span class="na">- containerPort: 8080</span>
+</span></span><span class="line"><span class="ln">48</span><span class="cl">        <span class="na">volumeMounts:</span>
+</span></span><span class="line"><span class="ln">49</span><span class="cl">        <span class="na">- name: logs-volume</span>
+</span></span><span class="line"><span class="ln">50</span><span class="cl">          <span class="na">mountPath: /usr/local/tomcat/logs</span>
+</span></span><span class="line"><span class="ln">51</span><span class="cl">      <span class="na">volumes:</span>
+</span></span><span class="line"><span class="ln">52</span><span class="cl">      <span class="na">- name: logs-volume</span>
+</span></span><span class="line"><span class="ln">53</span><span class="cl">        <span class="na">emptyDir: {}</span>
+</span></span></code></pre></div><p>可以看到我们在这个 deployment 里定义了 pod 是单副本，里面跑了两个 container，一个是 filebeat，一个是 tocmat，两者通过同一个 volume 连接在一起，这样就可以做到不修改 tomcat container 而拿到里面的日志了。</p>
 <p>这样就把 tomcat 应用的日志收到 ES 去了。</p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -427,7 +427,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -467,11 +467,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

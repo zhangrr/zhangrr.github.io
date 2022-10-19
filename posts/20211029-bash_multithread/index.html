@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="shell以及find的多线程执行"/>
 <meta name="twitter:description" content="这属于Shell的高级技巧了，我们可能需要在 bash 中并发 wget rsync 文件，下面就讨论一下这个问题。 首先从简单的单线程开始： 1$ for i in $(seq 1 2); do echo $i; done 21 32 可以"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -215,82 +215,82 @@
   </span></div>
 <div class="post-content mb-3"><p>这属于Shell的高级技巧了，我们可能需要在 bash 中并发 wget rsync 文件，下面就讨论一下这个问题。</p>
 <p>首先从简单的单线程开始：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>$ <span class="k">for</span> i in <span class="k">$(</span>seq <span class="m">1</span> 2<span class="k">)</span><span class="p">;</span> <span class="k">do</span> <span class="nb">echo</span> <span class="nv">$i</span><span class="p">;</span> <span class="k">done</span>
-<span class="ln">2</span><span class="m">1</span>
-<span class="ln">3</span><span class="m">2</span>
-</code></pre></div><p>可以看到是顺序执行的，下面变多线程：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>$ <span class="k">for</span> i in <span class="k">$(</span>seq <span class="m">1</span> 2<span class="k">)</span><span class="p">;</span> <span class="k">do</span> <span class="nb">echo</span> <span class="nv">$i</span> <span class="p">&amp;</span> <span class="k">done</span>
-<span class="ln">2</span><span class="o">[</span>1<span class="o">]</span> <span class="m">245505</span>
-<span class="ln">3</span><span class="m">1</span>
-<span class="ln">4</span><span class="o">[</span>2<span class="o">]</span> <span class="m">245506</span>
-<span class="ln">5</span><span class="m">2</span>
-<span class="ln">6</span><span class="o">[</span>1<span class="o">]</span>   Done                    <span class="nb">echo</span> <span class="nv">$i</span>
-<span class="ln">7</span><span class="o">[</span>2<span class="o">]</span>   Done                    <span class="nb">echo</span> <span class="nv">$i</span>
-</code></pre></div><p>可以看到我们只把 ; 号改成了 &amp; 号，程序就变成了多线程执行。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">$ <span class="k">for</span> i in <span class="k">$(</span>seq <span class="m">1</span> 2<span class="k">)</span><span class="p">;</span> <span class="k">do</span> <span class="nb">echo</span> <span class="nv">$i</span><span class="p">;</span> <span class="k">done</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="m">1</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="m">2</span>
+</span></span></code></pre></div><p>可以看到是顺序执行的，下面变多线程：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">$ <span class="k">for</span> i in <span class="k">$(</span>seq <span class="m">1</span> 2<span class="k">)</span><span class="p">;</span> <span class="k">do</span> <span class="nb">echo</span> <span class="nv">$i</span> <span class="p">&amp;</span> <span class="k">done</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="o">[</span>1<span class="o">]</span> <span class="m">245505</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="m">1</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="o">[</span>2<span class="o">]</span> <span class="m">245506</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="m">2</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl"><span class="o">[</span>1<span class="o">]</span>   Done                    <span class="nb">echo</span> <span class="nv">$i</span>
+</span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="o">[</span>2<span class="o">]</span>   Done                    <span class="nb">echo</span> <span class="nv">$i</span>
+</span></span></code></pre></div><p>可以看到我们只把 ; 号改成了 &amp; 号，程序就变成了多线程执行。</p>
 <p>区别在于 ; 号会等待之前的命令执行完毕再执行下一条，而 &amp; 不等待，直接继续执行下一条；相当于后台运行了前一条命令。</p>
 <p>下面说说 find 的单线程和多线程：</p>
 <p>find 的 exec 用法</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>$ find /path <span class="o">[</span>args<span class="o">]</span> -exec <span class="o">[</span>cmd<span class="o">]</span> <span class="o">{}</span> <span class="se">\;</span>
-</code></pre></div><ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">$ find /path <span class="o">[</span>args<span class="o">]</span> -exec <span class="o">[</span>cmd<span class="o">]</span> <span class="o">{}</span> <span class="se">\;</span>
+</span></span></code></pre></div><ul>
 <li>{} 占位符号，存放find找到的记录</li>
 <li>; 对于每一条找到的单独记录，执行的cmd是一条一条单独执行的</li>
 <li>执行的顺序如下: cmd result1; cmd result2; &hellip;; cmd result N</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>$ find /path <span class="o">[</span>args<span class="o">]</span> -exec <span class="o">[</span>cmd<span class="o">]</span> <span class="o">{}</span> <span class="se">\+</span>
-</code></pre></div><ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">$ find /path <span class="o">[</span>args<span class="o">]</span> -exec <span class="o">[</span>cmd<span class="o">]</span> <span class="o">{}</span> <span class="se">\+</span>
+</span></span></code></pre></div><ul>
 <li>{} 占位符号，存放find找到的记录</li>
 <li>+  对于找到的所有记录，执行的cmd是合并了所有记录集执行的</li>
 <li>执行顺序如下: cmd result1 result2 &hellip; result N</li>
 </ul>
 <p>多个exec可以串起来：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>$ find /tmp/dir1/ -type f -exec grep howtouselinux <span class="o">{}</span> <span class="se">\;</span> -exec <span class="nb">echo</span> <span class="o">{}</span> <span class="se">\;</span> <span class="p">|</span> sed  <span class="s1">&#39;s/howtouselinux/deep/g&#39;</span>
-</code></pre></div><p>至此，find 也还是单线程执行的，并没有并发。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">$ find /tmp/dir1/ -type f -exec grep howtouselinux <span class="o">{}</span> <span class="se">\;</span> -exec <span class="nb">echo</span> <span class="o">{}</span> <span class="se">\;</span> <span class="p">|</span> sed  <span class="s1">&#39;s/howtouselinux/deep/g&#39;</span>
+</span></span></code></pre></div><p>至此，find 也还是单线程执行的，并没有并发。</p>
 <p>find 要并发，就只能跟 xargs 结合在一起：</p>
 <p>xargs 通常配合管道使用，将前面命令产生的参数，逐个传入后续命令，作为参数。xargs 传来的参数，默认位于 xargs 后面命令的最后，如果要改变位置，需要用**-I**参数。xargs  如果不带命令，缺省是 echo</p>
 <ul>
 <li>
 <p>-d 分隔符</p>
 <blockquote>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>$ <span class="nb">echo</span> -e <span class="s2">&#34;a\tb\tc&#34;</span> <span class="p">|</span> xargs -d <span class="s2">&#34;\t&#34;</span> <span class="nb">echo</span>
-<span class="ln">2</span>a b c
-</code></pre></div></blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">$ <span class="nb">echo</span> -e <span class="s2">&#34;a\tb\tc&#34;</span> <span class="p">|</span> xargs -d <span class="s2">&#34;\t&#34;</span> <span class="nb">echo</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">a b c
+</span></span></code></pre></div></blockquote>
 </li>
 <li>
 <p>-I{}  指定占位符，-I %那就是 % 替代从之前管道取得的参数</p>
 <blockquote>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>$ find . -type d <span class="p">|</span> xargs -I % -0 rsync -auvPR % 192.168.1.38::new/
-</code></pre></div></blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">$ find . -type d <span class="p">|</span> xargs -I % -0 rsync -auvPR % 192.168.1.38::new/
+</span></span></code></pre></div></blockquote>
 </li>
 <li>
 <p>-0 跟find的-print0配合，find命令有一个特别的参数-print0，指定输出的文件列表以null分隔。然后，xargs命令的-0参数表示用null当作分隔符。</p>
 <blockquote>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>$ find ./new -mindepth <span class="m">6</span> -maxdepth <span class="m">6</span> -type d -print0 <span class="p">|</span> xargs -I % -0 rsync -auvPR % 172.18.34.38::new/
-</code></pre></div></blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">$ find ./new -mindepth <span class="m">6</span> -maxdepth <span class="m">6</span> -type d -print0 <span class="p">|</span> xargs -I % -0 rsync -auvPR % 172.18.34.38::new/
+</span></span></code></pre></div></blockquote>
 </li>
 <li>
 <p>-P 最大并发线程数，下面是并发30线程</p>
 <blockquote>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>$ find ./new -mindepth <span class="m">6</span> -maxdepth <span class="m">6</span> -type d -print0 <span class="p">|</span> xargs -P <span class="m">30</span> -I % -0 rsync -auvPR % 172.18.34.38::new/
-</code></pre></div></blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">$ find ./new -mindepth <span class="m">6</span> -maxdepth <span class="m">6</span> -type d -print0 <span class="p">|</span> xargs -P <span class="m">30</span> -I % -0 rsync -auvPR % 172.18.34.38::new/
+</span></span></code></pre></div></blockquote>
 </li>
 <li>
 <p>-n 选项限制单个命令行的参数个数，下面是 rsync 一行命令传带60个文件，30个进程那就是30个 rsync，每个 rsync 同时传60个文件。</p>
 <blockquote>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>$ find ./new -mindepth <span class="m">6</span> -maxdepth <span class="m">6</span> -type d -print0 <span class="p">|</span> xargs -P <span class="m">30</span> -n <span class="m">60</span> -I % -0 rsync -auvPR % 172.18.34.38::new/
-<span class="ln">2</span>
-<span class="ln">3</span>$ <span class="nb">echo</span> <span class="o">{</span>0..10<span class="o">}</span> <span class="p">|</span> xargs -I<span class="o">{}</span> -n <span class="m">2</span>
-<span class="ln">4</span><span class="m">0</span> <span class="m">1</span>
-<span class="ln">5</span><span class="m">2</span> <span class="m">3</span>
-<span class="ln">6</span><span class="m">4</span> <span class="m">5</span>
-<span class="ln">7</span><span class="m">6</span> <span class="m">7</span>
-<span class="ln">8</span><span class="m">8</span> <span class="m">9</span>
-<span class="ln">9</span><span class="m">10</span>
-</code></pre></div></blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">$ find ./new -mindepth <span class="m">6</span> -maxdepth <span class="m">6</span> -type d -print0 <span class="p">|</span> xargs -P <span class="m">30</span> -n <span class="m">60</span> -I % -0 rsync -auvPR % 172.18.34.38::new/
+</span></span><span class="line"><span class="ln">2</span><span class="cl">
+</span></span><span class="line"><span class="ln">3</span><span class="cl">$ <span class="nb">echo</span> <span class="o">{</span>0..10<span class="o">}</span> <span class="p">|</span> xargs -I<span class="o">{}</span> -n <span class="m">2</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="m">0</span> <span class="m">1</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="m">2</span> <span class="m">3</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl"><span class="m">4</span> <span class="m">5</span>
+</span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="m">6</span> <span class="m">7</span>
+</span></span><span class="line"><span class="ln">8</span><span class="cl"><span class="m">8</span> <span class="m">9</span>
+</span></span><span class="line"><span class="ln">9</span><span class="cl"><span class="m">10</span>
+</span></span></code></pre></div></blockquote>
 </li>
 </ul>
 <p>使用 bash -c 并发的例子：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>$ <span class="nb">time</span> <span class="k">for</span> i in <span class="k">$(</span>seq <span class="m">1</span> 5<span class="k">)</span><span class="p">;</span> <span class="k">do</span> <span class="nb">echo</span> $<span class="o">[</span><span class="nv">$RANDOM</span> % <span class="m">5</span> + 1<span class="o">]</span><span class="p">;</span> <span class="k">done</span> <span class="p">|</span> xargs -I<span class="o">{}</span> <span class="nb">echo</span> <span class="s2">&#34;sleep {}; echo &#39;Done! {}&#39;&#34;</span> <span class="p">|</span> xargs -P5 -I<span class="o">{}</span> bash -c <span class="s2">&#34;{}&#34;</span>
-</code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">$ <span class="nb">time</span> <span class="k">for</span> i in <span class="k">$(</span>seq <span class="m">1</span> 5<span class="k">)</span><span class="p">;</span> <span class="k">do</span> <span class="nb">echo</span> $<span class="o">[</span><span class="nv">$RANDOM</span> % <span class="m">5</span> + 1<span class="o">]</span><span class="p">;</span> <span class="k">done</span> <span class="p">|</span> xargs -I<span class="o">{}</span> <span class="nb">echo</span> <span class="s2">&#34;sleep {}; echo &#39;Done! {}&#39;&#34;</span> <span class="p">|</span> xargs -P5 -I<span class="o">{}</span> bash -c <span class="s2">&#34;{}&#34;</span>
+</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -335,7 +335,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -375,11 +375,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

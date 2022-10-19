@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="nodejs多版本的安装与管理"/>
 <meta name="twitter:description" content="最近在搞 JavaScripts，nodejs的版本满天飞，之前用的 nvm 管理的方法突然不能用了。 这里记录一下，比较新的 nvm 的安装使用方法： 下载安装"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -216,8 +216,8 @@
 <div class="post-content mb-3"><p>最近在搞 JavaScripts，nodejs的版本满天飞，之前用的 nvm 管理的方法突然不能用了。</p>
 <p>这里记录一下，比较新的 nvm 的安装使用方法：</p>
 <p>下载安装：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh <span class="p">|</span> bash
-</code></pre></div><p>以上的脚本安装到底做了什么呢？</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh <span class="p">|</span> bash
+</span></span></code></pre></div><p>以上的脚本安装到底做了什么呢？</p>
 <p>一、它 clone 了 nvm 到 $HOME/.nvm目录</p>
 <p>二、它在 .bashrc 中添加了三行</p>
 <p><img class="img-fluid" alt="image-20211217093956358" src="https://bajie.dev/posts/20211217-nodejs_nvm/image-20211217093956358.png" loading="lazy"
@@ -227,18 +227,18 @@
 </p>
 <p>事实上它是根据当前的 bash 选择在 .bash_profile、.zshrc、.profile、.bashrc中的某一个进行添加</p>
 <p>然后我们退出终端，并重新进入，看看</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>nvm list
-<span class="ln">2</span>nvm ls-remote
-</code></pre></div><p>然后选择最新的版本安装：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>nvm install v16.13.1
-</code></pre></div><p>如果想使用不同版本</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>nvm use 14.0.0
-</code></pre></div><p>设置缺省版本或者取消</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>nvm <span class="nb">alias</span> defaut &lt;your_nodejs_default_version&gt;
-<span class="ln">2</span>
-<span class="ln">3</span>nvm <span class="nb">alias</span> default 14.0.0
-<span class="ln">4</span>node -v <span class="c1"># prints 14.0.0</span>
-</code></pre></div><p>参考地址：https://github.com/nvm-sh/nvm</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">nvm list
+</span></span><span class="line"><span class="ln">2</span><span class="cl">nvm ls-remote
+</span></span></code></pre></div><p>然后选择最新的版本安装：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">nvm install v16.13.1
+</span></span></code></pre></div><p>如果想使用不同版本</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">nvm use 14.0.0
+</span></span></code></pre></div><p>设置缺省版本或者取消</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">nvm <span class="nb">alias</span> defaut &lt;your_nodejs_default_version&gt;
+</span></span><span class="line"><span class="ln">2</span><span class="cl">
+</span></span><span class="line"><span class="ln">3</span><span class="cl">nvm <span class="nb">alias</span> default 14.0.0
+</span></span><span class="line"><span class="ln">4</span><span class="cl">node -v <span class="c1"># prints 14.0.0</span>
+</span></span></code></pre></div><p>参考地址：https://github.com/nvm-sh/nvm</p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -284,7 +284,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -324,11 +324,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="ansible vault加密的使用">
 <meta itemprop="description" content="公司已经由 saltstack 全面转向了 ansible 。 用 ansible-playbook 执行各种任务的时候，需要登录主机，就必然涉及到主机 ssh 密码的输入。 最早我们是在 inventory 里做了定义： 1[deqin:vars] 2ansible_ssh_common_args=&#34;-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null&#34; 3host_key_checking=False 4ansible_ssh_user=&#34;peadmin&#34; 5ansible_ssh_pass=&#34;Fuck2021!&#34; 6 7[deqin]"><meta itemprop="datePublished" content="2021-11-24T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2021-11-24T09:30:11+08:00" />
-<meta itemprop="wordCount" content="963">
+<meta itemprop="wordCount" content="649">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="ansible vault加密的使用" />
 <meta property="og:description" content="公司已经由 saltstack 全面转向了 ansible 。 用 ansible-playbook 执行各种任务的时候，需要登录主机，就必然涉及到主机 ssh 密码的输入。 最早我们是在 inventory 里做了定义： 1[deqin:vars] 2ansible_ssh_common_args=&#34;-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null&#34; 3host_key_checking=False 4ansible_ssh_user=&#34;peadmin&#34; 5ansible_ssh_pass=&#34;Fuck2021!&#34; 6 7[deqin]" />
 <meta property="og:type" content="article" />
@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="ansible vault加密的使用"/>
 <meta name="twitter:description" content="公司已经由 saltstack 全面转向了 ansible 。 用 ansible-playbook 执行各种任务的时候，需要登录主机，就必然涉及到主机 ssh 密码的输入。 最早我们是在 inventory 里做了定义： 1[deqin:vars] 2ansible_ssh_common_args=&#34;-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null&#34; 3host_key_checking=False 4ansible_ssh_user=&#34;peadmin&#34; 5ansible_ssh_pass=&#34;Fuck2021!&#34; 6 7[deqin]"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -233,90 +233,89 @@
 </div><div class="post-content mb-3"><p>公司已经由 saltstack 全面转向了 ansible 。</p>
 <p>用 ansible-playbook 执行各种任务的时候，需要登录主机，就必然涉及到主机 ssh 密码的输入。</p>
 <p>最早我们是在 inventory 里做了定义：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span><span class="k">[deqin:vars]</span>
-<span class="ln">2</span><span class="na">ansible_ssh_common_args</span><span class="o">=</span><span class="s">&#34;-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null&#34;</span>
-<span class="ln">3</span><span class="na">host_key_checking</span><span class="o">=</span><span class="s">False</span>
-<span class="ln">4</span><span class="na">ansible_ssh_user</span><span class="o">=</span><span class="s">&#34;peadmin&#34;</span>
-<span class="ln">5</span><span class="na">ansible_ssh_pass</span><span class="o">=</span><span class="s">&#34;Fuck2021!&#34;</span>
-<span class="ln">6</span>
-<span class="ln">7</span><span class="k">[deqin]</span>
-<span class="ln">8</span><span class="na">192.168.1.19</span>
-</code></pre></div><p>太直白了，所有看到这文件内容的人都会知道密码了。完全没有安全性，这样行不通啊！</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln">1</span><span class="cl"><span class="k">[deqin:vars]</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="na">ansible_ssh_common_args</span><span class="o">=</span><span class="s">&#34;-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null&#34;</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="na">host_key_checking</span><span class="o">=</span><span class="s">False</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="na">ansible_ssh_user</span><span class="o">=</span><span class="s">&#34;peadmin&#34;</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="na">ansible_ssh_pass</span><span class="o">=</span><span class="s">&#34;Fuck2021!&#34;</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl">
+</span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="k">[deqin]</span>
+</span></span><span class="line"><span class="ln">8</span><span class="cl"><span class="na">192.168.1.19</span>
+</span></span></code></pre></div><p>太直白了，所有看到这文件内容的人都会知道密码了。完全没有安全性，这样行不通啊！</p>
 <p>好在 ansible-vault 提供了一种方法来解决：那就是生成一个密文放进去，然后解开它必须再输入一个密码。这样看到的人也不知道实际的密码到底是什么</p>
 <p>具体的做法如下，首先生成 key &ndash;&gt; 加密字符串的键值对：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>ansible-vault encrypt_string <span class="s1">&#39;Fuck2021!&#39;</span> --name <span class="s1">&#39;ansible_ssh_pass&#39;</span>
-</code></pre></div><p>输入密码，会得到下面一串字符</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span><span class="na">ansible_ssh_pass: !vault |</span>
-<span class="ln">2</span>          <span class="na">$ANSIBLE_VAULT;1.1;AES256</span>
-<span class="ln">3</span>          <span class="na">37393235646234613332646366306233346330656666623862313339313861393239646261366237</span>
-<span class="ln">4</span>          <span class="na">6663343263363161643634653266343466356634656539650a393834663938636165336431656433</span>
-<span class="ln">5</span>          <span class="na">66333761643538623434363334316661653035313166333137373562363436613636366162353239</span>
-<span class="ln">6</span>          <span class="na">3661623733323933350a373164626131646235616361356638653733646534616163393362373135</span>
-<span class="ln">7</span>          <span class="na">6139</span>
-</code></pre></div><p>这个就是密文了，必须用输入的密码才能解开。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">ansible-vault encrypt_string <span class="s1">&#39;Fuck2021!&#39;</span> --name <span class="s1">&#39;ansible_ssh_pass&#39;</span>
+</span></span></code></pre></div><p>输入密码，会得到下面一串字符</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln">1</span><span class="cl"><span class="na">ansible_ssh_pass: !vault |</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">          <span class="na">$ANSIBLE_VAULT;1.1;AES256</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">          <span class="na">37393235646234613332646366306233346330656666623862313339313861393239646261366237</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">          <span class="na">6663343263363161643634653266343466356634656539650a393834663938636165336431656433</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl">          <span class="na">66333761643538623434363334316661653035313166333137373562363436613636366162353239</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl">          <span class="na">3661623733323933350a373164626131646235616361356638653733646534616163393362373135</span>
+</span></span><span class="line"><span class="ln">7</span><span class="cl">          <span class="na">6139</span>
+</span></span></code></pre></div><p>这个就是密文了，必须用输入的密码才能解开。</p>
 <p><strong>注意</strong>：这里的键值 name 不可改变，如果你想把字符串拷贝下来，改掉 ansible_ssh_pass 的名字，改成别的，想改名引用，是不行的。</p>
 <p>这一大长串密文有以下两种用法：</p>
 <h2 id="一ini格式的inventory引用">一、ini格式的inventory引用</h2>
 <p>最原始的 inventory.ini 内容如下：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span><span class="k">[deqin:vars]</span>
-<span class="ln">2</span><span class="na">ansible_ssh_common_args</span><span class="o">=</span><span class="s">&#34;-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null&#34;</span>
-<span class="ln">3</span><span class="na">host_key_checking</span><span class="o">=</span><span class="s">False</span>
-<span class="ln">4</span><span class="na">ansible_ssh_user</span><span class="o">=</span><span class="s">&#34;peadmin&#34;</span>
-<span class="ln">5</span>
-<span class="ln">6</span><span class="k">[deqin]</span>
-<span class="ln">7</span><span class="na">192.168.1.19</span>
-<span class="ln">8</span>
-</code></pre></div><p>我们定义 playbook 文件 shenji.yml：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="ln"> 1</span>- <span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l">deqin</span><span class="w">
-</span><span class="ln"> 2</span><span class="w">  </span><span class="nt">become</span><span class="p">:</span><span class="w"> </span><span class="kc">yes</span><span class="w">
-</span><span class="ln"> 3</span><span class="w">  </span><span class="nt">vars_files</span><span class="p">:</span><span class="w">
-</span><span class="ln"> 4</span><span class="w">    </span>- <span class="l">pass.yml</span><span class="w">
-</span><span class="ln"> 5</span><span class="w">  </span><span class="nt">vars</span><span class="p">:</span><span class="w">
-</span><span class="ln"> 6</span><span class="w">    </span><span class="nt">ansible_ssh_pass</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;{{ ansible_ssh_pass }}&#39;</span><span class="w">
-</span><span class="ln"> 7</span><span class="w">
-</span><span class="ln"> 8</span><span class="w">  </span><span class="nt">tasks</span><span class="p">:</span><span class="w">
-</span><span class="ln"> 9</span><span class="w">    </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">mkdirs</span><span class="w">
-</span><span class="ln">10</span><span class="w">      </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="l">path=&#34;{{ item }}&#34; state=directory</span><span class="w">
-</span><span class="ln">11</span><span class="w">      </span><span class="nt">with_items</span><span class="p">:</span><span class="w">
-</span><span class="ln">12</span><span class="w">        </span>- <span class="s2">&#34;OS.05&#34;</span><span class="w">
-</span><span class="ln">13</span><span class="w">        </span>- <span class="s2">&#34;OS.06&#34;</span><span class="w">
-</span></code></pre></div><p>把密文放进 pass.yml 文件</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>cat <span class="s">&lt;&lt; EOF &gt;&gt; pass.yml
-</span><span class="ln">2</span><span class="s">ansible_ssh_pass: !vault |
-</span><span class="ln">3</span><span class="s">          $ANSIBLE_VAULT;1.1;AES256
-</span><span class="ln">4</span><span class="s">          37393235646234613332646366306233346330656666623862313339313861393239646261366237
-</span><span class="ln">5</span><span class="s">          6663343263363161643634653266343466356634656539650a393834663938636165336431656433
-</span><span class="ln">6</span><span class="s">          66333761643538623434363334316661653035313166333137373562363436613636366162353239
-</span><span class="ln">7</span><span class="s">          3661623733323933350a373164626131646235616361356638653733646534616163393362373135
-</span><span class="ln">8</span><span class="s">          6139
-</span><span class="ln">9</span><span class="s">EOF</span>
-</code></pre></div><p>运行 playbook：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>ansible-playbook --ask-vault-pass -i inventory.ini shenji.yml -vvv
-</code></pre></div><p>为什么这样呢？因为 ansible-vault 加密过的字符串是 yaml 格式的，在 ini 里无法直接引用。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln">1</span><span class="cl"><span class="k">[deqin:vars]</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="na">ansible_ssh_common_args</span><span class="o">=</span><span class="s">&#34;-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null&#34;</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="na">host_key_checking</span><span class="o">=</span><span class="s">False</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="na">ansible_ssh_user</span><span class="o">=</span><span class="s">&#34;peadmin&#34;</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl">
+</span></span><span class="line"><span class="ln">6</span><span class="cl"><span class="k">[deqin]</span>
+</span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="na">192.168.1.19</span>
+</span></span></code></pre></div><p>我们定义 playbook 文件 shenji.yml：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="ln"> 1</span><span class="cl">- <span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l">deqin</span><span class="w">
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="w">  </span><span class="nt">become</span><span class="p">:</span><span class="w"> </span><span class="kc">yes</span><span class="w">
+</span></span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="w">  </span><span class="nt">vars_files</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="w">    </span>- <span class="l">pass.yml</span><span class="w">
+</span></span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="w">  </span><span class="nt">vars</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="w">    </span><span class="nt">ansible_ssh_pass</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;{{ ansible_ssh_pass }}&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="w">  </span><span class="nt">tasks</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="w">    </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">mkdirs</span><span class="w">
+</span></span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="w">      </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="l">path=&#34;{{ item }}&#34; state=directory</span><span class="w">
+</span></span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="w">      </span><span class="nt">with_items</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="w">        </span>- <span class="s2">&#34;OS.05&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="w">        </span>- <span class="s2">&#34;OS.06&#34;</span><span class="w">
+</span></span></span></code></pre></div><p>把密文放进 pass.yml 文件</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">cat <span class="s">&lt;&lt; EOF &gt;&gt; pass.yml
+</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="s">ansible_ssh_pass: !vault |
+</span></span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="s">          $ANSIBLE_VAULT;1.1;AES256
+</span></span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="s">          37393235646234613332646366306233346330656666623862313339313861393239646261366237
+</span></span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="s">          6663343263363161643634653266343466356634656539650a393834663938636165336431656433
+</span></span></span><span class="line"><span class="ln">6</span><span class="cl"><span class="s">          66333761643538623434363334316661653035313166333137373562363436613636366162353239
+</span></span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="s">          3661623733323933350a373164626131646235616361356638653733646534616163393362373135
+</span></span></span><span class="line"><span class="ln">8</span><span class="cl"><span class="s">          6139
+</span></span></span><span class="line"><span class="ln">9</span><span class="cl"><span class="s">EOF</span>
+</span></span></code></pre></div><p>运行 playbook：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">ansible-playbook --ask-vault-pass -i inventory.ini shenji.yml -vvv
+</span></span></code></pre></div><p>为什么这样呢？因为 ansible-vault 加密过的字符串是 yaml 格式的，在 ini 里无法直接引用。</p>
 <p>所以在 playbook 的 yaml 文件中引入它，然后再跟从 inventory.ini 中获取的变量合作一起。</p>
 <h2 id="二yaml格式的inventory引用">二、yaml格式的inventory引用</h2>
 <p>上面我们看到了必须间接引用才可以，为了避免掉 pass.yml 文件，那么干脆把 inventroy 用 yaml 格式来写，那不就可以了么</p>
 <p>如下即可：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="ln"> 1</span><span class="l">cat &lt;&lt; EOF &gt;&gt; inventory.yml</span><span class="w">
-</span><span class="ln"> 2</span><span class="w"></span><span class="nn">---</span><span class="w">
-</span><span class="ln"> 3</span><span class="w"></span><span class="nt">all</span><span class="p">:</span><span class="w">
-</span><span class="ln"> 4</span><span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w">
-</span><span class="ln"> 5</span><span class="w">    </span><span class="nt">deqin</span><span class="p">:</span><span class="w">
-</span><span class="ln"> 6</span><span class="w">      </span><span class="nt">ansible_host</span><span class="p">:</span><span class="w"> </span><span class="m">192.168.1.19</span><span class="w">
-</span><span class="ln"> 7</span><span class="w">    </span><span class="nt">vars</span><span class="p">:</span><span class="w">
-</span><span class="ln"> 8</span><span class="w">      </span><span class="nt">host_key_checking</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;False&#34;</span><span class="w">
-</span><span class="ln"> 9</span><span class="w">      </span><span class="nt">ansible_ssh_common_args</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null&#34;</span><span class="w">
-</span><span class="ln">10</span><span class="w">      </span><span class="nt">ansible_ssh_pass</span><span class="p">:</span><span class="w"> </span>!<span class="l">vault |</span><span class="w">
-</span><span class="ln">11</span><span class="w">          </span><span class="l">$ANSIBLE_VAULT;1.1;AES256</span><span class="w">
-</span><span class="ln">12</span><span class="w">          </span><span class="m">37393235646234613332646366306233346330656666623862313339313861393239646261366237</span><span class="w">
-</span><span class="ln">13</span><span class="w">          </span><span class="l">6663343263363161643634653266343466356634656539650a393834663938636165336431656433</span><span class="w">
-</span><span class="ln">14</span><span class="w">          </span><span class="m">66333761643538623434363334316661653035313166333137373562363436613636366162353239</span><span class="w">
-</span><span class="ln">15</span><span class="w">          </span><span class="l">3661623733323933350a373164626131646235616361356638653733646534616163393362373135</span><span class="w">
-</span><span class="ln">16</span><span class="w">          </span><span class="m">6139</span><span class="w">
-</span><span class="ln">17</span><span class="w"></span><span class="l">EOF</span><span class="w">
-</span></code></pre></div><p>然后运行就可以了：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>ansible-playbook --ask-vault-pass -i inventory.yml shenji.yml -vvv
-</code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="l">cat &lt;&lt; EOF &gt;&gt; inventory.yml</span><span class="w">
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="w"></span><span class="nt">all</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="w">    </span><span class="nt">deqin</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="w">      </span><span class="nt">ansible_host</span><span class="p">:</span><span class="w"> </span><span class="m">192.168.1.19</span><span class="w">
+</span></span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="w">    </span><span class="nt">vars</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="w">      </span><span class="nt">host_key_checking</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;False&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="w">      </span><span class="nt">ansible_ssh_common_args</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="w">      </span><span class="nt">ansible_ssh_pass</span><span class="p">:</span><span class="w"> </span>!<span class="l">vault |</span><span class="w">
+</span></span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="w">          </span><span class="l">$ANSIBLE_VAULT;1.1;AES256</span><span class="w">
+</span></span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="w">          </span><span class="m">37393235646234613332646366306233346330656666623862313339313861393239646261366237</span><span class="w">
+</span></span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="w">          </span><span class="l">6663343263363161643634653266343466356634656539650a393834663938636165336431656433</span><span class="w">
+</span></span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="w">          </span><span class="m">66333761643538623434363334316661653035313166333137373562363436613636366162353239</span><span class="w">
+</span></span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="w">          </span><span class="l">3661623733323933350a373164626131646235616361356638653733646534616163393362373135</span><span class="w">
+</span></span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="w">          </span><span class="m">6139</span><span class="w">
+</span></span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="w"></span><span class="l">EOF</span><span class="w">
+</span></span></span></code></pre></div><p>然后运行就可以了：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">ansible-playbook --ask-vault-pass -i inventory.yml shenji.yml -vvv
+</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -361,7 +360,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -401,11 +400,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

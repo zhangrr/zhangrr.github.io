@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Javascripts中if的优化"/>
 <meta name="twitter:description" content="Javascripts 中的 if &hellip; else 用起来倒是很方便，但是看起来就不舒服了 1if (true) { 2} 3 4if (true) { 5} 6 7if (true) { 8 if (true) { 9 if (true) { 10 } 11 } else { 12 } 13} else { 14} 上面看起来很闹心吧，下面"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -234,142 +234,142 @@
 </nav>
   </div>
 </div><div class="post-content mb-3"><p>Javascripts 中的 if &hellip; else 用起来倒是很方便，但是看起来就不舒服了</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln"> 1</span>if (true) {
-<span class="ln"> 2</span>}
-<span class="ln"> 3</span>
-<span class="ln"> 4</span>if (true) {
-<span class="ln"> 5</span>}
-<span class="ln"> 6</span>
-<span class="ln"> 7</span>if (true) {
-<span class="ln"> 8</span>  if (true) {
-<span class="ln"> 9</span>    if (true) {
-<span class="ln">10</span>    }
-<span class="ln">11</span>  } else {
-<span class="ln">12</span>  }
-<span class="ln">13</span>} else {
-<span class="ln">14</span>}
-</code></pre></div><p>上面看起来很闹心吧，下面讲讲优化：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln"> 1</span><span class="cl">if (true) {
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">}
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">if (true) {
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">}
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">if (true) {
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">  if (true) {
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">    if (true) {
+</span></span><span class="line"><span class="ln">10</span><span class="cl">    }
+</span></span><span class="line"><span class="ln">11</span><span class="cl">  } else {
+</span></span><span class="line"><span class="ln">12</span><span class="cl">  }
+</span></span><span class="line"><span class="ln">13</span><span class="cl">} else {
+</span></span><span class="line"><span class="ln">14</span><span class="cl">}
+</span></span></code></pre></div><p>上面看起来很闹心吧，下面讲讲优化：</p>
 <h4 id="一三元优化">一、三元优化</h4>
 <p>if (ture) else可以用三元操作符来优化它：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="ln"> 1</span><span class="c1">// Bad 😥
-</span><span class="ln"> 2</span><span class="c1"></span><span class="k">if</span> <span class="p">(</span><span class="kc">true</span><span class="p">)</span> <span class="p">{</span>
-<span class="ln"> 3</span>  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&#34;Congratutions!&#34;</span><span class="p">)</span>
-<span class="ln"> 4</span><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-<span class="ln"> 5</span>  <span class="nx">console</span><span class="p">.</span><span class="nx">warn</span><span class="p">(</span><span class="s2">&#34;Oops, something went wrong!&#34;</span><span class="p">)</span>
-<span class="ln"> 6</span><span class="p">}</span>
-<span class="ln"> 7</span>
-<span class="ln"> 8</span><span class="c1">// Great 🥰
-</span><span class="ln"> 9</span><span class="c1"></span><span class="kc">true</span> 
-<span class="ln">10</span>  <span class="o">?</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&#34;Congratutions&#34;</span><span class="p">)</span>
-<span class="ln">11</span>  <span class="o">:</span> <span class="nx">console</span><span class="p">.</span><span class="nx">warn</span><span class="p">(</span><span class="s2">&#34;Oops, something went wrong!&#34;</span><span class="p">)</span>
-</code></pre></div><h4 id="二与优化">二、与优化</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1">// Bad 😥
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="c1"></span><span class="k">if</span> <span class="p">(</span><span class="kc">true</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&#34;Congratutions!&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">  <span class="nx">console</span><span class="p">.</span><span class="nx">warn</span><span class="p">(</span><span class="s2">&#34;Oops, something went wrong!&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="c1">// Great 🥰
+</span></span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="c1"></span><span class="kc">true</span> 
+</span></span><span class="line"><span class="ln">10</span><span class="cl">  <span class="o">?</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&#34;Congratutions&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">  <span class="o">:</span> <span class="nx">console</span><span class="p">.</span><span class="nx">warn</span><span class="p">(</span><span class="s2">&#34;Oops, something went wrong!&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><h4 id="二与优化">二、与优化</h4>
 <p>true的情况下才执行可以用与来进行优化：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="ln">1</span><span class="k">if</span> <span class="p">(</span><span class="kc">true</span><span class="p">)</span> <span class="p">{</span>
-<span class="ln">2</span>  <span class="nx">alert</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="ln">3</span><span class="p">}</span>
-<span class="ln">4</span>
-<span class="ln">5</span><span class="c1">// is equals to:
-</span><span class="ln">6</span><span class="c1"></span>
-<span class="ln">7</span><span class="kc">true</span> <span class="o">&amp;&amp;</span> <span class="nx">alert</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-</code></pre></div><h4 id="三提前返回">三、提前返回</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="line"><span class="ln">1</span><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="kc">true</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">  <span class="nx">alert</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">
+</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="c1">// is equals to:
+</span></span></span><span class="line"><span class="ln">6</span><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="kc">true</span> <span class="o">&amp;&amp;</span> <span class="nx">alert</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span></span></code></pre></div><h4 id="三提前返回">三、提前返回</h4>
 <p>如果有多个判断，按照复杂程度，从上到下，提前返回。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="ln">1</span><span class="kd">function</span> <span class="nx">handleRequest</span><span class="p">(</span><span class="nx">req</span><span class="p">)</span> <span class="p">{</span>
-<span class="ln">2</span>  <span class="k">if</span> <span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">code</span> <span class="o">&gt;=</span> <span class="mi">500</span><span class="p">)</span> <span class="p">{</span>
-<span class="ln">3</span>    <span class="k">return</span> <span class="s2">&#34;Server error&#34;</span><span class="p">;</span>
-<span class="ln">4</span>  <span class="p">}</span>
-<span class="ln">5</span>  <span class="k">if</span> <span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">code</span> <span class="o">&gt;=</span> <span class="mi">404</span><span class="p">)</span> <span class="p">{</span>
-<span class="ln">6</span>    <span class="k">return</span> <span class="s2">&#34;Cilent error&#34;</span><span class="p">;</span>
-<span class="ln">7</span>  <span class="p">}</span>
-<span class="ln">8</span>  <span class="k">return</span> <span class="s2">&#34;Suceess&#34;</span><span class="p">;</span>
-<span class="ln">9</span><span class="p">}</span>
-</code></pre></div><h4 id="四类表格优化">四、类表格优化</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="line"><span class="ln">1</span><span class="cl"><span class="kd">function</span> <span class="nx">handleRequest</span><span class="p">(</span><span class="nx">req</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">code</span> <span class="o">&gt;=</span> <span class="mi">500</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">    <span class="k">return</span> <span class="s2">&#34;Server error&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">code</span> <span class="o">&gt;=</span> <span class="mi">404</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl">    <span class="k">return</span> <span class="s2">&#34;Cilent error&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">7</span><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="ln">8</span><span class="cl">  <span class="k">return</span> <span class="s2">&#34;Suceess&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">9</span><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h4 id="四类表格优化">四、类表格优化</h4>
 <p>下面是类似表格似的选择，通常会用 switch 来进行优化</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln"> 1</span>// Bad 😥
-<span class="ln"> 2</span>const weekday = (num) =&gt; {
-<span class="ln"> 3</span>  if (num === 1) {
-<span class="ln"> 4</span>    return &#34;Monday&#34;
-<span class="ln"> 5</span>  } else if (num === 2) {
-<span class="ln"> 6</span>    return &#34;Tuesday&#34;
-<span class="ln"> 7</span>  } else if (num === 3) {
-<span class="ln"> 8</span>    return &#34;Wednesday&#34;
-<span class="ln"> 9</span>  } else if (num === 4) {
-<span class="ln">10</span>    return &#34;Thursday&#34;
-<span class="ln">11</span>  } else if (num === 5) {
-<span class="ln">12</span>    return &#34;Friday&#34;
-<span class="ln">13</span>  } else if (num === 6) {
-<span class="ln">14</span>    return &#34;Saturday&#34;
-<span class="ln">15</span>  } else if (num === 7) {
-<span class="ln">16</span>    return &#34;Sunday&#34;
-<span class="ln">17</span>  } else {
-<span class="ln">18</span>    return &#34;Unknown&#34;
-<span class="ln">19</span>  }
-<span class="ln">20</span>}
-<span class="ln">21</span>
-<span class="ln">22</span>console.log(weekday(1)) // Monday
-</code></pre></div><p>switch 也不是最优解，用对象的键值对来解：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="ln"> 1</span><span class="kr">const</span> <span class="nx">weekday</span> <span class="o">=</span> <span class="p">(</span><span class="nx">option</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-<span class="ln"> 2</span>    <span class="kd">let</span> <span class="nx">obj</span> <span class="o">=</span> <span class="p">{</span>
-<span class="ln"> 3</span>        <span class="mi">1</span><span class="o">:</span> <span class="s2">&#34;Monday&#34;</span><span class="p">,</span>
-<span class="ln"> 4</span>        <span class="mi">2</span><span class="o">:</span> <span class="s2">&#34;Tuesday&#34;</span><span class="p">,</span>
-<span class="ln"> 5</span>        <span class="mi">3</span><span class="o">:</span> <span class="s2">&#34;Wednesday&#34;</span><span class="p">,</span>
-<span class="ln"> 6</span>        <span class="mi">4</span><span class="o">:</span> <span class="s2">&#34;Thursday&#34;</span><span class="p">,</span>
-<span class="ln"> 7</span>        <span class="mi">5</span><span class="o">:</span> <span class="s2">&#34;Friday&#34;</span><span class="p">,</span>
-<span class="ln"> 8</span>        <span class="mi">6</span><span class="o">:</span> <span class="s2">&#34;Saturday&#34;</span><span class="p">,</span>
-<span class="ln"> 9</span>        <span class="mi">0</span><span class="o">:</span> <span class="s2">&#34;Sunday&#34;</span>
-<span class="ln">10</span>    <span class="p">}</span>
-<span class="ln">11</span>    <span class="k">return</span> <span class="nx">obj</span><span class="p">[</span><span class="nx">option</span><span class="p">]</span> <span class="o">??</span> <span class="s2">&#34;Unknown&#34;</span>
-<span class="ln">12</span><span class="p">}</span>
-<span class="ln">13</span>
-<span class="ln">14</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">weekday</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span> <span class="c1">// Monday
-</span></code></pre></div><p>也可以用 ES6 的 map 来实现：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="ln"> 1</span><span class="c1">// Great 🥰
-</span><span class="ln"> 2</span><span class="c1"></span><span class="kr">const</span> <span class="nx">weekday</span> <span class="o">=</span> <span class="p">(</span><span class="nx">num</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-<span class="ln"> 3</span>  <span class="kr">const</span> <span class="nx">map</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Map</span><span class="p">()</span>
-<span class="ln"> 4</span>    <span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&#34;Monday&#34;</span><span class="p">)</span>
-<span class="ln"> 5</span>    <span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&#34;Tuesday&#34;</span><span class="p">)</span>
-<span class="ln"> 6</span>    <span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">&#34;Wednesday&#34;</span><span class="p">)</span>
-<span class="ln"> 7</span>    <span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s2">&#34;Thursday&#34;</span><span class="p">)</span>
-<span class="ln"> 8</span>    <span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="s2">&#34;Friday&#34;</span><span class="p">)</span>
-<span class="ln"> 9</span>    <span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="s2">&#34;Saturday&#34;</span><span class="p">)</span>
-<span class="ln">10</span>    <span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="s2">&#34;Sunday&#34;</span><span class="p">);</span>
-<span class="ln">11</span>  <span class="k">return</span> <span class="nx">map</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">num</span><span class="p">)</span> <span class="o">?</span> <span class="nx">map</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">num</span><span class="p">)</span> <span class="o">:</span> <span class="s2">&#34;Unknown&#34;</span><span class="p">;</span>
-<span class="ln">12</span><span class="p">};</span>
-<span class="ln">13</span>
-<span class="ln">14</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">weekday</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
-</code></pre></div><h4 id="五选项多对一的数组优化">五、选项多对一的数组优化</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln"> 1</span><span class="cl">// Bad 😥
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">const weekday = (num) =&gt; {
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">  if (num === 1) {
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">    return &#34;Monday&#34;
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">  } else if (num === 2) {
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">    return &#34;Tuesday&#34;
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">  } else if (num === 3) {
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">    return &#34;Wednesday&#34;
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">  } else if (num === 4) {
+</span></span><span class="line"><span class="ln">10</span><span class="cl">    return &#34;Thursday&#34;
+</span></span><span class="line"><span class="ln">11</span><span class="cl">  } else if (num === 5) {
+</span></span><span class="line"><span class="ln">12</span><span class="cl">    return &#34;Friday&#34;
+</span></span><span class="line"><span class="ln">13</span><span class="cl">  } else if (num === 6) {
+</span></span><span class="line"><span class="ln">14</span><span class="cl">    return &#34;Saturday&#34;
+</span></span><span class="line"><span class="ln">15</span><span class="cl">  } else if (num === 7) {
+</span></span><span class="line"><span class="ln">16</span><span class="cl">    return &#34;Sunday&#34;
+</span></span><span class="line"><span class="ln">17</span><span class="cl">  } else {
+</span></span><span class="line"><span class="ln">18</span><span class="cl">    return &#34;Unknown&#34;
+</span></span><span class="line"><span class="ln">19</span><span class="cl">  }
+</span></span><span class="line"><span class="ln">20</span><span class="cl">}
+</span></span><span class="line"><span class="ln">21</span><span class="cl">
+</span></span><span class="line"><span class="ln">22</span><span class="cl">console.log(weekday(1)) // Monday
+</span></span></code></pre></div><p>switch 也不是最优解，用对象的键值对来解：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="kr">const</span> <span class="nx">weekday</span> <span class="o">=</span> <span class="p">(</span><span class="nx">option</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">    <span class="kd">let</span> <span class="nx">obj</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">        <span class="mi">1</span><span class="o">:</span> <span class="s2">&#34;Monday&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">        <span class="mi">2</span><span class="o">:</span> <span class="s2">&#34;Tuesday&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">        <span class="mi">3</span><span class="o">:</span> <span class="s2">&#34;Wednesday&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">        <span class="mi">4</span><span class="o">:</span> <span class="s2">&#34;Thursday&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">        <span class="mi">5</span><span class="o">:</span> <span class="s2">&#34;Friday&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">        <span class="mi">6</span><span class="o">:</span> <span class="s2">&#34;Saturday&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">        <span class="mi">0</span><span class="o">:</span> <span class="s2">&#34;Sunday&#34;</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">    <span class="k">return</span> <span class="nx">obj</span><span class="p">[</span><span class="nx">option</span><span class="p">]</span> <span class="o">??</span> <span class="s2">&#34;Unknown&#34;</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">
+</span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">weekday</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span> <span class="c1">// Monday
+</span></span></span></code></pre></div><p>也可以用 ES6 的 map 来实现：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1">// Great 🥰
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="c1"></span><span class="kr">const</span> <span class="nx">weekday</span> <span class="o">=</span> <span class="p">(</span><span class="nx">num</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">  <span class="kr">const</span> <span class="nx">map</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Map</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">    <span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&#34;Monday&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">    <span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&#34;Tuesday&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">    <span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">&#34;Wednesday&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">    <span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s2">&#34;Thursday&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">    <span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="s2">&#34;Friday&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">    <span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="s2">&#34;Saturday&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">    <span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="s2">&#34;Sunday&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">  <span class="k">return</span> <span class="nx">map</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">num</span><span class="p">)</span> <span class="o">?</span> <span class="nx">map</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">num</span><span class="p">)</span> <span class="o">:</span> <span class="s2">&#34;Unknown&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">
+</span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">weekday</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+</span></span></code></pre></div><h4 id="五选项多对一的数组优化">五、选项多对一的数组优化</h4>
 <p>看如下代码，多个选项对应一个返回：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="ln"> 1</span><span class="kr">const</span> <span class="nx">getContinent</span> <span class="o">=</span> <span class="p">(</span><span class="nx">option</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-<span class="ln"> 2</span>  <span class="k">if</span> <span class="p">(</span><span class="nx">option</span> <span class="o">===</span> <span class="s2">&#34;China&#34;</span> <span class="o">||</span> <span class="nx">option</span> <span class="o">===</span> <span class="s2">&#34;Japan&#34;</span><span class="p">)</span> <span class="p">{</span>
-<span class="ln"> 3</span>    <span class="k">return</span> <span class="s2">&#34;Asia&#34;</span><span class="p">;</span>
-<span class="ln"> 4</span>  <span class="p">}</span>
-<span class="ln"> 5</span>  <span class="k">if</span> <span class="p">(</span><span class="nx">option</span> <span class="o">===</span> <span class="s2">&#34;Germany&#34;</span> <span class="o">||</span> <span class="nx">option</span> <span class="o">===</span> <span class="s2">&#34;France&#34;</span><span class="p">)</span> <span class="p">{</span>
-<span class="ln"> 6</span>    <span class="k">return</span> <span class="s2">&#34;Europe&#34;</span><span class="p">;</span>
-<span class="ln"> 7</span>  <span class="p">}</span>
-<span class="ln"> 8</span><span class="p">};</span>
-<span class="ln"> 9</span>
-<span class="ln">10</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">getContinent</span><span class="p">(</span><span class="s2">&#34;China&#34;</span><span class="p">));</span>
-</code></pre></div><p>使用数组来容纳多个选项，然后用 includes 来判断并返回</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="ln">1</span><span class="kr">const</span> <span class="nx">getContinent</span> <span class="o">=</span> <span class="p">(</span><span class="nx">option</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
-<span class="ln">2</span>  <span class="kr">const</span> <span class="nx">Asia</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;China&#34;</span><span class="p">,</span> <span class="s2">&#34;Japan&#34;</span><span class="p">];</span>
-<span class="ln">3</span>  <span class="kr">const</span> <span class="nx">Europe</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;Germany&#34;</span><span class="p">,</span> <span class="s2">&#34;Franch&#34;</span><span class="p">];</span>
-<span class="ln">4</span>  <span class="k">if</span> <span class="p">(</span><span class="nx">Asia</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="nx">option</span><span class="p">))</span> <span class="k">return</span> <span class="s2">&#34;Asia&#34;</span><span class="p">;</span>
-<span class="ln">5</span>  <span class="k">if</span> <span class="p">(</span><span class="nx">Europe</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="nx">option</span><span class="p">))</span> <span class="k">return</span> <span class="s2">&#34;Europe&#34;</span><span class="p">;</span>
-<span class="ln">6</span>  <span class="k">return</span> <span class="s2">&#34;Unknown&#34;</span><span class="p">;</span>
-<span class="ln">7</span><span class="p">};</span>
-<span class="ln">8</span>
-<span class="ln">9</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">getContinent</span><span class="p">(</span><span class="s2">&#34;China&#34;</span><span class="p">));</span> <span class="c1">// Asia
-</span></code></pre></div><p>进一步优化，用 &amp;&amp; 与优化</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln"> 1</span>const getContinent = (option) =&gt; {
-<span class="ln"> 2</span>  let [result, setResult] = [&#34;unknown&#34;, (str) =&gt; (result = str)];
-<span class="ln"> 3</span>  const Asia = [&#34;China&#34;, &#34;Japan&#34;];
-<span class="ln"> 4</span>  const Europe = [&#34;Germany&#34;, &#34;Franch&#34;];
-<span class="ln"> 5</span>  Asia.includes(option) &amp;&amp; setResult(&#34;Asia&#34;);
-<span class="ln"> 6</span>  Europe.includes(option) &amp;&amp; setResult(&#34;Europe&#34;);
-<span class="ln"> 7</span>  return result;
-<span class="ln"> 8</span>};
-<span class="ln"> 9</span>
-<span class="ln">10</span>console.log(getContinent(&#34;China&#34;));
-</code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="kr">const</span> <span class="nx">getContinent</span> <span class="o">=</span> <span class="p">(</span><span class="nx">option</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="nx">option</span> <span class="o">===</span> <span class="s2">&#34;China&#34;</span> <span class="o">||</span> <span class="nx">option</span> <span class="o">===</span> <span class="s2">&#34;Japan&#34;</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">    <span class="k">return</span> <span class="s2">&#34;Asia&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="nx">option</span> <span class="o">===</span> <span class="s2">&#34;Germany&#34;</span> <span class="o">||</span> <span class="nx">option</span> <span class="o">===</span> <span class="s2">&#34;France&#34;</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">    <span class="k">return</span> <span class="s2">&#34;Europe&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">
+</span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">getContinent</span><span class="p">(</span><span class="s2">&#34;China&#34;</span><span class="p">));</span>
+</span></span></code></pre></div><p>使用数组来容纳多个选项，然后用 includes 来判断并返回</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="line"><span class="ln">1</span><span class="cl"><span class="kr">const</span> <span class="nx">getContinent</span> <span class="o">=</span> <span class="p">(</span><span class="nx">option</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">  <span class="kr">const</span> <span class="nx">Asia</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;China&#34;</span><span class="p">,</span> <span class="s2">&#34;Japan&#34;</span><span class="p">];</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">  <span class="kr">const</span> <span class="nx">Europe</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;Germany&#34;</span><span class="p">,</span> <span class="s2">&#34;Franch&#34;</span><span class="p">];</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="nx">Asia</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="nx">option</span><span class="p">))</span> <span class="k">return</span> <span class="s2">&#34;Asia&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="nx">Europe</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="nx">option</span><span class="p">))</span> <span class="k">return</span> <span class="s2">&#34;Europe&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl">  <span class="k">return</span> <span class="s2">&#34;Unknown&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="ln">8</span><span class="cl">
+</span></span><span class="line"><span class="ln">9</span><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">getContinent</span><span class="p">(</span><span class="s2">&#34;China&#34;</span><span class="p">));</span> <span class="c1">// Asia
+</span></span></span></code></pre></div><p>进一步优化，用 &amp;&amp; 与优化</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln"> 1</span><span class="cl">const getContinent = (option) =&gt; {
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">  let [result, setResult] = [&#34;unknown&#34;, (str) =&gt; (result = str)];
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">  const Asia = [&#34;China&#34;, &#34;Japan&#34;];
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">  const Europe = [&#34;Germany&#34;, &#34;Franch&#34;];
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">  Asia.includes(option) &amp;&amp; setResult(&#34;Asia&#34;);
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">  Europe.includes(option) &amp;&amp; setResult(&#34;Europe&#34;);
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">  return result;
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">};
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">
+</span></span><span class="line"><span class="ln">10</span><span class="cl">console.log(getContinent(&#34;China&#34;));
+</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -414,7 +414,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -454,11 +454,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

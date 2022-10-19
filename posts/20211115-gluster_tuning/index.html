@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="GlusterFS文件系统的优化"/>
 <meta name="twitter:description" content="公司用了6年的GlusterFS终于到了要调整卷参数的地步了。 小文件已经多到要影响 IO 的地步了。 首先说一下结论，GlusterFS 安装完成后，"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -217,29 +217,29 @@
 <p>小文件已经多到要影响 IO 的地步了。</p>
 <p>首先说一下结论，GlusterFS 安装完成后，基本不需要调整任何参数。生产系统千万不可盲目！</p>
 <p>然后我们这是有特殊情况，所以调优步骤如下（以卷名为 esign-vol 为例）：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="c1">#必须关掉NFS</span>
-<span class="ln"> 2</span>gluster volume <span class="nb">set</span> esign-vol nfs.disable on
-<span class="ln"> 3</span>
-<span class="ln"> 4</span><span class="c1">#必须保留10%的空间，避免塞爆卷空间</span>
-<span class="ln"> 5</span>gluster volume <span class="nb">set</span> esign-vol cluster.min-free-disk 10%
-<span class="ln"> 6</span>
-<span class="ln"> 7</span><span class="c1">#本机有256G的内存，所以设置25G的读缓存</span>
-<span class="ln"> 8</span>gluster volume <span class="nb">set</span> esign-vol performance.cache-size 25GB
-<span class="ln"> 9</span><span class="c1">#读缓存中，单个文件的缓存，最大文件size是128MB，大于128MB的单个文件不缓存</span>
-<span class="ln">10</span>gluster volume <span class="nb">set</span> esign-vol performance.cache-max-file-size 128MB
-<span class="ln">11</span>
-<span class="ln">12</span><span class="c1">#设置每个客户端都允许多线程，缺省是2，多个小文件增加为4</span>
-<span class="ln">13</span>gluster volume <span class="nb">set</span> esign-vol client.event-threads <span class="m">4</span>
-<span class="ln">14</span><span class="c1">#设置服务器端对特定的卷允许多线程，缺省是1,多个小文件增加为4</span>
-<span class="ln">15</span>gluster volume <span class="nb">set</span> esign-vol server.event-threads <span class="m">4</span>
-<span class="ln">16</span>
-<span class="ln">17</span><span class="c1">#分割线，以下参数不要调整，除非明确知道后果</span>
-<span class="ln">18</span>
-<span class="ln">19</span><span class="c1">#设置 io 线程数量，这个值缺省是16，已经很大了，足够用</span>
-<span class="ln">20</span>gluster volume <span class="nb">set</span> esign-vol performance.io-thread-count <span class="m">16</span>
-<span class="ln">21</span><span class="c1">#设置写缓冲区，这个值缺省是1M，弄大了如果停电什么的，会丢数据</span>
-<span class="ln">22</span>gluster volume <span class="nb">set</span> esign-vol performance.write-behind-window-size: 1M  
-</code></pre></div><p>以上就可以了。还有个参数 global-threading ，缺省是 off，不要设置为 on，有使用条件的，弄错了反而会导致性能降低。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1">#必须关掉NFS</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">gluster volume <span class="nb">set</span> esign-vol nfs.disable on
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="c1">#必须保留10%的空间，避免塞爆卷空间</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">gluster volume <span class="nb">set</span> esign-vol cluster.min-free-disk 10%
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="c1">#本机有256G的内存，所以设置25G的读缓存</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">gluster volume <span class="nb">set</span> esign-vol performance.cache-size 25GB
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="c1">#读缓存中，单个文件的缓存，最大文件size是128MB，大于128MB的单个文件不缓存</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">gluster volume <span class="nb">set</span> esign-vol performance.cache-max-file-size 128MB
+</span></span><span class="line"><span class="ln">11</span><span class="cl">
+</span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="c1">#设置每个客户端都允许多线程，缺省是2，多个小文件增加为4</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">gluster volume <span class="nb">set</span> esign-vol client.event-threads <span class="m">4</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="c1">#设置服务器端对特定的卷允许多线程，缺省是1,多个小文件增加为4</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl">gluster volume <span class="nb">set</span> esign-vol server.event-threads <span class="m">4</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">
+</span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="c1">#分割线，以下参数不要调整，除非明确知道后果</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl">
+</span></span><span class="line"><span class="ln">19</span><span class="cl"><span class="c1">#设置 io 线程数量，这个值缺省是16，已经很大了，足够用</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl">gluster volume <span class="nb">set</span> esign-vol performance.io-thread-count <span class="m">16</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl"><span class="c1">#设置写缓冲区，这个值缺省是1M，弄大了如果停电什么的，会丢数据</span>
+</span></span><span class="line"><span class="ln">22</span><span class="cl">gluster volume <span class="nb">set</span> esign-vol performance.write-behind-window-size: 1M  
+</span></span></code></pre></div><p>以上就可以了。还有个参数 global-threading ，缺省是 off，不要设置为 on，有使用条件的，弄错了反而会导致性能降低。</p>
 <p><img class="img-fluid" alt="image-20211115113321750" src="https://bajie.dev/posts/20211115-gluster_tuning/image-20211115113321750.png" loading="lazy"
    width="464" height="201"
    />
@@ -290,7 +290,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -330,11 +330,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

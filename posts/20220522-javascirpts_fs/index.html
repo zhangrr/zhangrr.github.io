@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="javascript的实际应用-fs模块"/>
 <meta name="twitter:description" content="千里之行始于足下，javascript 模块漫天飞，能做的事也是五花八门。我们来实践一下 假设我们有一个文本文件，内容如下： 里面是一行行数据，我"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -222,23 +222,23 @@
 </p>
 <p>里面是一行行数据，我们要做的就是把所有值取整求和，文件中有某些空行</p>
 <p>很简单，程序如下：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>var <span class="nv">fs</span> <span class="o">=</span> require<span class="o">(</span><span class="s1">&#39;fs&#39;</span><span class="o">)</span><span class="p">;</span>
-<span class="ln"> 2</span>
-<span class="ln"> 3</span><span class="nv">calculate</span> <span class="o">=</span> <span class="o">()</span> <span class="o">=</span>&gt; <span class="o">{</span>
-<span class="ln"> 4</span>    fs.readFile<span class="o">(</span><span class="s1">&#39;data.txt&#39;</span>, <span class="s1">&#39;utf8&#39;</span>, <span class="o">(</span>err, data<span class="o">)</span> <span class="o">=</span>&gt; <span class="o">{</span>
-<span class="ln"> 5</span>        <span class="k">if</span> <span class="o">(</span>err<span class="o">)</span> <span class="o">{</span>
-<span class="ln"> 6</span>            throw new Error<span class="o">(</span>err<span class="o">)</span>
-<span class="ln"> 7</span>        <span class="o">}</span>
-<span class="ln"> 8</span>
-<span class="ln"> 9</span>        const <span class="nv">arr</span> <span class="o">=</span> data.split<span class="o">(</span><span class="s1">&#39;\r\n&#39;</span><span class="o">)</span><span class="p">;</span>
-<span class="ln">10</span>        const <span class="nv">result</span> <span class="o">=</span> arr
-<span class="ln">11</span>            .filter<span class="o">(</span><span class="nv">e</span> <span class="o">=</span>&gt; e<span class="o">)</span>
-<span class="ln">12</span>            .map<span class="o">(</span>parseFloat<span class="o">)</span>
-<span class="ln">13</span>            .reduce<span class="o">((</span>curr, next<span class="o">)</span> <span class="o">=</span>&gt; curr + next<span class="o">)</span><span class="p">;</span>
-<span class="ln">14</span>        console.log<span class="o">(</span><span class="s1">&#39;RESULT: &#39;</span>, result<span class="o">)</span><span class="p">;</span>
-<span class="ln">15</span>    <span class="o">})</span><span class="p">;</span>
-<span class="ln">16</span><span class="o">}</span>
-</code></pre></div><p>超级简单吧</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">var <span class="nv">fs</span> <span class="o">=</span> require<span class="o">(</span><span class="s1">&#39;fs&#39;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="nv">calculate</span> <span class="o">=</span> <span class="o">()</span> <span class="o">=</span>&gt; <span class="o">{</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">    fs.readFile<span class="o">(</span><span class="s1">&#39;data.txt&#39;</span>, <span class="s1">&#39;utf8&#39;</span>, <span class="o">(</span>err, data<span class="o">)</span> <span class="o">=</span>&gt; <span class="o">{</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">        <span class="k">if</span> <span class="o">(</span>err<span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">            throw new Error<span class="o">(</span>err<span class="o">)</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">        const <span class="nv">arr</span> <span class="o">=</span> data.split<span class="o">(</span><span class="s1">&#39;\r\n&#39;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">        const <span class="nv">result</span> <span class="o">=</span> arr
+</span></span><span class="line"><span class="ln">11</span><span class="cl">            .filter<span class="o">(</span><span class="nv">e</span> <span class="o">=</span>&gt; e<span class="o">)</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">            .map<span class="o">(</span>parseFloat<span class="o">)</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">            .reduce<span class="o">((</span>curr, next<span class="o">)</span> <span class="o">=</span>&gt; curr + next<span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">        console.log<span class="o">(</span><span class="s1">&#39;RESULT: &#39;</span>, result<span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl">    <span class="o">})</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>超级简单吧</p>
 <p><img class="img-fluid" alt="image-20220524155746288" src="https://bajie.dev/posts/20220522-javascirpts_fs/image-20220524155746288.png" loading="lazy"
    width="514" height="325"
    />
@@ -296,7 +296,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -336,11 +336,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

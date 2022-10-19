@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="javascripts中的promise">
 <meta itemprop="description" content="一、基本概念 1. 异步 所谓 &quot; 异步 &ldquo;，简单说就是一个任务分成两段， 先执行第一段， 然后转而执行其他任务去， 等做好了准备， 再回过头执行第二"><meta itemprop="datePublished" content="2022-05-24T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2022-05-24T09:30:11+08:00" />
-<meta itemprop="wordCount" content="1635">
+<meta itemprop="wordCount" content="1633">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="javascripts中的promise" />
 <meta property="og:description" content="一、基本概念 1. 异步 所谓 &quot; 异步 &ldquo;，简单说就是一个任务分成两段， 先执行第一段， 然后转而执行其他任务去， 等做好了准备， 再回过头执行第二" />
 <meta property="og:type" content="article" />
@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="javascripts中的promise"/>
 <meta name="twitter:description" content="一、基本概念 1. 异步 所谓 &quot; 异步 &ldquo;，简单说就是一个任务分成两段， 先执行第一段， 然后转而执行其他任务去， 等做好了准备， 再回过头执行第二"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -221,11 +221,11 @@
 <p><strong>2. 回调函数</strong></p>
 <p>javascript 语言对异步编程的实现， 就是回调函数。 所谓回调函数， 就是把任务的第二段单独写在一个函数里面， 等到准备好了，继续执行的时候， 就直接调用这个函数。 它的英语名字 callback， 直译过来就是 &quot; 回调 &ldquo;。</p>
 <p>读取文件进行处理， 是这样的，readfile 是异步的，readfileSync 是同步的。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln">1</span>fs.readfile(&#39;/etc/passwd&#39;, function(err, data) {
-<span class="ln">2</span>  if(err) throw err;
-<span class="ln">3</span>  console.log(data);
-<span class="ln">4</span>});
-</code></pre></div><p>上面代码中， readfile 函数的第二个参数， 就是回调函数， 也就是任务的第二段。 等到操作系统返回了 / etc / passwd这个文件以后， 回调函数才会执行。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln">1</span><span class="cl">fs.readfile(&#39;/etc/passwd&#39;, function(err, data) {
+</span></span><span class="line"><span class="ln">2</span><span class="cl">  if(err) throw err;
+</span></span><span class="line"><span class="ln">3</span><span class="cl">  console.log(data);
+</span></span><span class="line"><span class="ln">4</span><span class="cl">});
+</span></span></code></pre></div><p>上面代码中， readfile 函数的第二个参数， 就是回调函数， 也就是任务的第二段。 等到操作系统返回了 / etc / passwd这个文件以后， 回调函数才会执行。</p>
 <p>==一个有趣的问题是， 为什么 node.js 约定， 回调函数的第一个参数， 必须是错误对象 err（ 如果没有错误， 该参数就是 null）？ 原因是执行分成两段， 在这两段之间抛出的错误， 程序无法捕捉， 只能当作参数， 传入第二段。==</p>
 <p><strong>3. promise</strong></p>
 <p>“想像一下你是个小孩，你妈妈 promise 承诺你下星期给你一部新手机”</p>
@@ -243,10 +243,9 @@
 
 </p>
 <p>语法很简单：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="ln">1</span><span class="c1">// promise syntax look like this
-</span><span class="ln">2</span><span class="c1"></span><span class="k">new</span> <span class="nb">Promise</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span> <span class="p">);</span>
-<span class="ln">3</span>
-</code></pre></div><p>再看一下上面问题的解决方法：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1">// promise syntax look like this
+</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="c1"></span><span class="k">new</span> <span class="nb">Promise</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">resolve</span><span class="p">,</span> <span class="nx">reject</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span> <span class="p">);</span>
+</span></span></code></pre></div><p>再看一下上面问题的解决方法：</p>
 <p>首先确定 Mom 的状态是 unhappy，然后建立一个 Promise 来确定是否得到手机，最后用一个函数 askMom 来调用这个 Promise</p>
 <p>resolve() 中可以放置一个参数用于向下一个 then 传递一个值，then 中的函数也可以返回一个值传递给 then。但是，如果  then 中返回的是一个 Promise 对象，那么下一个 then 将相当于对这个返回的 Promise  进行操作。</p>
 <p>reject() 参数中一般会传递一个异常给之后的 catch 函数用于处理异常。</p>
@@ -255,65 +254,64 @@
 <li>resolve 和 reject 的作用域只有起始函数，不包括 then 以及其他序列；</li>
 <li>resolve 和 reject 并不能够使起始函数停止运行，别忘了 return。</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="ln"> 1</span>var isMomHappy = false;
-<span class="ln"> 2</span>
-<span class="ln"> 3</span>// Promise
-<span class="ln"> 4</span>var willIGetNewPhone = new Promise(
-<span class="ln"> 5</span>    function (resolve, reject) {
-<span class="ln"> 6</span>        if (isMomHappy) {
-<span class="ln"> 7</span>            var phone = {
-<span class="ln"> 8</span>                brand: &#39;Samsung&#39;,
-<span class="ln"> 9</span>                color: &#39;black&#39;
-<span class="ln">10</span>            };
-<span class="ln">11</span>            resolve(phone); // resolved
-<span class="ln">12</span>        } else {
-<span class="ln">13</span>            var reason = new Error(&#39;mom is not happy&#39;);
-<span class="ln">14</span>            reject(reason); // rejected
-<span class="ln">15</span>        }
-<span class="ln">16</span>
-<span class="ln">17</span>    }
-<span class="ln">18</span>);
-<span class="ln">19</span>
-<span class="ln">20</span>var askMom = function () {
-<span class="ln">21</span>    willIGetNewPhone
-<span class="ln">22</span>        .then(function (fulfilled) {
-<span class="ln">23</span>            // yay, you got a new phone
-<span class="ln">24</span>            console.log(fulfilled);
-<span class="ln">25</span>             // output: { brand: &#39;Samsung&#39;, color: &#39;black&#39; }
-<span class="ln">26</span>        })
-<span class="ln">27</span>        .catch(function (error) {
-<span class="ln">28</span>            // oops, mom didn&#39;t buy it
-<span class="ln">29</span>            console.log(error.message);
-<span class="ln">30</span>             // output: &#39;mom is not happy&#39;
-<span class="ln">31</span>        });
-<span class="ln">32</span>};
-<span class="ln">33</span>
-<span class="ln">34</span>askMom();
-</code></pre></div><p>很有点意思吧。抽象了，那就实际点。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln"> 1</span><span class="cl">var isMomHappy = false;
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">// Promise
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">var willIGetNewPhone = new Promise(
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">    function (resolve, reject) {
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">        if (isMomHappy) {
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">            var phone = {
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">                brand: &#39;Samsung&#39;,
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">                color: &#39;black&#39;
+</span></span><span class="line"><span class="ln">10</span><span class="cl">            };
+</span></span><span class="line"><span class="ln">11</span><span class="cl">            resolve(phone); // resolved
+</span></span><span class="line"><span class="ln">12</span><span class="cl">        } else {
+</span></span><span class="line"><span class="ln">13</span><span class="cl">            var reason = new Error(&#39;mom is not happy&#39;);
+</span></span><span class="line"><span class="ln">14</span><span class="cl">            reject(reason); // rejected
+</span></span><span class="line"><span class="ln">15</span><span class="cl">        }
+</span></span><span class="line"><span class="ln">16</span><span class="cl">
+</span></span><span class="line"><span class="ln">17</span><span class="cl">    }
+</span></span><span class="line"><span class="ln">18</span><span class="cl">);
+</span></span><span class="line"><span class="ln">19</span><span class="cl">
+</span></span><span class="line"><span class="ln">20</span><span class="cl">var askMom = function () {
+</span></span><span class="line"><span class="ln">21</span><span class="cl">    willIGetNewPhone
+</span></span><span class="line"><span class="ln">22</span><span class="cl">        .then(function (fulfilled) {
+</span></span><span class="line"><span class="ln">23</span><span class="cl">            // yay, you got a new phone
+</span></span><span class="line"><span class="ln">24</span><span class="cl">            console.log(fulfilled);
+</span></span><span class="line"><span class="ln">25</span><span class="cl">             // output: { brand: &#39;Samsung&#39;, color: &#39;black&#39; }
+</span></span><span class="line"><span class="ln">26</span><span class="cl">        })
+</span></span><span class="line"><span class="ln">27</span><span class="cl">        .catch(function (error) {
+</span></span><span class="line"><span class="ln">28</span><span class="cl">            // oops, mom didn&#39;t buy it
+</span></span><span class="line"><span class="ln">29</span><span class="cl">            console.log(error.message);
+</span></span><span class="line"><span class="ln">30</span><span class="cl">             // output: &#39;mom is not happy&#39;
+</span></span><span class="line"><span class="ln">31</span><span class="cl">        });
+</span></span><span class="line"><span class="ln">32</span><span class="cl">};
+</span></span><span class="line"><span class="ln">33</span><span class="cl">
+</span></span><span class="line"><span class="ln">34</span><span class="cl">askMom();
+</span></span></code></pre></div><p>很有点意思吧。抽象了，那就实际点。</p>
 <p>javascripts 中的 fetch 函数就是基于Promise范式的，promise 的 resolves 绑在了 Response 上。Promise 类有 .then() .catch() 和 .finally() 三个方法，这三个方法的参数都是一个函数，.then()  可以将参数中的函数添加到当前 Promise 的正常执行序列，.catch() 则是设定 Promise 的异常处理序列，.finally()  是在 Promise 执行的最后一定会执行的序列。 .then() 传入的函数会按顺序依次执行，有任何异常都会直接跳到 catch 序列：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="ln"> 1</span>    <span class="nx">fetch</span><span class="p">(</span><span class="s2">&#34;http://192.168.1.6/graph_image_hubot.php?action=view&amp;local_graph_id=13619&amp;rra_id=5&#34;</span><span class="p">)</span>
-<span class="ln"> 2</span>    <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">response</span> <span class="p">=&gt;</span>  <span class="p">{</span>
-<span class="ln"> 3</span>      <span class="k">if</span> <span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">ok</span><span class="p">)</span> <span class="p">{</span>
-<span class="ln"> 4</span>         <span class="k">return</span> <span class="nx">response</span><span class="p">.</span><span class="nx">buffer</span><span class="p">();</span>
-<span class="ln"> 5</span>      <span class="p">}</span>
-<span class="ln"> 6</span>      <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;Network response was not ok.&#39;</span><span class="p">);</span>
-<span class="ln"> 7</span>    <span class="p">})</span>
-<span class="ln"> 8</span>    <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">buffer</span> <span class="p">=&gt;</span> <span class="p">{</span>
-<span class="ln"> 9</span>      <span class="kr">const</span> <span class="nx">formData</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">FormData</span><span class="p">();</span>
-<span class="ln">10</span>      <span class="nx">formData</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span> <span class="s1">&#39;media&#39;</span><span class="p">,</span> <span class="nx">buffer</span><span class="p">,</span> <span class="p">{</span><span class="nx">filename</span><span class="o">:</span> <span class="s1">&#39;bandwidth.png&#39;</span><span class="p">,</span> <span class="nx">contentType</span><span class="o">:</span> <span class="s1">&#39;image/png&#39;</span> <span class="p">}</span> <span class="p">);</span>
-<span class="ln">11</span>      <span class="nx">robot</span><span class="p">.</span><span class="nx">wwork</span><span class="p">.</span><span class="nx">sendImageMessage</span><span class="p">(</span><span class="nx">owner</span><span class="p">,</span> <span class="nx">formData</span><span class="p">);</span>
-<span class="ln">12</span>    <span class="p">});</span>
-<span class="ln">13</span>
-</code></pre></div><p>上面的程序实际上是从 cacti 服务器拿到一张流量图片，然后 fetch 的结果 anyway，response总是有东西的，都会是成功的，所以我们必须再用 response.ok 来判断，成功就继续得到 buffer 流，最终送到 hubot 中去。三个过程用 then 串了起来，每一步都成功才会进行下一步。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="line"><span class="ln"> 1</span><span class="cl">    <span class="nx">fetch</span><span class="p">(</span><span class="s2">&#34;http://192.168.1.6/graph_image_hubot.php?action=view&amp;local_graph_id=13619&amp;rra_id=5&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">    <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">response</span> <span class="p">=&gt;</span>  <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">      <span class="k">if</span> <span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">ok</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">         <span class="k">return</span> <span class="nx">response</span><span class="p">.</span><span class="nx">buffer</span><span class="p">();</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">      <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;Network response was not ok.&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">    <span class="p">})</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">    <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">buffer</span> <span class="p">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">      <span class="kr">const</span> <span class="nx">formData</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">FormData</span><span class="p">();</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">      <span class="nx">formData</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span> <span class="s1">&#39;media&#39;</span><span class="p">,</span> <span class="nx">buffer</span><span class="p">,</span> <span class="p">{</span><span class="nx">filename</span><span class="o">:</span> <span class="s1">&#39;bandwidth.png&#39;</span><span class="p">,</span> <span class="nx">contentType</span><span class="o">:</span> <span class="s1">&#39;image/png&#39;</span> <span class="p">}</span> <span class="p">);</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">      <span class="nx">robot</span><span class="p">.</span><span class="nx">wwork</span><span class="p">.</span><span class="nx">sendImageMessage</span><span class="p">(</span><span class="nx">owner</span><span class="p">,</span> <span class="nx">formData</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">    <span class="p">});</span>
+</span></span></code></pre></div><p>上面的程序实际上是从 cacti 服务器拿到一张流量图片，然后 fetch 的结果 anyway，response总是有东西的，都会是成功的，所以我们必须再用 response.ok 来判断，成功就继续得到 buffer 流，最终送到 hubot 中去。三个过程用 then 串了起来，每一步都成功才会进行下一步。</p>
 <p>这样写避免了回调地狱，看起来也比较舒服。</p>
 <p>那什么时候用 promise 呢，它是异步的，有大IO读写硬盘、读写网络的时候用，上面是读写网络。下面再来一个读写磁盘的：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="ln">1</span><span class="kr">const</span> <span class="p">{</span><span class="nx">promise</span><span class="o">:</span> <span class="p">{</span><span class="nx">readFile</span><span class="p">,</span> <span class="nx">writeFile</span><span class="p">}}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;fs&#39;</span><span class="p">);</span>
-<span class="ln">2</span><span class="p">(</span><span class="kr">async</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
-<span class="ln">3</span>    <span class="kd">let</span> <span class="nx">content</span> <span class="o">=</span> <span class="kr">await</span> <span class="nx">readFile</span><span class="p">(</span><span class="s1">&#39;./data.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;utf8&#39;</span><span class="p">);</span>
-<span class="ln">4</span>    <span class="kr">await</span> <span class="nx">writeFile</span><span class="p">(</span><span class="s1">&#39;2.txt&#39;</span><span class="p">,</span> <span class="nx">content</span><span class="p">,</span> <span class="s1">&#39;utf8&#39;</span><span class="p">);</span>
-<span class="ln">5</span>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;ok&#39;</span><span class="p">);</span>
-<span class="ln">6</span><span class="p">})();</span>
-</code></pre></div><p>上面的语法是 ES7 的，它更尽了一步，首先声明一个匿名的函数是 async 异步的，然后用await来进行等待，将读和写两个大操作都放到 await 的一步操作中去，这样程序看起来就变成同步的一步步等待了。跟 ES6 的 promise 比起来，更进了一步。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="line"><span class="ln">1</span><span class="cl"><span class="kr">const</span> <span class="p">{</span><span class="nx">promise</span><span class="o">:</span> <span class="p">{</span><span class="nx">readFile</span><span class="p">,</span> <span class="nx">writeFile</span><span class="p">}}</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;fs&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="p">(</span><span class="kr">async</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">    <span class="kd">let</span> <span class="nx">content</span> <span class="o">=</span> <span class="kr">await</span> <span class="nx">readFile</span><span class="p">(</span><span class="s1">&#39;./data.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;utf8&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">    <span class="kr">await</span> <span class="nx">writeFile</span><span class="p">(</span><span class="s1">&#39;2.txt&#39;</span><span class="p">,</span> <span class="nx">content</span><span class="p">,</span> <span class="s1">&#39;utf8&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl">    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;ok&#39;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl"><span class="p">})();</span>
+</span></span></code></pre></div><p>上面的语法是 ES7 的，它更尽了一步，首先声明一个匿名的函数是 async 异步的，然后用await来进行等待，将读和写两个大操作都放到 await 的一步操作中去，这样程序看起来就变成同步的一步步等待了。跟 ES6 的 promise 比起来，更进了一步。</p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -359,7 +357,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -399,11 +397,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

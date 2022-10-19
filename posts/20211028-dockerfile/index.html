@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="Dockerfile的编写与调试技巧">
 <meta itemprop="description" content="Dockerfile 是造出镜像的基础，是必须熟知并了解的知识： 一、编写Dockerfile 先给个例子，是 minio 代理访问阿里的 OSS 1FROM alpine:3.12 2 3RUN apk add --update bash &amp;&amp; rm -rf /var/cache/apk/* 4 5COPY minio.RELEASE.2020-04-15T19-42-18Z /data/minio.RELEASE.2020-04-15T19-42-18Z 6 7ENV"><meta itemprop="datePublished" content="2021-10-28T10:30:11+08:00" />
 <meta itemprop="dateModified" content="2021-10-28T10:30:11+08:00" />
-<meta itemprop="wordCount" content="1243">
+<meta itemprop="wordCount" content="1242">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="Dockerfile的编写与调试技巧" />
 <meta property="og:description" content="Dockerfile 是造出镜像的基础，是必须熟知并了解的知识： 一、编写Dockerfile 先给个例子，是 minio 代理访问阿里的 OSS 1FROM alpine:3.12 2 3RUN apk add --update bash &amp;&amp; rm -rf /var/cache/apk/* 4 5COPY minio.RELEASE.2020-04-15T19-42-18Z /data/minio.RELEASE.2020-04-15T19-42-18Z 6 7ENV" />
 <meta property="og:type" content="article" />
@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Dockerfile的编写与调试技巧"/>
 <meta name="twitter:description" content="Dockerfile 是造出镜像的基础，是必须熟知并了解的知识： 一、编写Dockerfile 先给个例子，是 minio 代理访问阿里的 OSS 1FROM alpine:3.12 2 3RUN apk add --update bash &amp;&amp; rm -rf /var/cache/apk/* 4 5COPY minio.RELEASE.2020-04-15T19-42-18Z /data/minio.RELEASE.2020-04-15T19-42-18Z 6 7ENV"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -234,22 +234,21 @@
 </div><div class="post-content mb-3"><p>Dockerfile 是造出镜像的基础，是必须熟知并了解的知识：</p>
 <h2 id="一编写dockerfile">一、编写Dockerfile</h2>
 <p>先给个例子，是 minio 代理访问阿里的 OSS</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln"> 1</span><span class="na">FROM alpine:3.12 </span>
-<span class="ln"> 2</span>
-<span class="ln"> 3</span><span class="na">RUN apk add --update bash &amp;&amp; rm -rf /var/cache/apk/*  </span>
-<span class="ln"> 4</span>
-<span class="ln"> 5</span><span class="na">COPY minio.RELEASE.2020-04-15T19-42-18Z /data/minio.RELEASE.2020-04-15T19-42-18Z  </span>
-<span class="ln"> 6</span>
-<span class="ln"> 7</span><span class="na">ENV MINIO_ACCESS_KEY</span><span class="o">=</span><span class="s">LTAI5tFFTbsxxxxxuLb  </span>
-<span class="ln"> 8</span><span class="na">ENV MINIO_SECRET_KEY</span><span class="o">=</span><span class="s">t78PyGnHZilxxxxxdxBCjvNgtVC5Y  </span>
-<span class="ln"> 9</span>
-<span class="ln">10</span><span class="na">WORKDIR /data  </span>
-<span class="ln">11</span><span class="na">EXPOSE 9000  </span>
-<span class="ln">12</span>
-<span class="ln">13</span><span class="na">CMD [&#34;/data/minio.RELEASE.2020-04-15T19-42-18Z&#34;,&#34;gateway&#34;,&#34;oss&#34;,&#34;http://oss-cn-shanghai-internal.aliyuncs.com&#34;] </span>
-<span class="ln">14</span><span class="c1"># CMD /bin/sh -c &#34;while true; do echo hi; sleep 10; done&#34;</span>
-<span class="ln">15</span>
-</code></pre></div><hr>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="na">FROM alpine:3.12 </span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="na">RUN apk add --update bash &amp;&amp; rm -rf /var/cache/apk/*  </span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="na">COPY minio.RELEASE.2020-04-15T19-42-18Z /data/minio.RELEASE.2020-04-15T19-42-18Z  </span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="na">ENV MINIO_ACCESS_KEY</span><span class="o">=</span><span class="s">LTAI5tFFTbsxxxxxuLb  </span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="na">ENV MINIO_SECRET_KEY</span><span class="o">=</span><span class="s">t78PyGnHZilxxxxxdxBCjvNgtVC5Y  </span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">
+</span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="na">WORKDIR /data  </span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="na">EXPOSE 9000  </span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">
+</span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="na">CMD [&#34;/data/minio.RELEASE.2020-04-15T19-42-18Z&#34;,&#34;gateway&#34;,&#34;oss&#34;,&#34;http://oss-cn-shanghai-internal.aliyuncs.com&#34;] </span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="c1"># CMD /bin/sh -c &#34;while true; do echo hi; sleep 10; done&#34;</span>
+</span></span></code></pre></div><hr>
 <p>详细解释每一条语句：</p>
 <ul>
 <li>
@@ -273,8 +272,8 @@
 <p>CMD 入口</p>
 <p>用 [] 分割， 把所有 &quot;&quot; 的部分合并为一行，中间用空格隔开执行；或者直接一行没任何分割符。</p>
 <p>所以上面的例子就是执行了一句：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>/data/minio.RELEASE.2020-04-15T19-42-18Z gateway oss http://oss-cn-shanghai-internal.aliyuncs.com
-</code></pre></div><p>技巧：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">/data/minio.RELEASE.2020-04-15T19-42-18Z gateway oss http://oss-cn-shanghai-internal.aliyuncs.com
+</span></span></code></pre></div><p>技巧：</p>
 <p>把几个命令合在一起执行</p>
 <p>()表示在当前shell合并执行</p>
 <p>{}表示派生出一个子shell，在子shell中合并执行，{ echo &ldquo;aaa&rdquo; }必须有空格</p>
@@ -287,37 +286,37 @@
 <p>&amp;&amp;左边的命令（命令1）返回真(即返回0，成功被执行）后，&amp;&amp;右边的命令（命令2）才能够被执行；换句话说，“如果这个命令执行成功&amp;&amp;那么执行第二个命令”。</p>
 <p>最下的语法用了seq而不是for循环，是因为busybox的sh不支持for语法</p>
 <p>所以才有如此怪异的语法，在容器中后台跑10个php think queue，1个crond，前台跑一个php-fpm：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>CMD <span class="k">for</span> i in <span class="k">$(</span>seq 10<span class="k">)</span><span class="p">;</span> <span class="k">do</span> <span class="o">(</span>php think queue <span class="p">&amp;</span><span class="o">)</span> <span class="p">;</span> <span class="k">done</span> <span class="p">&amp;</span> crond <span class="o">&amp;&amp;</span> php-fpm  
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">CMD <span class="k">for</span> i in <span class="k">$(</span>seq 10<span class="k">)</span><span class="p">;</span> <span class="k">do</span> <span class="o">(</span>php think queue <span class="p">&amp;</span><span class="o">)</span> <span class="p">;</span> <span class="k">done</span> <span class="p">&amp;</span> crond <span class="o">&amp;&amp;</span> php-fpm  
+</span></span></code></pre></div></li>
 <li>
 <p>ARG 参数</p>
 <p>ARG VERSION=7.6.1</p>
 <p>定义后可以用${VERSION}引用，build的时候可以加&ndash;build-arg 传参数进去</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>docker build --build-arg <span class="nv">VERSION</span><span class="o">=</span><span class="si">${</span><span class="nv">LATEST</span><span class="si">}</span> -t <span class="k">$(</span>ORG<span class="k">)</span>/<span class="k">$(</span>NAME<span class="k">)</span>:<span class="k">$(</span>BUILD<span class="k">)</span> .  
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">docker build --build-arg <span class="nv">VERSION</span><span class="o">=</span><span class="si">${</span><span class="nv">LATEST</span><span class="si">}</span> -t <span class="k">$(</span>ORG<span class="k">)</span>/<span class="k">$(</span>NAME<span class="k">)</span>:<span class="k">$(</span>BUILD<span class="k">)</span> .  
+</span></span></code></pre></div></li>
 </ul>
 <p>还有很多 Build 的技巧，如果造一个 go 语言编译环境的中间层镜像，然后造最终镜像。</p>
 <p>但是八戒还是推荐直接造出二进制可执行文件，然后直接拷贝进去就好，不要弄的过于麻烦，中间层那种适用于用源码 CI/CD 中无编译环境的情况。</p>
 <h2 id="二调试容器">二、调试容器</h2>
 <p>很多情况下我们造好了 image ，一跑就掉下来了，也不知道是什么情况</p>
 <p>这个时候，我们把 CMD 换成一个 sh 执行一个死循环</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>CMD /bin/sh -c <span class="s2">&#34;while true; do echo hi; sleep 10; done&#34;</span>  
-</code></pre></div><p>然后进入容器，然后再执行之前的 CMD 命令，看看报错信息是什么，就可以调试了</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>$ docker <span class="nb">exec</span> -it 89174asklja /bin/sh
-</code></pre></div><h2 id="三pod的等待技巧">三、pod的等待技巧</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">CMD /bin/sh -c <span class="s2">&#34;while true; do echo hi; sleep 10; done&#34;</span>  
+</span></span></code></pre></div><p>然后进入容器，然后再执行之前的 CMD 命令，看看报错信息是什么，就可以调试了</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">$ docker <span class="nb">exec</span> -it 89174asklja /bin/sh
+</span></span></code></pre></div><h2 id="三pod的等待技巧">三、pod的等待技巧</h2>
 <p>这里启动正式的pod之前，先临时起了两个容器等待其他服务的完成</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>  containers: 
-<span class="ln"> 2</span>  - name: myapp-container 
-<span class="ln"> 3</span>    image: busybox 
-<span class="ln"> 4</span>    command: <span class="o">[</span><span class="s1">&#39;sh&#39;</span>, <span class="s1">&#39;-c&#39;</span>, <span class="s1">&#39;echo The app is running! &amp;&amp; sleep 3600&#39;</span><span class="o">]</span> 
-<span class="ln"> 5</span>  initContainers: 
-<span class="ln"> 6</span>  - name: init-myservice 
-<span class="ln"> 7</span>    image: busybox 
-<span class="ln"> 8</span>    command: <span class="o">[</span><span class="s1">&#39;sh&#39;</span>, <span class="s1">&#39;-c&#39;</span>, <span class="s1">&#39;until nslookup myservice; do echo waiting for myservice; sleep 2; done;&#39;</span><span class="o">]</span> 
-<span class="ln"> 9</span>  - name: init-mydb 
-<span class="ln">10</span>    image: busybox 
-<span class="ln">11</span>    command: <span class="o">[</span><span class="s1">&#39;sh&#39;</span>, <span class="s1">&#39;-c&#39;</span>, <span class="s1">&#39;until nslookup mydb; do echo waiting for mydb; sleep 2; done;&#39;</span><span class="o">]</span> 
-</code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">  containers: 
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">  - name: myapp-container 
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">    image: busybox 
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">    command: <span class="o">[</span><span class="s1">&#39;sh&#39;</span>, <span class="s1">&#39;-c&#39;</span>, <span class="s1">&#39;echo The app is running! &amp;&amp; sleep 3600&#39;</span><span class="o">]</span> 
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">  initContainers: 
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">  - name: init-myservice 
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">    image: busybox 
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">    command: <span class="o">[</span><span class="s1">&#39;sh&#39;</span>, <span class="s1">&#39;-c&#39;</span>, <span class="s1">&#39;until nslookup myservice; do echo waiting for myservice; sleep 2; done;&#39;</span><span class="o">]</span> 
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">  - name: init-mydb 
+</span></span><span class="line"><span class="ln">10</span><span class="cl">    image: busybox 
+</span></span><span class="line"><span class="ln">11</span><span class="cl">    command: <span class="o">[</span><span class="s1">&#39;sh&#39;</span>, <span class="s1">&#39;-c&#39;</span>, <span class="s1">&#39;until nslookup mydb; do echo waiting for mydb; sleep 2; done;&#39;</span><span class="o">]</span> 
+</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -362,7 +361,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -402,11 +401,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

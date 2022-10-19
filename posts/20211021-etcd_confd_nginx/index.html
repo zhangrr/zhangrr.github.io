@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="ETCD &#43; CONFD &#43; NGINX的配置">
 <meta itemprop="description" content="上一篇文章我们介绍了 ETCD 的容器化，搞这件事情的主要目的其实是要动态更新 Nginx 的配置 这一章我们就来配置 confd 和 Nginx，来达到动态更新 Nginx 配置的目的 一、"><meta itemprop="datePublished" content="2021-10-21T13:30:11+08:00" />
 <meta itemprop="dateModified" content="2021-10-21T13:30:11+08:00" />
-<meta itemprop="wordCount" content="326">
+<meta itemprop="wordCount" content="336">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="ETCD &#43; CONFD &#43; NGINX的配置" />
 <meta property="og:description" content="上一篇文章我们介绍了 ETCD 的容器化，搞这件事情的主要目的其实是要动态更新 Nginx 的配置 这一章我们就来配置 confd 和 Nginx，来达到动态更新 Nginx 配置的目的 一、" />
 <meta property="og:type" content="article" />
@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="ETCD &#43; CONFD &#43; NGINX的配置"/>
 <meta name="twitter:description" content="上一篇文章我们介绍了 ETCD 的容器化，搞这件事情的主要目的其实是要动态更新 Nginx 的配置 这一章我们就来配置 confd 和 Nginx，来达到动态更新 Nginx 配置的目的 一、"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -234,61 +234,59 @@
 <p>这一章我们就来配置 confd 和 Nginx，来达到动态更新 Nginx 配置的目的</p>
 <h2 id="一安装配置confd">一、安装配置confd</h2>
 <p>下载并安装：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span>wget https://github.com/kelseyhightower/confd/releases/download/v0.16.0/confd-0.16.0-linux-amd64
-<span class="ln">2</span>mv confd-0.16.0-linux-amd64 /usr/sbin/confd
-<span class="ln">3</span>chmod +x /usr/sbin/confd
-</code></pre></div><p>生成配置文件：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">wget https://github.com/kelseyhightower/confd/releases/download/v0.16.0/confd-0.16.0-linux-amd64
+</span></span><span class="line"><span class="ln">2</span><span class="cl">mv confd-0.16.0-linux-amd64 /usr/sbin/confd
+</span></span><span class="line"><span class="ln">3</span><span class="cl">chmod +x /usr/sbin/confd
+</span></span></code></pre></div><p>生成配置文件：</p>
 <p>我们在 etcd 中存放的格式如下</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="ln">1</span><span class="na">etcdctl set /nginx/app01/subdomain app1</span>
-<span class="ln">2</span><span class="na">etcdctl set /nginx/app01/upstream/app01_1 &#34;192.168.0.1:5601&#34;</span>
-<span class="ln">3</span>
-<span class="ln">4</span><span class="na">/nginx/app01/subdomain &#34;app01&#34;</span>
-<span class="ln">5</span><span class="na">/nginx/app01/upstream/app01_1 &#34;192.168.0.1:5601&#34;</span>
-<span class="ln">6</span><span class="na">/nginx/app01/upstream/app01_2 &#34;192.168.0.2:5601&#34;</span>
-</code></pre></div><p>那么，我们先生成 confd 的配置文件：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln"> 1</span>mkdir -p /etc/confd/<span class="o">{</span>conf.d,templates<span class="o">}</span>
-<span class="ln"> 2</span>
-<span class="ln"> 3</span>cat <span class="s">&lt;&lt;EOF&gt;&gt;/etc/confd/conf.d/nginx.toml
-</span><span class="ln"> 4</span><span class="s">[template]
-</span><span class="ln"> 5</span><span class="s">src = &#34;nginx.conf.tmpl&#34;
-</span><span class="ln"> 6</span><span class="s">dest = &#34;/etc/nginx/conf.d/nginx-auto.conf&#34;
-</span><span class="ln"> 7</span><span class="s">keys = [
-</span><span class="ln"> 8</span><span class="s">  &#34;/nginx/app01/subdomain&#34;,
-</span><span class="ln"> 9</span><span class="s">  &#34;/nginx/app01/upstream&#34;,
-</span><span class="ln">10</span><span class="s">]
-</span><span class="ln">11</span><span class="s">check_cmd = &#34;/usr/sbin/nginx -t&#34;
-</span><span class="ln">12</span><span class="s">reload_cmd = &#34;/usr/sbin/nginx -s reload&#34;
-</span><span class="ln">13</span><span class="s">EOF</span>
-<span class="ln">14</span>
-<span class="ln">15</span>cat <span class="s">&lt;&lt;EOT&gt;&gt;/etc/confd/templates/nginx.conf.tmpl
-</span><span class="ln">16</span><span class="s">upstream {{getv &#34;/nginx/app01/subdomain&#34;}} {
-</span><span class="ln">17</span><span class="s">{{range getvs &#34;/nginx/app01/upstream/*&#34;}}
-</span><span class="ln">18</span><span class="s">    server {{.}};
-</span><span class="ln">19</span><span class="s">{{end}}
-</span><span class="ln">20</span><span class="s">}
-</span><span class="ln">21</span><span class="s">
-</span><span class="ln">22</span><span class="s">server {
-</span><span class="ln">23</span><span class="s">    server_name  {{getv &#34;/nginx/app01/subdomain&#34;}}.example.com;
-</span><span class="ln">24</span><span class="s">    location / {
-</span><span class="ln">25</span><span class="s">        proxy_pass        http://{{getv &#34;/nginx/app01/subdomain&#34;}};
-</span><span class="ln">26</span><span class="s">        proxy_redirect    off;
-</span><span class="ln">27</span><span class="s">        proxy_set_header  Host             $host;
-</span><span class="ln">28</span><span class="s">        proxy_set_header  X-Real-IP        $remote_addr;
-</span><span class="ln">29</span><span class="s">        proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
-</span><span class="ln">30</span><span class="s">   }
-</span><span class="ln">31</span><span class="s">}
-</span><span class="ln">32</span><span class="s">EOT</span>
-<span class="ln">33</span>
-</code></pre></div><p>confd 会根据 etcd 的值，结合 nginx.conf.tmpl ，生成 nginx-auto.conf，然后 nginx -t 验证通过后，执行 nginx -s rolad。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln">1</span><span class="cl"><span class="na">etcdctl set /nginx/app01/subdomain app1</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="na">etcdctl set /nginx/app01/upstream/app01_1 &#34;192.168.0.1:5601&#34;</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">
+</span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="na">/nginx/app01/subdomain &#34;app01&#34;</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="na">/nginx/app01/upstream/app01_1 &#34;192.168.0.1:5601&#34;</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl"><span class="na">/nginx/app01/upstream/app01_2 &#34;192.168.0.2:5601&#34;</span>
+</span></span></code></pre></div><p>那么，我们先生成 confd 的配置文件：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln"> 1</span><span class="cl">mkdir -p /etc/confd/<span class="o">{</span>conf.d,templates<span class="o">}</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">cat <span class="s">&lt;&lt;EOF&gt;&gt;/etc/confd/conf.d/nginx.toml
+</span></span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="s">[template]
+</span></span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="s">src = &#34;nginx.conf.tmpl&#34;
+</span></span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="s">dest = &#34;/etc/nginx/conf.d/nginx-auto.conf&#34;
+</span></span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="s">keys = [
+</span></span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="s">  &#34;/nginx/app01/subdomain&#34;,
+</span></span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="s">  &#34;/nginx/app01/upstream&#34;,
+</span></span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="s">]
+</span></span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="s">check_cmd = &#34;/usr/sbin/nginx -t&#34;
+</span></span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="s">reload_cmd = &#34;/usr/sbin/nginx -s reload&#34;
+</span></span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="s">EOF</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">
+</span></span><span class="line"><span class="ln">15</span><span class="cl">cat <span class="s">&lt;&lt;EOT&gt;&gt;/etc/confd/templates/nginx.conf.tmpl
+</span></span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="s">upstream {{getv &#34;/nginx/app01/subdomain&#34;}} {
+</span></span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="s">{{range getvs &#34;/nginx/app01/upstream/*&#34;}}
+</span></span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="s">    server {{.}};
+</span></span></span><span class="line"><span class="ln">19</span><span class="cl"><span class="s">{{end}}
+</span></span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="s">}
+</span></span></span><span class="line"><span class="ln">21</span><span class="cl"><span class="s">
+</span></span></span><span class="line"><span class="ln">22</span><span class="cl"><span class="s">server {
+</span></span></span><span class="line"><span class="ln">23</span><span class="cl"><span class="s">    server_name  {{getv &#34;/nginx/app01/subdomain&#34;}}.example.com;
+</span></span></span><span class="line"><span class="ln">24</span><span class="cl"><span class="s">    location / {
+</span></span></span><span class="line"><span class="ln">25</span><span class="cl"><span class="s">        proxy_pass        http://{{getv &#34;/nginx/app01/subdomain&#34;}};
+</span></span></span><span class="line"><span class="ln">26</span><span class="cl"><span class="s">        proxy_redirect    off;
+</span></span></span><span class="line"><span class="ln">27</span><span class="cl"><span class="s">        proxy_set_header  Host             $host;
+</span></span></span><span class="line"><span class="ln">28</span><span class="cl"><span class="s">        proxy_set_header  X-Real-IP        $remote_addr;
+</span></span></span><span class="line"><span class="ln">29</span><span class="cl"><span class="s">        proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
+</span></span></span><span class="line"><span class="ln">30</span><span class="cl"><span class="s">   }
+</span></span></span><span class="line"><span class="ln">31</span><span class="cl"><span class="s">}
+</span></span></span><span class="line"><span class="ln">32</span><span class="cl"><span class="s">EOT</span>
+</span></span></code></pre></div><p>confd 会根据 etcd 的值，结合 nginx.conf.tmpl ，生成 nginx-auto.conf，然后 nginx -t 验证通过后，执行 nginx -s rolad。</p>
 <p>注意：nginx的配置中必须有 include /etc/nginx/conf.d/*.conf;</p>
 <h2 id="二运行confd">二、运行confd</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="ln">1</span><span class="c1"># 只处理一次</span>
-<span class="ln">2</span>confd -onetime -backend etcd -node http://etcd-svc.default:2379
-<span class="ln">3</span>
-<span class="ln">4</span><span class="c1"># 按时间轮询</span>
-<span class="ln">5</span>confd -interval<span class="o">=</span><span class="m">60</span> -backend etcd -node http://etcd-svc.default:2379 <span class="p">&amp;</span>   
-<span class="ln">6</span>
-</code></pre></div><p>这样就可以动态更新 Nginx 了。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1"># 只处理一次</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">confd -onetime -backend etcd -node http://etcd-svc.default:2379
+</span></span><span class="line"><span class="ln">3</span><span class="cl">
+</span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="c1"># 按时间轮询</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl">confd -interval<span class="o">=</span><span class="m">60</span> -backend etcd -node http://etcd-svc.default:2379 <span class="p">&amp;</span>   
+</span></span></code></pre></div><p>这样就可以动态更新 Nginx 了。</p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -334,7 +332,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -374,11 +372,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

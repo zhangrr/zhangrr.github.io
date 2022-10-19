@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="clash的搭建教程">
 <meta itemprop="description" content="没啊办法，翻墙翻墙还是翻墙。 上游有若干 trojian 、v2ray 、sock5 、http各种各样的代理，这样多种的选择，那么就装一个 clash 客户端就可以全接管了"><meta itemprop="datePublished" content="2021-11-08T10:30:11+08:00" />
 <meta itemprop="dateModified" content="2021-11-08T10:30:11+08:00" />
-<meta itemprop="wordCount" content="1050">
+<meta itemprop="wordCount" content="1051">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="clash的搭建教程" />
 <meta property="og:description" content="没啊办法，翻墙翻墙还是翻墙。 上游有若干 trojian 、v2ray 、sock5 、http各种各样的代理，这样多种的选择，那么就装一个 clash 客户端就可以全接管了" />
 <meta property="og:type" content="article" />
@@ -23,9 +23,9 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="clash的搭建教程"/>
 <meta name="twitter:description" content="没啊办法，翻墙翻墙还是翻墙。 上游有若干 trojian 、v2ray 、sock5 、http各种各样的代理，这样多种的选择，那么就装一个 clash 客户端就可以全接管了"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.0687ddc8fe4a0959f7b5492cf776a19ded348369ddc6d3e84fd623bc97efcb32.css" integrity="sha256-BofdyP5KCVn3tUks93ahne00g2ndxtPoT9YjvJfvyzI=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.f25693dff3361989a07146d459be3f90437c6e3f4e444f00004d2c4f22249742.js" integrity="sha256-8laT3/M2GYmgcUbUWb4/kEN8bj9ORE8AAE0sTyIkl0I=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.b5d86dd3a5f60c90be38a252bb65fc1a2732f32e71dc12c051720f0c7aef3cde.js" integrity="sha256-tdht06X2DJC&#43;OKJSu2X8Gicy8y5x3BLAUXIPDHrvPN4=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -224,166 +224,165 @@
 <p><a href="https://lancellc.gitbook.io/clash/clash-config-file/proxy-groups/load-balance" target="_blank" rel="noopener noreferrer">https://lancellc.gitbook.io/clash/clash-config-file/proxy-groups/load-balance</a>
 </p>
 <p>首先下载二进制文件，现在版本是 v1.7.1，解压后放到 /usr/local/bin 目录下</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>wget https://github.com/Dreamacro/clash/releases/download/v1.7.1/clash-linux-amd64-v1.7.1.gz
-<span class="ln">2</span>gzip -d clash-linux-amd64-v1.7.1.gz
-<span class="ln">3</span>chmod <span class="m">755</span> clash-linux-amd64-v1.7.1
-<span class="ln">4</span>mv clash-linux-amd64-v1.7.1 /usr/local/bin
-</code></pre></div><p>然后生成 clash.service</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span>cat <span class="s">&lt;&lt; EOF &gt;&gt; /etc/systemd/system/clash.service 
-</span><span class="ln"> 2</span><span class="s">[Unit]
-</span><span class="ln"> 3</span><span class="s">Description=clash service
-</span><span class="ln"> 4</span><span class="s">After=network.target
-</span><span class="ln"> 5</span><span class="s">
-</span><span class="ln"> 6</span><span class="s">[Service]
-</span><span class="ln"> 7</span><span class="s">Type=simple
-</span><span class="ln"> 8</span><span class="s">User=root
-</span><span class="ln"> 9</span><span class="s">ExecStart=/usr/local/bin/clash-linux-amd64-v1.7.1
-</span><span class="ln">10</span><span class="s">Restart=on-failure # or always, on-abort, etc
-</span><span class="ln">11</span><span class="s">
-</span><span class="ln">12</span><span class="s">[Install]
-</span><span class="ln">13</span><span class="s">WantedBy=multi-user.target
-</span><span class="ln">14</span><span class="s">EOF</span>
-</code></pre></div><p>然后最重要的，就是配置文件了</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">wget https://github.com/Dreamacro/clash/releases/download/v1.7.1/clash-linux-amd64-v1.7.1.gz
+</span></span><span class="line"><span class="ln">2</span><span class="cl">gzip -d clash-linux-amd64-v1.7.1.gz
+</span></span><span class="line"><span class="ln">3</span><span class="cl">chmod <span class="m">755</span> clash-linux-amd64-v1.7.1
+</span></span><span class="line"><span class="ln">4</span><span class="cl">mv clash-linux-amd64-v1.7.1 /usr/local/bin
+</span></span></code></pre></div><p>然后生成 clash.service</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">cat <span class="s">&lt;&lt; EOF &gt;&gt; /etc/systemd/system/clash.service 
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="s">[Unit]
+</span></span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="s">Description=clash service
+</span></span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="s">After=network.target
+</span></span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="s">
+</span></span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="s">[Service]
+</span></span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="s">Type=simple
+</span></span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="s">User=root
+</span></span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="s">ExecStart=/usr/local/bin/clash-linux-amd64-v1.7.1
+</span></span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="s">Restart=on-failure # or always, on-abort, etc
+</span></span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="s">
+</span></span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="s">[Install]
+</span></span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="s">WantedBy=multi-user.target
+</span></span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="s">EOF</span>
+</span></span></code></pre></div><p>然后最重要的，就是配置文件了</p>
 <p>我这里这个旁路由的设备 IP 地址是 192.168.2.2，网卡设备是 enp2s0</p>
 <p>下卖弄</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="c1"># http的代理端口</span>
-<span class="ln"> 2</span>port: <span class="m">7890</span>
-<span class="ln"> 3</span><span class="c1">#mixed-port: 7890</span>
-<span class="ln"> 4</span>socks-port: <span class="m">7891</span>
-<span class="ln"> 5</span>redir-port: <span class="m">7892</span>
-<span class="ln"> 6</span>tproxy-port: <span class="m">7893</span>
-<span class="ln"> 7</span>
-<span class="ln"> 8</span>ipv6: <span class="nb">false</span>
-<span class="ln"> 9</span>
-<span class="ln">10</span>allow-lan: <span class="nb">true</span>
-<span class="ln">11</span>bind-address: <span class="s1">&#39;192.168.2.2&#39;</span>
-<span class="ln">12</span>interface-name: enp2s0
-<span class="ln">13</span>
-<span class="ln">14</span>mode: rule
-<span class="ln">15</span>log-level: info
-<span class="ln">16</span>external-controller: 0.0.0.0:9090
-<span class="ln">17</span>secret: <span class="s2">&#34;Fuck2021&#34;</span>
-<span class="ln">18</span>external-ui: dashboard
-<span class="ln">19</span>
-<span class="ln">20</span>profile:
-<span class="ln">21</span>  store-selected: <span class="nb">false</span>
-<span class="ln">22</span>  tracing: <span class="nb">true</span>
-<span class="ln">23</span>
-<span class="ln">24</span>
-<span class="ln">25</span>hosts:
-<span class="ln">26</span>  <span class="c1"># 把cantv的域名解析屏蔽掉，禁止它自动升级</span>
-<span class="ln">27</span>  <span class="s1">&#39;tms.can.cibntv.net&#39;</span>: 0.0.0.0
-<span class="ln">28</span>
-<span class="ln">29</span>dns:
-<span class="ln">30</span>  enable: <span class="nb">true</span>
-<span class="ln">31</span>  listen: 0.0.0.0:1053
-<span class="ln">32</span>  enhanced-mode: redir-host <span class="c1"># or fake-ip</span>
-<span class="ln">33</span>  nameserver:
-<span class="ln">34</span>    - <span class="s1">&#39;114.114.114.114&#39;</span>
-<span class="ln">35</span>    - <span class="s1">&#39;223.5.5.5&#39;</span>
-<span class="ln">36</span>  fallback:
-<span class="ln">37</span>    - 208.67.220.220:5353
-<span class="ln">38</span>    - 208.67.222.222:5353
-<span class="ln">39</span>    - 101.6.6.6:5353
-<span class="ln">40</span>
-<span class="ln">41</span>proxies:
-<span class="ln">42</span>  - name: <span class="s2">&#34;trojan1&#34;</span>
-<span class="ln">43</span>    type: trojan
-<span class="ln">44</span>    server: www.linuxboy.net
-<span class="ln">45</span>    port: <span class="m">443</span>
-<span class="ln">46</span>    password: Fuck2021
-<span class="ln">47</span>    sni: www.linuxboy.net
-<span class="ln">48</span>    skip-cert-verify: <span class="nb">true</span>
-<span class="ln">49</span>
-<span class="ln">50</span> - name: <span class="s2">&#34;vmess1&#34;</span>
-<span class="ln">51</span>    type: vmess
-<span class="ln">52</span>    server: 101.59.201.93
-<span class="ln">53</span>    port: <span class="m">41555</span> 
-<span class="ln">54</span>    uuid: 7a17ae5e-fb86-42e2-abd4-b8c33cfabcd
-<span class="ln">55</span>    alterId: <span class="m">64</span>
-<span class="ln">56</span>    cipher: auto
-<span class="ln">57</span>    
-<span class="ln">58</span>proxy-groups:
-<span class="ln">59</span>  - name: Proxy
-<span class="ln">60</span>    type: <span class="k">select</span>
-<span class="ln">61</span>    proxies:
-<span class="ln">62</span>      - trojan
-<span class="ln">63</span>
-<span class="ln">64</span>  - name: <span class="s2">&#34;auto&#34;</span>
-<span class="ln">65</span>    type: url-test
-<span class="ln">66</span>    proxies:
-<span class="ln">67</span>      - vmess1
-<span class="ln">68</span>      - trojan1
-<span class="ln">69</span>    url: <span class="s1">&#39;http://www.gstatic.com/generate_204&#39;</span>
-<span class="ln">70</span>    interval: <span class="m">300</span>
-<span class="ln">71</span>
-<span class="ln">72</span>rules:
-<span class="ln">73</span>  - DOMAIN-SUFFIX,v2ex.com,Proxy
-<span class="ln">74</span>  - DOMAIN-SUFFIX,t66y.com,Proxy
-<span class="ln">75</span>  - DOMAIN-SUFFIX,ycombinator.com,Proxy
-<span class="ln">76</span>  - DOMAIN-SUFFIX,reddit.com,Proxy
-<span class="ln">77</span>  - DOMAIN-KEYWORD,amazon,Proxy
-<span class="ln">78</span>  - DOMAIN-KEYWORD,google,Proxy
-<span class="ln">79</span>  - DOMAIN-KEYWORD,gmail,Proxy
-<span class="ln">80</span>  - DOMAIN-KEYWORD,youtube,Proxy
-<span class="ln">81</span>  - DOMAIN-KEYWORD,facebook,Proxy
-<span class="ln">82</span>  - DOMAIN-SUFFIX,fb.me,Proxy
-<span class="ln">83</span>  - DOMAIN-SUFFIX,fbcdn.net,Proxy
-<span class="ln">84</span>  - DOMAIN-KEYWORD,twitter,Proxy
-<span class="ln">85</span>  - DOMAIN-KEYWORD,instagram,Proxy
-<span class="ln">86</span>  - DOMAIN-KEYWORD,dropbox,Proxy
-<span class="ln">87</span>  - DOMAIN-SUFFIX,twimg.com,Proxy
-<span class="ln">88</span>  - DOMAIN-KEYWORD,blogspot,Proxy
-<span class="ln">89</span>  - DOMAIN-SUFFIX,youtu.be,Proxy
-<span class="ln">90</span>  - DOMAIN-KEYWORD,whatsapp,Proxy
-<span class="ln">91</span>  - SRC-IP-CIDR,192.168.1.0/32,DIRECT
-<span class="ln">92</span>  - SRC-IP-CIDR,192.168.2.0/32,DIRECT
-<span class="ln">93</span>  - IP-CIDR,127.0.0.0/8,DIRECT
-<span class="ln">94</span>  - GEOIP,CN,DIRECT
-<span class="ln">95</span>  - MATCH,Proxy
-</code></pre></div><p>解释一下：proxy 定义了两个代理，一个是 trojan，一个是 v2ray。然后再集合成组，一个组叫 Proxy， 显式指定用 trojan；另一个组叫 auto，根据 vmess1 和 trojan1 访问 <a href="http://www.gstatic.com/generate_204" target="_blank" rel="noopener noreferrer">http://www.gstatic.com/generate_204</a>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1"># http的代理端口</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">port: <span class="m">7890</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="c1">#mixed-port: 7890</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">socks-port: <span class="m">7891</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">redir-port: <span class="m">7892</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">tproxy-port: <span class="m">7893</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">ipv6: <span class="nb">false</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">
+</span></span><span class="line"><span class="ln">10</span><span class="cl">allow-lan: <span class="nb">true</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">bind-address: <span class="s1">&#39;192.168.2.2&#39;</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">interface-name: enp2s0
+</span></span><span class="line"><span class="ln">13</span><span class="cl">
+</span></span><span class="line"><span class="ln">14</span><span class="cl">mode: rule
+</span></span><span class="line"><span class="ln">15</span><span class="cl">log-level: info
+</span></span><span class="line"><span class="ln">16</span><span class="cl">external-controller: 0.0.0.0:9090
+</span></span><span class="line"><span class="ln">17</span><span class="cl">secret: <span class="s2">&#34;Fuck2021&#34;</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl">external-ui: dashboard
+</span></span><span class="line"><span class="ln">19</span><span class="cl">
+</span></span><span class="line"><span class="ln">20</span><span class="cl">profile:
+</span></span><span class="line"><span class="ln">21</span><span class="cl">  store-selected: <span class="nb">false</span>
+</span></span><span class="line"><span class="ln">22</span><span class="cl">  tracing: <span class="nb">true</span>
+</span></span><span class="line"><span class="ln">23</span><span class="cl">
+</span></span><span class="line"><span class="ln">24</span><span class="cl">
+</span></span><span class="line"><span class="ln">25</span><span class="cl">hosts:
+</span></span><span class="line"><span class="ln">26</span><span class="cl">  <span class="c1"># 把cantv的域名解析屏蔽掉，禁止它自动升级</span>
+</span></span><span class="line"><span class="ln">27</span><span class="cl">  <span class="s1">&#39;tms.can.cibntv.net&#39;</span>: 0.0.0.0
+</span></span><span class="line"><span class="ln">28</span><span class="cl">
+</span></span><span class="line"><span class="ln">29</span><span class="cl">dns:
+</span></span><span class="line"><span class="ln">30</span><span class="cl">  enable: <span class="nb">true</span>
+</span></span><span class="line"><span class="ln">31</span><span class="cl">  listen: 0.0.0.0:1053
+</span></span><span class="line"><span class="ln">32</span><span class="cl">  enhanced-mode: redir-host <span class="c1"># or fake-ip</span>
+</span></span><span class="line"><span class="ln">33</span><span class="cl">  nameserver:
+</span></span><span class="line"><span class="ln">34</span><span class="cl">    - <span class="s1">&#39;114.114.114.114&#39;</span>
+</span></span><span class="line"><span class="ln">35</span><span class="cl">    - <span class="s1">&#39;223.5.5.5&#39;</span>
+</span></span><span class="line"><span class="ln">36</span><span class="cl">  fallback:
+</span></span><span class="line"><span class="ln">37</span><span class="cl">    - 208.67.220.220:5353
+</span></span><span class="line"><span class="ln">38</span><span class="cl">    - 208.67.222.222:5353
+</span></span><span class="line"><span class="ln">39</span><span class="cl">    - 101.6.6.6:5353
+</span></span><span class="line"><span class="ln">40</span><span class="cl">
+</span></span><span class="line"><span class="ln">41</span><span class="cl">proxies:
+</span></span><span class="line"><span class="ln">42</span><span class="cl">  - name: <span class="s2">&#34;trojan1&#34;</span>
+</span></span><span class="line"><span class="ln">43</span><span class="cl">    type: trojan
+</span></span><span class="line"><span class="ln">44</span><span class="cl">    server: www.linuxboy.net
+</span></span><span class="line"><span class="ln">45</span><span class="cl">    port: <span class="m">443</span>
+</span></span><span class="line"><span class="ln">46</span><span class="cl">    password: Fuck2021
+</span></span><span class="line"><span class="ln">47</span><span class="cl">    sni: www.linuxboy.net
+</span></span><span class="line"><span class="ln">48</span><span class="cl">    skip-cert-verify: <span class="nb">true</span>
+</span></span><span class="line"><span class="ln">49</span><span class="cl">
+</span></span><span class="line"><span class="ln">50</span><span class="cl"> - name: <span class="s2">&#34;vmess1&#34;</span>
+</span></span><span class="line"><span class="ln">51</span><span class="cl">    type: vmess
+</span></span><span class="line"><span class="ln">52</span><span class="cl">    server: 101.59.201.93
+</span></span><span class="line"><span class="ln">53</span><span class="cl">    port: <span class="m">41555</span> 
+</span></span><span class="line"><span class="ln">54</span><span class="cl">    uuid: 7a17ae5e-fb86-42e2-abd4-b8c33cfabcd
+</span></span><span class="line"><span class="ln">55</span><span class="cl">    alterId: <span class="m">64</span>
+</span></span><span class="line"><span class="ln">56</span><span class="cl">    cipher: auto
+</span></span><span class="line"><span class="ln">57</span><span class="cl">    
+</span></span><span class="line"><span class="ln">58</span><span class="cl">proxy-groups:
+</span></span><span class="line"><span class="ln">59</span><span class="cl">  - name: Proxy
+</span></span><span class="line"><span class="ln">60</span><span class="cl">    type: <span class="k">select</span>
+</span></span><span class="line"><span class="ln">61</span><span class="cl">    proxies:
+</span></span><span class="line"><span class="ln">62</span><span class="cl">      - trojan
+</span></span><span class="line"><span class="ln">63</span><span class="cl">
+</span></span><span class="line"><span class="ln">64</span><span class="cl">  - name: <span class="s2">&#34;auto&#34;</span>
+</span></span><span class="line"><span class="ln">65</span><span class="cl">    type: url-test
+</span></span><span class="line"><span class="ln">66</span><span class="cl">    proxies:
+</span></span><span class="line"><span class="ln">67</span><span class="cl">      - vmess1
+</span></span><span class="line"><span class="ln">68</span><span class="cl">      - trojan1
+</span></span><span class="line"><span class="ln">69</span><span class="cl">    url: <span class="s1">&#39;http://www.gstatic.com/generate_204&#39;</span>
+</span></span><span class="line"><span class="ln">70</span><span class="cl">    interval: <span class="m">300</span>
+</span></span><span class="line"><span class="ln">71</span><span class="cl">
+</span></span><span class="line"><span class="ln">72</span><span class="cl">rules:
+</span></span><span class="line"><span class="ln">73</span><span class="cl">  - DOMAIN-SUFFIX,v2ex.com,Proxy
+</span></span><span class="line"><span class="ln">74</span><span class="cl">  - DOMAIN-SUFFIX,t66y.com,Proxy
+</span></span><span class="line"><span class="ln">75</span><span class="cl">  - DOMAIN-SUFFIX,ycombinator.com,Proxy
+</span></span><span class="line"><span class="ln">76</span><span class="cl">  - DOMAIN-SUFFIX,reddit.com,Proxy
+</span></span><span class="line"><span class="ln">77</span><span class="cl">  - DOMAIN-KEYWORD,amazon,Proxy
+</span></span><span class="line"><span class="ln">78</span><span class="cl">  - DOMAIN-KEYWORD,google,Proxy
+</span></span><span class="line"><span class="ln">79</span><span class="cl">  - DOMAIN-KEYWORD,gmail,Proxy
+</span></span><span class="line"><span class="ln">80</span><span class="cl">  - DOMAIN-KEYWORD,youtube,Proxy
+</span></span><span class="line"><span class="ln">81</span><span class="cl">  - DOMAIN-KEYWORD,facebook,Proxy
+</span></span><span class="line"><span class="ln">82</span><span class="cl">  - DOMAIN-SUFFIX,fb.me,Proxy
+</span></span><span class="line"><span class="ln">83</span><span class="cl">  - DOMAIN-SUFFIX,fbcdn.net,Proxy
+</span></span><span class="line"><span class="ln">84</span><span class="cl">  - DOMAIN-KEYWORD,twitter,Proxy
+</span></span><span class="line"><span class="ln">85</span><span class="cl">  - DOMAIN-KEYWORD,instagram,Proxy
+</span></span><span class="line"><span class="ln">86</span><span class="cl">  - DOMAIN-KEYWORD,dropbox,Proxy
+</span></span><span class="line"><span class="ln">87</span><span class="cl">  - DOMAIN-SUFFIX,twimg.com,Proxy
+</span></span><span class="line"><span class="ln">88</span><span class="cl">  - DOMAIN-KEYWORD,blogspot,Proxy
+</span></span><span class="line"><span class="ln">89</span><span class="cl">  - DOMAIN-SUFFIX,youtu.be,Proxy
+</span></span><span class="line"><span class="ln">90</span><span class="cl">  - DOMAIN-KEYWORD,whatsapp,Proxy
+</span></span><span class="line"><span class="ln">91</span><span class="cl">  - SRC-IP-CIDR,192.168.1.0/32,DIRECT
+</span></span><span class="line"><span class="ln">92</span><span class="cl">  - SRC-IP-CIDR,192.168.2.0/32,DIRECT
+</span></span><span class="line"><span class="ln">93</span><span class="cl">  - IP-CIDR,127.0.0.0/8,DIRECT
+</span></span><span class="line"><span class="ln">94</span><span class="cl">  - GEOIP,CN,DIRECT
+</span></span><span class="line"><span class="ln">95</span><span class="cl">  - MATCH,Proxy
+</span></span></code></pre></div><p>解释一下：proxy 定义了两个代理，一个是 trojan，一个是 v2ray。然后再集合成组，一个组叫 Proxy， 显式指定用 trojan；另一个组叫 auto，根据 vmess1 和 trojan1 访问 <a href="http://www.gstatic.com/generate_204" target="_blank" rel="noopener noreferrer">http://www.gstatic.com/generate_204</a>
  的页面速度，谁快就用谁，缺省300秒会访问一次这个页面来决定哪个代理快。</p>
 <p>剩下的 rules 就很简单，把自己知道要访问的域名放到代理中去，然后把局域网的 IP 段放进 DIRECT 直接访问，最后 GEO IP 不是中国的由 Proxy 兜底。</p>
 <p>网上有一大堆规则，八戒的建议是不要去学，规则越多越慢，你自己知道要访问什么网站需要翻墙，加进去就好了。弄一堆，自己看着都头蒙</p>
 <p>最后我们在 rc.local 放入以下 iptable 内容，就可以了</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln"> 1</span><span class="c1">###</span>
-<span class="ln"> 2</span><span class="c1">#clash</span>
-<span class="ln"> 3</span>ip rule add fwmark <span class="m">1</span> table <span class="m">100</span>
-<span class="ln"> 4</span>ip route add <span class="nb">local</span> 0.0.0.0/0 dev lo table <span class="m">100</span>
-<span class="ln"> 5</span>
-<span class="ln"> 6</span><span class="c1"># CREATE TABLE</span>
-<span class="ln"> 7</span>iptables -t mangle -N clash
-<span class="ln"> 8</span>
-<span class="ln"> 9</span><span class="c1"># RETURN LOCAL AND LANS</span>
-<span class="ln">10</span>iptables -t mangle -A clash -d 0.0.0.0/8 -j RETURN
-<span class="ln">11</span>iptables -t mangle -A clash -d 10.0.0.0/8 -j RETURN
-<span class="ln">12</span>iptables -t mangle -A clash -d 100.64.0.0/10 -j RETURN
-<span class="ln">13</span>iptables -t mangle -A clash -d 127.0.0.0/8 -j RETURN
-<span class="ln">14</span>iptables -t mangle -A clash -d 169.254.0.0/16 -j RETURN
-<span class="ln">15</span>iptables -t mangle -A clash -d 172.16.0.0/12 -j RETURN
-<span class="ln">16</span>iptables -t mangle -A clash -d 192.168.0.0/16 -j RETURN
-<span class="ln">17</span>iptables -t mangle -A clash -d 224.0.0.0/4 -j RETURN
-<span class="ln">18</span>iptables -t mangle -A clash -d 240.0.0.0/4 -j RETURN
-<span class="ln">19</span>
-<span class="ln">20</span><span class="c1"># whitelist China ip.</span>
-<span class="ln">21</span><span class="c1"># iptables -t mangle -A clash -m set --match-set china dst -j RETURN</span>
-<span class="ln">22</span>
-<span class="ln">23</span><span class="c1"># FORWARD ALL</span>
-<span class="ln">24</span>iptables -t mangle -A clash -p udp -j TPROXY --on-port <span class="m">7893</span> --tproxy-mark <span class="m">1</span>
-<span class="ln">25</span>iptables -t mangle -A clash -p tcp -j TPROXY --on-port <span class="m">7893</span> --tproxy-mark <span class="m">1</span>
-<span class="ln">26</span>
-<span class="ln">27</span><span class="c1"># REDIRECT</span>
-<span class="ln">28</span>iptables -t mangle -A PREROUTING -j clash
-<span class="ln">29</span>
-<span class="ln">30</span><span class="c1"># hijack DNS to Clash</span>
-<span class="ln">31</span>iptables -t nat -N CLASH_DNS
-<span class="ln">32</span>iptables -t nat -F CLASH_DNS 
-<span class="ln">33</span>iptables -t nat -A CLASH_DNS -p udp -j REDIRECT --to-port <span class="m">1053</span>
-<span class="ln">34</span>iptables -t nat -I PREROUTING -p udp --dport <span class="m">53</span> -j CLASH_DNS
-<span class="ln">35</span>
-</code></pre></div><p>最后启动clash</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="ln">1</span>systemctl start clash
-</code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1">###</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="c1">#clash</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">ip rule add fwmark <span class="m">1</span> table <span class="m">100</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">ip route add <span class="nb">local</span> 0.0.0.0/0 dev lo table <span class="m">100</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="c1"># CREATE TABLE</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">iptables -t mangle -N clash
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="c1"># RETURN LOCAL AND LANS</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">iptables -t mangle -A clash -d 0.0.0.0/8 -j RETURN
+</span></span><span class="line"><span class="ln">11</span><span class="cl">iptables -t mangle -A clash -d 10.0.0.0/8 -j RETURN
+</span></span><span class="line"><span class="ln">12</span><span class="cl">iptables -t mangle -A clash -d 100.64.0.0/10 -j RETURN
+</span></span><span class="line"><span class="ln">13</span><span class="cl">iptables -t mangle -A clash -d 127.0.0.0/8 -j RETURN
+</span></span><span class="line"><span class="ln">14</span><span class="cl">iptables -t mangle -A clash -d 169.254.0.0/16 -j RETURN
+</span></span><span class="line"><span class="ln">15</span><span class="cl">iptables -t mangle -A clash -d 172.16.0.0/12 -j RETURN
+</span></span><span class="line"><span class="ln">16</span><span class="cl">iptables -t mangle -A clash -d 192.168.0.0/16 -j RETURN
+</span></span><span class="line"><span class="ln">17</span><span class="cl">iptables -t mangle -A clash -d 224.0.0.0/4 -j RETURN
+</span></span><span class="line"><span class="ln">18</span><span class="cl">iptables -t mangle -A clash -d 240.0.0.0/4 -j RETURN
+</span></span><span class="line"><span class="ln">19</span><span class="cl">
+</span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="c1"># whitelist China ip.</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl"><span class="c1"># iptables -t mangle -A clash -m set --match-set china dst -j RETURN</span>
+</span></span><span class="line"><span class="ln">22</span><span class="cl">
+</span></span><span class="line"><span class="ln">23</span><span class="cl"><span class="c1"># FORWARD ALL</span>
+</span></span><span class="line"><span class="ln">24</span><span class="cl">iptables -t mangle -A clash -p udp -j TPROXY --on-port <span class="m">7893</span> --tproxy-mark <span class="m">1</span>
+</span></span><span class="line"><span class="ln">25</span><span class="cl">iptables -t mangle -A clash -p tcp -j TPROXY --on-port <span class="m">7893</span> --tproxy-mark <span class="m">1</span>
+</span></span><span class="line"><span class="ln">26</span><span class="cl">
+</span></span><span class="line"><span class="ln">27</span><span class="cl"><span class="c1"># REDIRECT</span>
+</span></span><span class="line"><span class="ln">28</span><span class="cl">iptables -t mangle -A PREROUTING -j clash
+</span></span><span class="line"><span class="ln">29</span><span class="cl">
+</span></span><span class="line"><span class="ln">30</span><span class="cl"><span class="c1"># hijack DNS to Clash</span>
+</span></span><span class="line"><span class="ln">31</span><span class="cl">iptables -t nat -N CLASH_DNS
+</span></span><span class="line"><span class="ln">32</span><span class="cl">iptables -t nat -F CLASH_DNS 
+</span></span><span class="line"><span class="ln">33</span><span class="cl">iptables -t nat -A CLASH_DNS -p udp -j REDIRECT --to-port <span class="m">1053</span>
+</span></span><span class="line"><span class="ln">34</span><span class="cl">iptables -t nat -I PREROUTING -p udp --dport <span class="m">53</span> -j CLASH_DNS
+</span></span></code></pre></div><p>最后启动clash</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">systemctl start clash
+</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -428,7 +427,7 @@
 </article><div class="post-comments card row component">
   <div class="card-body"><div id="disqus_thread"></div>
 <script type="application/javascript">
-    var disqus_config = function () {
+    window.disqus_config = function () {
     
     
     
@@ -468,11 +467,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20220810-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
-</a></li><li><a href="https://bajie.dev/posts/20220729-kafka_install/">Kafka的安装和验证
+    <ul><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Awk的用法
 </a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></li><li><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
+</a></li><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
