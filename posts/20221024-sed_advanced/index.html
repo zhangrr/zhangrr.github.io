@@ -1,25 +1,29 @@
 <!doctype html><html lang="zh-cn"
   >
   <head>
-	<meta name="generator" content="Hugo 0.104.3" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>sed的进阶用法 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
-<meta name="keywords" content="Hugo, Bootstrap, 博客主题" />
-<meta name="description" content="一个极快、响应式和功能丰富的 Hugo 博客主题" /><meta itemprop="name" content="八戒的技术博客">
-<meta itemprop="description" content="一个极快、响应式和功能丰富的 Hugo 博客主题"><meta property="og:title" content="八戒的技术博客" />
-<meta property="og:description" content="一个极快、响应式和功能丰富的 Hugo 博客主题" />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="https://bajie.dev/" /><meta property="og:site_name" content="八戒的技术博客" />
+<meta name="keywords" content="" />
+<meta name="description" content="" /><meta itemprop="name" content="sed的进阶用法">
+<meta itemprop="description" content="sed 和 awk 以及 cut 算是常用工具了，sed的高级用法也需要知道一下 sed 里面有2个空间，一个是pattern space，一个是hold space，默认都"><meta itemprop="datePublished" content="2022-10-24T10:30:11+08:00" />
+<meta itemprop="dateModified" content="2022-10-24T10:30:11+08:00" />
+<meta itemprop="wordCount" content="628">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="sed的进阶用法" />
+<meta property="og:description" content="sed 和 awk 以及 cut 算是常用工具了，sed的高级用法也需要知道一下 sed 里面有2个空间，一个是pattern space，一个是hold space，默认都" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://bajie.dev/posts/20221024-sed_advanced/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-10-24T10:30:11+08:00" />
+<meta property="article:modified_time" content="2022-10-24T10:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="八戒的技术博客"/>
-<meta name="twitter:description" content="一个极快、响应式和功能丰富的 Hugo 博客主题"/>
-<link rel="alternate" type="application/rss+xml" href="https://bajie.dev/index.xml" title="八戒的技术博客" /><link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<meta name="twitter:title" content="sed的进阶用法"/>
+<meta name="twitter:description" content="sed 和 awk 以及 cut 算是常用工具了，sed的高级用法也需要知道一下 sed 里面有2个空间，一个是pattern space，一个是hold space，默认都"/>
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
   <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
@@ -110,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=%e5%85%ab%e6%88%92%e7%9a%84%e6%8a%80%e6%9c%af%e5%8d%9a%e5%ae%a2&url=https%3a%2f%2fbajie.dev%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=sed%e7%9a%84%e8%bf%9b%e9%98%b6%e7%94%a8%e6%b3%95&url=https%3a%2f%2fbajie.dev%2fposts%2f20221024-sed_advanced%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20221024-sed_advanced%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -122,7 +126,7 @@
 
 </div>
 </div>
-<a class="navbar-brand me-3 active" href="https://bajie.dev"><img class="logo" alt="Logo" src="https://bajie.dev/images/logo.webp" loading="lazy"
+<a class="navbar-brand me-3" href="https://bajie.dev"><img class="logo" alt="Logo" src="https://bajie.dev/images/logo.webp" loading="lazy"
    width="136" height="69"
    />
 八戒
@@ -178,168 +182,135 @@
 <main role="main" class="container">
       <div class="row content">
 <div class="col-lg-8">
-  <div class="container"><div class="posts mb-4"><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20221024-sed_advanced/">Sed的进阶用法
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-10-24
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          sed 和 awk 以及 cut 算是常用工具了，sed的高级用法也需要知道一下 sed 里面有2个空间，一个是pattern space，一个是hold space，默认都
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20221024-iptables/">Iptables的基本用法
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-10-24
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          面试的时候经常会被问到 iptables 的问题，那么下面就运维角度来总结一下基本的用法。 看晕了吧，不要紧，我们关注上面的5个红色，5个链条，然后继续看下面的
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220925-awk_usage/">Systemd与journalctl的双剑合璧
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-10-19
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          时代已经进化到 systemd 的年代了，service 应该是彻底没有市场了 systemd 的好处是写程序的时候再也不用 fork 甩脱父进程了，日志直接输出终端即可 对 java 来说也是个
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20221019-systemctl/">Awk的用法
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-09-25
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          awk 是比较强力的工具，跟cut和sed组合起来，会有意想不到的作用 举个简单例子，我们nginx的access.log如下： 1110.244.232.88 - - [12/Apr/2022:16:50:06 +0800] help.jjwxc.net &#34;GET /user/article/248 HTTP/1.1&#34; 200
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-07-29
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          ansible的脚本中我们可能会要启动某项服务并等待，直到服务启动起来，然后再进行下一步 这个非常重要，我们举例来实验一下： 1- hosts: localhost 2 vars: 3 local__service: ssh 4
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-07-28
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          在生产系统中使用LVM务必要注意lvm metadata的备份，曾经在京东的时候发生过虚机用了lvm的磁盘系统，然后虚机文件qcow2突然坏掉
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-07-25
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          现在版本的 dmesg -T 都是带时间戳的。 但是老的机器，很有可能是没有 -T 这个参数的，直接 dmesg 是这样的： 这个时间戳是天书啊，这还算好的，好歹有。还有更差的，
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-07-21
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          接到同事的通知，说mongodb的cpu很高，下不去，看有什么办法。 看了一下图，cpu都99.4%了，确实很高： 登上机器，首先去看mongo
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220717-terraform/">Infrastructure as Code中packer的使用
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-07-17
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          先普及一下概念，Infrastructure as Code，也就是从代码开始定义整个网络环境、虚机、各种资源等等。 简单说就是在云上用代码来管理一
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220717-backup_cisco/">Cisco设备自动执行和备份的脚本
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-07-17
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          在日常工作中我们经常要对 Cisco 的网络设备的配置进行备份，或者和 suricata 联动的时候要执行操作。 方法其实很简单，调用 python 的相应模块即可。 准备工作如下： 首选需
-        </div>
-      </div>
-    </article></div><div class="row table-responsive mb-3">
-    <ul class="pagination pagination-default">
-      <li class="page-item disabled">
-        <a aria-disabled="true" aria-label="First" class="page-link" role="button" tabindex="-1"><span aria-hidden="true">&laquo;&laquo;</span></a>
-      </li>
-      <li class="page-item disabled">
-        <a aria-disabled="true" aria-label="Previous" class="page-link" role="button" tabindex="-1"><span aria-hidden="true">&laquo;</span></a>
-      </li>
-      <li class="page-item active">
-        <a aria-current="page" aria-label="Page 1" class="page-link" role="button">1</a>
-      </li>
-      <li class="page-item">
-        <a href="/page/2/" aria-label="Page 2" class="page-link" role="button">2</a>
-      </li>
-      <li class="page-item">
-        <a href="/page/3/" aria-label="Page 3" class="page-link" role="button">3</a>
-      </li>
-      <li class="page-item">
-        <a href="/page/4/" aria-label="Page 4" class="page-link" role="button">4</a>
-      </li>
-      <li class="page-item">
-        <a href="/page/5/" aria-label="Page 5" class="page-link" role="button">5</a>
-      </li>
-      <li class="page-item">
-        <a href="/page/2/" aria-label="Next" class="page-link" role="button"><span aria-hidden="true">&raquo;</span></a>
-      </li>
-      <li class="page-item">
-        <a href="/page/9/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
-      </li>
-    </ul></div>
-</div>
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body">
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">Sed的进阶用法</li></ol>
+  </div>
+</nav><article class="post row card mb-4 component">
+  <div class="card-body"><div class="post-panel-wrapper">
+  <div class="post-panel d-flex flex-column">
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+  <i class="fas fa-fw fa-expand-arrows-alt"></i>
+</a>
+  
+    
 
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
+  <i class="fas fa-fw fa-coffee"></i>
+</a>
+    <a class="action" data-bs-container="body" data-bs-toggle="popover" data-bs-html="true" data-bs-placement="bottom"
+  data-bs-trigger="focus" tabindex="0" type="button" aria-label="Copyright" 
+  data-bs-content="&lt;a target=&#34;_blank&#34; rel=&#34;license noopener noreferrer&#34; href=&#34;https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh&#34;&gt;CC BY-NC-ND 4.0 &lt;i class=&#34;fab fa-fw fa-creative-commons&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-by&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-nc&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-nd&#34;&gt;&lt;/i&gt;&lt;/a&gt;
+">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
+    
+  </div>
+</div>
+<h1 class="card-title my-3">Sed的进阶用法
+</h1><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-10-24
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-content mb-3"><p>sed 和 awk 以及 cut 算是常用工具了，sed的高级用法也需要知道一下</p>
+<p>sed 里面有2个空间，一个是pattern space，一个是hold space，默认都是空的</p>
+<p>开始处理的时候，就从文件里一行一行读入 pattern space ，进行处理，hold space 只在你需要用到它的时候才会出现：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln">1</span><span class="cl">d ： 清空pattern space中的内容，立即开始下个循环(意思是跳过默认的输出pattern space内容的阶段？？？不知理解的对不对)
+</span></span><span class="line"><span class="ln">2</span><span class="cl">h ： 用pattern space中的内容替换hold pattern中的内容
+</span></span><span class="line"><span class="ln">3</span><span class="cl">H ： 在hold space中的内容后面追加一个换行，把pattern space中的内容追加到hold space中
+</span></span><span class="line"><span class="ln">4</span><span class="cl">g ： 用hold space中的内容替换pattern space中的内容
+</span></span><span class="line"><span class="ln">5</span><span class="cl">G ： 在pattern space中的内容后面追加一个换行，把hold space中的内容追加到pattern space中
+</span></span><span class="line"><span class="ln">6</span><span class="cl">
+</span></span><span class="line"><span class="ln">7</span><span class="cl">h, g会替换（可以理解为先清空，再复制）, H, G是追加。
+</span></span></code></pre></div><p>hH是放过去，gG是拿过来，小写是替换，大写是追加</p>
+<p><img class="img-fluid" alt="1666593244877" src="https://bajie.dev/posts/20221024-sed_advanced/1666593244877.png" loading="lazy"
+   width="574" height="289"
+   />
+
+</p>
+<p>分析一下经典的将文件内容反向打印</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln">1</span><span class="cl">cat 1.txt
+</span></span><span class="line"><span class="ln">2</span><span class="cl">1
+</span></span><span class="line"><span class="ln">3</span><span class="cl">2
+</span></span><span class="line"><span class="ln">4</span><span class="cl">3
+</span></span><span class="line"><span class="ln">5</span><span class="cl">
+</span></span><span class="line"><span class="ln">6</span><span class="cl">cat 1.txt | sed -n &#39;1!G;h;$p&#39;
+</span></span><span class="line"><span class="ln">7</span><span class="cl">3
+</span></span><span class="line"><span class="ln">8</span><span class="cl">2
+</span></span><span class="line"><span class="ln">9</span><span class="cl">1
+</span></span></code></pre></div><p>&lsquo;1!G;h;$p&rsquo; 分析一下，1!G就是说第一行不执行G，从第二行开始执行G；然后h是每行都执行，最后一行的时候执行p</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln">1</span><span class="cl">input | pattern |  hold   | command | pattern | hold | command | pattern | hold
+</span></span><span class="line"><span class="ln">2</span><span class="cl">1     | 1       |  空行    |         | 1       | 空行 |  h      | 1       | 1
+</span></span><span class="line"><span class="ln">3</span><span class="cl">2     | 2       |  1      | G       | 21      | 1    |  h      | 21      | 21
+</span></span><span class="line"><span class="ln">4</span><span class="cl">3     | 3       |  21     | G       | 321     | 21   |  h      | 321     | 321
+</span></span></code></pre></div><p><img class="img-fluid" alt="1666595506589" src="https://bajie.dev/posts/20221024-sed_advanced/1666595506589.png" loading="lazy"
+   width="767" height="415"
+   />
+
+</p>
+<p>因为之前的参数是 -n 不打印，直到最后一行，$p打印Pattern空间里的内容，这样就直接被反转打印出来了。</p>
+<p>。</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-coffee"></i>打赏</h5>
+        <a href="#" data-bs-dismiss="modal" class="btn btn-sm btn-outline-primary" aria-label="Close"><i class="fas fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs flex-nowrap mb-3" role="tablist"><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>支付宝
+            </a>
+          </li><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>微信
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+  <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
+    <a href="https://bajie.dev/posts/20221024-iptables/">Iptables的基本用法
+</a>
+  </div></div><section class="related-posts-wrapper">
+    <h3>相关文章</h3>
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20221024-iptables/">Iptables的基本用法
+</a></li><li><a href="https://bajie.dev/posts/20220925-awk_usage/">Systemd与journalctl的双剑合璧
+</a></li><li><a href="https://bajie.dev/posts/20221019-systemctl/">Awk的用法
+</a></li><li><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
+</a></li><li><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
+</a></li></ul>
+  </section></div>
+</article><div class="post-comments card row component">
+  <div class="card-body"><div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-zhangrr-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a></div>
+</div></div>
 </div><aside class="col-lg-4 sidebar d-flex">
   <div class="container">
     
@@ -403,9 +374,7 @@
         <i class="fa-fw fa-2x fab fa-reddit"></i>
       </a><a class="nav-link social-link" target="_blank" href="https://t.me/defunct9" title="Telegram" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
-      </a><a class="nav-link social-link" target="_blank" href="https://bajie.dev/index.xml" title="RSS" rel="noopener noreferrer">
-      <i class="fas fa-fw fa-2x fa-rss"></i>
-    </a></nav>
+      </a></nav>
 <div class="copyright mb-2">
   Copyright © 2020-2022 Zhang Ranrui. All Rights Reserved.
 </div>
