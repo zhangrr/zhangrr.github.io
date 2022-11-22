@@ -225,50 +225,50 @@
 </ul>
 <p>我们一点一点来说：</p>
 <p>一、备份时不能锁表</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1">--single-transaction
-</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="c1"></span><span class="err">通过将导出操作封装在一个事务内来使得导出的数据是一个一致性快照</span><span class="w">
-</span></span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="w"></span><span class="err">该选项在导出数据之前提交一个</span><span class="k">BEGIN</span><span class="w"> </span><span class="n">SQL语句</span><span class="err">，</span><span class="n">BEGIN不会阻塞任何应用程序且能保证导出时数据库的一致性状态</span><span class="err">。</span><span class="w">
-</span></span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="w"></span><span class="err">它只适用于</span><span class="n">InnoDB存储引擎</span><span class="err">。</span><span class="w">
-</span></span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="w"></span><span class="err">本选项和</span><span class="c1">--lock-tables选项是互斥的，因为LOCK TABLES会使任何挂起的事务隐含提交。
-</span></span></span></code></pre></div><p>二、恢复时要尽量快</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1">--opt
-</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="c1"></span><span class="err">等同于</span><span class="c1">--add-drop-table,  --add-locks, --create-options, --quick, --extended-insert, --lock-tables,  --set-charset, --disable-keys 该选项默认开启,  可以用--skip-opt禁用.
-</span></span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="c1"></span><span class="w">
-</span></span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="w"></span><span class="c1">--extended-insert,  -e
-</span></span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="c1">--extended-insert=false
-</span></span></span><span class="line"><span class="ln">6</span><span class="cl"><span class="c1"></span><span class="err">使用具有多个</span><span class="n">VALUES列的INSERT语法</span><span class="err">。这样使导出文件更小，并加速导入时的速度。</span><span class="w">
-</span></span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="w"></span><span class="err">默认为打开状态，使用</span><span class="c1">--skip-extended-insert取消选项。
-</span></span></span></code></pre></div><p>三、有二进制的按二进制备份</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1">--hex-blob
-</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="c1"></span><span class="err">使用十六进制格式导出二进制字符串字段。如果有二进制数据就必须使用该选项。影响到的字段类型有</span><span class="nb">BINARY</span><span class="err">、</span><span class="n">VARBINARY</span><span class="err">、</span><span class="nb">BLOB</span><span class="err">。</span><span class="w">
-</span></span></span></code></pre></div><p>四、有触发器、存储过程的都备份</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln">1</span><span class="cl">--triggers
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">--single-transaction
+</span></span><span class="line"><span class="ln">2</span><span class="cl">通过将导出操作封装在一个事务内来使得导出的数据是一个一致性快照
+</span></span><span class="line"><span class="ln">3</span><span class="cl">该选项在导出数据之前提交一个BEGIN SQL语句，BEGIN不会阻塞任何应用程序且能保证导出时数据库的一致性状态。
+</span></span><span class="line"><span class="ln">4</span><span class="cl">它只适用于InnoDB存储引擎。
+</span></span><span class="line"><span class="ln">5</span><span class="cl">本选项和--lock-tables选项是互斥的，因为LOCK TABLES会使任何挂起的事务隐含提交。
+</span></span></code></pre></div><p>二、恢复时要尽量快</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">--opt
+</span></span><span class="line"><span class="ln">2</span><span class="cl">等同于--add-drop-table,  --add-locks, --create-options, --quick, --extended-insert, --lock-tables,  --set-charset, --disable-keys 该选项默认开启,  可以用--skip-opt禁用.
+</span></span><span class="line"><span class="ln">3</span><span class="cl">
+</span></span><span class="line"><span class="ln">4</span><span class="cl">--extended-insert,  -e
+</span></span><span class="line"><span class="ln">5</span><span class="cl">--extended-insert<span class="o">=</span><span class="nb">false</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl">使用具有多个VALUES列的INSERT语法。这样使导出文件更小，并加速导入时的速度。
+</span></span><span class="line"><span class="ln">7</span><span class="cl">默认为打开状态，使用--skip-extended-insert取消选项。
+</span></span></code></pre></div><p>三、有二进制的按二进制备份</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">--hex-blob
+</span></span><span class="line"><span class="ln">2</span><span class="cl">使用十六进制格式导出二进制字符串字段。如果有二进制数据就必须使用该选项。影响到的字段类型有BINARY、VARBINARY、BLOB。
+</span></span></code></pre></div><p>四、有触发器、存储过程的都备份</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">--triggers
 </span></span><span class="line"><span class="ln">2</span><span class="cl">导出触发器。该选项默认启用，用--skip-triggers禁用它。
 </span></span><span class="line"><span class="ln">3</span><span class="cl">--routines, -R
 </span></span><span class="line"><span class="ln">4</span><span class="cl">导出存储过程以及自定义函数
 </span></span></code></pre></div><p>五、为之后如果要做binlog恢复提前做好准备</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1">--flush-logs
-</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="c1"></span><span class="err">开始导出之前刷新</span><span class="n">binlog日志</span><span class="err">。</span><span class="w">
-</span></span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="w"></span><span class="err">请注意：假如一次导出多个数据库</span><span class="p">(</span><span class="err">使用选项</span><span class="c1">--databases或者--all-databases)，将会逐个数据库刷新日志。
-</span></span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="c1"></span><span class="err">除非使用</span><span class="c1">--lock-all-tables或者--master-data外。在这种情况下，日志将会被刷新一次，相应的所以表同时被锁定。
-</span></span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="c1"></span><span class="err">因此，如果打算同时导出和刷新日志应该使用</span><span class="c1">--lock-all-tables 或者--master-data 和--flush-logs
-</span></span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="c1"></span><span class="w">
-</span></span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="w"></span><span class="c1">--master-data
-</span></span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="c1"></span><span class="err">在导出的时候同时生成</span><span class="n">binlog文件名和位置在导出的文件开头</span><span class="err">。</span><span class="w">
-</span></span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="w"></span><span class="err">这个非常重要。</span><span class="n">binlog</span><span class="w"> </span><span class="err">的文件和位置可以从这里拿到。</span><span class="w">
-</span></span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="w"></span><span class="err">例如：</span><span class="w">
-</span></span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="w"></span><span class="c1">-- CHANGE MASTER TO MASTER_LOG_FILE=&#39;binlog.000001&#39;, MASTER_LOG_POS=157;
-</span></span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="c1"></span><span class="w">
-</span></span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="w"></span><span class="err">该选项将</span><span class="n">binlog的位置和文件名追加到输出文件中</span><span class="err">。</span><span class="w">
-</span></span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="w"></span><span class="err">如果为</span><span class="mi">1</span><span class="err">，将会输出</span><span class="n">CHANGE</span><span class="w"> </span><span class="n">MASTER</span><span class="w"> </span><span class="err">命令；</span><span class="w">
-</span></span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="w"></span><span class="err">如果为</span><span class="mi">2</span><span class="err">，输出的</span><span class="n">CHANGE</span><span class="w">  </span><span class="n">MASTER命令前添加注释信息</span><span class="err">。</span><span class="w">
-</span></span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="w"></span><span class="err">该选项将打开</span><span class="c1">--lock-all-tables 选项，除非--single-transaction也被指定（在这种情况下，全局读锁在开始导出时获得很短的时间；其他内容参考下面的--single-transaction选项）。
-</span></span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="c1"></span><span class="err">该选项自动关闭</span><span class="c1">--lock-tables选项。
-</span></span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="c1"></span><span class="n">mysqldump</span><span class="w">  </span><span class="o">-</span><span class="n">uroot</span><span class="w"> </span><span class="o">-</span><span class="n">p</span><span class="w"> </span><span class="c1">--host=localhost --all-databases --master-data=1;
-</span></span></span><span class="line"><span class="ln">19</span><span class="cl"><span class="c1"></span><span class="n">mysqldump</span><span class="w">  </span><span class="o">-</span><span class="n">uroot</span><span class="w"> </span><span class="o">-</span><span class="n">p</span><span class="w"> </span><span class="c1">--host=localhost --all-databases --master-data=2;
-</span></span></span></code></pre></div><p>那么综上所述，总结一行非常使用的备份语句：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="ln">1</span><span class="cl"><span class="n">mysqldump</span><span class="w"> </span><span class="o">-</span><span class="n">uroot</span><span class="w"> </span><span class="o">-</span><span class="n">p</span><span class="w">  </span><span class="o">-</span><span class="n">h</span><span class="w"> </span><span class="mi">192</span><span class="p">.</span><span class="mi">168</span><span class="p">.</span><span class="mi">1</span><span class="p">.</span><span class="mi">35</span><span class="w"> </span><span class="o">-</span><span class="n">P3306</span><span class="w"> </span><span class="c1">--opt --triggers -R --hex-blob  --single-transaction --flush-logs --master-data=2 -B 库名  &gt; 库名.sql
-</span></span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln"> 1</span><span class="cl">--flush-logs
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">开始导出之前刷新binlog日志。
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">请注意：假如一次导出多个数据库<span class="o">(</span>使用选项--databases或者--all-databases<span class="o">)</span>，将会逐个数据库刷新日志。
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">除非使用--lock-all-tables或者--master-data外。在这种情况下，日志将会被刷新一次，相应的所以表同时被锁定。
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">因此，如果打算同时导出和刷新日志应该使用--lock-all-tables 或者--master-data 和--flush-logs
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">--master-data
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">在导出的时候同时生成binlog文件名和位置在导出的文件开头。
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">这个非常重要。binlog 的文件和位置可以从这里拿到。
+</span></span><span class="line"><span class="ln">10</span><span class="cl">例如：
+</span></span><span class="line"><span class="ln">11</span><span class="cl">-- CHANGE MASTER TO <span class="nv">MASTER_LOG_FILE</span><span class="o">=</span><span class="s1">&#39;binlog.000001&#39;</span>, <span class="nv">MASTER_LOG_POS</span><span class="o">=</span>157<span class="p">;</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">
+</span></span><span class="line"><span class="ln">13</span><span class="cl">该选项将binlog的位置和文件名追加到输出文件中。
+</span></span><span class="line"><span class="ln">14</span><span class="cl">如果为1，将会输出CHANGE MASTER 命令；
+</span></span><span class="line"><span class="ln">15</span><span class="cl">如果为2，输出的CHANGE  MASTER命令前添加注释信息。
+</span></span><span class="line"><span class="ln">16</span><span class="cl">该选项将打开--lock-all-tables 选项，除非--single-transaction也被指定（在这种情况下，全局读锁在开始导出时获得很短的时间；其他内容参考下面的--single-transaction选项）。
+</span></span><span class="line"><span class="ln">17</span><span class="cl">该选项自动关闭--lock-tables选项。
+</span></span><span class="line"><span class="ln">18</span><span class="cl">mysqldump  -uroot -p --host<span class="o">=</span>localhost --all-databases --master-data<span class="o">=</span>1<span class="p">;</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl">mysqldump  -uroot -p --host<span class="o">=</span>localhost --all-databases --master-data<span class="o">=</span>2<span class="p">;</span>
+</span></span></code></pre></div><p>那么综上所述，总结一行非常使用的备份语句：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">mysqldump -uroot -p  -h 192.168.1.35 -P3306 --opt --triggers -R --hex-blob  --single-transaction --flush-logs --master-data<span class="o">=</span><span class="m">2</span> -B 库名  &gt; 库名.sql
+</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -297,6 +297,10 @@
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://bajie.dev/posts/20221119-openvpn_client/">OpenVPN客户端定制IP和路由
 </a>
+  </div><div class="post-nav post-next">
+    <a href="https://bajie.dev/posts/20221122-mysqldump_binlog/">MySQL数据库的备份和恢复之二
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
     <ul class="related-posts"><li><a href="https://bajie.dev/posts/20221119-openvpn_client/">OpenVPN客户端定制IP和路由
@@ -349,11 +353,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20221121-mysqldump/">MySQL数据库的备份和恢复之一
+    <ul><li><a href="https://bajie.dev/posts/20221122-mysqldump_binlog/">MySQL数据库的备份和恢复之二
+</a></li><li><a href="https://bajie.dev/posts/20221121-mysqldump/">MySQL数据库的备份和恢复之一
 </a></li><li><a href="https://bajie.dev/posts/20221119-openvpn_client/">OpenVPN客户端定制IP和路由
 </a></li><li><a href="https://bajie.dev/posts/20221117-sign/">英语的符号表达
 </a></li><li><a href="https://bajie.dev/posts/20221115-ipsec/">阿里云IPSec与锐捷路由器得连接
-</a></li><li><a href="https://bajie.dev/posts/20221113-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
