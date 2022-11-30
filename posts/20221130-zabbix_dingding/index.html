@@ -1,0 +1,517 @@
+<!doctype html><html lang="zh-cn"
+  >
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Zabbix下发往钉钉告警 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
+<meta name="keywords" content="" />
+<meta name="description" content="" /><meta itemprop="name" content="Zabbix下发往钉钉告警">
+<meta itemprop="description" content="zabbix 是很熟悉的东西，但是实际上博主已经跳过了这个东西，直接蹦到 Prometheus 去了 但是，存在即合理，当下公司用的是这个，那么用就用吧，zabbix发到钉钉告"><meta itemprop="datePublished" content="2022-11-30T09:30:11+08:00" />
+<meta itemprop="dateModified" content="2022-11-30T09:30:11+08:00" />
+<meta itemprop="wordCount" content="1463">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="Zabbix下发往钉钉告警" />
+<meta property="og:description" content="zabbix 是很熟悉的东西，但是实际上博主已经跳过了这个东西，直接蹦到 Prometheus 去了 但是，存在即合理，当下公司用的是这个，那么用就用吧，zabbix发到钉钉告" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://bajie.dev/posts/20221130-zabbix_dingding/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-11-30T09:30:11+08:00" />
+<meta property="article:modified_time" content="2022-11-30T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Zabbix下发往钉钉告警"/>
+<meta name="twitter:description" content="zabbix 是很熟悉的东西，但是实际上博主已经跳过了这个东西，直接蹦到 Prometheus 去了 但是，存在即合理，当下公司用的是这个，那么用就用吧，zabbix发到钉钉告"/>
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <div class="container">
+    <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
+  aria-controls="offcanvasSettings" aria-label="Toggle settings">
+  <i class="fas fa-bars"></i>
+</button>
+
+<div class="offcanvas offcanvas-start surface" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasSettings">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">设置</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body">
+
+<section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+
+<section class="setting">
+  <form class="font-size-switcher-form row">
+    <div class="col-auto">
+      <label for="fontSize" class="form-label"><i class="fas fa-fw fa-font"></i> 字体大小</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <input type="range" class="form-range" min="-2" max="2" id="fontSize">
+    </div>
+  </form>
+</section>
+
+
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a id="btnPalette" class="btn btn-sm btn-outline-primary" role="button" aria-label="palettePicker">
+        <i class="fas fa-eye-dropper"></i>
+      </a>
+    </div>
+  </form>
+  <div class="mt-2 d-flex visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="蓝色"
+        class="btn btn-sm palette" data-palette="blue">
+      </button><button type="button" id="palette-blue-gray" aria-label="蓝灰色"
+        class="btn btn-sm palette" data-palette="blue-gray">
+      </button><button type="button" id="palette-brown" aria-label="棕色"
+        class="btn btn-sm palette" data-palette="brown">
+      </button><button type="button" id="palette-cyan" aria-label="青色"
+        class="btn btn-sm palette" data-palette="cyan">
+      </button><button type="button" id="palette-green" aria-label="绿色"
+        class="btn btn-sm palette" data-palette="green">
+      </button><button type="button" id="palette-indigo" aria-label="靛青色"
+        class="btn btn-sm palette" data-palette="indigo">
+      </button><button type="button" id="palette-orange" aria-label="橙色"
+        class="btn btn-sm palette" data-palette="orange">
+      </button><button type="button" id="palette-pink" aria-label="粉色"
+        class="btn btn-sm palette" data-palette="pink">
+      </button><button type="button" id="palette-purple" aria-label="紫色"
+        class="btn btn-sm palette" data-palette="purple">
+      </button><button type="button" id="palette-red" aria-label="红色"
+        class="btn btn-sm palette" data-palette="red">
+      </button><button type="button" id="palette-teal" aria-label="蓝绿色"
+        class="btn btn-sm palette" data-palette="teal">
+      </button><button type="button" id="palette-yellow" aria-label="黄色"
+        class="btn btn-sm palette" data-palette="yellow">
+      </button></div>
+</section>
+<section class="setting social-share">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-share-alt"></i> Share</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a class="btn btn-sm btn-outline-primary btn-social-share"><i class="fas fa-share"></i></a>
+    </div>
+  </form>
+  <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
+      target="_blank" href="https://twitter.com/intent/tweet?title=Zabbix%e4%b8%8b%e5%8f%91%e5%be%80%e9%92%89%e9%92%89%e5%91%8a%e8%ad%a6&url=https%3a%2f%2fbajie.dev%2fposts%2f20221130-zabbix_dingding%2f">
+      <i class="fab fa-fw fa-twitter"></i> Twitter
+    </a>
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20221130-zabbix_dingding%2f">
+      <i class="fab fa-fw fa-facebook-f"></i> Facebook
+    </a>
+  </div>
+</section>
+
+</div>
+</div>
+<a class="navbar-brand me-3" href="https://bajie.dev"><img class="logo" alt="Logo" src="https://bajie.dev/images/logo.webp" loading="lazy"
+   width="136" height="69"
+   />
+八戒
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="fas fa-ellipsis-v"></i>
+    </button>
+    <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
+      <form class="search-bar my-1" action="https://bajie.dev/search">
+  <div class="input-group input-group-sm">
+    <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
+    <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
+  </div>
+</form>
+
+      <ul class="navbar-nav ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/categories/">
+            <i class="fas fa-fw fa-folder"></i>分类
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/tags/">
+            <i class="fas fa-fw fa-tags"></i>标签
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/series/">
+            <i class="fas fa-fw fa-columns"></i>专栏
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-chevron-circle-down"></i>下拉菜单
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-dropdown"><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                <i class="fab fa-fw fa-github"></i>Github
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://bajie.dev/zh-cn/series/manual">
+                用户手册
+              </a>
+            </li></ul>
+        </li></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body">
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">Zabbix下发往钉钉告警</li></ol>
+  </div>
+</nav><article class="post row card mb-4 component">
+  <div class="card-body"><div class="post-panel-wrapper">
+  <div class="post-panel d-flex flex-column">
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+  <i class="fas fa-fw fa-expand-arrows-alt"></i>
+</a>
+  
+    
+
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
+  <i class="fas fa-fw fa-coffee"></i>
+</a>
+    <a class="action" data-bs-container="body" data-bs-toggle="popover" data-bs-html="true" data-bs-placement="bottom"
+  data-bs-trigger="focus" tabindex="0" type="button" aria-label="Copyright" 
+  data-bs-content="&lt;a target=&#34;_blank&#34; rel=&#34;license noopener noreferrer&#34; href=&#34;https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh&#34;&gt;CC BY-NC-ND 4.0 &lt;i class=&#34;fab fa-fw fa-creative-commons&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-by&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-nc&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-nd&#34;&gt;&lt;/i&gt;&lt;/a&gt;
+">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
+    
+  </div>
+</div>
+<h1 class="card-title my-3">Zabbix下发往钉钉告警
+</h1><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-11-30
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
+  </span></div>
+<div class="post-content mb-3"><p>zabbix 是很熟悉的东西，但是实际上博主已经跳过了这个东西，直接蹦到 Prometheus 去了</p>
+<p>但是，存在即合理，当下公司用的是这个，那么用就用吧，zabbix发到钉钉告警。</p>
+<p>那么我们也研究一下如何发到钉钉告警，而且好看一些</p>
+<p>原理：</p>
+<blockquote>
+<p>原理就是用 post 向钉钉机器人的 webhook 地址提交 Markdown 的 json 信息</p>
+</blockquote>
+<p>首先我们要建立个钉钉群，然后在群中添加一个群机器人，这里就会有两个选择，一个是这个机器人只接受特定的词语，二是向机器人发送消息的机器的ip是固定的。</p>
+<p>阿里云建议的是关键词：<strong>云监控、云服务、监控、Monitor、ECS、报警</strong></p>
+<p><img class="img-fluid" alt="image-20221130195533865" src="https://bajie.dev/posts/20221130-zabbix_dingding/image-20221130195533865.png" loading="lazy"
+   width="647" height="415"
+   />
+
+</p>
+<p>当然，这里更加建议IP，IP是死的，报警里带关键词意味着发送内容被部分固定了。</p>
+<p>如上，我们会得到一个钉钉机器人的Webhook地址：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">https://oapi.dingtalk.com/robot/send?access_token<span class="o">=</span>xxxxxxxxxx
+</span></span></code></pre></div><p>然后我们要准备一个发送的脚本，python很合适</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="ch">#!/usr/bin/env python</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="c1">#coding:utf-8</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"> 
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="c1">#zabbix钉钉报警</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="kn">import</span> <span class="nn">requests</span><span class="o">,</span><span class="nn">json</span><span class="o">,</span><span class="nn">sys</span><span class="o">,</span><span class="nn">os</span><span class="o">,</span><span class="nn">datetime</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="c1">#说明：这里改为自己创建的机器人的webhook</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="n">webhook</span><span class="o">=</span><span class="s2">&#34;https://oapi.dingtalk.com/robot/send?access_token=xxxxxx&#34;</span>     
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="s2">&#34;/tmp/dingding.log&#34;</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">log_file</span><span class="p">,</span> <span class="s1">&#39;a+&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">    <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">log_file</span><span class="p">,</span><span class="s1">&#39;w+&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl">    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">
+</span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="k">def</span> <span class="nf">msg</span><span class="p">(</span><span class="n">text</span><span class="p">,</span><span class="n">user</span><span class="p">):</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl">    <span class="n">json_text</span><span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl">      <span class="s2">&#34;msgtype&#34;</span><span class="p">:</span> <span class="s2">&#34;markdown&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl">      <span class="s2">&#34;markdown&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl">         <span class="s2">&#34;title&#34;</span><span class="p">:</span> <span class="s2">&#34;zabbix monitor&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">22</span><span class="cl">         <span class="s2">&#34;text&#34;</span><span class="p">:</span> <span class="n">text</span>
+</span></span><span class="line"><span class="ln">23</span><span class="cl">      <span class="p">},</span>
+</span></span><span class="line"><span class="ln">24</span><span class="cl">      <span class="s2">&#34;at&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">25</span><span class="cl">         <span class="s2">&#34;atMobiles&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="ln">26</span><span class="cl">             <span class="n">user</span>
+</span></span><span class="line"><span class="ln">27</span><span class="cl">             <span class="p">],</span>
+</span></span><span class="line"><span class="ln">28</span><span class="cl">         <span class="s2">&#34;isAtAll&#34;</span><span class="p">:</span> <span class="kc">False</span>
+</span></span><span class="line"><span class="ln">29</span><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="ln">30</span><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="ln">31</span><span class="cl">    
+</span></span><span class="line"><span class="ln">32</span><span class="cl">    <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Content-Type&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+</span></span><span class="line"><span class="ln">33</span><span class="cl">    <span class="n">r</span><span class="o">=</span><span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">webhook</span><span class="p">,</span><span class="n">data</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">json_text</span><span class="p">),</span><span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln">34</span><span class="cl">    <span class="n">code</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="s2">&#34;errcode&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln">35</span><span class="cl">    <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&#34;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&#34;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">())</span>
+</span></span><span class="line"><span class="ln">36</span><span class="cl">    <span class="k">if</span> <span class="n">code</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</span></span><span class="line"><span class="ln">37</span><span class="cl">        <span class="n">log</span><span class="p">(</span><span class="n">time</span> <span class="o">+</span> <span class="s2">&#34;:消息发送成功 返回码:&#34;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">code</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&#34;</span><span class="se">\n</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">38</span><span class="cl">    <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="ln">39</span><span class="cl">        <span class="n">log</span><span class="p">(</span><span class="n">time</span> <span class="o">+</span> <span class="s2">&#34;:消息发送失败 返回码:&#34;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">code</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&#34;</span><span class="se">\n</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">40</span><span class="cl">        <span class="n">exit</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">41</span><span class="cl">
+</span></span><span class="line"><span class="ln">42</span><span class="cl"><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+</span></span><span class="line"><span class="ln">43</span><span class="cl">    <span class="n">user</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="c1">#用户</span>
+</span></span><span class="line"><span class="ln">44</span><span class="cl">    <span class="n">subject</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="c1">#标题</span>
+</span></span><span class="line"><span class="ln">45</span><span class="cl">    <span class="n">text</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="c1">#消息</span>
+</span></span><span class="line"><span class="ln">46</span><span class="cl">    <span class="n">msg</span><span class="p">(</span><span class="n">text</span><span class="p">,</span><span class="n">user</span><span class="p">)</span>
+</span></span></code></pre></div><p>我们把上面的文件内容放到 /usr/lib/zabbix/alertscripts 目录下，名字就叫做 dingding.py ，只能是这个目录，因为这是 zabbix 缺省外挂脚本文件的目录。</p>
+<p>从上面代码里我们可以看到，实际是发送了一个 markdown 的文本，那么自然，各种markdown的语法就可以用起来了，仔细看一下钉钉markdown参数的详解：</p>
+<p><img class="img-fluid" alt="img" src="https://bajie.dev/posts/20221130-zabbix_dingding/16f3de4a8bb34288901488f49715def1.png" loading="lazy"
+   width="1126" height="716"
+   />
+
+</p>
+<p>可以根据自己需求来修改。</p>
+<p>接下来我们配置Zabbix的告警配置</p>
+<ul>
+<li>创建新的告警媒介：媒介类型选择脚本，提前将上方的脚本放置于<code>/usr/lib/zabbix/alertscripts</code>中并在脚本名称处填写你命名的文件名。</li>
+</ul>
+<p><img class="img-fluid" alt="image-20221130202403729" src="https://bajie.dev/posts/20221130-zabbix_dingding/image-20221130202403729.png" loading="lazy"
+   width="1271" height="508"
+   />
+
+</p>
+<ul>
+<li>
+<p>添加告警参数：这里用到了3个参数，第一个是<code>{ALERT.SENDTO}</code>告警对象，第二个是<code>{ALERT.SUBJECT}</code>告警对象，第三个是<code>{ALERT.MESSAGE}</code>告警正文，按照填写即可。</p>
+<p><code>ALERT.SENDTO}</code></p>
+<p>#对应Python脚本中的，user=sys.argv<a href="%e5%8f%91%e7%bb%99%e9%92%89%e9%92%89%e7%be%a4%e4%b8%ad%e5%93%aa%e4%b8%aa%e7%94%a8%e6%88%b7">1</a>
+。</p>
+<p><code>{ALERT.SUBJECT}</code></p>
+<p>#发送的信息的标题</p>
+<p><code>{ALERT.MESSAGE}</code></p>
+<p>#对应Python脚本中的，text=sys.argv<a href="%e5%8f%91%e9%80%81%e7%9a%84%e6%8a%a5%e8%ad%a6%e5%86%85%e5%ae%b9">3</a>
+。</p>
+</li>
+</ul>
+<p><img class="img-fluid" alt="image-20221130202515847" src="https://bajie.dev/posts/20221130-zabbix_dingding/image-20221130202515847.png" loading="lazy"
+   width="1238" height="613"
+   />
+
+</p>
+<ul>
+<li>
+<p>增加Message type：一般增加3个就足够了，发现问题、问题恢复、问题更新，详细的设置在下方说明。</p>
+<p><img class="img-fluid" alt="image-20221130203406737" src="https://bajie.dev/posts/20221130-zabbix_dingding/image-20221130203406737.png" loading="lazy"
+   width="1716" height="633"
+   />
+
+</p>
+<p>这里就是<strong>关键</strong>了：</p>
+<p>发现问题的模板：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln">1</span><span class="cl">![告警平台信息](http://www.rendoumi.com/fire.png)
+</span></span><span class="line"><span class="ln">2</span><span class="cl">&gt; * ##### 告警主机: {HOSTNAME1}
+</span></span><span class="line"><span class="ln">3</span><span class="cl">&gt; * ##### 告警时间: {EVENT.DATE} {EVENT.TIME}
+</span></span><span class="line"><span class="ln">4</span><span class="cl">&gt; * ##### 告警等级: {TRIGGER.SEVERITY}
+</span></span><span class="line"><span class="ln">5</span><span class="cl">&gt; * ##### 告警信息: {TRIGGER.NAME}
+</span></span><span class="line"><span class="ln">6</span><span class="cl">&gt; * ##### 告警项目: {TRIGGER.KEY1}
+</span></span><span class="line"><span class="ln">7</span><span class="cl">&gt; * ##### 问题详情: {ITEM.NAME}:{ITEM.VALUE}
+</span></span><span class="line"><span class="ln">8</span><span class="cl">&gt; * ##### 当前状态: {TRIGGER.STATUS}:{ITEM.VALUE1}
+</span></span><span class="line"><span class="ln">9</span><span class="cl">&gt; * ##### 事件ID: {EVENT.ID}
+</span></span></code></pre></div><p>Problem recovery(问题恢复)的模板：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln">1</span><span class="cl">![告警平台信息](http://www.rendoumi.com/recover.png)
+</span></span><span class="line"><span class="ln">2</span><span class="cl">&gt; * #### 警告解除：{EVENT.RECOVERY.DATE} {EVENT.RECOVERY.TIME}
+</span></span><span class="line"><span class="ln">3</span><span class="cl">&gt; * ##### 告警持续时长: {EVENT.DURATION}
+</span></span><span class="line"><span class="ln">4</span><span class="cl">&gt; * ##### 告警主机: {HOST.NAME}
+</span></span><span class="line"><span class="ln">5</span><span class="cl">&gt; * ##### 告警信息: {EVENT.NAME}
+</span></span><span class="line"><span class="ln">6</span><span class="cl">&gt; * ##### 告警等级: {EVENT.SEVERITY}
+</span></span><span class="line"><span class="ln">7</span><span class="cl">&gt; * ##### 事件ID: {EVENT.ID}
+</span></span><span class="line"><span class="ln">8</span><span class="cl">&gt; * ##### {TRIGGER.URL}
+</span></span></code></pre></div><p>有这两个就够了</p>
+</li>
+<li>
+<p>创建动作（点击左边菜单的配置&mdash;&gt;动作）</p>
+<p><img class="img-fluid" alt="image-20221130204220981" src="https://bajie.dev/posts/20221130-zabbix_dingding/image-20221130204220981.png" loading="lazy"
+   width="1905" height="712"
+   />
+
+</p>
+<p>添加告警条件</p>
+<p><img class="img-fluid" alt="image-20221130204324423" src="https://bajie.dev/posts/20221130-zabbix_dingding/image-20221130204324423.png" loading="lazy"
+   width="1088" height="481"
+   />
+
+</p>
+<p>添加 <strong>触发器示警度 大于等于 警告</strong></p>
+</li>
+</ul>
+<p><img class="img-fluid" alt="image-20221130204451489" src="https://bajie.dev/posts/20221130-zabbix_dingding/image-20221130204451489.png" loading="lazy"
+   width="695" height="280"
+   />
+
+</p>
+<p>操作，选择发送给Admin组，或者其他组。</p>
+<p><img class="img-fluid" alt="image-20221130204704354" src="https://bajie.dev/posts/20221130-zabbix_dingding/image-20221130204704354.png" loading="lazy"
+   width="1132" height="708"
+   />
+
+</p>
+<p>在操作细节里，我们发送告警到Admin组，然后方式选dingding，这样就跟报警媒介联系起来了。</p>
+<p><img class="img-fluid" alt="image-20221130205304248" src="https://bajie.dev/posts/20221130-zabbix_dingding/image-20221130205304248.png" loading="lazy"
+   width="938" height="718"
+   />
+
+</p>
+<p>这样一轮轮的更新以后，就可以使用了。注意要研究Markdown的语法。另外提前准备好图片。</p>
+<p>我们就得到一个跟阿里云告警一摸一样的东西了，说实话，好看，没有鸟用。</p>
+<p><img class="img-fluid" alt="image-20221130204921458" src="https://bajie.dev/posts/20221130-zabbix_dingding/image-20221130204921458.png" loading="lazy"
+   width="515" height="394"
+   />
+
+</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-coffee"></i>打赏</h5>
+        <a href="#" data-bs-dismiss="modal" class="btn btn-sm btn-outline-primary" aria-label="Close"><i class="fas fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs flex-nowrap mb-3" role="tablist"><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>支付宝
+            </a>
+          </li><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>微信
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+  <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
+    <a href="https://bajie.dev/posts/20221124-k8s_nfs/">Kubernetes使用nfs做持久化卷存储
+</a>
+  </div></div><section class="related-posts-wrapper">
+    <h3>相关文章</h3>
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20221124-k8s_nfs/">Kubernetes使用nfs做持久化卷存储
+</a></li><li><a href="https://bajie.dev/posts/20221123-dingding/">钉钉告警发送
+</a></li><li><a href="https://bajie.dev/posts/20221123-freelancer_aws/">Freelancer之aws
+</a></li><li><a href="https://bajie.dev/posts/20221123-freelancer_qrcode/">Freelancer之QRCode
+</a></li><li><a href="https://bajie.dev/posts/20221122-mysqldump_binlog/">MySQL数据库的备份和恢复之二
+</a></li></ul>
+  </section></div>
+</article><div class="post-comments card row component">
+  <div class="card-body"><div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-zhangrr-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a></div>
+</div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container">
+    
+    <section class="card row text-center profile component">
+  <div class="card-body">
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Zhang Ranrui" src="https://bajie.dev/images/bajie_01.jpg" loading="lazy"
+   width="391" height="644"
+   />
+</div>
+    <div class="col-12 profile-meta"><div class="profile-name">Zhang Ranrui</div><div class="profile-bio">Devops, SA, 运维全干工程师.</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>Company</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>Earth</div><div class="profile-about"><i class="fas fa-fw fa-user"></i><a target="_blank" rel="noopener noreferrer" href="http://www.rendoumi.com">关于我</a></div></div>
+  </div>
+</section>
+  <section class="featured-posts row card component">
+    <div class="card-body">
+      <h2 class="card-title">精选文章</h2>
+      <ul><li><a href="https://bajie.dev/posts/markdown-syntax/">Markdown Syntax Guide
+</a></li></ul>
+    </div>
+  </section><section class="recent-posts row card component">
+  <div class="card-body">
+    <h2 class="card-title">最近文章</h2>
+    <ul><li><a href="https://bajie.dev/posts/20221130-zabbix_dingding/">Zabbix下发往钉钉告警
+</a></li><li><a href="https://bajie.dev/posts/20221124-k8s_nfs/">Kubernetes使用nfs做持久化卷存储
+</a></li><li><a href="https://bajie.dev/posts/20221123-dingding/">钉钉告警发送
+</a></li><li><a href="https://bajie.dev/posts/20221123-freelancer_aws/">Freelancer之aws
+</a></li><li><a href="https://bajie.dev/posts/20221123-freelancer_qrcode/">Freelancer之QRCode
+</a></li></ul>
+  </div>
+</section><section class="taxonomies row card component">
+      <div class="card-body">
+        <h2 class="card-title">
+          <a href="https://bajie.dev/series">专栏</a>
+        </h2>
+        <div><a href="https://bajie.dev/series/manual/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Manual">
+            Manual
+          </a></div>
+      </div>
+    </section><section class="taxonomies row card component">
+      <div class="card-body">
+        <h2 class="card-title">
+          <a href="https://bajie.dev/tags">标签</a>
+        </h2>
+        <div><a href="https://bajie.dev/tags/css/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="CSS">
+            CSS
+          </a><a href="https://bajie.dev/tags/html/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="HTML">
+            HTML
+          </a><a href="https://bajie.dev/tags/markdown/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Markdown">
+            Markdown
+          </a></div>
+      </div>
+    </section>
+    
+  </div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:zhangranrui@gmail.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/zhangrr" title="GitHub" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://www.reddit.com/user/defunct9" title="Reddit" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-reddit"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/defunct9" title="Telegram" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a></nav>
+<div class="copyright mb-2">
+  Copyright © 2020-2022 Zhang Ranrui. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+</div></footer>
+
+</body>
+</html>
