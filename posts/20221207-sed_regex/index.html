@@ -3,17 +3,17 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>sed中的正则 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>sed中的正则表达式用法 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="sed中的正则">
+<meta name="description" content="" /><meta itemprop="name" content="sed中的正则表达式用法">
 <meta itemprop="description" content="之前说过sed的高阶用法，其实普通情况下，正则是最常用的，下面就来说一下，用不到的就暂时不说 1^ # 匹配行开始，如：/^sed/匹配所有以sed"><meta itemprop="datePublished" content="2022-12-07T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2022-12-07T09:30:11+08:00" />
 <meta itemprop="wordCount" content="961">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="sed中的正则" />
+<meta itemprop="keywords" content="" /><meta property="og:title" content="sed中的正则表达式用法" />
 <meta property="og:description" content="之前说过sed的高阶用法，其实普通情况下，正则是最常用的，下面就来说一下，用不到的就暂时不说 1^ # 匹配行开始，如：/^sed/匹配所有以sed" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://bajie.dev/posts/20221207-sed_regex/" /><meta property="article:section" content="posts" />
@@ -21,7 +21,7 @@
 <meta property="article:modified_time" content="2022-12-07T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="sed中的正则"/>
+<meta name="twitter:title" content="sed中的正则表达式用法"/>
 <meta name="twitter:description" content="之前说过sed的高阶用法，其实普通情况下，正则是最常用的，下面就来说一下，用不到的就暂时不说 1^ # 匹配行开始，如：/^sed/匹配所有以sed"/>
 <link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
@@ -114,7 +114,7 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=sed%e4%b8%ad%e7%9a%84%e6%ad%a3%e5%88%99&url=https%3a%2f%2fbajie.dev%2fposts%2f20221207-sed_regex%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=sed%e4%b8%ad%e7%9a%84%e6%ad%a3%e5%88%99%e8%a1%a8%e8%be%be%e5%bc%8f%e7%94%a8%e6%b3%95&url=https%3a%2f%2fbajie.dev%2fposts%2f20221207-sed_regex%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">Sed中的正则</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">Sed中的正则表达式用法</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -207,7 +207,7 @@
     
   </div>
 </div>
-<h1 class="card-title my-3">Sed中的正则
+<h1 class="card-title my-3">Sed中的正则表达式用法
 </h1><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2022-12-07
   </span><span class="post-reading-time" title="reading time">
@@ -328,11 +328,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20221207-cordns_dnsmasq/">CoreDNS替代dnsmasq
-</a></li><li><a href="https://bajie.dev/posts/20221207-sed_regex/">Sed中的正则
+    <ul><li><a href="https://bajie.dev/posts/20221217-megacli/">Megacli操作磁盘的常用命令
+</a></li><li><a href="https://bajie.dev/posts/20221208-oracle_rman/">Oracle使用rman定时清除7天前的日志
+</a></li><li><a href="https://bajie.dev/posts/20221207-cordns_dnsmasq/">CoreDNS替代dnsmasq
+</a></li><li><a href="https://bajie.dev/posts/20221207-sed_regex/">Sed中的正则表达式用法
 </a></li><li><a href="https://bajie.dev/posts/20221130-zabbix_dingding/">Zabbix下发往钉钉告警
-</a></li><li><a href="https://bajie.dev/posts/20221124-k8s_nfs/">Kubernetes使用nfs做持久化卷存储
-</a></li><li><a href="https://bajie.dev/posts/20221123-dingding/">钉钉告警发送
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
