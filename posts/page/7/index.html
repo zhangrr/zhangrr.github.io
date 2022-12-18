@@ -183,6 +183,97 @@
   </div>
 </nav><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211125-kubernetes_hpa/">Kubernetes的hpa和自定义指标hpa
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-25
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>8 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          kubernetes 的动态伸缩 HPA 是非常有用的特性。 我们的服务器托管在阿里云的 ACK 上，k8s 根据 cpu 或者 内存的使用情况，会自动伸缩关键 pod 的数量，以应对大流量的情形。
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211124-ansible_vault/">Ansible Vault加密的使用
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-24
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          公司已经由 saltstack 全面转向了 ansible 。 用 ansible-playbook 执行各种任务的时候，需要登录主机，就必然涉及到主机 ssh 密码的输入。 最早我们是在 inventory 里做了定义： 1[deqin:vars] 2ansible_ssh_common_args=&#34;-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null&#34; 3host_key_checking=False 4ansible_ssh_user=&#34;peadmin&#34; 5ansible_ssh_pass=&#34;Fuck2021!&#34; …
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211123-freeipa_freeradius/">使用FreeIPA和FreeRadius搭建双因子认证服务器
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-23
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          审计啊审计，公司使用的华为防火墙需要配置双因子登录认证，这下麻烦了。 查了一下华为手册，支持 Radius 认证，那么没办法，最省钱的办法就是用 FreeIPA 和 FreeRadius 搭一套
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211119-kvm_disk_passthrough/">KVM下附加硬盘的passthrough直通
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-19
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          这个比较有意思，同事要存放 2TB 的数据，但是系统是 1.7TB 的 4 块 600G 盘组成的 Raid10。 很明显盘空间不够了，去库房找两块 10TB 的大盘组成 Raid1 给他用好了。 问题
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211119-linux_rescue/">CentOS7的救援模式和紧急模式
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-19
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          说到 CentOS7 的紧急模式与救援模式，网上可以搜到漫天飞的帖子，说一下区别 RESCUE 救援模式： 救援模式启动的系统没有挂载硬盘，可以将硬盘 mount 出然后拷出数据。 EMERGENCY 紧
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211116-pacproxy/">Linux下web Pacproxy的用法
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-16
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          说实在话，这个场景非常怪异，客户在 linux 下要动态根据 url 选择代理： 看图，中间的是前端代理，地址是 192.168.1.1:8080，然后客户设置使用
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211115-tomcat_config/">Tomcat Server.xml配置详细解释
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-15
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          Tomcat 是一个 HTTP server。同时，它也是一个 serverlet 容器，可以执行 java 的 Servlet，也可以把 JavaServer Pages（JSP）和 JavaServerFaces（
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
         <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211115-gluster_tuning/">GlusterFS文件系统的优化
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-11-15
@@ -220,97 +311,6 @@
           我们介绍了如何在 kubernetes 环境中使用 filebeat sidecar 方式收集日志 使用的是 filebeat 的 moudle 模块，但凡是常用的软件，基本都有对应的模块可用，所以我们首先应该使用模块来收集日志
         </div>
       </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211110-k8s_gfs/">生产环境kubernetes使用持久化卷GlusterFS
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-10
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          在生产环境使用 Kubernetes ，绕不过去的一个问题就是持久化卷。 如果是使用阿里 ACK 托管平台的话，可以用 OSS 来持久化卷，如果是自搭的 kubernetes，那么存
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211110-k8s_sidecar/">Kubernetes生产环境使用filebeat Sidecar收集日志
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-10
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          在生产环境中，ES 通常是不会在 k8s 集群中存在的，一般 MySQL 和 Elasticsearch 都是独立在 k8s 之外。 那么无论哪种 pod，要甩日志到 ES，最轻量的方案肯定是用 filebeat 甩过去了
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211110-haproxy_multiple_port/">Haproxy一个端口跑多个服务
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-10
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          我们选择 haproxy 1.8 版本以上的，编译安装到路径 /export/servers/haproxy 1make TARGET=linux2628 PREFIX=/export/servers/haproxy USE_GETADDRINFO=1 USE_ZLIB=1 USE_REGPARM=1 USE_OPENSSL=1 \ 2 USE_SYSTEMD=1 USE_PCRE=1 USE_PCRE_JIT=1 USE_NS=1 3 4make install PREFIX=/export/servers/haproxy 编辑 haproxy.conf 配置文件： 1global 2 maxconn 5120 3 chroot …
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211110-sslh_multiple_port/">Sslh的一个端口同时跑多个服务
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-10
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          Ucloud的机器在两会期间干脆端口全灭，firewall设置进来的端口全关闭！！！！！！ 还好有个Global ssh的服务，可以 ssh ubuntu@111.129.37.89.ipssh.net 登录上去
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211109-nginx_multiple_port/">Nginx的一个端口同时跑SSH和HTTPS服务
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-09
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          这个要求挺古怪的，背景是防火墙只开了 nginx 443 端口。我也想同时 ssh 登录进去，但是F5没开IP 就只能这么干了，让 Nginx 一个端口跑多个服务 在 nginx.conf 加一段，str
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211109-k8s_rbac/">Kubernetes创建普通账号
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-09
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          kubernetes 装好正常运行一段时间后，会出现要把研发和运维权限分开的场景： 比如： 给某个用户某一指定名称空间下的管理权限 给用户赋予集群的只读权限 … 非常麻烦
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211108-clash/">Clash的搭建教程
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-08
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          没啊办法，翻墙翻墙还是翻墙。 上游有若干 trojian 、v2ray 、sock5 、http各种各样的代理，这样多种的选择，那么就装一个 clash 客户端就可以全接管了
-        </div>
-      </div>
     </article></div><div class="row table-responsive mb-3">
     <ul class="pagination pagination-default">
       <li class="page-item">
@@ -338,7 +338,7 @@
         <a href="/posts/page/8/" aria-label="Next" class="page-link" role="button"><span aria-hidden="true">&raquo;</span></a>
       </li>
       <li class="page-item">
-        <a href="/posts/page/11/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
+        <a href="/posts/page/12/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
       </li>
     </ul></div>
 </div>
@@ -364,11 +364,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20221217-megacli/">Megacli操作磁盘的常用命令
-</a></li><li><a href="https://bajie.dev/posts/20221208-oracle_rman/">Oracle使用rman定时清除7天前的日志
-</a></li><li><a href="https://bajie.dev/posts/20221207-cordns_dnsmasq/">CoreDNS替代dnsmasq
-</a></li><li><a href="https://bajie.dev/posts/20221207-sed_regex/">Sed中的正则表达式用法
-</a></li><li><a href="https://bajie.dev/posts/20221130-zabbix_dingding/">Zabbix下发往钉钉告警
+    <ul><li><a href="https://bajie.dev/posts/20221218-dell_idrac_remote_share/">Dell服务器设置远程文件共享
+</a></li><li><a href="https://bajie.dev/posts/20221218-dell_memory/">Dell机器主板VLT0204故障处理以及内存插法
+</a></li><li><a href="https://bajie.dev/posts/20221218-centos7_upgrade_kernel/">升级CentOS7的kernel核心
+</a></li><li><a href="https://bajie.dev/posts/20221218-centos7_passwd/">合规要求之CentOS7的用户密码策略
+</a></li><li><a href="https://bajie.dev/posts/20221218-cacti_time_filter/">老版本cacti的图形filter突然失效的解决办法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
