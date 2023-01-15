@@ -1,0 +1,564 @@
+<!doctype html><html lang="zh-cn"
+  >
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>运维方案之canal数据库同步 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
+<meta name="keywords" content="" />
+<meta name="description" content="" /><meta itemprop="name" content="运维方案之canal数据库同步">
+<meta itemprop="description" content="普遍的大数据抽数的方式都是从散落在各个地方的 MySQL 数据库中开账号，然后把数据同步过来。 这不，大数据的同事提出了一个需求，想把某个库中的某个表的数"><meta itemprop="datePublished" content="2023-01-15T10:05:11+08:00" />
+<meta itemprop="dateModified" content="2023-01-15T10:05:11+08:00" />
+<meta itemprop="wordCount" content="1836">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="运维方案之canal数据库同步" />
+<meta property="og:description" content="普遍的大数据抽数的方式都是从散落在各个地方的 MySQL 数据库中开账号，然后把数据同步过来。 这不，大数据的同事提出了一个需求，想把某个库中的某个表的数" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://bajie.dev/posts/20230115-canal_mysql/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-01-15T10:05:11+08:00" />
+<meta property="article:modified_time" content="2023-01-15T10:05:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="运维方案之canal数据库同步"/>
+<meta name="twitter:description" content="普遍的大数据抽数的方式都是从散落在各个地方的 MySQL 数据库中开账号，然后把数据同步过来。 这不，大数据的同事提出了一个需求，想把某个库中的某个表的数"/>
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <div class="container">
+    <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
+  aria-controls="offcanvasSettings" aria-label="Toggle settings">
+  <i class="fas fa-bars"></i>
+</button>
+
+<div class="offcanvas offcanvas-start surface" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasSettings">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">设置</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body">
+
+<section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+
+<section class="setting">
+  <form class="font-size-switcher-form row">
+    <div class="col-auto">
+      <label for="fontSize" class="form-label"><i class="fas fa-fw fa-font"></i> 字体大小</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <input type="range" class="form-range" min="-2" max="2" id="fontSize">
+    </div>
+  </form>
+</section>
+
+
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a id="btnPalette" class="btn btn-sm btn-outline-primary" role="button" aria-label="palettePicker">
+        <i class="fas fa-eye-dropper"></i>
+      </a>
+    </div>
+  </form>
+  <div class="mt-2 d-flex visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="蓝色"
+        class="btn btn-sm palette" data-palette="blue">
+      </button><button type="button" id="palette-blue-gray" aria-label="蓝灰色"
+        class="btn btn-sm palette" data-palette="blue-gray">
+      </button><button type="button" id="palette-brown" aria-label="棕色"
+        class="btn btn-sm palette" data-palette="brown">
+      </button><button type="button" id="palette-cyan" aria-label="青色"
+        class="btn btn-sm palette" data-palette="cyan">
+      </button><button type="button" id="palette-green" aria-label="绿色"
+        class="btn btn-sm palette" data-palette="green">
+      </button><button type="button" id="palette-indigo" aria-label="靛青色"
+        class="btn btn-sm palette" data-palette="indigo">
+      </button><button type="button" id="palette-orange" aria-label="橙色"
+        class="btn btn-sm palette" data-palette="orange">
+      </button><button type="button" id="palette-pink" aria-label="粉色"
+        class="btn btn-sm palette" data-palette="pink">
+      </button><button type="button" id="palette-purple" aria-label="紫色"
+        class="btn btn-sm palette" data-palette="purple">
+      </button><button type="button" id="palette-red" aria-label="红色"
+        class="btn btn-sm palette" data-palette="red">
+      </button><button type="button" id="palette-teal" aria-label="蓝绿色"
+        class="btn btn-sm palette" data-palette="teal">
+      </button><button type="button" id="palette-yellow" aria-label="黄色"
+        class="btn btn-sm palette" data-palette="yellow">
+      </button></div>
+</section>
+<section class="setting social-share">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-share-alt"></i> Share</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a class="btn btn-sm btn-outline-primary btn-social-share"><i class="fas fa-share"></i></a>
+    </div>
+  </form>
+  <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
+      target="_blank" href="https://twitter.com/intent/tweet?title=%e8%bf%90%e7%bb%b4%e6%96%b9%e6%a1%88%e4%b9%8bcanal%e6%95%b0%e6%8d%ae%e5%ba%93%e5%90%8c%e6%ad%a5&url=https%3a%2f%2fbajie.dev%2fposts%2f20230115-canal_mysql%2f">
+      <i class="fab fa-fw fa-twitter"></i> Twitter
+    </a>
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20230115-canal_mysql%2f">
+      <i class="fab fa-fw fa-facebook-f"></i> Facebook
+    </a>
+  </div>
+</section>
+
+</div>
+</div>
+<a class="navbar-brand me-3" href="https://bajie.dev"><img class="logo" alt="Logo" src="https://bajie.dev/images/logo.webp" loading="lazy"
+   width="136" height="69"
+   />
+八戒
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="fas fa-ellipsis-v"></i>
+    </button>
+    <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
+      <form class="search-bar my-1" action="https://bajie.dev/search">
+  <div class="input-group input-group-sm">
+    <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
+    <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
+  </div>
+</form>
+
+      <ul class="navbar-nav ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/categories/">
+            <i class="fas fa-fw fa-folder"></i>分类
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/tags/">
+            <i class="fas fa-fw fa-tags"></i>标签
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/series/">
+            <i class="fas fa-fw fa-columns"></i>专栏
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-chevron-circle-down"></i>下拉菜单
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-dropdown"><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                <i class="fab fa-fw fa-github"></i>Github
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://bajie.dev/zh-cn/series/manual">
+                用户手册
+              </a>
+            </li></ul>
+        </li></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body">
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">运维方案之canal数据库同步</li></ol>
+  </div>
+</nav><article class="post row card mb-4 component">
+  <div class="card-body"><div class="post-panel-wrapper">
+  <div class="post-panel d-flex flex-column">
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+  <i class="fas fa-fw fa-expand-arrows-alt"></i>
+</a>
+  
+    
+
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
+  <i class="fas fa-fw fa-coffee"></i>
+</a>
+    <a class="action" data-bs-container="body" data-bs-toggle="popover" data-bs-html="true" data-bs-placement="bottom"
+  data-bs-trigger="focus" tabindex="0" type="button" aria-label="Copyright" 
+  data-bs-content="&lt;a target=&#34;_blank&#34; rel=&#34;license noopener noreferrer&#34; href=&#34;https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh&#34;&gt;CC BY-NC-ND 4.0 &lt;i class=&#34;fab fa-fw fa-creative-commons&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-by&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-nc&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-nd&#34;&gt;&lt;/i&gt;&lt;/a&gt;
+">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
+    <a data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+  <i class="fas fa-fw fa-list-alt"></i>
+</a>
+  </div>
+</div>
+<h1 class="card-title my-3">运维方案之canal数据库同步
+</h1><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-01-15
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>4 分钟阅读
+  </span></div>
+<div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+  </div>
+  <div class="offcanvas-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div><div class="post-content mb-3"><p>普遍的大数据抽数的方式都是从散落在各个地方的 MySQL 数据库中开账号，然后把数据同步过来。</p>
+<p>这不，大数据的同事提出了一个需求，想把某个库中的某个表的数据单独同步到大数据的统一库中的某个表中。</p>
+<p>研究了一个星期，canal 的配置对运维来说非常的不友好，除非用它那个 admin 的 dashboard，但是运维通常是 cli 界面，谁没事装个 dashboard 来配置呢，太 low 了。</p>
+<p>用的是 canal 1.1.5 的版本，不能升级，升级后 java 不对了。还没有到用 1.1.6 的时候！</p>
+<p>背景：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">源数据库：10.8.2.12 
+</span></span><span class="line"><span class="ln">2</span><span class="cl">库：xxl_job
+</span></span><span class="line"><span class="ln">3</span><span class="cl">表：demotable666
+</span></span><span class="line"><span class="ln">4</span><span class="cl">
+</span></span><span class="line"><span class="ln">5</span><span class="cl">目的数据库：10.8.2.17
+</span></span><span class="line"><span class="ln">6</span><span class="cl">库：xxl_job_bak
+</span></span><span class="line"><span class="ln">7</span><span class="cl">表：demotable666
+</span></span></code></pre></div><p>而且不用任何的Zookeeper、Kafka、RabbitMQ的中间件，越简洁越好。</p>
+<h5 id="一安装canal">一、安装canal</h5>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">wget https://github.com/alibaba/canal/releases/download/canal-1.1.5/canal.deployer-1.1.5.tar.gz
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">wget https://github.com/alibaba/canal/releases/download/canal-1.1.5/canal.adapter-1.1.5.tar.gz
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="c1">#都装到 /app 目录下</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">mkdir /app
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">mkdir /app/deploy
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">mkdir /app/adapter
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="nb">cd</span> /app/deploy
+</span></span><span class="line"><span class="ln">10</span><span class="cl">tar zxvf canal.deployer-1.1.5.tar.gz
+</span></span><span class="line"><span class="ln">11</span><span class="cl">
+</span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="nb">cd</span> /app/adapter
+</span></span><span class="line"><span class="ln">13</span><span class="cl">tar zxvf canal.adapter-1.1.5.tar.gz
+</span></span></code></pre></div><h5 id="二mysql源准备">二、MySQL源准备</h5>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1"># /etc/my.cnf 加入以下几项并重启</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="o">[</span>mysqld<span class="o">]</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">log-bin<span class="o">=</span>mysql-bin <span class="c1"># Start log bin.</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="nv">binlog_format</span><span class="o">=</span>ROW <span class="c1"># Log format.</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl">server-id<span class="o">=</span><span class="m">1</span> <span class="c1"># Server id,different from slave.</span>
+</span></span></code></pre></div><p>授权binlog同步：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1"># 创建用户授权</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">mysql&gt; CREATE USER canal IDENTIFIED BY <span class="s1">&#39;canal&#39;</span><span class="p">;</span>    
+</span></span><span class="line"><span class="ln">3</span><span class="cl">mysql&gt; GRANT SELECT, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO <span class="s1">&#39;canal&#39;</span>@<span class="s1">&#39;10.8.2.17&#39;</span> identified by <span class="s2">&#34;xxxxxx&#34;</span><span class="p">;</span> 
+</span></span><span class="line"><span class="ln">4</span><span class="cl">mysql&gt; FLUSH PRIVILEGES<span class="p">;</span> 
+</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="c1"># 查看授权</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl">mysql&gt; show grants <span class="k">for</span> <span class="s1">&#39;canal&#39;</span><span class="p">;</span>
+</span></span></code></pre></div><h5 id="三配置deploy">三、配置deploy</h5>
+<p>其实关键就是两个配置</p>
+<p>1、canal.properties</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">mkdir /app/deploy/conf/10.8.2.12
+</span></span><span class="line"><span class="ln">2</span><span class="cl">cp /app/deploy/conf/example/instance.properties /app/deploy/conf/10.8.2.12
+</span></span><span class="line"><span class="ln">3</span><span class="cl">
+</span></span><span class="line"><span class="ln">4</span><span class="cl">vi /app/deploy/conf/canal.properties
+</span></span><span class="line"><span class="ln">5</span><span class="cl">
+</span></span><span class="line"><span class="ln">6</span><span class="cl"><span class="c1">#就改两个地方</span>
+</span></span><span class="line"><span class="ln">7</span><span class="cl">canal.destinations <span class="o">=</span> 10.8.2.12
+</span></span><span class="line"><span class="ln">8</span><span class="cl">canal.auto.scan <span class="o">=</span> <span class="nb">false</span>
+</span></span></code></pre></div><p>注意，上面一定要把 <strong>canal.auto.scan</strong> 修改成 false，否则它会自动扫描 conf 目录下的所有配置，这样 example 子目录无论是否有用到，配置都会被扫进去。这不是神经病么，典型的 java 程序猿自以为是的配置。</p>
+<p>2、instance.properties 的配置</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">vi /app/deploy/conf/10.8.2.12/instance.properties
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="c1"># instance.properties 是拷贝example目录中的</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="c1"># 改动</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">canal.instance.master.address<span class="o">=</span>10.8.2.12:3306
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">canal.instance.tsdb.enable<span class="o">=</span><span class="nb">false</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="c1"># username/password</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">canal.instance.dbUsername<span class="o">=</span>canal
+</span></span><span class="line"><span class="ln">11</span><span class="cl">canal.instance.dbPassword<span class="o">=</span>xxxxxx
+</span></span><span class="line"><span class="ln">12</span><span class="cl">
+</span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="c1"># table regex</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="c1">#1. 所有表：.*   or  .*\\..*</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="c1">#2. canal schema下所有表： canal\\..*</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="c1">#3. canal下的以canal打头的表：canal\\.canal.*</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="c1">#4. canal schema下的一张表：canal\\.test1</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="c1">#5. 多个规则组合使用：canal\\..*,mysql.test1,mysql.test2 (逗号分隔)</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl"><span class="c1">#canal.instance.filter.regex=.*\\..*</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl">canal.instance.filter.regex<span class="o">=</span>xxl_job<span class="se">\\</span>..*
+</span></span></code></pre></div><p>上面其实就是设置了 canal 去伪装成一个 slave，读取 binlog 日志，并且过滤只读取 xxl_job 的日志。</p>
+<p>启动 deploy</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="nb">cd</span> /app/deploy/bin
+</span></span><span class="line"><span class="ln">2</span><span class="cl">./startup.sh
+</span></span></code></pre></div><p>看看日志无异常即可：</p>
+<p><img class="img-fluid" alt="image-20230115173819694" src="https://bajie.dev/posts/20230115-canal_mysql/image-20230115173819694.png" loading="lazy"
+   width="1633" height="643"
+   />
+
+</p>
+<h5 id="四准备好目的数据库的库表结构">四、准备好目的数据库的库表结构</h5>
+<p>源数据库已经有 demotable666 的表了，我们需要在目的数据库事先准备好 demotable666</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1"># 在 10.8.2.17 的 xxl_job_bak 库上执行</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">mysql&gt; use xxl_job_bak<span class="p">;</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">mysql&gt; create table demotable666<span class="o">(</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">   UserId int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+</span></span><span class="line"><span class="ln">5</span><span class="cl">   UserName varchar<span class="o">(</span>100<span class="o">)</span>,
+</span></span><span class="line"><span class="ln">6</span><span class="cl">   UserLoginDate date NOT NULL
+</span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">8</span><span class="cl">Query OK, <span class="m">0</span> rows affected <span class="o">(</span>0.04 sec<span class="o">)</span>
+</span></span></code></pre></div><h5 id="五设置adapter">五、设置adapter</h5>
+<p>1、application.yml</p>
+<p>首先给 canal 的机器对目的库赋 mysql 权</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">mysql&gt; grant all privileges on xxl_job_bak.* to sync_17@<span class="s1">&#39;%&#39;</span> identified by <span class="s2">&#34;xxxxxx&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">mysql&gt; flush privileges<span class="p">;</span>
+</span></span></code></pre></div><p>然后编辑application.yml</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">vi /app/adapter/conf/application.yml
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="c1">#注释掉srcDataSources，mysql 同步到 mysql的场景中完全用不到这个，es要用到</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="c1">#  srcDataSources:</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="c1">#    defaultDS:</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="c1">#      url: jdbc:mysql://127.0.0.1:3306/mytest?useUnicode=true</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="c1">#      username: root</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="c1">#      password: 121212</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">
+</span></span><span class="line"><span class="ln">10</span><span class="cl">  canalAdapters:
+</span></span><span class="line"><span class="ln">11</span><span class="cl">  - instance: 10.8.2.12 <span class="c1"># canal instance Name or mq topic name</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">    groups:
+</span></span><span class="line"><span class="ln">13</span><span class="cl">    - groupId: g1
+</span></span><span class="line"><span class="ln">14</span><span class="cl">      outerAdapters:
+</span></span><span class="line"><span class="ln">15</span><span class="cl">      - name: logger
+</span></span><span class="line"><span class="ln">16</span><span class="cl">      - name: rdb
+</span></span><span class="line"><span class="ln">17</span><span class="cl">        key: mysqlbak1
+</span></span><span class="line"><span class="ln">18</span><span class="cl">        properties:
+</span></span><span class="line"><span class="ln">19</span><span class="cl">          jdbc.driverClassName: com.mysql.jdbc.Driver
+</span></span><span class="line"><span class="ln">20</span><span class="cl">          jdbc.url: jdbc:mysql://10.8.2.17:3306/xxl_job_bak?useUnicode<span class="o">=</span><span class="nb">true</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl">          jdbc.username: sync_17
+</span></span><span class="line"><span class="ln">22</span><span class="cl">          jdbc.password: xxxxxx
+</span></span></code></pre></div><p>注意上面配的instance，这个跟deploy里面的instance没有半毛钱关系，这个是为了rdb里面的配置参考用的。</p>
+<p>2、编辑表同步配置文件mysqlbak1.yml</p>
+<p>注意上面的jdbc.url指定了库是xxl_job_bak，所以下面配置的 targetTable 就是单独一个 demotable666，很多文章里写库名.表名， xxl_job_bak.demotable666，八戒是没这样成功。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1">#用不到的挪成备份</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">mv /app/adapter/conf/rdb/mytest_user.yml /app/adapter/conf/rdb/mytest_user.bak
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">vi /app/adapter/conf/rdb/mysqlbak1.yml
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="c1">#dataSourceKey: mysqlbakDS1</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="c1"># cannal的instance或者MQ的topic</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">destination: 10.8.2.12
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">groupId: g1
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">outerAdapterKey: mysqlbak1
+</span></span><span class="line"><span class="ln">10</span><span class="cl">concurrent: <span class="nb">true</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">
+</span></span><span class="line"><span class="ln">12</span><span class="cl">dbMapping:
+</span></span><span class="line"><span class="ln">13</span><span class="cl">  database: xxl_job
+</span></span><span class="line"><span class="ln">14</span><span class="cl">  table: demotable666
+</span></span><span class="line"><span class="ln">15</span><span class="cl">  targetTable: demotable666
+</span></span><span class="line"><span class="ln">16</span><span class="cl">  targetPk:
+</span></span><span class="line"><span class="ln">17</span><span class="cl">    UserId: UserId
+</span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="c1">#  mapAll: true</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl">  targetColumns:
+</span></span><span class="line"><span class="ln">20</span><span class="cl">    UserId:
+</span></span><span class="line"><span class="ln">21</span><span class="cl">    UserName:
+</span></span><span class="line"><span class="ln">22</span><span class="cl">    UserLoginDate:
+</span></span><span class="line"><span class="ln">23</span><span class="cl"><span class="c1">#  etlCondition: &#34;where c_time&gt;={}&#34;</span>
+</span></span><span class="line"><span class="ln">24</span><span class="cl">  commitBatch: <span class="m">1</span> <span class="c1"># 批量提交的大小</span>
+</span></span></code></pre></div><p>启动 adapter：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="nb">cd</span> /app/adapter/bin
+</span></span><span class="line"><span class="ln">2</span><span class="cl">./startup.sh
+</span></span></code></pre></div><p><img class="img-fluid" alt="image-20230115175316945" src="https://bajie.dev/posts/20230115-canal_mysql/image-20230115175316945.png" loading="lazy"
+   width="1641" height="643"
+   />
+
+</p>
+<p>这样就好了。</p>
+<p>在10.8.2.12的源数据库上插入数据：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="ln">1</span><span class="cl"><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">demotable666</span><span class="p">(</span><span class="n">UserName</span><span class="p">,</span><span class="n">UserLoginDate</span><span class="p">)</span><span class="w"> </span><span class="k">values</span><span class="p">(</span><span class="s1">&#39;john&#39;</span><span class="p">,</span><span class="nb">DATE</span><span class="p">(</span><span class="n">NOW</span><span class="p">()));</span><span class="w">
+</span></span></span></code></pre></div><p>在 10.8.2.17 可以看到新数据自动过来了，这样就搞定了。</p>
+<h5 id="六拓展整库同步">六、拓展整库同步</h5>
+<p>上面我们实现了表同步，下面拓展说一下如何实现整库的同步：</p>
+<p>1、设置application.yml，rdb增加一个key: mysqlbak2，jdbc.url 连接串不设置库名</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">  canalAdapters:
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">  - instance: 10.8.2.12 <span class="c1"># canal instance Name or mq topic name</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">    groups:
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">    - groupId: g1
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">      outerAdapters:
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">      - name: logger
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">      - name: rdb
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">        key: mysqlbak1
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">        properties:
+</span></span><span class="line"><span class="ln">10</span><span class="cl">          jdbc.driverClassName: com.mysql.jdbc.Driver
+</span></span><span class="line"><span class="ln">11</span><span class="cl">          jdbc.url: jdbc:mysql://10.8.2.17:3306/xxl_job_bak?useUnicode<span class="o">=</span><span class="nb">true</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">          jdbc.username: sync_17
+</span></span><span class="line"><span class="ln">13</span><span class="cl">          jdbc.password: xxxxxx
+</span></span><span class="line"><span class="ln">14</span><span class="cl">      - name: rdb
+</span></span><span class="line"><span class="ln">15</span><span class="cl">        key: mysqlbak2
+</span></span><span class="line"><span class="ln">16</span><span class="cl">        properties:
+</span></span><span class="line"><span class="ln">17</span><span class="cl">          jdbc.driverClassName: com.mysql.jdbc.Driver
+</span></span><span class="line"><span class="ln">18</span><span class="cl">          jdbc.url: jdbc:mysql://10.8.2.17:3306/?useUnicode<span class="o">=</span><span class="nb">true</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl">          jdbc.username: sync_17
+</span></span><span class="line"><span class="ln">20</span><span class="cl">          jdbc.password: xxxxxx
+</span></span></code></pre></div><p>2、编辑表同步配置文件mysqlbak2.yml</p>
+<p>注意，里面其实只有一个配置起作用 database，而且目的库中必须事先建立好xxl_job的库表结构，库名也必须和源中库名完全一致，举例来说，从 xxl_job 只能同步到 xxl_job，不能从xxl_job同步到xxl_jobbak中。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1">#dataSourceKey: defaultDS</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="c1"># cannal的instance或者MQ的topic</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">destination: 10.8.2.12
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">groupId: g1
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">outerAdapterKey: mysqlbak2
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">concurrent: <span class="nb">true</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">dbMapping:
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">  mirrorDb: <span class="nb">true</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">  database: xxl_job
+</span></span></code></pre></div><p>然后我们看 10.8.2.17 上面 xxl_job 库里的数据就会增量开始跟源库同步了。</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-coffee"></i>打赏</h5>
+        <a href="#" data-bs-dismiss="modal" class="btn btn-sm btn-outline-primary" aria-label="Close"><i class="fas fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs flex-nowrap mb-3" role="tablist"><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>支付宝
+            </a>
+          </li><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>微信
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+  <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
+    <a href="https://bajie.dev/posts/20230115-seafile_onlyoffice/">Seafile配搭onlyoffice的安装
+</a>
+  </div></div><section class="related-posts-wrapper">
+    <h3>相关文章</h3>
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20230115-seafile_onlyoffice/">Seafile配搭onlyoffice的安装
+</a></li><li><a href="https://bajie.dev/posts/20230112-cka_exam/">Cka的模拟试题
+</a></li><li><a href="https://bajie.dev/posts/20230112-xshell_colors/">Xshell的绿色配色方案
+</a></li><li><a href="https://bajie.dev/posts/20230103-certificates/">2022年获得的证书
+</a></li><li><a href="https://bajie.dev/posts/20221222-dnsmasq_pxe/">DNSMASQ配置PXE的方式
+</a></li></ul>
+  </section></div>
+</article><div class="post-comments card row component">
+  <div class="card-body"><div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-zhangrr-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a></div>
+</div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container">
+    
+    <section class="card row text-center profile component">
+  <div class="card-body">
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Zhang Ranrui" src="https://bajie.dev/images/bajie_01.jpg" loading="lazy"
+   width="391" height="644"
+   />
+</div>
+    <div class="col-12 profile-meta"><div class="profile-name">Zhang Ranrui</div><div class="profile-bio">Devops, SA, 运维全干工程师.</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>Company</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>Earth</div><div class="profile-about"><i class="fas fa-fw fa-user"></i><a target="_blank" rel="noopener noreferrer" href="http://www.rendoumi.com">关于我</a></div></div>
+  </div>
+</section>
+  <section class="featured-posts row card component">
+    <div class="card-body">
+      <h2 class="card-title">精选文章</h2>
+      <ul><li><a href="https://bajie.dev/posts/markdown-syntax/">Markdown Syntax Guide
+</a></li></ul>
+    </div>
+  </section><section class="recent-posts row card component">
+  <div class="card-body">
+    <h2 class="card-title">最近文章</h2>
+    <ul><li><a href="https://bajie.dev/posts/20230115-canal_mysql/">运维方案之canal数据库同步
+</a></li><li><a href="https://bajie.dev/posts/20230115-seafile_onlyoffice/">Seafile配搭onlyoffice的安装
+</a></li><li><a href="https://bajie.dev/posts/20230112-cka_exam/">Cka的模拟试题
+</a></li><li><a href="https://bajie.dev/posts/20230112-xshell_colors/">Xshell的绿色配色方案
+</a></li><li><a href="https://bajie.dev/posts/20230103-certificates/">2022年获得的证书
+</a></li></ul>
+  </div>
+</section><section class="taxonomies row card component">
+      <div class="card-body">
+        <h2 class="card-title">
+          <a href="https://bajie.dev/series">专栏</a>
+        </h2>
+        <div><a href="https://bajie.dev/series/manual/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Manual">
+            Manual
+          </a></div>
+      </div>
+    </section><section class="taxonomies row card component">
+      <div class="card-body">
+        <h2 class="card-title">
+          <a href="https://bajie.dev/tags">标签</a>
+        </h2>
+        <div><a href="https://bajie.dev/tags/css/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="CSS">
+            CSS
+          </a><a href="https://bajie.dev/tags/html/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="HTML">
+            HTML
+          </a><a href="https://bajie.dev/tags/markdown/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Markdown">
+            Markdown
+          </a></div>
+      </div>
+    </section>
+    
+  </div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:zhangranrui@gmail.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/zhangrr" title="GitHub" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://www.reddit.com/user/defunct9" title="Reddit" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-reddit"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/defunct9" title="Telegram" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a></nav>
+<div class="copyright mb-2">
+  Copyright © 2020-2023 Zhang Ranrui. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+</div></footer>
+
+</body>
+</html>
