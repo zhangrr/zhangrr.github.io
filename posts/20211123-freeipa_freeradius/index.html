@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="使用FreeIPA和FreeRadius搭建双因子认证服务器">
 <meta itemprop="description" content="审计啊审计，公司使用的华为防火墙需要配置双因子登录认证，这下麻烦了。 查了一下华为手册，支持 Radius 认证，那么没办法，最省钱的办法就是用 FreeIPA 和 FreeRadius 搭一套"><meta itemprop="datePublished" content="2021-11-23T09:30:11+08:00" />
 <meta itemprop="dateModified" content="2021-11-23T09:30:11+08:00" />
-<meta itemprop="wordCount" content="1451">
+<meta itemprop="wordCount" content="1455">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="使用FreeIPA和FreeRadius搭建双因子认证服务器" />
 <meta property="og:description" content="审计啊审计，公司使用的华为防火墙需要配置双因子登录认证，这下麻烦了。 查了一下华为手册，支持 Radius 认证，那么没办法，最省钱的办法就是用 FreeIPA 和 FreeRadius 搭一套" />
 <meta property="og:type" content="article" />
@@ -250,68 +250,71 @@
 </span></span><span class="line"><span class="ln"> 2</span><span class="cl">yum update
 </span></span><span class="line"><span class="ln"> 3</span><span class="cl">
 </span></span><span class="line"><span class="ln"> 4</span><span class="cl">yum -y install freeipa-server
-</span></span><span class="line"><span class="ln"> 5</span><span class="cl">ipa-server-install
-</span></span><span class="line"><span class="ln"> 6</span><span class="cl">
-</span></span><span class="line"><span class="ln"> 7</span><span class="cl">This program will <span class="nb">set</span> up the IPA Server.
-</span></span><span class="line"><span class="ln"> 8</span><span class="cl">
-</span></span><span class="line"><span class="ln"> 9</span><span class="cl">This includes:
-</span></span><span class="line"><span class="ln">10</span><span class="cl">  * Configure a stand-alone CA <span class="o">(</span>dogtag<span class="o">)</span> <span class="k">for</span> certificate management
-</span></span><span class="line"><span class="ln">11</span><span class="cl">  * Configure the Network Time Daemon <span class="o">(</span>ntpd<span class="o">)</span>
-</span></span><span class="line"><span class="ln">12</span><span class="cl">  * Create and configure an instance of Directory Server
-</span></span><span class="line"><span class="ln">13</span><span class="cl">  * Create and configure a Kerberos Key Distribution Center <span class="o">(</span>KDC<span class="o">)</span>
-</span></span><span class="line"><span class="ln">14</span><span class="cl">  * Configure Apache <span class="o">(</span>httpd<span class="o">)</span>
-</span></span><span class="line"><span class="ln">15</span><span class="cl">
-</span></span><span class="line"><span class="ln">16</span><span class="cl">To accept the default shown in brackets, press the Enter key.
-</span></span><span class="line"><span class="ln">17</span><span class="cl">
-</span></span><span class="line"><span class="ln">18</span><span class="cl">WARNING: conflicting time<span class="p">&amp;</span>date synchronization service <span class="s1">&#39;chronyd&#39;</span> will be disabled in favor of ntpd
-</span></span><span class="line"><span class="ln">19</span><span class="cl">
-</span></span><span class="line"><span class="ln">20</span><span class="cl">Do you want to configure integrated DNS <span class="o">(</span>BIND<span class="o">)</span>? <span class="o">[</span>no<span class="o">]</span>:no
-</span></span><span class="line"><span class="ln">21</span><span class="cl">
-</span></span><span class="line"><span class="ln">22</span><span class="cl">Server host name <span class="o">[</span>freeipa.rendoumi.local<span class="o">]</span>:
-</span></span><span class="line"><span class="ln">23</span><span class="cl">
-</span></span><span class="line"><span class="ln">24</span><span class="cl">Please confirm the domain name <span class="o">[</span>rendoumi.local<span class="o">]</span>:
-</span></span><span class="line"><span class="ln">25</span><span class="cl">
-</span></span><span class="line"><span class="ln">26</span><span class="cl">Please provide a realm name <span class="o">[</span>RENDOUMI.LOCAL<span class="o">]</span>:
-</span></span><span class="line"><span class="ln">27</span><span class="cl">
-</span></span><span class="line"><span class="ln">28</span><span class="cl">Directory Manager password:
-</span></span><span class="line"><span class="ln">29</span><span class="cl">Password <span class="o">(</span>confirm<span class="o">)</span>:
-</span></span><span class="line"><span class="ln">30</span><span class="cl">...
-</span></span><span class="line"><span class="ln">31</span><span class="cl">IPA admin password:
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">sysctl net.ipv6.conf.all.disable_ipv6<span class="o">=</span><span class="m">0</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">ipa-server-install
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">
+</span></span><span class="line"><span class="ln">10</span><span class="cl">This program will <span class="nb">set</span> up the IPA Server.
+</span></span><span class="line"><span class="ln">11</span><span class="cl">
+</span></span><span class="line"><span class="ln">12</span><span class="cl">This includes:
+</span></span><span class="line"><span class="ln">13</span><span class="cl">  * Configure a stand-alone CA <span class="o">(</span>dogtag<span class="o">)</span> <span class="k">for</span> certificate management
+</span></span><span class="line"><span class="ln">14</span><span class="cl">  * Configure the Network Time Daemon <span class="o">(</span>ntpd<span class="o">)</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl">  * Create and configure an instance of Directory Server
+</span></span><span class="line"><span class="ln">16</span><span class="cl">  * Create and configure a Kerberos Key Distribution Center <span class="o">(</span>KDC<span class="o">)</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl">  * Configure Apache <span class="o">(</span>httpd<span class="o">)</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl">
+</span></span><span class="line"><span class="ln">19</span><span class="cl">To accept the default shown in brackets, press the Enter key.
+</span></span><span class="line"><span class="ln">20</span><span class="cl">
+</span></span><span class="line"><span class="ln">21</span><span class="cl">WARNING: conflicting time<span class="p">&amp;</span>date synchronization service <span class="s1">&#39;chronyd&#39;</span> will be disabled in favor of ntpd
+</span></span><span class="line"><span class="ln">22</span><span class="cl">
+</span></span><span class="line"><span class="ln">23</span><span class="cl">Do you want to configure integrated DNS <span class="o">(</span>BIND<span class="o">)</span>? <span class="o">[</span>no<span class="o">]</span>:no
+</span></span><span class="line"><span class="ln">24</span><span class="cl">
+</span></span><span class="line"><span class="ln">25</span><span class="cl">Server host name <span class="o">[</span>freeipa.rendoumi.local<span class="o">]</span>:
+</span></span><span class="line"><span class="ln">26</span><span class="cl">
+</span></span><span class="line"><span class="ln">27</span><span class="cl">Please confirm the domain name <span class="o">[</span>rendoumi.local<span class="o">]</span>:
+</span></span><span class="line"><span class="ln">28</span><span class="cl">
+</span></span><span class="line"><span class="ln">29</span><span class="cl">Please provide a realm name <span class="o">[</span>RENDOUMI.LOCAL<span class="o">]</span>:
+</span></span><span class="line"><span class="ln">30</span><span class="cl">
+</span></span><span class="line"><span class="ln">31</span><span class="cl">Directory Manager password:
 </span></span><span class="line"><span class="ln">32</span><span class="cl">Password <span class="o">(</span>confirm<span class="o">)</span>:
-</span></span><span class="line"><span class="ln">33</span><span class="cl">
-</span></span><span class="line"><span class="ln">34</span><span class="cl">The IPA Master Server will be configured with:
-</span></span><span class="line"><span class="ln">35</span><span class="cl">Hostname:       freeipa.rendoumi.local
-</span></span><span class="line"><span class="ln">36</span><span class="cl">IP address<span class="o">(</span>es<span class="o">)</span>: 192.168.1.5
-</span></span><span class="line"><span class="ln">37</span><span class="cl">Domain name:    rendoumi.local
-</span></span><span class="line"><span class="ln">38</span><span class="cl">Realm name:     RENDOUMI.LOCAL
-</span></span><span class="line"><span class="ln">39</span><span class="cl">
-</span></span><span class="line"><span class="ln">40</span><span class="cl">Continue to configure the system with these values? <span class="o">[</span>no<span class="o">]</span>: yes
-</span></span><span class="line"><span class="ln">41</span><span class="cl">
-</span></span><span class="line"><span class="ln">42</span><span class="cl">The following operations may take some minutes to complete.
-</span></span><span class="line"><span class="ln">43</span><span class="cl">Please <span class="nb">wait</span> <span class="k">until</span> the prompt is returned.
+</span></span><span class="line"><span class="ln">33</span><span class="cl">...
+</span></span><span class="line"><span class="ln">34</span><span class="cl">IPA admin password:
+</span></span><span class="line"><span class="ln">35</span><span class="cl">Password <span class="o">(</span>confirm<span class="o">)</span>:
+</span></span><span class="line"><span class="ln">36</span><span class="cl">
+</span></span><span class="line"><span class="ln">37</span><span class="cl">The IPA Master Server will be configured with:
+</span></span><span class="line"><span class="ln">38</span><span class="cl">Hostname:       freeipa.rendoumi.local
+</span></span><span class="line"><span class="ln">39</span><span class="cl">IP address<span class="o">(</span>es<span class="o">)</span>: 192.168.1.5
+</span></span><span class="line"><span class="ln">40</span><span class="cl">Domain name:    rendoumi.local
+</span></span><span class="line"><span class="ln">41</span><span class="cl">Realm name:     RENDOUMI.LOCAL
+</span></span><span class="line"><span class="ln">42</span><span class="cl">
+</span></span><span class="line"><span class="ln">43</span><span class="cl">Continue to configure the system with these values? <span class="o">[</span>no<span class="o">]</span>: yes
 </span></span><span class="line"><span class="ln">44</span><span class="cl">
-</span></span><span class="line"><span class="ln">45</span><span class="cl">Configuring NTP daemon <span class="o">(</span>ntpd<span class="o">)</span>
-</span></span><span class="line"><span class="ln">46</span><span class="cl">
-</span></span><span class="line"><span class="ln">47</span><span class="cl">...
-</span></span><span class="line"><span class="ln">48</span><span class="cl">
-</span></span><span class="line"><span class="ln">49</span><span class="cl">Setup <span class="nb">complete</span>
-</span></span><span class="line"><span class="ln">50</span><span class="cl">
-</span></span><span class="line"><span class="ln">51</span><span class="cl">Next steps:
-</span></span><span class="line"><span class="ln">52</span><span class="cl">        1. You must make sure these network ports are open:
-</span></span><span class="line"><span class="ln">53</span><span class="cl">                TCP Ports:
-</span></span><span class="line"><span class="ln">54</span><span class="cl">                  * 80, 443: HTTP/HTTPS
-</span></span><span class="line"><span class="ln">55</span><span class="cl">                  * 389, 636: LDAP/LDAPS
-</span></span><span class="line"><span class="ln">56</span><span class="cl">                  * 88, 464: kerberos
-</span></span><span class="line"><span class="ln">57</span><span class="cl">                UDP Ports:
-</span></span><span class="line"><span class="ln">58</span><span class="cl">                  * 88, 464: kerberos
-</span></span><span class="line"><span class="ln">59</span><span class="cl">                  * 123: ntp
-</span></span><span class="line"><span class="ln">60</span><span class="cl">
-</span></span><span class="line"><span class="ln">61</span><span class="cl">        2. You can now obtain a kerberos ticket using the command: <span class="s1">&#39;kinit admin&#39;</span>
-</span></span><span class="line"><span class="ln">62</span><span class="cl">           This ticket will allow you to use the IPA tools <span class="o">(</span>e.g., ipa user-add<span class="o">)</span>
-</span></span><span class="line"><span class="ln">63</span><span class="cl">           and the web user interface.
-</span></span><span class="line"><span class="ln">64</span><span class="cl">
-</span></span><span class="line"><span class="ln">65</span><span class="cl">Be sure to back up the CA certificate stored in /root/cacert.p12
-</span></span><span class="line"><span class="ln">66</span><span class="cl">This file is required to create replicas. The password <span class="k">for</span> this file is the Directory Manager password
+</span></span><span class="line"><span class="ln">45</span><span class="cl">The following operations may take some minutes to complete.
+</span></span><span class="line"><span class="ln">46</span><span class="cl">Please <span class="nb">wait</span> <span class="k">until</span> the prompt is returned.
+</span></span><span class="line"><span class="ln">47</span><span class="cl">
+</span></span><span class="line"><span class="ln">48</span><span class="cl">Configuring NTP daemon <span class="o">(</span>ntpd<span class="o">)</span>
+</span></span><span class="line"><span class="ln">49</span><span class="cl">
+</span></span><span class="line"><span class="ln">50</span><span class="cl">...
+</span></span><span class="line"><span class="ln">51</span><span class="cl">
+</span></span><span class="line"><span class="ln">52</span><span class="cl">Setup <span class="nb">complete</span>
+</span></span><span class="line"><span class="ln">53</span><span class="cl">
+</span></span><span class="line"><span class="ln">54</span><span class="cl">Next steps:
+</span></span><span class="line"><span class="ln">55</span><span class="cl">        1. You must make sure these network ports are open:
+</span></span><span class="line"><span class="ln">56</span><span class="cl">                TCP Ports:
+</span></span><span class="line"><span class="ln">57</span><span class="cl">                  * 80, 443: HTTP/HTTPS
+</span></span><span class="line"><span class="ln">58</span><span class="cl">                  * 389, 636: LDAP/LDAPS
+</span></span><span class="line"><span class="ln">59</span><span class="cl">                  * 88, 464: kerberos
+</span></span><span class="line"><span class="ln">60</span><span class="cl">                UDP Ports:
+</span></span><span class="line"><span class="ln">61</span><span class="cl">                  * 88, 464: kerberos
+</span></span><span class="line"><span class="ln">62</span><span class="cl">                  * 123: ntp
+</span></span><span class="line"><span class="ln">63</span><span class="cl">
+</span></span><span class="line"><span class="ln">64</span><span class="cl">        2. You can now obtain a kerberos ticket using the command: <span class="s1">&#39;kinit admin&#39;</span>
+</span></span><span class="line"><span class="ln">65</span><span class="cl">           This ticket will allow you to use the IPA tools <span class="o">(</span>e.g., ipa user-add<span class="o">)</span>
+</span></span><span class="line"><span class="ln">66</span><span class="cl">           and the web user interface.
+</span></span><span class="line"><span class="ln">67</span><span class="cl">
+</span></span><span class="line"><span class="ln">68</span><span class="cl">Be sure to back up the CA certificate stored in /root/cacert.p12
+</span></span><span class="line"><span class="ln">69</span><span class="cl">This file is required to create replicas. The password <span class="k">for</span> this file is the Directory Manager password
 </span></span></code></pre></div><p>以上，就装好了 FreeIPA，配置文件在 /etc/ipa/default.conf</p>
 <p>验证一下：</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1"># 输入ipa密码</span>
@@ -524,11 +527,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20230115-canal_mysql/">运维方案之canal数据库同步
-</a></li><li><a href="https://bajie.dev/posts/20230115-seafile_onlyoffice/">Seafile配搭onlyoffice的安装
+    <ul><li><a href="https://bajie.dev/posts/20230216-freeipa_confluence/">Confluence集成进freeIPA进行统一认证
 </a></li><li><a href="https://bajie.dev/posts/20230131-traefik_certificate/">Traefik自动签发并续费证书&#43;端口转发
+</a></li><li><a href="https://bajie.dev/posts/20230115-canal_mysql/">运维方案之canal数据库同步
+</a></li><li><a href="https://bajie.dev/posts/20230115-seafile_onlyoffice/">Seafile配搭onlyoffice的安装
 </a></li><li><a href="https://bajie.dev/posts/20230112-cka_exam/">Cka的模拟试题
-</a></li><li><a href="https://bajie.dev/posts/20230112-xshell_colors/">Xshell的绿色配色方案
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
