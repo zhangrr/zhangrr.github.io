@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ghostunnel使用TLS加密TCP流量 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>kubernetes中用户rbac的建立 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="ghostunnel使用TLS加密TCP流量">
-<meta itemprop="description" content="很现实的问题，局域网内有态势感知和网络流量分析，这很讨厌！ 那么，如何把某段流量隐藏起来，让态势感知无法分析呢？ 前提条件，你需要有国外的一台 VPS"><meta itemprop="datePublished" content="2021-10-19T10:30:11+08:00" />
-<meta itemprop="dateModified" content="2021-10-19T10:30:11+08:00" />
-<meta itemprop="wordCount" content="579">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="ghostunnel使用TLS加密TCP流量" />
-<meta property="og:description" content="很现实的问题，局域网内有态势感知和网络流量分析，这很讨厌！ 那么，如何把某段流量隐藏起来，让态势感知无法分析呢？ 前提条件，你需要有国外的一台 VPS" />
+<meta name="description" content="" /><meta itemprop="name" content="kubernetes中用户rbac的建立">
+<meta itemprop="description" content="k8s里面建立一个用户，然后给特定权限，再做rolebinding的过程，给个标准的建立jenkins-admin的用户的过程： 简单来说，三"><meta itemprop="datePublished" content="2023-02-22T09:05:11+08:00" />
+<meta itemprop="dateModified" content="2023-02-22T09:05:11+08:00" />
+<meta itemprop="wordCount" content="259">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="kubernetes中用户rbac的建立" />
+<meta property="og:description" content="k8s里面建立一个用户，然后给特定权限，再做rolebinding的过程，给个标准的建立jenkins-admin的用户的过程： 简单来说，三" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://bajie.dev/posts/20211019-ghostunnel/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2021-10-19T10:30:11+08:00" />
-<meta property="article:modified_time" content="2021-10-19T10:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+<meta property="og:url" content="https://bajie.dev/posts/20230222-kubernetes_rbac/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-02-22T09:05:11+08:00" />
+<meta property="article:modified_time" content="2023-02-22T09:05:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="ghostunnel使用TLS加密TCP流量"/>
-<meta name="twitter:description" content="很现实的问题，局域网内有态势感知和网络流量分析，这很讨厌！ 那么，如何把某段流量隐藏起来，让态势感知无法分析呢？ 前提条件，你需要有国外的一台 VPS"/>
+<meta name="twitter:title" content="kubernetes中用户rbac的建立"/>
+<meta name="twitter:description" content="k8s里面建立一个用户，然后给特定权限，再做rolebinding的过程，给个标准的建立jenkins-admin的用户的过程： 简单来说，三"/>
 <link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
   <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=ghostunnel%e4%bd%bf%e7%94%a8TLS%e5%8a%a0%e5%af%86TCP%e6%b5%81%e9%87%8f&url=https%3a%2f%2fbajie.dev%2fposts%2f20211019-ghostunnel%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=kubernetes%e4%b8%ad%e7%94%a8%e6%88%b7rbac%e7%9a%84%e5%bb%ba%e7%ab%8b&url=https%3a%2f%2fbajie.dev%2fposts%2f20230222-kubernetes_rbac%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20211019-ghostunnel%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20230222-kubernetes_rbac%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">Ghostunnel使用TLS加密TCP流量</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">Kubernetes中用户rbac的建立</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -204,46 +204,58 @@
 ">
   <i class="fas fa-fw fa-copyright"></i>
 </a>
-    <a data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
-  <i class="fas fa-fw fa-list-alt"></i>
-</a>
+    
   </div>
 </div>
-<h1 class="card-title my-3">Ghostunnel使用TLS加密TCP流量
+<h1 class="card-title my-3">Kubernetes中用户rbac的建立
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-19
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-02-22
   </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
-<div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
-  <div class="offcanvas-header">
-    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
-      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
-        <i class="fas fa-times"></i>
-      </button>
-  </div>
-  <div class="offcanvas-body">
-    <nav id="TableOfContents">
-  <ul>
-    <li><a href="#一在vps上运行ghostunnel模式server">一、在VPS上运行ghostunnel模式server</a></li>
-    <li><a href="#二在本地机器上运行ghostunnel模式client">二、在本地机器上运行ghostunnel模式client</a></li>
-  </ul>
-</nav>
-  </div>
-</div><div class="post-content mb-3"><p>很现实的问题，局域网内有态势感知和网络流量分析，这很讨厌！</p>
-<p>那么，如何把某段流量隐藏起来，让态势感知无法分析呢？</p>
-<p>前提条件，你需要有国外的一台 VPS 作为外援，把 TCP 流量通过 TLS 加密送到国外的服务器，然后再转发到正确的目标服务器上，这样就不会被人追踪了。</p>
-<p>这里推荐 Ghostunnel  ，这是个 Go 的程序，只有一个执行文件。配合 certik 证书生成，就完美了。</p>
-<p>项目地址：https://github.com/ghostunnel/ghostunnel</p>
-<p>首先我们使用 certik 生成三个证书，ca.pem server.pem 和 client1.pem</p>
-<p>然后ghostunnel以及三个证书文件都放在/usr/local/bin下</p>
-<h2 id="一在vps上运行ghostunnel模式server">一、在VPS上运行ghostunnel模式server</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">/usr/local/bin/ghostunnel server --listen 0.0.0.0:9999 --target tr.dero.herominers.com:1117 --keystore server.pem --cacert ca.pem --allow-cn client1 --unsafe-target
-</span></span></code></pre></div><p>上面监听了端口0.0.0.0:9999（监听0.0.0.0必须加参数&ndash;unsafe-target），远程转发到dero的矿池端口1117，只允许验证过的cn client1连接。</p>
-<h2 id="二在本地机器上运行ghostunnel模式client">二、在本地机器上运行ghostunnel模式client</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">/usr/local/bin/ghostunnel client --listen localhost:9999 --target 193.42.114.129:9999 --keystore client.pem --cacert ca.pem 
-</span></span></code></pre></div><p>本地监听localhost:9999，所以不用加&ndash;unsafe-target参数，然后连接到远程 vps 服务器，ip地址是193.42.114.129，端口是9999</p>
-<p>这样就完成了。可以放心的启动程序，连接到本地端口localhost:9999，TCP流量就会被隐藏起来，不会被分析到.</p>
+<div class="post-content mb-3"><p>k8s里面建立一个用户，然后给特定权限，再做rolebinding的过程，给个标准的建立jenkins-admin的用户的过程：</p>
+<p>简单来说，三步，ServiceAccout &ndash;&gt; Role &ndash;&gt; Rolebinding</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">apiVersion: v1
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">kind: ServiceAccount
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">metadata:
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">  name: jenkins-admin
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">  namespace: devops-tools
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">---
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">apiVersion: rbac.authorization.k8s.io/v1
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">kind: Role
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">metadata:
+</span></span><span class="line"><span class="ln">10</span><span class="cl">  name: jenkins
+</span></span><span class="line"><span class="ln">11</span><span class="cl">  namespace: default
+</span></span><span class="line"><span class="ln">12</span><span class="cl">  labels:
+</span></span><span class="line"><span class="ln">13</span><span class="cl">    <span class="s2">&#34;app.kubernetes.io/name&#34;</span>: <span class="s1">&#39;jenkins&#39;</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">rules:
+</span></span><span class="line"><span class="ln">15</span><span class="cl">- apiGroups: <span class="o">[</span><span class="s2">&#34;&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">  resources: <span class="o">[</span><span class="s2">&#34;pods&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl">  verbs: <span class="o">[</span><span class="s2">&#34;create&#34;</span>,<span class="s2">&#34;delete&#34;</span>,<span class="s2">&#34;get&#34;</span>,<span class="s2">&#34;list&#34;</span>,<span class="s2">&#34;patch&#34;</span>,<span class="s2">&#34;update&#34;</span>,<span class="s2">&#34;watch&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl">- apiGroups: <span class="o">[</span><span class="s2">&#34;&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl">  resources: <span class="o">[</span><span class="s2">&#34;pods/exec&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl">  verbs: <span class="o">[</span><span class="s2">&#34;create&#34;</span>,<span class="s2">&#34;delete&#34;</span>,<span class="s2">&#34;get&#34;</span>,<span class="s2">&#34;list&#34;</span>,<span class="s2">&#34;patch&#34;</span>,<span class="s2">&#34;update&#34;</span>,<span class="s2">&#34;watch&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl">- apiGroups: <span class="o">[</span><span class="s2">&#34;&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="ln">22</span><span class="cl">  resources: <span class="o">[</span><span class="s2">&#34;pods/log&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="ln">23</span><span class="cl">  verbs: <span class="o">[</span><span class="s2">&#34;get&#34;</span>,<span class="s2">&#34;list&#34;</span>,<span class="s2">&#34;watch&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="ln">24</span><span class="cl">- apiGroups: <span class="o">[</span><span class="s2">&#34;&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="ln">25</span><span class="cl">  resources: <span class="o">[</span><span class="s2">&#34;secrets&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="ln">26</span><span class="cl">  verbs: <span class="o">[</span><span class="s2">&#34;get&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="ln">27</span><span class="cl">---
+</span></span><span class="line"><span class="ln">28</span><span class="cl">apiVersion: rbac.authorization.k8s.io/v1
+</span></span><span class="line"><span class="ln">29</span><span class="cl">kind: RoleBinding
+</span></span><span class="line"><span class="ln">30</span><span class="cl">metadata:
+</span></span><span class="line"><span class="ln">31</span><span class="cl">  name: jenkins-role-binding
+</span></span><span class="line"><span class="ln">32</span><span class="cl">  namespace: default
+</span></span><span class="line"><span class="ln">33</span><span class="cl">roleRef:
+</span></span><span class="line"><span class="ln">34</span><span class="cl">  apiGroup: rbac.authorization.k8s.io
+</span></span><span class="line"><span class="ln">35</span><span class="cl">  kind: Role
+</span></span><span class="line"><span class="ln">36</span><span class="cl">  name: jenkins
+</span></span><span class="line"><span class="ln">37</span><span class="cl">subjects:
+</span></span><span class="line"><span class="ln">38</span><span class="cl">- kind: ServiceAccount
+</span></span><span class="line"><span class="ln">39</span><span class="cl">  name: jenkins-admin
+</span></span><span class="line"><span class="ln">40</span><span class="cl">  namespace: default
+</span></span></code></pre></div><p>资源的链接：https://kubernetes.io/zh-cn/docs/reference/access-authn-authz/rbac/</p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -271,19 +283,15 @@
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://bajie.dev/posts/20211019-certik/">Certik 证书签发软件
+    <a href="https://bajie.dev/posts/20230217-freeipa_gitlab/">Gitlab集成进freeIPA进行统一认证
 </a>
-  </div><div class="post-nav post-next">
-    <a href="https://bajie.dev/posts/20211020-chrony/">Chrony的几个详细配置细节
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20211019-certik/">Certik 证书签发软件
-</a></li><li><a href="https://bajie.dev/posts/20211018-ipset_block_cn/">使用IPSET封掉某个国家整个的访问
-</a></li><li><a href="https://bajie.dev/posts/20211018-openvpn_limit_bandwidth/">OpenVPN 限制流量带宽
-</a></li><li><a href="https://bajie.dev/posts/20211015-hugo_blog/">本站博客的由来以及搭建使用教程
-</a></li><li><a href="https://bajie.dev/posts/20211014-iphone_hijack/">Iphone手机的https抓包
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20230217-freeipa_gitlab/">Gitlab集成进freeIPA进行统一认证
+</a></li><li><a href="https://bajie.dev/posts/20230216-freeipa_confluence/">Confluence集成进freeIPA进行统一认证
+</a></li><li><a href="https://bajie.dev/posts/20230131-traefik_certificate/">Traefik自动签发并续费证书&#43;端口转发
+</a></li><li><a href="https://bajie.dev/posts/20230115-canal_mysql/">运维方案之canal数据库同步
+</a></li><li><a href="https://bajie.dev/posts/20230115-seafile_onlyoffice/">Seafile配搭onlyoffice的安装
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
