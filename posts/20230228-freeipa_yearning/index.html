@@ -1,25 +1,29 @@
 <!doctype html><html lang="zh-cn"
   >
   <head>
-	<meta name="generator" content="Hugo 0.104.3" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>yearning集成进freeIPA进行统一认证 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
-<meta name="keywords" content="Hugo, Bootstrap, 博客主题" />
-<meta name="description" content="一个极快、响应式和功能丰富的 Hugo 博客主题" /><meta itemprop="name" content="八戒的技术博客">
-<meta itemprop="description" content="一个极快、响应式和功能丰富的 Hugo 博客主题"><meta property="og:title" content="八戒的技术博客" />
-<meta property="og:description" content="一个极快、响应式和功能丰富的 Hugo 博客主题" />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="https://bajie.dev/" /><meta property="og:site_name" content="八戒的技术博客" />
+<meta name="keywords" content="" />
+<meta name="description" content="" /><meta itemprop="name" content="yearning集成进freeIPA进行统一认证">
+<meta itemprop="description" content="接上上一篇，Freeipa接完confluence，接下来是接入数据库上线软件Yearning. 先下结论：同样存在先有 Yearning 账户、然后才有的 FreeIPA LDAP"><meta itemprop="datePublished" content="2023-02-28T09:05:11+08:00" />
+<meta itemprop="dateModified" content="2023-02-28T09:05:11+08:00" />
+<meta itemprop="wordCount" content="681">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="yearning集成进freeIPA进行统一认证" />
+<meta property="og:description" content="接上上一篇，Freeipa接完confluence，接下来是接入数据库上线软件Yearning. 先下结论：同样存在先有 Yearning 账户、然后才有的 FreeIPA LDAP" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://bajie.dev/posts/20230228-freeipa_yearning/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-02-28T09:05:11+08:00" />
+<meta property="article:modified_time" content="2023-02-28T09:05:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="八戒的技术博客"/>
-<meta name="twitter:description" content="一个极快、响应式和功能丰富的 Hugo 博客主题"/>
-<link rel="alternate" type="application/rss+xml" href="https://bajie.dev/index.xml" title="八戒的技术博客" /><link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<meta name="twitter:title" content="yearning集成进freeIPA进行统一认证"/>
+<meta name="twitter:description" content="接上上一篇，Freeipa接完confluence，接下来是接入数据库上线软件Yearning. 先下结论：同样存在先有 Yearning 账户、然后才有的 FreeIPA LDAP"/>
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
   <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
@@ -110,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=%e5%85%ab%e6%88%92%e7%9a%84%e6%8a%80%e6%9c%af%e5%8d%9a%e5%ae%a2&url=https%3a%2f%2fbajie.dev%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=yearning%e9%9b%86%e6%88%90%e8%bf%9bfreeIPA%e8%bf%9b%e8%a1%8c%e7%bb%9f%e4%b8%80%e8%ae%a4%e8%af%81&url=https%3a%2f%2fbajie.dev%2fposts%2f20230228-freeipa_yearning%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20230228-freeipa_yearning%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -122,7 +126,7 @@
 
 </div>
 </div>
-<a class="navbar-brand me-3 active" href="https://bajie.dev"><img class="logo" alt="Logo" src="https://bajie.dev/images/logo.webp" loading="lazy"
+<a class="navbar-brand me-3" href="https://bajie.dev"><img class="logo" alt="Logo" src="https://bajie.dev/images/logo.webp" loading="lazy"
    width="136" height="69"
    />
 八戒
@@ -178,168 +182,128 @@
 <main role="main" class="container">
       <div class="row content">
 <div class="col-lg-8">
-  <div class="container"><div class="posts mb-4"><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20230228-freeipa_yearning/">Yearning集成进freeIPA进行统一认证
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body">
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">Yearning集成进freeIPA进行统一认证</li></ol>
+  </div>
+</nav><article class="post row card mb-4 component">
+  <div class="card-body"><div class="post-panel-wrapper">
+  <div class="post-panel d-flex flex-column">
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+  <i class="fas fa-fw fa-expand-arrows-alt"></i>
+</a>
+  
+    
+
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
+  <i class="fas fa-fw fa-coffee"></i>
+</a>
+    <a class="action" data-bs-container="body" data-bs-toggle="popover" data-bs-html="true" data-bs-placement="bottom"
+  data-bs-trigger="focus" tabindex="0" type="button" aria-label="Copyright" 
+  data-bs-content="&lt;a target=&#34;_blank&#34; rel=&#34;license noopener noreferrer&#34; href=&#34;https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh&#34;&gt;CC BY-NC-ND 4.0 &lt;i class=&#34;fab fa-fw fa-creative-commons&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-by&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-nc&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-nd&#34;&gt;&lt;/i&gt;&lt;/a&gt;
+">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
+    
+  </div>
+</div>
+<h1 class="card-title my-3">Yearning集成进freeIPA进行统一认证
+</h1><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2023-02-28
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
   </span></div>
-<div class="post-summary">
-          
-          接上上一篇，Freeipa接完confluence，接下来是接入数据库上线软件Yearning. 先下结论：同样存在先有 Yearning 账户、然后才有的 FreeIPA LDAP
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20230222-kubernetes_rbac/">Kubernetes中用户rbac的建立
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-02-22
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          k8s里面建立一个用户，然后给特定权限，再做rolebinding的过程，给个标准的建立jenkins-admin的用户的过程： 简单来说，三
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20230217-freeipa_gitlab/">Gitlab集成进freeIPA进行统一认证
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-02-17
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          接上一篇，Freeipa接完confluence，接下来是接入Gitlab. 先下结论：同样道理，也是存在先有 Gitlab 账户、然后才有的 FreeIPA LDAP 目录，这也
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20230216-freeipa_confluence/">Confluence集成进freeIPA进行统一认证
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-02-16
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          公司决定用统一用户管理系统，那必然是微软的 AD 和开源的 LDAP 二选一了 自然用 Freeipa 作为首选。 花时间仔细调研了一下，先说结论： 如果 confluence 已经有很多用户，那么对
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20230131-traefik_certificate/">Traefik自动签发并续费证书&#43;端口转发
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-01-31
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          nginx和traefik都可以做ingress，在入口处做证书的卸载，并转发tcp、udp、https、http流量 nginx是比较通常的
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20230115-canal_mysql/">运维方案之canal数据库同步
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-01-15
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>4 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          普遍的大数据抽数的方式都是从散落在各个地方的 MySQL 数据库中开账号，然后把数据同步过来。 这不，大数据的同事提出了一个需求，想把某个库中的某个表的数
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20230115-seafile_onlyoffice/">Seafile配搭onlyoffice的安装
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-01-15
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>5 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          之前公司一直用的是 seafile 来保存文档，非常好用，也出过一次大事，一个离职的员工清空电脑，然后直接把sefaile文件夹也同步清空了，好在有版本，最
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20230112-cka_exam/">Cka的模拟试题
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-01-12
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          刚通过了CKA的考试，拿到了证书。 说老实话，想考这个必须翻墙啊，在考试的时候正好是新冠的第三天，烧得正厉害。 然后考试的过程真是一波三折，PS
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20230112-xshell_colors/">Xshell的绿色配色方案
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-01-12
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          其实一直用的终端软件是terminus，全终端可用，以前用 ubuntu，非常好用。 现在换到新公司，用 Win10，也装了一个。 一直到机房改造前
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20230103-certificates/">2022年获得的证书
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-01-03
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          2022年经过努力，考了4张证书，2023年继续努力奋斗&hellip;&hellip; 阿里云的ACP证书： AWS的SAA-C03证书： K8
-        </div>
-      </div>
-    </article></div><div class="row table-responsive mb-3">
-    <ul class="pagination pagination-default">
-      <li class="page-item disabled">
-        <a aria-disabled="true" aria-label="First" class="page-link" role="button" tabindex="-1"><span aria-hidden="true">&laquo;&laquo;</span></a>
-      </li>
-      <li class="page-item disabled">
-        <a aria-disabled="true" aria-label="Previous" class="page-link" role="button" tabindex="-1"><span aria-hidden="true">&laquo;</span></a>
-      </li>
-      <li class="page-item active">
-        <a aria-current="page" aria-label="Page 1" class="page-link" role="button">1</a>
-      </li>
-      <li class="page-item">
-        <a href="/page/2/" aria-label="Page 2" class="page-link" role="button">2</a>
-      </li>
-      <li class="page-item">
-        <a href="/page/3/" aria-label="Page 3" class="page-link" role="button">3</a>
-      </li>
-      <li class="page-item">
-        <a href="/page/4/" aria-label="Page 4" class="page-link" role="button">4</a>
-      </li>
-      <li class="page-item">
-        <a href="/page/5/" aria-label="Page 5" class="page-link" role="button">5</a>
-      </li>
-      <li class="page-item">
-        <a href="/page/2/" aria-label="Next" class="page-link" role="button"><span aria-hidden="true">&raquo;</span></a>
-      </li>
-      <li class="page-item">
-        <a href="/page/13/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
-      </li>
-    </ul></div>
-</div>
+<div class="post-content mb-3"><p>接上上一篇，Freeipa接完confluence，接下来是接入数据库上线软件Yearning.</p>
+<p>先下结论：同样存在先有 Yearning 账户、然后才有的 FreeIPA LDAP 目录，这次要命了，因为 Yearning 不支持 LDAP 认证方式用户与已有用户进行合并！所以，等于ldap新建了一个用户，跟老用户的邮箱一模一样，但是是个 Newbee，没有权限，需要重新赋权。比较麻烦！希望之后能pr修改一下！！！！</p>
+<p>连接属性如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">ldap地址：freeipa.bybon.cn:389
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">LDAP管理员DN：uid<span class="o">=</span>manager,cn<span class="o">=</span>users,cn<span class="o">=</span>accounts,dc<span class="o">=</span>bybon,dc<span class="o">=</span>cn
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">LDAP管理员密码：xxxxxx
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">LDAP_Search Filter：<span class="o">(</span><span class="p">&amp;</span><span class="o">(</span><span class="nv">objectclass</span><span class="o">=</span>inetorgperson<span class="o">)(</span><span class="nv">memberOf</span><span class="o">=</span><span class="nv">cn</span><span class="o">=</span>confluence-users,cn<span class="o">=</span>groups,cn<span class="o">=</span>accounts,dc<span class="o">=</span>bybon,dc<span class="o">=</span>cn<span class="o">)(</span><span class="nv">uid</span><span class="o">=</span>%s<span class="o">))</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">LDAP_SCBASE：cn<span class="o">=</span>users,cn<span class="o">=</span>accounts,dc<span class="o">=</span>bybon,dc<span class="o">=</span>cn
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">
+</span></span><span class="line"><span class="ln">10</span><span class="cl">LDAP用户属性：<span class="o">{</span> <span class="s2">&#34;real_name&#34;</span>: <span class="s2">&#34;displayName&#34;</span>, <span class="s2">&#34;email&#34;</span>: <span class="s2">&#34;mail&#34;</span>, <span class="s2">&#34;department&#34;</span>: <span class="s2">&#34;技术中心&#34;</span> <span class="o">}</span>
+</span></span></code></pre></div><p>解释一下：</p>
+<ul>
+<li>
+<p>LDAP_Search Filter 指搜索用户时所用的filter，这里偷了个懒，按道理应该是独立建一个组yearning-users，懒得干了，复用confluence-users好了。admin组更懒得建，必须用freeipa的admins组</p>
+</li>
+<li>
+<p>LDAP_SCBASE 指搜索用户的BASE DN</p>
+</li>
+<li>
+<p>LDAP用户属性指yearning中的属性与ldap属性之间的映射关系，department是没有对应的，也没有人会没事干建一个去吧。</p>
+<p>截图如下：</p>
+</li>
+</ul>
+<p><img class="img-fluid" alt="image-20230228114517030" src="https://bajie.dev/posts/20230228-freeipa_yearning/image-20230228114517030.png" loading="lazy"
+   width="763" height="707"
+   />
 
+</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-coffee"></i>打赏</h5>
+        <a href="#" data-bs-dismiss="modal" class="btn btn-sm btn-outline-primary" aria-label="Close"><i class="fas fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs flex-nowrap mb-3" role="tablist"><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>支付宝
+            </a>
+          </li><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>微信
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+  <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
+    <a href="https://bajie.dev/posts/20230222-kubernetes_rbac/">Kubernetes中用户rbac的建立
+</a>
+  </div></div><section class="related-posts-wrapper">
+    <h3>相关文章</h3>
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20230222-kubernetes_rbac/">Kubernetes中用户rbac的建立
+</a></li><li><a href="https://bajie.dev/posts/20230217-freeipa_gitlab/">Gitlab集成进freeIPA进行统一认证
+</a></li><li><a href="https://bajie.dev/posts/20230216-freeipa_confluence/">Confluence集成进freeIPA进行统一认证
+</a></li><li><a href="https://bajie.dev/posts/20230131-traefik_certificate/">Traefik自动签发并续费证书&#43;端口转发
+</a></li><li><a href="https://bajie.dev/posts/20230115-canal_mysql/">运维方案之canal数据库同步
+</a></li></ul>
+  </section></div>
+</article><div class="post-comments card row component">
+  <div class="card-body"><div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-zhangrr-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a></div>
+</div></div>
 </div><aside class="col-lg-4 sidebar d-flex">
   <div class="container">
     
@@ -403,9 +367,7 @@
         <i class="fa-fw fa-2x fab fa-reddit"></i>
       </a><a class="nav-link social-link" target="_blank" href="https://t.me/defunct9" title="Telegram" rel="noopener noreferrer">
         <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
-      </a><a class="nav-link social-link" target="_blank" href="https://bajie.dev/index.xml" title="RSS" rel="noopener noreferrer">
-      <i class="fas fa-fw fa-2x fa-rss"></i>
-    </a></nav>
+      </a></nav>
 <div class="copyright mb-2">
   Copyright © 2020-2023 Zhang Ranrui. All Rights Reserved.
 </div>
