@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>dmesg -T 无时间戳的解决方法 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>核心交换机的配置过程 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="dmesg -T 无时间戳的解决方法">
-<meta itemprop="description" content="现在版本的 dmesg -T 都是带时间戳的。 但是老的机器，很有可能是没有 -T 这个参数的，直接 dmesg 是这样的： 这个时间戳是天书啊，这还算好的，好歹有。还有更差的，"><meta itemprop="datePublished" content="2022-07-25T09:30:11+08:00" />
-<meta itemprop="dateModified" content="2022-07-25T09:30:11+08:00" />
-<meta itemprop="wordCount" content="287">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="dmesg -T 无时间戳的解决方法" />
-<meta property="og:description" content="现在版本的 dmesg -T 都是带时间戳的。 但是老的机器，很有可能是没有 -T 这个参数的，直接 dmesg 是这样的： 这个时间戳是天书啊，这还算好的，好歹有。还有更差的，" />
+<meta name="description" content="" /><meta itemprop="name" content="核心交换机的配置过程">
+<meta itemprop="description" content="换了公司，也搞起了桌面运维，配置交换机的过程记录一下，其实很简单，就是命令记不住。 拿到一台华为交换机，重新初始化后，配置如下： 1&lt;HUAWEI&gt;dis cur 2!Software Version V200R008C00SPC500 3# 4sysname"><meta itemprop="datePublished" content="2023-03-24T09:05:11+08:00" />
+<meta itemprop="dateModified" content="2023-03-24T09:05:11+08:00" />
+<meta itemprop="wordCount" content="416">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="核心交换机的配置过程" />
+<meta property="og:description" content="换了公司，也搞起了桌面运维，配置交换机的过程记录一下，其实很简单，就是命令记不住。 拿到一台华为交换机，重新初始化后，配置如下： 1&lt;HUAWEI&gt;dis cur 2!Software Version V200R008C00SPC500 3# 4sysname" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://bajie.dev/posts/20220725-dmesg_time/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2022-07-25T09:30:11+08:00" />
-<meta property="article:modified_time" content="2022-07-25T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+<meta property="og:url" content="https://bajie.dev/posts/20230324-huawei_switch/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-03-24T09:05:11+08:00" />
+<meta property="article:modified_time" content="2023-03-24T09:05:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="dmesg -T 无时间戳的解决方法"/>
-<meta name="twitter:description" content="现在版本的 dmesg -T 都是带时间戳的。 但是老的机器，很有可能是没有 -T 这个参数的，直接 dmesg 是这样的： 这个时间戳是天书啊，这还算好的，好歹有。还有更差的，"/>
+<meta name="twitter:title" content="核心交换机的配置过程"/>
+<meta name="twitter:description" content="换了公司，也搞起了桌面运维，配置交换机的过程记录一下，其实很简单，就是命令记不住。 拿到一台华为交换机，重新初始化后，配置如下： 1&lt;HUAWEI&gt;dis cur 2!Software Version V200R008C00SPC500 3# 4sysname"/>
 <link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
   <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=dmesg%20-T%20%e6%97%a0%e6%97%b6%e9%97%b4%e6%88%b3%e7%9a%84%e8%a7%a3%e5%86%b3%e6%96%b9%e6%b3%95&url=https%3a%2f%2fbajie.dev%2fposts%2f20220725-dmesg_time%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=%e6%a0%b8%e5%bf%83%e4%ba%a4%e6%8d%a2%e6%9c%ba%e7%9a%84%e9%85%8d%e7%bd%ae%e8%bf%87%e7%a8%8b&url=https%3a%2f%2fbajie.dev%2fposts%2f20230324-huawei_switch%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20220725-dmesg_time%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20230324-huawei_switch%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">Dmesg -T 无时间戳的解决方法</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">核心交换机的配置过程</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -204,65 +204,121 @@
 ">
   <i class="fas fa-fw fa-copyright"></i>
 </a>
-    
+    <a data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+  <i class="fas fa-fw fa-list-alt"></i>
+</a>
   </div>
 </div>
-<h1 class="card-title my-3">Dmesg -T 无时间戳的解决方法
+<h1 class="card-title my-3">核心交换机的配置过程
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-07-25
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-03-24
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
-<div class="post-content mb-3"><p>现在版本的 dmesg -T 都是带时间戳的。</p>
-<p><img class="img-fluid" alt="image-20220725172454313" src="https://bajie.dev/posts/20220725-dmesg_time/image-20220725172454313.png" loading="lazy"
-   width="1152" height="221"
-   />
-
-</p>
-<p>但是老的机器，很有可能是没有 -T 这个参数的，直接 dmesg 是这样的：</p>
-<p><img class="img-fluid" alt="image-20220725172554722" src="https://bajie.dev/posts/20220725-dmesg_time/image-20220725172554722.png" loading="lazy"
-   width="810" height="397"
-   />
-
-</p>
-<p>这个时间戳是天书啊，这还算好的，好歹有。还有更差的，连戳子都没有：</p>
-<p><img class="img-fluid" alt="image-20220725172816958" src="https://bajie.dev/posts/20220725-dmesg_time/image-20220725172816958.png" loading="lazy"
-   width="1163" height="310"
-   />
-
-</p>
-<p>戳子都没有的，需要做以下步骤来加上，机器重启后必须再执行一遍：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="nb">echo</span> <span class="m">1</span> &gt; /sys/module/printk/parameters/printk_time
-</span></span></code></pre></div><p>同时写个脚本，/usr/local/bin/dmesgt.sh</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="cp">#!/bin/bash
-</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="cp"></span><span class="c1"># Translate dmesg timestamps to human readable format</span>
-</span></span><span class="line"><span class="ln"> 3</span><span class="cl">
-</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="c1"># desired date format</span>
-</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="nv">date_format</span><span class="o">=</span><span class="s2">&#34;%a %b %d %T %Y&#34;</span>
-</span></span><span class="line"><span class="ln"> 6</span><span class="cl">
-</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="c1"># uptime in seconds</span>
-</span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="nv">uptime</span><span class="o">=</span><span class="k">$(</span>cut -d <span class="s2">&#34; &#34;</span> -f <span class="m">1</span> /proc/uptime<span class="k">)</span>
-</span></span><span class="line"><span class="ln"> 9</span><span class="cl">
-</span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="c1"># run only if timestamps are enabled</span>
-</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;Y&#34;</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="k">$(</span>cat /sys/module/printk/parameters/time<span class="k">)</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-</span></span><span class="line"><span class="ln">12</span><span class="cl">  dmesg <span class="p">|</span> sed <span class="s2">&#34;s/^\[[ ]*\?\([0-9.]*\)\] \(.*\)/\\1 \\2/&#34;</span> <span class="p">|</span> <span class="k">while</span> <span class="nb">read</span> timestamp message<span class="p">;</span> <span class="k">do</span>
-</span></span><span class="line"><span class="ln">13</span><span class="cl">    <span class="nb">printf</span> <span class="s2">&#34;[%s] %s\n&#34;</span> <span class="s2">&#34;</span><span class="k">$(</span>date --date <span class="s2">&#34;now - </span><span class="nv">$uptime</span><span class="s2"> seconds + </span><span class="nv">$timestamp</span><span class="s2"> seconds&#34;</span> +<span class="s2">&#34;</span><span class="si">${</span><span class="nv">date_format</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span><span class="s2">&#34;</span> <span class="s2">&#34;</span><span class="nv">$message</span><span class="s2">&#34;</span>
-</span></span><span class="line"><span class="ln">14</span><span class="cl">  <span class="k">done</span>
-</span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="k">else</span>
-</span></span><span class="line"><span class="ln">16</span><span class="cl">  <span class="nb">echo</span> <span class="s2">&#34;Timestamps are disabled (/sys/module/printk/parameters/time)&#34;</span>
-</span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="k">fi</span>
-</span></span></code></pre></div><p>这样就可以了，最后我们测试一下：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;Enabled timestamps&#34;</span> <span class="p">|</span> tee /dev/kmsg
-</span></span></code></pre></div><p>看到带时间戳的信息就可以了：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">$ dmesg
-</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="o">[</span>...<span class="o">]</span>
-</span></span><span class="line"><span class="ln">3</span><span class="cl">Bluetooth: RFCOMM TTY layer initialized
-</span></span><span class="line"><span class="ln">4</span><span class="cl">Bluetooth: RFCOMM socket layer initialized
-</span></span><span class="line"><span class="ln">5</span><span class="cl">Bluetooth: RFCOMM ver 1.11
-</span></span><span class="line"><span class="ln">6</span><span class="cl"><span class="o">[</span>...<span class="o">]</span>
-</span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="o">[</span>271309.434405<span class="o">]</span> Enabled timestamps
-</span></span><span class="line"><span class="ln">8</span><span class="cl"><span class="o">[</span>...<span class="o">]</span>
-</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+  </div>
+  <div class="offcanvas-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div><div class="post-content mb-3"><p>换了公司，也搞起了桌面运维，配置交换机的过程记录一下，其实很简单，就是命令记不住。</p>
+<p>拿到一台华为交换机，重新初始化后，配置如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">&lt;HUAWEI&gt;dis cur
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">!Software Version V200R008C00SPC500
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="c1">#</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">sysname HUAWEI
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="c1">#</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">aaa
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"> authentication-scheme default
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl"> authorization-scheme default
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl"> accounting-scheme default
+</span></span><span class="line"><span class="ln">10</span><span class="cl"> domain default
+</span></span><span class="line"><span class="ln">11</span><span class="cl"> domain default_admin
+</span></span><span class="line"><span class="ln">12</span><span class="cl"> local-user admin password irreversible-cipher %^%#7:.iL<span class="o">]</span>+u<span class="s2">&#34;4\j8ZFhGeg/-m.&amp;&#34;</span>^0<span class="o">}</span>kMznjk%&gt;<span class="p">;</span>BaUDO/<span class="s1">&#39;6m\X\=V8JGY:W;i,%^%#
+</span></span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="s1"> local-user admin service-type http
+</span></span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="s1">#
+</span></span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="s1">interface Vlanif1
+</span></span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="s1">#
+</span></span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="s1">interface MEth0/0/1
+</span></span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="s1">#
+</span></span></span><span class="line"><span class="ln">19</span><span class="cl"><span class="s1">interface GigabitEthernet0/0/1
+</span></span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="s1">#                                         
+</span></span></span><span class="line"><span class="ln">21</span><span class="cl"><span class="s1">interface NULL0
+</span></span></span><span class="line"><span class="ln">22</span><span class="cl"><span class="s1">#
+</span></span></span><span class="line"><span class="ln">23</span><span class="cl"><span class="s1">user-interface con 0
+</span></span></span><span class="line"><span class="ln">24</span><span class="cl"><span class="s1"> authentication-mode password
+</span></span></span><span class="line"><span class="ln">25</span><span class="cl"><span class="s1"> set authentication password cipher $1a$~!;$-JF0-W$Z&gt;&lt;1.F]&lt;sF.R_NBj34CJ/JPe=/tZDMM(Ws3&#39;</span>9u%+$
+</span></span><span class="line"><span class="ln">26</span><span class="cl">user-interface vty <span class="m">0</span> <span class="m">4</span>
+</span></span><span class="line"><span class="ln">27</span><span class="cl">user-interface vty <span class="m">16</span> <span class="m">20</span>
+</span></span><span class="line"><span class="ln">28</span><span class="cl"><span class="c1">#</span>
+</span></span><span class="line"><span class="ln">29</span><span class="cl"><span class="k">return</span>
+</span></span></code></pre></div><h4 id="一配名称">一、配名称</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">sysname BJ_FANGHENG_JIERU
+</span></span></code></pre></div><h4 id="二配置登录用户">二、配置登录用户</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">1、aaa
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">local-user admin password irreversible-cipher Yy123459
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">local-user admin privilege level <span class="m">3</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">local-user admin service-type telnet terminal ssh
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">2、user-interface con <span class="m">0</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">authentication-mode aaa
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">3、user-interface vty <span class="m">0</span> <span class="m">4</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">authentication-mode aaa
+</span></span><span class="line"><span class="ln">11</span><span class="cl">protocol inbound all
+</span></span></code></pre></div><h4 id="三配置下联交换机端口">三、配置下联交换机端口</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">interface GigabitEthernet0/0/23
+</span></span><span class="line"><span class="ln">2</span><span class="cl"> <span class="nv">description</span> <span class="o">==</span> H3cSW --&gt; <span class="m">24</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl"> port link-type trunk
+</span></span><span class="line"><span class="ln">4</span><span class="cl"> port trunk allow-pass vlan <span class="m">2</span> to <span class="m">4094</span>
+</span></span></code></pre></div><h4 id="四配置上联交换机端口">四、配置上联交换机端口</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">interface GigabitEthernet0/0/24
+</span></span><span class="line"><span class="ln">2</span><span class="cl"> <span class="nv">description</span> <span class="o">==</span> RuijieRoute --&gt; lan0
+</span></span><span class="line"><span class="ln">3</span><span class="cl"> port link-type access
+</span></span><span class="line"><span class="ln">4</span><span class="cl"> port default vlan <span class="m">100</span>
+</span></span></code></pre></div><h4 id="五配置vlan地址">五、配置vlan地址</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">vlan <span class="m">11</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"> interface Vlanif11
+</span></span><span class="line"><span class="ln">3</span><span class="cl"> ip address 10.8.0.7 255.255.254.0
+</span></span><span class="line"><span class="ln">4</span><span class="cl"> 
+</span></span><span class="line"><span class="ln">5</span><span class="cl">vlan <span class="m">100</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl"> interface Vlanif100
+</span></span><span class="line"><span class="ln">7</span><span class="cl"> ip address 192.168.10.7 255.255.255.0
+</span></span></code></pre></div><h4 id="六配置缺省路由">六、配置缺省路由</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">ip route-static 0.0.0.0 0.0.0.0 10.8.0.1
+</span></span></code></pre></div><h4 id="七批量配置端口">七、批量配置端口</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">port-group group-member GigabitEthernet0/0/1 to GigabitEthernet0/0/23
+</span></span><span class="line"><span class="ln">2</span><span class="cl">port link-type access
+</span></span><span class="line"><span class="ln">3</span><span class="cl">port default vlan <span class="m">11</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">stp edged-port <span class="nb">enable</span>
+</span></span></code></pre></div><h4 id="八lldp">八、lldp</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">lldp <span class="nb">enable</span>
+</span></span></code></pre></div><h4 id="九dhcp">九、dhcp</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">dhcp <span class="nb">enable</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">ip pool <span class="m">11</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"> gateway-list 10.8.0.1
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"> network 10.8.0.0 mask 255.255.254.0
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"> static-bind ip-address 10.8.0.4 mac-address 8005-88f1-fa62
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"> dns-list 114.114.114.114
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"> 
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">interface Vlanif11
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl"> <span class="nv">description</span> <span class="o">===</span> Ke hu duan
+</span></span><span class="line"><span class="ln">10</span><span class="cl"> ip address 10.8.0.1 255.255.254.0
+</span></span><span class="line"><span class="ln">11</span><span class="cl"> dhcp <span class="k">select</span> global
+</span></span></code></pre></div><p>这样就完成了一台核心设备的简单配置</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -289,19 +345,15 @@
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
+    <a href="https://bajie.dev/posts/20230301-hubot_dingding/">Hubot集成企业钉钉
 </a>
-  </div><div class="post-nav post-next">
-    <a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
-</a></li><li><a href="https://bajie.dev/posts/20220717-terraform/">Infrastructure as Code中packer的使用
-</a></li><li><a href="https://bajie.dev/posts/20220717-backup_cisco/">Cisco设备自动执行和备份的脚本
-</a></li><li><a href="https://bajie.dev/posts/20220706-nfs_usermode/">用户态的NFS Server
-</a></li><li><a href="https://bajie.dev/posts/20220621-javascripts_how_to_run/">JavaScript 到底是如何执行的呢 -- JS的作原理
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20230301-hubot_dingding/">Hubot集成企业钉钉
+</a></li><li><a href="https://bajie.dev/posts/20230228-freeipa_yearning/">Yearning集成进freeIPA进行统一认证
+</a></li><li><a href="https://bajie.dev/posts/20230222-kubernetes_rbac/">Kubernetes中用户rbac的建立
+</a></li><li><a href="https://bajie.dev/posts/20230217-freeipa_gitlab/">Gitlab集成进freeIPA进行统一认证
+</a></li><li><a href="https://bajie.dev/posts/20230216-freeipa_confluence/">Confluence集成进freeIPA进行统一认证
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
