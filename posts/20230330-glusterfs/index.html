@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>MySQL数据库的备份和恢复之二 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>GlusterFS的实际应用 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="MySQL数据库的备份和恢复之二">
-<meta itemprop="description" content="我们来说恢复的第二种情况，就是需要从binlog中指定位置恢复 binlog如何设置不说了，我们假设上次用mysqldump做过一次全量备份。"><meta itemprop="datePublished" content="2022-11-22T09:30:11+08:00" />
-<meta itemprop="dateModified" content="2022-11-22T09:30:11+08:00" />
-<meta itemprop="wordCount" content="652">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="MySQL数据库的备份和恢复之二" />
-<meta property="og:description" content="我们来说恢复的第二种情况，就是需要从binlog中指定位置恢复 binlog如何设置不说了，我们假设上次用mysqldump做过一次全量备份。" />
+<meta name="description" content="" /><meta itemprop="name" content="GlusterFS的实际应用">
+<meta itemprop="description" content="特别注意 两台GFS主机172.18.30.18和172.18.30.36上面务必配置/etc/hosts，否则peer的时候会有问题 172.18.30.18 renhe-18-30-18 172.18.30.18 renhe-18-30-36"><meta itemprop="datePublished" content="2023-03-30T09:05:11+08:00" />
+<meta itemprop="dateModified" content="2023-03-30T09:05:11+08:00" />
+<meta itemprop="wordCount" content="956">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="GlusterFS的实际应用" />
+<meta property="og:description" content="特别注意 两台GFS主机172.18.30.18和172.18.30.36上面务必配置/etc/hosts，否则peer的时候会有问题 172.18.30.18 renhe-18-30-18 172.18.30.18 renhe-18-30-36" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://bajie.dev/posts/20221122-mysqldump_binlog/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2022-11-22T09:30:11+08:00" />
-<meta property="article:modified_time" content="2022-11-22T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+<meta property="og:url" content="https://bajie.dev/posts/20230330-glusterfs/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-03-30T09:05:11+08:00" />
+<meta property="article:modified_time" content="2023-03-30T09:05:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="MySQL数据库的备份和恢复之二"/>
-<meta name="twitter:description" content="我们来说恢复的第二种情况，就是需要从binlog中指定位置恢复 binlog如何设置不说了，我们假设上次用mysqldump做过一次全量备份。"/>
+<meta name="twitter:title" content="GlusterFS的实际应用"/>
+<meta name="twitter:description" content="特别注意 两台GFS主机172.18.30.18和172.18.30.36上面务必配置/etc/hosts，否则peer的时候会有问题 172.18.30.18 renhe-18-30-18 172.18.30.18 renhe-18-30-36"/>
 <link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
   <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=MySQL%e6%95%b0%e6%8d%ae%e5%ba%93%e7%9a%84%e5%a4%87%e4%bb%bd%e5%92%8c%e6%81%a2%e5%a4%8d%e4%b9%8b%e4%ba%8c&url=https%3a%2f%2fbajie.dev%2fposts%2f20221122-mysqldump_binlog%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=GlusterFS%e7%9a%84%e5%ae%9e%e9%99%85%e5%ba%94%e7%94%a8&url=https%3a%2f%2fbajie.dev%2fposts%2f20230330-glusterfs%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20221122-mysqldump_binlog%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20230330-glusterfs%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">MySQL数据库的备份和恢复之二</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">GlusterFS的实际应用</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -209,9 +209,9 @@
 </a>
   </div>
 </div>
-<h1 class="card-title my-3">MySQL数据库的备份和恢复之二
+<h1 class="card-title my-3">GlusterFS的实际应用
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-11-22
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-03-30
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
   </span></div>
@@ -225,7 +225,7 @@
   <div class="offcanvas-body">
     <nav id="TableOfContents">
   <ul>
-    <li>
+    <li><a href="#特别注意">特别注意</a>
       <ul>
         <li></li>
       </ul>
@@ -233,43 +233,124 @@
   </ul>
 </nav>
   </div>
-</div><div class="post-content mb-3"><p>我们来说恢复的第二种情况，就是需要从binlog中指定位置恢复</p>
-<p>binlog如何设置不说了，我们假设上次用mysqldump做过一次全量备份。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln">1</span><span class="cl">mysqldump -uroot -p  -h 192.168.1.35 -P3306 --opt --triggers -R --hex-blob  --single-transaction --flush-logs --master-data=2 -B 库名  &gt; 库名.sql
-</span></span></code></pre></div><p>由于我们在备份中使用了参数&ndash;flush-logs &ndash;master-data=2，所以 <strong>库名.sql</strong> 中会有binglog的信息供我们使用。</p>
-<h4 id="一用mysqlbinlog来恢复">一、用mysqlbinlog来恢复</h4>
-<p>我们首先要查到随后的binlog文件是那个，从那时候起又生成多少个binglog文件。</p>
-<p>然后去库里查询：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">show master logs<span class="p">;</span>
-</span></span><span class="line"><span class="ln">2</span><span class="cl">show master status<span class="p">;</span>
-</span></span></code></pre></div><p><img class="img-fluid" alt="image-20221122194020751" src="https://bajie.dev/posts/20221122-mysqldump_binlog/image-20221122194020751.png" loading="lazy"
-   width="1183" height="413"
-   />
-
-</p>
-<p>我们要分析一下SQL</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1"># show binlog events [IN &#39;log_name&#39;] [FROM pos] [LIMIT [offset,] row_count];</span>
-</span></span><span class="line"><span class="ln">2</span><span class="cl">
-</span></span><span class="line"><span class="ln">3</span><span class="cl">show binlog events in <span class="s1">&#39;javaboy_logbin.000002&#39;</span> limit 5,10<span class="p">;</span>
-</span></span></code></pre></div><p>我们来翻看日志：</p>
-<p><img class="img-fluid" alt="image-20221122194528219" src="https://bajie.dev/posts/20221122-mysqldump_binlog/image-20221122194528219.png" loading="lazy"
-   width="1202" height="229"
-   />
-
-</p>
-<p>可以看到是从 764&ndash;&gt;865 ，发生了删除，那么回放到这个764这个position前即可，764不会执行</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln">1</span><span class="cl">mysqlbinlog /var/lib/mysql/mysql-bin.000204 --stop-position=764 --database=bbb | mysql -uroot -p
-</span></span></code></pre></div><p>&ndash;start-position指定从哪里开始恢复，如果不指定，就会从binlog文件开头的position开始</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">mysqlbinlog /var/lib/mysql/mysql-bin.000204 --start-position<span class="o">=</span><span class="m">205</span> --stop-position<span class="o">=</span><span class="m">764</span> --database<span class="o">=</span>bbb <span class="p">|</span> mysql -uroot -p
-</span></span></code></pre></div><h4 id="二用binglog2sql来恢复">二、用binglog2sql来恢复</h4>
-<p>binlog2sql 是大众点评公司的DBA 开发的一款基于通过解析binlog将delete 恢复为insert,update 的值 set 字段和where条件做对调的原理来恢复数据的。 使用限制 MySQL的binlog format 必须是row 安装</p>
-<p>简单说它的道理就是变删为增，生成新的SQL执行。感觉 yearning 的回滚应该就是基于这个东西搞得。</p>
-<p>地址：https://github.com/danfengcao/binlog2sql</p>
-<p>解析出回滚的SQL：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln">1</span><span class="cl">python binlog2sql.py --flashback -h127.0.0.1 -P3306 -uadmin -p&#39;admin&#39; -dtest -ttest3 --start-file=&#39;mysql-bin.000002&#39; --start-position=763 --stop-position=1147 &gt; rollback.sql
-</span></span></code></pre></div><p>回滚前务必再备份一下</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln">1</span><span class="cl">mysql -h127.0.0.1 -P3306 -uadmin -p &lt; rollback.sql
-</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+</div><div class="post-content mb-3"><h2 id="特别注意">特别注意</h2>
+<p>两台GFS主机172.18.30.18和172.18.30.36上面务必配置/etc/hosts，否则peer的时候会有问题</p>
+<pre><code>172.18.30.18 renhe-18-30-18
+172.18.30.18 renhe-18-30-36
+</code></pre>
+<h4 id="客户端安装">客户端安装</h4>
+<blockquote>
+<p>yum -y install epel-release</p>
+<p>然后 yum  install glusterfs-fuse 就可以了</p>
+</blockquote>
+<h4 id="挂载">挂载：</h4>
+<blockquote>
+<p>mount.glusterfs 172.18.30.18:/borui-vol /data/br/nfs</p>
+</blockquote>
+<h4 id="fstab-自动挂载">fstab 自动挂载</h4>
+<blockquote>
+<p>172.18.30.18:/borui-vol /data/br/nfs glusterfs defaults,_netdev,backupvolfile-server=172.18.30.36 0 0</p>
+</blockquote>
+<h4 id="在172183018上建立新卷因为只有2个节点就必须force了">在172.18.30.18上建立新卷，因为只有2个节点，就必须force了</h4>
+<blockquote>
+<p>gluster volume create test-zhichi-vol replica 2 transport tcp 172.18.30.18:/glusterfs/test-zhichi-vol 172.18.30.36:/glusterfs/test-zhichi-vol force</p>
+</blockquote>
+<h4 id="启动">启动</h4>
+<blockquote>
+<p>gluster volume start test-zhichi-vol</p>
+</blockquote>
+<h4 id="查看一下">查看一下</h4>
+<blockquote>
+<p>gluster volume info test-zhichi-vol</p>
+</blockquote>
+<h4 id="查看卷信息禁止查看inode太多了">查看卷信息(禁止查看inode，太多了)</h4>
+<blockquote>
+<p>gluster volume status test-zhichi-vol detail
+gluster volume status test-zhichi-vol clients
+gluster volume status test-zhichi-vol mem
+gluster volume status test-zhichi-vol fd
+gluster volume status test-zhichi-vol inode</p>
+</blockquote>
+<h4 id="开启限额">开启限额</h4>
+<blockquote>
+<p>gluster volume quota test-zhichi-vol enable
+gluster volume quota test-zhichi-vol limit-usage / 50GB
+gluster volume quota test-zhichi-vol list</p>
+</blockquote>
+<h4 id="限制ip访问">限制IP访问</h4>
+<p>例如允许172.18.31.*网段的主机访问rep-volume：</p>
+<blockquote>
+<p>gluster volume set test-zhichi-vol    auth.allow 172.18.31.*`</p>
+</blockquote>
+<h4 id="如果客户端想用nfs挂载">如果客户端想用NFS挂载</h4>
+<blockquote>
+<p>gluster volume set test-zhichi-vol nfs.disable off</p>
+</blockquote>
+<h4 id="开启性能分析慎用">开启性能分析（慎用）</h4>
+<blockquote>
+<p>gluster volume profile test-zhichi-vol start</p>
+</blockquote>
+<h4 id="开启后性能分析后显示io信息">开启后性能分析后，显示I/O信息:</h4>
+<blockquote>
+<p>gluster volume profile gv0 info</p>
+</blockquote>
+<h4 id="glusterd-启动失败原因未知处理办法慎用拷出数据后再用">Glusterd 启动失败，原因未知处理办法（慎用，拷出数据后再用）：</h4>
+<blockquote>
+<p>rm -rf /var/lib/glusterd/*
+systemctl start glusterd</p>
+</blockquote>
+<h1 id="脑裂解决方法">脑裂解决方法：</h1>
+<p>脑裂：
+使用replica模式的时候，如果发生网络故障（比如交换机坏了、网线被碰掉了），而两台机器都还活着的时候，它们各自的数据读写还会继续。</p>
+<p>当网络恢复时，它们都会认为自己的数据才是正确的，对方的是错误的，这就是俗称的脑裂。</p>
+<p>双方谁都不肯妥协，结果就是文件数据读取错误，系统无法正常运行。
+在正常的机器上执行以下操作：</p>
+<blockquote>
+<p>gluster volume status nfsp （看看这个节点有没有在线）
+gluster volume heal nfsp full （启动完全修复）
+gluster volume heal nfsp info  （查看需要修复的文件）
+gluster volume heal nfsp info healed  （查看修复成功的文件）
+gluster volume heal nfsp info heal-failed  （查看修复失败的文件）
+gluster volume heal nfsp info split-brain  （查看脑裂的文件）</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">Gathering Heal info on volume nfsp has been successful
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">Brick gls03.mycloud.com.cn:/glusterfs/nfsp
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">Number of entries: <span class="m">24</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">at                    path on brick
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">-----------------------------------
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">2014-05-30 10:22:20 /36c741b8-2de2-46e9-9e3c-8c7475e4dd10
+</span></span><span class="line"><span class="ln">10</span><span class="cl">。。。。。。。。。。。。。。。。。。。。。。。。。。。。。
+</span></span><span class="line"><span class="ln">11</span><span class="cl">。。。。。。。。。。。。。。。。。。。。。。。。。。。。。
+</span></span><span class="line"><span class="ln">12</span><span class="cl">。。。。。。。。。。。。。。。。。。。。。。。。。。。。。
+</span></span></code></pre></div><p>在有病的那台机器上，删除脑裂的文件：
+（注意！要删除的文件是在gluster volume info nfsp看到的目录中，不要去删除挂载的目录中的文件，不然就等着哭吧）
+把硬链接文件找出来，也要删除：</p>
+<blockquote>
+<p>find /glusterfs/nfsp/ -samefile /glusterfs/nfsp/36c741b8-2de2-46e9-9e3c-8c7475e4dd10 -print</p>
+</blockquote>
+<p>/glusterfs/nfsp/36c741b8-2de2-46e9-9e3c-8c7475e4dd10
+/glusterfs/nfsp/.glusterfs/65/26/6526e766-cb26-434c-9605-eacb21316447 （这里看得出硬链接文件的目录名和日志中的gfid的对应关系）</p>
+<p>删除掉：</p>
+<blockquote>
+<p>rm /glusterfs/nfsp/36c741b8-2de2-46e9-9e3c-8c7475e4dd10
+rm /glusterfs/nfsp/.glusterfs/65/26/6526e766-cb26-434c-9605-eacb21316447</p>
+</blockquote>
+<p>在正常的机器上执行</p>
+<blockquote>
+<p>tail -1 /nfsprimary/36c741b8-2de2-46e9-9e3c-8c7475e4dd10   （读一下这个文件，触发修复）
+ls -l /glusterfs/nfsp/36c741b8-2de2-46e9-9e3c-8c7475e4dd10</p>
+</blockquote>
+<p>人工查看一下两台机器的数据是否一致</p>
+<p>其它的脑裂文件也是一样处理。
+没问题的话，重新挂载目录:</p>
+<blockquote>
+<p>umount /nfsprimary
+/bin/mount -t glusterfs 10.10.10.21:/nfsp /nfsprimary/</p>
+</blockquote>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -296,19 +377,15 @@
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://bajie.dev/posts/20221121-mysqldump/">MySQL数据库的备份和恢复之一
+    <a href="https://bajie.dev/posts/20230329-ipset_block/">使用ipset来禁止国外的用户登录openvpn
 </a>
-  </div><div class="post-nav post-next">
-    <a href="https://bajie.dev/posts/20221123-freelancer_qrcode/">Freelancer之QRCode
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20221121-mysqldump/">MySQL数据库的备份和恢复之一
-</a></li><li><a href="https://bajie.dev/posts/20221119-openvpn_client/">OpenVPN客户端定制IP和路由
-</a></li><li><a href="https://bajie.dev/posts/20221117-sign/">英语的符号表达
-</a></li><li><a href="https://bajie.dev/posts/20221115-ipsec/">阿里云IPSec与锐捷路由器得连接
-</a></li><li><a href="https://bajie.dev/posts/20221113-l2tp_vpn/">L2TP VPN在CentOS7系统下的搭建
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20230329-ipset_block/">使用ipset来禁止国外的用户登录openvpn
+</a></li><li><a href="https://bajie.dev/posts/20230324-huawei_switch/">核心交换机的配置过程
+</a></li><li><a href="https://bajie.dev/posts/20230301-hubot_dingding/">Hubot集成企业钉钉
+</a></li><li><a href="https://bajie.dev/posts/20230228-freeipa_yearning/">Yearning集成进freeIPA进行统一认证
+</a></li><li><a href="https://bajie.dev/posts/20230222-kubernetes_rbac/">Kubernetes中用户rbac的建立
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
