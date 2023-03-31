@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="GlusterFS的实际应用">
 <meta itemprop="description" content="特别注意 两台GFS主机172.18.30.18和172.18.30.36上面务必配置/etc/hosts，否则peer的时候会有问题 172.18.30.18 renhe-18-30-18 172.18.30.18 renhe-18-30-36"><meta itemprop="datePublished" content="2023-03-30T09:05:11+08:00" />
 <meta itemprop="dateModified" content="2023-03-30T09:05:11+08:00" />
-<meta itemprop="wordCount" content="956">
+<meta itemprop="wordCount" content="958">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="GlusterFS的实际应用" />
 <meta property="og:description" content="特别注意 两台GFS主机172.18.30.18和172.18.30.36上面务必配置/etc/hosts，否则peer的时候会有问题 172.18.30.18 renhe-18-30-18 172.18.30.18 renhe-18-30-36" />
 <meta property="og:type" content="article" />
@@ -239,11 +239,10 @@
 172.18.30.18 renhe-18-30-36
 </code></pre>
 <h4 id="客户端安装">客户端安装</h4>
-<blockquote>
-<p>yum -y install epel-release</p>
-<p>然后 yum  install glusterfs-fuse 就可以了</p>
-</blockquote>
-<h4 id="挂载">挂载：</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">yum -y install epel-release
+</span></span><span class="line"><span class="ln">2</span><span class="cl">
+</span></span><span class="line"><span class="ln">3</span><span class="cl">然后 yum  install glusterfs-fuse 就可以了
+</span></span></code></pre></div><h4 id="挂载">挂载：</h4>
 <blockquote>
 <p>mount.glusterfs 172.18.30.18:/borui-vol /data/br/nfs</p>
 </blockquote>
@@ -252,10 +251,8 @@
 <p>172.18.30.18:/borui-vol /data/br/nfs glusterfs defaults,_netdev,backupvolfile-server=172.18.30.36 0 0</p>
 </blockquote>
 <h4 id="在172183018上建立新卷因为只有2个节点就必须force了">在172.18.30.18上建立新卷，因为只有2个节点，就必须force了</h4>
-<blockquote>
-<p>gluster volume create test-zhichi-vol replica 2 transport tcp 172.18.30.18:/glusterfs/test-zhichi-vol 172.18.30.36:/glusterfs/test-zhichi-vol force</p>
-</blockquote>
-<h4 id="启动">启动</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">gluster volume create test-zhichi-vol replica <span class="m">2</span> transport tcp 172.18.30.18:/glusterfs/test-zhichi-vol 172.18.30.36:/glusterfs/test-zhichi-vol force
+</span></span></code></pre></div><h4 id="启动">启动</h4>
 <blockquote>
 <p>gluster volume start test-zhichi-vol</p>
 </blockquote>
@@ -264,20 +261,16 @@
 <p>gluster volume info test-zhichi-vol</p>
 </blockquote>
 <h4 id="查看卷信息禁止查看inode太多了">查看卷信息(禁止查看inode，太多了)</h4>
-<blockquote>
-<p>gluster volume status test-zhichi-vol detail
-gluster volume status test-zhichi-vol clients
-gluster volume status test-zhichi-vol mem
-gluster volume status test-zhichi-vol fd
-gluster volume status test-zhichi-vol inode</p>
-</blockquote>
-<h4 id="开启限额">开启限额</h4>
-<blockquote>
-<p>gluster volume quota test-zhichi-vol enable
-gluster volume quota test-zhichi-vol limit-usage / 50GB
-gluster volume quota test-zhichi-vol list</p>
-</blockquote>
-<h4 id="限制ip访问">限制IP访问</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">gluster volume status test-zhichi-vol detail
+</span></span><span class="line"><span class="ln">2</span><span class="cl">gluster volume status test-zhichi-vol clients
+</span></span><span class="line"><span class="ln">3</span><span class="cl">gluster volume status test-zhichi-vol mem
+</span></span><span class="line"><span class="ln">4</span><span class="cl">gluster volume status test-zhichi-vol fd
+</span></span><span class="line"><span class="ln">5</span><span class="cl">gluster volume status test-zhichi-vol inode
+</span></span></code></pre></div><h4 id="开启限额">开启限额</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">gluster volume quota test-zhichi-vol <span class="nb">enable</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">gluster volume quota test-zhichi-vol limit-usage / 50GB
+</span></span><span class="line"><span class="ln">3</span><span class="cl">gluster volume quota test-zhichi-vol list
+</span></span></code></pre></div><h4 id="限制ip访问">限制IP访问</h4>
 <p>例如允许172.18.31.*网段的主机访问rep-volume：</p>
 <blockquote>
 <p>gluster volume set test-zhichi-vol    auth.allow 172.18.31.*`</p>
@@ -295,25 +288,21 @@ gluster volume quota test-zhichi-vol list</p>
 <p>gluster volume profile gv0 info</p>
 </blockquote>
 <h4 id="glusterd-启动失败原因未知处理办法慎用拷出数据后再用">Glusterd 启动失败，原因未知处理办法（慎用，拷出数据后再用）：</h4>
-<blockquote>
-<p>rm -rf /var/lib/glusterd/*
-systemctl start glusterd</p>
-</blockquote>
-<h1 id="脑裂解决方法">脑裂解决方法：</h1>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">rm -rf /var/lib/glusterd/*
+</span></span><span class="line"><span class="ln">2</span><span class="cl">systemctl start glusterd
+</span></span></code></pre></div><h1 id="脑裂解决方法">脑裂解决方法：</h1>
 <p>脑裂：
 使用replica模式的时候，如果发生网络故障（比如交换机坏了、网线被碰掉了），而两台机器都还活着的时候，它们各自的数据读写还会继续。</p>
 <p>当网络恢复时，它们都会认为自己的数据才是正确的，对方的是错误的，这就是俗称的脑裂。</p>
 <p>双方谁都不肯妥协，结果就是文件数据读取错误，系统无法正常运行。
 在正常的机器上执行以下操作：</p>
-<blockquote>
-<p>gluster volume status nfsp （看看这个节点有没有在线）
-gluster volume heal nfsp full （启动完全修复）
-gluster volume heal nfsp info  （查看需要修复的文件）
-gluster volume heal nfsp info healed  （查看修复成功的文件）
-gluster volume heal nfsp info heal-failed  （查看修复失败的文件）
-gluster volume heal nfsp info split-brain  （查看脑裂的文件）</p>
-</blockquote>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">Gathering Heal info on volume nfsp has been successful
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">gluster volume status nfsp （看看这个节点有没有在线）
+</span></span><span class="line"><span class="ln">2</span><span class="cl">gluster volume heal nfsp full （启动完全修复）
+</span></span><span class="line"><span class="ln">3</span><span class="cl">gluster volume heal nfsp info  （查看需要修复的文件）
+</span></span><span class="line"><span class="ln">4</span><span class="cl">gluster volume heal nfsp info healed  （查看修复成功的文件）
+</span></span><span class="line"><span class="ln">5</span><span class="cl">gluster volume heal nfsp info heal-failed  （查看修复失败的文件）
+</span></span><span class="line"><span class="ln">6</span><span class="cl">gluster volume heal nfsp info split-brain  （查看脑裂的文件）
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">Gathering Heal info on volume nfsp has been successful
 </span></span><span class="line"><span class="ln"> 2</span><span class="cl">
 </span></span><span class="line"><span class="ln"> 3</span><span class="cl">Brick gls03.mycloud.com.cn:/glusterfs/nfsp
 </span></span><span class="line"><span class="ln"> 4</span><span class="cl">Number of entries: <span class="m">24</span>
@@ -328,29 +317,21 @@ gluster volume heal nfsp info split-brain  （查看脑裂的文件）</p>
 </span></span></code></pre></div><p>在有病的那台机器上，删除脑裂的文件：
 （注意！要删除的文件是在gluster volume info nfsp看到的目录中，不要去删除挂载的目录中的文件，不然就等着哭吧）
 把硬链接文件找出来，也要删除：</p>
-<blockquote>
-<p>find /glusterfs/nfsp/ -samefile /glusterfs/nfsp/36c741b8-2de2-46e9-9e3c-8c7475e4dd10 -print</p>
-</blockquote>
-<p>/glusterfs/nfsp/36c741b8-2de2-46e9-9e3c-8c7475e4dd10
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">find /glusterfs/nfsp/ -samefile /glusterfs/nfsp/36c741b8-2de2-46e9-9e3c-8c7475e4dd10 -print
+</span></span></code></pre></div><p>/glusterfs/nfsp/36c741b8-2de2-46e9-9e3c-8c7475e4dd10
 /glusterfs/nfsp/.glusterfs/65/26/6526e766-cb26-434c-9605-eacb21316447 （这里看得出硬链接文件的目录名和日志中的gfid的对应关系）</p>
 <p>删除掉：</p>
-<blockquote>
-<p>rm /glusterfs/nfsp/36c741b8-2de2-46e9-9e3c-8c7475e4dd10
-rm /glusterfs/nfsp/.glusterfs/65/26/6526e766-cb26-434c-9605-eacb21316447</p>
-</blockquote>
-<p>在正常的机器上执行</p>
-<blockquote>
-<p>tail -1 /nfsprimary/36c741b8-2de2-46e9-9e3c-8c7475e4dd10   （读一下这个文件，触发修复）
-ls -l /glusterfs/nfsp/36c741b8-2de2-46e9-9e3c-8c7475e4dd10</p>
-</blockquote>
-<p>人工查看一下两台机器的数据是否一致</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">rm /glusterfs/nfsp/36c741b8-2de2-46e9-9e3c-8c7475e4dd10
+</span></span><span class="line"><span class="ln">2</span><span class="cl">rm /glusterfs/nfsp/.glusterfs/65/26/6526e766-cb26-434c-9605-eacb21316447
+</span></span></code></pre></div><p>在正常的机器上执行</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">tail -1 /nfsprimary/36c741b8-2de2-46e9-9e3c-8c7475e4dd10   （读一下这个文件，触发修复）
+</span></span><span class="line"><span class="ln">2</span><span class="cl">ls -l /glusterfs/nfsp/36c741b8-2de2-46e9-9e3c-8c7475e4dd10 
+</span></span></code></pre></div><p>人工查看一下两台机器的数据是否一致</p>
 <p>其它的脑裂文件也是一样处理。
 没问题的话，重新挂载目录:</p>
-<blockquote>
-<p>umount /nfsprimary
-/bin/mount -t glusterfs 10.10.10.21:/nfsp /nfsprimary/</p>
-</blockquote>
-</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">umount /nfsprimary
+</span></span><span class="line"><span class="ln">2</span><span class="cl">/bin/mount -t glusterfs 10.10.10.21:/nfsp /nfsprimary/
+</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -435,11 +416,11 @@ ls -l /glusterfs/nfsp/36c741b8-2de2-46e9-9e3c-8c7475e4dd10</p>
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20230330-truenas_install/">TureNAS系统在浪潮定制系统上的安装
+    <ul><li><a href="https://bajie.dev/posts/20230331-idrac_dell/">Dell服务器idrac常用操作脚本
+</a></li><li><a href="https://bajie.dev/posts/20230330-truenas_install/">TureNAS系统在浪潮定制系统上的安装
 </a></li><li><a href="https://bajie.dev/posts/20230330-glusterfs/">GlusterFS的实际应用
 </a></li><li><a href="https://bajie.dev/posts/20230329-ipset_block/">使用ipset来禁止国外的用户登录openvpn
 </a></li><li><a href="https://bajie.dev/posts/20230324-huawei_switch/">核心交换机的配置过程
-</a></li><li><a href="https://bajie.dev/posts/20230301-hubot_dingding/">Hubot集成企业钉钉
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
