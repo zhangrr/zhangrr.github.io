@@ -180,6 +180,32 @@
 <div class="col-lg-8">
   <div class="container"><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211110-sslh_multiple_port/">Sslh的一个端口同时跑多个服务
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-10
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          Ucloud的机器在两会期间干脆端口全灭，firewall设置进来的端口全关闭！！！！！！ 还好有个Global ssh的服务，可以 ssh ubuntu@111.129.37.89.ipssh.net 登录上去
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211109-nginx_multiple_port/">Nginx的一个端口同时跑SSH和HTTPS服务
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-09
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          这个要求挺古怪的，背景是防火墙只开了 nginx 443 端口。我也想同时 ssh 登录进去，但是F5没开IP 就只能这么干了，让 Nginx 一个端口跑多个服务 在 nginx.conf 加一段，str
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
         <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211109-k8s_rbac/">Kubernetes创建普通账号
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-11-09
@@ -282,32 +308,6 @@
           我们都喜欢用 alphine 的镜像做底包，来生产自己的镜像 alphine 的底包的时间设定就非常重要了 直接给出 Dockerfile 1FROM alpine:3.12 2 3# latest certs 4RUN apk add ca-certificates --no-cache &amp;&amp; update-ca-certificates 5 6# timezone support 7ENV TZ=Asia/Shanghai 8RUN apk add --update tzdata --no-cache &amp;&amp;\ 9 cp
         </div>
       </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211103-proxmox/">生产环境Proxmox 7.02的安装和配置
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-03
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          其实我们的生产环境一直是 KVM ，然后用 shell 脚本控制虚机的生成，也是用到了 Cloud-init 的标准镜像。 听说 Proxmox 也很不错，于是想看看能否也在生产环境中用上 如果在生产环
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211102-ingress_nginx/">K8s中nginx Ingress的性能优化
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-02
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          kubernetes 中 nginx ingress 的优化分两部分 一、系统sysctl部分优化 首先是对nginx启动前的系统性能进行优化，这部分调整网络的缓冲区，减小闲置 socket 关闭的时间 以
-        </div>
-      </div>
     </article></div><div class="row table-responsive mb-3">
     <ul class="pagination pagination-default">
       <li class="page-item">
@@ -361,11 +361,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20230406-dell_idrac/">Dell得Idrac临时license
+    <ul><li><a href="https://bajie.dev/posts/20230630-certificates/">2023年获得的证书
+</a></li><li><a href="https://bajie.dev/posts/20230412-freeipa_yapi/">Yapi集成进freeIPA进行统一认证
+</a></li><li><a href="https://bajie.dev/posts/20230406-dell_idrac/">Dell得Idrac临时license
 </a></li><li><a href="https://bajie.dev/posts/20230403-graphviz/">利用graphviz描述语言绘图
 </a></li><li><a href="https://bajie.dev/posts/20230331-truenas_adddisk/">TrueNAS系统如何增加新硬盘
-</a></li><li><a href="https://bajie.dev/posts/20230331-idrac_dell/">Dell服务器idrac常用操作脚本
-</a></li><li><a href="https://bajie.dev/posts/20230330-truenas_install/">TureNAS系统在浪潮定制系统上的安装
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
