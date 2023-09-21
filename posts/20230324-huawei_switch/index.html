@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="核心交换机的配置过程">
 <meta itemprop="description" content="换了公司，也搞起了桌面运维，配置交换机的过程记录一下，其实很简单，就是命令记不住。 拿到一台华为交换机，重新初始化后，配置如下： 1&lt;HUAWEI&gt;dis cur 2!Software Version V200R008C00SPC500 3# 4sysname"><meta itemprop="datePublished" content="2023-03-24T09:05:11+08:00" />
 <meta itemprop="dateModified" content="2023-03-24T09:05:11+08:00" />
-<meta itemprop="wordCount" content="416">
+<meta itemprop="wordCount" content="451">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="核心交换机的配置过程" />
 <meta property="og:description" content="换了公司，也搞起了桌面运维，配置交换机的过程记录一下，其实很简单，就是命令记不住。 拿到一台华为交换机，重新初始化后，配置如下： 1&lt;HUAWEI&gt;dis cur 2!Software Version V200R008C00SPC500 3# 4sysname" />
 <meta property="og:type" content="article" />
@@ -268,7 +268,7 @@
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">sysname BJ_FANGHENG_JIERU
 </span></span></code></pre></div><h4 id="二配置登录用户">二、配置登录用户</h4>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">1、aaa
-</span></span><span class="line"><span class="ln"> 2</span><span class="cl">local-user admin password irreversible-cipher Yy123459
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">local-user admin password irreversible-cipher abcdefg
 </span></span><span class="line"><span class="ln"> 3</span><span class="cl">local-user admin privilege level <span class="m">3</span>
 </span></span><span class="line"><span class="ln"> 4</span><span class="cl">local-user admin service-type telnet terminal ssh
 </span></span><span class="line"><span class="ln"> 5</span><span class="cl">
@@ -286,16 +286,19 @@
 </span></span></code></pre></div><h4 id="四配置上联交换机端口">四、配置上联交换机端口</h4>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">interface GigabitEthernet0/0/24
 </span></span><span class="line"><span class="ln">2</span><span class="cl"> <span class="nv">description</span> <span class="o">==</span> RuijieRoute --&gt; lan0
-</span></span><span class="line"><span class="ln">3</span><span class="cl"> port link-type access
-</span></span><span class="line"><span class="ln">4</span><span class="cl"> port default vlan <span class="m">100</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl"> port link-type trunk
+</span></span><span class="line"><span class="ln">4</span><span class="cl"> port trunk allow-pass vlan <span class="m">2</span> to <span class="m">4094</span>
 </span></span></code></pre></div><h4 id="五配置vlan地址">五、配置vlan地址</h4>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">vlan <span class="m">11</span>
-</span></span><span class="line"><span class="ln">2</span><span class="cl"> interface Vlanif11
-</span></span><span class="line"><span class="ln">3</span><span class="cl"> ip address 10.8.0.7 255.255.254.0
-</span></span><span class="line"><span class="ln">4</span><span class="cl"> 
-</span></span><span class="line"><span class="ln">5</span><span class="cl">vlan <span class="m">100</span>
-</span></span><span class="line"><span class="ln">6</span><span class="cl"> interface Vlanif100
-</span></span><span class="line"><span class="ln">7</span><span class="cl"> ip address 192.168.10.7 255.255.255.0
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">vlan <span class="m">11</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">vlan <span class="m">100</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">vlan <span class="m">11</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"> interface Vlanif11
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"> ip address 10.8.0.7 255.255.254.0
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"> 
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">vlan <span class="m">100</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl"> interface Vlanif100
+</span></span><span class="line"><span class="ln">10</span><span class="cl"> ip address 192.168.10.7 255.255.255.0
 </span></span></code></pre></div><h4 id="六配置缺省路由">六、配置缺省路由</h4>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">ip route-static 0.0.0.0 0.0.0.0 10.8.0.1
 </span></span></code></pre></div><h4 id="七批量配置端口">七、批量配置端口</h4>
@@ -317,6 +320,13 @@
 </span></span><span class="line"><span class="ln"> 9</span><span class="cl"> <span class="nv">description</span> <span class="o">===</span> Ke hu duan
 </span></span><span class="line"><span class="ln">10</span><span class="cl"> ip address 10.8.0.1 255.255.254.0
 </span></span><span class="line"><span class="ln">11</span><span class="cl"> dhcp <span class="k">select</span> global
+</span></span></code></pre></div><h4 id="十telnet和ssh">十、telnet和ssh</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">dsa local-key-pair create
+</span></span><span class="line"><span class="ln">2</span><span class="cl">
+</span></span><span class="line"><span class="ln">3</span><span class="cl">telnet server <span class="nb">enable</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">
+</span></span><span class="line"><span class="ln">5</span><span class="cl">stelnet server <span class="nb">enable</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl">ssh authentication-type default password
 </span></span></code></pre></div><p>这样就完成了一台核心设备的简单配置</p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -403,11 +413,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20230913-az-104/">Azure认证az-104的考点
+    <ul><li><a href="https://bajie.dev/posts/20230921-azure_certificate/">今年下半年的两张Azure认证
+</a></li><li><a href="https://bajie.dev/posts/20230913-az-104/">Azure认证az-104的考点
 </a></li><li><a href="https://bajie.dev/posts/20230905-iscsi_volume_release/">Iscsi卷的释放
 </a></li><li><a href="https://bajie.dev/posts/20230801-iscsi_volume/">Iscsi卷的远程挂载使用
 </a></li><li><a href="https://bajie.dev/posts/20230727-f5_irule_cookie/">F5利用irule强行植入cookie
-</a></li><li><a href="https://bajie.dev/posts/20230727-f5_irule_t/">F5利用irule防爬虫
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
