@@ -220,9 +220,17 @@
 <p>所以lsync务必要小心，不能删除已有文件</p>
 <p>172.18.34.38上面的lsyncd.conf如下，同步到两个目的地：
 注意下面的参数：</p>
-<p>maxProcesses = 2 # 本机用于rsync的进程数
-delete = &lsquo;running&rsquo; # 只删除lsync启动之后删除的文件，目的文件夹中原有的文件保存
-exclude = &ldquo;upload&rdquo; # 第二个同步中排除的目录，注意这里是匹配全路径中的部分字串，upload 可以匹配到 /data/new/chatmsg/upload/allajl.jpg，就upload目录下文件大，所以把它排除。**这里的规则是和rsync中exclude的写法不同的！！！**只取路径中的upload字串就可以排除。</p>
+<ol>
+<li>
+<p>maxProcesses = 2 # 本机用于rsync的进程数</p>
+</li>
+<li>
+<p>delete = &lsquo;running&rsquo; # 只删除lsync启动之后删除的文件，目的文件夹中原有的文件保存</p>
+</li>
+<li>
+<p>exclude = &ldquo;upload&rdquo; # 第二个同步中排除的目录，注意这里是匹配全路径中的部分字串，upload 可以匹配到 /data/new/chatmsg/upload/allajl.jpg，就upload目录下文件大，所以把它排除。**这里的规则是和rsync中exclude的写法不同的！！！**只取路径中的upload字串就可以排除。</p>
+</li>
+</ol>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln"> 1</span><span class="cl">----
 </span></span><span class="line"><span class="ln"> 2</span><span class="cl">-- User configuration file for lsyncd.
 </span></span><span class="line"><span class="ln"> 3</span><span class="cl">--
@@ -335,6 +343,10 @@ exclude = &ldquo;upload&rdquo; # 第二个同步中排除的目录，注意这�
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://bajie.dev/posts/20231208-encrypt_tar/">Linux加密压缩tar包
 </a>
+  </div><div class="post-nav post-next">
+    <a href="https://bajie.dev/posts/20231208-ftp_slowly/">开发投诉FTP慢问题的解决
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
     <ul class="related-posts"><li><a href="https://bajie.dev/posts/20231208-encrypt_tar/">Linux加密压缩tar包
@@ -387,11 +399,11 @@ exclude = &ldquo;upload&rdquo; # 第二个同步中排除的目录，注意这�
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20231208-lsync/">Lsync 同步软件的运用
+    <ul><li><a href="https://bajie.dev/posts/20231208-ftp_slowly/">开发投诉FTP慢问题的解决
+</a></li><li><a href="https://bajie.dev/posts/20231208-lsync/">Lsync 同步软件的运用
 </a></li><li><a href="https://bajie.dev/posts/20231208-encrypt_tar/">Linux加密压缩tar包
 </a></li><li><a href="https://bajie.dev/posts/20230921-azure_certificate/">今年下半年的两张Azure认证
 </a></li><li><a href="https://bajie.dev/posts/20230913-az-104/">Azure认证az-104的考点
-</a></li><li><a href="https://bajie.dev/posts/20230905-iscsi_volume_release/">Iscsi卷的释放
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
