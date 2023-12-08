@@ -10,11 +10,11 @@
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
 <meta name="description" content="" /><meta itemprop="name" content="">
-<meta itemprop="description" content="">
+<meta itemprop="description" content="上一篇我们讲了如何从pxe远程启动一个iscsi卷 如果我们要批量产新虚机，最快的方法应该是把远程的iscsi卷clone一下，供新的虚机用，">
 
-<meta itemprop="wordCount" content="0">
+<meta itemprop="wordCount" content="361">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="" />
-<meta property="og:description" content="" />
+<meta property="og:description" content="上一篇我们讲了如何从pxe远程启动一个iscsi卷 如果我们要批量产新虚机，最快的方法应该是把远程的iscsi卷clone一下，供新的虚机用，" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://bajie.dev/posts/untitled/" /><meta property="article:section" content="posts" />
 
@@ -22,7 +22,7 @@
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content=""/>
-<meta name="twitter:description" content=""/>
+<meta name="twitter:description" content="上一篇我们讲了如何从pxe远程启动一个iscsi卷 如果我们要批量产新虚机，最快的方法应该是把远程的iscsi卷clone一下，供新的虚机用，"/>
 <link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
   <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
@@ -211,9 +211,45 @@
 </h1><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>0001-01-01
   </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>0 分钟阅读
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
-<div class="post-content mb-3"></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="post-content mb-3"><p>上一篇我们讲了如何从pxe远程启动一个iscsi卷</p>
+<p>如果我们要批量产新虚机，最快的方法应该是把远程的iscsi卷clone一下，供新的虚机用，方法如下：</p>
+<p>在172.18.30.18上操作</p>
+<p>查看一下，原来有两个LV（逻辑卷）</p>
+<pre><code> # lvdisplay
+</code></pre>
+<p><img class="img-fluid" alt="" src="" loading="lazy"
+  
+   />
+
+</p>
+<p>先把pvc-vis-18-31-48，做个mirror，-b参数表示后台运行。</p>
+<pre><code># lvconvert --type mirror --alloc anywhere -m1 /dev/vg-targetd/pvc-vis-18-31-48 -b
+  Logical volume vg-targetd/pvc-vis-18-31-48 converted.
+</code></pre>
+<p>提示一下就运行完毕了，虚假啊，后台正在运行同步信息：</p>
+<pre><code>lvs -a -o +devices | egrep &quot;LV|48&quot;
+</code></pre>
+<p><img class="img-fluid" alt="" src="" loading="lazy"
+  
+   />
+
+</p>
+<p>看那个Cpy&amp;Sync，那个是进度条，务必等走到100，再进行后续操作</p>
+<p>破开mirror，把副本命名为vis-18-31-49</p>
+<pre><code>#lvconvert --splitmirrors 1 --name vis-18-31-49 /dev/vg-targetd/pvc-vis-18-31-48
+  Logical volume vg-targetd/pvc-vis-18-31-48 converted.
+</code></pre>
+<p>再运行 lvdisplay</p>
+<p><img class="img-fluid" alt="" src="" loading="lazy"
+  
+   />
+
+</p>
+<p>多出一个逻辑卷pvc-vis-18-31-49，之后我们就可以用这个新卷建立iscsi对象了。</p>
+<p>这个卷装的Linux是Centos 7 last，网卡是dhcp，可以当模板复用。</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -245,11 +281,11 @@
     <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20231208-ftp_slowly/">开发投诉FTP慢问题的解决
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20231208-iscsi_lv_clone/">Lvm卷的clone方法
+</a></li><li><a href="https://bajie.dev/posts/20231208-ftp_slowly/">开发投诉FTP慢问题的解决
 </a></li><li><a href="https://bajie.dev/posts/20231208-lsync/">Lsync 同步软件的运用
 </a></li><li><a href="https://bajie.dev/posts/20231208-encrypt_tar/">Linux加密压缩tar包
 </a></li><li><a href="https://bajie.dev/posts/20230921-azure_certificate/">今年下半年的两张Azure认证
-</a></li><li><a href="https://bajie.dev/posts/20230913-az-104/">Azure认证az-104的考点
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
@@ -295,11 +331,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20231208-ftp_slowly/">开发投诉FTP慢问题的解决
+    <ul><li><a href="https://bajie.dev/posts/20231208-iscsi_lv_clone/">Lvm卷的clone方法
+</a></li><li><a href="https://bajie.dev/posts/20231208-ftp_slowly/">开发投诉FTP慢问题的解决
 </a></li><li><a href="https://bajie.dev/posts/20231208-lsync/">Lsync 同步软件的运用
 </a></li><li><a href="https://bajie.dev/posts/20231208-encrypt_tar/">Linux加密压缩tar包
 </a></li><li><a href="https://bajie.dev/posts/20230921-azure_certificate/">今年下半年的两张Azure认证
-</a></li><li><a href="https://bajie.dev/posts/20230913-az-104/">Azure认证az-104的考点
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
