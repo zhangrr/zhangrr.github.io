@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>alphine镜像的使用技巧 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>Rsyslog的一些特殊用法 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="alphine镜像的使用技巧">
-<meta itemprop="description" content="用 alphine 镜像的一些常用技巧： 会随时增加： 一、修改源，用国外的源非常慢，替换成国内的中科大源 1sed -i &#39;s/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g&#39; /etc/apk/repositories 二、更新apk库 1apk update 三、安装软件 1#安装tel"><meta itemprop="datePublished" content="2021-11-04T09:30:11+08:00" />
-<meta itemprop="dateModified" content="2021-11-04T09:30:11+08:00" />
-<meta itemprop="wordCount" content="351">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="alphine镜像的使用技巧" />
-<meta property="og:description" content="用 alphine 镜像的一些常用技巧： 会随时增加： 一、修改源，用国外的源非常慢，替换成国内的中科大源 1sed -i &#39;s/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g&#39; /etc/apk/repositories 二、更新apk库 1apk update 三、安装软件 1#安装tel" />
+<meta name="description" content="" /><meta itemprop="name" content="Rsyslog的一些特殊用法">
+<meta itemprop="description" content="这个其实是网络工程师的工作，有以下两种方法： Rsyslog的模板文件按日期存放： 1$template 10.161.54.11,&#34;/var/log/rsyslog/%fromhost-ip%/netflow_%$YEAR%-%$MONTH%-%$DAY%.log&#34; 2$template 10.161.50.5,&#34;/var/log/rsyslog/%fromhost-ip%/xdns_webeng_%$YEAR%-%$MONTH%-%$DAY%.log&#34; 3$template 10.161.50.7,&#34;/var/log/rsyslog/%fromhost-ip%/xdns_webeng_%$YEAR%-%$MONTH%-%$DAY%.log&#34; 4 5#从特定ip来的日志发到特定rsyslog服"><meta itemprop="datePublished" content="2023-12-11T10:05:11+08:00" />
+<meta itemprop="dateModified" content="2023-12-11T10:05:11+08:00" />
+<meta itemprop="wordCount" content="1017">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="Rsyslog的一些特殊用法" />
+<meta property="og:description" content="这个其实是网络工程师的工作，有以下两种方法： Rsyslog的模板文件按日期存放： 1$template 10.161.54.11,&#34;/var/log/rsyslog/%fromhost-ip%/netflow_%$YEAR%-%$MONTH%-%$DAY%.log&#34; 2$template 10.161.50.5,&#34;/var/log/rsyslog/%fromhost-ip%/xdns_webeng_%$YEAR%-%$MONTH%-%$DAY%.log&#34; 3$template 10.161.50.7,&#34;/var/log/rsyslog/%fromhost-ip%/xdns_webeng_%$YEAR%-%$MONTH%-%$DAY%.log&#34; 4 5#从特定ip来的日志发到特定rsyslog服" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://bajie.dev/posts/20211104-alphine_usage/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2021-11-04T09:30:11+08:00" />
-<meta property="article:modified_time" content="2021-11-04T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+<meta property="og:url" content="https://bajie.dev/posts/20231211-rsyslog_usage/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-12-11T10:05:11+08:00" />
+<meta property="article:modified_time" content="2023-12-11T10:05:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="alphine镜像的使用技巧"/>
-<meta name="twitter:description" content="用 alphine 镜像的一些常用技巧： 会随时增加： 一、修改源，用国外的源非常慢，替换成国内的中科大源 1sed -i &#39;s/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g&#39; /etc/apk/repositories 二、更新apk库 1apk update 三、安装软件 1#安装tel"/>
+<meta name="twitter:title" content="Rsyslog的一些特殊用法"/>
+<meta name="twitter:description" content="这个其实是网络工程师的工作，有以下两种方法： Rsyslog的模板文件按日期存放： 1$template 10.161.54.11,&#34;/var/log/rsyslog/%fromhost-ip%/netflow_%$YEAR%-%$MONTH%-%$DAY%.log&#34; 2$template 10.161.50.5,&#34;/var/log/rsyslog/%fromhost-ip%/xdns_webeng_%$YEAR%-%$MONTH%-%$DAY%.log&#34; 3$template 10.161.50.7,&#34;/var/log/rsyslog/%fromhost-ip%/xdns_webeng_%$YEAR%-%$MONTH%-%$DAY%.log&#34; 4 5#从特定ip来的日志发到特定rsyslog服"/>
 <link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
   <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=alphine%e9%95%9c%e5%83%8f%e7%9a%84%e4%bd%bf%e7%94%a8%e6%8a%80%e5%b7%a7&url=https%3a%2f%2fbajie.dev%2fposts%2f20211104-alphine_usage%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=Rsyslog%e7%9a%84%e4%b8%80%e4%ba%9b%e7%89%b9%e6%ae%8a%e7%94%a8%e6%b3%95&url=https%3a%2f%2fbajie.dev%2fposts%2f20231211-rsyslog_usage%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20211104-alphine_usage%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20231211-rsyslog_usage%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">Alphine镜像的使用技巧</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">Rsyslog的一些特殊用法</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -204,79 +204,83 @@
 ">
   <i class="fas fa-fw fa-copyright"></i>
 </a>
-    <a data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
-  <i class="fas fa-fw fa-list-alt"></i>
-</a>
+    
   </div>
 </div>
-<h1 class="card-title my-3">Alphine镜像的使用技巧
+<h1 class="card-title my-3">Rsyslog的一些特殊用法
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-04
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-11
   </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
   </span></div>
-<div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
-  <div class="offcanvas-header">
-    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
-      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
-        <i class="fas fa-times"></i>
-      </button>
-  </div>
-  <div class="offcanvas-body">
-    <nav id="TableOfContents">
-  <ul>
-    <li><a href="#一修改源用国外的源非常慢替换成国内的中科大源">一、修改源，用国外的源非常慢，替换成国内的中科大源</a></li>
-    <li><a href="#二更新apk库">二、更新apk库</a></li>
-    <li><a href="#三安装软件">三、安装软件</a></li>
-    <li><a href="#四进入容器一步执行换源更新安装">四、进入容器一步执行换源、更新、安装</a></li>
-    <li><a href="#五解决缺少glibc库的问题">五、解决缺少glibc库的问题</a></li>
-    <li><a href="#六一些调试的cmd">六、一些调试的CMD</a></li>
-    <li><a href="#七pod的等待技巧">七、pod的等待技巧</a></li>
-  </ul>
-</nav>
-  </div>
-</div><div class="post-content mb-3"><p>用 alphine 镜像的一些常用技巧：</p>
-<p>会随时增加：</p>
-<h2 id="一修改源用国外的源非常慢替换成国内的中科大源">一、修改源，用国外的源非常慢，替换成国内的中科大源</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">sed -i <span class="s1">&#39;s/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g&#39;</span> /etc/apk/repositories
-</span></span></code></pre></div><h2 id="二更新apk库">二、更新apk库</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">apk update
-</span></span></code></pre></div><h2 id="三安装软件">三、安装软件</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1">#安装telnet</span>
-</span></span><span class="line"><span class="ln"> 2</span><span class="cl">apk add busybox-extras
-</span></span><span class="line"><span class="ln"> 3</span><span class="cl">
-</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="c1">#安装curl</span>
-</span></span><span class="line"><span class="ln"> 5</span><span class="cl">apk add curl
+<div class="post-content mb-3"><p>这个其实是网络工程师的工作，有以下两种方法：</p>
+<p>Rsyslog的模板文件按日期存放：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="nv">$template</span> 10.161.54.11,<span class="s2">&#34;/var/log/rsyslog/%fromhost-ip%/netflow_%</span><span class="nv">$YEAR</span><span class="s2">%-%</span><span class="nv">$MONTH</span><span class="s2">%-%</span><span class="nv">$DAY</span><span class="s2">%.log&#34;</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="nv">$template</span> 10.161.50.5,<span class="s2">&#34;/var/log/rsyslog/%fromhost-ip%/xdns_webeng_%</span><span class="nv">$YEAR</span><span class="s2">%-%</span><span class="nv">$MONTH</span><span class="s2">%-%</span><span class="nv">$DAY</span><span class="s2">%.log&#34;</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="nv">$template</span> 10.161.50.7,<span class="s2">&#34;/var/log/rsyslog/%fromhost-ip%/xdns_webeng_%</span><span class="nv">$YEAR</span><span class="s2">%-%</span><span class="nv">$MONTH</span><span class="s2">%-%</span><span class="nv">$DAY</span><span class="s2">%.log&#34;</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">
+</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="c1">#从特定ip来的日志发到特定rsyslog服务器上去</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl"><span class="c1">#:fromhost-ip, !isequal, &#34;127.0.0.1&#34; ?Remote</span>
+</span></span><span class="line"><span class="ln">7</span><span class="cl">:fromhost-ip, isequal, <span class="s2">&#34;10.161.54.11&#34;</span> ?10.161.54.11
+</span></span><span class="line"><span class="ln">8</span><span class="cl">:fromhost-ip, isequal, <span class="s2">&#34;10.161.50.5&#34;</span> ?10.161.50.5
+</span></span><span class="line"><span class="ln">9</span><span class="cl">:fromhost-ip, isequal, <span class="s2">&#34;10.161.50.7&#34;</span> ?10.161.50.7
+</span></span></code></pre></div><p>Rsyslog打出所有调试信息：</p>
+<p><code>*.* /var/log/debugfmt;RSYSLOG_DebugFormat</code></p>
+<p>调试信息:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">FROMHOST: <span class="s1">&#39;172.18.18.9&#39;</span>, fromhost-ip: <span class="s1">&#39;172.18.18.9&#39;</span>, HOSTNAME: <span class="s1">&#39;172.18.18.9&#39;</span>, PRI: 5,
+</span></span><span class="line"><span class="ln">2</span><span class="cl">syslogtag <span class="s1">&#39;time:&#39;</span>, programname: <span class="s1">&#39;time&#39;</span>, APP-NAME: <span class="s1">&#39;time&#39;</span>, PROCID: <span class="s1">&#39;-&#39;</span>, MSGID: <span class="s1">&#39;-&#39;</span>,
+</span></span><span class="line"><span class="ln">3</span><span class="cl">TIMESTAMP: <span class="s1">&#39;Mar  4 09:04:45&#39;</span>, STRUCTURED-DATA: <span class="s1">&#39;-&#39;</span>,
+</span></span><span class="line"><span class="ln">4</span><span class="cl">msg: <span class="s1">&#39;2021-03-04 09:04:45;danger_degree:1;breaking_sighn:0;event:[50556]MySQL登录认证成功;src_addr:172.18.5.65;src_port:57953;dst_addr:172.18.20.52;dst_port:3306;user:;smt_user:;proto:MYSQL&#39;</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl">escaped msg: <span class="s1">&#39;2021-03-04 09:04:45;danger_degree:1;breaking_sighn:0;event:[50556]MySQL登录认证成功;src_addr:172.18.5.65;src_port:57953;dst_addr:172.18.20.52;dst_port:3306;user:;smt_user:;proto:MYSQL&#39;</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl">inputname: imudp rawmsg: <span class="s1">&#39;&lt;5&gt;time:2021-03-04 09:04:45;danger_degree:1;breaking_sighn:0;event:[50556]MySQL登录认证成功;src_addr:172.18.5.65;src_port:57953;dst_addr:172.18.20.52;dst_port:3306;user:;smt_user:;proto:MYSQL&#39;</span>
+</span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="nv">$!</span>:
+</span></span><span class="line"><span class="ln">8</span><span class="cl">$.:
+</span></span><span class="line"><span class="ln">9</span><span class="cl">$/:
+</span></span></code></pre></div><p>Rsyslog的isequal，不建议，建议用==</p>
+<p><code>if $fromhost isequal 172.18.18.9 then /var/log/nips.log</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="k">if</span> <span class="nv">$fromhost</span>-ip <span class="o">==</span>  <span class="s1">&#39;172.18.18.9&#39;</span> <span class="k">then</span>  <span class="o">{</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">  action<span class="o">(</span><span class="nv">type</span><span class="o">=</span><span class="s2">&#34;ommysql&#34;</span> <span class="nv">server</span><span class="o">=</span><span class="s2">&#34;localhost&#34;</span> <span class="nv">db</span><span class="o">=</span><span class="s2">&#34;Syslog&#34;</span> <span class="nv">uid</span><span class="o">=</span><span class="s2">&#34;nips&#34;</span> <span class="nv">pwd</span><span class="o">=</span><span class="s2">&#34;xxxxxxxx&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>Rsyslog的ommysql用法</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="nv">$ModLoad</span> ommysql
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">*.info<span class="p">;</span>mail.none<span class="p">;</span>authpriv.none<span class="p">;</span>cron.none               :ommysql:localhost,Syslog,nips,xxxxxxxx
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">*.info<span class="p">;</span>mail.none<span class="p">;</span>authpriv.none<span class="p">;</span>cron.none               action<span class="o">(</span><span class="nv">type</span><span class="o">=</span><span class="s2">&#34;ommysql&#34;</span> <span class="nv">server</span><span class="o">=</span><span class="s2">&#34;localhost&#34;</span> <span class="nv">db</span><span class="o">=</span><span class="s2">&#34;Syslog&#34;</span> <span class="nv">uid</span><span class="o">=</span><span class="s2">&#34;nips&#34;</span> <span class="nv">pwd</span><span class="o">=</span><span class="s2">&#34;xxxxxxxx&#34;</span><span class="o">)</span>
 </span></span><span class="line"><span class="ln"> 6</span><span class="cl">
-</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="c1">#安装时间组件</span>
-</span></span><span class="line"><span class="ln"> 8</span><span class="cl">apk add tzdata
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="nv">$template</span> dbFormat,<span class="s2">&#34;insert into SystemEvents (Message, Facility,FromHost, Priority, DeviceReportedTime, ReceivedAt, InfoUnitID, SysLogTag) values (&#39;%msg%&#39;, %syslogfacility%, &#39;%fromhost-ip%&#39;,%syslogpriority%, &#39;%timereported:::date-mysql%&#39;, &#39;%timegenerated:::date-mysql%&#39;, %iut%, &#39;%syslogtag%&#39;)&#34;</span>,sql
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">action<span class="o">(</span><span class="nv">type</span><span class="o">=</span><span class="s2">&#34;ommysql&#34;</span> <span class="nv">server</span><span class="o">=</span><span class="s2">&#34;localhost&#34;</span> <span class="nv">serverport</span><span class="o">=</span><span class="s2">&#34;3306&#34;</span> <span class="nv">db</span><span class="o">=</span><span class="s2">&#34;Syslog&#34;</span> <span class="nv">uid</span><span class="o">=</span><span class="s2">&#34;nips&#34;</span> <span class="nv">pwd</span><span class="o">=</span><span class="s2">&#34;xxxxxxxx&#34;</span> <span class="nv">template</span><span class="o">=</span><span class="s2">&#34;dbFormat&#34;</span><span class="o">)</span>
 </span></span><span class="line"><span class="ln"> 9</span><span class="cl">
-</span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="c1">#更新并且安装软件</span>
-</span></span><span class="line"><span class="ln">11</span><span class="cl">apk add --update tzdata
-</span></span></code></pre></div><h2 id="四进入容器一步执行换源更新安装">四、进入容器一步执行换源、更新、安装</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">sed -i <span class="s1">&#39;s/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g&#39;</span> /etc/apk/repositories <span class="o">&amp;&amp;</span> apk update <span class="o">&amp;&amp;</span> apk add curl <span class="o">&amp;&amp;</span> apk add busybox-extras
-</span></span></code></pre></div><h2 id="五解决缺少glibc库的问题">五、解决缺少glibc库的问题</h2>
-<p>如果不ln会报错，原因是缺少glibc库！！！解决方法如下：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">RUN mkdir /lib64 <span class="o">&amp;&amp;</span> <span class="se">\ </span> 
-</span></span><span class="line"><span class="ln">2</span><span class="cl">    ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2  
-</span></span></code></pre></div><h2 id="六一些调试的cmd">六、一些调试的CMD</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">CMD <span class="o">[</span><span class="s2">&#34;/bin/bash&#34;</span>, <span class="s2">&#34;-c&#34;</span>, <span class="s2">&#34;while true; do echo hi; sleep 10; done&#34;</span><span class="o">]</span>
-</span></span><span class="line"><span class="ln">2</span><span class="cl">
-</span></span><span class="line"><span class="ln">3</span><span class="cl">kubectl run curlpod --image<span class="o">=</span>radial/busyboxplus:curl --command -- /bin/sh -c <span class="s2">&#34;while true; do echo hi; sleep 10; done&#34;</span>
-</span></span></code></pre></div><h2 id="七pod的等待技巧">七、pod的等待技巧</h2>
-<p>这儿里启动正式的pod之前，先临时起了两个容器等待其他服务的完成</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">  containers: 
-</span></span><span class="line"><span class="ln"> 2</span><span class="cl">  - name: myapp-container 
-</span></span><span class="line"><span class="ln"> 3</span><span class="cl">    image: busybox 
-</span></span><span class="line"><span class="ln"> 4</span><span class="cl">    command: <span class="o">[</span><span class="s1">&#39;sh&#39;</span>, <span class="s1">&#39;-c&#39;</span>, <span class="s1">&#39;echo The app is running! &amp;&amp; sleep 3600&#39;</span><span class="o">]</span> 
-</span></span><span class="line"><span class="ln"> 5</span><span class="cl">  initContainers: 
-</span></span><span class="line"><span class="ln"> 6</span><span class="cl">  - name: init-myservice 
-</span></span><span class="line"><span class="ln"> 7</span><span class="cl">    image: busybox 
-</span></span><span class="line"><span class="ln"> 8</span><span class="cl">    command: <span class="o">[</span><span class="s1">&#39;sh&#39;</span>, <span class="s1">&#39;-c&#39;</span>, <span class="s1">&#39;until nslookup myservice; do echo waiting for myservice; sleep 2; done;&#39;</span><span class="o">]</span> 
-</span></span><span class="line"><span class="ln"> 9</span><span class="cl">  - name: init-mydb 
-</span></span><span class="line"><span class="ln">10</span><span class="cl">    image: busybox 
-</span></span><span class="line"><span class="ln">11</span><span class="cl">    command: <span class="o">[</span><span class="s1">&#39;sh&#39;</span>, <span class="s1">&#39;-c&#39;</span>, <span class="s1">&#39;until nslookup mydb; do echo waiting for mydb; sleep 2; done;&#39;</span><span class="o">]</span> 
-</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+</span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="c1">#172.18.31.34上的实际用法：</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="k">if</span> <span class="nv">$fromhost</span>-ip <span class="o">==</span>  <span class="s1">&#39;172.18.18.9&#39;</span> <span class="k">then</span>  <span class="o">{</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">    <span class="k">if</span> <span class="nv">$syslogpriority</span> <span class="o">==</span> <span class="m">7</span> <span class="k">then</span>  <span class="o">{</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">        <span class="nv">$template</span> dbFormat1,<span class="s2">&#34;insert into SystemEvents (Message, Facility,FromHost, Priority, DeviceReportedTime, ReceivedAt, InfoUnitID, SysLogTag) values (&#39;%msg%&#39;, 10, &#39;%fromhost-ip%&#39;,%syslogpriority%, &#39;%timereported:::date-mysql%&#39;, &#39;%timegenerated:::date-mysql%&#39;, %iut%, &#39;nips&#39;)&#34;</span>,sql
+</span></span><span class="line"><span class="ln">14</span><span class="cl">        action<span class="o">(</span><span class="nv">type</span><span class="o">=</span><span class="s2">&#34;ommysql&#34;</span> <span class="nv">server</span><span class="o">=</span><span class="s2">&#34;localhost&#34;</span> <span class="nv">serverport</span><span class="o">=</span><span class="s2">&#34;3306&#34;</span> <span class="nv">db</span><span class="o">=</span><span class="s2">&#34;Syslog&#34;</span> <span class="nv">uid</span><span class="o">=</span><span class="s2">&#34;nips&#34;</span> <span class="nv">pwd</span><span class="o">=</span><span class="s2">&#34;xxxxxxxx&#34;</span> <span class="nv">template</span><span class="o">=</span><span class="s2">&#34;dbFormat1&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">    <span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl">        <span class="nv">$template</span> dbFormat2,<span class="s2">&#34;insert into SystemEvents (Message, Facility,FromHost, Priority, DeviceReportedTime, ReceivedAt, InfoUnitID, SysLogTag) values (&#39;time:%msg%&#39;, 10, &#39;%fromhost-ip%&#39;,%syslogpriority%, &#39;%timereported:::date-mysql%&#39;, &#39;%timegenerated:::date-mysql%&#39;, %iut%, &#39;nips&#39;)&#34;</span>,sql
+</span></span><span class="line"><span class="ln">18</span><span class="cl">        action<span class="o">(</span><span class="nv">type</span><span class="o">=</span><span class="s2">&#34;ommysql&#34;</span> <span class="nv">server</span><span class="o">=</span><span class="s2">&#34;localhost&#34;</span> <span class="nv">serverport</span><span class="o">=</span><span class="s2">&#34;3306&#34;</span> <span class="nv">db</span><span class="o">=</span><span class="s2">&#34;Syslog&#34;</span> <span class="nv">uid</span><span class="o">=</span><span class="s2">&#34;nips&#34;</span> <span class="nv">pwd</span><span class="o">=</span><span class="s2">&#34;xxxxxxxx&#34;</span> <span class="nv">template</span><span class="o">=</span><span class="s2">&#34;dbFormat2&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl"><span class="p">&amp;</span> ~
+</span></span></code></pre></div><p>Rsyslog中&amp; ~的用法</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln">1</span><span class="cl">:fromhost-ip,startswith,’192.168.1.’ /var/log/remote-devs.log
+</span></span><span class="line"><span class="ln">2</span><span class="cl">&amp; ~
+</span></span></code></pre></div><p>(The next line (“&amp; ~”) is important: it tells rsyslog to stop processing the message after it was written to the log. 
+As such, these messages will not reach the local part. Without that “&amp; ~”, messages would also be written to the local files.</p>
+<p>Facility的级别：
+<img class="img-fluid" alt="" src="https://bajie.dev/posts/20231211-rsyslog_usage/2021-03-05_090322.png" loading="lazy"
+   width="586" height="329"
+   />
+
+</p>
+<p>Serverity的级别Serverity的级别
+<img class="img-fluid" alt="" src="https://bajie.dev/posts/20231211-rsyslog_usage/2021-03-05_090352-17022723073511.png" loading="lazy"
+   width="756" height="442"
+   />
+
+</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -303,19 +307,15 @@
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://bajie.dev/posts/20211103-alphine_timezone/">Alphine镜像中timezone的设定
+    <a href="https://bajie.dev/posts/20231211-netdev_backup/">网络设备配置的备份
 </a>
-  </div><div class="post-nav post-next">
-    <a href="https://bajie.dev/posts/20211104-haproxy_restart/">Haproxy的Zero Downtime重启如何做
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20211103-alphine_timezone/">Alphine镜像中timezone的设定
-</a></li><li><a href="https://bajie.dev/posts/20211103-proxmox/">生产环境Proxmox 7.02的安装和配置
-</a></li><li><a href="https://bajie.dev/posts/20211102-ingress_nginx/">K8s中nginx Ingress的性能优化
-</a></li><li><a href="https://bajie.dev/posts/20211102-sysctl_conf/">Linux内核sysctl内核参数优化
-</a></li><li><a href="https://bajie.dev/posts/20211102-tcp_keealive/">Linux内核TCP连接Keep-Alive Timeout的配置
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20231211-netdev_backup/">网络设备配置的备份
+</a></li><li><a href="https://bajie.dev/posts/20231208-iscsi_lv_clone/">Lvm卷的clone方法
+</a></li><li><a href="https://bajie.dev/posts/20231208-ftp_slowly/">开发投诉FTP慢问题的解决
+</a></li><li><a href="https://bajie.dev/posts/20231208-lsync/">Lsync 同步软件的运用
+</a></li><li><a href="https://bajie.dev/posts/20231208-encrypt_tar/">Linux加密压缩tar包
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
