@@ -3,17 +3,17 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>root的crontab由于root管理员密码生效导致不能生效 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>root的crontab由于root密码失效导致不能正常工作 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="root的crontab由于root管理员密码生效导致不能生效">
+<meta name="description" content="" /><meta itemprop="name" content="root的crontab由于root密码失效导致不能正常工作">
 <meta itemprop="description" content="数据库管理员的 172.18.20.10 和 172.18.20.25 数据库备份脚本是以 root 身份运行的，在 crontab 里跑： 126 11 * * * /root/scripts/mysql_backup_full_3306.sh &gt; /dev/null 2&gt;&amp;1 但是由于 root 密码会每三个月变更一次，如果没有及时变更，会导致 root"><meta itemprop="datePublished" content="2023-12-11T11:05:11+08:00" />
 <meta itemprop="dateModified" content="2023-12-11T11:05:11+08:00" />
 <meta itemprop="wordCount" content="202">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="root的crontab由于root管理员密码生效导致不能生效" />
+<meta itemprop="keywords" content="" /><meta property="og:title" content="root的crontab由于root密码失效导致不能正常工作" />
 <meta property="og:description" content="数据库管理员的 172.18.20.10 和 172.18.20.25 数据库备份脚本是以 root 身份运行的，在 crontab 里跑： 126 11 * * * /root/scripts/mysql_backup_full_3306.sh &gt; /dev/null 2&gt;&amp;1 但是由于 root 密码会每三个月变更一次，如果没有及时变更，会导致 root" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://bajie.dev/posts/20231211-crontab_root/" /><meta property="article:section" content="posts" />
@@ -21,7 +21,7 @@
 <meta property="article:modified_time" content="2023-12-11T11:05:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="root的crontab由于root管理员密码生效导致不能生效"/>
+<meta name="twitter:title" content="root的crontab由于root密码失效导致不能正常工作"/>
 <meta name="twitter:description" content="数据库管理员的 172.18.20.10 和 172.18.20.25 数据库备份脚本是以 root 身份运行的，在 crontab 里跑： 126 11 * * * /root/scripts/mysql_backup_full_3306.sh &gt; /dev/null 2&gt;&amp;1 但是由于 root 密码会每三个月变更一次，如果没有及时变更，会导致 root"/>
 <link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
@@ -114,7 +114,7 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=root%e7%9a%84crontab%e7%94%b1%e4%ba%8eroot%e7%ae%a1%e7%90%86%e5%91%98%e5%af%86%e7%a0%81%e7%94%9f%e6%95%88%e5%af%bc%e8%87%b4%e4%b8%8d%e8%83%bd%e7%94%9f%e6%95%88&url=https%3a%2f%2fbajie.dev%2fposts%2f20231211-crontab_root%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=root%e7%9a%84crontab%e7%94%b1%e4%ba%8eroot%e5%af%86%e7%a0%81%e5%a4%b1%e6%95%88%e5%af%bc%e8%87%b4%e4%b8%8d%e8%83%bd%e6%ad%a3%e5%b8%b8%e5%b7%a5%e4%bd%9c&url=https%3a%2f%2fbajie.dev%2fposts%2f20231211-crontab_root%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">Root的crontab由于root管理员密码生效导致不能生效</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">Root的crontab由于root密码失效导致不能正常工作</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -207,7 +207,7 @@
     
   </div>
 </div>
-<h1 class="card-title my-3">Root的crontab由于root管理员密码生效导致不能生效
+<h1 class="card-title my-3">Root的crontab由于root密码失效导致不能正常工作
 </h1><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2023-12-11
   </span><span class="post-reading-time" title="reading time">
@@ -261,6 +261,10 @@
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://bajie.dev/posts/20231211-rsyslog_usage/">Rsyslog的一些特殊用法
 </a>
+  </div><div class="post-nav post-next">
+    <a href="https://bajie.dev/posts/20231212-check_ssl/">检查证书是否过期的脚本
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
     <ul class="related-posts"><li><a href="https://bajie.dev/posts/20231211-rsyslog_usage/">Rsyslog的一些特殊用法
@@ -313,11 +317,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20231211-crontab_root/">Root的crontab由于root管理员密码生效导致不能生效
+    <ul><li><a href="https://bajie.dev/posts/20231212-check_ssl/">检查证书是否过期的脚本
+</a></li><li><a href="https://bajie.dev/posts/20231211-crontab_root/">Root的crontab由于root密码失效导致不能正常工作
 </a></li><li><a href="https://bajie.dev/posts/20231211-rsyslog_usage/">Rsyslog的一些特殊用法
 </a></li><li><a href="https://bajie.dev/posts/20231211-netdev_backup/">网络设备配置的备份
 </a></li><li><a href="https://bajie.dev/posts/20231208-iscsi_lv_clone/">Lvm卷的clone方法
-</a></li><li><a href="https://bajie.dev/posts/20231208-ftp_slowly/">开发投诉FTP慢问题的解决
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

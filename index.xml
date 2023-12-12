@@ -7,9 +7,18 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>Copyright © 2020-{year} Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Mon, 11 Dec 2023 11:05:11 +0800</lastBuildDate><atom:link href="https://bajie.dev/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 12 Dec 2023 09:05:11 +0800</lastBuildDate><atom:link href="https://bajie.dev/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>root的crontab由于root管理员密码生效导致不能生效</title>
+      <title>检查证书是否过期的脚本</title>
+      <link>https://bajie.dev/posts/20231212-check_ssl/</link>
+      <pubDate>Tue, 12 Dec 2023 09:05:11 +0800</pubDate>
+      
+      <guid>https://bajie.dev/posts/20231212-check_ssl/</guid>
+      <description>证书会经常面临过期而没有及时续费的情况，写个脚本提醒一下自己吧： crontab -l 0 8 * * * /usr/local/bin/check_ssl.sh www.ddky.com check_ssl.sh的内容： 1#!/bin/bash 2# Print the number of days till certificate expiration 3# 4# Example:</description>
+    </item>
+    
+    <item>
+      <title>root的crontab由于root密码失效导致不能正常工作</title>
       <link>https://bajie.dev/posts/20231211-crontab_root/</link>
       <pubDate>Mon, 11 Dec 2023 11:05:11 +0800</pubDate>
       
@@ -23,7 +32,7 @@
       <pubDate>Mon, 11 Dec 2023 10:05:11 +0800</pubDate>
       
       <guid>https://bajie.dev/posts/20231211-rsyslog_usage/</guid>
-      <description>这个其实是网络工程师的工作，有以下两种方法： Rsyslog的模板文件按日期存放： 1$template 10.161.54.11,&amp;#34;/var/log/rsyslog/%fromhost-ip%/netflow_%$YEAR%-%$MONTH%-%$DAY%.log&amp;#34; 2$template 10.161.50.5,&amp;#34;/var/log/rsyslog/%fromhost-ip%/xdns_webeng_%$YEAR%-%$MONTH%-%$DAY%.log&amp;#34; 3$template 10.161.50.7,&amp;#34;/var/log/rsyslog/%fromhost-ip%/xdns_webeng_%$YEAR%-%$MONTH%-%$DAY%.log&amp;#34; 4 5#从特定ip来的日志发到特定rsyslog服</description>
+      <description>Rsyslog的模板文件按日期存放： 1$template 10.161.54.11,&amp;#34;/var/log/rsyslog/%fromhost-ip%/netflow_%$YEAR%-%$MONTH%-%$DAY%.log&amp;#34; 2$template 10.161.50.5,&amp;#34;/var/log/rsyslog/%fromhost-ip%/xdns_webeng_%$YEAR%-%$MONTH%-%$DAY%.log&amp;#34; 3$template 10.161.50.7,&amp;#34;/var/log/rsyslog/%fromhost-ip%/xdns_webeng_%$YEAR%-%$MONTH%-%$DAY%.log&amp;#34; 4 5#从特定ip来的日志发到特定rsyslog服务器上去 6#:fromhost-ip, !isequal, &amp;#34;127.0.0.1&amp;#34; ?Remote 7:fromhost-ip, isequal, &amp;#34;10.161.54.11&amp;#34; ?10.161.54.11 8:fromhost-ip, isequal, &amp;#34;10.161.50.5&amp;#34; ?10.161.50.5 9:fromhost-ip, isequal, &amp;#34;10.161.50.7&amp;#34; ?10.161.50.7 Rs</description>
     </item>
     
     <item>

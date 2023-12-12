@@ -214,12 +214,12 @@
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
 <div class="post-content mb-3"><p>这个其实是网络工程师的工作，有以下两种方法：</p>
-<p>一、用ssh备份Cisco设备的脚本
+<p>一、用ssh备份Cisco设备的脚本<!-- raw HTML omitted -->
 需要事先在/root/.ssh/config配置好直接登录，并且在Cisco设备里设置好权限级别，可以执行show run</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="cp">#!/bin/sh
 </span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="cp"></span><span class="nv">sshcmd</span><span class="o">=</span><span class="s2">&#34;ssh -o LogLevel=quiet&#34;</span>
 </span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="nv">$sshcmd</span> <span class="nv">$1</span> <span class="s2">&#34;show run&#34;</span> &gt; /root/backup/<span class="nv">$1</span>-<span class="k">$(</span>date <span class="s1">&#39;+%Y%m%d&#39;</span><span class="k">)</span>.txt
-</span></span></code></pre></div><p>二、备份Cisco设备的Python脚本，这个可控性更高：
+</span></span></code></pre></div><p>二、备份Cisco设备的Python脚本，这个可控性更高：<!-- raw HTML omitted -->
 首选需要在/export/servers/python363装好python, pip install netmiko
 其次，在路由器上可以配置en的密码</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="ch">#!/export/servers/python363/bin/python3.6</span>
@@ -372,11 +372,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20231211-crontab_root/">Root的crontab由于root管理员密码生效导致不能生效
+    <ul><li><a href="https://bajie.dev/posts/20231212-check_ssl/">检查证书是否过期的脚本
+</a></li><li><a href="https://bajie.dev/posts/20231211-crontab_root/">Root的crontab由于root密码失效导致不能正常工作
 </a></li><li><a href="https://bajie.dev/posts/20231211-rsyslog_usage/">Rsyslog的一些特殊用法
 </a></li><li><a href="https://bajie.dev/posts/20231211-netdev_backup/">网络设备配置的备份
 </a></li><li><a href="https://bajie.dev/posts/20231208-iscsi_lv_clone/">Lvm卷的clone方法
-</a></li><li><a href="https://bajie.dev/posts/20231208-ftp_slowly/">开发投诉FTP慢问题的解决
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
