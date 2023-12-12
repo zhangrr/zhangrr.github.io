@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Grafana画出prometheus的图 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>xxl-job的动态编辑并执行java脚本 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="Grafana画出prometheus的图">
-<meta itemprop="description" content="公司要做阿里的小程序接入，需要通过测试，测试呢需要提供硬盘的监控报告，比如 iops 。 同事从网上找了一下，iops 监控原文如下：监控磁盘的 iops ，利用 linux"><meta itemprop="datePublished" content="2022-01-18T09:30:11+08:00" />
-<meta itemprop="dateModified" content="2022-01-18T09:30:11+08:00" />
-<meta itemprop="wordCount" content="912">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="Grafana画出prometheus的图" />
-<meta property="og:description" content="公司要做阿里的小程序接入，需要通过测试，测试呢需要提供硬盘的监控报告，比如 iops 。 同事从网上找了一下，iops 监控原文如下：监控磁盘的 iops ，利用 linux" />
+<meta name="description" content="" /><meta itemprop="name" content="xxl-job的动态编辑并执行java脚本">
+<meta itemprop="description" content="数据库管理员有个特殊的需求： 需要一个msyql客户端，可以定时去连接mysql服务器执行SQL语句。且可以自己动态编辑SQL语句。 找来找去，"><meta itemprop="datePublished" content="2023-12-12T10:05:11+08:00" />
+<meta itemprop="dateModified" content="2023-12-12T10:05:11+08:00" />
+<meta itemprop="wordCount" content="849">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="xxl-job的动态编辑并执行java脚本" />
+<meta property="og:description" content="数据库管理员有个特殊的需求： 需要一个msyql客户端，可以定时去连接mysql服务器执行SQL语句。且可以自己动态编辑SQL语句。 找来找去，" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://bajie.dev/posts/20220118-grafana_prometheus/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2022-01-18T09:30:11+08:00" />
-<meta property="article:modified_time" content="2022-01-18T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+<meta property="og:url" content="https://bajie.dev/posts/20231212-xxl-job/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-12-12T10:05:11+08:00" />
+<meta property="article:modified_time" content="2023-12-12T10:05:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Grafana画出prometheus的图"/>
-<meta name="twitter:description" content="公司要做阿里的小程序接入，需要通过测试，测试呢需要提供硬盘的监控报告，比如 iops 。 同事从网上找了一下，iops 监控原文如下：监控磁盘的 iops ，利用 linux"/>
+<meta name="twitter:title" content="xxl-job的动态编辑并执行java脚本"/>
+<meta name="twitter:description" content="数据库管理员有个特殊的需求： 需要一个msyql客户端，可以定时去连接mysql服务器执行SQL语句。且可以自己动态编辑SQL语句。 找来找去，"/>
 <link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
   <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=Grafana%e7%94%bb%e5%87%baprometheus%e7%9a%84%e5%9b%be&url=https%3a%2f%2fbajie.dev%2fposts%2f20220118-grafana_prometheus%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=xxl-job%e7%9a%84%e5%8a%a8%e6%80%81%e7%bc%96%e8%be%91%e5%b9%b6%e6%89%a7%e8%a1%8cjava%e8%84%9a%e6%9c%ac&url=https%3a%2f%2fbajie.dev%2fposts%2f20231212-xxl-job%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20220118-grafana_prometheus%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20231212-xxl-job%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">Grafana画出prometheus的图</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">Xxl-Job的动态编辑并执行java脚本</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -207,116 +207,97 @@
     
   </div>
 </div>
-<h1 class="card-title my-3">Grafana画出prometheus的图
+<h1 class="card-title my-3">Xxl-Job的动态编辑并执行java脚本
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-01-18
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-12
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
   </span></div>
-<div class="post-content mb-3"><p>公司要做阿里的小程序接入，需要通过测试，测试呢需要提供硬盘的监控报告，比如 iops 。</p>
-<p>同事从网上找了一下，iops 监控原文如下：监控磁盘的 iops ，利用 linux 的 /proc/diskstats 的第四个字段和第八字段可监控读和写的 iops，第四个记录是记录所有读的次数，第八个字段是记录所有写的次数。通过 zabbix 上的差速率即可监控磁盘的 iops。</p>
-<p>文章链接：<a href="https://cloud.tencent.com/developer/article/1519113?ivk_sa=1024320u" target="_blank" rel="noopener noreferrer">https://cloud.tencent.com/developer/article/1519113?ivk_sa=1024320u</a>
-</p>
-<p>仔细研究了一下上面的文章，看了它提供了两张监控图，分析一下：</p>
-<p>第一张图：</p>
-<p><img class="img-fluid" alt="image-20220118093026319" src="https://bajie.dev/posts/20220118-grafana_prometheus/image-20220118093026319.png" loading="lazy"
-   width="1458" height="392"
+<div class="post-content mb-3"><p>数据库管理员有个特殊的需求：</p>
+<p>需要一个msyql客户端，可以定时去连接mysql服务器执行SQL语句。且可以自己动态编辑SQL语句。</p>
+<p>找来找去，数据库管理员对spring java这类东西吧一无所知，但是通晓SQL，这种情形XXL-JOB的EXECUTOR代位执行就比较适合。</p>
+<p>主控地址：http://172.18.31.13/xxl-job-admin/</p>
+<p><img class="img-fluid" alt="" src="https://bajie.dev/posts/20231212-xxl-job/2022-02-07_091252.png" loading="lazy"
+   width="1603" height="744"
    />
 
 </p>
-<p>有两个指标，绿色的是硬盘每秒的 io 读次数，红色的是硬盘每秒的 io 写次数。</p>
-<p>第二张图：</p>
-<p><img class="img-fluid" alt="image-20220118093147796" src="https://bajie.dev/posts/20220118-grafana_prometheus/image-20220118093147796.png" loading="lazy"
-   width="1463" height="386"
+<p>使用很简单，我们在172.18.31.14装一个被控端的executor，运行模式选择GLUE(Java)模式，GLUE模式就可以随便编辑 JAVA+SQL源代码了。设置执行频率是每30分钟执行一次。</p>
+<p><img class="img-fluid" alt="" src="https://bajie.dev/posts/20231212-xxl-job/2022-02-07_091351.png" loading="lazy"
+   width="897" height="766"
    />
 
-同样两个指标，绿色的是硬盘每秒的 io 读 Bytes，红色的是硬盘每秒的 io 写 Bytes。</p>
-<p>知道了指标具体的含义，这样就好办了。</p>
-<p>我们用的是 prometheus 和 node_exporter</p>
-<p>首先去看看 node_exporter 暴露的指标，搜一搜 node_disk，会看到如下4个指标：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1"># HELP node_disk_reads_completed_total The total number of reads completed successfully.</span>
-</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="c1"># TYPE node_disk_reads_completed_total counter</span>
-</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="na">node_disk_reads_completed_total{device</span><span class="o">=</span><span class="s">&#34;sda&#34;} 4.9530358e+07</span>
-</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="c1"># HELP node_disk_writes_completed_total The total number of writes completed successfully.</span>
-</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="c1"># TYPE node_disk_writes_completed_total counter</span>
-</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="na">node_disk_writes_completed_total{device</span><span class="o">=</span><span class="s">&#34;sda&#34;} 1.4449267304e+10</span>
+</p>
+<p>选择GLUE模式后，我们就可以在GLUE IDE里编辑代码：</p>
+<p><img class="img-fluid" alt="" src="https://bajie.dev/posts/20231212-xxl-job/2022-02-07_091558.png" loading="lazy"
+   width="1357" height="548"
+   />
+
+</p>
+<p>代码如下：
+注：在172.18.31.14上面已经装了一个MySQL服务端，有一个user库。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="kn">package</span> <span class="nx">com</span><span class="p">.</span><span class="nx">xxl</span><span class="p">.</span><span class="nx">job</span><span class="p">.</span><span class="nx">service</span><span class="p">.</span><span class="nx">handler</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="kn">import</span> <span class="nx">com</span><span class="p">.</span><span class="nx">xxl</span><span class="p">.</span><span class="nx">job</span><span class="p">.</span><span class="nx">core</span><span class="p">.</span><span class="nx">context</span><span class="p">.</span><span class="nx">XxlJobHelper</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="kn">import</span> <span class="nx">com</span><span class="p">.</span><span class="nx">xxl</span><span class="p">.</span><span class="nx">job</span><span class="p">.</span><span class="nx">core</span><span class="p">.</span><span class="nx">handler</span><span class="p">.</span><span class="nx">IJobHandler</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="kn">import</span> <span class="nx">org</span><span class="p">.</span><span class="nx">springframework</span><span class="p">.</span><span class="nx">jdbc</span><span class="p">.</span><span class="nx">core</span><span class="p">.</span><span class="nx">JdbcTemplate</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="kn">import</span> <span class="nx">org</span><span class="p">.</span><span class="nx">springframework</span><span class="p">.</span><span class="nx">jdbc</span><span class="p">.</span><span class="nx">datasource</span><span class="p">.</span><span class="nx">DriverManagerDataSource</span><span class="p">;</span>
 </span></span><span class="line"><span class="ln"> 7</span><span class="cl">
-</span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="c1"># HELP node_disk_read_bytes_total The total number of bytes read successfully.</span>
-</span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="c1"># TYPE node_disk_read_bytes_total counter</span>
-</span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="na">node_disk_read_bytes_total{device</span><span class="o">=</span><span class="s">&#34;sda&#34;} 6.4101677568e+11</span>
-</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="c1"># HELP node_disk_written_bytes_total The total number of bytes written successfully.</span>
-</span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="c1"># TYPE node_disk_written_bytes_total counter</span>
-</span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="na">node_disk_written_bytes_total{device</span><span class="o">=</span><span class="s">&#34;sda&#34;} 1.15483858333184e+14</span>
-</span></span></code></pre></div><p>可以看出是上面 4 个指标，这四个指标都是 counter 计数器类型的，都是只增不减的。</p>
-<p>然后去 prometheus ，画个图试试，query 分别如下（注意我们的 instance 即 node_exporter，是跑在了 50000 端口，是非标准的）：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln">1</span><span class="cl"><span class="na">node_disk_reads_completed_total{instance</span><span class="o">=</span><span class="s">&#34;192.168.1.1:50000&#34;}</span>
-</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="na">node_disk_writes_completed_total{instance</span><span class="o">=</span><span class="s">&#34;192.168.1.1:50000&#34;}</span>
-</span></span><span class="line"><span class="ln">3</span><span class="cl">
-</span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="na">node_disk_read_bytes_total{instance</span><span class="o">=</span><span class="s">&#34;192.168.1.1:50000&#34;}</span>
-</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="na">node_disk_written_bytes_total{instance</span><span class="o">=</span><span class="s">&#34;192.18.1.1:50000&#34;}</span>
-</span></span></code></pre></div><p><img class="img-fluid" alt="image-20220118094728497" src="https://bajie.dev/posts/20220118-grafana_prometheus/image-20220118094728497.png" loading="lazy"
-   width="1067" height="859"
-   />
-
-</p>
-<p>大家看到了 counter 类型，必然是一条斜线直冲天际。</p>
-<p>好了，我们然后去 grafana 里增加面板：</p>
-<p><img class="img-fluid" alt="image-20220118095505602" src="https://bajie.dev/posts/20220118-grafana_prometheus/image-20220118095505602.png" loading="lazy"
-   width="424" height="381"
-   />
-
-</p>
-<p>选 Add Query</p>
-<p><img class="img-fluid" alt="image-20220118095633780" src="https://bajie.dev/posts/20220118-grafana_prometheus/image-20220118095633780.png" loading="lazy"
-   width="749" height="346"
-   />
-
-</p>
-<p>先选数据源，选择系统中已经配好的 prometheus，怎么配这里就不说了：</p>
-<p><img class="img-fluid" alt="image-20220118095731944" src="https://bajie.dev/posts/20220118-grafana_prometheus/image-20220118095731944.png" loading="lazy"
-   width="427" height="766"
-   />
-
-</p>
-<p>然后在 Query 的 Metrics 里填入 <code>node_disk_written_bytes_total{instance=&quot;192.168.1.1:50000&quot;}</code>：</p>
-<p><img class="img-fluid" alt="image-20220118095953220" src="https://bajie.dev/posts/20220118-grafana_prometheus/image-20220118095953220.png" loading="lazy"
-   width="1251" height="708"
-   />
-
-在 Legend 的空白处随便点一下，大折线出现了，而且给出了提示：Time series is monotonically increasing. Try applying a rate() function.</p>
-<p>听人劝，吃饱饭。我们改一下 Metrics 的查询语句，因为我们是5分钟抓一次数据，所以改成如下格式： <code>rate(node_disk_written_bytes_total{instance=&quot;192.18.1.1:50000&quot;}[5m])</code></p>
-<p>再增加一个查询，Add Query 同时把 read bytes 和 write bytes 放进一张图去：</p>
-<p><img class="img-fluid" alt="image-20220118101108283" src="https://bajie.dev/posts/20220118-grafana_prometheus/image-20220118101108283.png" loading="lazy"
-   width="1365" height="793"
-   />
-
-</p>
-<p>最后修正一下：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln">1</span><span class="cl"><span class="na">A:</span>
-</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="na">Metrics: rate(node_disk_read_bytes_total{instance</span><span class="o">=</span><span class="s">&#34;192.168.1.1:50000&#34;}[5m])</span>
-</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="na">Legend: sda read per second</span>
-</span></span><span class="line"><span class="ln">4</span><span class="cl">
-</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="na">B:</span>
-</span></span><span class="line"><span class="ln">6</span><span class="cl"><span class="na">Metrics: rate(node_disk_written_bytes_total{instance</span><span class="o">=</span><span class="s">&#34;192.168.1.1:50000&#34;}[5m])</span>
-</span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="na">Legend: sda write per second</span>
-</span></span></code></pre></div><p><img class="img-fluid" alt="image-20220118105347566" src="https://bajie.dev/posts/20220118-grafana_prometheus/image-20220118105347566.png" loading="lazy"
-   width="1173" height="407"
-   />
-
-</p>
-<p>再把最大、最小、平均、当前给出来：</p>
-<p><img class="img-fluid" alt="image-20220118105650265" src="https://bajie.dev/posts/20220118-grafana_prometheus/image-20220118105650265.png" loading="lazy"
-   width="1012" height="787"
-   />
-
-</p>
-<p>这样图就做好了，最后完工的两张图：</p>
-<p><img class="img-fluid" alt="image-20220118110149043" src="https://bajie.dev/posts/20220118-grafana_prometheus/image-20220118110149043.png" loading="lazy"
-   width="767" height="690"
-   />
-
-</p>
-<p>所有 prometheus 从各种 exporter 收上来的数据都可以这么图形化，以后画图就丰简由人了。</p>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="nx">public</span> <span class="nx">class</span> <span class="nx">DemoGlueJobHandler</span> <span class="nx">extends</span> <span class="nx">IJobHandler</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">
+</span></span><span class="line"><span class="ln">10</span><span class="cl">	<span class="err">@</span><span class="nx">Override</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">	<span class="nx">public</span> <span class="nx">void</span> <span class="nf">execute</span><span class="p">()</span> <span class="nx">throws</span> <span class="nx">Exception</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">
+</span></span><span class="line"><span class="ln">13</span><span class="cl">        <span class="nx">DriverManagerDataSource</span> <span class="nx">ds</span> <span class="p">=</span> <span class="nx">new</span> <span class="nf">DriverManagerDataSource</span><span class="p">();</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">        <span class="nx">ds</span><span class="p">.</span><span class="nf">setDriverClassName</span><span class="p">(</span><span class="s">&#34;com.mysql.jdbc.Driver&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl">        <span class="nx">ds</span><span class="p">.</span><span class="nf">setUrl</span><span class="p">(</span><span class="s">&#34;jdbc:mysql://localhost:3306/users?characterEncoding=UTF-8&amp;useSSL=false&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">        <span class="nx">ds</span><span class="p">.</span><span class="nf">setUsername</span><span class="p">(</span><span class="s">&#34;root&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl">        <span class="nx">ds</span><span class="p">.</span><span class="nf">setPassword</span><span class="p">(</span><span class="s">&#34;xxxxxxxx&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl">
+</span></span><span class="line"><span class="ln">19</span><span class="cl">        <span class="nx">JdbcTemplate</span> <span class="nx">jdbcTemplate</span> <span class="p">=</span> <span class="nx">new</span> <span class="nf">JdbcTemplate</span><span class="p">();</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl">        <span class="nx">jdbcTemplate</span><span class="p">.</span><span class="nf">setDataSource</span><span class="p">(</span><span class="nx">ds</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl">      
+</span></span><span class="line"><span class="ln">22</span><span class="cl">
+</span></span><span class="line"><span class="ln">23</span><span class="cl">        <span class="nx">List</span> <span class="nx">rows</span> <span class="p">=</span> <span class="nx">jdbcTemplate</span><span class="p">.</span><span class="nf">queryForList</span><span class="p">(</span><span class="s">&#34;select * from user&#34;</span><span class="p">);</span> 
+</span></span><span class="line"><span class="ln">24</span><span class="cl">        <span class="nx">Iterator</span> <span class="nx">it</span> <span class="p">=</span> <span class="nx">rows</span><span class="p">.</span><span class="nf">iterator</span><span class="p">();</span> 
+</span></span><span class="line"><span class="ln">25</span><span class="cl">        <span class="nf">while</span><span class="p">(</span><span class="nx">it</span><span class="p">.</span><span class="nf">hasNext</span><span class="p">())</span> <span class="p">{</span> 
+</span></span><span class="line"><span class="ln">26</span><span class="cl">            <span class="nx">Map</span> <span class="nx">userMap</span> <span class="p">=</span> <span class="p">(</span><span class="nx">Map</span><span class="p">)</span> <span class="nx">it</span><span class="p">.</span><span class="nf">next</span><span class="p">();</span> 
+</span></span><span class="line"><span class="ln">27</span><span class="cl">            <span class="nx">XxlJobHelper</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="nx">userMap</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="s">&#34;id&#34;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#34;\t&#34;</span><span class="p">);</span> 
+</span></span><span class="line"><span class="ln">28</span><span class="cl">            <span class="nx">XxlJobHelper</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="nx">userMap</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="s">&#34;name&#34;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#34;\t&#34;</span><span class="p">);</span> 
+</span></span><span class="line"><span class="ln">29</span><span class="cl">        <span class="p">}</span> 
+</span></span><span class="line"><span class="ln">30</span><span class="cl">      
+</span></span><span class="line"><span class="ln">31</span><span class="cl">        <span class="nx">XxlJobHelper</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="s">&#34;XXL-JOB guning, Hello World.&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">32</span><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="ln">33</span><span class="cl">
+</span></span><span class="line"><span class="ln">34</span><span class="cl">  
+</span></span><span class="line"><span class="ln">35</span><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>为了实现mysql客户端可以对MySQL进行读写，我们需要在xxl-job的xxl-job-executor-sample-springboot示例项目中，pom.xml中增加spring-jdbc和mysql-connector-java的jar包部分。打出一个xxl-job的executor的执行端程序。</p>
+<p>代码在
+/root/xxl-job-2.3.0/xxl-job-executor-samples/xxl-job-executor-sample-springboot目录下，用mvn package就可以打出xxl-job-executor-sample-springboot-2.3.0.jar包。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln"> 1</span><span class="cl">        &lt;dependency&gt;
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">            &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">            &lt;artifactId&gt;spring-jdbc&lt;/artifactId&gt;
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">            &lt;version&gt;4.3.2.RELEASE&lt;/version&gt;
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">        &lt;/dependency&gt;
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">        &lt;dependency&gt;
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">            &lt;groupId&gt;mysql&lt;/groupId&gt;
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">            &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">            &lt;version&gt;${mysql-connector-java.version}&lt;/version&gt;
+</span></span><span class="line"><span class="ln">10</span><span class="cl">        &lt;/dependency&gt;
+</span></span></code></pre></div><p>启动agent的systemd服务脚本，/etc/systemd/system/xxljob-agent.service</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln"> 1</span><span class="cl">[Unit]  
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">After=network.target  
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">Wants=network.target  
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">[Service]  
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">WorkingDirectory=/usr/local/bin
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">Type=simple  
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">ExecStart=/usr/bin/java -jar /usr/local/bin/xxl-job-executor-sample-springboot-2.3.0.jar
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">Restart=on-failure  
+</span></span><span class="line"><span class="ln">10</span><span class="cl">
+</span></span><span class="line"><span class="ln">11</span><span class="cl">[Install]  
+</span></span><span class="line"><span class="ln">12</span><span class="cl">WantedBy=multi-user.target 
+</span></span></code></pre></div><p>这样就OK了。</p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -344,19 +325,15 @@
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://bajie.dev/posts/20220104-javascript_babel_eslint/">Javascript的项目与babel和eslint
+    <a href="https://bajie.dev/posts/20231212-check_ssl/">检查证书是否过期的脚本
 </a>
-  </div><div class="post-nav post-next">
-    <a href="https://bajie.dev/posts/20220222-eth_matic/">如何用CPU挖Polygon网络的MATIC币
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20220104-javascript_babel_eslint/">Javascript的项目与babel和eslint
-</a></li><li><a href="https://bajie.dev/posts/20211222-hubot_wechat/">Hubot集成企业微信&#43;jenkins&#43;ansible
-</a></li><li><a href="https://bajie.dev/posts/20211217-nodejs_nvm/">Nodejs多版本的安装与管理
-</a></li><li><a href="https://bajie.dev/posts/20211208-backblaze_usage/">Backblaze类S3免费免备案对象存储
-</a></li><li><a href="https://bajie.dev/posts/20211129-kubernetes_custom_503/">Kubernetes下定制服务器503以及其他的403消息
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20231212-check_ssl/">检查证书是否过期的脚本
+</a></li><li><a href="https://bajie.dev/posts/20231211-crontab_root/">Root的crontab由于root密码失效导致不能正常工作
+</a></li><li><a href="https://bajie.dev/posts/20231211-rsyslog_usage/">Rsyslog的一些特殊用法
+</a></li><li><a href="https://bajie.dev/posts/20231211-netdev_backup/">网络设备配置的备份
+</a></li><li><a href="https://bajie.dev/posts/20231208-iscsi_lv_clone/">Lvm卷的clone方法
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
