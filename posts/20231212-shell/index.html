@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>如何用CPU挖Polygon网络的MATIC币 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>Shell中变量、字符串、数组、参数的技巧 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="如何用CPU挖Polygon网络的MATIC币">
-<meta itemprop="description" content="这是个严肃话题，正经挖以太币的话，很多的矿厂都是如果直接挖到以太币地址，那么必须挖到完整一个才允许提现，手续费还特高。 但是如果挖到以太链Po"><meta itemprop="datePublished" content="2022-02-22T09:30:11+08:00" />
-<meta itemprop="dateModified" content="2022-02-22T09:30:11+08:00" />
-<meta itemprop="wordCount" content="477">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="如何用CPU挖Polygon网络的MATIC币" />
-<meta property="og:description" content="这是个严肃话题，正经挖以太币的话，很多的矿厂都是如果直接挖到以太币地址，那么必须挖到完整一个才允许提现，手续费还特高。 但是如果挖到以太链Po" />
+<meta name="description" content="" /><meta itemprop="name" content="Shell中变量、字符串、数组、参数的技巧">
+<meta itemprop="description" content="变量子串 ${var} 返回变量var的内容，单独使用时有没有{}一样，混合多个变量和常量时，用{}界定变量名 ${#var} 返回变量var内容的长度 ${var:offset} 从变量var中的"><meta itemprop="datePublished" content="2023-12-13T15:05:11+08:00" />
+<meta itemprop="dateModified" content="2023-12-13T15:05:11+08:00" />
+<meta itemprop="wordCount" content="1490">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="Shell中变量、字符串、数组、参数的技巧" />
+<meta property="og:description" content="变量子串 ${var} 返回变量var的内容，单独使用时有没有{}一样，混合多个变量和常量时，用{}界定变量名 ${#var} 返回变量var内容的长度 ${var:offset} 从变量var中的" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://bajie.dev/posts/20220222-eth_matic/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2022-02-22T09:30:11+08:00" />
-<meta property="article:modified_time" content="2022-02-22T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+<meta property="og:url" content="https://bajie.dev/posts/20231212-shell/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-12-13T15:05:11+08:00" />
+<meta property="article:modified_time" content="2023-12-13T15:05:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="如何用CPU挖Polygon网络的MATIC币"/>
-<meta name="twitter:description" content="这是个严肃话题，正经挖以太币的话，很多的矿厂都是如果直接挖到以太币地址，那么必须挖到完整一个才允许提现，手续费还特高。 但是如果挖到以太链Po"/>
+<meta name="twitter:title" content="Shell中变量、字符串、数组、参数的技巧"/>
+<meta name="twitter:description" content="变量子串 ${var} 返回变量var的内容，单独使用时有没有{}一样，混合多个变量和常量时，用{}界定变量名 ${#var} 返回变量var内容的长度 ${var:offset} 从变量var中的"/>
 <link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
   <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=%e5%a6%82%e4%bd%95%e7%94%a8CPU%e6%8c%96Polygon%e7%bd%91%e7%bb%9c%e7%9a%84MATIC%e5%b8%81&url=https%3a%2f%2fbajie.dev%2fposts%2f20220222-eth_matic%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=Shell%e4%b8%ad%e5%8f%98%e9%87%8f%e3%80%81%e5%ad%97%e7%ac%a6%e4%b8%b2%e3%80%81%e6%95%b0%e7%bb%84%e3%80%81%e5%8f%82%e6%95%b0%e7%9a%84%e6%8a%80%e5%b7%a7&url=https%3a%2f%2fbajie.dev%2fposts%2f20231212-shell%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20220222-eth_matic%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20231212-shell%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">如何用CPU挖Polygon网络的MATIC币</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">Shell中变量、字符串、数组、参数的技巧</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -204,88 +204,98 @@
 ">
   <i class="fas fa-fw fa-copyright"></i>
 </a>
-    <a data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
-  <i class="fas fa-fw fa-list-alt"></i>
-</a>
+    
   </div>
 </div>
-<h1 class="card-title my-3">如何用CPU挖Polygon网络的MATIC币
+<h1 class="card-title my-3">Shell中变量、字符串、数组、参数的技巧
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-02-22
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-13
   </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
   </span></div>
-<div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
-  <div class="offcanvas-header">
-    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
-      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
-        <i class="fas fa-times"></i>
-      </button>
-  </div>
-  <div class="offcanvas-body">
-    <nav id="TableOfContents">
-  <ul>
-    <li><a href="#一下载xmrig挖矿软件">一、下载xmrig挖矿软件</a></li>
-    <li><a href="#二做好加密通道">二、做好加密通道</a></li>
-    <li><a href="#三用screen后台开挖">三、用screen后台开挖</a></li>
-    <li><a href="#四查看挖了多少">四、查看挖了多少</a></li>
-    <li><a href="#五兑换">五、兑换</a></li>
-  </ul>
-</nav>
-  </div>
-</div><div class="post-content mb-3"><p>这是个严肃话题，正经挖以太币的话，很多的矿厂都是如果直接挖到以太币地址，那么必须挖到完整一个才允许提现，手续费还特高。</p>
-<p>但是如果挖到以太链Polygon的地址的话，就可以 0.005 ETH提币了，如下图所示</p>
-<p><img class="img-fluid" alt="image-20220222154256454" src="https://bajie.dev/posts/20220222-eth_matic/image-20220222154256454.png" loading="lazy"
-   width="1085" height="279"
-   />
-
-</p>
-<p>但是千万记住，Polygon提出的所谓 0.005 ETH，看下图，只是个ERC-20的Token，实际是wETH Token，必须经过转换才能提到 ETH 去。</p>
-<p><img class="img-fluid" alt="image-20220222154450998" src="https://bajie.dev/posts/20220222-eth_matic/image-20220222154450998.png" loading="lazy"
-   width="206" height="138"
-   />
-
-</p>
-<p>从 ERC-20 转换到其它代币呢，需要 MATIC 代币来付账，这玩意也必须得有啊！废话不多说，直接放上挖MATIC教程，我的机器是 CentoOS</p>
-<p>首先需要有个完全自主的的 ETH 钱包地址，这个我就不教大家了</p>
-<h2 id="一下载xmrig挖矿软件">一、下载xmrig挖矿软件</h2>
-<p>下载地址：https://github.com/xmrig/xmrig/releases</p>
-<p>我们选择最近的下载就好</p>
-<p><img class="img-fluid" alt="Float Left" src="https://bajie.dev/posts/20220222-eth_matic/image-20211021101957637.png" loading="lazy"
-   width="997" height="443"
-   />
-
-</p>
-<h2 id="二做好加密通道">二、做好加密通道</h2>
-<p>我们需要做好一条加密tcp通道</p>
-<p>用 ghostunnel,    localhost:9012 &mdash;&gt; vps:9012 &mdash;&gt; rx.unmineable.com:3333</p>
-<h2 id="三用screen后台开挖">三、用screen后台开挖</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="ln">1</span><span class="cl">screen
+<div class="post-content mb-3"><p><strong>变量子串</strong></p>
+<p>${var} 返回变量var的内容，单独使用时有没有{}一样，混合多个变量和常量时，用{}界定变量名</p>
+<p>${#var} 返回变量var内容的长度</p>
+<p>${var:offset} 从变量var中的偏移量offset开始截取到字符串结尾的子字符串，offset从0开始</p>
+<p>${var:offset:length} 从变量var中的偏移量offset开始截取长度为length的子字符串</p>
+<p>${var#*.} 从变量var中删除第一个匹配的点（.）及其左边的所有字符</p>
+<p>${var##*.} 从变量var中删除最后一个匹配的点（.）及其左边的所有字符</p>
+<p>${var%.*} 从变量var中删除最后一个匹配的点（.）及其右边的所有字符</p>
+<p>${var%%.*} 从变量var中删除第一个匹配的点（.）及其右边的所有字符</p>
+<p>示例：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="nv">var</span><span class="o">=</span>file.txt.tar.gz
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="si">${</span><span class="nv">var</span><span class="p">#*.</span><span class="si">}</span>  <span class="c1">#内容为&#34;txt.tar.gz&#34;</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="si">${</span><span class="nv">var</span><span class="p">##*.</span><span class="si">}</span> <span class="c1">#内容为&#34;gz&#34;</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="si">${</span><span class="nv">var</span><span class="p">%.*</span><span class="si">}</span>  <span class="c1">#内容为&#34;file.txt.tar&#34;</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="si">${</span><span class="nv">var</span><span class="p">%%.*</span><span class="si">}</span> <span class="c1">#内容为&#34;file&#34;</span>
+</span></span></code></pre></div><p>也可以使用其它Pattern和表达式，示例：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="nv">var</span><span class="o">=</span>/home/xxx/aaa/file.txt <span class="c1">#假设xxx为当前用户</span>
 </span></span><span class="line"><span class="ln">2</span><span class="cl">
-</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="c1">#./xmrig -o localhost:9999 -a rx -k -u DOGE:MATIC地址.矿工名</span>
-</span></span><span class="line"><span class="ln">4</span><span class="cl">./xmrig -o localhost:9012 -u MATIC:0x64358C7ddC96001697aBbA7ed431BADB6ABAaec5.cpu01 -p x --cpu-no-yield
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="c1"># 从路径中获取文件名</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="si">${</span><span class="nv">var</span><span class="p">##*/</span><span class="si">}</span>  <span class="c1">#内容为&#34;file.txt&#34;</span>
 </span></span><span class="line"><span class="ln">5</span><span class="cl">
-</span></span><span class="line"><span class="ln">6</span><span class="cl">ctrl+a+d
-</span></span></code></pre></div><p><img class="img-fluid" alt="image-20211021102338089" src="https://bajie.dev/posts/20220222-eth_matic/image-20211021102338089.png" loading="lazy"
-   width="769" height="735"
-   />
-
-</p>
-<h2 id="四查看挖了多少">四、查看挖了多少</h2>
-<p>查看地址：<a href="https://unmineable.com/coins/MATIC/address/" target="_blank" rel="noopener noreferrer">https://unmineable.com/coins/MATIC/address/</a>
-</p>
-<p><img class="img-fluid" alt="image-20220222154854349" src="https://bajie.dev/posts/20220222-eth_matic/image-20220222154854349.png" loading="lazy"
-   width="1115" height="627"
-   />
-
-</p>
-<h2 id="五兑换">五、兑换</h2>
-<p>挖到了足够的 MATIC，就可以愉快的兑换了。</p>
-<p><img class="img-fluid" alt="image-20220222155452048" src="https://bajie.dev/posts/20220222-eth_matic/image-20220222155452048.png" loading="lazy"
-   width="359" height="583"
-   />
-
-</p>
+</span></span><span class="line"><span class="ln">6</span><span class="cl"><span class="c1"># 将绝对路径转为相对路径</span>
+</span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="c1"># whoami是获取当前用户名，使用$()执行子shell，$(whoami)将得到xxx</span>
+</span></span><span class="line"><span class="ln">8</span><span class="cl">~<span class="si">${</span><span class="nv">var</span><span class="p">#*</span><span class="k">$(</span>whoami<span class="k">)</span><span class="si">}</span>  <span class="c1">#内容为&#34;~/aaa/file.txt&#34;</span>
+</span></span></code></pre></div><p>${var/pattern/string} 使用string代替第一个匹配的pattern</p>
+<p>${var//pattern/string} 使用string代替所有匹配的pattern</p>
+<p>${var,} 首字母转小写</p>
+<p>${var,,} 全部转小写</p>
+<p>${var^} 首字母转大写</p>
+<p>${var^^} 全部转大写</p>
+<p><strong>特殊扩展变量</strong></p>
+<p>${var-word} 如果变量var未赋值，则返回字符串word</p>
+<p>${var:-word} 如果变量var未赋值或者值为空，则返回字符串word</p>
+<p>${var+word} 如果变量var有值（包括空串&quot;&quot;），则返回字符串word</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="nv">var1</span><span class="o">=</span>foo
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="nv">var2</span><span class="o">=</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="si">${</span><span class="nv">var1</span><span class="p">-word</span><span class="si">}</span>        <span class="c1"># 内容为&#34;foo&#34;</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="nb">echo</span> <span class="si">${</span><span class="nv">var2</span><span class="p">-word</span><span class="si">}</span>   <span class="c1"># 内容为&#34;&#34;</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="nb">echo</span> <span class="si">${</span><span class="nv">var2</span><span class="k">:-</span><span class="nv">word</span><span class="si">}</span>  <span class="c1"># 内容为&#34;word&#34;</span>
+</span></span></code></pre></div><p>${var:+word} 如果变量var有值且不为空，则返回字符串word</p>
+<p>${var=word} 如果变量var未赋值，则返回字符串word，并为var赋值为字符串word</p>
+<p>${var:=word} 如果变量var未赋值或者值为空串，则返回字符串word，并为var赋值为字符串word</p>
+<p>${var?word} 如果变量var未赋值，将字符串word作为标准错误输出，否则返回变量var的值</p>
+<p>${var:?word} 如果变量var未赋值或者值为空串，将字符串word作为标准错误输出，否则返回变量var的值</p>
+<p><strong>数组</strong></p>
+<p>array=(1 2 3 a b c) 定义一个名为array的数组，包含了6个元素，元素字段类型不需要统一</p>
+<p>${array[index]} 访问数组中的元素，index从0开始，如果为负表示从数组的末尾开始的偏移量</p>
+<p>${array[*]} 获取数组中所有元素</p>
+<p>${array[@]} 获取数组中所有元素</p>
+<p>${#array[*]} 获取数组的长度</p>
+<p>${#array[@]} 获取数组的长度</p>
+<p>${!array[@]} 获取数组索引列表，返回 0 1 2 3 4 5</p>
+<p>array+=(4 d) 向数组中添加元素，数组内容为 1 2 3 a b c 4 d</p>
+<p>unset array[6] 删除第 7 个元素，数组内容为 1 2 3 a b c d</p>
+<p>unset array[-1] 删除倒数第 1 个元素，数组内容为 1 2 3 a b c</p>
+<p><strong>多行字符串变量</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="nv">var</span><span class="o">=</span><span class="k">$(</span>cat <span class="s">&lt;&lt;- &#39;EOF&#39;
+</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="s">line1
+</span></span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="s">line2
+</span></span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="s">...
+</span></span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="s">EOF</span><span class="k">)</span>
+</span></span></code></pre></div><p>或者使用单引号或者双引号（单引号中${}和$()等都不会取表达式的值，双引号中才会）：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="nv">var</span><span class="o">=</span><span class="s1">&#39;line1
+</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="s1">line2
+</span></span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="s1">...&#39;</span>
+</span></span></code></pre></div><p>注意上述两种写法的差别，避免为变量内容带来不必要的空行。通过循环可依次得到变量中的每一行：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="k">while</span> <span class="nb">read</span> -r line<span class="p">;</span> <span class="k">do</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="nb">echo</span> <span class="nv">$line</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="k">done</span> <span class="o">&lt;&lt;&lt;</span> <span class="nv">$var</span>
+</span></span></code></pre></div><p><strong>Shell系统变量</strong></p>
+<p>$1 表示第一个参数，$2 表示第二个参数 &hellip;</p>
+<p>$# 命令行参数的个数</p>
+<p>$0 当前Shell脚本程序的名称</p>
+<p>$? 前一个命令或函数的返回码</p>
+<p>$* 以 &ldquo;参数1 参数2 &hellip; &quot; 形式获取所有参数</p>
+<p>$@ 以 &ldquo;参数1&rdquo; &ldquo;参数2&rdquo; &hellip; 形式获取所有参数</p>
+<p>$$ 本程序的进程ID，即PID</p>
+<p>$! 上一个命令的PID</p>
+<p>$PPID 父进程的PID</p>
+<p>$UID 执行这个脚本的当前用户ID</p>
+<p><strong>变量输出</strong></p>
+<p>变量内容的输出使用 echo 命令。</p>
+<p>如果未使用 echo，则会将变量内容当成 Shell 命令来执行，常用于调用某个程序并传递参数，如：应用程序启动脚本。</p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -313,19 +323,15 @@
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://bajie.dev/posts/20220118-grafana_prometheus/">Grafana画出prometheus的图
+    <a href="https://bajie.dev/posts/20231213-librenms_ldap/">Librenms使用ldap认证用户
 </a>
-  </div><div class="post-nav post-next">
-    <a href="https://bajie.dev/posts/20220223-kvm_passthrouth/">KVM下宿主机的目录直通到虚机
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20220118-grafana_prometheus/">Grafana画出prometheus的图
-</a></li><li><a href="https://bajie.dev/posts/20220104-javascript_babel_eslint/">Javascript的项目与babel和eslint
-</a></li><li><a href="https://bajie.dev/posts/20211222-hubot_wechat/">Hubot集成企业微信&#43;jenkins&#43;ansible
-</a></li><li><a href="https://bajie.dev/posts/20211217-nodejs_nvm/">Nodejs多版本的安装与管理
-</a></li><li><a href="https://bajie.dev/posts/20211208-backblaze_usage/">Backblaze类S3免费免备案对象存储
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20231213-librenms_ldap/">Librenms使用ldap认证用户
+</a></li><li><a href="https://bajie.dev/posts/20231213-librenms_prometheus/">Librenms集成进prometheus
+</a></li><li><a href="https://bajie.dev/posts/20231213-librenms_password/">Librenms强制修改密码
+</a></li><li><a href="https://bajie.dev/posts/20231212-xxl-job/">Xxl-Job的动态编辑并执行java脚本
+</a></li><li><a href="https://bajie.dev/posts/20231212-check_ssl/">检查证书是否过期的脚本
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
