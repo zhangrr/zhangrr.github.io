@@ -7,7 +7,16 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>Copyright © 2020-{year} Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Wed, 13 Dec 2023 10:05:11 +0800</lastBuildDate><atom:link href="https://bajie.dev/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 13 Dec 2023 11:05:11 +0800</lastBuildDate><atom:link href="https://bajie.dev/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Librenms使用ldap认证用户</title>
+      <link>https://bajie.dev/posts/20231213-librenms_ldap/</link>
+      <pubDate>Wed, 13 Dec 2023 11:05:11 +0800</pubDate>
+      
+      <guid>https://bajie.dev/posts/20231213-librenms_ldap/</guid>
+      <description>我们openldap中用户和组的设置 1用户： 2ou=People,dc=ddky,dc=com 3#uid;#givenName;#sn;#uidNumber;#gidNumber 4 5组： 6ou=group,dc=ddky,dc=com 7#cn;#gidNumber;#memberUID;#description 到librenms中， 172.18.31.10 1cd /opt/librenms 2vi config.php 3$config[&amp;#39;auth_mechanism&amp;#39;] = &amp;#39;ldap&amp;#39;; 4$config[&amp;#39;auth_ldap_server&amp;#39;] = &amp;#39;172.18.31.27&amp;#39;; 5$config[&amp;#39;auth_ldap_port&amp;#39;] = 389; 6$config[&amp;#39;auth_ldap_starttls&amp;#39;] = False; // Disable TLS on port 389 7$config[&amp;#39;auth_ldap_binddn&amp;#39;] = &amp;#39;cn=admin,dc=ddky,dc=com&amp;#39;; // overrides binduser</description>
+    </item>
+    
     <item>
       <title>Librenms集成进prometheus</title>
       <link>https://bajie.dev/posts/20231213-librenms_prometheus/</link>
