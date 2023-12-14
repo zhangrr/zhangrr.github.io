@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="LXC更新到Docker之后的存储部分修改">
 <meta itemprop="description" content="在k8s没有出来之前，我们用的就是LXC，古早版本了。 那时候是1：60的虚拟，一台物理机上跑60个LXC，居然这样运行了8年无异常，现在要升"><meta itemprop="datePublished" content="2023-12-14T14:05:11+08:00" />
 <meta itemprop="dateModified" content="2023-12-14T14:05:11+08:00" />
-<meta itemprop="wordCount" content="339">
+<meta itemprop="wordCount" content="351">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="LXC更新到Docker之后的存储部分修改" />
 <meta property="og:description" content="在k8s没有出来之前，我们用的就是LXC，古早版本了。 那时候是1：60的虚拟，一台物理机上跑60个LXC，居然这样运行了8年无异常，现在要升" />
 <meta property="og:type" content="article" />
@@ -217,40 +217,36 @@
 <p>那时候是1：60的虚拟，一台物理机上跑60个LXC，居然这样运行了8年无异常，现在要升级一下了。</p>
 <p>那时候的LXC，存储空间无法单独设定（缺省10G），cpu和mem的limit也有这样那样的问题。</p>
 <p>进化到新版本的Docker后，存储部分也需要修改，我们采用overlay2：</p>
-<pre><code>docker info
-
-...
- Storage Driver: overlay2
-  Backing Filesystem: xfs
-  Supports d_type: true
-  Native Overlay Diff: true
-...
-</code></pre>
-<p>缺省的就是overlay2和xfs</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">docker info
+</span></span><span class="line"><span class="ln">2</span><span class="cl">
+</span></span><span class="line"><span class="ln">3</span><span class="cl">...
+</span></span><span class="line"><span class="ln">4</span><span class="cl"> Storage Driver: overlay2
+</span></span><span class="line"><span class="ln">5</span><span class="cl">  Backing Filesystem: xfs
+</span></span><span class="line"><span class="ln">6</span><span class="cl">  Supports d_type: <span class="nb">true</span>
+</span></span><span class="line"><span class="ln">7</span><span class="cl">  Native Overlay Diff: <span class="nb">true</span>
+</span></span><span class="line"><span class="ln">8</span><span class="cl">...
+</span></span></code></pre></div><p>缺省的就是overlay2和xfs</p>
 <p>一、修改boot内核启动参数</p>
-<pre><code>vi /etc/default/grub
-
-#加上rootflags=uquota,pquota
-GRUB_CMDLINE_LINUX=&quot;console=tty0 crashkernel=auto net.ifnames=0 console=ttyS0 rootflags=uquota,pquota&quot;
-
-#更新
-grub2-mkconfig -o /boot/grub2/grub.cfg
-
-#重启
-reboot
-</code></pre>
-<p>二、检验并启动容器</p>
-<pre><code>cat /proc/mounts  |grep vda
-/dev/vda1 / xfs rw,relatime,attr2,inode64,usrquota,prjquota 0 0
-</code></pre>
-<p>有prjquota即可</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">vi /etc/default/grub
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="c1">#加上rootflags=uquota,pquota</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="nv">GRUB_CMDLINE_LINUX</span><span class="o">=</span><span class="s2">&#34;console=tty0 crashkernel=auto net.ifnames=0 console=ttyS0 rootflags=uquota,pquota&#34;</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="c1">#更新</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">grub2-mkconfig -o /boot/grub2/grub.cfg
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="c1">#重启</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">reboot
+</span></span></code></pre></div><p>二、检验并启动容器</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">cat /proc/mounts  <span class="p">|</span>grep vda
+</span></span><span class="line"><span class="ln">2</span><span class="cl">/dev/vda1 / xfs rw,relatime,attr2,inode64,usrquota,prjquota <span class="m">0</span> <span class="m">0</span>
+</span></span></code></pre></div><p>有prjquota即可</p>
 <p>按需启动容器，指定空间大小，size=2G</p>
-<pre><code>docker run --rm -dit --name=t36 --storage-opt size=2G --net macvlan0 --ip=172.18.31.36 alpine:latest ash
-
-docker exec -it t36 ash
-df -h
-</code></pre>
-<p><img class="img-fluid" alt="" src="https://bajie.dev/posts/20231214-lxc_storage/2020-08-24_104720.png" loading="lazy"
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">docker run --rm -dit --name<span class="o">=</span>t36 --storage-opt <span class="nv">size</span><span class="o">=</span>2G --net macvlan0 --ip<span class="o">=</span>172.18.31.36 alpine:latest ash
+</span></span><span class="line"><span class="ln">2</span><span class="cl">
+</span></span><span class="line"><span class="ln">3</span><span class="cl">docker <span class="nb">exec</span> -it t36 ash
+</span></span><span class="line"><span class="ln">4</span><span class="cl">df -h
+</span></span></code></pre></div><p><img class="img-fluid" alt="" src="https://bajie.dev/posts/20231214-lxc_storage/2020-08-24_104720.png" loading="lazy"
    width="822" height="419"
    />
 
@@ -285,6 +281,10 @@ df -h
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://bajie.dev/posts/20231214-kvm_nested/">KVM的嵌套虚拟化
 </a>
+  </div><div class="post-nav post-next">
+    <a href="https://bajie.dev/posts/20231214-lxc_ip/">LXC更新到Docker之后的IP部分修改
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
     <ul class="related-posts"><li><a href="https://bajie.dev/posts/20231214-kvm_nested/">KVM的嵌套虚拟化
@@ -337,11 +337,11 @@ df -h
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20231214-lxc_storage/">LXC更新到Docker之后的存储部分修改
+    <ul><li><a href="https://bajie.dev/posts/20231214-ucarp_nginx/">Ucarp和nginx提供内网vip
+</a></li><li><a href="https://bajie.dev/posts/20231214-lxc_ip/">LXC更新到Docker之后的IP部分修改
+</a></li><li><a href="https://bajie.dev/posts/20231214-lxc_storage/">LXC更新到Docker之后的存储部分修改
 </a></li><li><a href="https://bajie.dev/posts/20231214-kvm_nested/">KVM的嵌套虚拟化
 </a></li><li><a href="https://bajie.dev/posts/20231214-kvm_dhcp/">KVM网络如何设置DHCP
-</a></li><li><a href="https://bajie.dev/posts/20231212-shell/">Shell中变量、字符串、数组、参数的技巧
-</a></li><li><a href="https://bajie.dev/posts/20231213-librenms_ldap/">Librenms使用ldap认证用户
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
