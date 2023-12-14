@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>钉钉告警发送 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>LXC更新到Docker之后的存储部分修改 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="钉钉告警发送">
-<meta itemprop="description" content="1#!/usr/bin/env python 2#coding:utf-8 3 4#zabbix钉钉报警 5import requests 6import json 7import sys 8import os 9import datetime 10 11#这里是自己创建的机器人的webhook 12webhook=&#34;https://oapi.dingtalk.com/robot/send?access_token=xxxxxx&#34; 13 14user=sys.argv[1] 15text=sys.argv[3] 16data={ 17 &#34;msgtype&#34;: &#34;text&#34;, 18 &#34;text&#34;: { 19 &#34;content&#34;: text 20 }, 21 &#34;at&#34;: { 22 &#34;atMobiles&#34;:"><meta itemprop="datePublished" content="2022-11-23T11:30:11+08:00" />
-<meta itemprop="dateModified" content="2022-11-23T11:30:11+08:00" />
-<meta itemprop="wordCount" content="215">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="钉钉告警发送" />
-<meta property="og:description" content="1#!/usr/bin/env python 2#coding:utf-8 3 4#zabbix钉钉报警 5import requests 6import json 7import sys 8import os 9import datetime 10 11#这里是自己创建的机器人的webhook 12webhook=&#34;https://oapi.dingtalk.com/robot/send?access_token=xxxxxx&#34; 13 14user=sys.argv[1] 15text=sys.argv[3] 16data={ 17 &#34;msgtype&#34;: &#34;text&#34;, 18 &#34;text&#34;: { 19 &#34;content&#34;: text 20 }, 21 &#34;at&#34;: { 22 &#34;atMobiles&#34;:" />
+<meta name="description" content="" /><meta itemprop="name" content="LXC更新到Docker之后的存储部分修改">
+<meta itemprop="description" content="在k8s没有出来之前，我们用的就是LXC，古早版本了。 那时候是1：60的虚拟，一台物理机上跑60个LXC，居然这样运行了8年无异常，现在要升"><meta itemprop="datePublished" content="2023-12-14T14:05:11+08:00" />
+<meta itemprop="dateModified" content="2023-12-14T14:05:11+08:00" />
+<meta itemprop="wordCount" content="339">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="LXC更新到Docker之后的存储部分修改" />
+<meta property="og:description" content="在k8s没有出来之前，我们用的就是LXC，古早版本了。 那时候是1：60的虚拟，一台物理机上跑60个LXC，居然这样运行了8年无异常，现在要升" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://bajie.dev/posts/20221123-dingding/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2022-11-23T11:30:11+08:00" />
-<meta property="article:modified_time" content="2022-11-23T11:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+<meta property="og:url" content="https://bajie.dev/posts/20231214-lxc_storage/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-12-14T14:05:11+08:00" />
+<meta property="article:modified_time" content="2023-12-14T14:05:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="钉钉告警发送"/>
-<meta name="twitter:description" content="1#!/usr/bin/env python 2#coding:utf-8 3 4#zabbix钉钉报警 5import requests 6import json 7import sys 8import os 9import datetime 10 11#这里是自己创建的机器人的webhook 12webhook=&#34;https://oapi.dingtalk.com/robot/send?access_token=xxxxxx&#34; 13 14user=sys.argv[1] 15text=sys.argv[3] 16data={ 17 &#34;msgtype&#34;: &#34;text&#34;, 18 &#34;text&#34;: { 19 &#34;content&#34;: text 20 }, 21 &#34;at&#34;: { 22 &#34;atMobiles&#34;:"/>
+<meta name="twitter:title" content="LXC更新到Docker之后的存储部分修改"/>
+<meta name="twitter:description" content="在k8s没有出来之前，我们用的就是LXC，古早版本了。 那时候是1：60的虚拟，一台物理机上跑60个LXC，居然这样运行了8年无异常，现在要升"/>
 <link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
   <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=%e9%92%89%e9%92%89%e5%91%8a%e8%ad%a6%e5%8f%91%e9%80%81&url=https%3a%2f%2fbajie.dev%2fposts%2f20221123-dingding%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=LXC%e6%9b%b4%e6%96%b0%e5%88%b0Docker%e4%b9%8b%e5%90%8e%e7%9a%84%e5%ad%98%e5%82%a8%e9%83%a8%e5%88%86%e4%bf%ae%e6%94%b9&url=https%3a%2f%2fbajie.dev%2fposts%2f20231214-lxc_storage%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20221123-dingding%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20231214-lxc_storage%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">钉钉告警发送</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">LXC更新到Docker之后的存储部分修改</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -207,67 +207,56 @@
     
   </div>
 </div>
-<h1 class="card-title my-3">钉钉告警发送
+<h1 class="card-title my-3">LXC更新到Docker之后的存储部分修改
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-11-23
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-14
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
-<div class="post-content mb-3"><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="ch">#!/usr/bin/env python</span>
-</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="c1">#coding:utf-8</span>
-</span></span><span class="line"><span class="ln"> 3</span><span class="cl">
-</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="c1">#zabbix钉钉报警</span>
-</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="kn">import</span> <span class="nn">requests</span>
-</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="kn">import</span> <span class="nn">json</span>
-</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="kn">import</span> <span class="nn">sys</span>
-</span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="kn">import</span> <span class="nn">os</span>
-</span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="kn">import</span> <span class="nn">datetime</span>
-</span></span><span class="line"><span class="ln">10</span><span class="cl">
-</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="c1">#这里是自己创建的机器人的webhook</span>
-</span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="n">webhook</span><span class="o">=</span><span class="s2">&#34;https://oapi.dingtalk.com/robot/send?access_token=xxxxxx&#34;</span>      
-</span></span><span class="line"><span class="ln">13</span><span class="cl">
-</span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="n">user</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-</span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="n">text</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
-</span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="n">data</span><span class="o">=</span><span class="p">{</span>
-</span></span><span class="line"><span class="ln">17</span><span class="cl">    <span class="s2">&#34;msgtype&#34;</span><span class="p">:</span> <span class="s2">&#34;text&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="ln">18</span><span class="cl">    <span class="s2">&#34;text&#34;</span><span class="p">:</span> <span class="p">{</span>
-</span></span><span class="line"><span class="ln">19</span><span class="cl">        <span class="s2">&#34;content&#34;</span><span class="p">:</span> <span class="n">text</span>
-</span></span><span class="line"><span class="ln">20</span><span class="cl">    <span class="p">},</span>
-</span></span><span class="line"><span class="ln">21</span><span class="cl">    <span class="s2">&#34;at&#34;</span><span class="p">:</span> <span class="p">{</span>
-</span></span><span class="line"><span class="ln">22</span><span class="cl">        <span class="s2">&#34;atMobiles&#34;</span><span class="p">:</span> <span class="p">[</span>
-</span></span><span class="line"><span class="ln">23</span><span class="cl">            <span class="n">user</span>
-</span></span><span class="line"><span class="ln">24</span><span class="cl">        <span class="p">],</span>
-</span></span><span class="line"><span class="ln">25</span><span class="cl">        <span class="s2">&#34;isAtAll&#34;</span><span class="p">:</span> <span class="kc">False</span>
-</span></span><span class="line"><span class="ln">26</span><span class="cl">    <span class="p">}</span>
-</span></span><span class="line"><span class="ln">27</span><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="ln">28</span><span class="cl"><span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Content-Type&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
-</span></span><span class="line"><span class="ln">29</span><span class="cl"><span class="n">x</span><span class="o">=</span><span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">webhook</span><span class="p">,</span><span class="n">data</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">),</span><span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
-</span></span></code></pre></div><p>下面放shell脚本的</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="cp">#!/bin/bash
-</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="cp"></span> 
-</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="k">function</span> ddmsg<span class="o">()</span> <span class="o">{</span>
-</span></span><span class="line"><span class="ln"> 4</span><span class="cl">    <span class="nv">Token</span><span class="o">=</span><span class="s2">&#34;xxxxxxxxxxxx&#34;</span>
-</span></span><span class="line"><span class="ln"> 5</span><span class="cl">    <span class="nv">Weburl</span><span class="o">=</span><span class="s2">&#34;https://oapi.dingtalk.com/robot/send?access_token=&#34;</span>
-</span></span><span class="line"><span class="ln"> 6</span><span class="cl">    curl -ks -m <span class="m">2</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">Weburl</span><span class="si">}${</span><span class="nv">Token</span><span class="si">}</span><span class="s2">&#34;</span> <span class="se">\
-</span></span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="se"></span>        -H <span class="s1">&#39;Content-Type: application/json;charset=utf-8&#39;</span> <span class="se">\
-</span></span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="se"></span>        -d <span class="s2">&#34;{&#39;msgtype&#39;: &#39;text&#39;, 
-</span></span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="s2">             &#39;text&#39;: { &#39;content&#39;: &#39;</span><span class="nv">$*</span><span class="s2">&#39;}
-</span></span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="s2">        }&#34;</span> <span class="p">&amp;</span>&gt;/tmp/ddmsg.log
-</span></span><span class="line"><span class="ln">11</span><span class="cl">    <span class="k">if</span> <span class="o">[</span> <span class="sb">`</span>grep <span class="s2">&#34;errmsg.*ok&#34;</span> /tmp/ddmsg.log <span class="p">|</span>wc -l<span class="sb">`</span> -ne <span class="m">1</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-</span></span><span class="line"><span class="ln">12</span><span class="cl">        <span class="nb">echo</span> <span class="s1">&#39;send error !&#39;</span><span class="p">;</span>cat /tmp/ddmsg.log<span class="p">;</span><span class="nb">exit</span> 1<span class="p">;</span>
-</span></span><span class="line"><span class="ln">13</span><span class="cl">    <span class="k">fi</span>
-</span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="o">}</span>
-</span></span><span class="line"><span class="ln">15</span><span class="cl">
-</span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="c1">#测试内容</span>
-</span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;@警报
-</span></span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="s2">主机:</span><span class="k">$(</span>hostname<span class="k">)</span><span class="s2">
-</span></span></span><span class="line"><span class="ln">19</span><span class="cl"><span class="s2">信息:Node test
-</span></span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="s2">时间:</span><span class="k">$(</span>date +<span class="s2">&#34;%F %T&#34;</span><span class="k">)</span><span class="s2">
-</span></span></span><span class="line"><span class="ln">21</span><span class="cl"><span class="s2">&#34;</span>&gt;.msg
-</span></span><span class="line"><span class="ln">22</span><span class="cl">
-</span></span><span class="line"><span class="ln">23</span><span class="cl">cat .msg
-</span></span><span class="line"><span class="ln">24</span><span class="cl">ddmsg <span class="s2">&#34;`cat .msg`&#34;</span>
-</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="post-content mb-3"><p>在k8s没有出来之前，我们用的就是LXC，古早版本了。</p>
+<p>那时候是1：60的虚拟，一台物理机上跑60个LXC，居然这样运行了8年无异常，现在要升级一下了。</p>
+<p>那时候的LXC，存储空间无法单独设定（缺省10G），cpu和mem的limit也有这样那样的问题。</p>
+<p>进化到新版本的Docker后，存储部分也需要修改，我们采用overlay2：</p>
+<pre><code>docker info
+
+...
+ Storage Driver: overlay2
+  Backing Filesystem: xfs
+  Supports d_type: true
+  Native Overlay Diff: true
+...
+</code></pre>
+<p>缺省的就是overlay2和xfs</p>
+<p>一、修改boot内核启动参数</p>
+<pre><code>vi /etc/default/grub
+
+#加上rootflags=uquota,pquota
+GRUB_CMDLINE_LINUX=&quot;console=tty0 crashkernel=auto net.ifnames=0 console=ttyS0 rootflags=uquota,pquota&quot;
+
+#更新
+grub2-mkconfig -o /boot/grub2/grub.cfg
+
+#重启
+reboot
+</code></pre>
+<p>二、检验并启动容器</p>
+<pre><code>cat /proc/mounts  |grep vda
+/dev/vda1 / xfs rw,relatime,attr2,inode64,usrquota,prjquota 0 0
+</code></pre>
+<p>有prjquota即可</p>
+<p>按需启动容器，指定空间大小，size=2G</p>
+<pre><code>docker run --rm -dit --name=t36 --storage-opt size=2G --net macvlan0 --ip=172.18.31.36 alpine:latest ash
+
+docker exec -it t36 ash
+df -h
+</code></pre>
+<p><img class="img-fluid" alt="" src="https://bajie.dev/posts/20231214-lxc_storage/2020-08-24_104720.png" loading="lazy"
+   width="822" height="419"
+   />
+
+</p>
+<p>这样就可以单独限制容器的大小了。</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -294,19 +283,15 @@
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://bajie.dev/posts/20221123-freelancer_aws/">Freelancer之aws
+    <a href="https://bajie.dev/posts/20231214-kvm_nested/">KVM的嵌套虚拟化
 </a>
-  </div><div class="post-nav post-next">
-    <a href="https://bajie.dev/posts/20221124-k8s_nfs/">Kubernetes使用nfs做持久化卷存储
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20221123-freelancer_aws/">Freelancer之aws
-</a></li><li><a href="https://bajie.dev/posts/20221123-freelancer_qrcode/">Freelancer之QRCode
-</a></li><li><a href="https://bajie.dev/posts/20221122-mysqldump_binlog/">MySQL数据库的备份和恢复之二
-</a></li><li><a href="https://bajie.dev/posts/20221121-mysqldump/">MySQL数据库的备份和恢复之一
-</a></li><li><a href="https://bajie.dev/posts/20221119-openvpn_client/">OpenVPN客户端定制IP和路由
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20231214-kvm_nested/">KVM的嵌套虚拟化
+</a></li><li><a href="https://bajie.dev/posts/20231214-kvm_dhcp/">KVM网络如何设置DHCP
+</a></li><li><a href="https://bajie.dev/posts/20231212-shell/">Shell中变量、字符串、数组、参数的技巧
+</a></li><li><a href="https://bajie.dev/posts/20231213-librenms_ldap/">Librenms使用ldap认证用户
+</a></li><li><a href="https://bajie.dev/posts/20231213-librenms_prometheus/">Librenms集成进prometheus
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
