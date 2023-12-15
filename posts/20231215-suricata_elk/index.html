@@ -3,17 +3,17 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ipxe使用sanboot远程启动iscsi硬盘 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>suricata加上elk分析机房入口全流量 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="ipxe使用sanboot远程启动iscsi硬盘">
+<meta name="description" content="" /><meta itemprop="name" content="suricata加上elk分析机房入口全流量">
 <meta itemprop="description" content="suricata 是跟snort差不多的一个入侵检测工具，加上elk的图形界面，非常的好看。 原理是suricata的log发到elk里，这样就能通过kiba"><meta itemprop="datePublished" content="2023-12-15T16:05:11+08:00" />
 <meta itemprop="dateModified" content="2023-12-15T16:05:11+08:00" />
 <meta itemprop="wordCount" content="1082">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="ipxe使用sanboot远程启动iscsi硬盘" />
+<meta itemprop="keywords" content="" /><meta property="og:title" content="suricata加上elk分析机房入口全流量" />
 <meta property="og:description" content="suricata 是跟snort差不多的一个入侵检测工具，加上elk的图形界面，非常的好看。 原理是suricata的log发到elk里，这样就能通过kiba" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://bajie.dev/posts/20231215-suricata_elk/" /><meta property="article:section" content="posts" />
@@ -21,7 +21,7 @@
 <meta property="article:modified_time" content="2023-12-15T16:05:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="ipxe使用sanboot远程启动iscsi硬盘"/>
+<meta name="twitter:title" content="suricata加上elk分析机房入口全流量"/>
 <meta name="twitter:description" content="suricata 是跟snort差不多的一个入侵检测工具，加上elk的图形界面，非常的好看。 原理是suricata的log发到elk里，这样就能通过kiba"/>
 <link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
@@ -114,7 +114,7 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=ipxe%e4%bd%bf%e7%94%a8sanboot%e8%bf%9c%e7%a8%8b%e5%90%af%e5%8a%a8iscsi%e7%a1%ac%e7%9b%98&url=https%3a%2f%2fbajie.dev%2fposts%2f20231215-suricata_elk%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=suricata%e5%8a%a0%e4%b8%8aelk%e5%88%86%e6%9e%90%e6%9c%ba%e6%88%bf%e5%85%a5%e5%8f%a3%e5%85%a8%e6%b5%81%e9%87%8f&url=https%3a%2f%2fbajie.dev%2fposts%2f20231215-suricata_elk%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">Ipxe使用sanboot远程启动iscsi硬盘</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">Suricata加上elk分析机房入口全流量</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -207,7 +207,7 @@
     
   </div>
 </div>
-<h1 class="card-title my-3">Ipxe使用sanboot远程启动iscsi硬盘
+<h1 class="card-title my-3">Suricata加上elk分析机房入口全流量
 </h1><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2023-12-15
   </span><span class="post-reading-time" title="reading time">
@@ -446,7 +446,7 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20231215-suricata_elk/">Ipxe使用sanboot远程启动iscsi硬盘
+    <ul><li><a href="https://bajie.dev/posts/20231215-suricata_elk/">Suricata加上elk分析机房入口全流量
 </a></li><li><a href="https://bajie.dev/posts/20231215-pxe_sanboot/">Ipxe使用sanboot远程启动iscsi硬盘
 </a></li><li><a href="https://bajie.dev/posts/20231215-prometheus_mysql/">Prometheus集成进mysql_exporter
 </a></li><li><a href="https://bajie.dev/posts/20231215-zfs_centos/">CentOS7安装ZFS
