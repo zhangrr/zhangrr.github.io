@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Docker的缺省网段冲突问题 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>审计需求只读用户的建立 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="Docker的缺省网段冲突问题">
-<meta itemprop="description" content="docker默认网段是172.17，和公司的网段172.16和172.18有时候会冲突，解决方法就是换docker网段。 方案：不改docke"><meta itemprop="datePublished" content="2022-12-19T09:02:11+08:00" />
-<meta itemprop="dateModified" content="2022-12-19T09:02:11+08:00" />
-<meta itemprop="wordCount" content="236">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="Docker的缺省网段冲突问题" />
-<meta property="og:description" content="docker默认网段是172.17，和公司的网段172.16和172.18有时候会冲突，解决方法就是换docker网段。 方案：不改docke" />
+<meta name="description" content="" /><meta itemprop="name" content="审计需求只读用户的建立">
+<meta itemprop="description" content="审计的要求： 线上环境研发只能有只读权限 那只能曲线救国了，两个用户，supdev是运维用来管理的，logview是研发用来只读日志的 一、首先确"><meta itemprop="datePublished" content="2023-12-27T09:35:11+08:00" />
+<meta itemprop="dateModified" content="2023-12-27T09:35:11+08:00" />
+<meta itemprop="wordCount" content="357">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="审计需求只读用户的建立" />
+<meta property="og:description" content="审计的要求： 线上环境研发只能有只读权限 那只能曲线救国了，两个用户，supdev是运维用来管理的，logview是研发用来只读日志的 一、首先确" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://bajie.dev/posts/20221219-docker_network/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2022-12-19T09:02:11+08:00" />
-<meta property="article:modified_time" content="2022-12-19T09:02:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+<meta property="og:url" content="https://bajie.dev/posts/20231227-supdev_logview/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-12-27T09:35:11+08:00" />
+<meta property="article:modified_time" content="2023-12-27T09:35:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Docker的缺省网段冲突问题"/>
-<meta name="twitter:description" content="docker默认网段是172.17，和公司的网段172.16和172.18有时候会冲突，解决方法就是换docker网段。 方案：不改docke"/>
+<meta name="twitter:title" content="审计需求只读用户的建立"/>
+<meta name="twitter:description" content="审计的要求： 线上环境研发只能有只读权限 那只能曲线救国了，两个用户，supdev是运维用来管理的，logview是研发用来只读日志的 一、首先确"/>
 <link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
   <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=Docker%e7%9a%84%e7%bc%ba%e7%9c%81%e7%bd%91%e6%ae%b5%e5%86%b2%e7%aa%81%e9%97%ae%e9%a2%98&url=https%3a%2f%2fbajie.dev%2fposts%2f20221219-docker_network%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=%e5%ae%a1%e8%ae%a1%e9%9c%80%e6%b1%82%e5%8f%aa%e8%af%bb%e7%94%a8%e6%88%b7%e7%9a%84%e5%bb%ba%e7%ab%8b&url=https%3a%2f%2fbajie.dev%2fposts%2f20231227-supdev_logview%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20221219-docker_network%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20231227-supdev_logview%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">Docker的缺省网段冲突问题</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">文章</a></li><li class="breadcrumb-item active">审计需求只读用户的建立</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -204,46 +204,59 @@
 ">
   <i class="fas fa-fw fa-copyright"></i>
 </a>
-    
+    <a data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+  <i class="fas fa-fw fa-list-alt"></i>
+</a>
   </div>
 </div>
-<h1 class="card-title my-3">Docker的缺省网段冲突问题
+<h1 class="card-title my-3">审计需求只读用户的建立
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-12-19
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-27
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
-<div class="post-content mb-3"><p>docker默认网段是172.17，和公司的网段172.16和172.18有时候会冲突，解决方法就是换docker网段。</p>
-<p>方案：不改docker网段，创建不和公司网段冲突的docker子网段</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">docker network create --driver<span class="o">=</span>bridge --subnet<span class="o">=</span>172.19.0.0/24 monitor_net
-</span></span></code></pre></div><p>运行容器时指定</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">docker run -it --name &lt;容器名&gt; ---network monitor_net &lt;镜像名&gt;
-</span></span></code></pre></div><p>在docker-compose同样通过networks指定，形式如下：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">version: <span class="s1">&#39;3&#39;</span>
-</span></span><span class="line"><span class="ln"> 2</span><span class="cl">networks:
-</span></span><span class="line"><span class="ln"> 3</span><span class="cl">   monitor:
-</span></span><span class="line"><span class="ln"> 4</span><span class="cl">   <span class="c1">#使用已经存在的网络</span>
-</span></span><span class="line"><span class="ln"> 5</span><span class="cl">     external:
-</span></span><span class="line"><span class="ln"> 6</span><span class="cl">       name: monitor_net  
-</span></span><span class="line"><span class="ln"> 7</span><span class="cl">
-</span></span><span class="line"><span class="ln"> 8</span><span class="cl">services:
-</span></span><span class="line"><span class="ln"> 9</span><span class="cl">    prometheus:
-</span></span><span class="line"><span class="ln">10</span><span class="cl">        image: prom/prometheus
-</span></span><span class="line"><span class="ln">11</span><span class="cl">        container_name: prometheus
-</span></span><span class="line"><span class="ln">12</span><span class="cl">        hostname: prometheus
-</span></span><span class="line"><span class="ln">13</span><span class="cl">        privileged: <span class="nb">true</span>
-</span></span><span class="line"><span class="ln">14</span><span class="cl">        restart: always
-</span></span><span class="line"><span class="ln">15</span><span class="cl">        volumes:
-</span></span><span class="line"><span class="ln">16</span><span class="cl">            - /usr/local/src/config/prometheus.yml:/etc/prometheus/prometheus.yml
-</span></span><span class="line"><span class="ln">17</span><span class="cl">            - /usr/local/src/config/node_down.yml:/etc/prometheus/node_down.yml
-</span></span><span class="line"><span class="ln">18</span><span class="cl">        ports:
-</span></span><span class="line"><span class="ln">19</span><span class="cl">            - <span class="s2">&#34;9091:9090&#34;</span>
-</span></span><span class="line"><span class="ln">20</span><span class="cl">        networks:
-</span></span><span class="line"><span class="ln">21</span><span class="cl">            - monitor
-</span></span><span class="line"><span class="ln">22</span><span class="cl">        links:
-</span></span><span class="line"><span class="ln">23</span><span class="cl">            - alertmanager
-</span></span><span class="line"><span class="ln">24</span><span class="cl">            - node-exporter
-</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+  </div>
+  <div class="offcanvas-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#一首先确定系统有supdev用户存在">一、首先确定系统有supdev用户存在</a></li>
+        <li><a href="#二增加新用户logview">二、增加新用户logview</a></li>
+        <li><a href="#三程序的app以及数据目录不是在supdev的home目录下而是在dataservers下">三、程序的app以及数据目录不是在supdev的home目录下，而是在/data/servers下</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div><div class="post-content mb-3"><p>审计的要求：</p>
+<p>线上环境研发只能有只读权限</p>
+<p>那只能曲线救国了，两个用户，supdev是运维用来管理的，logview是研发用来只读日志的</p>
+<h3 id="一首先确定系统有supdev用户存在">一、首先确定系统有supdev用户存在</h3>
+<p>id supdev
+通常supdev的id是511</p>
+<h3 id="二增加新用户logview">二、增加新用户logview</h3>
+<p>我们确定logview的id是512，group是和supdev同组
+useradd -u 512 -g supdev logview</p>
+<h3 id="三程序的app以及数据目录不是在supdev的home目录下而是在dataservers下">三、程序的app以及数据目录不是在supdev的home目录下，而是在/data/servers下</h3>
+<p>所以我们把/data/servers下的目录都改成750，文件都改成640</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="cp">#!/bin/sh
+</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="cp"></span>find /export/servers/ -type d ! -perm <span class="m">0750</span> -exec chmod <span class="m">0750</span> <span class="o">{}</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">find /export/servers/ -type f ! -perm <span class="m">0640</span> -exec chmod <span class="m">0640</span> <span class="o">{}</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln">1</span><span class="cl"># ansible 模块
+</span></span><span class="line"><span class="ln">2</span><span class="cl">- name: make dirs 0755
+</span></span><span class="line"><span class="ln">3</span><span class="cl">  command: find {{ your_path }} -type d ! -perm 0750 -exec chmod 0750 {} \;
+</span></span><span class="line"><span class="ln">4</span><span class="cl">
+</span></span><span class="line"><span class="ln">5</span><span class="cl">- name: make files 0644
+</span></span><span class="line"><span class="ln">6</span><span class="cl">  command: find {{ your_path }} -type f ! -perm 0640 -exec chmod 0640 {} \;
+</span></span></code></pre></div><p>这样就可以了。logview可以去到/data/servers目录，可以看文件，但无法执行。</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -270,19 +283,15 @@
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://bajie.dev/posts/20221218-dell_idrac_remote_share/">Dell服务器设置远程文件共享
+    <a href="https://bajie.dev/posts/20231226-h3c_ntp/">H3C服务的BIOS主板设置中如何正确设置NTP服务器
 </a>
-  </div><div class="post-nav post-next">
-    <a href="https://bajie.dev/posts/20221219-docker_harbor/">Docker镜像仓库harbor的搭建与使用
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20221218-dell_idrac_remote_share/">Dell服务器设置远程文件共享
-</a></li><li><a href="https://bajie.dev/posts/20221218-dell_memory/">Dell机器主板VLT0204故障处理以及内存插法
-</a></li><li><a href="https://bajie.dev/posts/20221218-centos7_upgrade_kernel/">升级CentOS7的kernel核心
-</a></li><li><a href="https://bajie.dev/posts/20221218-centos7_passwd/">合规要求之CentOS7的用户密码策略
-</a></li><li><a href="https://bajie.dev/posts/20221219-dnsmqsq_multi_ip/">Dnsmasq配置一个域名对应多个ip
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20231226-h3c_ntp/">H3C服务的BIOS主板设置中如何正确设置NTP服务器
+</a></li><li><a href="https://bajie.dev/posts/20231221-traefik_digicert/">Traefik配置digicert家得泛域名证书
+</a></li><li><a href="https://bajie.dev/posts/20231221-vm_error/">Vm.sh创建虚机失败
+</a></li><li><a href="https://bajie.dev/posts/20231221-inode_xfs/">Xfs文件系统下增加inode
+</a></li><li><a href="https://bajie.dev/posts/20231215-swap_usage/">查看SWAP交换空间被哪个进程给用掉了
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
