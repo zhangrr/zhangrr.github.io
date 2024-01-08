@@ -1,0 +1,627 @@
+<!doctype html><html lang="zh-cn"
+  >
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>出国旅行安装一个FreePBX的voip电话自用 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
+<meta name="keywords" content="" />
+<meta name="description" content="" /><meta itemprop="name" content="出国旅行安装一个FreePBX的voip电话自用">
+<meta itemprop="description" content="新的一年依始，开始定好了旅行计划，但是有个东西却依然心神不宁。 那就是万一在国外有什么变动，如何往国内打电话呢？！ 说到这里，不得不提个东西，那"><meta itemprop="datePublished" content="2024-01-05T09:35:11+08:00" />
+<meta itemprop="dateModified" content="2024-01-05T09:35:11+08:00" />
+<meta itemprop="wordCount" content="2564">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="出国旅行安装一个FreePBX的voip电话自用" />
+<meta property="og:description" content="新的一年依始，开始定好了旅行计划，但是有个东西却依然心神不宁。 那就是万一在国外有什么变动，如何往国内打电话呢？！ 说到这里，不得不提个东西，那" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://bajie.dev/posts/20240105-voip_iphone/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2024-01-05T09:35:11+08:00" />
+<meta property="article:modified_time" content="2024-01-05T09:35:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="出国旅行安装一个FreePBX的voip电话自用"/>
+<meta name="twitter:description" content="新的一年依始，开始定好了旅行计划，但是有个东西却依然心神不宁。 那就是万一在国外有什么变动，如何往国内打电话呢？！ 说到这里，不得不提个东西，那"/>
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <div class="container">
+    <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
+  aria-controls="offcanvasSettings" aria-label="Toggle settings">
+  <i class="fas fa-bars"></i>
+</button>
+
+<div class="offcanvas offcanvas-start surface" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasSettings">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">设置</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body">
+
+<section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+
+<section class="setting">
+  <form class="font-size-switcher-form row">
+    <div class="col-auto">
+      <label for="fontSize" class="form-label"><i class="fas fa-fw fa-font"></i> 字体大小</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <input type="range" class="form-range" min="-2" max="2" id="fontSize">
+    </div>
+  </form>
+</section>
+
+
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a id="btnPalette" class="btn btn-sm btn-outline-primary" role="button" aria-label="palettePicker">
+        <i class="fas fa-eye-dropper"></i>
+      </a>
+    </div>
+  </form>
+  <div class="mt-2 d-flex visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="蓝色"
+        class="btn btn-sm palette" data-palette="blue">
+      </button><button type="button" id="palette-blue-gray" aria-label="蓝灰色"
+        class="btn btn-sm palette" data-palette="blue-gray">
+      </button><button type="button" id="palette-brown" aria-label="棕色"
+        class="btn btn-sm palette" data-palette="brown">
+      </button><button type="button" id="palette-cyan" aria-label="青色"
+        class="btn btn-sm palette" data-palette="cyan">
+      </button><button type="button" id="palette-green" aria-label="绿色"
+        class="btn btn-sm palette" data-palette="green">
+      </button><button type="button" id="palette-indigo" aria-label="靛青色"
+        class="btn btn-sm palette" data-palette="indigo">
+      </button><button type="button" id="palette-orange" aria-label="橙色"
+        class="btn btn-sm palette" data-palette="orange">
+      </button><button type="button" id="palette-pink" aria-label="粉色"
+        class="btn btn-sm palette" data-palette="pink">
+      </button><button type="button" id="palette-purple" aria-label="紫色"
+        class="btn btn-sm palette" data-palette="purple">
+      </button><button type="button" id="palette-red" aria-label="红色"
+        class="btn btn-sm palette" data-palette="red">
+      </button><button type="button" id="palette-teal" aria-label="蓝绿色"
+        class="btn btn-sm palette" data-palette="teal">
+      </button><button type="button" id="palette-yellow" aria-label="黄色"
+        class="btn btn-sm palette" data-palette="yellow">
+      </button></div>
+</section>
+<section class="setting social-share">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-share-alt"></i> Share</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a class="btn btn-sm btn-outline-primary btn-social-share"><i class="fas fa-share"></i></a>
+    </div>
+  </form>
+  <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
+      target="_blank" href="https://twitter.com/intent/tweet?title=%e5%87%ba%e5%9b%bd%e6%97%85%e8%a1%8c%e5%ae%89%e8%a3%85%e4%b8%80%e4%b8%aaFreePBX%e7%9a%84voip%e7%94%b5%e8%af%9d%e8%87%aa%e7%94%a8&url=https%3a%2f%2fbajie.dev%2fposts%2f20240105-voip_iphone%2f">
+      <i class="fab fa-fw fa-twitter"></i> Twitter
+    </a>
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20240105-voip_iphone%2f">
+      <i class="fab fa-fw fa-facebook-f"></i> Facebook
+    </a>
+  </div>
+</section>
+
+</div>
+</div>
+<a class="navbar-brand me-3" href="https://bajie.dev"><img class="logo" alt="Logo" src="https://bajie.dev/images/logo.webp" loading="lazy"
+   width="136" height="69"
+   />
+八戒
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="fas fa-ellipsis-v"></i>
+    </button>
+    <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
+      <form class="search-bar my-1" action="https://bajie.dev/search">
+  <div class="input-group input-group-sm">
+    <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
+    <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
+  </div>
+</form>
+
+      <ul class="navbar-nav ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/categories/">
+            <i class="fas fa-fw fa-folder"></i>分类
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/tags/">
+            <i class="fas fa-fw fa-tags"></i>标签
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/series/">
+            <i class="fas fa-fw fa-columns"></i>专栏
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-chevron-circle-down"></i>下拉菜单
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-dropdown"><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                <i class="fab fa-fw fa-github"></i>Github
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://bajie.dev/zh-cn/series/manual">
+                用户手册
+              </a>
+            </li></ul>
+        </li></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body">
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">Posts</a></li><li class="breadcrumb-item active">出国旅行安装一个FreePBX的voip电话自用</li></ol>
+  </div>
+</nav><article class="post row card mb-4 component">
+  <div class="card-body"><div class="post-panel-wrapper">
+  <div class="post-panel d-flex flex-column">
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+  <i class="fas fa-fw fa-expand-arrows-alt"></i>
+</a>
+  
+    
+
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
+  <i class="fas fa-fw fa-coffee"></i>
+</a>
+    <a class="action" data-bs-container="body" data-bs-toggle="popover" data-bs-html="true" data-bs-placement="bottom"
+  data-bs-trigger="focus" tabindex="0" type="button" aria-label="Copyright" 
+  data-bs-content="&lt;a target=&#34;_blank&#34; rel=&#34;license noopener noreferrer&#34; href=&#34;https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh&#34;&gt;CC BY-NC-ND 4.0 &lt;i class=&#34;fab fa-fw fa-creative-commons&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-by&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-nc&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-nd&#34;&gt;&lt;/i&gt;&lt;/a&gt;
+">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
+    <a data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+  <i class="fas fa-fw fa-list-alt"></i>
+</a>
+  </div>
+</div>
+<h1 class="card-title my-3">出国旅行安装一个FreePBX的voip电话自用
+</h1><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-05
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>6 分钟阅读
+  </span></div>
+<div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+  </div>
+  <div class="offcanvas-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#一安装kvm虚机">一、安装KVM虚机：</a></li>
+    <li><a href="#二配置freepbx的分机">二、配置FreePBX的分机</a></li>
+    <li><a href="#三配置dongle无线卡">三、配置dongle无线卡</a></li>
+    <li><a href="#四配置freepbx的进出线路">四、配置FreePBX的进出线路</a>
+      <ul>
+        <li><a href="#1增加trunk">1、增加trunk</a></li>
+        <li><a href="#2配置拨入线路inbound-route">2、配置拨入线路Inbound route</a></li>
+        <li><a href="#3配置拨出线路outbound-routes">3、配置拨出线路Outbound Routes</a></li>
+      </ul>
+    </li>
+    <li><a href="#五配置手机端voip软件">五、配置手机端voip软件</a></li>
+    <li><a href="#六路由器设置">六、路由器设置</a></li>
+  </ul>
+</nav>
+  </div>
+</div><div class="post-content mb-3"><p>新的一年依始，开始定好了旅行计划，但是有个东西却依然心神不宁。</p>
+<p>那就是万一在国外有什么变动，如何往国内打电话呢？！</p>
+<p>说到这里，不得不提个东西，那就是旅顺的App，这个东西已经消失了，但是绝对值得被记住啊。</p>
+<p>这个东西在塞班岛旅游的时候曾经救了自己两次</p>
+<p>首先是它的第一代产品：</p>
+<p><img class="img-fluid" alt="image-20240105135104823" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105135104823.png" loading="lazy"
+   width="1005" height="684"
+   />
+
+</p>
+<p>第一代的原理似乎是把手机的信号直接通过网络转移到了国内，随身携带然后配合app使用，这点非常牛吧！国内的窜出点会随机，忽而天津，忽而别的地方，所以呼出电话搞不好是长途计费。第一次呢八戒是在塞班岛中部那个麦当劳附近，用这个接到了国内的电话，说是出大事了，有人把公司数据库的数据给改了，当时约定下午6：00再打，然后下午在台湾牛肉面的店里，又用这个往国内通了电话，打了半个多小时，领导告知了具体的情况，要是接不起来那可真就麻烦大了。</p>
+<p>这个是它第二代的产品：</p>
+<p><img class="img-fluid" alt="image-20240105135031364" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105135031364.png" loading="lazy"
+   width="1790" height="1434"
+   />
+
+</p>
+<p>这个是升级版pro，就更厉害了，直接放家里，手机上下个app，有网络就能用了，不用像第一代一样随身携带了。</p>
+<p>这个更是救命了，话说在塞班的时候正是疫情刚发作的时候，塞班直接封岛了，然后好多航班都延期或终止了，就是用这个旅顺打国内电话改签了回国的机票，足足打了两个小时啊，到处占线等待，如果打国际长途的话费用不堪设想，另外打塞班大韩航空的电话改签两程机票也是不可想像的，所以，关键时刻是真的救命啊。</p>
+<p>这么好的软件却直接倒闭消失了，真是万分可惜啊。</p>
+<p>哎，现在没有这个了，只能自己搭一个voip电话自用了。</p>
+<p>刚开始是考虑RasPBX，其实自己用树莓派搭过，费事不说，主要树莓派容易死机，务必要稳定，所以干脆用FreePBX搭建在kvm服务器虚拟机上的方式，来保持绝对稳定。</p>
+<p>以下教程只适用于 FreePBX 16 的官方ISO，具体做法如下：</p>
+<h2 id="一安装kvm虚机">一、安装KVM虚机：</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1">#下载FreePBX16的iso光盘</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">wget https://downloads.freepbxdistro.org/ISO/SNG7-PBX16-64bit-2302-1.iso
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="c1">#创建qcow2虚机文件</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">qemu-img create -f qcow2 freepbx-8-2-60/freepbx-8-2-60.qcow2 20G
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">virt-install <span class="se">\
+</span></span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="se"></span>--name<span class="o">=</span>freepbx-8-2-60 <span class="se">\
+</span></span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="se"></span>--vcpu<span class="o">=</span><span class="m">4</span> <span class="se">\
+</span></span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="se"></span>--ram<span class="o">=</span><span class="m">8096</span> <span class="se">\
+</span></span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="se"></span>--disk <span class="nv">path</span><span class="o">=</span>/export/kvm/freepbx-8-2-60/freepbs-8-2-60.qcow2,format<span class="o">=</span>qcow2,size<span class="o">=</span><span class="m">20</span> <span class="se">\
+</span></span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="se"></span>--cdrom<span class="o">=</span>/export/kvm/SNG7-PBX16-64bit-2302-1.iso <span class="se">\
+</span></span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="se"></span>--network <span class="nv">bridge</span><span class="o">=</span>br0 <span class="se">\
+</span></span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="se"></span>--os-type<span class="o">=</span>linux <span class="se">\
+</span></span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="se"></span>--vnc --vnclisten<span class="o">=</span>0.0.0.0 --vncport<span class="o">=</span><span class="m">5916</span>
+</span></span></code></pre></div><p>用vnc连接5916端口安装，设置一下root的密码安装。</p>
+<p>这样安装好后，系统其实是dhcp动态获得ip的，进入看了看，是Centos，我们不需要dhcp，把IP给固定死</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">vi /etc/sysconfig/network-scripts/ifcfg-eth0 
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="nv">TYPE</span><span class="o">=</span><span class="s2">&#34;Ethernet&#34;</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="nv">BOOTPROTO</span><span class="o">=</span><span class="s2">&#34;static&#34;</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="nv">IPADDR</span><span class="o">=</span>10.8.2.60
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="nv">NETMASK</span><span class="o">=</span>255.255.255.0
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="nv">GATEWAY</span><span class="o">=</span>10.8.2.1
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="nv">DNS1</span><span class="o">=</span>114.114.114.114
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="nv">DEFROUTE</span><span class="o">=</span><span class="s2">&#34;yes&#34;</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="nv">NAME</span><span class="o">=</span><span class="s2">&#34;eth0&#34;</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="nv">DEVICE</span><span class="o">=</span><span class="s2">&#34;eth0&#34;</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="nv">ONBOOT</span><span class="o">=</span><span class="s2">&#34;yes&#34;</span>
+</span></span></code></pre></div><p>SSH登录一下没问题，看到绿框就ok了</p>
+<p><img class="img-fluid" alt="image-20240105141241964" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105141241964.png" loading="lazy"
+   width="1347" height="480"
+   />
+
+</p>
+<h2 id="二配置freepbx的分机">二、配置FreePBX的分机</h2>
+<p>打开网址 http://10.8.2.60 , 登录 FreePBX Administration</p>
+<p><img class="img-fluid" alt="image-20240105144025926" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105144025926.png" loading="lazy"
+   width="2300" height="847"
+   />
+
+</p>
+<p>登上去后是这个样子</p>
+<p><img class="img-fluid" alt="image-20240105144212316" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105144212316.png" loading="lazy"
+   width="2335" height="1112"
+   />
+
+</p>
+<p>上面我没有开System Firewall，这个看个人需求，绝对不要像公网开放80端口，只开5060的udp和1000-10004的UDP。</p>
+<p>开了公网80的话，那就是另外一个悲伤的故事了！！！</p>
+<p>然后建立第一个分机888：</p>
+<p>直接在<code>Applications</code>-&gt;<code>Extensions</code>-&gt;<code>Add new Chan_SIP Extension</code>新建一个分机，在<code>General</code>tab页里面填好第一个SIP账户的信息</p>
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<p>General填写:</p>
+<ul>
+<li>User Extension 分机号为888</li>
+<li>Display Name 为 ba jie，最好自己名字，好区分</li>
+<li>Secret 是密码，要填写个非常复杂的，绝对不能简单。</li>
+</ul>
+<!-- raw HTML omitted -->
+<p>然后最底下，Submit 提交一下</p>
+<p>最后点击右上角的<code>Apply Config</code>应用刚才的配置。</p>
+<h2 id="三配置dongle无线卡">三、配置dongle无线卡</h2>
+<p>内部分机有了，我们需要配置外部线路</p>
+<p>去淘宝上买个dongle卡，插到服务器上</p>
+<p><img class="img-fluid" alt="image-20240105150152946" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105150152946.png" loading="lazy"
+   width="605" height="446"
+   />
+
+</p>
+<p>登录服务器，lsusb 查看一下usb的地址</p>
+<p><img class="img-fluid" alt="image-20240105150501476" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105150501476.png" loading="lazy"
+   width="2060" height="466"
+   />
+
+</p>
+<p>得到 vendori d: 12d1 和 product id: 1436 这两个字串，编辑一个文件 usb-attach.xml 文件：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">vi usb-attach.xml
+</span></span><span class="line"><span class="ln">2</span><span class="cl">&lt;hostdev <span class="nv">mode</span><span class="o">=</span><span class="s1">&#39;subsystem&#39;</span> <span class="nv">type</span><span class="o">=</span><span class="s1">&#39;usb&#39;</span>&gt;
+</span></span><span class="line"><span class="ln">3</span><span class="cl">  &lt;source&gt;
+</span></span><span class="line"><span class="ln">4</span><span class="cl">    &lt;vendor <span class="nv">id</span><span class="o">=</span><span class="s1">&#39;0x12d1&#39;</span>/&gt;  
+</span></span><span class="line"><span class="ln">5</span><span class="cl">    &lt;product <span class="nv">id</span><span class="o">=</span><span class="s1">&#39;0x1436&#39;</span>/&gt;
+</span></span><span class="line"><span class="ln">6</span><span class="cl">  &lt;/source&gt;
+</span></span><span class="line"><span class="ln">7</span><span class="cl">&lt;/hostdev&gt;
+</span></span></code></pre></div><p>然后挂接上</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">virsh attach-device freepbx-8-2-60 --file usb_huawei.xml --persistent
+</span></span></code></pre></div><p>ssh登录进入freepbx，lsusb查看一下，同样能看到就对了</p>
+<p><img class="img-fluid" alt="image-20240105151249664" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105151249664.png" loading="lazy"
+   width="2030" height="338"
+   />
+
+</p>
+<p>然后就是大工程了，编译驱动程序，非常的复杂</p>
+<p>不想编译的办法：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1"># 解压包</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">unzip -x dongle.zip
+</span></span><span class="line"><span class="ln">3</span><span class="cl">
+</span></span><span class="line"><span class="ln">4</span><span class="cl">cp chan_dongle.so /usr/lib64/asterisk/modules
+</span></span><span class="line"><span class="ln">5</span><span class="cl">chmod <span class="m">644</span> /usr/lib64/asterisk/modules/chan_dongle.so
+</span></span></code></pre></div><p>完整的编译的方法：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1">#解压包</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">unzip asterisk-chan-dongle-master*
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="c1">#安装准备包编译</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">yum install automake autotools-dev autoconf
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">yum -y install tcl asterisk18-devel make automake binutils
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="c1">#编译安装</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="nb">cd</span> asterisk-chan-dongle-master/
+</span></span><span class="line"><span class="ln">10</span><span class="cl">autoupdate
+</span></span><span class="line"><span class="ln">11</span><span class="cl">aclocal
+</span></span><span class="line"><span class="ln">12</span><span class="cl">autoconf
+</span></span><span class="line"><span class="ln">13</span><span class="cl">automake -a
+</span></span><span class="line"><span class="ln">14</span><span class="cl">./bootstrap
+</span></span><span class="line"><span class="ln">15</span><span class="cl">./configure --with-astversion<span class="o">=</span>18.19.0
+</span></span><span class="line"><span class="ln">16</span><span class="cl">make clean
+</span></span><span class="line"><span class="ln">17</span><span class="cl">make
+</span></span><span class="line"><span class="ln">18</span><span class="cl">make install
+</span></span><span class="line"><span class="ln">19</span><span class="cl">
+</span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="nb">cd</span> /usr/lib64/asterisk/modules
+</span></span><span class="line"><span class="ln">21</span><span class="cl">ls -lcat<span class="p">|</span>more
+</span></span></code></pre></div><p>看到有dongle字样就ok了</p>
+<p><img class="img-fluid" alt="image-20240105151955008" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105151955008.png" loading="lazy"
+   width="1791" height="347"
+   />
+
+</p>
+<p>没完呢啊，还需要把配置文件都弄进去</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1">#解压</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">unzip -x dongle.zip
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="c1">#install dongles driver</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="nb">cd</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="nb">echo</span> <span class="s1">&#39;KERNEL==&#34;ttyUSB*&#34;, MODE=&#34;0666&#34;, OWNER=&#34;asterisk&#34;, GROUP=&#34;uucp&#34;&#39;</span>&gt;/etc/udev/rules.d/92-dongle.rules
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="nb">echo</span> <span class="s1">&#39;rungroup = dialout&#39;</span>&gt;&gt;/etc/asterisk/asterisk.conf
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">mv dongle.conf /etc/asterisk/dongle.conf
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">chown asterisk.asterisk /etc/asterisk/dongle.conf
+</span></span><span class="line"><span class="ln">10</span><span class="cl">chmod <span class="m">664</span> /etc/asterisk/dongle.conf
+</span></span><span class="line"><span class="ln">11</span><span class="cl">mv extensions_custom.conf /etc/asterisk/extensions_custom.conf
+</span></span><span class="line"><span class="ln">12</span><span class="cl">chown asterisk.asterisk /etc/asterisk/extensions_custom.conf
+</span></span><span class="line"><span class="ln">13</span><span class="cl">chmod <span class="m">664</span> /etc/asterisk/extensions_custom.conf
+</span></span></code></pre></div><p>下载地址：<a href="dongle.zip">dongle.zip</a>
+</p>
+<p>然后把虚机reboot一下，进入asterisk查看</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">asterisk -rvvv
+</span></span><span class="line"><span class="ln">2</span><span class="cl">dongle show devices
+</span></span></code></pre></div><p><img class="img-fluid" alt="image-20240105153128272" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105153128272.png" loading="lazy"
+   width="2794" height="853"
+   />
+
+</p>
+<p>看到自己dongle设备的id，是dongle1，记下来，就ok</p>
+<h2 id="四配置freepbx的进出线路">四、配置FreePBX的进出线路</h2>
+<h3 id="1增加trunk">1、增加trunk</h3>
+<p>回到 FreePBX 的配置界面，先配一下 Trunk 线路，增加一个trunk:<code>connectivity</code>-&gt;<code>Trunks</code></p>
+<!-- raw HTML omitted -->
+<p>增加一个 Custom Trunk:</p>
+<!-- raw HTML omitted -->
+<p>General填写：</p>
+<ul>
+<li>Trunk Name : china_unicom</li>
+<li>Outbound CallerID: 空 （联通手机号，最好空，后面有提示忽略，这个接打的时候会自动替你填上的）</li>
+<li>Maximum Channels: 1 (只有一个联通sim卡，就是1，2个就是2)</li>
+</ul>
+<!-- raw HTML omitted -->
+<p>然后点到custom Settings，填入如下内容，注意，我的设备是dongle1，按查出来的设备填写啊。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">dongle/dongle1/<span class="nv">$OUTNUM</span>$
+</span></span></code></pre></div><!-- raw HTML omitted -->
+<p>然后同样 Submit， 然后 Apply config. 会提示CallerID，ok忽略即可。</p>
+<!-- raw HTML omitted -->
+<h3 id="2配置拨入线路inbound-route">2、配置拨入线路Inbound route</h3>
+<p><code>connectivity</code>-&gt;<code>Inbound Routes</code></p>
+<!-- raw HTML omitted -->
+<p>增加一个新的Inbound，名字就叫gsm_in，可以随便改。DID和CallerID都是ANY，意味着所有达到这个sim卡内的电话都接下来，Destination选择咱们一开始的888分机，这样呼入的电话就可以被888分机接听了</p>
+<ul>
+<li>Description: gsm_in</li>
+<li>DID Number: ANY</li>
+<li>CallerID Number: ANY</li>
+<li>Set Destination: Extensions</li>
+<li>​                              888 zhang ranrui</li>
+</ul>
+<!-- raw HTML omitted -->
+<p>最后同样 Submit , Apply Config配置生效</p>
+<h3 id="3配置拨出线路outbound-routes">3、配置拨出线路Outbound Routes</h3>
+<p><code>connectivity</code>-&gt;<code>Outbound Routes</code></p>
+<!-- raw HTML omitted -->
+<p>增加一条新的拨出线路，名字叫gsm_out好了，可以随便改，Trunk选咱们建立的 china_unicom</p>
+<p>Route Name : gsm_out</p>
+<p>Trunk Sequence for Matched Routes: china_unicom</p>
+<!-- raw HTML omitted -->
+<p>注意，点到拨号盘，还需要配一下 <code>Dail Patterns</code></p>
+<!-- raw HTML omitted -->
+<ul>
+<li><strong>Match Pattern</strong>: <strong>ZX.</strong></li>
+</ul>
+<p>ZX. 的意思是拨出去的号码最少有3个数字那么长，且第一位不是0，那手机11位，起始是1就满足了。很多教程教配个1和9什么的，有毛病啊，拨出去还要加拨1和9</p>
+<p>最后仍然是Submit，Apply Config配置生效。</p>
+<p>这样基本上就完工了</p>
+<h2 id="五配置手机端voip软件">五、配置手机端voip软件</h2>
+<p>我只有iphone手机，首先要翻墙，下载zoiper软件，这个就不多说了</p>
+<p><img class="img-fluid" alt="image-20240105161747497" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105161747497.png" loading="lazy"
+   width="233" height="310"
+   />
+
+</p>
+<p>打开后添加一个SIP账号：</p>
+<ul>
+<li>Account name: zhang ranrui 可以随便填</li>
+<li>Domain: freepbx的ip地址，这个不能胡填</li>
+<li>User name: 888 分机号码</li>
+<li>Password: 密码，就是FreePBX分机的Secret值，一定要设置的够复杂</li>
+<li>Enable video FMTP:  disable不选</li>
+</ul>
+<!-- raw HTML omitted -->
+<p>然后在Account的netwok settings中，STUN一定要禁掉，直通。</p>
+<!-- raw HTML omitted -->
+<p>ok，这样就拨打那个sim的电话就会转到这个888的分机上了。</p>
+<h2 id="六路由器设置">六、路由器设置</h2>
+<p>有公网设置，需要做端口映射</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">路由器Port <span class="m">5060</span> udp --&gt; FreePBX Port <span class="m">5060</span> udp
+</span></span><span class="line"><span class="ln">2</span><span class="cl">
+</span></span><span class="line"><span class="ln">3</span><span class="cl">路由器Port 10000-&gt;10004 udp --&gt; FreePBX Port 10000-10004 udp
+</span></span></code></pre></div><p>10000到10004的端口映射出去是因为语音一路，数据一路，我们只有一个sim卡，4路足够了。</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-coffee"></i>打赏</h5>
+        <a href="#" data-bs-dismiss="modal" class="btn btn-sm btn-outline-primary" aria-label="Close"><i class="fas fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs flex-nowrap mb-3" role="tablist"><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>支付宝
+            </a>
+          </li><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>微信
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+  <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
+    <a href="https://bajie.dev/posts/20231228-minio_nginx/">配置Minio&#43;nginx的代理来开放桶内内容
+</a>
+  </div><div class="post-nav post-next">
+    <a href="https://bajie.dev/posts/20240107-vpn_monitor/">Cisco ASA5520 VPN线路的监控和自动重启
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
+  </div></div><section class="related-posts-wrapper">
+    <h3>相关文章</h3>
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20231228-minio_nginx/">配置Minio&#43;nginx的代理来开放桶内内容
+</a></li><li><a href="https://bajie.dev/posts/20231228-nfs_detail/">NFS的详细解释
+</a></li><li><a href="https://bajie.dev/posts/20231228-kvm_isoboot/">Kvm虚拟机挂载临时急救iso启动的方法
+</a></li><li><a href="https://bajie.dev/posts/20231228-shell_prompt/">Shell脚本的一个好的帮助信息
+</a></li><li><a href="https://bajie.dev/posts/20231228-nodejs_noupgrade/">Nodejs禁止后台偷偷升级
+</a></li></ul>
+  </section></div>
+</article><div class="post-comments card row component">
+  <div class="card-body"><div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-zhangrr-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a></div>
+</div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container">
+    
+    <section class="card row text-center profile component">
+  <div class="card-body">
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Zhang Ranrui" src="https://bajie.dev/images/bajie_01.jpg" loading="lazy"
+   width="391" height="644"
+   />
+</div>
+    <div class="col-12 profile-meta"><div class="profile-name">Zhang Ranrui</div><div class="profile-bio">Devops, SA, 运维全干工程师.</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>Company</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>Earth</div><div class="profile-about"><i class="fas fa-fw fa-user"></i><a target="_blank" rel="noopener noreferrer" href="http://www.rendoumi.com">关于我</a></div></div>
+  </div>
+</section>
+  <section class="featured-posts row card component">
+    <div class="card-body">
+      <h2 class="card-title">精选文章</h2>
+      <ul><li><a href="https://bajie.dev/posts/markdown-syntax/">Markdown Syntax Guide
+</a></li></ul>
+    </div>
+  </section><section class="recent-posts row card component">
+  <div class="card-body">
+    <h2 class="card-title">最近文章</h2>
+    <ul><li><a href="https://bajie.dev/posts/20240107-vpn_monitor/">Cisco ASA5520 VPN线路的监控和自动重启
+</a></li><li><a href="https://bajie.dev/posts/20240105-voip_iphone/">出国旅行安装一个FreePBX的voip电话自用
+</a></li><li><a href="https://bajie.dev/posts/20231228-minio_nginx/">配置Minio&#43;nginx的代理来开放桶内内容
+</a></li><li><a href="https://bajie.dev/posts/20231228-nfs_detail/">NFS的详细解释
+</a></li><li><a href="https://bajie.dev/posts/20231228-kvm_isoboot/">Kvm虚拟机挂载临时急救iso启动的方法
+</a></li></ul>
+  </div>
+</section><section class="taxonomies row card component">
+      <div class="card-body">
+        <h2 class="card-title">
+          <a href="https://bajie.dev/series">专栏</a>
+        </h2>
+        <div><a href="https://bajie.dev/series/manual/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Manual">
+            Manual
+          </a></div>
+      </div>
+    </section><section class="taxonomies row card component">
+      <div class="card-body">
+        <h2 class="card-title">
+          <a href="https://bajie.dev/tags">标签</a>
+        </h2>
+        <div><a href="https://bajie.dev/tags/css/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="CSS">
+            CSS
+          </a><a href="https://bajie.dev/tags/html/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="HTML">
+            HTML
+          </a><a href="https://bajie.dev/tags/markdown/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Markdown">
+            Markdown
+          </a></div>
+      </div>
+    </section>
+    
+  </div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:zhangranrui@gmail.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/zhangrr" title="GitHub" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://www.reddit.com/user/defunct9" title="Reddit" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-reddit"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/defunct9" title="Telegram" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a></nav>
+<div class="copyright mb-2">
+  Copyright © 2020-2024 Zhang Ranrui. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+</div></footer>
+
+</body>
+</html>
