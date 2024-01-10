@@ -7,7 +7,25 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>Copyright © 2020-{year} Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Mon, 08 Jan 2024 12:05:11 +0800</lastBuildDate><atom:link href="https://bajie.dev/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 09 Jan 2024 10:05:11 +0800</lastBuildDate><atom:link href="https://bajie.dev/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>KVM中网卡地址随机生成方法</title>
+      <link>https://bajie.dev/posts/20240109-kvm_random_mac/</link>
+      <pubDate>Tue, 09 Jan 2024 10:05:11 +0800</pubDate>
+      
+      <guid>https://bajie.dev/posts/20240109-kvm_random_mac/</guid>
+      <description>http://www.rendoumi.com/author/zhang/ ) 用bash随机生成网卡地址： 1echo 52:54:$(dd if=/dev/urandom count=1 2&amp;gt;/dev/null | md5sum | sed &amp;#39;s/^\(..\)\(..\)\(..\)\(..\).*$/\1:\2:\3:\4/&amp;#39;) 252:54:f6:65:52:39 另一种做法： 1openssl rand -hex 6 | sed &amp;#39;s/\(..\)/\1:/g; s/.$//&amp;#39;</description>
+    </item>
+    
+    <item>
+      <title>Linux下设置LANG变量</title>
+      <link>https://bajie.dev/posts/20240109-linux_lang/</link>
+      <pubDate>Tue, 09 Jan 2024 09:05:11 +0800</pubDate>
+      
+      <guid>https://bajie.dev/posts/20240109-linux_lang/</guid>
+      <description>vim 编辑文件，里面是有中文的，可是环境变量中LANG=C，非常不便啊，经常得export LANG=zh_CN来解决。放在/etc/profil</description>
+    </item>
+    
     <item>
       <title>SNMP OID来监控网络设备流量</title>
       <link>https://bajie.dev/posts/20240108-snmp_network/</link>

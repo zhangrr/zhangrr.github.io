@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>用户态的NFS Server - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>Linux下设置LANG变量 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="用户态的NFS Server">
-<meta itemprop="description" content="NFS Server 很常用，但是坑也是巨大的。之前在京东运维 Hadoop 集群的时候碰到过脑裂，原因就是 NFS 引起的。 关键 NFS 是内核态的，一旦崩溃，那么客户端的所有命令，ls"><meta itemprop="datePublished" content="2022-07-06T09:30:11+08:00" />
-<meta itemprop="dateModified" content="2022-07-06T09:30:11+08:00" />
-<meta itemprop="wordCount" content="337">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="用户态的NFS Server" />
-<meta property="og:description" content="NFS Server 很常用，但是坑也是巨大的。之前在京东运维 Hadoop 集群的时候碰到过脑裂，原因就是 NFS 引起的。 关键 NFS 是内核态的，一旦崩溃，那么客户端的所有命令，ls" />
+<meta name="description" content="" /><meta itemprop="name" content="Linux下设置LANG变量">
+<meta itemprop="description" content="vim 编辑文件，里面是有中文的，可是环境变量中LANG=C，非常不便啊，经常得export LANG=zh_CN来解决。放在/etc/profil"><meta itemprop="datePublished" content="2024-01-09T09:05:11+08:00" />
+<meta itemprop="dateModified" content="2024-01-09T09:05:11+08:00" />
+<meta itemprop="wordCount" content="94">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="Linux下设置LANG变量" />
+<meta property="og:description" content="vim 编辑文件，里面是有中文的，可是环境变量中LANG=C，非常不便啊，经常得export LANG=zh_CN来解决。放在/etc/profil" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://bajie.dev/posts/20220706-nfs_usermode/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2022-07-06T09:30:11+08:00" />
-<meta property="article:modified_time" content="2022-07-06T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+<meta property="og:url" content="https://bajie.dev/posts/20240109-linux_lang/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2024-01-09T09:05:11+08:00" />
+<meta property="article:modified_time" content="2024-01-09T09:05:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="用户态的NFS Server"/>
-<meta name="twitter:description" content="NFS Server 很常用，但是坑也是巨大的。之前在京东运维 Hadoop 集群的时候碰到过脑裂，原因就是 NFS 引起的。 关键 NFS 是内核态的，一旦崩溃，那么客户端的所有命令，ls"/>
+<meta name="twitter:title" content="Linux下设置LANG变量"/>
+<meta name="twitter:description" content="vim 编辑文件，里面是有中文的，可是环境变量中LANG=C，非常不便啊，经常得export LANG=zh_CN来解决。放在/etc/profil"/>
 <link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
   <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=%e7%94%a8%e6%88%b7%e6%80%81%e7%9a%84NFS%20Server&url=https%3a%2f%2fbajie.dev%2fposts%2f20220706-nfs_usermode%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=Linux%e4%b8%8b%e8%ae%be%e7%bd%aeLANG%e5%8f%98%e9%87%8f&url=https%3a%2f%2fbajie.dev%2fposts%2f20240109-linux_lang%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20220706-nfs_usermode%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20240109-linux_lang%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">Posts</a></li><li class="breadcrumb-item active">用户态的NFS Server</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">Posts</a></li><li class="breadcrumb-item active">Linux下设置LANG变量</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -207,48 +207,21 @@
     
   </div>
 </div>
-<h1 class="card-title my-3">用户态的NFS Server
+<h1 class="card-title my-3">Linux下设置LANG变量
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-07-06
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-09
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
-<div class="post-content mb-3"><p>NFS Server 很常用，但是坑也是巨大的。之前在京东运维 Hadoop 集群的时候碰到过脑裂，原因就是 NFS 引起的。</p>
-<p>关键 NFS 是内核态的，一旦崩溃，那么客户端的所有命令，ls、df、du等等，统统无反应，结果是很悲剧的。</p>
-<p>下面要推荐一下 nfs-ganesha ，它是用户态的nfs-server，支持v3和v4，而nfs缺省是内核态的v3。</p>
-<p>强烈推荐大家用这个，而不是用内核态的，并且 nfs-ganesha 还是支持 glusterFS 的。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">yum install -y centos-release-nfs-ganesha30.noarch
-</span></span><span class="line"><span class="ln"> 2</span><span class="cl">    
-</span></span><span class="line"><span class="ln"> 3</span><span class="cl">vi /etc/ganesha/ganesha.conf
-</span></span><span class="line"><span class="ln"> 4</span><span class="cl">%include /etc/ganesha/exports/gv0.conf
-</span></span><span class="line"><span class="ln"> 5</span><span class="cl">    
-</span></span><span class="line"><span class="ln"> 6</span><span class="cl">vi /etc/ganesha/exports/gv0.conf
-</span></span><span class="line"><span class="ln"> 7</span><span class="cl">EXPORT<span class="o">{</span>
-</span></span><span class="line"><span class="ln"> 8</span><span class="cl">    <span class="nv">Export_Id</span> <span class="o">=</span> <span class="m">1</span> <span class="p">;</span>   <span class="c1"># Export ID unique to each export</span>
-</span></span><span class="line"><span class="ln"> 9</span><span class="cl">    <span class="nv">Path</span> <span class="o">=</span> <span class="s2">&#34;/mnt/upload&#34;</span><span class="p">;</span>
-</span></span><span class="line"><span class="ln">10</span><span class="cl">    <span class="nv">Pseudo</span> <span class="o">=</span> /upload<span class="p">;</span>
-</span></span><span class="line"><span class="ln">11</span><span class="cl">    FSAL <span class="o">{</span>
-</span></span><span class="line"><span class="ln">12</span><span class="cl">        <span class="nv">name</span> <span class="o">=</span> VFS<span class="p">;</span>
-</span></span><span class="line"><span class="ln">13</span><span class="cl">    <span class="o">}</span>
-</span></span><span class="line"><span class="ln">14</span><span class="cl">    <span class="nv">Access_type</span> <span class="o">=</span> RW<span class="p">;</span>    <span class="c1"># Access permissions</span>
-</span></span><span class="line"><span class="ln">15</span><span class="cl">    <span class="nv">Squash</span> <span class="o">=</span> No_root_squash<span class="p">;</span> <span class="c1"># To enable/disable root squashing</span>
-</span></span><span class="line"><span class="ln">16</span><span class="cl">    <span class="nv">Disable_ACL</span> <span class="o">=</span> TRUE<span class="p">;</span>  <span class="c1"># To enable/disable ACL</span>
-</span></span><span class="line"><span class="ln">17</span><span class="cl">    <span class="nv">Protocols</span> <span class="o">=</span> <span class="s2">&#34;4&#34;</span> <span class="p">;</span>    <span class="c1"># NFS protocols supported</span>
-</span></span><span class="line"><span class="ln">18</span><span class="cl">    <span class="nv">Transports</span> <span class="o">=</span> <span class="s2">&#34;UDP&#34;</span>,<span class="s2">&#34;TCP&#34;</span> <span class="p">;</span> <span class="c1"># Transport protocols supported</span>
-</span></span><span class="line"><span class="ln">19</span><span class="cl">    <span class="nv">SecType</span> <span class="o">=</span> <span class="s2">&#34;sys&#34;</span><span class="p">;</span>     <span class="c1"># Security flavors supported</span>
-</span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="o">}</span>
-</span></span><span class="line"><span class="ln">21</span><span class="cl">
-</span></span><span class="line"><span class="ln">22</span><span class="cl"><span class="c1">#启动</span>
-</span></span><span class="line"><span class="ln">23</span><span class="cl">systemctl restart nfs-ganesha
-</span></span><span class="line"><span class="ln">24</span><span class="cl">
-</span></span><span class="line"><span class="ln">25</span><span class="cl"><span class="c1">#手动mount的方法</span>
-</span></span><span class="line"><span class="ln">26</span><span class="cl">mount -t nfs -o soft,intr,rsize<span class="o">=</span>8192,wsize<span class="o">=</span>8192,timeo<span class="o">=</span>900,proto<span class="o">=</span>tcp,vers<span class="o">=</span><span class="m">4</span> 192.168.31.2:/upload /mnt/nfs-upload
-</span></span><span class="line"><span class="ln">27</span><span class="cl">    
-</span></span><span class="line"><span class="ln">28</span><span class="cl"><span class="c1">#自动mount的方法</span>
-</span></span><span class="line"><span class="ln">29</span><span class="cl">cat /etc/fstab
-</span></span><span class="line"><span class="ln">30</span><span class="cl">192.168.31.2:/upload /mnt/nfs-upload nfs rw,vers<span class="o">=</span>4,addr<span class="o">=</span>192.168.31.2,clientaddr<span class="o">=</span>192.168.31.8 <span class="m">0</span> <span class="m">0</span>
-</span></span></code></pre></div><p>注意id对齐问题可能要用到rpcidmapd</p>
-</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="post-content mb-3"><p>vim 编辑文件，里面是有中文的，可是环境变量中LANG=C，非常不便啊，经常得export LANG=zh_CN来解决。放在/etc/profile里也不是个事。</p>
+<p>一劳永逸的方法：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1"># vi /etc/sysconfig/i18n</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">------
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="nv">LANG</span><span class="o">=</span><span class="s2">&#34;zh_CN.UTF-8&#34;</span>  
+</span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="nv">SUPPORTED</span><span class="o">=</span><span class="s2">&#34;zh_CN.UTF-8:zh_CN:zh:zh_TW.UTF-8:zh_TW:zh:en_US.UTF-8:en_US:en&#34;</span>  
+</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="nv">SYSFONT</span><span class="o">=</span><span class="s2">&#34;latarcyrheb-sun16&#34;</span>  
+</span></span><span class="line"><span class="ln">6</span><span class="cl">------
+</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -275,19 +248,19 @@
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://bajie.dev/posts/20220621-javascripts_how_to_run/">JavaScript 到底是如何执行的呢 -- JS的作原理
+    <a href="https://bajie.dev/posts/20240108-snmp_network/">SNMP OID来监控网络设备流量
 </a>
   </div><div class="post-nav post-next">
-    <a href="https://bajie.dev/posts/20220717-backup_cisco/">Cisco设备自动执行和备份的脚本
+    <a href="https://bajie.dev/posts/20240109-kvm_random_mac/">KVM中网卡地址随机生成方法
 </a>
     <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20220621-javascripts_how_to_run/">JavaScript 到底是如何执行的呢 -- JS的作原理
-</a></li><li><a href="https://bajie.dev/posts/20220615-javascripts_if/">Javascripts中if的优化
-</a></li><li><a href="https://bajie.dev/posts/20220609-shell_tips/">Shell进阶技巧
-</a></li><li><a href="https://bajie.dev/posts/20220524-javascripts_promise/">Javascripts中的promise
-</a></li><li><a href="https://bajie.dev/posts/20220523-javascripts_map/">Javascripts中的map
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20240108-snmp_network/">SNMP OID来监控网络设备流量
+</a></li><li><a href="https://bajie.dev/posts/20240108-modem_dial/">Linux下配置Modem拨号
+</a></li><li><a href="https://bajie.dev/posts/20240108-opnevpn_udp_port/">Openvpn服务器端无法开通udp端口的故障排除
+</a></li><li><a href="https://bajie.dev/posts/20240108-docker_lxc_startup/">Docker Lxc类型容器自启动以及自动执行命令
+</a></li><li><a href="https://bajie.dev/posts/20240107-vpn_monitor/">Cisco ASA5520 VPN线路的监控和自动重启
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
