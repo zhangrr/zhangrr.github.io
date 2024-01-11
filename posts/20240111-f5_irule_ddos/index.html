@@ -217,7 +217,7 @@
 <p>由于我们的架构是前面F5 Bigip，后面接了N个Tomcat，那就直接写个F5的irule来阻止它。</p>
 <p>阻止GET请求的频率，30秒只允许单个ip发5次</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">假设GET的模式是
-</span></span><span class="line"><span class="ln">2</span><span class="cl">GET /seendsms.do?mobile<span class="o">=</span>13800000000<span class="p">&amp;</span><span class="nv">msg</span><span class="o">=</span>aaaaaaaa  
+</span></span><span class="line"><span class="ln">2</span><span class="cl">GET /sendsms.do?mobile<span class="o">=</span>13800000000<span class="p">&amp;</span><span class="nv">msg</span><span class="o">=</span>aaaaaaaa  
 </span></span></code></pre></div><p>irule里有个非常神奇的东西，table，是session会话表的超表，基本操作是key-value型，带有生存时间，这点最重要。</p>
 <p>详细的大家可以去看：</p>
 <p><a href="https://clouddocs.f5.com/api/irules/table.html" target="_blank" rel="noopener noreferrer">https://clouddocs.f5.com/api/irules/table.html</a>
@@ -321,6 +321,10 @@
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://bajie.dev/posts/20240111-openssh_tunnel/">用openssh的tunnel建立隧道翻墙
 </a>
+  </div><div class="post-nav post-next">
+    <a href="https://bajie.dev/posts/20240111-keepalived_iptable_mark/">Keepalived与iptables Mark的联动
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
     <ul class="related-posts"><li><a href="https://bajie.dev/posts/20240111-openssh_tunnel/">用openssh的tunnel建立隧道翻墙
@@ -373,11 +377,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240111-f5_irule_ddos/">F5利用irule来防止Ddos的方法
+    <ul><li><a href="https://bajie.dev/posts/20240111-keepalived_iptable_mark/">Keepalived与iptables Mark的联动
+</a></li><li><a href="https://bajie.dev/posts/20240111-f5_irule_ddos/">F5利用irule来防止Ddos的方法
 </a></li><li><a href="https://bajie.dev/posts/20240111-openssh_tunnel/">用openssh的tunnel建立隧道翻墙
 </a></li><li><a href="https://bajie.dev/posts/20240111-ikev2_docker/">Docker急速搭建运行ikev2 Vpn来让iphone翻墙
 </a></li><li><a href="https://bajie.dev/posts/20240110-route_policy/">Linux下的策略路由
-</a></li><li><a href="https://bajie.dev/posts/20240110-dell_restart/">服务器R920的一次急速故障处理
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
