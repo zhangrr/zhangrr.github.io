@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>xshell的绿色配色方案 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>F5利用irule来防止Ddos的方法 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="xshell的绿色配色方案">
-<meta itemprop="description" content="其实一直用的终端软件是terminus，全终端可用，以前用 ubuntu，非常好用。 现在换到新公司，用 Win10，也装了一个。 一直到机房改造前"><meta itemprop="datePublished" content="2023-01-12T09:05:11+08:00" />
-<meta itemprop="dateModified" content="2023-01-12T09:05:11+08:00" />
-<meta itemprop="wordCount" content="261">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="xshell的绿色配色方案" />
-<meta property="og:description" content="其实一直用的终端软件是terminus，全终端可用，以前用 ubuntu，非常好用。 现在换到新公司，用 Win10，也装了一个。 一直到机房改造前" />
+<meta name="description" content="" /><meta itemprop="name" content="F5利用irule来防止Ddos的方法">
+<meta itemprop="description" content="公司的服务器遭受了攻击，某些人不停调用公司服务器发送短信的api，真是有够无聊的。 由于我们的架构是前面F5 Bigip，后面接了N个Tomca"><meta itemprop="datePublished" content="2024-01-11T14:20:11+08:00" />
+<meta itemprop="dateModified" content="2024-01-11T14:20:11+08:00" />
+<meta itemprop="wordCount" content="589">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="F5利用irule来防止Ddos的方法" />
+<meta property="og:description" content="公司的服务器遭受了攻击，某些人不停调用公司服务器发送短信的api，真是有够无聊的。 由于我们的架构是前面F5 Bigip，后面接了N个Tomca" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://bajie.dev/posts/20230112-xshell_colors/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2023-01-12T09:05:11+08:00" />
-<meta property="article:modified_time" content="2023-01-12T09:05:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+<meta property="og:url" content="https://bajie.dev/posts/20240111-f5_irule_ddos/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2024-01-11T14:20:11+08:00" />
+<meta property="article:modified_time" content="2024-01-11T14:20:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="xshell的绿色配色方案"/>
-<meta name="twitter:description" content="其实一直用的终端软件是terminus，全终端可用，以前用 ubuntu，非常好用。 现在换到新公司，用 Win10，也装了一个。 一直到机房改造前"/>
+<meta name="twitter:title" content="F5利用irule来防止Ddos的方法"/>
+<meta name="twitter:description" content="公司的服务器遭受了攻击，某些人不停调用公司服务器发送短信的api，真是有够无聊的。 由于我们的架构是前面F5 Bigip，后面接了N个Tomca"/>
 <link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
   <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=xshell%e7%9a%84%e7%bb%bf%e8%89%b2%e9%85%8d%e8%89%b2%e6%96%b9%e6%a1%88&url=https%3a%2f%2fbajie.dev%2fposts%2f20230112-xshell_colors%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=F5%e5%88%a9%e7%94%a8irule%e6%9d%a5%e9%98%b2%e6%ad%a2Ddos%e7%9a%84%e6%96%b9%e6%b3%95&url=https%3a%2f%2fbajie.dev%2fposts%2f20240111-f5_irule_ddos%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20230112-xshell_colors%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20240111-f5_irule_ddos%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">Posts</a></li><li class="breadcrumb-item active">Xshell的绿色配色方案</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">Posts</a></li><li class="breadcrumb-item active">F5利用irule来防止Ddos的方法</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -207,54 +207,92 @@
     
   </div>
 </div>
-<h1 class="card-title my-3">Xshell的绿色配色方案
+<h1 class="card-title my-3">F5利用irule来防止Ddos的方法
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-01-12
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-11
   </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
   </span></div>
-<div class="post-content mb-3"><p>其实一直用的终端软件是terminus，全终端可用，以前用 ubuntu，非常好用。</p>
-<p>现在换到新公司，用 Win10，也装了一个。</p>
-<p>一直到机房改造前，还都觉得行，但是机房改造需要收回核心交换机、路由器的权限，开终端 console 居然要收费会员，没办法，找老刘换回了免费的xshell 7。</p>
-<p>xshell的配色实在是受不了，还是喜欢绿色的字符界面。</p>
-<p>备份一个绿色的方案：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="o">[</span>mycolor<span class="o">]</span>
-</span></span><span class="line"><span class="ln"> 2</span><span class="cl">text<span class="o">(</span>bold<span class="o">)=</span>e9e9e9
-</span></span><span class="line"><span class="ln"> 3</span><span class="cl">magenta<span class="o">(</span>bold<span class="o">)=</span>ff00ff
-</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="nv">text</span><span class="o">=</span>00ff80
-</span></span><span class="line"><span class="ln"> 5</span><span class="cl">white<span class="o">(</span>bold<span class="o">)=</span>fdf6e3
-</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="nv">green</span><span class="o">=</span>80ff00
-</span></span><span class="line"><span class="ln"> 7</span><span class="cl">red<span class="o">(</span>bold<span class="o">)=</span>ff0000
-</span></span><span class="line"><span class="ln"> 8</span><span class="cl">green<span class="o">(</span>bold<span class="o">)=</span>3c5a38
-</span></span><span class="line"><span class="ln"> 9</span><span class="cl">black<span class="o">(</span>bold<span class="o">)=</span><span class="m">808080</span>
-</span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="nv">red</span><span class="o">=</span>ff4500
-</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="nv">blue</span><span class="o">=</span>00bfff
-</span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="nv">black</span><span class="o">=</span><span class="m">000000</span>
-</span></span><span class="line"><span class="ln">13</span><span class="cl">blue<span class="o">(</span>bold<span class="o">)=</span>1e90ff
-</span></span><span class="line"><span class="ln">14</span><span class="cl">yellow<span class="o">(</span>bold<span class="o">)=</span>ffff00
-</span></span><span class="line"><span class="ln">15</span><span class="cl">cyan<span class="o">(</span>bold<span class="o">)=</span>00ffff
-</span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="nv">yellow</span><span class="o">=</span>c0c000
-</span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="nv">magenta</span><span class="o">=</span>c000c0
-</span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="nv">background</span><span class="o">=</span><span class="m">042028</span>
-</span></span><span class="line"><span class="ln">19</span><span class="cl"><span class="nv">white</span><span class="o">=</span>c0c0c0
-</span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="nv">cyan</span><span class="o">=</span>00c0c0
-</span></span><span class="line"><span class="ln">21</span><span class="cl"><span class="o">[</span>Names<span class="o">]</span>
-</span></span><span class="line"><span class="ln">22</span><span class="cl"><span class="nv">count</span><span class="o">=</span><span class="m">1</span>
-</span></span><span class="line"><span class="ln">23</span><span class="cl"><span class="nv">name0</span><span class="o">=</span>mycolor
-</span></span></code></pre></div><p>保存成 mycolor.xcs 文件，然后工具&ndash;&gt; 配色方案，导入即可：</p>
-<p><img class="img-fluid" alt="image-20230112112243176" src="https://bajie.dev/posts/20230112-xshell_colors/image-20230112112243176.png" loading="lazy"
-   width="434" height="434"
-   />
-
+<div class="post-content mb-3"><p>公司的服务器遭受了攻击，某些人不停调用公司服务器发送短信的api，真是有够无聊的。</p>
+<p>由于我们的架构是前面F5 Bigip，后面接了N个Tomcat，那就直接写个F5的irule来阻止它。</p>
+<p>阻止GET请求的频率，30秒只允许单个ip发5次</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">假设GET的模式是
+</span></span><span class="line"><span class="ln">2</span><span class="cl">GET /seendsms.do?mobile<span class="o">=</span>13800000000<span class="p">&amp;</span><span class="nv">msg</span><span class="o">=</span>aaaaaaaa  
+</span></span></code></pre></div><p>irule里有个非常神奇的东西，table，是session会话表的超表，基本操作是key-value型，带有生存时间，这点最重要。</p>
+<p>详细的大家可以去看：</p>
+<p><a href="https://clouddocs.f5.com/api/irules/table.html" target="_blank" rel="noopener noreferrer">https://clouddocs.f5.com/api/irules/table.html</a>
 </p>
-<p>整体效果还是比较好的。</p>
-<p><img class="img-fluid" alt="image-20230112112306637" src="https://bajie.dev/posts/20230112-xshell_colors/image-20230112112306637.png" loading="lazy"
-   width="623" height="340"
-   />
-
-</p>
-<p>是自己喜欢的样子，当然，字体从9也增加到了12。</p>
-</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<p>阻止GET的irule：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">when RULE_INIT <span class="o">{</span>  
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">  <span class="nb">set</span> static::windowSecs <span class="m">30</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">when HTTP_REQUEST <span class="o">{</span>  
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">    <span class="k">if</span> <span class="o">{</span> <span class="o">(</span> <span class="o">[</span>HTTP::method<span class="o">]</span> equals <span class="s2">&#34;GET&#34;</span> <span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="o">(</span> <span class="o">[</span>HTTP::uri<span class="o">]</span> starts_with <span class="s2">&#34;/sendsms.do&#34;</span> <span class="o">)</span> <span class="o">}</span> <span class="o">{</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">            <span class="nb">set</span> myUserId <span class="o">[</span>IP::client_addr<span class="o">]</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">            <span class="nb">set</span> myMaxRate <span class="m">5</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">            <span class="k">if</span> <span class="o">{</span> <span class="nv">$myMaxRate</span> ne <span class="s2">&#34;&#34;</span> <span class="o">}</span> <span class="o">{</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">                <span class="nb">set</span> reqnum <span class="o">[</span>table incr <span class="s2">&#34;req:</span><span class="nv">$myUserId</span><span class="s2">&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">                <span class="nb">set</span> tbl <span class="s2">&#34;countpost:</span><span class="nv">$myUserId</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">                table <span class="nb">set</span> -subtable <span class="nv">$tbl</span> <span class="nv">$reqnum</span> <span class="s2">&#34;ignored&#34;</span> indef <span class="nv">$static</span>::windowSecs
+</span></span><span class="line"><span class="ln">14</span><span class="cl">                <span class="k">if</span> <span class="o">{</span> <span class="o">[</span>table keys -subtable <span class="nv">$tbl</span> -count<span class="o">]</span> &gt; <span class="nv">$myMaxRate</span> <span class="o">}</span> <span class="o">{</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl">                    HTTP::respond <span class="m">403</span> <span class="s2">&#34;Block&#34;</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">                    <span class="k">return</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl">                <span class="o">}</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p>来个更加复杂的例子：</p>
+<p>POST的请求如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">POST /api/sendMessage.htm HTTP/1.1  
+</span></span><span class="line"><span class="ln">2</span><span class="cl">Content-Length: <span class="m">203</span>  
+</span></span><span class="line"><span class="ln">3</span><span class="cl">Content-Type: application/x-www-form-urlencoded<span class="p">;</span> <span class="nv">charset</span><span class="o">=</span>UTF-8  
+</span></span><span class="line"><span class="ln">4</span><span class="cl">Host: 172.8.2.23  
+</span></span><span class="line"><span class="ln">5</span><span class="cl">Connection: Keep-Alive  
+</span></span><span class="line"><span class="ln">6</span><span class="cl">User-Agent: Apache-HttpClient/4.5 <span class="o">(</span>Java/1.7.0_51<span class="o">)</span>  
+</span></span><span class="line"><span class="ln">7</span><span class="cl">Accept-Encoding: gzip,deflate
+</span></span><span class="line"><span class="ln">8</span><span class="cl">
+</span></span><span class="line"><span class="ln">9</span><span class="cl"><span class="nv">action</span><span class="o">=</span>order.sumit.order<span class="p">&amp;</span><span class="nv">jsonData</span><span class="o">=</span>%7B%22channelCode%22%3A%22%22%2C%22mobiles%22%3A%5B%2215176989787%22%5D%2C%22source%22%3A%22pop%22%2C%22tempParameters%22%3A%5B%22480827%22%2C%2291%22%5D%2C%22templateId%22%3A2%7D  
+</span></span></code></pre></div><p>我们要阻止POST /api/sendMessage.htm且action=sendmsg的话，就比较复杂一些，我们判断uri满足条件后，还要进一步判断content中action=的内容：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">when RULE_INIT <span class="o">{</span>  
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">  <span class="nb">set</span> static::windowSecs <span class="m">10</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">when HTTP_REQUEST <span class="o">{</span> 
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">    <span class="k">if</span> <span class="o">{</span> <span class="o">(</span> <span class="o">[</span>HTTP::method<span class="o">]</span> equals <span class="s2">&#34;POST&#34;</span> <span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="o">(</span> <span class="o">[</span>HTTP::uri<span class="o">]</span> equals <span class="s2">&#34;/api/sendMessage.htm&#34;</span> <span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="o">([</span>HTTP::header <span class="s2">&#34;Content-Length&#34;</span><span class="o">]</span> &lt;<span class="o">=</span> 2048<span class="o">)</span> <span class="o">}</span> <span class="o">{</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">        HTTP::collect <span class="o">[</span>HTTP::header Content-Length<span class="o">]</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">
+</span></span><span class="line"><span class="ln">13</span><span class="cl">when HTTP_REQUEST_DATA <span class="o">{</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">
+</span></span><span class="line"><span class="ln">15</span><span class="cl">    <span class="nb">set</span> myUserId <span class="o">[</span>IP::client_addr<span class="o">]</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">    <span class="nb">set</span> mymethod <span class="s2">&#34;unknown&#34;</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl">
+</span></span><span class="line"><span class="ln">18</span><span class="cl">    foreach x <span class="o">[</span>split <span class="o">[</span>string tolower <span class="o">[</span>HTTP::payload<span class="o">]]</span> <span class="s2">&#34;&amp;&#34;</span><span class="o">]</span> <span class="o">{</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl">        <span class="k">if</span> <span class="o">{</span> <span class="nv">$x</span> starts_with <span class="s2">&#34;action=&#34;</span> <span class="o">}</span> <span class="o">{</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl">            <span class="nb">set</span> mymethod <span class="o">[</span>lindex <span class="o">[</span>split <span class="nv">$x</span> <span class="s2">&#34;=&#34;</span><span class="o">]</span> 1<span class="o">]</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="ln">22</span><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="ln">23</span><span class="cl">
+</span></span><span class="line"><span class="ln">24</span><span class="cl">    <span class="k">if</span> <span class="o">{</span> <span class="nv">$mymethod</span> equals <span class="s2">&#34;order.submit.order&#34;</span> <span class="o">}</span>
+</span></span><span class="line"><span class="ln">25</span><span class="cl">    <span class="o">{</span>
+</span></span><span class="line"><span class="ln">26</span><span class="cl">        <span class="nb">set</span> myMaxRate <span class="m">5</span>
+</span></span><span class="line"><span class="ln">27</span><span class="cl">        <span class="k">if</span> <span class="o">{</span> <span class="nv">$myMaxRate</span> ne <span class="s2">&#34;&#34;</span> <span class="o">}</span> <span class="o">{</span>
+</span></span><span class="line"><span class="ln">28</span><span class="cl">            <span class="nb">set</span> reqnum <span class="o">[</span>table incr <span class="s2">&#34;req:</span><span class="nv">$myUserId</span><span class="s2">&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="ln">29</span><span class="cl">            <span class="nb">set</span> tbl <span class="s2">&#34;countpost:</span><span class="nv">$myUserId</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="ln">30</span><span class="cl">            table <span class="nb">set</span> -subtable <span class="nv">$tbl</span> <span class="nv">$reqnum</span> <span class="s2">&#34;ignored&#34;</span> indef <span class="nv">$static</span>::windowSecs
+</span></span><span class="line"><span class="ln">31</span><span class="cl">            <span class="k">if</span> <span class="o">{</span> <span class="o">[</span>table keys -subtable <span class="nv">$tbl</span> -count<span class="o">]</span> &gt; <span class="nv">$myMaxRate</span> <span class="o">}</span> <span class="o">{</span>
+</span></span><span class="line"><span class="ln">32</span><span class="cl">                HTTP::respond <span class="m">403</span> <span class="s2">&#34;Block&#34;</span>
+</span></span><span class="line"><span class="ln">33</span><span class="cl">                <span class="k">return</span>
+</span></span><span class="line"><span class="ln">34</span><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="ln">35</span><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="ln">36</span><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="ln">37</span><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -281,19 +319,15 @@
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://bajie.dev/posts/20230103-certificates/">2022年获得的证书
+    <a href="https://bajie.dev/posts/20240111-openssh_tunnel/">用openssh的tunnel建立隧道翻墙
 </a>
-  </div><div class="post-nav post-next">
-    <a href="https://bajie.dev/posts/20230112-cka_exam/">Cka的模拟试题
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20230103-certificates/">2022年获得的证书
-</a></li><li><a href="https://bajie.dev/posts/20221222-dnsmasq_pxe/">DNSMASQ配置PXE的方式
-</a></li><li><a href="https://bajie.dev/posts/20221219-dropbear/">Dropbear配置SSH服务
-</a></li><li><a href="https://bajie.dev/posts/20221219-docker_harbor/">Docker镜像仓库harbor的搭建与使用
-</a></li><li><a href="https://bajie.dev/posts/20221219-docker_network/">Docker的缺省网段冲突问题
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20240111-openssh_tunnel/">用openssh的tunnel建立隧道翻墙
+</a></li><li><a href="https://bajie.dev/posts/20240111-ikev2_docker/">Docker急速搭建运行ikev2 Vpn来让iphone翻墙
+</a></li><li><a href="https://bajie.dev/posts/20240110-route_policy/">Linux下的策略路由
+</a></li><li><a href="https://bajie.dev/posts/20240110-dell_restart/">服务器R920的一次急速故障处理
+</a></li><li><a href="https://bajie.dev/posts/20240109-kvm_random_mac/">KVM中网卡地址随机生成方法
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
