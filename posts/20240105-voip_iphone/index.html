@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="出国旅行安装一个FreePBX的voip电话自用">
 <meta itemprop="description" content="新的一年依始，开始定好了旅行计划，但是有个东西却依然心神不宁。 那就是万一在国外有什么变动，如何往国内打电话呢？！ 说到这里，不得不提个东西，那"><meta itemprop="datePublished" content="2024-01-05T09:35:11+08:00" />
 <meta itemprop="dateModified" content="2024-01-05T09:35:11+08:00" />
-<meta itemprop="wordCount" content="2564">
+<meta itemprop="wordCount" content="2567">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="出国旅行安装一个FreePBX的voip电话自用" />
 <meta property="og:description" content="新的一年依始，开始定好了旅行计划，但是有个东西却依然心神不宁。 那就是万一在国外有什么变动，如何往国内打电话呢？！ 说到这里，不得不提个东西，那" />
 <meta property="og:type" content="article" />
@@ -258,7 +258,7 @@
 
 </p>
 <p>这个是升级版pro，就更厉害了，直接放家里，手机上下个app，有网络就能用了，不用像第一代一样随身携带了。</p>
-<p>这个更是救命了，话说在塞班的时候正是疫情刚发作的时候，塞班直接封岛了，然后好多航班都延期或终止了，就是用这个旅顺打国内电话改签了回国的机票，足足打了两个小时啊，到处占线等待，如果打国际长途的话费用不堪设想，另外打塞班大韩航空的电话改签两程机票也是不可想像的，所以，关键时刻是真的救命啊。</p>
+<p>这个更是救命了，话说第二回在塞班的时候正是疫情刚发作的时候，塞班直接封岛了，然后好多航班都延期或终止了，就是用这个旅顺打国内电话改签了回国的机票，足足打了两个小时啊，到处占线等待，如果打国际长途的话费用不堪设想，另外打塞班大韩航空的电话改签两程机票也是不可想像的，所以，关键时刻是真的救命啊。</p>
 <p>这么好的软件却直接倒闭消失了，真是万分可惜啊。</p>
 <p>哎，现在没有这个了，只能自己搭一个voip电话自用了。</p>
 <p>刚开始是考虑RasPBX，其实自己用树莓派搭过，费事不说，主要树莓派容易死机，务必要稳定，所以干脆用FreePBX搭建在kvm服务器虚拟机上的方式，来保持绝对稳定。</p>
@@ -316,15 +316,27 @@
 <p>开了公网80的话，那就是另外一个悲伤的故事了！！！</p>
 <p>然后建立第一个分机888：</p>
 <p>直接在<code>Applications</code>-&gt;<code>Extensions</code>-&gt;<code>Add new Chan_SIP Extension</code>新建一个分机，在<code>General</code>tab页里面填好第一个SIP账户的信息</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+<p><img class="img-fluid" alt="image-20240105144407020.png" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105144407020.png" loading="lazy"
+   width="1519" height="488"
+   />
+
+</p>
+<p><img class="img-fluid" alt="image-20240105144454864.png" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105144454864.png" loading="lazy"
+   width="830" height="502"
+   />
+
+</p>
 <p>General填写:</p>
 <ul>
 <li>User Extension 分机号为888</li>
 <li>Display Name 为 ba jie，最好自己名字，好区分</li>
 <li>Secret 是密码，要填写个非常复杂的，绝对不能简单。</li>
 </ul>
-<!-- raw HTML omitted -->
+<p><img class="img-fluid" alt="image-20240105144750579.png" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105144750579.png" loading="lazy"
+   width="1593" height="901"
+   />
+
+</p>
 <p>然后最底下，Submit 提交一下</p>
 <p>最后点击右上角的<code>Apply Config</code>应用刚才的配置。</p>
 <h2 id="三配置dongle无线卡">三、配置dongle无线卡</h2>
@@ -420,24 +432,48 @@
 <h2 id="四配置freepbx的进出线路">四、配置FreePBX的进出线路</h2>
 <h3 id="1增加trunk">1、增加trunk</h3>
 <p>回到 FreePBX 的配置界面，先配一下 Trunk 线路，增加一个trunk:<code>connectivity</code>-&gt;<code>Trunks</code></p>
-<!-- raw HTML omitted -->
+<p><img class="img-fluid" alt="image-20240105153644786.png" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105153644786.png" loading="lazy"
+   width="1500" height="682"
+   />
+
+</p>
 <p>增加一个 Custom Trunk:</p>
-<!-- raw HTML omitted -->
+<p><img class="img-fluid" alt="image-20240105154010116.png" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105154010116.png" loading="lazy"
+   width="532" height="480"
+   />
+
+</p>
 <p>General填写：</p>
 <ul>
 <li>Trunk Name : china_unicom</li>
 <li>Outbound CallerID: 空 （联通手机号，最好空，后面有提示忽略，这个接打的时候会自动替你填上的）</li>
 <li>Maximum Channels: 1 (只有一个联通sim卡，就是1，2个就是2)</li>
 </ul>
-<!-- raw HTML omitted -->
+<p><img class="img-fluid" alt="image-20240105154828153.png" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105154828153.png" loading="lazy"
+   width="1256" height="737"
+   />
+
+</p>
 <p>然后点到custom Settings，填入如下内容，注意，我的设备是dongle1，按查出来的设备填写啊。</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">dongle/dongle1/<span class="nv">$OUTNUM</span>$
-</span></span></code></pre></div><!-- raw HTML omitted -->
+</span></span></code></pre></div><p><img class="img-fluid" alt="image-20240105154152522.png" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105154152522.png" loading="lazy"
+   width="1142" height="209"
+   />
+
+</p>
 <p>然后同样 Submit， 然后 Apply config. 会提示CallerID，ok忽略即可。</p>
-<!-- raw HTML omitted -->
+<p><img class="img-fluid" alt="image-20240105155518868.png" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105155518868.png" loading="lazy"
+   width="1368" height="300"
+   />
+
+</p>
 <h3 id="2配置拨入线路inbound-route">2、配置拨入线路Inbound route</h3>
 <p><code>connectivity</code>-&gt;<code>Inbound Routes</code></p>
-<!-- raw HTML omitted -->
+<p><img class="img-fluid" alt="image-20240105155754237.png" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105155754237.png" loading="lazy"
+   width="1405" height="664"
+   />
+
+</p>
 <p>增加一个新的Inbound，名字就叫gsm_in，可以随便改。DID和CallerID都是ANY，意味着所有达到这个sim卡内的电话都接下来，Destination选择咱们一开始的888分机，这样呼入的电话就可以被888分机接听了</p>
 <ul>
 <li>Description: gsm_in</li>
@@ -446,17 +482,33 @@
 <li>Set Destination: Extensions</li>
 <li>​                              888 zhang ranrui</li>
 </ul>
-<!-- raw HTML omitted -->
+<p><img class="img-fluid" alt="image-20240105155956512.png" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105155956512.png" loading="lazy"
+   width="1136" height="1168"
+   />
+
+</p>
 <p>最后同样 Submit , Apply Config配置生效</p>
 <h3 id="3配置拨出线路outbound-routes">3、配置拨出线路Outbound Routes</h3>
 <p><code>connectivity</code>-&gt;<code>Outbound Routes</code></p>
-<!-- raw HTML omitted -->
+<p><img class="img-fluid" alt="image-20240105160416719.png" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105160416719.png" loading="lazy"
+   width="1433" height="676"
+   />
+
+</p>
 <p>增加一条新的拨出线路，名字叫gsm_out好了，可以随便改，Trunk选咱们建立的 china_unicom</p>
 <p>Route Name : gsm_out</p>
 <p>Trunk Sequence for Matched Routes: china_unicom</p>
-<!-- raw HTML omitted -->
+<p><img class="img-fluid" alt="image-20240105160604531.png" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105160604531.png" loading="lazy"
+   width="1365" height="1156"
+   />
+
+</p>
 <p>注意，点到拨号盘，还需要配一下 <code>Dail Patterns</code></p>
-<!-- raw HTML omitted -->
+<p><img class="img-fluid" alt="image-20240105160845252.png" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105160845252.png" loading="lazy"
+   width="1189" height="754"
+   />
+
+</p>
 <ul>
 <li><strong>Match Pattern</strong>: <strong>ZX.</strong></li>
 </ul>
@@ -478,9 +530,17 @@
 <li>Password: 密码，就是FreePBX分机的Secret值，一定要设置的够复杂</li>
 <li>Enable video FMTP:  disable不选</li>
 </ul>
-<!-- raw HTML omitted -->
+<p><img class="img-fluid" alt="image-20240105161934350.png" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105161934350.png" loading="lazy"
+   width="634" height="1390"
+   />
+
+</p>
 <p>然后在Account的netwok settings中，STUN一定要禁掉，直通。</p>
-<!-- raw HTML omitted -->
+<p><img class="img-fluid" alt="image-20240105162240509.png" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105162240509.png" loading="lazy"
+   width="759" height="1204"
+   />
+
+</p>
 <p>ok，这样就拨打那个sim的电话就会转到这个888的分机上了。</p>
 <h2 id="六路由器设置">六、路由器设置</h2>
 <p>有公网设置，需要做端口映射</p>
@@ -573,11 +633,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240111-keepalived_iptable_mark/">Keepalived与iptables Mark的联动
+    <ul><li><a href="https://bajie.dev/posts/20240111-route_policy2/">多网关、策略路由、负载均衡的实际应用
+</a></li><li><a href="https://bajie.dev/posts/20240111-keepalived_iptable_mark/">Keepalived与iptables Mark的联动
 </a></li><li><a href="https://bajie.dev/posts/20240111-f5_irule_ddos/">F5利用irule来防止Ddos的方法
 </a></li><li><a href="https://bajie.dev/posts/20240111-openssh_tunnel/">用openssh的tunnel建立隧道翻墙
 </a></li><li><a href="https://bajie.dev/posts/20240111-ikev2_docker/">Docker急速搭建运行ikev2 Vpn来让iphone翻墙
-</a></li><li><a href="https://bajie.dev/posts/20240110-route_policy/">Linux下的策略路由
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
