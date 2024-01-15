@@ -238,7 +238,11 @@
 </span></span><span class="line"><span class="ln">2</span><span class="cl">nexthop via 1.1.1.1 dev eth0 weight <span class="m">8</span> <span class="se">\ </span> 
 </span></span><span class="line"><span class="ln">3</span><span class="cl">nexthop via 2.2.2.2 dev eth0:1 weight <span class="m">2</span>  
 </span></span></code></pre></div><p>注意，因为我们是用了一台路由器来连接上面两个网关的，服务器实际是一个网卡上连到交换机，然后再上连路由器的，如下图:</p>
-<!-- raw HTML omitted -->
+<p><img class="img-fluid" alt="" src="https://bajie.dev/posts/20240111-route_policy2/image-20240111164124457.png" loading="lazy"
+   width="1283" height="728"
+   />
+
+</p>
 <p>我们把这一切固定下来，编辑/etc/rc.d/rc.local即可</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1"># cat /etc/rc.local</span>
 </span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="c1">#!/bin/sh</span>
@@ -273,6 +277,10 @@
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://bajie.dev/posts/20240111-keepalived_iptable_mark/">Keepalived与iptables Mark的联动
 </a>
+  </div><div class="post-nav post-next">
+    <a href="https://bajie.dev/posts/20240115-ssh_tun_vpn/">用openssh的tunnel建立vpn
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
     <ul class="related-posts"><li><a href="https://bajie.dev/posts/20240111-keepalived_iptable_mark/">Keepalived与iptables Mark的联动
@@ -325,11 +333,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240111-route_policy2/">多网关、策略路由、负载均衡的实际应用
+    <ul><li><a href="https://bajie.dev/posts/20240115-idrac_monitor/">Idrac远程登录服务器
+</a></li><li><a href="https://bajie.dev/posts/20240115-ssh_tun_vpn/">用openssh的tunnel建立vpn
+</a></li><li><a href="https://bajie.dev/posts/20240111-route_policy2/">多网关、策略路由、负载均衡的实际应用
 </a></li><li><a href="https://bajie.dev/posts/20240111-keepalived_iptable_mark/">Keepalived与iptables Mark的联动
 </a></li><li><a href="https://bajie.dev/posts/20240111-f5_irule_ddos/">F5利用irule来防止Ddos的方法
-</a></li><li><a href="https://bajie.dev/posts/20240111-openssh_tunnel/">用openssh的tunnel建立隧道翻墙
-</a></li><li><a href="https://bajie.dev/posts/20240111-ikev2_docker/">Docker急速搭建运行ikev2 Vpn来让iphone翻墙
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
