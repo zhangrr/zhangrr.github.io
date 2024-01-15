@@ -1,0 +1,566 @@
+<!doctype html><html lang="zh-cn"
+  >
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>kvm提高网卡效率使用SR-IOV - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
+<meta name="keywords" content="" />
+<meta name="description" content="" /><meta itemprop="name" content="kvm提高网卡效率使用SR-IOV">
+<meta itemprop="description" content="什么是SR-IOV呢? 简单的说，SR-IOV是一种虚拟化方案，用来使一个PCIe的物理设备，能虚拟出多个设备，这些虚拟出来的设备看起来就像是"><meta itemprop="datePublished" content="2024-01-15T11:30:11+08:00" />
+<meta itemprop="dateModified" content="2024-01-15T11:30:11+08:00" />
+<meta itemprop="wordCount" content="2309">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="kvm提高网卡效率使用SR-IOV" />
+<meta property="og:description" content="什么是SR-IOV呢? 简单的说，SR-IOV是一种虚拟化方案，用来使一个PCIe的物理设备，能虚拟出多个设备，这些虚拟出来的设备看起来就像是" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://bajie.dev/posts/20240115-kvm_sriov/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2024-01-15T11:30:11+08:00" />
+<meta property="article:modified_time" content="2024-01-15T11:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="kvm提高网卡效率使用SR-IOV"/>
+<meta name="twitter:description" content="什么是SR-IOV呢? 简单的说，SR-IOV是一种虚拟化方案，用来使一个PCIe的物理设备，能虚拟出多个设备，这些虚拟出来的设备看起来就像是"/>
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <div class="container">
+    <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
+  aria-controls="offcanvasSettings" aria-label="Toggle settings">
+  <i class="fas fa-bars"></i>
+</button>
+
+<div class="offcanvas offcanvas-start surface" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasSettings">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">设置</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body">
+
+<section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+
+<section class="setting">
+  <form class="font-size-switcher-form row">
+    <div class="col-auto">
+      <label for="fontSize" class="form-label"><i class="fas fa-fw fa-font"></i> 字体大小</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <input type="range" class="form-range" min="-2" max="2" id="fontSize">
+    </div>
+  </form>
+</section>
+
+
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a id="btnPalette" class="btn btn-sm btn-outline-primary" role="button" aria-label="palettePicker">
+        <i class="fas fa-eye-dropper"></i>
+      </a>
+    </div>
+  </form>
+  <div class="mt-2 d-flex visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="蓝色"
+        class="btn btn-sm palette" data-palette="blue">
+      </button><button type="button" id="palette-blue-gray" aria-label="蓝灰色"
+        class="btn btn-sm palette" data-palette="blue-gray">
+      </button><button type="button" id="palette-brown" aria-label="棕色"
+        class="btn btn-sm palette" data-palette="brown">
+      </button><button type="button" id="palette-cyan" aria-label="青色"
+        class="btn btn-sm palette" data-palette="cyan">
+      </button><button type="button" id="palette-green" aria-label="绿色"
+        class="btn btn-sm palette" data-palette="green">
+      </button><button type="button" id="palette-indigo" aria-label="靛青色"
+        class="btn btn-sm palette" data-palette="indigo">
+      </button><button type="button" id="palette-orange" aria-label="橙色"
+        class="btn btn-sm palette" data-palette="orange">
+      </button><button type="button" id="palette-pink" aria-label="粉色"
+        class="btn btn-sm palette" data-palette="pink">
+      </button><button type="button" id="palette-purple" aria-label="紫色"
+        class="btn btn-sm palette" data-palette="purple">
+      </button><button type="button" id="palette-red" aria-label="红色"
+        class="btn btn-sm palette" data-palette="red">
+      </button><button type="button" id="palette-teal" aria-label="蓝绿色"
+        class="btn btn-sm palette" data-palette="teal">
+      </button><button type="button" id="palette-yellow" aria-label="黄色"
+        class="btn btn-sm palette" data-palette="yellow">
+      </button></div>
+</section>
+<section class="setting social-share">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-share-alt"></i> Share</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a class="btn btn-sm btn-outline-primary btn-social-share"><i class="fas fa-share"></i></a>
+    </div>
+  </form>
+  <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
+      target="_blank" href="https://twitter.com/intent/tweet?title=kvm%e6%8f%90%e9%ab%98%e7%bd%91%e5%8d%a1%e6%95%88%e7%8e%87%e4%bd%bf%e7%94%a8SR-IOV&url=https%3a%2f%2fbajie.dev%2fposts%2f20240115-kvm_sriov%2f">
+      <i class="fab fa-fw fa-twitter"></i> Twitter
+    </a>
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20240115-kvm_sriov%2f">
+      <i class="fab fa-fw fa-facebook-f"></i> Facebook
+    </a>
+  </div>
+</section>
+
+</div>
+</div>
+<a class="navbar-brand me-3" href="https://bajie.dev"><img class="logo" alt="Logo" src="https://bajie.dev/images/logo.webp" loading="lazy"
+   width="136" height="69"
+   />
+八戒
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="fas fa-ellipsis-v"></i>
+    </button>
+    <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
+      <form class="search-bar my-1" action="https://bajie.dev/search">
+  <div class="input-group input-group-sm">
+    <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
+    <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
+  </div>
+</form>
+
+      <ul class="navbar-nav ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/categories/">
+            <i class="fas fa-fw fa-folder"></i>分类
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/tags/">
+            <i class="fas fa-fw fa-tags"></i>标签
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/series/">
+            <i class="fas fa-fw fa-columns"></i>专栏
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-chevron-circle-down"></i>下拉菜单
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-dropdown"><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                <i class="fab fa-fw fa-github"></i>Github
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://bajie.dev/zh-cn/series/manual">
+                用户手册
+              </a>
+            </li></ul>
+        </li></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body">
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">Posts</a></li><li class="breadcrumb-item active">Kvm提高网卡效率使用SR-IOV</li></ol>
+  </div>
+</nav><article class="post row card mb-4 component">
+  <div class="card-body"><div class="post-panel-wrapper">
+  <div class="post-panel d-flex flex-column">
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+  <i class="fas fa-fw fa-expand-arrows-alt"></i>
+</a>
+  
+    
+
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
+  <i class="fas fa-fw fa-coffee"></i>
+</a>
+    <a class="action" data-bs-container="body" data-bs-toggle="popover" data-bs-html="true" data-bs-placement="bottom"
+  data-bs-trigger="focus" tabindex="0" type="button" aria-label="Copyright" 
+  data-bs-content="&lt;a target=&#34;_blank&#34; rel=&#34;license noopener noreferrer&#34; href=&#34;https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh&#34;&gt;CC BY-NC-ND 4.0 &lt;i class=&#34;fab fa-fw fa-creative-commons&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-by&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-nc&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-nd&#34;&gt;&lt;/i&gt;&lt;/a&gt;
+">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
+    <a data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+  <i class="fas fa-fw fa-list-alt"></i>
+</a>
+  </div>
+</div>
+<h1 class="card-title my-3">Kvm提高网卡效率使用SR-IOV
+</h1><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-15
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>5 分钟阅读
+  </span></div>
+<div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+  </div>
+  <div class="offcanvas-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div><div class="post-content mb-3"><p>什么是SR-IOV呢?</p>
+<p>简单的说，SR-IOV是一种虚拟化方案，用来使一个PCIe的物理设备，能虚拟出多个设备，这些虚拟出来的设备看起来就像是多个真实的物理设备一样，并获得能够与本机性能媲美的 I/O 性能。</p>
+<p>SR-IOV现在最多是用在网卡上，kvm虚拟机的网卡功能一般会下降到实体机的30-50%，如果改用SR-IOV会大大提高网卡性能。</p>
+<p>SR-IOV 有2种功能：</p>
+<ul>
+<li>物理功能 (Physical Function, PF)
+<ul>
+<li>就是标准的PCIe的功能了</li>
+</ul>
+</li>
+<li>虚拟功能 (Virtual Function, VF)
+<ul>
+<li>与物理功能关联的一种功能。VF 是一种轻量级 PCIe 功能，可以与物理功能以及与同一物理功能关联的其他 VF 共享一个或多个物理资源。VF 仅允许拥有用于其自身行为的配置资源。</li>
+</ul>
+</li>
+</ul>
+<p>好的，如何在生产环境中使用它呢？</p>
+<p>场景如下： <img class="img-fluid" alt="image-20240115165320492" src="https://bajie.dev/posts/20240115-kvm_sriov/image-20240115165320492.png" loading="lazy"
+   width="1120" height="1265"
+   />
+
+</p>
+<p>如上： 机房里有两台交换机:</p>
+<ul>
+<li>switch-1用来连接各机器的eth0口</li>
+<li>switch-2用来连接各机器的eth1口</li>
+<li>switch-1和switch-2互联</li>
+<li>这是一种机房的标准连法，eth0和eth1做bonding，做线路冗余</li>
+</ul>
+<p>server-2是一台Dell R730的服务器，eth0连switch-1，eth1连switch-2，上面跑了三个虚机：</p>
+<ul>
+<li>VM-1跑在基于bonding的Bridge上，标准的做法</li>
+<li>VM-2和VM-2则是利用了SR-IOV，从虚拟网卡直连到物理网卡，减少了中间环节，提高了网卡的效率。</li>
+</ul>
+<p>首先要把服务器的vt和sr-iov打开：</p>
+<p><code>System BIOS &gt; Processor Settings &gt; Virtualization Technology</code></p>
+<p><img class="img-fluid" alt="image-20240115165609882" src="https://bajie.dev/posts/20240115-kvm_sriov/image-20240115165609882.png" loading="lazy"
+   width="1936" height="999"
+   />
+
+</p>
+<p><code>System BIOS &gt; Integrated Devices &gt; SR-IOV Global Enable </code></p>
+<p><img class="img-fluid" alt="image-20240115165640371" src="https://bajie.dev/posts/20240115-kvm_sriov/image-20240115165640371.png" loading="lazy"
+   width="1422" height="982"
+   />
+
+</p>
+<p>当然，这么麻烦的事情，我们直接用脚本通过idrac调用racadm来做好了：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="cp">#!/bin/sh
+</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="cp"></span>sshpass -p <span class="s2">&#34;xxxxx&#34;</span> ssh -oStrictHostKeyChecking<span class="o">=</span>no root@10.8.<span class="nv">$1</span> racadm <span class="nb">set</span> BIOS.ProcSettings.ProcVirtualization Enabled  
+</span></span><span class="line"><span class="ln">3</span><span class="cl">sshpass -p <span class="s2">&#34;calvin&#34;</span> ssh -oStrictHostKeyChecking<span class="o">=</span>no root@10.8.<span class="nv">$1</span> racadm <span class="nb">set</span> BIOS.IntegratedDevices.SriovGlobalEnable Enabled  
+</span></span><span class="line"><span class="ln">4</span><span class="cl">sshpass -p <span class="s2">&#34;xxxxxx&#34;</span> ssh -oStrictHostKeyChecking<span class="o">=</span>no root@10.8.<span class="nv">$1</span> racadm serveraction powercycle  
+</span></span></code></pre></div><p>注意，Dell R730的机器用得是Intel I350的以太网卡，每个网口最多支持8个VF，如果是高级的X520网卡，就支持64个VF。</p>
+<p>查看一下网卡，有以太网卡i350也有光卡82599ES：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">lspci <span class="p">|</span> grep net  
+</span></span><span class="line"><span class="ln">2</span><span class="cl">01:00.0 Ethernet controller: Intel Corporation I350 Gigabit Network Connection <span class="o">(</span>rev 01<span class="o">)</span>  
+</span></span><span class="line"><span class="ln">3</span><span class="cl">01:00.1 Ethernet controller: Intel Corporation I350 Gigabit Network Connection <span class="o">(</span>rev 01<span class="o">)</span>  
+</span></span><span class="line"><span class="ln">4</span><span class="cl">19:00.0 Ethernet controller: Intel Corporation 82599ES 10-Gigabit SFI/SFP+ Network Connection <span class="o">(</span>rev 01<span class="o">)</span>  
+</span></span><span class="line"><span class="ln">5</span><span class="cl">19:00.1 Ethernet controller: Intel Corporation 82599ES 10-Gigabit SFI/SFP+ Network Connection <span class="o">(</span>rev 01<span class="o">)</span>  
+</span></span></code></pre></div><p>82599ES 10G的卡，再看支持多少</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">cat /sys/class/net/em1/device/sriov_totalvfs  
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="m">63</span>  
+</span></span></code></pre></div><p>支持64个vfs</p>
+<p>Centos 6编辑核心重启系统：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">vi /boot/grub/grub.conf  
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="nv">kernel后加个参数intel_iommu</span><span class="o">=</span>on  
+</span></span><span class="line"><span class="ln">3</span><span class="cl">        kernel /vmlinuz-2.6.32-504.el6.x86_64 ro <span class="nv">root</span><span class="o">=</span><span class="nv">UUID</span><span class="o">=</span>16154774-dbaf-4fcb-aedb-0513cb65a0eb rd_NO_LUKS rd_NO_LVM <span class="nv">LANG</span><span class="o">=</span>en_US.UTF-8 rd_NO_MD <span class="nv">SYSFONT</span><span class="o">=</span>latarcyrheb-sun16 <span class="nv">crashkernel</span><span class="o">=</span>auto  <span class="nv">KEYBOARDTYPE</span><span class="o">=</span>pc <span class="nv">KEYTABLE</span><span class="o">=</span>us rd_NO_DM rhgb quiet <span class="nv">intel_iommu</span><span class="o">=</span>on
+</span></span></code></pre></div><p>Centos 7编辑核心重启系统：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">kernel后加个参数，只虚两个网卡就好，intel_iommu<span class="o">=</span>on ixgbe.max_vfs<span class="o">=</span><span class="m">2</span>  
+</span></span><span class="line"><span class="ln">2</span><span class="cl">vi /etc/default/grub  
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="nv">GRUB_CMDLINE_LINUX</span><span class="o">=</span><span class="s2">&#34;crashkernel=auto rhgb quiet intel_iommu=on ixgbe.max_vfs=2&#34;</span>  
+</span></span><span class="line"><span class="ln">4</span><span class="cl">grub2-mkconfig  -o /boot/grub2/grub.cfg  
+</span></span></code></pre></div><p>先lspci看看设备：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">lspci  
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">01:00.0 Ethernet controller: Intel Corporation I350 Gigabit Network Connection <span class="o">(</span>rev 01<span class="o">)</span>  
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">01:00.1 Ethernet controller: Intel Corporation I350 Gigabit Network Connection <span class="o">(</span>rev 01<span class="o">)</span>  
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">01:00.2 Ethernet controller: Intel Corporation I350 Gigabit Network Connection <span class="o">(</span>rev 01<span class="o">)</span>  
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">01:00.3 Ethernet controller: Intel Corporation I350 Gigabit Network Connection <span class="o">(</span>rev 01<span class="o">)</span>  
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">lspci -v  
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">01:00.0 Ethernet controller: Intel Corporation I350 Gigabit Network Connection <span class="o">(</span>rev 01<span class="o">)</span>  
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">    Subsystem: Dell Gigabit 4P I350-t rNDC
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">    Flags: bus master, fast devsel, latency 0, IRQ <span class="m">46</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">    Memory at 91e00000 <span class="o">(</span>32-bit, non-prefetchable<span class="o">)</span> <span class="o">[</span><span class="nv">size</span><span class="o">=</span>1M<span class="o">]</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">    Memory at 91f0c000 <span class="o">(</span>32-bit, non-prefetchable<span class="o">)</span> <span class="o">[</span><span class="nv">size</span><span class="o">=</span>16K<span class="o">]</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">    Expansion ROM at 91f80000 <span class="o">[</span>disabled<span class="o">]</span> <span class="o">[</span><span class="nv">size</span><span class="o">=</span>512K<span class="o">]</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">    Capabilities: <span class="o">[</span>40<span class="o">]</span> Power Management version <span class="m">3</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">    Capabilities: <span class="o">[</span>50<span class="o">]</span> MSI: Enable- <span class="nv">Count</span><span class="o">=</span>1/1 Maskable+ 64bit+
+</span></span><span class="line"><span class="ln">15</span><span class="cl">    Capabilities: <span class="o">[</span>70<span class="o">]</span> MSI-X: Enable+ <span class="nv">Count</span><span class="o">=</span><span class="m">10</span> Masked-
+</span></span><span class="line"><span class="ln">16</span><span class="cl">    Capabilities: <span class="o">[</span>a0<span class="o">]</span> Express Endpoint, MSI <span class="m">00</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl">    Capabilities: <span class="o">[</span>e0<span class="o">]</span> Vital Product Data
+</span></span><span class="line"><span class="ln">18</span><span class="cl">    Capabilities: <span class="o">[</span>100<span class="o">]</span> Advanced Error Reporting
+</span></span><span class="line"><span class="ln">19</span><span class="cl">    Capabilities: <span class="o">[</span>140<span class="o">]</span> Device Serial Number ec-f4-bb-ff-ff-d9-96-43
+</span></span><span class="line"><span class="ln">20</span><span class="cl">    Capabilities: <span class="o">[</span>150<span class="o">]</span> Alternative Routing-ID Interpretation <span class="o">(</span>ARI<span class="o">)</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl">    Capabilities: <span class="o">[</span>160<span class="o">]</span> Single Root I/O Virtualization <span class="o">(</span>SR-IOV<span class="o">)</span>
+</span></span><span class="line"><span class="ln">22</span><span class="cl">    Capabilities: <span class="o">[</span>1a0<span class="o">]</span> Transaction Processing Hints
+</span></span><span class="line"><span class="ln">23</span><span class="cl">    Capabilities: <span class="o">[</span>1c0<span class="o">]</span> Latency Tolerance Reporting
+</span></span><span class="line"><span class="ln">24</span><span class="cl">    Capabilities: <span class="o">[</span>1d0<span class="o">]</span> Access Control Services
+</span></span><span class="line"><span class="ln">25</span><span class="cl">    Kernel driver in use: igb
+</span></span><span class="line"><span class="ln">26</span><span class="cl">    Kernel modules: igb
+</span></span></code></pre></div><p>注意上面有一行表示是支持的：    Capabilities: [160] Single Root I/O Virtualization (SR-IOV)</p>
+<p>然后我们必须激活VFs，上面我们lspci查看四个I350网卡的usb id，em1是01:00.0，em2是01:00.1，em3是01:00.2，em4是01:00.4，激活em1和em2的VFs：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="nb">echo</span> <span class="m">7</span> &gt;  /sys/bus/pci/devices/0000<span class="se">\:</span>01<span class="se">\:</span>00.0/sriov_numvfs  
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="nb">echo</span> <span class="m">7</span> &gt;  /sys/bus/pci/devices/0000<span class="se">\:</span>01<span class="se">\:</span>00.0/sriov_numvfs  
+</span></span></code></pre></div><p>见鬼了，最大是8个，这里最多只能建7个。lspci看看，从第5行起，多了14个虚拟网卡（一个网卡7个）：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">lspci<span class="p">|</span>grep I350  
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">01:00.0 Ethernet controller: Intel Corporation I350 Gigabit Network Connection <span class="o">(</span>rev 01<span class="o">)</span>  
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">01:00.1 Ethernet controller: Intel Corporation I350 Gigabit Network Connection <span class="o">(</span>rev 01<span class="o">)</span>  
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">01:00.2 Ethernet controller: Intel Corporation I350 Gigabit Network Connection <span class="o">(</span>rev 01<span class="o">)</span>  
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">01:00.3 Ethernet controller: Intel Corporation I350 Gigabit Network Connection <span class="o">(</span>rev 01<span class="o">)</span>  
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">01:10.0 Ethernet controller: Intel Corporation I350 Ethernet Controller Virtual Function <span class="o">(</span>rev 01<span class="o">)</span>  
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">01:10.1 Ethernet controller: Intel Corporation I350 Ethernet Controller Virtual Function <span class="o">(</span>rev 01<span class="o">)</span>  
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">01:10.4 Ethernet controller: Intel Corporation I350 Ethernet Controller Virtual Function <span class="o">(</span>rev 01<span class="o">)</span>  
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">01:10.5 Ethernet controller: Intel Corporation I350 Ethernet Controller Virtual Function <span class="o">(</span>rev 01<span class="o">)</span>  
+</span></span><span class="line"><span class="ln">10</span><span class="cl">01:11.0 Ethernet controller: Intel Corporation I350 Ethernet Controller Virtual Function <span class="o">(</span>rev 01<span class="o">)</span>  
+</span></span><span class="line"><span class="ln">11</span><span class="cl">01:11.1 Ethernet controller: Intel Corporation I350 Ethernet Controller Virtual Function <span class="o">(</span>rev 01<span class="o">)</span>  
+</span></span><span class="line"><span class="ln">12</span><span class="cl">01:11.4 Ethernet controller: Intel Corporation I350 Ethernet Controller Virtual Function <span class="o">(</span>rev 01<span class="o">)</span>  
+</span></span><span class="line"><span class="ln">13</span><span class="cl">01:11.5 Ethernet controller: Intel Corporation I350 Ethernet Controller Virtual Function <span class="o">(</span>rev 01<span class="o">)</span>  
+</span></span><span class="line"><span class="ln">14</span><span class="cl">01:12.0 Ethernet controller: Intel Corporation I350 Ethernet Controller Virtual Function <span class="o">(</span>rev 01<span class="o">)</span>  
+</span></span><span class="line"><span class="ln">15</span><span class="cl">01:12.1 Ethernet controller: Intel Corporation I350 Ethernet Controller Virtual Function <span class="o">(</span>rev 01<span class="o">)</span>  
+</span></span><span class="line"><span class="ln">16</span><span class="cl">01:12.4 Ethernet controller: Intel Corporation I350 Ethernet Controller Virtual Function <span class="o">(</span>rev 01<span class="o">)</span>  
+</span></span><span class="line"><span class="ln">17</span><span class="cl">01:12.5 Ethernet controller: Intel Corporation I350 Ethernet Controller Virtual Function <span class="o">(</span>rev 01<span class="o">)</span>  
+</span></span><span class="line"><span class="ln">18</span><span class="cl">01:13.0 Ethernet controller: Intel Corporation I350 Ethernet Controller Virtual Function <span class="o">(</span>rev 01<span class="o">)</span>  
+</span></span><span class="line"><span class="ln">19</span><span class="cl">01:13.1 Ethernet controller: Intel Corporation I350 Ethernet Controller Virtual Function <span class="o">(</span>rev 01<span class="o">)</span>  
+</span></span></code></pre></div><p>这时系统中会多出14个网卡：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">ip link show  
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">12: eth0: &lt;BROADCAST,MULTICAST&gt; mtu <span class="m">1500</span> qdisc noop state DOWN qlen <span class="m">1000</span>  
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">    link/ether ea:c0:8c:e1:e8:6d brd ff:ff:ff:ff:ff:ff
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">13: eth1: &lt;BROADCAST,MULTICAST&gt; mtu <span class="m">1500</span> qdisc noop state DOWN qlen <span class="m">1000</span>  
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">    link/ether e6:7f:65:3a:94:cf brd ff:ff:ff:ff:ff:ff
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">14: eth2: &lt;BROADCAST,MULTICAST&gt; mtu <span class="m">1500</span> qdisc noop state DOWN qlen <span class="m">1000</span>  
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">    link/ether a2:39:5e:a7:5c:17 brd ff:ff:ff:ff:ff:ff
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">15: eth3: &lt;BROADCAST,MULTICAST&gt; mtu <span class="m">1500</span> qdisc noop state DOWN qlen <span class="m">1000</span>  
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">    link/ether 9a:dd:4a:14:87:48 brd ff:ff:ff:ff:ff:ff
+</span></span><span class="line"><span class="ln">10</span><span class="cl">16: eth4: &lt;BROADCAST,MULTICAST&gt; mtu <span class="m">1500</span> qdisc noop state DOWN qlen <span class="m">1000</span>  
+</span></span><span class="line"><span class="ln">11</span><span class="cl">    link/ether 2a:07:15:af:44:1c brd ff:ff:ff:ff:ff:ff
+</span></span><span class="line"><span class="ln">12</span><span class="cl">17: eth5: &lt;BROADCAST,MULTICAST&gt; mtu <span class="m">1500</span> qdisc noop state DOWN qlen <span class="m">1000</span>  
+</span></span><span class="line"><span class="ln">13</span><span class="cl">    link/ether 42:6c:7c:11:1f:40 brd ff:ff:ff:ff:ff:ff
+</span></span><span class="line"><span class="ln">14</span><span class="cl">18: eth6: &lt;BROADCAST,MULTICAST&gt; mtu <span class="m">1500</span> qdisc noop state DOWN qlen <span class="m">1000</span>  
+</span></span><span class="line"><span class="ln">15</span><span class="cl">    link/ether 86:5f:69:12:48:56 brd ff:ff:ff:ff:ff:ff
+</span></span><span class="line"><span class="ln">16</span><span class="cl">19: eth7: &lt;BROADCAST,MULTICAST&gt; mtu <span class="m">1500</span> qdisc noop state DOWN qlen <span class="m">1000</span>  
+</span></span><span class="line"><span class="ln">17</span><span class="cl">    link/ether 72:d7:d0:0a:6a:86 brd ff:ff:ff:ff:ff:ff
+</span></span><span class="line"><span class="ln">18</span><span class="cl">20: eth8: &lt;BROADCAST,MULTICAST&gt; mtu <span class="m">1500</span> qdisc noop state DOWN qlen <span class="m">1000</span>  
+</span></span><span class="line"><span class="ln">19</span><span class="cl">    link/ether 22:4f:16:83:40:83 brd ff:ff:ff:ff:ff:ff
+</span></span><span class="line"><span class="ln">20</span><span class="cl">21: eth9: &lt;BROADCAST,MULTICAST&gt; mtu <span class="m">1500</span> qdisc noop state DOWN qlen <span class="m">1000</span>  
+</span></span><span class="line"><span class="ln">21</span><span class="cl">    link/ether 1e:a1:10:50:82:cd brd ff:ff:ff:ff:ff:ff
+</span></span><span class="line"><span class="ln">22</span><span class="cl">22: eth10: &lt;BROADCAST,MULTICAST&gt; mtu <span class="m">1500</span> qdisc noop state DOWN qlen <span class="m">1000</span>  
+</span></span><span class="line"><span class="ln">23</span><span class="cl">    link/ether de:d7:35:6f:8a:8b brd ff:ff:ff:ff:ff:ff
+</span></span><span class="line"><span class="ln">24</span><span class="cl">23: eth11: &lt;BROADCAST,MULTICAST&gt; mtu <span class="m">1500</span> qdisc noop state DOWN qlen <span class="m">1000</span>  
+</span></span><span class="line"><span class="ln">25</span><span class="cl">    link/ether ce🆎e1:81:0e:31 brd ff:ff:ff:ff:ff:ff
+</span></span><span class="line"><span class="ln">26</span><span class="cl">24: eth12: &lt;BROADCAST,MULTICAST&gt; mtu <span class="m">1500</span> qdisc noop state DOWN qlen <span class="m">1000</span>  
+</span></span><span class="line"><span class="ln">27</span><span class="cl">    link/ether d6:35:8e:ed:d9:1d brd ff:ff:ff:ff:ff:ff
+</span></span><span class="line"><span class="ln">28</span><span class="cl">25: eth13: &lt;BROADCAST,MULTICAST&gt; mtu <span class="m">1500</span> qdisc noop state DOWN qlen <span class="m">1000</span>  
+</span></span><span class="line"><span class="ln">29</span><span class="cl">    link/ether 52:c5:00:45:74:2c brd ff:ff:ff:ff:ff:ff
+</span></span></code></pre></div><p>定义两个网络池，只要指定指定pf即可，vf会动态分配给虚机：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">cat net01.xml  
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">&lt;network&gt;  
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">  &lt;name&gt;passthrough_em1&lt;/name&gt;
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">  &lt;forward <span class="nv">mode</span><span class="o">=</span><span class="s1">&#39;hostdev&#39;</span> <span class="nv">managed</span><span class="o">=</span><span class="s1">&#39;yes&#39;</span>&gt;
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">    &lt;pf <span class="nv">dev</span><span class="o">=</span><span class="s1">&#39;em1&#39;</span>/&gt;
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">  &lt;/forward&gt;&lt;/network&gt;
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">&lt;/network&gt;
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">cat net02.xml  
+</span></span><span class="line"><span class="ln">10</span><span class="cl">&lt;network&gt;  
+</span></span><span class="line"><span class="ln">11</span><span class="cl">  &lt;name&gt;passthrough_em2&lt;/name&gt;
+</span></span><span class="line"><span class="ln">12</span><span class="cl">  &lt;forward <span class="nv">mode</span><span class="o">=</span><span class="s1">&#39;hostdev&#39;</span> <span class="nv">managed</span><span class="o">=</span><span class="s1">&#39;yes&#39;</span>&gt;
+</span></span><span class="line"><span class="ln">13</span><span class="cl">    &lt;pf <span class="nv">dev</span><span class="o">=</span><span class="s1">&#39;em2&#39;</span>/&gt;
+</span></span><span class="line"><span class="ln">14</span><span class="cl">  &lt;/forward&gt;&lt;/network&gt;
+</span></span><span class="line"><span class="ln">15</span><span class="cl">&lt;/network&gt;  
+</span></span></code></pre></div><p>启动这2个网络：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">virsh net-define net01.xml  
+</span></span><span class="line"><span class="ln">2</span><span class="cl">virsh net-start passthrough_em1  
+</span></span><span class="line"><span class="ln">3</span><span class="cl">virsh net-autostart passthrough_em1
+</span></span><span class="line"><span class="ln">4</span><span class="cl">
+</span></span><span class="line"><span class="ln">5</span><span class="cl">virsh net-define net02.xml  
+</span></span><span class="line"><span class="ln">6</span><span class="cl">virsh net-start passthrough_em2  
+</span></span><span class="line"><span class="ln">7</span><span class="cl">virsh net-autostart passthrough_em2
+</span></span><span class="line"><span class="ln">8</span><span class="cl">
+</span></span><span class="line"><span class="ln">9</span><span class="cl">modprobe vfio  
+</span></span></code></pre></div><p>我们编辑虚机的xml配置文件</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">...
+</span></span><span class="line"><span class="ln">2</span><span class="cl">    &lt;interface <span class="nv">type</span><span class="o">=</span><span class="s2">&#34;network&#34;</span>&gt;
+</span></span><span class="line"><span class="ln">3</span><span class="cl">      &lt;<span class="nb">source</span> <span class="nv">network</span><span class="o">=</span><span class="s2">&#34;passthrough_em1&#34;</span>/&gt;
+</span></span><span class="line"><span class="ln">4</span><span class="cl">    &lt;/interface&gt;
+</span></span><span class="line"><span class="ln">5</span><span class="cl">    &lt;interface <span class="nv">type</span><span class="o">=</span><span class="s2">&#34;network&#34;</span>&gt;
+</span></span><span class="line"><span class="ln">6</span><span class="cl">      &lt;<span class="nb">source</span> <span class="nv">network</span><span class="o">=</span><span class="s2">&#34;passthrough_em2&#34;</span>/&gt;
+</span></span><span class="line"><span class="ln">7</span><span class="cl">    &lt;/interface&gt;
+</span></span><span class="line"><span class="ln">8</span><span class="cl">...
+</span></span></code></pre></div><p>ok， 启动虚机即可。</p>
+<p>注意，em1和em2的bonding参数，在实体机和虚机中的bonding配置是一样的：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="nv">BONDING_OPTS</span><span class="o">=</span><span class="s2">&#34;miimon=80 mode=1 primary=eth0 updelay=30000&#34;</span>  
+</span></span></code></pre></div><p>为避免频繁切换，updelay设置为30秒</p>
+<p>例外： 实机和虚机的bonding是一样的，如果实机网卡eth0坏了，eth1接管，那么虚机中同样也会飘到eth1。这里有个问题，如果网卡处于bonding状态，那么所有的网卡的mac地址都是一样的，如果eth0挂了，那么bongding的驱动程序会去改变eth1的mac地址，把老的eth0的地址赋给eth1，在实体机上，mac都一样，所以会拒绝，但是在虚机上却会成功，这样就导致虚机和实机在同一个网卡上有两个不同的mac地址，发到虚机上eth1的包会被当成mac spoof而被丢掉。</p>
+<p>解决方法是bonding参数加上fail<em>over</em>mac=active 或者设置spoofchk off，得把所有虚拟vf都弄一遍</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"> ip link <span class="nb">set</span> em1 vf <span class="m">1</span> spoofchk off 
+</span></span><span class="line"><span class="ln">2</span><span class="cl"> ...
+</span></span><span class="line"><span class="ln">3</span><span class="cl"> ip link <span class="nb">set</span> em1 vf <span class="m">7</span> spoofchk off 
+</span></span></code></pre></div><h4 id="heading"></h4>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-coffee"></i>打赏</h5>
+        <a href="#" data-bs-dismiss="modal" class="btn btn-sm btn-outline-primary" aria-label="Close"><i class="fas fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs flex-nowrap mb-3" role="tablist"><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>支付宝
+            </a>
+          </li><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>微信
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+  <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
+    <a href="https://bajie.dev/posts/20240115-idrac_monitor/">Idrac远程登录服务器
+</a>
+  </div></div><section class="related-posts-wrapper">
+    <h3>相关文章</h3>
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20240115-idrac_monitor/">Idrac远程登录服务器
+</a></li><li><a href="https://bajie.dev/posts/20240115-ssh_tun_vpn/">用openssh的tunnel建立vpn
+</a></li><li><a href="https://bajie.dev/posts/20240111-route_policy2/">多网关、策略路由、负载均衡的实际应用
+</a></li><li><a href="https://bajie.dev/posts/20240111-keepalived_iptable_mark/">Keepalived与iptables Mark的联动
+</a></li><li><a href="https://bajie.dev/posts/20240111-f5_irule_ddos/">F5利用irule来防止Ddos的方法
+</a></li></ul>
+  </section></div>
+</article><div class="post-comments card row component">
+  <div class="card-body"><div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-zhangrr-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a></div>
+</div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container">
+    
+    <section class="card row text-center profile component">
+  <div class="card-body">
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Zhang Ranrui" src="https://bajie.dev/images/bajie_01.jpg" loading="lazy"
+   width="391" height="644"
+   />
+</div>
+    <div class="col-12 profile-meta"><div class="profile-name">Zhang Ranrui</div><div class="profile-bio">Devops, SA, 运维全干工程师.</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>Company</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>Earth</div><div class="profile-about"><i class="fas fa-fw fa-user"></i><a target="_blank" rel="noopener noreferrer" href="http://www.rendoumi.com">关于我</a></div></div>
+  </div>
+</section>
+  <section class="featured-posts row card component">
+    <div class="card-body">
+      <h2 class="card-title">精选文章</h2>
+      <ul><li><a href="https://bajie.dev/posts/markdown-syntax/">Markdown Syntax Guide
+</a></li></ul>
+    </div>
+  </section><section class="recent-posts row card component">
+  <div class="card-body">
+    <h2 class="card-title">最近文章</h2>
+    <ul><li><a href="https://bajie.dev/posts/20240115-kvm_sriov/">Kvm提高网卡效率使用SR-IOV
+</a></li><li><a href="https://bajie.dev/posts/20240115-idrac_monitor/">Idrac远程登录服务器
+</a></li><li><a href="https://bajie.dev/posts/20240115-ssh_tun_vpn/">用openssh的tunnel建立vpn
+</a></li><li><a href="https://bajie.dev/posts/20240111-route_policy2/">多网关、策略路由、负载均衡的实际应用
+</a></li><li><a href="https://bajie.dev/posts/20240111-keepalived_iptable_mark/">Keepalived与iptables Mark的联动
+</a></li></ul>
+  </div>
+</section><section class="taxonomies row card component">
+      <div class="card-body">
+        <h2 class="card-title">
+          <a href="https://bajie.dev/series">专栏</a>
+        </h2>
+        <div><a href="https://bajie.dev/series/manual/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Manual">
+            Manual
+          </a></div>
+      </div>
+    </section><section class="taxonomies row card component">
+      <div class="card-body">
+        <h2 class="card-title">
+          <a href="https://bajie.dev/tags">标签</a>
+        </h2>
+        <div><a href="https://bajie.dev/tags/css/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="CSS">
+            CSS
+          </a><a href="https://bajie.dev/tags/html/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="HTML">
+            HTML
+          </a><a href="https://bajie.dev/tags/markdown/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Markdown">
+            Markdown
+          </a></div>
+      </div>
+    </section>
+    
+  </div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:zhangranrui@gmail.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/zhangrr" title="GitHub" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://www.reddit.com/user/defunct9" title="Reddit" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-reddit"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/defunct9" title="Telegram" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a></nav>
+<div class="copyright mb-2">
+  Copyright © 2020-2024 Zhang Ranrui. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+</div></footer>
+
+</body>
+</html>
