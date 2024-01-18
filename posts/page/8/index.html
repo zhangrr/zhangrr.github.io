@@ -183,6 +183,58 @@
   </div>
 </nav><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231214-kvm_nested/">KVM的嵌套虚拟化
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-14
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          kvm生产的虚机内仍然可以再产虚拟机，这就是嵌套虚拟化 我们的目的是要再kvm虚机中安装一套proxmox的系统 首先在实体机上检查当前的Lin
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231214-kvm_dhcp/">KVM网络如何设置DHCP
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-14
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          缺省情况下kvm会保留一个nat的网络，ip a命令查看，会看到virbr0和virbr0-nic 18: virbr0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UNKNOWN 2 link/ether 52:54:00:6c:22:2c brd ff:ff:ff:ff:ff:ff 3 inet 192.168.122.1/24 brd 192.168.122.255 scope global virbr0
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231212-shell/">Shell中变量、字符串、数组、参数的技巧
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-13
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          变量子串 ${var} 返回变量var的内容，单独使用时有没有{}一样，混合多个变量和常量时，用{}界定变量名 ${#var} 返回变量var内容的长度 ${var:offset} 从变量var中的
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231213-librenms_ldap/">Librenms使用ldap认证用户
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-13
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          我们openldap中用户和组的设置 1用户： 2ou=People,dc=ddky,dc=com 3#uid;#givenName;#sn;#uidNumber;#gidNumber 4 5组： 6ou=group,dc=ddky,dc=com 7#cn;#gidNumber;#memberUID;#description 到librenms中， 172.18.31.10 1cd /opt/librenms 2vi config.php 3$config[&#39;auth_mechanism&#39;] = &#39;ldap&#39;; 4$config[&#39;auth_ldap_server&#39;] = …
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
         <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231213-librenms_prometheus/">Librenms集成进prometheus
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2023-12-13
@@ -259,58 +311,6 @@
           Rsyslog的模板文件按日期存放： 1$template 10.161.54.11,&#34;/var/log/rsyslog/%fromhost-ip%/netflow_%$YEAR%-%$MONTH%-%$DAY%.log&#34; 2$template 10.161.50.5,&#34;/var/log/rsyslog/%fromhost-ip%/xdns_webeng_%$YEAR%-%$MONTH%-%$DAY%.log&#34; 3$template …
         </div>
       </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231211-netdev_backup/">网络设备配置的备份
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-11
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          这个其实是网络工程师的工作，有以下两种方法： 一、用ssh备份Cisco设备的脚本 需要事先在/root/.ssh/config配置好直接登录，
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231208-iscsi_lv_clone/">Lvm卷的clone方法
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-08
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          用pxe远程启动一个iscsi卷的方法已经会了的话。 如果我们要批量产新虚机，最快的方法应该是把远程的iscsi卷clone一下，供新的虚机用
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231208-ftp_slowly/">开发投诉FTP慢问题的解决
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-08
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          问题说明： 1、研发同事反馈应用程序上传一张图片耗时6分钟，让我们排查一下是什么问题？ 1[INFO] 2022-03-01 17:16:38.295 [vu73wwv64ba4ncfzaiiou2qsem] [DubboServerHandler-172.18.32.254:20881-thread-2400] [FtpFile.java:854:uploadFileToPath()] uploadFileToPath path://c/product/590389/display/,fileName:display.jpg, cost:383667 ms 显示上传一张图片花了383667ms
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231208-lsync/">Lsync 同步软件的运用
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-08
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          公司使用智齿的机器崩了，要做数据迁移。 由三台老机器迁移到三台新kvm机器 我们需要把其中一台34.38的的东西实时同步两份，一份到30.18的
-        </div>
-      </div>
     </article></div><div class="row table-responsive mb-3">
     <ul class="pagination pagination-default">
       <li class="page-item">
@@ -338,7 +338,7 @@
         <a href="/posts/page/9/" aria-label="Next" class="page-link" role="button"><span aria-hidden="true">&raquo;</span></a>
       </li>
       <li class="page-item">
-        <a href="/posts/page/23/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
+        <a href="/posts/page/24/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
       </li>
     </ul></div>
 </div>
@@ -364,11 +364,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240118-pure-ftpd/">Linux下virtual FTP的搭建pure-Ftpd
-</a></li><li><a href="https://bajie.dev/posts/20240118-gfs/">GlusterFS的日常应用
-</a></li><li><a href="https://bajie.dev/posts/20240118-ipxe_menu/">Ipxe中menu.c32和vesamenu.c32的用法
-</a></li><li><a href="https://bajie.dev/posts/20240118-ipxe_dos/">Ipxe启动Dos 6.22
-</a></li><li><a href="https://bajie.dev/posts/202401180-ipxe_aoe/">Ipxe与aoe启动
+    <ul><li><a href="https://bajie.dev/posts/20240118-ulimit/">Ulimit的用法
+</a></li><li><a href="https://bajie.dev/posts/20240118-flask_mongo/">Flask/Python对mongodb的一些操作
+</a></li><li><a href="https://bajie.dev/posts/20240118-f5_irule/">F5 Irule之google站长认证别样用法
+</a></li><li><a href="https://bajie.dev/posts/20240118-mbox_3d/">Mbox文件中的=3D是什么鬼(quoted-Printable编码)
+</a></li><li><a href="https://bajie.dev/posts/20240118-pure-ftpd/">Linux下virtual FTP的搭建pure-Ftpd
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
