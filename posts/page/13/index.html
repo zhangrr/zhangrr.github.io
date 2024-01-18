@@ -183,6 +183,58 @@
   </div>
 </nav><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20221219-dell_ssh_raid/">Dell服务器用ssh方式划分磁盘Raid的方法
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-12-18
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          首先ssh到idrac去，直接会进入racadm的界面 我们以2022年最新的dell机器为例，老的机器显示的东西不一致 1ssh 10.18.30.104 2Password: 3racadm&gt;&gt; 注意，shel
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20221217-megacli/">Megacli操作磁盘的常用命令
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-12-17
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          这Megacli是操作磁盘Raid的常用软件，日常用的大多是dell家的机器，都是这软件，记录一下。 1#!/bin/sh 2#/opt/MegaRAID/MegaCli/MegaCli64 -PDList -a0 3/opt/MegaRAID/MegaCli/MegaCli64 -PDList -a0 | grep -A1 &#34;Enclosure Device&#34; 4 5# clear foreign disk 6#/opt/MegaRAID/MegaCli/MegaCli64 -cfgforeign -scan
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20221208-oracle_rman/">Oracle使用rman定时清除7天前的日志
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-12-08
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          这一篇正规的DBA看到肯定会呲之以鼻，但对于没有用过oracle的系统运维来说，就是必须知道的事情了。 公司的 Oracle 实例有两台数据库，定时用rma
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20221207-cordns_dnsmasq/">CoreDNS替代dnsmasq
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-12-07
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          CoreDNS是k8s的御用DNS解析软件 支持很多插件，各种DoH、DoT、gRPC ，各种特性，安装配置也十分简单 替代dnsmasq后，基本
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
         <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20221207-sed_regex/">Sed中的正则表达式用法
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2022-12-07
@@ -259,58 +311,6 @@
           客户发了一个需求如下： 1TODO: 在sortFiles中，获取最新的域名，生成二维码，覆盖QRCodePath图片 2TODO:将QRCodePath图
         </div>
       </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20221122-mysqldump_binlog/">MySQL数据库的备份和恢复之二
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-11-22
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          我们来说恢复的第二种情况，就是需要从binlog中指定位置恢复 binlog如何设置不说了，我们假设上次用mysqldump做过一次全量备份。
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20221121-mysqldump/">MySQL数据库的备份和恢复之一
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-11-21
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          喜大普奔，干了一个月的MySQL DBA的工作，又学到了一部分知识。 记录一下，以备不时只需 mysqldump 的备份其实很麻烦，要考虑很多因素 备份时候不能锁表 恢
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20221119-openvpn_client/">OpenVPN客户端定制IP和路由
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-11-19
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          公司用的 OpenVPN ，研发部门和普通员工的权限不一样，技术部门需要访问服务器，普通员工则不需要 这样的话就需要根据用户定制路由了，技术部门推送特定的路由
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20221117-sign/">英语的符号表达
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-11-17
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          面试 infosys 的时候是一个印度老哥做考官，他问我的问题我是一句都听不懂的，确实是听不懂。 然后他把问题在 webex 中打出来我回答的。 其中有一个问题是：如何用C
-        </div>
-      </div>
     </article></div><div class="row table-responsive mb-3">
     <ul class="pagination pagination-default">
       <li class="page-item">
@@ -364,11 +364,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240118-kvm_iscsi/">Kvm使用iscsi作为存储池安装win
-</a></li><li><a href="https://bajie.dev/posts/20240118-ipxe_hiren/">IPXE万能工具hiren.iso的启动方式
-</a></li><li><a href="https://bajie.dev/posts/20240118-ipxe_sysrecuecd/">IPXE远程运行sysrecuecd系统
-</a></li><li><a href="https://bajie.dev/posts/20240118-pxe_utuntu_desk/">用IPXE启动个Ubuntu桌面
-</a></li><li><a href="https://bajie.dev/posts/20240118-ipxe_install/">IPXE Kickstart安装CentOS的方法
+    <ul><li><a href="https://bajie.dev/posts/20240118-ipxe_menu/">Ipxe中menu.c32和vesamenu.c32的用法
+</a></li><li><a href="https://bajie.dev/posts/20240118-ipxe_dos/">Ipxe启动Dos 6.22
+</a></li><li><a href="https://bajie.dev/posts/202401180-ipxe_aoe/">Ipxe与aoe启动
+</a></li><li><a href="https://bajie.dev/posts/20240118-ipxe_iscsi/">Ipxe远程启动iscsi上面的克隆卷
+</a></li><li><a href="https://bajie.dev/posts/20240118-kvm_iscsi/">Kvm使用iscsi作为存储池安装win
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
