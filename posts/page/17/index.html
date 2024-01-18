@@ -183,6 +183,19 @@
   </div>
 </nav><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211125-kubernetes_crontab_kala/">替代kubernetes Crontab的神器kala
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-25
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>4 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          本来 k8s 的 crontab 是启动一个容器来运行的，很简单，如下： 1apiVersion: batch/v1beta1 2kind: CronJob 3metadata: 4 name: curl-cron 5spec: 6 schedule: &#34;*/1 * * * *&#34; 7 jobTemplate: 8 spec: 9 template: 10 spec: 11 containers: 12 - name: curl-cron 13 image: radial/busyboxplus:curl 14 imagePullPolicy: IfNotPresent 15 command: 16 - /bin/sh …
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
         <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211125-kubernetes_hpa/">Kubernetes的hpa和自定义指标hpa
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-11-25
@@ -298,19 +311,6 @@
           在实际中遇到这样一个问题，公司软件发布上线自动化。 说简单点，就是需要去登录一个上线的内部网站，然后爬下所有的上线数据。 然后根据爬下来的数据整
         </div>
       </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211111-k8s_filebeat/">Kubernetes使用filebeat Multiline自定义收集日志
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-11
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          我们介绍了如何在 kubernetes 环境中使用 filebeat sidecar 方式收集日志 使用的是 filebeat 的 moudle 模块，但凡是常用的软件，基本都有对应的模块可用，所以我们首先应该使用模块来收集日志
-        </div>
-      </div>
     </article></div><div class="row table-responsive mb-3">
     <ul class="pagination pagination-default">
       <li class="page-item">
@@ -364,11 +364,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240117-git_proxy/">设置git Ssh代理
+    <ul><li><a href="https://bajie.dev/posts/20240118-plsql_linux/">在Ubuntu上装个plsql通过远程桌面访问oracle
+</a></li><li><a href="https://bajie.dev/posts/20240117-git_proxy/">设置git Ssh代理
 </a></li><li><a href="https://bajie.dev/posts/20240117-mail_forward/">Postfix和Sendmail设置所有邮件都收到一个邮件用户下
 </a></li><li><a href="https://bajie.dev/posts/20240117-jar_update/">更新jar包或者jar包中的文件
 </a></li><li><a href="https://bajie.dev/posts/20240106-freshmeat_forever/">怀念永远的freshmeat.net
-</a></li><li><a href="https://bajie.dev/posts/20240116-lvm_metadata/">LVM卷必须备份metadata
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
