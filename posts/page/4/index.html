@@ -183,6 +183,32 @@
   </div>
 </nav><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240110-dell_restart/">服务器R920的一次急速故障处理
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-10
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          记录一下，2016年的5月5日这天的中午。 正在跟老刘、大亮、Good宁一起吃午饭，突然手机接到短信报警，说是主数据库Down了。出大事了！！
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240109-kvm_random_mac/">KVM中网卡地址随机生成方法
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-09
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          用bash随机生成网卡地址： 1echo 52:54:$(dd if=/dev/urandom count=1 2&gt;/dev/null | md5sum | sed &#39;s/^\(..\)\(..\)\(..\)\(..\).*$/\1:\2:\3:\4/&#39;) 252:54:f6:65:52:39 另一种做法： 1openssl rand -hex 6 | sed &#39;s/\(..\)/\1:/g; s/.$//&#39;
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
         <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240109-linux_lang/">Linux下设置LANG变量
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2024-01-09
@@ -285,32 +311,6 @@
           同事有个需求，想开放个域名，给别的同事们下载文件用。 这个其实很建单，问题就是文件怎么放上去，sftp、ftp什么的都需要搭个服务器，其实最简
         </div>
       </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231228-nfs_detail/">NFS的详细解释
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-28
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          NFS的SERVER分两部分： 1、RPC 主程序：rpcbind NFS 本质是一个 RPC 服务，而要启动任何一个 RPC 服务之前，都需要做好 port 的对应 (mapping) 的工作才行
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231228-kvm_isoboot/">Kvm虚拟机挂载临时急救iso启动的方法
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-28
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          Kvm虚拟机挂载临时急救iso启动的方法： 首先去到宿主机 编辑虚机文件virsh edit vis-18-32-6 1 &lt;disk type=&#39;file&#39; device=&#39;cdrom&#39;&gt; 2 &lt;driver name=&#39;qemu&#39; type=&#39;raw&#39;/&gt; 3 &lt;target dev=&#39;hda&#39; bus=&#39;ide&#39;/&gt; 4 &lt;readonly/&gt; 5 &lt;address type=&#39;drive&#39; controller=&#39;0&#39; …
-        </div>
-      </div>
     </article></div><div class="row table-responsive mb-3">
     <ul class="pagination pagination-default">
       <li class="page-item">
@@ -364,11 +364,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240118-ipxe_menu/">Ipxe中menu.c32和vesamenu.c32的用法
+    <ul><li><a href="https://bajie.dev/posts/20240118-pure-ftpd/">Linux下virtual FTP的搭建pure-Ftpd
+</a></li><li><a href="https://bajie.dev/posts/20240118-gfs/">GlusterFS的日常应用
+</a></li><li><a href="https://bajie.dev/posts/20240118-ipxe_menu/">Ipxe中menu.c32和vesamenu.c32的用法
 </a></li><li><a href="https://bajie.dev/posts/20240118-ipxe_dos/">Ipxe启动Dos 6.22
 </a></li><li><a href="https://bajie.dev/posts/202401180-ipxe_aoe/">Ipxe与aoe启动
-</a></li><li><a href="https://bajie.dev/posts/20240118-ipxe_iscsi/">Ipxe远程启动iscsi上面的克隆卷
-</a></li><li><a href="https://bajie.dev/posts/20240118-kvm_iscsi/">Kvm使用iscsi作为存储池安装win
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

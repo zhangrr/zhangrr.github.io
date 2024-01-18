@@ -183,6 +183,32 @@
   </div>
 </nav><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211109-nginx_multiple_port/">Nginx的一个端口同时跑SSH和HTTPS服务
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-09
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          这个要求挺古怪的，背景是防火墙只开了 nginx 443 端口。我也想同时 ssh 登录进去，但是F5没开IP 就只能这么干了，让 Nginx 一个端口跑多个服务 在 nginx.conf 加一段，str
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211109-k8s_rbac/">Kubernetes创建普通账号
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-09
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          kubernetes 装好正常运行一段时间后，会出现要把研发和运维权限分开的场景： 比如： 给某个用户某一指定名称空间下的管理权限 给用户赋予集群的只读权限 … 非常麻烦
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
         <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211108-clash/">Clash的搭建教程
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-11-08
@@ -285,32 +311,6 @@
           其实我们的生产环境一直是 KVM ，然后用 shell 脚本控制虚机的生成，也是用到了 Cloud-init 的标准镜像。 听说 Proxmox 也很不错，于是想看看能否也在生产环境中用上 如果在生产环
         </div>
       </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211102-ingress_nginx/">K8s中nginx Ingress的性能优化
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-02
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          kubernetes 中 nginx ingress 的优化分两部分 一、系统sysctl部分优化 首先是对nginx启动前的系统性能进行优化，这部分调整网络的缓冲区，减小闲置 socket 关闭的时间 以
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211102-sysctl_conf/">Linux内核sysctl内核参数优化
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-02
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          这篇是纯配置篇，解释都在配置里了，是生产服务器 sysctl.conf 的配置 1### KERNEL ### 2 3# Reboot after 10sec. on kernel panic 4kernel.panic = 10 5 6### IMPROVE SYSTEM MEMORY MANAGEMENT ### 7 8# Increase size of file handles and inode cache 9fs.file-max = 2097152 10 11# Insure we always have enough memory 12vm.min_free_kbytes
-        </div>
-      </div>
     </article></div><div class="row table-responsive mb-3">
     <ul class="pagination pagination-default">
       <li class="page-item">
@@ -364,11 +364,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240118-ipxe_menu/">Ipxe中menu.c32和vesamenu.c32的用法
+    <ul><li><a href="https://bajie.dev/posts/20240118-pure-ftpd/">Linux下virtual FTP的搭建pure-Ftpd
+</a></li><li><a href="https://bajie.dev/posts/20240118-gfs/">GlusterFS的日常应用
+</a></li><li><a href="https://bajie.dev/posts/20240118-ipxe_menu/">Ipxe中menu.c32和vesamenu.c32的用法
 </a></li><li><a href="https://bajie.dev/posts/20240118-ipxe_dos/">Ipxe启动Dos 6.22
 </a></li><li><a href="https://bajie.dev/posts/202401180-ipxe_aoe/">Ipxe与aoe启动
-</a></li><li><a href="https://bajie.dev/posts/20240118-ipxe_iscsi/">Ipxe远程启动iscsi上面的克隆卷
-</a></li><li><a href="https://bajie.dev/posts/20240118-kvm_iscsi/">Kvm使用iscsi作为存储池安装win
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
