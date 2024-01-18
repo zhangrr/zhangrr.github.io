@@ -7,7 +7,52 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>Copyright © 2020-{year} Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Thu, 18 Jan 2024 09:25:11 +0800</lastBuildDate><atom:link href="https://bajie.dev/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 18 Jan 2024 13:50:11 +0800</lastBuildDate><atom:link href="https://bajie.dev/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>ipxe远程运行sysrecuecd系统</title>
+      <link>https://bajie.dev/posts/20240118-ipxe_sysrecuecd/</link>
+      <pubDate>Thu, 18 Jan 2024 13:50:11 +0800</pubDate>
+      
+      <guid>https://bajie.dev/posts/20240118-ipxe_sysrecuecd/</guid>
+      <description>既然用到ipxe，就试试远程运行systemrecuecd。万一系统出毛病，可以用来恢复或者急救。 下载cd 1wget http://downloads.sourceforge.net/project/systemrescuecd/sysresccd-x86/4.7.3/systemrescuecd-x86-4.7.3.iso 装进 http://172.16</description>
+    </item>
+    
+    <item>
+      <title>用IPXE启动个Ubuntu桌面</title>
+      <link>https://bajie.dev/posts/20240118-pxe_utuntu_desk/</link>
+      <pubDate>Thu, 18 Jan 2024 13:40:11 +0800</pubDate>
+      
+      <guid>https://bajie.dev/posts/20240118-pxe_utuntu_desk/</guid>
+      <description>有了上篇IPXE的启动方法，我们来启动一个Ubuntu来玩： 简单的修改boot2.php即可： 1 case &amp;#39;\ec:f4:bb:d9:96:40&amp;#39;: 2 $ip=&amp;#34;172.16.36.2:172.16.37.254:255.255.254.0:myhost-16-36-2&amp;#34;; 3 $ipa=explode(&amp;#39;:&amp;#39;,$ip); 4 echo &amp;#34;ifopen net0\n&amp;#34;; 5 echo &amp;#34;set net0/ip $ipa[0]\n&amp;#34;; 6 echo &amp;#34;set net0/netmask $ipa[2]\n&amp;#34;; 7 echo</description>
+    </item>
+    
+    <item>
+      <title>IPXE kickstart安装CentOS的方法</title>
+      <link>https://bajie.dev/posts/20240118-ipxe_install/</link>
+      <pubDate>Thu, 18 Jan 2024 13:00:11 +0800</pubDate>
+      
+      <guid>https://bajie.dev/posts/20240118-ipxe_install/</guid>
+      <description>这些年IDC物理机装机的大法也在不断衍进，从最早的手动装一堆tftp/dhcp/syslinux/httpd，到cobbler的一统江湖，到</description>
+    </item>
+    
+    <item>
+      <title>kickstart安装脚本中如何同时配置bridge和bond</title>
+      <link>https://bajie.dev/posts/20240118-kickstart_bongding/</link>
+      <pubDate>Thu, 18 Jan 2024 12:00:11 +0800</pubDate>
+      
+      <guid>https://bajie.dev/posts/20240118-kickstart_bongding/</guid>
+      <description>如何在kickstart脚本中既配置br，又配置bonding呢？ 基本篇： 以Dell R730为例，物理网卡名称是em1/em2/em3/em</description>
+    </item>
+    
+    <item>
+      <title>Dell idrac 重启机器进入单次pxe安装</title>
+      <link>https://bajie.dev/posts/20240118-idrac_pxe/</link>
+      <pubDate>Thu, 18 Jan 2024 10:00:11 +0800</pubDate>
+      
+      <guid>https://bajie.dev/posts/20240118-idrac_pxe/</guid>
+      <description>用Dell idrac的脚本来使服务器进入单次pxe安装进程。 脚本如下： 1sshpass -p &amp;#34;password&amp;#34; ssh -oStrictHostKeyChecking=no root@172.16.17.1 racadm set iDRAC.ServerBoot.BootOnce 1 2sshpass -p &amp;#34;password&amp;#34; ssh -oStrictHostKeyChecking=no root@172.16.17.1 racadm set iDRAC.ServerBoot.FirstBootDevice PXE 3sshpass -p &amp;#34;password&amp;#34; ssh -oStrictHostKeyChecking=no root@172.16.17.1 racadm serveraction powercycle</description>
+    </item>
+    
     <item>
       <title>nxlog推送数据到elasticsearch</title>
       <link>https://bajie.dev/posts/20240118-nxlog_es/</link>

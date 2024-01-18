@@ -1,0 +1,558 @@
+<!doctype html><html lang="zh-cn"
+  >
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>IPXE kickstart安装CentOS的方法 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
+<meta name="keywords" content="" />
+<meta name="description" content="" /><meta itemprop="name" content="IPXE kickstart安装CentOS的方法">
+<meta itemprop="description" content="这些年IDC物理机装机的大法也在不断衍进，从最早的手动装一堆tftp/dhcp/syslinux/httpd，到cobbler的一统江湖，到"><meta itemprop="datePublished" content="2024-01-18T13:00:11+08:00" />
+<meta itemprop="dateModified" content="2024-01-18T13:00:11+08:00" />
+<meta itemprop="wordCount" content="2693">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="IPXE kickstart安装CentOS的方法" />
+<meta property="og:description" content="这些年IDC物理机装机的大法也在不断衍进，从最早的手动装一堆tftp/dhcp/syslinux/httpd，到cobbler的一统江湖，到" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://bajie.dev/posts/20240118-ipxe_install/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2024-01-18T13:00:11+08:00" />
+<meta property="article:modified_time" content="2024-01-18T13:00:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="IPXE kickstart安装CentOS的方法"/>
+<meta name="twitter:description" content="这些年IDC物理机装机的大法也在不断衍进，从最早的手动装一堆tftp/dhcp/syslinux/httpd，到cobbler的一统江湖，到"/>
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <div class="container">
+    <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
+  aria-controls="offcanvasSettings" aria-label="Toggle settings">
+  <i class="fas fa-bars"></i>
+</button>
+
+<div class="offcanvas offcanvas-start surface" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasSettings">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">设置</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body">
+
+<section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+
+<section class="setting">
+  <form class="font-size-switcher-form row">
+    <div class="col-auto">
+      <label for="fontSize" class="form-label"><i class="fas fa-fw fa-font"></i> 字体大小</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <input type="range" class="form-range" min="-2" max="2" id="fontSize">
+    </div>
+  </form>
+</section>
+
+
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a id="btnPalette" class="btn btn-sm btn-outline-primary" role="button" aria-label="palettePicker">
+        <i class="fas fa-eye-dropper"></i>
+      </a>
+    </div>
+  </form>
+  <div class="mt-2 d-flex visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="蓝色"
+        class="btn btn-sm palette" data-palette="blue">
+      </button><button type="button" id="palette-blue-gray" aria-label="蓝灰色"
+        class="btn btn-sm palette" data-palette="blue-gray">
+      </button><button type="button" id="palette-brown" aria-label="棕色"
+        class="btn btn-sm palette" data-palette="brown">
+      </button><button type="button" id="palette-cyan" aria-label="青色"
+        class="btn btn-sm palette" data-palette="cyan">
+      </button><button type="button" id="palette-green" aria-label="绿色"
+        class="btn btn-sm palette" data-palette="green">
+      </button><button type="button" id="palette-indigo" aria-label="靛青色"
+        class="btn btn-sm palette" data-palette="indigo">
+      </button><button type="button" id="palette-orange" aria-label="橙色"
+        class="btn btn-sm palette" data-palette="orange">
+      </button><button type="button" id="palette-pink" aria-label="粉色"
+        class="btn btn-sm palette" data-palette="pink">
+      </button><button type="button" id="palette-purple" aria-label="紫色"
+        class="btn btn-sm palette" data-palette="purple">
+      </button><button type="button" id="palette-red" aria-label="红色"
+        class="btn btn-sm palette" data-palette="red">
+      </button><button type="button" id="palette-teal" aria-label="蓝绿色"
+        class="btn btn-sm palette" data-palette="teal">
+      </button><button type="button" id="palette-yellow" aria-label="黄色"
+        class="btn btn-sm palette" data-palette="yellow">
+      </button></div>
+</section>
+<section class="setting social-share">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-share-alt"></i> Share</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a class="btn btn-sm btn-outline-primary btn-social-share"><i class="fas fa-share"></i></a>
+    </div>
+  </form>
+  <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
+      target="_blank" href="https://twitter.com/intent/tweet?title=IPXE%20kickstart%e5%ae%89%e8%a3%85CentOS%e7%9a%84%e6%96%b9%e6%b3%95&url=https%3a%2f%2fbajie.dev%2fposts%2f20240118-ipxe_install%2f">
+      <i class="fab fa-fw fa-twitter"></i> Twitter
+    </a>
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20240118-ipxe_install%2f">
+      <i class="fab fa-fw fa-facebook-f"></i> Facebook
+    </a>
+  </div>
+</section>
+
+</div>
+</div>
+<a class="navbar-brand me-3" href="https://bajie.dev"><img class="logo" alt="Logo" src="https://bajie.dev/images/logo.webp" loading="lazy"
+   width="136" height="69"
+   />
+八戒
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="fas fa-ellipsis-v"></i>
+    </button>
+    <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
+      <form class="search-bar my-1" action="https://bajie.dev/search">
+  <div class="input-group input-group-sm">
+    <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
+    <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
+  </div>
+</form>
+
+      <ul class="navbar-nav ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/categories/">
+            <i class="fas fa-fw fa-folder"></i>分类
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/tags/">
+            <i class="fas fa-fw fa-tags"></i>标签
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/series/">
+            <i class="fas fa-fw fa-columns"></i>专栏
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-chevron-circle-down"></i>下拉菜单
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-dropdown"><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                <i class="fab fa-fw fa-github"></i>Github
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://bajie.dev/zh-cn/series/manual">
+                用户手册
+              </a>
+            </li></ul>
+        </li></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body">
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">Posts</a></li><li class="breadcrumb-item active">IPXE Kickstart安装CentOS的方法</li></ol>
+  </div>
+</nav><article class="post row card mb-4 component">
+  <div class="card-body"><div class="post-panel-wrapper">
+  <div class="post-panel d-flex flex-column">
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+  <i class="fas fa-fw fa-expand-arrows-alt"></i>
+</a>
+  
+    
+
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
+  <i class="fas fa-fw fa-coffee"></i>
+</a>
+    <a class="action" data-bs-container="body" data-bs-toggle="popover" data-bs-html="true" data-bs-placement="bottom"
+  data-bs-trigger="focus" tabindex="0" type="button" aria-label="Copyright" 
+  data-bs-content="&lt;a target=&#34;_blank&#34; rel=&#34;license noopener noreferrer&#34; href=&#34;https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh&#34;&gt;CC BY-NC-ND 4.0 &lt;i class=&#34;fab fa-fw fa-creative-commons&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-by&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-nc&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-nd&#34;&gt;&lt;/i&gt;&lt;/a&gt;
+">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
+    
+  </div>
+</div>
+<h1 class="card-title my-3">IPXE Kickstart安装CentOS的方法
+</h1><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-18
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>6 分钟阅读
+  </span></div>
+<div class="post-content mb-3"><p>这些年IDC物理机装机的大法也在不断衍进，从最早的手动装一堆tftp/dhcp/syslinux/httpd，到cobbler的一统江湖，到现在的dnsmasq轻量级安装，nocps安装，一直在不断进化着。</p>
+<p>因为cobbler实在太重，不得不专门起一个kvm虚机来运行，完全不喜欢啊。所以一直也在研究终极安装服务器的大法。</p>
+<p>折腾服务器无数回，找出了个自己比较喜欢的方式。</p>
+<p>首先介绍一下背景知识：</p>
+<ul>
+<li>
+<p>PXE 
+可以通过网络给计算机安装操作系统。 PXE协议大致上结合了DHCP和TFTP。</p>
+</li>
+<li>
+<p>gPXE 
+gPXE是PXE的一个开源实现（更早的实现是Etherboot）。通过gPXE能让网卡直接支持网络启动，而不依赖于网卡自带的PXE固件。同时相比PXE，gPXE支持更多的协议。 传统的PXE只能通过TFTP进行传输，而gPXE支持HTTP，iSCSI和ATA over Ethernet（AoE），甚至支持wifi链接。</p>
+</li>
+<li>
+<p>iPXE 
+iPXE表示 it doesn&rsquo;t PXE。iPXE是gPXE的原班人马写的（他们从Etherboot开始），作为官方的gPXE的替代品。  gPXE扩展的功能在iPXE中都得到支持。 之所以不再使用gPXE是由于存在版权纠纷，iPXE从2010年4月开始，基于同一个代码库开始开发。</p>
+</li>
+<li>
+<p>PXELINUX 
+Syslinux是一个优秀的系统启动加载器(bootloader)，可引导自硬盘、光盘、和通过PXE的网络启动。  PXELINUX派生自Syslinux，用来使支持PXE的网卡从网络引导启动Linux。PXELINUX程序不是烧在网卡里，而是存储在TFTP服务器上。</p>
+</li>
+<li>
+<p>Chainloading iPXE 
+可以把iPXE当作固件刷进计算机网卡的ROM里替换掉自带的PXE，但更为常见的是通过chainloading的方式进入iPXE。</p>
+</li>
+</ul>
+<p>有点晕是吧，总结一下，pxe包含了gpxe/ipxe/pxelinux，ipxe是最新的，gpxe/ipxe/pxelinux可以通过chain的方式顶替网卡原生的pxe。</p>
+<p>推荐的装机方式：</p>
+<p>客户机启动网卡自带的固件pxe，然后去服务器拉一个gpxe/ipxe，然后启动这个gpxe/ipxe，再去服务器拉具体的启动文件，这种就是chain方式了。我们就可以用到http/iscsi/wifi等各种先进方式启动了。</p>
+<p>我们第一步先要准备一个gpxe的boot文件。</p>
+<p>解释一下，文件后缀有.pxe/.kpxe/.kkpxe，这是个递进关系，.pxe是最原生的网卡驱动，.kpxe包含了调用原生网卡的UNDI驱动(无网卡驱动），.kkpxe更进一步，包含了UNDI+PXE原生网卡的驱动。</p>
+<p>当然选择.kpxe了，我们的目的就是通过这个ipxe调用原生网卡上的驱动即可，如果是你自己要烧网卡的bootroom片子，就得选择所有驱动了。</p>
+<p>这样我们会得到一个 gpxe-1.0.1-undionly.kpxe 的文件，保存备用。</p>
+<p>然后我们来设置Dnsmasq:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">log-dhcp
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">dhcp-no-override
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">enable-tftp  
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">tftp-root <span class="o">=</span> /tftpboot
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">dhcp-range<span class="o">=</span>tftp,172.16.36.100,172.16.36.105
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">
+</span></span><span class="line"><span class="ln">10</span><span class="cl">dhcp-match<span class="o">=</span>gpxe,175  
+</span></span><span class="line"><span class="ln">11</span><span class="cl">dhcp-boot<span class="o">=</span>net:#gpxe,gpxe-1.0.1-undionly.kpxe,gxe/bootserver,172.16.36.1  
+</span></span><span class="line"><span class="ln">12</span><span class="cl">dhcp-boot<span class="o">=</span>http://172.16.8.1/ks/boot.txt  
+</span></span></code></pre></div><p>注意：gpxe-1.0.1-undionly.kpxe是放在/tftpboot/gpxe/之下的</p>
+<p>上面有很多玄机，dhcp-range是随便设一个地址池，因为最终实际是gpxe来决定地址，所以第一次dhcp得到的地址反而不重要了。dhcp-no-override一定要有，否则gpxe有bug，无法启动。</p>
+<p>其次匹配gpxe，凡是175的都是gpxe，为什么要匹配呢？看下面，有两个dhcp-boot启动选项，#pxe，#表示不是，这行意思是:不是gpxe启动的话用/tftp/gpxe/gpxe-1.0.1-undionly.kpxe来启动，dhcp的server是172.16.36.1。第二行如果是gpxe启动的话，就chain到[http://172.16.8.1/ks/boot.txt]去启动</p>
+<p>呵呵，如果不这么设置，就用一行的话：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">dhcp-boot<span class="o">=</span>gpxe-1.0.1-undionly.kpxe,gxe/bootserver,172.16.36.1  
+</span></span></code></pre></div><p>就会陷入死循环，首先pxe启动，抓了个gpxe，gpxe又启动抓了个gpxe，又抓gpxe，循环往复没玩没了。所以必须标记gpxe，并跳出这个循环。</p>
+<p>我们在172.16.8.1上面建立/centos7的yum安装源，同时建立/ks目录。准备boot.txt，boot2.php，boot3.php，centos7.ks四个文件，下面一个一个解释：</p>
+<p>首先是boot.txt</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">cat boot.txt  
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="c1">#!gpxe</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">
+</span></span><span class="line"><span class="ln">4</span><span class="cl">chain http://172.16.8.1/ks/boot2.php?uuid<span class="o">=</span><span class="se">\$</span><span class="o">{</span>uuid<span class="o">}</span><span class="p">&amp;</span><span class="nv">mac</span><span class="o">=</span><span class="se">\$</span><span class="o">{</span>mac<span class="o">}</span><span class="p">&amp;</span><span class="nv">busid</span><span class="o">=</span><span class="se">\$</span><span class="o">{</span>busid<span class="o">}</span><span class="p">&amp;</span><span class="nv">ip</span><span class="o">=</span><span class="se">\$</span><span class="o">{</span>ip<span class="o">}</span><span class="p">&amp;</span><span class="nv">hostname</span><span class="o">=</span><span class="se">\$</span><span class="o">{</span>hostname:uristring<span class="o">}</span><span class="p">&amp;</span><span class="nv">serial</span><span class="o">=</span><span class="se">\$</span><span class="o">{</span>serial:uristring<span class="o">}</span><span class="p">&amp;</span><span class="nv">asset</span><span class="o">=</span><span class="se">\$</span><span class="o">{</span>asset:uristring<span class="o">}</span><span class="p">&amp;</span><span class="nv">manufacturer</span><span class="o">=</span><span class="se">\$</span><span class="o">{</span>manufacturer:uristring<span class="o">}</span><span class="p">&amp;</span><span class="nv">product</span><span class="o">=</span><span class="se">\$</span><span class="o">{</span>product:uristring<span class="o">}</span>
+</span></span></code></pre></div><p>大家看上面，boot.txt是个gpxe脚本，实际是让gpxe向boot2.php传输了一些数据过来，有机器的uuid/mac/busid/hostname/serial/product等等。给个具体的例子，从access.log看到实际发过来的请求如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="s2">&#34;GET /ks/boot2.php?uuid=%5C44454c4c-5600-1054-8042-b1c04f433532&amp;mac=%5Cec%3Af4%3Abb%3Ad9%3A96%3A40&amp;busid=%5C01%3A80%3A86%3A15%3A21&amp;ip=%5C172.16.36.100&amp;hostname=%5C&amp;serial=%5C1VTBC52&amp;asset=%5C&amp;manufacturer=%5CDell%20Inc.&amp;product=%5CPowerEdge%20R730 HTTP/1.0&#34;</span> <span class="m">200</span> <span class="m">46</span> <span class="s2">&#34;-&#34;</span> <span class="s2">&#34;gPXE/1.0.1&#34;</span> <span class="s2">&#34;-&#34;</span>
+</span></span></code></pre></div><p>看上面，有很多信息，网卡的物理地址，还有serial，对应dell就是svc tag号，还有机器类别PowerEdge R730，这是个好东西啊。</p>
+<p>我们购买机器的时候肯定有序列号，上架到机房的时候，可以让idc抄下来机柜和序列号，然后我们让网管规划好ip，再这里就可以利用serial来确定机器应该按哪个模板安装。</p>
+<p>再看模板文件，centos7.ks</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1">#version=DEVEL</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">auth --enableshadow --passalgo<span class="o">=</span>sha512  
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">url --url<span class="o">=</span>http://172.16.8.1/centos7  
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">text  
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">firstboot --enable  
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">ignoredisk --only-use<span class="o">=</span>sda  
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">keyboard --vckeymap<span class="o">=</span>us --xlayouts<span class="o">=</span><span class="s1">&#39;us&#39;</span>  
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">lang en_US.UTF-8  
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">selinux --disabled
+</span></span><span class="line"><span class="ln">10</span><span class="cl">
+</span></span><span class="line"><span class="ln">11</span><span class="cl">services --enabled<span class="o">=</span><span class="s2">&#34;chronyd&#34;</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">
+</span></span><span class="line"><span class="ln">13</span><span class="cl">network  --bootproto<span class="o">=</span>static --device<span class="o">=</span>em1 --noipv6 --nodns --onboot<span class="o">=</span>yes --gateway<span class="o">={</span>gateway<span class="o">}</span> --ip<span class="o">={</span>ip<span class="o">}</span> --nameserver<span class="o">=</span>172.16.8.1 --netmask<span class="o">={</span>netmask<span class="o">}</span>  
+</span></span><span class="line"><span class="ln">14</span><span class="cl">network  --bootproto<span class="o">=</span>dhcp --device<span class="o">=</span>em2 --noipv6 --nodns --onboot<span class="o">=</span>no  
+</span></span><span class="line"><span class="ln">15</span><span class="cl">network  --bootproto<span class="o">=</span>dhcp --device<span class="o">=</span>em3 --noipv6 --nodns --onboot<span class="o">=</span>no  
+</span></span><span class="line"><span class="ln">16</span><span class="cl">network  --bootproto<span class="o">=</span>dhcp --device<span class="o">=</span>em4 --noipv6 --nodns --onboot<span class="o">=</span>no  
+</span></span><span class="line"><span class="ln">17</span><span class="cl">network  --hostname<span class="o">={</span>hostname<span class="o">}</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl">
+</span></span><span class="line"><span class="ln">19</span><span class="cl"><span class="c1">#grub-crypt --sha-512</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="c1"># root  pass is password</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl">rootpw --iscrypted <span class="nv">$6$0</span>Y.SH935/jvt0X.D<span class="nv">$lCte9H</span>/KiFeGbTGrrcuXGZXmnq3Rk4Crz8nAvCgH.Pf2SNmoUdh.g5WGWJqtVO4QTyqvnXc/6FyVjptWIaM4w1  
+</span></span><span class="line"><span class="ln">22</span><span class="cl">timezone Asia/Shanghai --isUtc
+</span></span><span class="line"><span class="ln">23</span><span class="cl">
+</span></span><span class="line"><span class="ln">24</span><span class="cl">bootloader --append<span class="o">=</span><span class="s2">&#34; crashkernel=auto&#34;</span> --location<span class="o">=</span>mbr --boot-drive<span class="o">=</span>sda  
+</span></span><span class="line"><span class="ln">25</span><span class="cl">clearpart --all --drives<span class="o">=</span>sda
+</span></span><span class="line"><span class="ln">26</span><span class="cl">
+</span></span><span class="line"><span class="ln">27</span><span class="cl">part /boot --fstype ext4 --size<span class="o">=</span><span class="m">500</span> --ondisk<span class="o">=</span>/dev/sda  
+</span></span><span class="line"><span class="ln">28</span><span class="cl">part swap --size<span class="o">=</span><span class="m">8192</span> --ondisk<span class="o">=</span>/dev/sda  
+</span></span><span class="line"><span class="ln">29</span><span class="cl">part / --fstype ext4 --size<span class="o">=</span><span class="m">1024</span> --grow --ondisk<span class="o">=</span>/dev/sda
+</span></span><span class="line"><span class="ln">30</span><span class="cl">
+</span></span><span class="line"><span class="ln">31</span><span class="cl">%packages
+</span></span><span class="line"><span class="ln">32</span><span class="cl">@compat-libraries
+</span></span><span class="line"><span class="ln">33</span><span class="cl">@core
+</span></span><span class="line"><span class="ln">34</span><span class="cl">wget  
+</span></span><span class="line"><span class="ln">35</span><span class="cl">net-tools  
+</span></span><span class="line"><span class="ln">36</span><span class="cl">chrony  
+</span></span><span class="line"><span class="ln">37</span><span class="cl">bridge-utils  
+</span></span><span class="line"><span class="ln">38</span><span class="cl">%end
+</span></span><span class="line"><span class="ln">39</span><span class="cl">
+</span></span><span class="line"><span class="ln">40</span><span class="cl">%post
+</span></span><span class="line"><span class="ln">41</span><span class="cl">yum -y erase NetworkManager  
+</span></span><span class="line"><span class="ln">42</span><span class="cl">cat <span class="s">&lt;&lt;EOF &gt;/etc/sysconfig/network-scripts/ifcfg-br0  
+</span></span></span><span class="line"><span class="ln">43</span><span class="cl"><span class="s">DEVICE=br0  
+</span></span></span><span class="line"><span class="ln">44</span><span class="cl"><span class="s">TYPE=Bridge  
+</span></span></span><span class="line"><span class="ln">45</span><span class="cl"><span class="s">BOOTPROTO=static  
+</span></span></span><span class="line"><span class="ln">46</span><span class="cl"><span class="s">ONBOOT=yes  
+</span></span></span><span class="line"><span class="ln">47</span><span class="cl"><span class="s">IPADDR={ip}  
+</span></span></span><span class="line"><span class="ln">48</span><span class="cl"><span class="s">NETMASK={netmask}  
+</span></span></span><span class="line"><span class="ln">49</span><span class="cl"><span class="s">GATEWAY={gateway}  
+</span></span></span><span class="line"><span class="ln">50</span><span class="cl"><span class="s">EOF</span>  
+</span></span><span class="line"><span class="ln">51</span><span class="cl">cat <span class="s">&lt;&lt;EOF &gt; /etc/modprobe.d/bonding.conf  
+</span></span></span><span class="line"><span class="ln">52</span><span class="cl"><span class="s">alias bond0 bonding  
+</span></span></span><span class="line"><span class="ln">53</span><span class="cl"><span class="s">BONDING_OPTS=&#34;miimon=100 mode=1 primary=em1&#34;  
+</span></span></span><span class="line"><span class="ln">54</span><span class="cl"><span class="s">EOF</span>  
+</span></span><span class="line"><span class="ln">55</span><span class="cl">cat <span class="s">&lt;&lt;EOF &gt; /etc/sysconfig/network-scripts/ifcfg-bond0  
+</span></span></span><span class="line"><span class="ln">56</span><span class="cl"><span class="s">DEVICE=bond0  
+</span></span></span><span class="line"><span class="ln">57</span><span class="cl"><span class="s">ONBOOT=yes  
+</span></span></span><span class="line"><span class="ln">58</span><span class="cl"><span class="s">USERCTL=no  
+</span></span></span><span class="line"><span class="ln">59</span><span class="cl"><span class="s">BRIDGE=br0  
+</span></span></span><span class="line"><span class="ln">60</span><span class="cl"><span class="s">EOF</span>  
+</span></span><span class="line"><span class="ln">61</span><span class="cl">cat <span class="s">&lt;&lt;EOF &gt; /etc/sysconfig/network-scripts/ifcfg-em1  
+</span></span></span><span class="line"><span class="ln">62</span><span class="cl"><span class="s">DEVICE=em1  
+</span></span></span><span class="line"><span class="ln">63</span><span class="cl"><span class="s">USERCTL=no  
+</span></span></span><span class="line"><span class="ln">64</span><span class="cl"><span class="s">ONBOOT=yes  
+</span></span></span><span class="line"><span class="ln">65</span><span class="cl"><span class="s">MASTER=bond0  
+</span></span></span><span class="line"><span class="ln">66</span><span class="cl"><span class="s">SLAVE=yes  
+</span></span></span><span class="line"><span class="ln">67</span><span class="cl"><span class="s">BRIDGE=&#34;br0&#34;  
+</span></span></span><span class="line"><span class="ln">68</span><span class="cl"><span class="s">EOF</span>  
+</span></span><span class="line"><span class="ln">69</span><span class="cl">cat <span class="s">&lt;&lt;EOF &gt; /etc/sysconfig/network-scripts/ifcfg-em2  
+</span></span></span><span class="line"><span class="ln">70</span><span class="cl"><span class="s">DEVICE=em2  
+</span></span></span><span class="line"><span class="ln">71</span><span class="cl"><span class="s">USERCTL=no  
+</span></span></span><span class="line"><span class="ln">72</span><span class="cl"><span class="s">ONBOOT=yes  
+</span></span></span><span class="line"><span class="ln">73</span><span class="cl"><span class="s">MASTER=bond0  
+</span></span></span><span class="line"><span class="ln">74</span><span class="cl"><span class="s">SLAVE=yes  
+</span></span></span><span class="line"><span class="ln">75</span><span class="cl"><span class="s">BRIDGE=&#34;br0&#34;  
+</span></span></span><span class="line"><span class="ln">76</span><span class="cl"><span class="s">EOF</span>  
+</span></span><span class="line"><span class="ln">77</span><span class="cl">%end
+</span></span><span class="line"><span class="ln">78</span><span class="cl">
+</span></span><span class="line"><span class="ln">79</span><span class="cl">reboot  
+</span></span></code></pre></div><p>注意上面，{ip}、{netmask}、{gateway}、{hostname}是待定的。</p>
+<p>然后看看boot2.php:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">&lt;?php  
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="nv">$dns</span><span class="o">=</span><span class="s1">&#39;172.16.8.1&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="nv">$base7</span><span class="o">=</span><span class="s1">&#39;http://172.16.8.1/centos7&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="nv">$ks7</span><span class="o">=</span><span class="s1">&#39;http://172.16.8.1/ks/boot3.php&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;#!gpxe\n&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">switch <span class="o">(</span><span class="nv">$_REQUEST</span><span class="o">[</span><span class="s1">&#39;mac&#39;</span><span class="o">])</span> <span class="o">{</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">
+</span></span><span class="line"><span class="ln">11</span><span class="cl">  <span class="k">case</span> <span class="s1">&#39;\ec:f4:bb:d9:96:40&#39;</span>:
+</span></span><span class="line"><span class="ln">12</span><span class="cl">    <span class="nv">$ip</span><span class="o">=</span><span class="s2">&#34;172.16.36.2:172.16.37.254:255.255.254.0:myhost-16-36-2&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">    <span class="nv">$ipa</span><span class="o">=</span>explode<span class="o">(</span><span class="s1">&#39;:&#39;</span>,<span class="nv">$ip</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;ifopen net0\n&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;set net0/ip </span><span class="nv">$ipa</span><span class="s2">[0]\n&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;set net0/netmask </span><span class="nv">$ipa</span><span class="s2">[2]\n&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;set net0/gateway </span><span class="nv">$ipa</span><span class="s2">[1]\n&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;set net0/dns </span><span class="nv">$dns</span><span class="s2">\n&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;set base-url </span><span class="nv">$base7</span><span class="s2">\n&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;kernel \${base-url}/images/pxeboot/vmlinuz\n&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;imgargs vmlinuz inst.ks=</span><span class="nv">$ks7</span><span class="s2">?file=centos7.ks&amp;ip=</span><span class="nv">$ipa</span><span class="s2">[0]&amp;mask=</span><span class="nv">$ipa</span><span class="s2">[2]&amp;gateway=</span><span class="nv">$ipa</span><span class="s2">[1]&amp;hostname=</span><span class="nv">$ipa</span><span class="s2">[3] ksdevice=bootif inst.vnc inst.vncpassword=password inst.sshd\n&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">22</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;initrd \${base-url}/images/pxeboot/initrd.img\n&#34;</span><span class="p">;</span> 
+</span></span><span class="line"><span class="ln">23</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;boot\n&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">24</span><span class="cl">    break<span class="p">;</span>
+</span></span><span class="line"><span class="ln">25</span><span class="cl">
+</span></span><span class="line"><span class="ln">26</span><span class="cl">  <span class="k">case</span> <span class="s1">&#39;00:11:22:33:44:55&#39;</span>:
+</span></span><span class="line"><span class="ln">27</span><span class="cl">    <span class="c1"># boot from iSCSI</span>
+</span></span><span class="line"><span class="ln">28</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;set initiator-iqn iqn.2007-08.com.example.initiator:initiator\n&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">29</span><span class="cl">    <span class="c1"># see http://ipxe.org/sanuri for the syntax</span>
+</span></span><span class="line"><span class="ln">30</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;sanboot iscsi:san.example.com:6:3260:0:iqn.2007-08.com.example.san:sometarget\n&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">31</span><span class="cl">    break<span class="p">;</span>
+</span></span><span class="line"><span class="ln">32</span><span class="cl">
+</span></span><span class="line"><span class="ln">33</span><span class="cl">  <span class="k">case</span> <span class="s1">&#39;\00:77:21🆎cd:ee&#39;</span>:
+</span></span><span class="line"><span class="ln">34</span><span class="cl">    <span class="c1"># boot boot.salstar.sk&#39;s super cool boot menu      </span>
+</span></span><span class="line"><span class="ln">35</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;chain http://boot.salstar.sk\n&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">36</span><span class="cl">    break<span class="p">;</span>
+</span></span><span class="line"><span class="ln">37</span><span class="cl">
+</span></span><span class="line"><span class="ln">38</span><span class="cl">  default:
+</span></span><span class="line"><span class="ln">39</span><span class="cl">    <span class="c1"># exit iPXE and let machine go on with BIOS boot sequence</span>
+</span></span><span class="line"><span class="ln">40</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;exit\n&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">41</span><span class="cl">    break<span class="p">;</span>
+</span></span><span class="line"><span class="ln">42</span><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="ln">43</span><span class="cl">
+</span></span><span class="line"><span class="ln">44</span><span class="cl">?&gt; 
+</span></span></code></pre></div><p>注意上面，我们是通过网卡的物理地址来判断模板的，用svc tag号更好。</p>
+<p>第四个文件：boot3.php</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">&lt;?php
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="nv">$origin_str</span> <span class="o">=</span> file_get_contents<span class="o">(</span><span class="nv">$_REQUEST</span><span class="o">[</span><span class="s1">&#39;file&#39;</span><span class="o">])</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="nv">$update_str</span> <span class="o">=</span> str_replace<span class="o">(</span><span class="s2">&#34;{ip}&#34;</span>, <span class="nv">$_REQUEST</span><span class="o">[</span><span class="s1">&#39;ip&#39;</span><span class="o">]</span>, <span class="nv">$origin_str</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="nv">$update_str</span> <span class="o">=</span> str_replace<span class="o">(</span><span class="s1">&#39;{netmask}&#39;</span>, <span class="nv">$_REQUEST</span><span class="o">[</span><span class="s1">&#39;mask&#39;</span><span class="o">]</span>, <span class="nv">$update_str</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="nv">$update_str</span> <span class="o">=</span> str_replace<span class="o">(</span><span class="s1">&#39;{gateway}&#39;</span>, <span class="nv">$_REQUEST</span><span class="o">[</span><span class="s1">&#39;gateway&#39;</span><span class="o">]</span>, <span class="nv">$update_str</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="nv">$update_str</span> <span class="o">=</span> str_replace<span class="o">(</span><span class="s1">&#39;{hostname}&#39;</span>, <span class="nv">$_REQUEST</span><span class="o">[</span><span class="s1">&#39;hostname&#39;</span><span class="o">]</span>, <span class="nv">$update_str</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">
+</span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="nb">echo</span> <span class="nv">$update_str</span><span class="p">;</span>  
+</span></span><span class="line"><span class="ln">11</span><span class="cl">?&gt;
+</span></span></code></pre></div><p>boot3.php的功能就是替换掉模板文件里的ip等，然后返回一个正确的ks文件。</p>
+<p>这下就完美了，我们基本就需要修改ks下的boot2.php和centos7.ks，就可以控制远程安装了。</p>
+<p>dhcp和tftp，就用dnsmasq和那一个gxpe就够了，省了大事了。</p>
+<p>还有更好玩的: 网卡原生pxe&ndash;&gt;gpxe&ndash;&gt;pxelinux.0</p>
+<p>大家尽情想象吧。</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-coffee"></i>打赏</h5>
+        <a href="#" data-bs-dismiss="modal" class="btn btn-sm btn-outline-primary" aria-label="Close"><i class="fas fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs flex-nowrap mb-3" role="tablist"><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>支付宝
+            </a>
+          </li><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>微信
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+  <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
+    <a href="https://bajie.dev/posts/20240118-kickstart_bongding/">Kickstart安装脚本中如何同时配置bridge和bond
+</a>
+  </div><div class="post-nav post-next">
+    <a href="https://bajie.dev/posts/20240118-pxe_utuntu_desk/">用IPXE启动个Ubuntu桌面
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
+  </div></div><section class="related-posts-wrapper">
+    <h3>相关文章</h3>
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20240118-kickstart_bongding/">Kickstart安装脚本中如何同时配置bridge和bond
+</a></li><li><a href="https://bajie.dev/posts/20240118-idrac_pxe/">Dell Idrac 重启机器进入单次pxe安装
+</a></li><li><a href="https://bajie.dev/posts/20240118-nxlog_es/">Nxlog推送数据到elasticsearch
+</a></li><li><a href="https://bajie.dev/posts/20240118-f5_alert/">F5-Bigip的Load Balance告警邮件设置
+</a></li><li><a href="https://bajie.dev/posts/20240118-plsql_linux/">在Ubuntu上装个plsql通过远程桌面访问oracle
+</a></li></ul>
+  </section></div>
+</article><div class="post-comments card row component">
+  <div class="card-body"><div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-zhangrr-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a></div>
+</div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container">
+    
+    <section class="card row text-center profile component">
+  <div class="card-body">
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Zhang Ranrui" src="https://bajie.dev/images/bajie_01.jpg" loading="lazy"
+   width="391" height="644"
+   />
+</div>
+    <div class="col-12 profile-meta"><div class="profile-name">Zhang Ranrui</div><div class="profile-bio">Devops, SA, 运维全干工程师.</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>Company</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>Earth</div><div class="profile-about"><i class="fas fa-fw fa-user"></i><a target="_blank" rel="noopener noreferrer" href="http://www.rendoumi.com">关于我</a></div></div>
+  </div>
+</section>
+  <section class="featured-posts row card component">
+    <div class="card-body">
+      <h2 class="card-title">精选文章</h2>
+      <ul><li><a href="https://bajie.dev/posts/markdown-syntax/">Markdown Syntax Guide
+</a></li></ul>
+    </div>
+  </section><section class="recent-posts row card component">
+  <div class="card-body">
+    <h2 class="card-title">最近文章</h2>
+    <ul><li><a href="https://bajie.dev/posts/20240118-ipxe_sysrecuecd/">Ipxe远程运行sysrecuecd系统
+</a></li><li><a href="https://bajie.dev/posts/20240118-pxe_utuntu_desk/">用IPXE启动个Ubuntu桌面
+</a></li><li><a href="https://bajie.dev/posts/20240118-ipxe_install/">IPXE Kickstart安装CentOS的方法
+</a></li><li><a href="https://bajie.dev/posts/20240118-kickstart_bongding/">Kickstart安装脚本中如何同时配置bridge和bond
+</a></li><li><a href="https://bajie.dev/posts/20240118-idrac_pxe/">Dell Idrac 重启机器进入单次pxe安装
+</a></li></ul>
+  </div>
+</section><section class="taxonomies row card component">
+      <div class="card-body">
+        <h2 class="card-title">
+          <a href="https://bajie.dev/series">专栏</a>
+        </h2>
+        <div><a href="https://bajie.dev/series/manual/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Manual">
+            Manual
+          </a></div>
+      </div>
+    </section><section class="taxonomies row card component">
+      <div class="card-body">
+        <h2 class="card-title">
+          <a href="https://bajie.dev/tags">标签</a>
+        </h2>
+        <div><a href="https://bajie.dev/tags/css/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="CSS">
+            CSS
+          </a><a href="https://bajie.dev/tags/html/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="HTML">
+            HTML
+          </a><a href="https://bajie.dev/tags/markdown/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Markdown">
+            Markdown
+          </a></div>
+      </div>
+    </section>
+    
+  </div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:zhangranrui@gmail.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/zhangrr" title="GitHub" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://www.reddit.com/user/defunct9" title="Reddit" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-reddit"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/defunct9" title="Telegram" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a></nav>
+<div class="copyright mb-2">
+  Copyright © 2020-2024 Zhang Ranrui. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+</div></footer>
+
+</body>
+</html>

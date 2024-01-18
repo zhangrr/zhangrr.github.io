@@ -1,0 +1,444 @@
+<!doctype html><html lang="zh-cn"
+  >
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>kickstart安装脚本中如何同时配置bridge和bond - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
+<meta name="keywords" content="" />
+<meta name="description" content="" /><meta itemprop="name" content="kickstart安装脚本中如何同时配置bridge和bond">
+<meta itemprop="description" content="如何在kickstart脚本中既配置br，又配置bonding呢？ 基本篇： 以Dell R730为例，物理网卡名称是em1/em2/em3/em"><meta itemprop="datePublished" content="2024-01-18T12:00:11+08:00" />
+<meta itemprop="dateModified" content="2024-01-18T12:00:11+08:00" />
+<meta itemprop="wordCount" content="634">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="kickstart安装脚本中如何同时配置bridge和bond" />
+<meta property="og:description" content="如何在kickstart脚本中既配置br，又配置bonding呢？ 基本篇： 以Dell R730为例，物理网卡名称是em1/em2/em3/em" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://bajie.dev/posts/20240118-kickstart_bongding/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2024-01-18T12:00:11+08:00" />
+<meta property="article:modified_time" content="2024-01-18T12:00:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="kickstart安装脚本中如何同时配置bridge和bond"/>
+<meta name="twitter:description" content="如何在kickstart脚本中既配置br，又配置bonding呢？ 基本篇： 以Dell R730为例，物理网卡名称是em1/em2/em3/em"/>
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <div class="container">
+    <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
+  aria-controls="offcanvasSettings" aria-label="Toggle settings">
+  <i class="fas fa-bars"></i>
+</button>
+
+<div class="offcanvas offcanvas-start surface" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasSettings">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">设置</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body">
+
+<section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+
+<section class="setting">
+  <form class="font-size-switcher-form row">
+    <div class="col-auto">
+      <label for="fontSize" class="form-label"><i class="fas fa-fw fa-font"></i> 字体大小</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <input type="range" class="form-range" min="-2" max="2" id="fontSize">
+    </div>
+  </form>
+</section>
+
+
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a id="btnPalette" class="btn btn-sm btn-outline-primary" role="button" aria-label="palettePicker">
+        <i class="fas fa-eye-dropper"></i>
+      </a>
+    </div>
+  </form>
+  <div class="mt-2 d-flex visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="蓝色"
+        class="btn btn-sm palette" data-palette="blue">
+      </button><button type="button" id="palette-blue-gray" aria-label="蓝灰色"
+        class="btn btn-sm palette" data-palette="blue-gray">
+      </button><button type="button" id="palette-brown" aria-label="棕色"
+        class="btn btn-sm palette" data-palette="brown">
+      </button><button type="button" id="palette-cyan" aria-label="青色"
+        class="btn btn-sm palette" data-palette="cyan">
+      </button><button type="button" id="palette-green" aria-label="绿色"
+        class="btn btn-sm palette" data-palette="green">
+      </button><button type="button" id="palette-indigo" aria-label="靛青色"
+        class="btn btn-sm palette" data-palette="indigo">
+      </button><button type="button" id="palette-orange" aria-label="橙色"
+        class="btn btn-sm palette" data-palette="orange">
+      </button><button type="button" id="palette-pink" aria-label="粉色"
+        class="btn btn-sm palette" data-palette="pink">
+      </button><button type="button" id="palette-purple" aria-label="紫色"
+        class="btn btn-sm palette" data-palette="purple">
+      </button><button type="button" id="palette-red" aria-label="红色"
+        class="btn btn-sm palette" data-palette="red">
+      </button><button type="button" id="palette-teal" aria-label="蓝绿色"
+        class="btn btn-sm palette" data-palette="teal">
+      </button><button type="button" id="palette-yellow" aria-label="黄色"
+        class="btn btn-sm palette" data-palette="yellow">
+      </button></div>
+</section>
+<section class="setting social-share">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-share-alt"></i> Share</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a class="btn btn-sm btn-outline-primary btn-social-share"><i class="fas fa-share"></i></a>
+    </div>
+  </form>
+  <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
+      target="_blank" href="https://twitter.com/intent/tweet?title=kickstart%e5%ae%89%e8%a3%85%e8%84%9a%e6%9c%ac%e4%b8%ad%e5%a6%82%e4%bd%95%e5%90%8c%e6%97%b6%e9%85%8d%e7%bd%aebridge%e5%92%8cbond&url=https%3a%2f%2fbajie.dev%2fposts%2f20240118-kickstart_bongding%2f">
+      <i class="fab fa-fw fa-twitter"></i> Twitter
+    </a>
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20240118-kickstart_bongding%2f">
+      <i class="fab fa-fw fa-facebook-f"></i> Facebook
+    </a>
+  </div>
+</section>
+
+</div>
+</div>
+<a class="navbar-brand me-3" href="https://bajie.dev"><img class="logo" alt="Logo" src="https://bajie.dev/images/logo.webp" loading="lazy"
+   width="136" height="69"
+   />
+八戒
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="fas fa-ellipsis-v"></i>
+    </button>
+    <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
+      <form class="search-bar my-1" action="https://bajie.dev/search">
+  <div class="input-group input-group-sm">
+    <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
+    <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
+  </div>
+</form>
+
+      <ul class="navbar-nav ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/categories/">
+            <i class="fas fa-fw fa-folder"></i>分类
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/tags/">
+            <i class="fas fa-fw fa-tags"></i>标签
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/series/">
+            <i class="fas fa-fw fa-columns"></i>专栏
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-chevron-circle-down"></i>下拉菜单
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-dropdown"><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                <i class="fab fa-fw fa-github"></i>Github
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://bajie.dev/zh-cn/series/manual">
+                用户手册
+              </a>
+            </li></ul>
+        </li></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body">
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">Posts</a></li><li class="breadcrumb-item active">Kickstart安装脚本中如何同时配置bridge和bond</li></ol>
+  </div>
+</nav><article class="post row card mb-4 component">
+  <div class="card-body"><div class="post-panel-wrapper">
+  <div class="post-panel d-flex flex-column">
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+  <i class="fas fa-fw fa-expand-arrows-alt"></i>
+</a>
+  
+    
+
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
+  <i class="fas fa-fw fa-coffee"></i>
+</a>
+    <a class="action" data-bs-container="body" data-bs-toggle="popover" data-bs-html="true" data-bs-placement="bottom"
+  data-bs-trigger="focus" tabindex="0" type="button" aria-label="Copyright" 
+  data-bs-content="&lt;a target=&#34;_blank&#34; rel=&#34;license noopener noreferrer&#34; href=&#34;https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh&#34;&gt;CC BY-NC-ND 4.0 &lt;i class=&#34;fab fa-fw fa-creative-commons&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-by&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-nc&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-nd&#34;&gt;&lt;/i&gt;&lt;/a&gt;
+">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
+    <a data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+  <i class="fas fa-fw fa-list-alt"></i>
+</a>
+  </div>
+</div>
+<h1 class="card-title my-3">Kickstart安装脚本中如何同时配置bridge和bond
+</h1><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-18
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+  </div>
+  <div class="offcanvas-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#基本篇">基本篇：</a></li>
+    <li><a href="#进阶篇">进阶篇：</a></li>
+  </ul>
+</nav>
+  </div>
+</div><div class="post-content mb-3"><p>如何在<code>kickstart</code>脚本中既配置br，又配置bonding呢？</p>
+<h2 id="基本篇">基本篇：</h2>
+<p>以Dell R730为例，物理网卡名称是em1/em2/em3/em4</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">network  --device<span class="o">=</span>br0   --noipv6  --onboot<span class="o">=</span>yes --bridgeslaves<span class="o">=</span>bond0 --gateway<span class="o">=</span>172.16.37.254 --ip<span class="o">=</span>172.16.36.2 --nameserver<span class="o">=</span>172.16.8.1 --netmask<span class="o">=</span>255.255.254.0 --activate  
+</span></span><span class="line"><span class="ln">2</span><span class="cl">network  --device<span class="o">=</span>bond0 --noipv6  --onboot<span class="o">=</span>yes --bondslaves<span class="o">=</span>em1,em2 --bondopts<span class="o">=</span><span class="nv">mode</span><span class="o">=</span>active-backup,balance-rr<span class="p">;</span><span class="nv">primary</span><span class="o">=</span>em1,miimon<span class="o">=</span>80,updelay<span class="o">=</span><span class="m">60000</span> --activate  
+</span></span><span class="line"><span class="ln">3</span><span class="cl">network --device<span class="o">=</span>em1 --noipv6 --nodns --onboot<span class="o">=</span>yes --activate  
+</span></span><span class="line"><span class="ln">4</span><span class="cl">network --device<span class="o">=</span>em2 --noipv6 --nodns --onboot<span class="o">=</span>yes --activate  
+</span></span><span class="line"><span class="ln">5</span><span class="cl">network --device<span class="o">=</span>em3 --noipv6 --nodns --onboot<span class="o">=</span>yes --activate  
+</span></span><span class="line"><span class="ln">6</span><span class="cl">network --device<span class="o">=</span>em4 --noipv6 --nodns --onboot<span class="o">=</span>yes --activate  
+</span></span><span class="line"><span class="ln">7</span><span class="cl">network  --hostname<span class="o">=</span>myhost-16-36-2  
+</span></span></code></pre></div><p>注意以上，是只做了 em1 和 em2 绑定成为 bond0 ，然后 br0 启动在 bond0 之上。</p>
+<h2 id="进阶篇">进阶篇：</h2>
+<p>基本篇的做法固然是做了四网卡绑定和桥接，副作用也是很可怕的。</p>
+<p>大家去看/etc/sysconfig/network-scripts， 里面有一堆的ifcfg-br0-slave_1，ifcfg-bond0-slave_1， ifcfg-bond0-slave_2，更可恶的是进程中跑着好几个dhcp-client，一想就明白了，这是NetworkManager搞得。em3和em4不断去启停端口，试图获得地址，导致交换机端口忽断忽通。</p>
+<p>这个试图自动化网络的东西在服务器跑上实在是太无聊了。</p>
+<p>所以上面的做法摒弃。在%post把网络搞好：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">... 
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">%packages 
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">@compat-libraries 
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">@core 
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">wget 
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">net-tools 
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">chrony 
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">bridge-utils 
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">%end 
+</span></span><span class="line"><span class="ln">10</span><span class="cl">...
+</span></span><span class="line"><span class="ln">11</span><span class="cl">
+</span></span><span class="line"><span class="ln">12</span><span class="cl">network  --bootproto<span class="o">=</span>static --device<span class="o">=</span>em1 --noipv6 --nodns  --onboot<span class="o">=</span>yes --gateway<span class="o">=</span>172.16.37.254 --ip<span class="o">=</span>172.16.36.2  --nameserver<span class="o">=</span>172.16.8.1 --netmask<span class="o">=</span>255.255.254.0 
+</span></span><span class="line"><span class="ln">13</span><span class="cl">network  --bootproto<span class="o">=</span>dhcp --device<span class="o">=</span>em2 --noipv6 --nodns --onboot<span class="o">=</span>no 
+</span></span><span class="line"><span class="ln">14</span><span class="cl">network  --bootproto<span class="o">=</span>dhcp --device<span class="o">=</span>em3 --noipv6 --nodns --onboot<span class="o">=</span>no 
+</span></span><span class="line"><span class="ln">15</span><span class="cl">network  --bootproto<span class="o">=</span>dhcp --device<span class="o">=</span>em4 --noipv6 --nodns --onboot<span class="o">=</span>no 
+</span></span><span class="line"><span class="ln">16</span><span class="cl">network  --hostname<span class="o">=</span>myhost-16-36-2 
+</span></span><span class="line"><span class="ln">17</span><span class="cl">...
+</span></span><span class="line"><span class="ln">18</span><span class="cl">
+</span></span><span class="line"><span class="ln">19</span><span class="cl">%post 
+</span></span><span class="line"><span class="ln">20</span><span class="cl"> yum -y erase NetworkManager 
+</span></span><span class="line"><span class="ln">21</span><span class="cl"> cat &lt;/etc/sysconfig/network-scripts/ifcfg-br0 
+</span></span><span class="line"><span class="ln">22</span><span class="cl"> <span class="nv">DEVICE</span><span class="o">=</span>br0 
+</span></span><span class="line"><span class="ln">23</span><span class="cl"> <span class="nv">TYPE</span><span class="o">=</span>Bridge 
+</span></span><span class="line"><span class="ln">24</span><span class="cl"> <span class="nv">BOOTPROTO</span><span class="o">=</span>static 
+</span></span><span class="line"><span class="ln">25</span><span class="cl"> <span class="nv">ONBOOT</span><span class="o">=</span>yes 
+</span></span><span class="line"><span class="ln">26</span><span class="cl"> <span class="nv">IPADDR</span><span class="o">=</span>172.16.36.2 
+</span></span><span class="line"><span class="ln">27</span><span class="cl"> <span class="nv">NETMASK</span><span class="o">=</span>255.255.254.0 
+</span></span><span class="line"><span class="ln">28</span><span class="cl"> <span class="nv">GATEWAY</span><span class="o">=</span>172.16.37.254 
+</span></span><span class="line"><span class="ln">29</span><span class="cl"> EOF 
+</span></span><span class="line"><span class="ln">30</span><span class="cl"> cat &lt; /etc/modprobe.d/bonding.conf 
+</span></span><span class="line"><span class="ln">31</span><span class="cl"> <span class="nb">alias</span> bond0 bonding 
+</span></span><span class="line"><span class="ln">32</span><span class="cl"> <span class="nv">BONDING_OPTS</span><span class="o">=</span><span class="s2">&#34;miimon=100 mode=1 primary=em1&#34;</span> 
+</span></span><span class="line"><span class="ln">33</span><span class="cl"> EOF 
+</span></span><span class="line"><span class="ln">34</span><span class="cl"> cat &lt; /etc/sysconfig/network-scripts/ifcfg-bond0 
+</span></span><span class="line"><span class="ln">35</span><span class="cl"> <span class="nv">DEVICE</span><span class="o">=</span>bond0 
+</span></span><span class="line"><span class="ln">36</span><span class="cl"> <span class="nv">ONBOOT</span><span class="o">=</span>yes 
+</span></span><span class="line"><span class="ln">37</span><span class="cl"> <span class="nv">USERCTL</span><span class="o">=</span>no 
+</span></span><span class="line"><span class="ln">38</span><span class="cl"> <span class="nv">BRIDGE</span><span class="o">=</span>br0 
+</span></span><span class="line"><span class="ln">39</span><span class="cl"> EOF 
+</span></span><span class="line"><span class="ln">40</span><span class="cl"> cat &lt; /etc/sysconfig/network-scripts/ifcfg-em1 
+</span></span><span class="line"><span class="ln">41</span><span class="cl"> <span class="nv">DEVICE</span><span class="o">=</span>em1 
+</span></span><span class="line"><span class="ln">42</span><span class="cl"> <span class="nv">USERCTL</span><span class="o">=</span>no 
+</span></span><span class="line"><span class="ln">43</span><span class="cl"> <span class="nv">ONBOOT</span><span class="o">=</span>yes 
+</span></span><span class="line"><span class="ln">44</span><span class="cl"> <span class="nv">MASTER</span><span class="o">=</span>bond0 
+</span></span><span class="line"><span class="ln">45</span><span class="cl"> <span class="nv">SLAVE</span><span class="o">=</span>yes 
+</span></span><span class="line"><span class="ln">46</span><span class="cl"> <span class="nv">BRIDGE</span><span class="o">=</span><span class="s2">&#34;br0&#34;</span> 
+</span></span><span class="line"><span class="ln">47</span><span class="cl"> EOF 
+</span></span><span class="line"><span class="ln">48</span><span class="cl"> cat &lt; /etc/sysconfig/network-scripts/ifcfg-em2 
+</span></span><span class="line"><span class="ln">49</span><span class="cl"> <span class="nv">DEVICE</span><span class="o">=</span>em2 
+</span></span><span class="line"><span class="ln">50</span><span class="cl"> <span class="nv">USERCTL</span><span class="o">=</span>no 
+</span></span><span class="line"><span class="ln">51</span><span class="cl"> <span class="nv">ONBOOT</span><span class="o">=</span>yes 
+</span></span><span class="line"><span class="ln">52</span><span class="cl"> <span class="nv">MASTER</span><span class="o">=</span>bond0 
+</span></span><span class="line"><span class="ln">53</span><span class="cl"> <span class="nv">SLAVE</span><span class="o">=</span>yes 
+</span></span><span class="line"><span class="ln">54</span><span class="cl"> <span class="nv">BRIDGE</span><span class="o">=</span><span class="s2">&#34;br0&#34;</span> 
+</span></span><span class="line"><span class="ln">55</span><span class="cl"> EOF 
+</span></span><span class="line"><span class="ln">56</span><span class="cl"> %end
+</span></span></code></pre></div><p>注意上面，安装包必须安装bridge-utils，否则没有brctl，无法启动br0。</p>
+<p>其次是卸载了NetworkManager，服务器网络都是手动配的，没人用自动化管理。</p>
+<p>这样就完美了。</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-coffee"></i>打赏</h5>
+        <a href="#" data-bs-dismiss="modal" class="btn btn-sm btn-outline-primary" aria-label="Close"><i class="fas fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs flex-nowrap mb-3" role="tablist"><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>支付宝
+            </a>
+          </li><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>微信
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+  <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
+    <a href="https://bajie.dev/posts/20240118-idrac_pxe/">Dell Idrac 重启机器进入单次pxe安装
+</a>
+  </div><div class="post-nav post-next">
+    <a href="https://bajie.dev/posts/20240118-ipxe_install/">IPXE Kickstart安装CentOS的方法
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
+  </div></div><section class="related-posts-wrapper">
+    <h3>相关文章</h3>
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20240118-idrac_pxe/">Dell Idrac 重启机器进入单次pxe安装
+</a></li><li><a href="https://bajie.dev/posts/20240118-nxlog_es/">Nxlog推送数据到elasticsearch
+</a></li><li><a href="https://bajie.dev/posts/20240118-f5_alert/">F5-Bigip的Load Balance告警邮件设置
+</a></li><li><a href="https://bajie.dev/posts/20240118-plsql_linux/">在Ubuntu上装个plsql通过远程桌面访问oracle
+</a></li><li><a href="https://bajie.dev/posts/20240117-git_proxy/">设置git Ssh代理
+</a></li></ul>
+  </section></div>
+</article><div class="post-comments card row component">
+  <div class="card-body"><div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-zhangrr-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a></div>
+</div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container">
+    
+    <section class="card row text-center profile component">
+  <div class="card-body">
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Zhang Ranrui" src="https://bajie.dev/images/bajie_01.jpg" loading="lazy"
+   width="391" height="644"
+   />
+</div>
+    <div class="col-12 profile-meta"><div class="profile-name">Zhang Ranrui</div><div class="profile-bio">Devops, SA, 运维全干工程师.</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>Company</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>Earth</div><div class="profile-about"><i class="fas fa-fw fa-user"></i><a target="_blank" rel="noopener noreferrer" href="http://www.rendoumi.com">关于我</a></div></div>
+  </div>
+</section>
+  <section class="featured-posts row card component">
+    <div class="card-body">
+      <h2 class="card-title">精选文章</h2>
+      <ul><li><a href="https://bajie.dev/posts/markdown-syntax/">Markdown Syntax Guide
+</a></li></ul>
+    </div>
+  </section><section class="recent-posts row card component">
+  <div class="card-body">
+    <h2 class="card-title">最近文章</h2>
+    <ul><li><a href="https://bajie.dev/posts/20240118-ipxe_sysrecuecd/">Ipxe远程运行sysrecuecd系统
+</a></li><li><a href="https://bajie.dev/posts/20240118-pxe_utuntu_desk/">用IPXE启动个Ubuntu桌面
+</a></li><li><a href="https://bajie.dev/posts/20240118-ipxe_install/">IPXE Kickstart安装CentOS的方法
+</a></li><li><a href="https://bajie.dev/posts/20240118-kickstart_bongding/">Kickstart安装脚本中如何同时配置bridge和bond
+</a></li><li><a href="https://bajie.dev/posts/20240118-idrac_pxe/">Dell Idrac 重启机器进入单次pxe安装
+</a></li></ul>
+  </div>
+</section><section class="taxonomies row card component">
+      <div class="card-body">
+        <h2 class="card-title">
+          <a href="https://bajie.dev/series">专栏</a>
+        </h2>
+        <div><a href="https://bajie.dev/series/manual/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Manual">
+            Manual
+          </a></div>
+      </div>
+    </section><section class="taxonomies row card component">
+      <div class="card-body">
+        <h2 class="card-title">
+          <a href="https://bajie.dev/tags">标签</a>
+        </h2>
+        <div><a href="https://bajie.dev/tags/css/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="CSS">
+            CSS
+          </a><a href="https://bajie.dev/tags/html/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="HTML">
+            HTML
+          </a><a href="https://bajie.dev/tags/markdown/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Markdown">
+            Markdown
+          </a></div>
+      </div>
+    </section>
+    
+  </div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:zhangranrui@gmail.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/zhangrr" title="GitHub" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://www.reddit.com/user/defunct9" title="Reddit" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-reddit"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/defunct9" title="Telegram" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a></nav>
+<div class="copyright mb-2">
+  Copyright © 2020-2024 Zhang Ranrui. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+</div></footer>
+
+</body>
+</html>

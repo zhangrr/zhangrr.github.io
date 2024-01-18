@@ -183,6 +183,71 @@
   </div>
 </nav><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211103-alphine_timezone/">Alphine镜像中timezone的设定
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-03
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          我们都喜欢用 alphine 的镜像做底包，来生产自己的镜像 alphine 的底包的时间设定就非常重要了 直接给出 Dockerfile 1FROM alpine:3.12 2 3# latest certs 4RUN apk add ca-certificates --no-cache &amp;&amp; update-ca-certificates 5 6# timezone support 7ENV TZ=Asia/Shanghai 8RUN apk add --update tzdata --no-cache &amp;&amp;\ 9 cp
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211103-proxmox/">生产环境Proxmox 7.02的安装和配置
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-03
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          其实我们的生产环境一直是 KVM ，然后用 shell 脚本控制虚机的生成，也是用到了 Cloud-init 的标准镜像。 听说 Proxmox 也很不错，于是想看看能否也在生产环境中用上 如果在生产环
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211102-ingress_nginx/">K8s中nginx Ingress的性能优化
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-02
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          kubernetes 中 nginx ingress 的优化分两部分 一、系统sysctl部分优化 首先是对nginx启动前的系统性能进行优化，这部分调整网络的缓冲区，减小闲置 socket 关闭的时间 以
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211102-sysctl_conf/">Linux内核sysctl内核参数优化
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-02
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          这篇是纯配置篇，解释都在配置里了，是生产服务器 sysctl.conf 的配置 1### KERNEL ### 2 3# Reboot after 10sec. on kernel panic 4kernel.panic = 10 5 6### IMPROVE SYSTEM MEMORY MANAGEMENT ### 7 8# Increase size of file handles and inode cache 9fs.file-max = 2097152 10 11# Insure we always have enough memory 12vm.min_free_kbytes
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211102-tcp_keealive/">Linux内核TCP连接Keep-Alive Timeout的配置
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-02
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          Custom Configuration of TCP Socket Keep-Alive Timeouts 这是个古老的话题，我们在机器的优化中，需要设置 TCP Socket 的 Timeout 参数 用来加快 TCP 关闭无用闲置连接的时间 Linux 内核中有三个缺省参数: 1 tcp_keepalive_time 缺省是 7200
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
         <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211029-bash_multithread/">Shell以及find的多线程执行
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-10-29
@@ -246,71 +311,6 @@
           用 kubernetes 越多，用 docker 越多，就愈发感觉到好处多多。 简简单单的一个可执行文件，用 docker 基板 alphine 封装，就可以运行起一个 pod ，然后指定 deployment、svc
         </div>
       </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211027-bitwarden/">Bitwarden（vaultwarden）如何在非Docker环境下安装使用
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-27
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          为什么会有非 Docker 环境这个怪字眼呢？ 无他，因为满网搜索到的教程都是在 Docker 环境下安装使用。 但是穷啊，八戒的 vps 是个单核 500m 的 justhost 机器，便宜的很，这种廉价机
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211026-ack_build/">阿里云ACK完全生产环境规划和搭建
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-26
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>7 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          在生产环境来创建阿里ACK托管k8s集群的过程： 完全用于生产，不是搭建来做测试用的。 授公司委托，给的RAM用户，所以阿里云RAM第一次登录后
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211025-autoinstall_cd/">Centos Auto Install Cdrom自动安装cdrom的制作
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-25
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          之前介绍过如何制作一个 centos live cdrom 系统 那么，某些情况下我们可能无法弄一个 pxe 系统，而只能通过 idrac 挂载 iso 的方式安装系统 该如何去做呢？ 步骤如下： 一、下载C
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211025-vsftpd/">Vsftpd的日志设置
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-25
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          为了研发方便就给他们在内网开通了 vsftpd 的服务。 结果 java 直接有封好的 ftp library 可用，大家就直接用了。 导致任何单独的一个文件上传都会起一个 ftp 实例，没有复用 ftp
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211022-pypxe/">PyPXE-一个牛逼的一站式PXE安装包
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-22
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          一般来说，我们要搭建一个正式的pxe自动装机系统，需要装 dnsmasq 做 dhcp + tftp ，需要编译 ipxe 来获得 undionly.kpxe ，需要 http 服务器来提供资源下载，repo 同步服务来提供 r
-        </div>
-      </div>
     </article></div><div class="row table-responsive mb-3">
     <ul class="pagination pagination-default">
       <li class="page-item">
@@ -364,11 +364,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240118-nxlog_es/">Nxlog推送数据到elasticsearch
-</a></li><li><a href="https://bajie.dev/posts/20240118-f5_alert/">F5-Bigip的Load Balance告警邮件设置
-</a></li><li><a href="https://bajie.dev/posts/20240118-plsql_linux/">在Ubuntu上装个plsql通过远程桌面访问oracle
-</a></li><li><a href="https://bajie.dev/posts/20240117-git_proxy/">设置git Ssh代理
-</a></li><li><a href="https://bajie.dev/posts/20240117-mail_forward/">Postfix和Sendmail设置所有邮件都收到一个邮件用户下
+    <ul><li><a href="https://bajie.dev/posts/20240118-ipxe_sysrecuecd/">Ipxe远程运行sysrecuecd系统
+</a></li><li><a href="https://bajie.dev/posts/20240118-pxe_utuntu_desk/">用IPXE启动个Ubuntu桌面
+</a></li><li><a href="https://bajie.dev/posts/20240118-ipxe_install/">IPXE Kickstart安装CentOS的方法
+</a></li><li><a href="https://bajie.dev/posts/20240118-kickstart_bongding/">Kickstart安装脚本中如何同时配置bridge和bond
+</a></li><li><a href="https://bajie.dev/posts/20240118-idrac_pxe/">Dell Idrac 重启机器进入单次pxe安装
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
