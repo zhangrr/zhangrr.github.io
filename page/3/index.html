@@ -180,6 +180,71 @@
 <div class="col-lg-8">
   <div class="container"><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240118-kickstart_bongding/">Kickstart安装脚本中如何同时配置bridge和bond
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-18
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          如何在kickstart脚本中既配置br，又配置bonding呢？ 基本篇： 以Dell R730为例，物理网卡名称是em1/em2/em3/em
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240118-idrac_pxe/">Dell Idrac 重启机器进入单次pxe安装
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-18
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          用Dell idrac的脚本来使服务器进入单次pxe安装进程。 脚本如下： 1sshpass -p &#34;password&#34; ssh -oStrictHostKeyChecking=no root@172.16.17.1 racadm set iDRAC.ServerBoot.BootOnce 1 2sshpass -p &#34;password&#34; ssh -oStrictHostKeyChecking=no root@172.16.17.1 racadm set iDRAC.ServerBoot.FirstBootDevice PXE 3sshpass -p &#34;password&#34; ssh …
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240118-nxlog_es/">Nxlog推送数据到elasticsearch
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-18
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          其实rsyslog、syslog-ng、nxlog这三种东西真的是都差不多。随便选一个用都没问题。 比较喜欢nxlog的route和json以
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240118-f5_alert/">F5-Bigip的Load Balance告警邮件设置
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-18
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          F5-Bigip负载均衡设备，在我们的生产环境，用于分发前端的请求，如果后端的成员离线了，需要及时得到通知。 规则是：load balance池
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240118-plsql_linux/">在Ubuntu上装个plsql通过远程桌面访问oracle
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-18
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          这真是个无比古怪的审计需求，需要让一些同事能访问oracle，但是不允许他们通过剪切板拷贝数据。 这只能是kvm+Ubuntu+xrdp+wi
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
         <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240117-git_proxy/">设置git Ssh代理
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2024-01-17
@@ -243,71 +308,6 @@
           这是个反面教材。在京东数科的时候用的是kvm的虚机系统，同事追求更快，文件镜像用的是raw分区，里面装了lvm。 grub的启动文件如下： 1 kernel
         </div>
       </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240115-kvm_sriov/">Kvm提高网卡效率使用SR-IOV
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-15
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>5 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          什么是SR-IOV呢? 简单的说，SR-IOV是一种虚拟化方案，用来使一个PCIe的物理设备，能虚拟出多个设备，这些虚拟出来的设备看起来就像是
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240115-idrac_monitor/">Idrac远程登录服务器
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-15
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          Linux的环境了，windows的不行。 Dell的idrac其实提供了远程的ssh界面，我们通常用idrac来设置bios什么的，当然如果
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240115-ssh_tun_vpn/">用openssh的tunnel建立vpn
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-15
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          openssh是支持隧道的，所以很简单就可以在ssh中再套个管道，直接用来vpn，场景如下： 如上图，A机能ssh无密码登录B机 A机的IP：1
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240111-route_policy2/">多网关、策略路由、负载均衡的实际应用
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-11
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          场景： 公司有两条线路，一条是鹏博士的，一条是电信的。 鹏博士是100兆共享线路，电信是10兆独享线路。 鹏博士对端的地址是1.1.1.1，本地服
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240111-keepalived_iptable_mark/">Keepalived与iptables Mark的联动
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-11
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          Iptable可以给进来的包打上标签，比如我们把从1.2.3.4进来的包都打上标签2000（标签可以是任何整数） 1iptables -t mangle -A PREROUTING -i eth0 \ 2-p tcp -s 1.2.3.4 --dport http
-        </div>
-      </div>
     </article></div><div class="row table-responsive mb-3">
     <ul class="pagination pagination-default">
       <li class="page-item">
@@ -361,11 +361,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240118-ulimit/">Ulimit的用法
-</a></li><li><a href="https://bajie.dev/posts/20240118-flask_mongo/">Flask/Python对mongodb的一些操作
-</a></li><li><a href="https://bajie.dev/posts/20240118-f5_irule/">F5 Irule之google站长认证别样用法
-</a></li><li><a href="https://bajie.dev/posts/20240118-mbox_3d/">Mbox文件中的=3D是什么鬼(quoted-Printable编码)
-</a></li><li><a href="https://bajie.dev/posts/20240118-pure-ftpd/">Linux下virtual FTP的搭建pure-Ftpd
+    <ul><li><a href="https://bajie.dev/posts/20240119-mount_beauty/">Linu下如何让mount显示的很整齐
+</a></li><li><a href="https://bajie.dev/posts/20240119-qunhui_backup/">群晖(黑群晖)的备份
+</a></li><li><a href="https://bajie.dev/posts/20240119-jpg_gif/">如何把jpg合成gif
+</a></li><li><a href="https://bajie.dev/posts/20240119-macos_vpn/">Mac Os下安装openvpn客户端并设置自启动
+</a></li><li><a href="https://bajie.dev/posts/20240119-nvm_forall/">Ubuntu下如何给所有用户安装nodejs的nvm
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
