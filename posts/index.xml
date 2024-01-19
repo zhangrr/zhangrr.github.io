@@ -7,7 +7,16 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>Copyright © 2020-{year} Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Fri, 19 Jan 2024 12:09:11 +0800</lastBuildDate><atom:link href="https://bajie.dev/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 19 Jan 2024 12:10:11 +0800</lastBuildDate><atom:link href="https://bajie.dev/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Java业务上kubernetes的注意点</title>
+      <link>https://bajie.dev/posts/20240119-k8s_java/</link>
+      <pubDate>Fri, 19 Jan 2024 12:10:11 +0800</pubDate>
+      
+      <guid>https://bajie.dev/posts/20240119-k8s_java/</guid>
+      <description>java业务上k8s的话，看到一篇比较好的文章，要注意的地方： 1apiVersion: apps/v1 2kind: Deployment 3metadata: 4 name: java-web 5 namespace: ops 6 labels: 7 app: java-web 8spec: 9 selector: 10 matchLabels: 11 app: java-web 12 replicas: 2 13 strategy: 14 type: RollingUpdate 15 template: 16 metadata: 17 name: java-web</description>
+    </item>
+    
     <item>
       <title>kubernetes中Pod资源清单和解释</title>
       <link>https://bajie.dev/posts/20240119-k8s_resource/</link>
