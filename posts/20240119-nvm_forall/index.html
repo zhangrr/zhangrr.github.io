@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="Ubuntu下如何给所有用户安装nodejs的nvm">
 <meta itemprop="description" content="最近工作比较多在Ubuntu平台下。 用visualenv和nvm比较多，但是nvm遇到的问题比较多。 比如jenkins调用nvm就比较麻烦 如"><meta itemprop="datePublished" content="2024-01-19T09:09:11+08:00" />
 <meta itemprop="dateModified" content="2024-01-19T09:09:11+08:00" />
-<meta itemprop="wordCount" content="264">
+<meta itemprop="wordCount" content="361">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="Ubuntu下如何给所有用户安装nodejs的nvm" />
 <meta property="og:description" content="最近工作比较多在Ubuntu平台下。 用visualenv和nvm比较多，但是nvm遇到的问题比较多。 比如jenkins调用nvm就比较麻烦 如" />
 <meta property="og:type" content="article" />
@@ -217,29 +217,34 @@
 <p>用visualenv和nvm比较多，但是nvm遇到的问题比较多。</p>
 <p>比如jenkins调用nvm就比较麻烦</p>
 <p>如何用用root用户给所有用户都装上统一的nvm呢？</p>
-<p>首先安装基本依赖包:</p>
+<p>1、首先安装基本依赖包:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">apt-get install build-essential openssl libssl-dev curl  
-</span></span></code></pre></div><p>建个公共组：</p>
+</span></span></code></pre></div><p>2、建个公共组，这个组的成员可以控制nvm：</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">groupadd dev  
-</span></span></code></pre></div><p>下载nvm</p>
+</span></span></code></pre></div><p>3、git克隆下载nvm的代码</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">git clone https://github.com/creationix/nvm.git /opt/nvm  
-</span></span></code></pre></div><p>建立两个目录，一个装nvm，一个是nodejs</p>
+</span></span></code></pre></div><p>4、建立两个公用目录，一个是放nvm，一个是放nodejs的npm，并设置好权限</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">mkdir /usr/local/nvm  
 </span></span><span class="line"><span class="ln">2</span><span class="cl">mkdir /usr/local/node  
 </span></span><span class="line"><span class="ln">3</span><span class="cl">chown -R root:dev /usr/local/nvm  
 </span></span><span class="line"><span class="ln">4</span><span class="cl">chmod -R <span class="m">775</span> /usr/local/nvm  
 </span></span><span class="line"><span class="ln">5</span><span class="cl">chown -R root:dev /usr/local/node  
 </span></span><span class="line"><span class="ln">6</span><span class="cl">chmod -R <span class="m">775</span> /usr/local/node  
-</span></span></code></pre></div><p>建立 /etc/profile.d/nvm.sh 供所有人source用，注意，source命令是bash下用的，如果是sh，就用.替代。</p>
+</span></span></code></pre></div><p>5、建立好公用的 /etc/profile.d/nvm.sh 供所有人source用，注意，source命令是bash下用的，如果是sh，就用.替代。</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="nb">export</span> <span class="nv">NVM_DIR</span><span class="o">=</span>/usr/local/nvm  
 </span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="nb">source</span> /opt/nvm/nvm.sh
 </span></span><span class="line"><span class="ln">3</span><span class="cl">
 </span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="nb">export</span> <span class="nv">NPM_CONFIG_PREFIX</span><span class="o">=</span>/usr/local/node  
 </span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="s2">&#34;/usr/local/node/bin:</span><span class="nv">$PATH</span><span class="s2">&#34;</span>  
-</span></span></code></pre></div><p>随后把用户拉进dev组，然后登陆就可以了。验证命令如下：</p>
+</span></span></code></pre></div><p>6、断开重新登录，加载nvm</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">nvm --version
+</span></span></code></pre></div><p>7、安装特定版本的node</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">nvm install V18.18.2
+</span></span></code></pre></div><p>8、设置缺省node的版本</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">nvm <span class="nb">alias</span> default V18.18.2  
+</span></span></code></pre></div><p>9、随后把用户拉进dev组，然后登陆就可以了。验证命令如下：</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">nvm list  
-</span></span><span class="line"><span class="ln">2</span><span class="cl">nvm use v0.12.10  
-</span></span><span class="line"><span class="ln">3</span><span class="cl">nvm <span class="nb">alias</span> default 0.11  
+</span></span><span class="line"><span class="ln">2</span><span class="cl">node -v
 </span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -325,11 +330,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240119-netcat/">Netcat的一些远程用法
+    <ul><li><a href="https://bajie.dev/posts/20240119-url_encode/">Url中的字符转义
+</a></li><li><a href="https://bajie.dev/posts/20240119-extundelete/">如何通过extundelete恢复删除文件
+</a></li><li><a href="https://bajie.dev/posts/20240119-netcat/">Netcat的一些远程用法
 </a></li><li><a href="https://bajie.dev/posts/20240119-screen_utf/">Linux下Screen乱码
 </a></li><li><a href="https://bajie.dev/posts/20240119-jenkins_shell/">Jenkins中execute Shell的注意事项
-</a></li><li><a href="https://bajie.dev/posts/20240119-jq/">Linux下如何在命令行下解析处理json文件
-</a></li><li><a href="https://bajie.dev/posts/20240119-mount_beauty/">Linu下如何让mount显示的很整齐
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
