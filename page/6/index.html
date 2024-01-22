@@ -180,6 +180,32 @@
 <div class="col-lg-8">
   <div class="container"><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240109-kvm_random_mac/">KVM中网卡地址随机生成方法
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-09
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          用bash随机生成网卡地址： 1echo 52:54:$(dd if=/dev/urandom count=1 2&gt;/dev/null | md5sum | sed &#39;s/^\(..\)\(..\)\(..\)\(..\).*$/\1:\2:\3:\4/&#39;) 252:54:f6:65:52:39 另一种做法： 1openssl rand -hex 6 | sed &#39;s/\(..\)/\1:/g; s/.$//&#39;
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240109-linux_lang/">Linux下设置LANG变量
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-09
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          vim 编辑文件，里面是有中文的，可是环境变量中LANG=C，非常不便啊，经常得export LANG=zh_CN来解决。放在/etc/profil
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
         <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240108-snmp_network/">SNMP OID来监控网络设备流量
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2024-01-08
@@ -282,32 +308,6 @@
           NFS的SERVER分两部分： 1、RPC 主程序：rpcbind NFS 本质是一个 RPC 服务，而要启动任何一个 RPC 服务之前，都需要做好 port 的对应 (mapping) 的工作才行
         </div>
       </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231228-kvm_isoboot/">Kvm虚拟机挂载临时急救iso启动的方法
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-28
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          Kvm虚拟机挂载临时急救iso启动的方法： 首先去到宿主机 编辑虚机文件virsh edit vis-18-32-6 1 &lt;disk type=&#39;file&#39; device=&#39;cdrom&#39;&gt; 2 &lt;driver name=&#39;qemu&#39; type=&#39;raw&#39;/&gt; 3 &lt;target dev=&#39;hda&#39; bus=&#39;ide&#39;/&gt; 4 &lt;readonly/&gt; 5 &lt;address type=&#39;drive&#39; controller=&#39;0&#39; …
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231228-shell_prompt/">Shell脚本的一个好的帮助信息
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-28
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          Shell脚本好的帮助信息的例子 一个好的脚本，必须有好的帮助信息 给一个比较简洁的例子 #!/bin/bash ### ### my-script — does one thing well ### ### Usage: ### my-script &lt;input&gt; &lt;output&gt; ### ### Options: ### &lt;input&gt; Input file to read. ### &lt;output&gt; Output
-        </div>
-      </div>
     </article></div><div class="row table-responsive mb-3">
     <ul class="pagination pagination-default">
       <li class="page-item">
@@ -361,11 +361,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240119-k8s_java/">Java业务上kubernetes的注意点
+    <ul><li><a href="https://bajie.dev/posts/20240122-xpath_css_selector/">Xpath金手指
+</a></li><li><a href="https://bajie.dev/posts/20240121-rsyslog_dns/">禁掉Rsyslog的dns解析
+</a></li><li><a href="https://bajie.dev/posts/20240119-k8s_java/">Java业务上kubernetes的注意点
 </a></li><li><a href="https://bajie.dev/posts/20240119-k8s_resource/">Kubernetes中Pod资源清单和解释
 </a></li><li><a href="https://bajie.dev/posts/20240119-url_encode/">Url中的字符转义
-</a></li><li><a href="https://bajie.dev/posts/20240119-extundelete/">如何通过extundelete恢复删除文件
-</a></li><li><a href="https://bajie.dev/posts/20240119-netcat/">Netcat的一些远程用法
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
