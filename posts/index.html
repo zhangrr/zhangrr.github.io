@@ -183,7 +183,7 @@
   </div>
 </nav><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240123-lua_ip_forward/">Nginx下lua根据客户端ip进行分发
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240123-nodejs_gc/">小微vps下运行nodejs需要注意的gc
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2024-01-23
   </span><span class="post-reading-time" title="reading time">
@@ -191,7 +191,20 @@
   </span></div>
 <div class="post-summary">
           
-          公司的线上环境分为预发布和正式两个部分。 其实两个部分是公用一个Nginx前端的。 这样怎么分发呢？ 用lua即可，如果是公司来的某个固定ip，则
+          NodeJS默认64位机器GC是有1.4G内存，所以，如果是512或者128兆内存的小vps，立时就不灵了。 需要加参数 1--max_old_space_size=128 --optimize_for_size 一句话搞定。
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240123-ssd_cache/">如何禁止libvirtd自带的dnsmasq启动
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-23
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          如上图，数据写到硬盘有两种方式，一种是Bcache用SSD做缓冲，加速最后的硬盘读写。另一种是直接读写硬盘，bypass模式。我们用的是第一
         </div>
       </div>
     </article><article class="row card post component">
@@ -205,6 +218,19 @@
 <div class="post-summary">
           
           服务器要跑dnsmasq，同时机器还跑着kvm，和libvirtd自带dnsmasq的冲突了，需要禁掉libvirtd的。 方法很简单，如下：
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240123-lua_ip_forward/">Nginx下lua根据客户端ip进行分发
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-23
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          公司的线上环境分为预发布和正式两个部分。 其实两个部分是公用一个Nginx前端的。 这样怎么分发呢？ 用lua即可，如果是公司来的某个固定ip，则
         </div>
       </div>
     </article><article class="row card post component">
@@ -285,32 +311,6 @@
           网管检查流量图的时候发现，udp的流量很多 看了看日志： 1Jun 28 00:39:28 172.16.0.1 %ASA-6-305011: Built dynamic UDP translation from inside:172.16.36.2/2160 to outside:124.243.230.6/2160 2Jun 28 00:39:28 172.16.0.1 %ASA-6-302015: Built outbound UDP connection 1369422617 for outside:223.5.5.5/53 (223.5.5.5/53) to inside:172.1... 发现一大堆是查询dns 53的  …
         </div>
       </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240119-k8s_java/">Java业务上kubernetes的注意点
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-19
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          java业务上k8s的话，看到一篇比较好的文章，要注意的地方： 1apiVersion: apps/v1 2kind: Deployment 3metadata: 4 name: java-web 5 namespace: ops 6 labels: 7 app: java-web 8spec: 9 selector: 10 matchLabels: 11 app: java-web 12 replicas: 2 13 strategy: 14 type: RollingUpdate 15 template: 16 metadata: 17 name: java-web
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240119-k8s_resource/">Kubernetes中Pod资源清单和解释
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-19
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>4 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          Pod的yaml文件的资源清单和解释，备查 1apiVersion: v1 #必选，版本号，例如v1 2kind: Pod #必选，资源类型，例如 Pod 3metadata: #必选，元数据 4 name: string #必选，Pod名称 5
-        </div>
-      </div>
     </article></div><div class="row table-responsive mb-3">
     <ul class="pagination pagination-default">
       <li class="page-item disabled">
@@ -364,11 +364,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240123-lua_ip_forward/">Nginx下lua根据客户端ip进行分发
+    <ul><li><a href="https://bajie.dev/posts/20240123-nodejs_gc/">小微vps下运行nodejs需要注意的gc
+</a></li><li><a href="https://bajie.dev/posts/20240123-ssd_cache/">如何禁止libvirtd自带的dnsmasq启动
 </a></li><li><a href="https://bajie.dev/posts/20240123-kvm_disable_dnsmasq/">如何禁止libvirtd自带的dnsmasq启动
+</a></li><li><a href="https://bajie.dev/posts/20240123-lua_ip_forward/">Nginx下lua根据客户端ip进行分发
 </a></li><li><a href="https://bajie.dev/posts/20240123-lua_redis_nginx_upstream/">Lua与redis结合应用于nginx的动态upstream
-</a></li><li><a href="https://bajie.dev/posts/20240123-kvm_netcard_attach/">Kvm的虚机中如何在线挂接一块新网卡
-</a></li><li><a href="https://bajie.dev/posts/20240123-mvn_build_log/">Mvn Build的时候控制日志输出
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

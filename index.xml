@@ -7,7 +7,34 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>Copyright © 2020-{year} Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Tue, 23 Jan 2024 10:13:11 +0800</lastBuildDate><atom:link href="https://bajie.dev/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 23 Jan 2024 10:16:11 +0800</lastBuildDate><atom:link href="https://bajie.dev/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>小微vps下运行nodejs需要注意的gc</title>
+      <link>https://bajie.dev/posts/20240123-nodejs_gc/</link>
+      <pubDate>Tue, 23 Jan 2024 10:16:11 +0800</pubDate>
+      
+      <guid>https://bajie.dev/posts/20240123-nodejs_gc/</guid>
+      <description>NodeJS默认64位机器GC是有1.4G内存，所以，如果是512或者128兆内存的小vps，立时就不灵了。 需要加参数 1--max_old_space_size=128 --optimize_for_size 一句话搞定。</description>
+    </item>
+    
+    <item>
+      <title>如何禁止libvirtd自带的dnsmasq启动</title>
+      <link>https://bajie.dev/posts/20240123-ssd_cache/</link>
+      <pubDate>Tue, 23 Jan 2024 10:15:11 +0800</pubDate>
+      
+      <guid>https://bajie.dev/posts/20240123-ssd_cache/</guid>
+      <description>如上图，数据写到硬盘有两种方式，一种是Bcache用SSD做缓冲，加速最后的硬盘读写。另一种是直接读写硬盘，bypass模式。我们用的是第一</description>
+    </item>
+    
+    <item>
+      <title>如何禁止libvirtd自带的dnsmasq启动</title>
+      <link>https://bajie.dev/posts/20240123-kvm_disable_dnsmasq/</link>
+      <pubDate>Tue, 23 Jan 2024 10:14:11 +0800</pubDate>
+      
+      <guid>https://bajie.dev/posts/20240123-kvm_disable_dnsmasq/</guid>
+      <description>服务器要跑dnsmasq，同时机器还跑着kvm，和libvirtd自带dnsmasq的冲突了，需要禁掉libvirtd的。 方法很简单，如下：</description>
+    </item>
+    
     <item>
       <title>Nginx下lua根据客户端ip进行分发</title>
       <link>https://bajie.dev/posts/20240123-lua_ip_forward/</link>
@@ -15,15 +42,6 @@
       
       <guid>https://bajie.dev/posts/20240123-lua_ip_forward/</guid>
       <description>公司的线上环境分为预发布和正式两个部分。 其实两个部分是公用一个Nginx前端的。 这样怎么分发呢？ 用lua即可，如果是公司来的某个固定ip，则</description>
-    </item>
-    
-    <item>
-      <title>如何禁止libvirtd自带的dnsmasq启动</title>
-      <link>https://bajie.dev/posts/20240123-kvm_disable_dnsmasq/</link>
-      <pubDate>Tue, 23 Jan 2024 10:13:11 +0800</pubDate>
-      
-      <guid>https://bajie.dev/posts/20240123-kvm_disable_dnsmasq/</guid>
-      <description>服务器要跑dnsmasq，同时机器还跑着kvm，和libvirtd自带dnsmasq的冲突了，需要禁掉libvirtd的。 方法很简单，如下：</description>
     </item>
     
     <item>
