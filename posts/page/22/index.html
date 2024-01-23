@@ -183,6 +183,84 @@
   </div>
 </nav><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211111-k8s_filebeat/">Kubernetes使用filebeat Multiline自定义收集日志
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-11
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          我们介绍了如何在 kubernetes 环境中使用 filebeat sidecar 方式收集日志 使用的是 filebeat 的 moudle 模块，但凡是常用的软件，基本都有对应的模块可用，所以我们首先应该使用模块来收集日志
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211110-k8s_gfs/">生产环境kubernetes使用持久化卷GlusterFS
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-10
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          在生产环境使用 Kubernetes ，绕不过去的一个问题就是持久化卷。 如果是使用阿里 ACK 托管平台的话，可以用 OSS 来持久化卷，如果是自搭的 kubernetes，那么存
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211110-k8s_sidecar/">Kubernetes生产环境使用filebeat Sidecar收集日志
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-10
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          在生产环境中，ES 通常是不会在 k8s 集群中存在的，一般 MySQL 和 Elasticsearch 都是独立在 k8s 之外。 那么无论哪种 pod，要甩日志到 ES，最轻量的方案肯定是用 filebeat 甩过去了
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211110-haproxy_multiple_port/">Haproxy一个端口跑多个服务
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-10
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          我们选择 haproxy 1.8 版本以上的，编译安装到路径 /export/servers/haproxy 1make TARGET=linux2628 PREFIX=/export/servers/haproxy USE_GETADDRINFO=1 USE_ZLIB=1 USE_REGPARM=1 USE_OPENSSL=1 \ 2 USE_SYSTEMD=1 USE_PCRE=1 USE_PCRE_JIT=1 USE_NS=1 3 4make install PREFIX=/export/servers/haproxy 编辑 haproxy.conf 配置文件： 1global 2 maxconn 5120 3 chroot …
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211110-sslh_multiple_port/">Sslh的一个端口同时跑多个服务
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-10
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          Ucloud的机器在两会期间干脆端口全灭，firewall设置进来的端口全关闭！！！！！！ 还好有个Global ssh的服务，可以 ssh ubuntu@111.129.37.89.ipssh.net 登录上去
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211109-nginx_multiple_port/">Nginx的一个端口同时跑SSH和HTTPS服务
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-09
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          这个要求挺古怪的，背景是防火墙只开了 nginx 443 端口。我也想同时 ssh 登录进去，但是F5没开IP 就只能这么干了，让 Nginx 一个端口跑多个服务 在 nginx.conf 加一段，str
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
         <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211109-k8s_rbac/">Kubernetes创建普通账号
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-11-09
@@ -233,84 +311,6 @@
           vpn的搭建一直是一个难解的题目，openvpn、ipsec、tinc 都在用，都不够简洁。 n2n 是一种 peer to peer 端到端的 vpn，搭建起来非常简单方便
         </div>
       </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211105-onedev/">一站式Git软件onedev的安装使用
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-05
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          其实一直在用 github、gitlab、jenkins，但是 github 时不时的抽风， gitlab 的 runner 套 Docker in docker 的方法委实很难用。 所以 CI/CD 这一块反倒挺喜欢阿里云效这
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211104-haproxy_restart/">Haproxy的Zero Downtime重启如何做
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-04
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          Nginx 可以用 kill -HUP 来重启，不会丢失已建连接。Haproxy 如何做才能做到 zero downtime 无缝重载呢？ 做法如下： 一、配置 编译harpoxy的时候带上参数 USE_
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211104-alphine_usage/">Alphine镜像的使用技巧
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-04
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          用 alphine 镜像的一些常用技巧： 会随时增加： 一、修改源，用国外的源非常慢，替换成国内的中科大源 1sed -i &#39;s/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g&#39; /etc/apk/repositories 二、更新apk库 1apk update 三、安装软件 1#安装tel
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211103-alphine_timezone/">Alphine镜像中timezone的设定
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-03
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          我们都喜欢用 alphine 的镜像做底包，来生产自己的镜像 alphine 的底包的时间设定就非常重要了 直接给出 Dockerfile 1FROM alpine:3.12 2 3# latest certs 4RUN apk add ca-certificates --no-cache &amp;&amp; update-ca-certificates 5 6# timezone support 7ENV TZ=Asia/Shanghai 8RUN apk add --update tzdata --no-cache &amp;&amp;\ 9 cp
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211103-proxmox/">生产环境Proxmox 7.02的安装和配置
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-03
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          其实我们的生产环境一直是 KVM ，然后用 shell 脚本控制虚机的生成，也是用到了 Cloud-init 的标准镜像。 听说 Proxmox 也很不错，于是想看看能否也在生产环境中用上 如果在生产环
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211102-ingress_nginx/">K8s中nginx Ingress的性能优化
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-02
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          kubernetes 中 nginx ingress 的优化分两部分 一、系统sysctl部分优化 首先是对nginx启动前的系统性能进行优化，这部分调整网络的缓冲区，减小闲置 socket 关闭的时间 以
-        </div>
-      </div>
     </article></div><div class="row table-responsive mb-3">
     <ul class="pagination pagination-default">
       <li class="page-item">
@@ -338,7 +338,7 @@
         <a href="/posts/page/23/" aria-label="Next" class="page-link" role="button"><span aria-hidden="true">&raquo;</span></a>
       </li>
       <li class="page-item">
-        <a href="/posts/page/25/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
+        <a href="/posts/page/26/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
       </li>
     </ul></div>
 </div>
@@ -364,11 +364,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240122-xpath_css_selector/">Xpath金手指
-</a></li><li><a href="https://bajie.dev/posts/20240121-rsyslog_dns/">禁掉Rsyslog的dns解析
-</a></li><li><a href="https://bajie.dev/posts/20240119-k8s_java/">Java业务上kubernetes的注意点
-</a></li><li><a href="https://bajie.dev/posts/20240119-k8s_resource/">Kubernetes中Pod资源清单和解释
-</a></li><li><a href="https://bajie.dev/posts/20240119-url_encode/">Url中的字符转义
+    <ul><li><a href="https://bajie.dev/posts/20240123-lua_ip_forward/">Nginx下lua根据客户端ip进行分发
+</a></li><li><a href="https://bajie.dev/posts/20240123-kvm_disable_dnsmasq/">如何禁止libvirtd自带的dnsmasq启动
+</a></li><li><a href="https://bajie.dev/posts/20240123-lua_redis_nginx_upstream/">Lua与redis结合应用于nginx的动态upstream
+</a></li><li><a href="https://bajie.dev/posts/20240123-kvm_netcard_attach/">Kvm的虚机中如何在线挂接一块新网卡
+</a></li><li><a href="https://bajie.dev/posts/20240123-mvn_build_log/">Mvn Build的时候控制日志输出
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

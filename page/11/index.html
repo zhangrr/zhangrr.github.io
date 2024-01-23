@@ -180,6 +180,84 @@
 <div class="col-lg-8">
   <div class="container"><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231211-rsyslog_usage/">Rsyslog的一些特殊用法
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-11
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          Rsyslog的模板文件按日期存放： 1$template 10.161.54.11,&#34;/var/log/rsyslog/%fromhost-ip%/netflow_%$YEAR%-%$MONTH%-%$DAY%.log&#34; 2$template 10.161.50.5,&#34;/var/log/rsyslog/%fromhost-ip%/xdns_webeng_%$YEAR%-%$MONTH%-%$DAY%.log&#34; 3$template …
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231211-netdev_backup/">网络设备配置的备份
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-11
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          这个其实是网络工程师的工作，有以下两种方法： 一、用ssh备份Cisco设备的脚本 需要事先在/root/.ssh/config配置好直接登录，
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231208-iscsi_lv_clone/">Lvm卷的clone方法
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-08
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          用pxe远程启动一个iscsi卷的方法已经会了的话。 如果我们要批量产新虚机，最快的方法应该是把远程的iscsi卷clone一下，供新的虚机用
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231208-ftp_slowly/">开发投诉FTP慢问题的解决
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-08
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          问题说明： 1、研发同事反馈应用程序上传一张图片耗时6分钟，让我们排查一下是什么问题？ 1[INFO] 2022-03-01 17:16:38.295 [vu73wwv64ba4ncfzaiiou2qsem] [DubboServerHandler-172.18.32.254:20881-thread-2400] [FtpFile.java:854:uploadFileToPath()] uploadFileToPath path://c/product/590389/display/,fileName:display.jpg, cost:383667 ms 显示上传一张图片花了383667ms
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231208-lsync/">Lsync 同步软件的运用
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-08
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          公司使用智齿的机器崩了，要做数据迁移。 由三台老机器迁移到三台新kvm机器 我们需要把其中一台34.38的的东西实时同步两份，一份到30.18的
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231208-encrypt_tar/">Linux加密压缩tar包
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-08
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          审计的需求，需要定期备份文件，为了安全起见，这些压缩包需要加密保存，恢复的时候需要密码才能恢复： 把目录 20231224压缩进加密包： 1tar -zcvf - 20231224|openssl
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
         <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20230921-azure_certificate/">今年下半年的两张Azure认证
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2023-09-21
@@ -230,84 +308,6 @@
           如果机器的磁盘空间不够，可以用iscsi把服务器172.18.30.18上面划出一片空间，远程挂上来用。 注意，服务器用losetup的这种做
         </div>
       </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20230727-f5_irule_cookie/">F5利用irule强行植入cookie
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-07-27
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          F5-Bigip利用irule强行给请求植入Cookie的方法。 irule有两种做法可以让链接重定向 HTTP::redirect &quot;http://redirect.domain.com[HTTP::uri]&quot; 或者： HTTP::respond 302 Location &quot;http://redirect.domain.com[HTTP::uri]&quot; &quot;locale&quot; $cookie 我们可以利用第二种
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20230727-f5_irule_t/">F5利用irule防爬虫
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-07-27
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          F5-Bigip利用irule防止爬虫的一法。 爬虫的请求： 1GET …
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20230724-elasticflow/">绝版的elasticflow的安装
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-07-24
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          elasticflow 是个流量分析工具，通过对各种flow流量的抓取，分析数据，可以清晰的看到局域网中的流量。 网管的必备啊。首先要把sflow流量给发过来。(这
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20230706-fonts_in_pod/">如何在容器内安装字体文件
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-07-06
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          pod 容器内要用中文雅黑字体生成 jpg 图片，没办法，只能把字体给装进去 首先进入容器，确定容器的基底是什么，是yum、apt或者apk 通常都是用apk
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20230630-certificates/">2023年获得的证书
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-06-30
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          2023年上半年经过努力，又考了3张证书，下半年继续努力奋斗&hellip;&hellip;
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20230412-freeipa_yapi/">Yapi集成进freeIPA进行统一认证
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-04-12
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          Freeipa接入Yapi. vi my-api/config.json 1... 2 &#34;ldapLogin&#34;: { 3 &#34;enable&#34;: true, 4 &#34;server&#34;: &#34;ldap://ldap.bybon.cn&#34;, 5 &#34;baseDn&#34;: &#34;uid=manager,cn=users,cn=accounts,dc=bybon,dc=cn&#34;, 6 &#34;bindPassword&#34;: &#34;xxxxxxxx&#34;, 7 &#34;searchDn&#34;: …
-        </div>
-      </div>
     </article></div><div class="row table-responsive mb-3">
     <ul class="pagination pagination-default">
       <li class="page-item">
@@ -335,7 +335,7 @@
         <a href="/page/12/" aria-label="Next" class="page-link" role="button"><span aria-hidden="true">&raquo;</span></a>
       </li>
       <li class="page-item">
-        <a href="/page/25/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
+        <a href="/page/26/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
       </li>
     </ul></div>
 </div>
@@ -361,11 +361,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240122-xpath_css_selector/">Xpath金手指
-</a></li><li><a href="https://bajie.dev/posts/20240121-rsyslog_dns/">禁掉Rsyslog的dns解析
-</a></li><li><a href="https://bajie.dev/posts/20240119-k8s_java/">Java业务上kubernetes的注意点
-</a></li><li><a href="https://bajie.dev/posts/20240119-k8s_resource/">Kubernetes中Pod资源清单和解释
-</a></li><li><a href="https://bajie.dev/posts/20240119-url_encode/">Url中的字符转义
+    <ul><li><a href="https://bajie.dev/posts/20240123-lua_ip_forward/">Nginx下lua根据客户端ip进行分发
+</a></li><li><a href="https://bajie.dev/posts/20240123-kvm_disable_dnsmasq/">如何禁止libvirtd自带的dnsmasq启动
+</a></li><li><a href="https://bajie.dev/posts/20240123-lua_redis_nginx_upstream/">Lua与redis结合应用于nginx的动态upstream
+</a></li><li><a href="https://bajie.dev/posts/20240123-kvm_netcard_attach/">Kvm的虚机中如何在线挂接一块新网卡
+</a></li><li><a href="https://bajie.dev/posts/20240123-mvn_build_log/">Mvn Build的时候控制日志输出
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

@@ -183,6 +183,84 @@
   </div>
 </nav><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211125-kubernetes_crontab_kala/">替代kubernetes Crontab的神器kala
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-25
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>4 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          本来 k8s 的 crontab 是启动一个容器来运行的，很简单，如下： 1apiVersion: batch/v1beta1 2kind: CronJob 3metadata: 4 name: curl-cron 5spec: 6 schedule: &#34;*/1 * * * *&#34; 7 jobTemplate: 8 spec: 9 template: 10 spec: 11 containers: 12 - name: curl-cron 13 image: radial/busyboxplus:curl 14 imagePullPolicy: IfNotPresent 15 command: 16 - /bin/sh …
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211125-kubernetes_hpa/">Kubernetes的hpa和自定义指标hpa
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-25
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>8 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          kubernetes 的动态伸缩 HPA 是非常有用的特性。 我们的服务器托管在阿里云的 ACK 上，k8s 根据 cpu 或者 内存的使用情况，会自动伸缩关键 pod 的数量，以应对大流量的情形。
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211124-ansible_vault/">Ansible Vault加密的使用
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-24
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          公司已经由 saltstack 全面转向了 ansible 。 用 ansible-playbook 执行各种任务的时候，需要登录主机，就必然涉及到主机 ssh 密码的输入。 最早我们是在 inventory 里做了定义： 1[deqin:vars] 2ansible_ssh_common_args=&#34;-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null&#34; 3host_key_checking=False 4ansible_ssh_user=&#34;peadmin&#34; 5ansible_ssh_pass=&#34;Fuck2021!&#34; …
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211123-freeipa_freeradius/">使用FreeIPA和FreeRadius搭建双因子认证服务器
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-23
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          审计啊审计，公司使用的华为防火墙需要配置双因子登录认证，这下麻烦了。 查了一下华为手册，支持 Radius 认证，那么没办法，最省钱的办法就是用 FreeIPA 和 FreeRadius 搭一套
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211119-kvm_disk_passthrough/">KVM下附加硬盘的passthrough直通
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-19
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          这个比较有意思，同事要存放 2TB 的数据，但是系统是 1.7TB 的 4 块 600G 盘组成的 Raid10。 很明显盘空间不够了，去库房找两块 10TB 的大盘组成 Raid1 给他用好了。 问题
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211119-linux_rescue/">CentOS7的救援模式和紧急模式
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-19
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          说到 CentOS7 的紧急模式与救援模式，网上可以搜到漫天飞的帖子，说一下区别 RESCUE 救援模式： 救援模式启动的系统没有挂载硬盘，可以将硬盘 mount 出然后拷出数据。 EMERGENCY 紧
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
         <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211116-pacproxy/">Linux下web Pacproxy的用法
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-11-16
@@ -233,84 +311,6 @@
           在实际中遇到这样一个问题，公司软件发布上线自动化。 说简单点，就是需要去登录一个上线的内部网站，然后爬下所有的上线数据。 然后根据爬下来的数据整
         </div>
       </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211111-k8s_filebeat/">Kubernetes使用filebeat Multiline自定义收集日志
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-11
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          我们介绍了如何在 kubernetes 环境中使用 filebeat sidecar 方式收集日志 使用的是 filebeat 的 moudle 模块，但凡是常用的软件，基本都有对应的模块可用，所以我们首先应该使用模块来收集日志
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211110-k8s_gfs/">生产环境kubernetes使用持久化卷GlusterFS
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-10
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          在生产环境使用 Kubernetes ，绕不过去的一个问题就是持久化卷。 如果是使用阿里 ACK 托管平台的话，可以用 OSS 来持久化卷，如果是自搭的 kubernetes，那么存
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211110-k8s_sidecar/">Kubernetes生产环境使用filebeat Sidecar收集日志
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-10
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          在生产环境中，ES 通常是不会在 k8s 集群中存在的，一般 MySQL 和 Elasticsearch 都是独立在 k8s 之外。 那么无论哪种 pod，要甩日志到 ES，最轻量的方案肯定是用 filebeat 甩过去了
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211110-haproxy_multiple_port/">Haproxy一个端口跑多个服务
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-10
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          我们选择 haproxy 1.8 版本以上的，编译安装到路径 /export/servers/haproxy 1make TARGET=linux2628 PREFIX=/export/servers/haproxy USE_GETADDRINFO=1 USE_ZLIB=1 USE_REGPARM=1 USE_OPENSSL=1 \ 2 USE_SYSTEMD=1 USE_PCRE=1 USE_PCRE_JIT=1 USE_NS=1 3 4make install PREFIX=/export/servers/haproxy 编辑 haproxy.conf 配置文件： 1global 2 maxconn 5120 3 chroot …
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211110-sslh_multiple_port/">Sslh的一个端口同时跑多个服务
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-10
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          Ucloud的机器在两会期间干脆端口全灭，firewall设置进来的端口全关闭！！！！！！ 还好有个Global ssh的服务，可以 ssh ubuntu@111.129.37.89.ipssh.net 登录上去
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211109-nginx_multiple_port/">Nginx的一个端口同时跑SSH和HTTPS服务
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-09
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          这个要求挺古怪的，背景是防火墙只开了 nginx 443 端口。我也想同时 ssh 登录进去，但是F5没开IP 就只能这么干了，让 Nginx 一个端口跑多个服务 在 nginx.conf 加一段，str
-        </div>
-      </div>
     </article></div><div class="row table-responsive mb-3">
     <ul class="pagination pagination-default">
       <li class="page-item">
@@ -338,7 +338,7 @@
         <a href="/posts/page/22/" aria-label="Next" class="page-link" role="button"><span aria-hidden="true">&raquo;</span></a>
       </li>
       <li class="page-item">
-        <a href="/posts/page/25/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
+        <a href="/posts/page/26/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
       </li>
     </ul></div>
 </div>
@@ -364,11 +364,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240122-xpath_css_selector/">Xpath金手指
-</a></li><li><a href="https://bajie.dev/posts/20240121-rsyslog_dns/">禁掉Rsyslog的dns解析
-</a></li><li><a href="https://bajie.dev/posts/20240119-k8s_java/">Java业务上kubernetes的注意点
-</a></li><li><a href="https://bajie.dev/posts/20240119-k8s_resource/">Kubernetes中Pod资源清单和解释
-</a></li><li><a href="https://bajie.dev/posts/20240119-url_encode/">Url中的字符转义
+    <ul><li><a href="https://bajie.dev/posts/20240123-lua_ip_forward/">Nginx下lua根据客户端ip进行分发
+</a></li><li><a href="https://bajie.dev/posts/20240123-kvm_disable_dnsmasq/">如何禁止libvirtd自带的dnsmasq启动
+</a></li><li><a href="https://bajie.dev/posts/20240123-lua_redis_nginx_upstream/">Lua与redis结合应用于nginx的动态upstream
+</a></li><li><a href="https://bajie.dev/posts/20240123-kvm_netcard_attach/">Kvm的虚机中如何在线挂接一块新网卡
+</a></li><li><a href="https://bajie.dev/posts/20240123-mvn_build_log/">Mvn Build的时候控制日志输出
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
