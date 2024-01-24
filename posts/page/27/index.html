@@ -183,132 +183,132 @@
   </div>
 </nav><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211021-etcd_docker/">Etcd单节点应用
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211102-tcp_keealive/">Linux内核TCP连接Keep-Alive Timeout的配置
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-21
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          由于使用到了阿里的 K8S 托管集群 ACK，于是想占便宜。想用到托管 master node 的 etcd 来保存数据。 结果是，未遂！！无法使用。 阿里有单独的配置管理服务，复杂化了
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211021-libguestfs/">Libguestfs的救援手段
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-21
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          在生产环境中我们大量使用了 kvm 的虚拟技术，虚拟机的镜像系统使用的是 Cloud-init 的技术 不可避免的，虚机会遭到各种损坏，维护的手段就十分必要了 假设我们有一个
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211021-dogecoin/">如何用CPU挖狗币Dogecoin
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-21
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-02
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          这是个娱乐话题，Dogecoin 狗币在马斯克的吹捧鼓动下，冲上云霄 其实真的用CPU挖币，应该是挖 xmb 门罗币才是对的选择，挖狗币只是娱乐一下 废话
+          Custom Configuration of TCP Socket Keep-Alive Timeouts 这是个古老的话题，我们在机器的优化中，需要设置 TCP Socket 的 Timeout 参数 用来加快 TCP 关闭无用闲置连接的时间 Linux 内核中有三个缺省参数: 1 tcp_keepalive_time 缺省是 7200
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211020-chrony/">Chrony的几个详细配置细节
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211029-bash_multithread/">Shell以及find的多线程执行
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-20
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-29
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          这属于Shell的高级技巧了，我们可能需要在 bash 中并发 wget rsync 文件，下面就讨论一下这个问题。 首先从简单的单线程开始： 1$ for i in $(seq 1 2); do echo $i; done 21 32 可以
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211028-trickle/">Linux下的程序限速软件Trickle
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-28
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          之前讲过如何对 opnvpn 总体限速，这次来了一个更严格的程序限速需求： 场景如下： 两个机房间有一条专线 100M 两个机房间需要同步数据，同步需要限制到60M，给
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211028-dockerfile/">Dockerfile的编写与调试技巧
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-28
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          chrony 已经成了事实标准，替代了ntp。 但是，有几个细节，需要非常注意。 给出我们的配置，/etc/chrony.conf 1 2# Use public servers from the pool.ntp.org project. 3# Please consider joining
+          Dockerfile 是造出镜像的基础，是必须熟知并了解的知识： 一、编写Dockerfile 先给个例子，是 minio 代理访问阿里的 OSS 1FROM alpine:3.12 2 3RUN apk add --update bash &amp;&amp; rm -rf /var/cache/apk/* 4 5COPY minio.RELEASE.2020-04-15T19-42-18Z /data/minio.RELEASE.2020-04-15T19-42-18Z 6 7ENV
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211019-ghostunnel/">Ghostunnel使用TLS加密TCP流量
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211028-php_syslog/">PHP程序如何发送syslog到远程服务器
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-19
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-28
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          很现实的问题，局域网内有态势感知和网络流量分析，这很讨厌！ 那么，如何把某段流量隐藏起来，让态势感知无法分析呢？ 前提条件，你需要有国外的一台 VPS
+          给同事做了个 PHP 接口，转发发送短信的请求，同时要把发送记录发送到远程的 cacti 的 syslog 去 很简单，但是也不简单 首先是 PHP 服务器，是最简化编译的，php -m 查了
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211019-certik/">Certik 证书签发软件
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211027-docker_extract_file/">没有装Docker如何从镜像中释放出文件
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-19
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          我们会有很多时候需要用到TLS证书，一个非常方便、小众的工具就是 certik 。 这个软件纯由 Go 组成，就一个可执行文件，使用了 etcd 的 boltdb 格式存放所有的证书。 软
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211018-ipset_block_cn/">使用IPSET封掉某个国家整个的访问
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-18
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          现在国内都禁止挖币，什么币安、火币、cnspark之类的都不允许国内 IP 访问了。 如何实现的呢？ 首先需要得到国家IP段，下载地址：http://
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211018-openvpn_limit_bandwidth/">OpenVPN 限制流量带宽
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-18
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          公司安装了 openvpn ，带来方便，但是也有很多不便的地方，机房的总带宽就那么多。 很多人共用 vpn 的时候，就会抢占带宽。 那么，我们需要限制一下，限制 openvpn 所能使
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211015-hugo_blog/">本站博客的由来以及搭建使用教程
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-15
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>4 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          本站这个博客的由来： 源自于 wiredcraft 的面试，这个公司让老八很是向往，可以远程工作，第一次面试是 devops ，老外见面聊了后，由代理中国人面。因为面的是K8S的
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211014-iphone_hijack/">Iphone手机的https抓包
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-14
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-27
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          上一篇文章，我们实施了Ubuntu下wifi热点的搭建，那么，其实我是想抓我iphone手机的https明文流量包来着。 怎么抓取呢？ 方法也很
+          用 kubernetes 越多，用 docker 越多，就愈发感觉到好处多多。 简简单单的一个可执行文件，用 docker 基板 alphine 封装，就可以运行起一个 pod ，然后指定 deployment、svc
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211027-bitwarden/">Bitwarden（vaultwarden）如何在非Docker环境下安装使用
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-27
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          为什么会有非 Docker 环境这个怪字眼呢？ 无他，因为满网搜索到的教程都是在 Docker 环境下安装使用。 但是穷啊，八戒的 vps 是个单核 500m 的 justhost 机器，便宜的很，这种廉价机
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211026-ack_build/">阿里云ACK完全生产环境规划和搭建
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-26
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>7 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          在生产环境来创建阿里ACK托管k8s集群的过程： 完全用于生产，不是搭建来做测试用的。 授公司委托，给的RAM用户，所以阿里云RAM第一次登录后
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211025-autoinstall_cd/">Centos Auto Install Cdrom自动安装cdrom的制作
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-25
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          之前介绍过如何制作一个 centos live cdrom 系统 那么，某些情况下我们可能无法弄一个 pxe 系统，而只能通过 idrac 挂载 iso 的方式安装系统 该如何去做呢？ 步骤如下： 一、下载C
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211025-vsftpd/">Vsftpd的日志设置
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-25
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          为了研发方便就给他们在内网开通了 vsftpd 的服务。 结果 java 直接有封好的 ftp library 可用，大家就直接用了。 导致任何单独的一个文件上传都会起一个 ftp 实例，没有复用 ftp
         </div>
       </div>
     </article></div><div class="row table-responsive mb-3">
@@ -318,9 +318,6 @@
       </li>
       <li class="page-item">
         <a href="/posts/page/26/" aria-label="Previous" class="page-link" role="button"><span aria-hidden="true">&laquo;</span></a>
-      </li>
-      <li class="page-item">
-        <a href="/posts/page/24/" aria-label="Page 24" class="page-link" role="button">24</a>
       </li>
       <li class="page-item">
         <a href="/posts/page/25/" aria-label="Page 25" class="page-link" role="button">25</a>
@@ -335,10 +332,13 @@
         <a href="/posts/page/28/" aria-label="Page 28" class="page-link" role="button">28</a>
       </li>
       <li class="page-item">
+        <a href="/posts/page/29/" aria-label="Page 29" class="page-link" role="button">29</a>
+      </li>
+      <li class="page-item">
         <a href="/posts/page/28/" aria-label="Next" class="page-link" role="button"><span aria-hidden="true">&raquo;</span></a>
       </li>
       <li class="page-item">
-        <a href="/posts/page/28/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
+        <a href="/posts/page/29/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
       </li>
     </ul></div>
 </div>
@@ -364,11 +364,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240124-freelancer_1/">Freelancer的任务之一：多IP多重匿名代理加认证
-</a></li><li><a href="https://bajie.dev/posts/20240124_freelancer_2/">Freelancer任务之二：建一个scramble Obfuscated Opevpn
-</a></li><li><a href="https://bajie.dev/posts/20240124_freelancer_3/">Freelancer任务之三：Setup Proxy on VPS for Instagram
-</a></li><li><a href="https://bajie.dev/posts/20240124-freelancer_4/">Freelancer任务之四squid查询用户浏览记录
-</a></li><li><a href="https://bajie.dev/posts/20240124-freelancer_5/">Freelancer任务之五多线路聚合vpn
+    <ul><li><a href="https://bajie.dev/posts/20240124-aria2_baidu/">Aria2下载网剧并极速上传到百度网盘
+</a></li><li><a href="https://bajie.dev/posts/20240124-lego_acme/">Cisco Snmpv3的设置
+</a></li><li><a href="https://bajie.dev/posts/20240124-cisco_snmp3/">Cisco Snmpv3的设置
+</a></li><li><a href="https://bajie.dev/posts/20240124-cisco_snmp_reboot/">Cisco交换机通过snmp来重启
+</a></li><li><a href="https://bajie.dev/posts/20240124-cisco_audit/">Cisco 路由器的操作审计
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

@@ -180,132 +180,132 @@
 <div class="col-lg-8">
   <div class="container"><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220609-shell_tips/">Shell进阶技巧
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20221024-iptables/">Iptables的基本用法
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-06-09
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-10-24
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          Shell脚本的进阶技巧： 一、String 类的技巧 String类当作数组来使用，注意范围的下标，0:4，4最后要被踢掉，实际是0-3，共4个
+          面试的时候经常会被问到 iptables 的问题，那么下面就运维角度来总结一下基本的用法。 看晕了吧，不要紧，我们关注上面的5个红色，5个链条，然后继续看下面的
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220524-javascripts_promise/">Javascripts中的promise
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220925-awk_usage/">Systemd与journalctl的双剑合璧
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-05-24
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>4 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          一、基本概念 1. 异步 所谓 &quot; 异步 &ldquo;，简单说就是一个任务分成两段， 先执行第一段， 然后转而执行其他任务去， 等做好了准备， 再回过头执行第二
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220523-javascripts_map/">Javascripts中的map
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-05-23
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-10-19
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          Javascripts 中的 map 说到map，如果我们有循环的话，不停遍历，会把时间搞成 O(n)。如果有map，时间就变成了O(1)，所以还是相当有效率的。 map 是 ES2015 中新
+          时代已经进化到 systemd 的年代了，service 应该是彻底没有市场了 systemd 的好处是写程序的时候再也不用 fork 甩脱父进程了，日志直接输出终端即可 对 java 来说也是个
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220522-javascirpts_fs/">Javascript的实际应用-Fs模块
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20221019-systemctl/">Awk的用法
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-05-22
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-09-25
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          千里之行始于足下，javascript 模块漫天飞，能做的事也是五花八门。我们来实践一下 假设我们有一个文本文件，内容如下： 里面是一行行数据，我
+          awk 是比较强力的工具，跟cut和sed组合起来，会有意想不到的作用 举个简单例子，我们nginx的access.log如下： 1110.244.232.88 - - [12/Apr/2022:16:50:06 +0800] help.jjwxc.net &#34;GET /user/article/248 HTTP/1.1&#34; 200
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220521-javascripts_module/">Javascripts中的module
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220729-ansible_until/">Ansible之等待服务状态变成成功
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-05-21
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-07-29
   </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>4 分钟阅读
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          JavaScript Module 是什么 一个 JavaScript module 模块准确的说就是一个文件，它允许你把代码 export 导出来复用，这样别的 JavaScript 文件可以 import 这个文件把它作为库文件来使用了。 模块主要是用在工
+          ansible的脚本中我们可能会要启动某项服务并等待，直到服务启动起来，然后再进行下一步 这个非常重要，我们举例来实验一下： 1- hosts: localhost 2 vars: 3 local__service: ssh 4
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220520-javascripts_reduce/">Javascripts之数组的reduce
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220728-lvm_restore/">LVM系统的Restore
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-05-20
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>4 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          研究一下 javascripts 的 reduce ，reduce 是既能改变 array 的 size，又能改变数值的函数，filter 是只能改变size，不能改变数值；而 map 是不能改变 size
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220401-docker_mini_image/">面试之Docker如何打出最小的镜像
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-04-01
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          面试的时候被问到：如何才能让 docker 打出的镜像包尽量小？ 其实在生产已经尽量使用最小化的镜像包了，只是突然被问到还是有点懵圈；因为印象中自己基本是使
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220401-nginx_epoll/">面试之Nginx的epoll的优势
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-04-01
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-07-28
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          面试时被问到：是否了解 Nginx，它使用的 epoll 模式和其他的相比有什么优势？ 直接被问住，实际生产中配过不少的 Nginx，各种 rewrite、re
+          在生产系统中使用LVM务必要注意lvm metadata的备份，曾经在京东的时候发生过虚机用了lvm的磁盘系统，然后虚机文件qcow2突然坏掉
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220317-kubernetes_flannel/">Kubernetes下Flannel网络
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220725-dmesg_time/">Dmesg -T 无时间戳的解决方法
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-03-17
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-07-25
   </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>6 分钟阅读
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          现在各大公有云的 k8s 网络插件基本用的都是 vxlan，我们也需要对这个进行一下详细了解，以便用于公司的正式生产环境。 一、原理 首先，kuberne
+          现在版本的 dmesg -T 都是带时间戳的。 但是老的机器，很有可能是没有 -T 这个参数的，直接 dmesg 是这样的： 这个时间戳是天书啊，这还算好的，好歹有。还有更差的，
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220225-ucarp/">Ucarp的安装配置
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220721-mongodb_cpu/">一次mongodb Cpu很high的解决方法
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-02-25
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-07-21
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          有 V2EX 的坛友问到如何静态编译 keepalived 的问题，实际上 keepalived 确实配置比较麻烦。那还有一个简单易行的 ucarp，生产也可以用这个。 ucarp 跟 keepalived 一样，都是用于高可用的
+          接到同事的通知，说mongodb的cpu很高，下不去，看有什么办法。 看了一下图，cpu都99.4%了，确实很高： 登上机器，首先去看mongo
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220717-terraform/">Infrastructure as Code中packer的使用
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-07-17
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          先普及一下概念，Infrastructure as Code，也就是从代码开始定义整个网络环境、虚机、各种资源等等。 简单说就是在云上用代码来管理一
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220717-backup_cisco/">Cisco设备自动执行和备份的脚本
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-07-17
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          在日常工作中我们经常要对 Cisco 的网络设备的配置进行备份，或者和 suricata 联动的时候要执行操作。 方法其实很简单，调用 python 的相应模块即可。 准备工作如下： 首选需
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220706-nfs_usermode/">用户态的NFS Server
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-07-06
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          NFS Server 很常用，但是坑也是巨大的。之前在京东运维 Hadoop 集群的时候碰到过脑裂，原因就是 NFS 引起的。 关键 NFS 是内核态的，一旦崩溃，那么客户端的所有命令，ls
         </div>
       </div>
     </article></div><div class="row table-responsive mb-3">
@@ -335,7 +335,7 @@
         <a href="/page/22/" aria-label="Next" class="page-link" role="button"><span aria-hidden="true">&raquo;</span></a>
       </li>
       <li class="page-item">
-        <a href="/page/28/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
+        <a href="/page/29/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
       </li>
     </ul></div>
 </div>
@@ -361,11 +361,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240124-freelancer_1/">Freelancer的任务之一：多IP多重匿名代理加认证
-</a></li><li><a href="https://bajie.dev/posts/20240124_freelancer_2/">Freelancer任务之二：建一个scramble Obfuscated Opevpn
-</a></li><li><a href="https://bajie.dev/posts/20240124_freelancer_3/">Freelancer任务之三：Setup Proxy on VPS for Instagram
-</a></li><li><a href="https://bajie.dev/posts/20240124-freelancer_4/">Freelancer任务之四squid查询用户浏览记录
-</a></li><li><a href="https://bajie.dev/posts/20240124-freelancer_5/">Freelancer任务之五多线路聚合vpn
+    <ul><li><a href="https://bajie.dev/posts/20240124-aria2_baidu/">Aria2下载网剧并极速上传到百度网盘
+</a></li><li><a href="https://bajie.dev/posts/20240124-lego_acme/">Cisco Snmpv3的设置
+</a></li><li><a href="https://bajie.dev/posts/20240124-cisco_snmp3/">Cisco Snmpv3的设置
+</a></li><li><a href="https://bajie.dev/posts/20240124-cisco_snmp_reboot/">Cisco交换机通过snmp来重启
+</a></li><li><a href="https://bajie.dev/posts/20240124-cisco_audit/">Cisco 路由器的操作审计
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

@@ -180,132 +180,132 @@
 <div class="col-lg-8">
   <div class="container"><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231214-lxc_ip/">LXC更新到Docker之后的IP部分修改
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231227-supdev_logview/">审计需求只读用户的建立
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-14
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          在k8s没有出来之前，我们用的就是LXC，古早版本了。 跑的LXC，基于docker进行管理，网络部分独立。 进化到新版本的Docker后，网络
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231214-lxc_storage/">LXC更新到Docker之后的存储部分修改
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-14
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-27
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          在k8s没有出来之前，我们用的就是LXC，古早版本了。 那时候是1：60的虚拟，一台物理机上跑60个LXC，居然这样运行了8年无异常，现在要升
+          审计的要求： 线上环境研发只能有只读权限 那只能曲线救国了，两个用户，supdev是运维用来管理的，logview是研发用来只读日志的 一、首先确
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231214-kvm_nested/">KVM的嵌套虚拟化
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231226-h3c_ntp/">H3C服务的BIOS主板设置中如何正确设置NTP服务器
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-14
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-26
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          kvm生产的虚机内仍然可以再产虚拟机，这就是嵌套虚拟化 我们的目的是要再kvm虚机中安装一套proxmox的系统 首先在实体机上检查当前的Lin
+          H3C服务器主板时间不准确也很讨厌，看主板日志时间都是错的，没办法，修改一下。 H3C服务器BIOS的NTP设置方法： 修改主服务器： 1ipmitool -I lanplus -H 10.18.$1
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231214-kvm_dhcp/">KVM网络如何设置DHCP
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231221-traefik_digicert/">Traefik配置digicert家得泛域名证书
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-14
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-21
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          缺省情况下kvm会保留一个nat的网络，ip a命令查看，会看到virbr0和virbr0-nic 18: virbr0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UNKNOWN 2 link/ether 52:54:00:6c:22:2c brd ff:ff:ff:ff:ff:ff 3 inet 192.168.122.1/24 brd 192.168.122.255 scope global virbr0
+          traefik使用digicert付费的证书和使用letencrypt免费证书的方法不一样，下面说一下怎么配置： traefik.yml里面就
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231212-shell/">Shell中变量、字符串、数组、参数的技巧
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231221-vm_error/">Vm.sh创建虚机失败
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-13
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-21
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          在172.18.30.1和172.16.60.10上 使用vm.sh创建虚机时，会报错 1- Resizing the disk to 80G ... ERR: Could not resize disk. 去 /export/kvm/虚机目
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231221-inode_xfs/">Xfs文件系统下增加inode
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-21
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          终于遇到了inode不够了，细碎文件爆棚了，导致inode不够了。 XFS 文件系统本质上是没有 inode 的限制的 只有一个缺省的限制，使用现有文件系统的 25% 来
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231215-swap_usage/">查看SWAP交换空间被哪个进程给用掉了
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-15
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          在机器上执行命令free -g 和 free -k 看看有多少空闲 8G的Swap交换空间都被用光了！！！ 再用kb的单位看看，一共8388604，基本用光掉了 查看
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231215-axel_download/">Linux支持断点续传、多线程下载的软件
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-15
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          Linux下多线程下载工具，且支持断点续传，机房传文件必备： 1axel -s 9000000 -a -n 5 -o ord_his.dmp http://172.16.24.2:8080/ord_his.dmp -s 限速，9000000是70M带宽，不加s就是100M榨干 -n 线
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231215-suricata_elk/">Suricata加上elk分析机房入口全流量
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-15
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          变量子串 ${var} 返回变量var的内容，单独使用时有没有{}一样，混合多个变量和常量时，用{}界定变量名 ${#var} 返回变量var内容的长度 ${var:offset} 从变量var中的
+          suricata 是跟snort差不多的一个入侵检测工具，加上elk的图形界面，非常的好看。 原理是suricata的log发到elk里，这样就能通过kiba
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231213-librenms_ldap/">Librenms使用ldap认证用户
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231215-pxe_sanboot/">Ipxe使用sanboot远程启动iscsi硬盘
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-13
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          我们openldap中用户和组的设置 1用户： 2ou=People,dc=ddky,dc=com 3#uid;#givenName;#sn;#uidNumber;#gidNumber 4 5组： 6ou=group,dc=ddky,dc=com 7#cn;#gidNumber;#memberUID;#description 到librenms中， 172.18.31.10 1cd /opt/librenms 2vi config.php 3$config[&#39;auth_mechanism&#39;] = &#39;ldap&#39;; 4$config[&#39;auth_ldap_server&#39;] = …
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231213-librenms_prometheus/">Librenms集成进prometheus
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-13
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          librenms是个非常强悍的工具，对网络不清楚的可以透过这个工具，对网络环境有清晰的了解。 如何通过prometheus对librenms进
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231213-librenms_password/">Librenms强制修改密码
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-13
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          librenms对密码的强度有要求，必须使用非常复杂的密码策略才能满足要求. 这就鬼畜了，想改成至少能记得住的密码。 如何强制修改呢？ 首先弄一段
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231212-xxl-job/">Xxl-Job的动态编辑并执行java脚本
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-12
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-15
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          数据库管理员有个特殊的需求： 需要一个msyql客户端，可以定时去连接mysql服务器执行SQL语句。且可以自己动态编辑SQL语句。 找来找去，
+          如果一台宿主机上面cpu和memory都有富裕，但是磁盘不富裕，那就会面临资源浪费 所以干脆用ipxe的sanboot来启动远程的iscsi磁
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231212-check_ssl/">检查证书是否过期的脚本
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231215-prometheus_mysql/">Prometheus集成进mysql_exporter
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-12
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-15
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          证书会经常面临过期而没有及时续费的情况，写个脚本提醒一下自己吧： crontab -l 0 8 * * * /usr/local/bin/check_ssl.sh www.ddky.com check_ssl.sh的内容： 1#!/bin/bash 2# Print the number of days till certificate expiration 3# 4# Example:
+          mysql_exporter 其实是一个mysql客户端，定时收集本机mysql的数据，并暴露出一个web端口展现数据。 例如：http://172.18.20.9:50
         </div>
       </div>
     </article></div><div class="row table-responsive mb-3">
@@ -335,7 +335,7 @@
         <a href="/page/13/" aria-label="Next" class="page-link" role="button"><span aria-hidden="true">&raquo;</span></a>
       </li>
       <li class="page-item">
-        <a href="/page/28/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
+        <a href="/page/29/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
       </li>
     </ul></div>
 </div>
@@ -361,11 +361,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240124-freelancer_1/">Freelancer的任务之一：多IP多重匿名代理加认证
-</a></li><li><a href="https://bajie.dev/posts/20240124_freelancer_2/">Freelancer任务之二：建一个scramble Obfuscated Opevpn
-</a></li><li><a href="https://bajie.dev/posts/20240124_freelancer_3/">Freelancer任务之三：Setup Proxy on VPS for Instagram
-</a></li><li><a href="https://bajie.dev/posts/20240124-freelancer_4/">Freelancer任务之四squid查询用户浏览记录
-</a></li><li><a href="https://bajie.dev/posts/20240124-freelancer_5/">Freelancer任务之五多线路聚合vpn
+    <ul><li><a href="https://bajie.dev/posts/20240124-aria2_baidu/">Aria2下载网剧并极速上传到百度网盘
+</a></li><li><a href="https://bajie.dev/posts/20240124-lego_acme/">Cisco Snmpv3的设置
+</a></li><li><a href="https://bajie.dev/posts/20240124-cisco_snmp3/">Cisco Snmpv3的设置
+</a></li><li><a href="https://bajie.dev/posts/20240124-cisco_snmp_reboot/">Cisco交换机通过snmp来重启
+</a></li><li><a href="https://bajie.dev/posts/20240124-cisco_audit/">Cisco 路由器的操作审计
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

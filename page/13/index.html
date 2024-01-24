@@ -180,132 +180,132 @@
 <div class="col-lg-8">
   <div class="container"><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231211-crontab_root/">Root的crontab由于root密码失效导致不能正常工作
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231215-zfs_centos/">CentOS7安装ZFS
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-11
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-15
   </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          数据库管理员的 172.18.20.10 和 172.18.20.25 数据库备份脚本是以 root 身份运行的，在 crontab 里跑： 126 11 * * * /root/scripts/mysql_backup_full_3306.sh &gt; /dev/null 2&gt;&amp;1 但是由于 root 密码会每三个月变更一次，如果没有及时变更，会导致 root
+          zfs用来顶替Raid控制卡，有相当强悍的性能，TrueNAS用的就是这玩意。 官方安装文档： https://openzfs.github.io/openzfs-docs/Getting%20Started/RHEL%20and%20CentOS.html CentOS7安装 1yum install -y epel-release 2yum install -y https://zfsonlinux.org/epel/zfs-release.el7_9.noarch.rpm 3yum install -y kernel-devel zfs 加
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231211-rsyslog_usage/">Rsyslog的一些特殊用法
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231214-ucarp_nginx/">Ucarp和nginx提供内网vip
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-11
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-14
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          Rsyslog的模板文件按日期存放： 1$template 10.161.54.11,&#34;/var/log/rsyslog/%fromhost-ip%/netflow_%$YEAR%-%$MONTH%-%$DAY%.log&#34; 2$template 10.161.50.5,&#34;/var/log/rsyslog/%fromhost-ip%/xdns_webeng_%$YEAR%-%$MONTH%-%$DAY%.log&#34; 3$template …
+          ucarp我们来实战一下完成ucarp+nginx做内网vip，模拟F5的vip的方法 ucarp的安装参考之前的文章，环境如下： ucarp1
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231211-netdev_backup/">网络设备配置的备份
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231214-lxc_ip/">LXC更新到Docker之后的IP部分修改
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-11
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          这个其实是网络工程师的工作，有以下两种方法： 一、用ssh备份Cisco设备的脚本 需要事先在/root/.ssh/config配置好直接登录，
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231208-iscsi_lv_clone/">Lvm卷的clone方法
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-08
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          用pxe远程启动一个iscsi卷的方法已经会了的话。 如果我们要批量产新虚机，最快的方法应该是把远程的iscsi卷clone一下，供新的虚机用
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231208-ftp_slowly/">开发投诉FTP慢问题的解决
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-08
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          问题说明： 1、研发同事反馈应用程序上传一张图片耗时6分钟，让我们排查一下是什么问题？ 1[INFO] 2022-03-01 17:16:38.295 [vu73wwv64ba4ncfzaiiou2qsem] [DubboServerHandler-172.18.32.254:20881-thread-2400] [FtpFile.java:854:uploadFileToPath()] uploadFileToPath path://c/product/590389/display/,fileName:display.jpg, cost:383667 ms 显示上传一张图片花了383667ms
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231208-lsync/">Lsync 同步软件的运用
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-08
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-14
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          公司使用智齿的机器崩了，要做数据迁移。 由三台老机器迁移到三台新kvm机器 我们需要把其中一台34.38的的东西实时同步两份，一份到30.18的
+          在k8s没有出来之前，我们用的就是LXC，古早版本了。 跑的LXC，基于docker进行管理，网络部分独立。 进化到新版本的Docker后，网络
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231208-encrypt_tar/">Linux加密压缩tar包
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231214-lxc_storage/">LXC更新到Docker之后的存储部分修改
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-08
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-14
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          审计的需求，需要定期备份文件，为了安全起见，这些压缩包需要加密保存，恢复的时候需要密码才能恢复： 把目录 20231224压缩进加密包： 1tar -zcvf - 20231224|openssl
+          在k8s没有出来之前，我们用的就是LXC，古早版本了。 那时候是1：60的虚拟，一台物理机上跑60个LXC，居然这样运行了8年无异常，现在要升
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20230921-azure_certificate/">今年下半年的两张Azure认证
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231214-kvm_nested/">KVM的嵌套虚拟化
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-09-21
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-14
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          在今年微软的挑战中拿了两张免费考卷，考了AZ-104和AZ-305，捞了一张专家证书，今年的考试到头了。 明年用免费azure考试抵扣税，真是
+          kvm生产的虚机内仍然可以再产虚拟机，这就是嵌套虚拟化 我们的目的是要再kvm虚机中安装一套proxmox的系统 首先在实体机上检查当前的Lin
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20230913-az-104/">Azure认证az-104的考点
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231214-kvm_dhcp/">KVM网络如何设置DHCP
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-09-13
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>9 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          在今年微软的挑战中拿了两张免费考卷，一张是115$，怕浪费啊，就分别考了AZ-104和AZ-305，基本上你104能过，305就没有问题，a
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20230905-iscsi_volume_release/">Iscsi卷的释放
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-09-05
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-14
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          上一篇我们用losetup建了一个iscsi卷，现在空间不够了，需要释放掉之前建立的iscsi-volumes的20T空间。 首先去isci卷
+          缺省情况下kvm会保留一个nat的网络，ip a命令查看，会看到virbr0和virbr0-nic 18: virbr0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UNKNOWN 2 link/ether 52:54:00:6c:22:2c brd ff:ff:ff:ff:ff:ff 3 inet 192.168.122.1/24 brd 192.168.122.255 scope global virbr0
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231212-shell/">Shell中变量、字符串、数组、参数的技巧
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-13
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          变量子串 ${var} 返回变量var的内容，单独使用时有没有{}一样，混合多个变量和常量时，用{}界定变量名 ${#var} 返回变量var内容的长度 ${var:offset} 从变量var中的
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231213-librenms_ldap/">Librenms使用ldap认证用户
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-13
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          我们openldap中用户和组的设置 1用户： 2ou=People,dc=ddky,dc=com 3#uid;#givenName;#sn;#uidNumber;#gidNumber 4 5组： 6ou=group,dc=ddky,dc=com 7#cn;#gidNumber;#memberUID;#description 到librenms中， 172.18.31.10 1cd /opt/librenms 2vi config.php 3$config[&#39;auth_mechanism&#39;] = &#39;ldap&#39;; 4$config[&#39;auth_ldap_server&#39;] = …
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231213-librenms_prometheus/">Librenms集成进prometheus
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-13
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          librenms是个非常强悍的工具，对网络不清楚的可以透过这个工具，对网络环境有清晰的了解。 如何通过prometheus对librenms进
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231213-librenms_password/">Librenms强制修改密码
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-13
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          librenms对密码的强度有要求，必须使用非常复杂的密码策略才能满足要求. 这就鬼畜了，想改成至少能记得住的密码。 如何强制修改呢？ 首先弄一段
         </div>
       </div>
     </article></div><div class="row table-responsive mb-3">
@@ -335,7 +335,7 @@
         <a href="/page/14/" aria-label="Next" class="page-link" role="button"><span aria-hidden="true">&raquo;</span></a>
       </li>
       <li class="page-item">
-        <a href="/page/28/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
+        <a href="/page/29/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
       </li>
     </ul></div>
 </div>
@@ -361,11 +361,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240124-freelancer_1/">Freelancer的任务之一：多IP多重匿名代理加认证
-</a></li><li><a href="https://bajie.dev/posts/20240124_freelancer_2/">Freelancer任务之二：建一个scramble Obfuscated Opevpn
-</a></li><li><a href="https://bajie.dev/posts/20240124_freelancer_3/">Freelancer任务之三：Setup Proxy on VPS for Instagram
-</a></li><li><a href="https://bajie.dev/posts/20240124-freelancer_4/">Freelancer任务之四squid查询用户浏览记录
-</a></li><li><a href="https://bajie.dev/posts/20240124-freelancer_5/">Freelancer任务之五多线路聚合vpn
+    <ul><li><a href="https://bajie.dev/posts/20240124-aria2_baidu/">Aria2下载网剧并极速上传到百度网盘
+</a></li><li><a href="https://bajie.dev/posts/20240124-lego_acme/">Cisco Snmpv3的设置
+</a></li><li><a href="https://bajie.dev/posts/20240124-cisco_snmp3/">Cisco Snmpv3的设置
+</a></li><li><a href="https://bajie.dev/posts/20240124-cisco_snmp_reboot/">Cisco交换机通过snmp来重启
+</a></li><li><a href="https://bajie.dev/posts/20240124-cisco_audit/">Cisco 路由器的操作审计
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

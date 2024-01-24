@@ -180,33 +180,7 @@
 <div class="col-lg-8">
   <div class="container"><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240124-lvm_resize/">LVM调整分区大小
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-24
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          系统是xfs文件格式。/root空间不够了。必须对空间进行调整，悲剧的是xfs只能增加空间，不能缩减空间，必须曲线救国了。 查看一下，缺省有两
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240124-f5_bigip_ssl/">F5-Bigip的SSL每秒传输(TPS)限制
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-24
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          公司用到了SSL的泛域名证书，网站整体套上了HTTPS，然后最前面是F5做SSL的卸载。 麻烦也来了，F5的SSL Transactions Per Second (TPS) 是有license的
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240124-jenkins_two_server/">两台不同系统上Jenkins的联动
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240124-vpn_ipv6_ipv4/">配置一个提供IPv6 Tunnel Over IPv4的OpenVPN服务器
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2024-01-24
   </span><span class="post-reading-time" title="reading time">
@@ -214,25 +188,12 @@
   </span></div>
 <div class="post-summary">
           
-          场景是这样的，有两台jenkins。一台是正常安装在linux上的，另外一台是在macos上的。 在macos上的这台，装了有xcode和an
+          先普及一下IPv6 地址。 IPv6 地址大小为 128 位。 首选 IPv6 地址表示法为8组数字用冒号分隔，其中每组是 8 个 16 位部分的十六进制值。IPv6 地址范围从 0000:0000:0000:0000:0000:0000:0000:0000 至 f
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240124-postfix_blackhole/">配置postfix转发局域网邮件以及邮件黑洞
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-24
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          配置postfix允许自由转发内网的邮件，就改一个地方即可，添加允许发送的内网网段： 1vi /etc/postfix/main.cf 2... 3mynetworks = 127.0.0.0/8, 172.16.0.0/16 4... 配置黑洞，所有邮件都接受，然后drop丢
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240124-ext4_resize/">Ext4分区的缩小
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240124-tomcat_log_format/">Tomcat推荐的日志记录格式
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2024-01-24
   </span><span class="post-reading-time" title="reading time">
@@ -240,72 +201,111 @@
   </span></div>
 <div class="post-summary">
           
-          缩小/ 的ext4分区步骤如下： 首先查看分区是什么文件类型 1file -sL /dev/sd* 2/dev/sda: x86 boot sector; GRand Unified Bootloader, stage1 version 0x3, boot drive 0x80, 1st sector stage2 0x2044148, GRUB version 0.94; partition 1: ID=0x82, starthead 32, startsector 2048, 8388608 sectors; partition 2: ID=0x83, active, starthead 75, startsector …
+          我们tomcat的日志记录格式为： 1pattern=&#34;%a|%A|%T|%{X-Forwarded-For}i|%l|%u|%t|%r|%s|%b|%{Referer}i|%{User-Agent}i &#34; resolveHosts=&#34;false&#34;/&gt; 都是什么意思呢？ %a - Remote IP address %A - Local IP address %b - Bytes sent, excluding HTTP headers, or &lsquo;-&rsquo; if zero %B - Bytes sent, excluding HTTP headers %h - Remote …
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240123-centos_wifiap/">CentOS下做无线AP热点
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240124-freelancer_1/">Freelancer的任务之一：多IP多重匿名代理加认证
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-23
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-24
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          Freelancer上有个proxy setup的任务： 1Project Description 2Hi, I would like to create a new VPS proxy server with multiple IPs on the same VPS. 3Are you able to that? 4What OS do you prefer? 5- I have 10 ips. 6- I want them to be as much
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240124_freelancer_2/">Freelancer任务之二：建一个scramble Obfuscated Opevpn
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-24
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          自己的笔记本是装了个CentOS的系统，然后上面跑了个Vmware，又装了Win10，然后接两个屏幕，小的是linux跑gnome，大的是W
+          这个很奇怪撒，仔细查了下，原作者是这么说的： 1I have created a patch which introduces some forms of scrambling to the packet payload of any OpenVPN connection. 2I have been successfully using the patch with Iranian and Chinese users for some time now. 看来伊朗也比较糟糕啊。 无语
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240123-centos_yum_old/">给老旧的CentOS系统设置yum源
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240124_freelancer_3/">Freelancer任务之三：Setup Proxy on VPS for Instagram
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-23
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-24
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          任务的要求是： • Multiple subnets to avoid bans •I need the proxies to have the ability of User:Pass •Proxy needs to be Residential IPv6 还给出了一个参考： https://www.blackhatworld.com/seo/never-buy-proxies-again-setup-your-own-proxy-server.872539/ 恩，比较有意思。按照他给的连接： 第一步去 LowEndBox.com 或者 Webhostingtalk.com 去
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240124-freelancer_4/">Freelancer任务之四squid查询用户浏览记录
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-24
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          这个需求也比较简单： User Browsing Log for Open VPN server 简单说就是用户连到他的openvpn服务器，通过上面的squid代理来浏览其他网站，比较特别的是需要查看用
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240124-freelancer_5/">Freelancer任务之五多线路聚合vpn
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-24
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          前同事N年前买了个linode的主机，一直用，系统是CentOS 5.6 x86_64的。 现在想在上面装个软件，结果yum失效了，重装系统不可能，只
+          这个任务很有意思 任务描述： 1we need a set of vpn server / client programmed for embedded linux (or windows) 2to bond multiple 4g lte modems or wifi connectios and stitch them back together 3on server side to stream video feeds. the connection must be stable and have 4the maximum available bandwidth with no drop in some connection …
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240123-mysql_backup_optimize/">MySQL的备份网络优化
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240124_freelancer_6/">Freelancer任务之六Compile an Ipk File on Lede (OpenWRT)
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-23
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-24
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>4 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          这是一次失败的任务，即使再来一次，依然会失败，因为无法验证，真够shit的，扣了我10$的手续费。 记录一下，以儆效尤。 任务如下： 1Job would be to compile an
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240124-freelancer_7/">Freelancer任务之七memcache 放大攻击
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-24
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          公司的MySQL服务器定时在凌晨4:00准时开始备份。 结果是会触发报警，net流量增高，cpu增高，磁盘io增高，这个是属于正常的，如何避免
+          这是一次差点蚀把米的过程啊，最后争议拿回了自己的手续费，白干了一场啊，真够倒霉的。 韩国人要反射攻击。 首先clone项目： 1git clone https://github.com/epsylon/ufonet 原理很清楚，通
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240123-dell_disk/">Dell R730XD服务器如何确定是哪块硬盘坏了
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240124_freelancer_8/">Freelancer任务之八openvpn的DNS分发
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-23
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-24
   </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          公司的Dell R720XD服务器是用来做Hadoop大数据的。 其中有两块300G的硬盘做Raid1，作为系统盘。 剩下3块硬盘是4TB，都是独
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240123-nodejs_gc/">小微vps下运行nodejs需要注意的gc
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-23
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          NodeJS默认64位机器GC是有1.4G内存，所以，如果是512或者128兆内存的小vps，立时就不灵了。 需要加参数 1--max_old_space_size=128 --optimize_for_size 一句话搞定。
+          雇主给了个难题，他搭建了一个openvpn，并且有两个DNS Server，一个是带AD广告过滤的，一个是不带的。这两个dns服务在同一个机器
         </div>
       </div>
     </article></div><div class="row table-responsive mb-3">
@@ -335,7 +335,7 @@
         <a href="/page/3/" aria-label="Next" class="page-link" role="button"><span aria-hidden="true">&raquo;</span></a>
       </li>
       <li class="page-item">
-        <a href="/page/28/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
+        <a href="/page/29/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
       </li>
     </ul></div>
 </div>
@@ -361,11 +361,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240124-freelancer_1/">Freelancer的任务之一：多IP多重匿名代理加认证
-</a></li><li><a href="https://bajie.dev/posts/20240124_freelancer_2/">Freelancer任务之二：建一个scramble Obfuscated Opevpn
-</a></li><li><a href="https://bajie.dev/posts/20240124_freelancer_3/">Freelancer任务之三：Setup Proxy on VPS for Instagram
-</a></li><li><a href="https://bajie.dev/posts/20240124-freelancer_4/">Freelancer任务之四squid查询用户浏览记录
-</a></li><li><a href="https://bajie.dev/posts/20240124-freelancer_5/">Freelancer任务之五多线路聚合vpn
+    <ul><li><a href="https://bajie.dev/posts/20240124-aria2_baidu/">Aria2下载网剧并极速上传到百度网盘
+</a></li><li><a href="https://bajie.dev/posts/20240124-lego_acme/">Cisco Snmpv3的设置
+</a></li><li><a href="https://bajie.dev/posts/20240124-cisco_snmp3/">Cisco Snmpv3的设置
+</a></li><li><a href="https://bajie.dev/posts/20240124-cisco_snmp_reboot/">Cisco交换机通过snmp来重启
+</a></li><li><a href="https://bajie.dev/posts/20240124-cisco_audit/">Cisco 路由器的操作审计
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

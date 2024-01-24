@@ -183,59 +183,132 @@
   </div>
 </nav><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211014-linux_wifi/">Ubuntu下自建一个wifi热点供手机使用
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211022-pypxe/">PyPXE-一个牛逼的一站式PXE安装包
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-14
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          公司的wifi信号很弱，也不保险。省事起见，还是自己建立一个好 usb无线网卡设备必须是一个 nl80211 兼容的无线设备，所以驱动就是这个：nl80211
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211010-live_cd/">CentOS 7 Live-CD 的制作
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-10
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>4 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          某些场合，很有可能需要启动ISO或者USB盘，自带Linux系统，然后拯救当前损坏的系统 或者直接启动一个LIVE CentOS系统，去做某些事
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/markdown-syntax/">Markdown Syntax Guide
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2020-11-09
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-22
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
-  </span><a href="https://bajie.dev/series/manual/" class="post-taxonomy">Manual</a><a href="https://bajie.dev/tags/markdown/" class="post-taxonomy">Markdown</a><a href="https://bajie.dev/tags/css/" class="post-taxonomy">CSS</a><a href="https://bajie.dev/tags/html/" class="post-taxonomy">HTML</a></div>
+  </span></div>
 <div class="post-summary">
           
-          <img class="img-fluid" alt="Markdown Syntax Guide" src="https://bajie.dev/images/markdown.png" loading="lazy"
-   width="1200" height="738"
-   />
-
-          
-          <p>This article offers a sample of basic Markdown syntax that can be used in Hugo content files, also it shows whether basic HTML elements are decorated with CSS in a Hugo theme.</p>
+          一般来说，我们要搭建一个正式的pxe自动装机系统，需要装 dnsmasq 做 dhcp + tftp ，需要编译 ipxe 来获得 undionly.kpxe ，需要 http 服务器来提供资源下载，repo 同步服务来提供 r
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/untitled/">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211021-etcd_confd_nginx/">ETCD &#43; CONFD &#43; NGINX的配置
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>0001-01-01
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-21
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          kvm生产的虚机内仍然可以再产虚拟机，这就是嵌套虚拟化 我们的目的是在kvm虚机中再装一套proxmox 在实体机上检查当前的Linux是否支持
+          上一篇文章我们介绍了 ETCD 的容器化，搞这件事情的主要目的其实是要动态更新 Nginx 的配置 这一章我们就来配置 confd 和 Nginx，来达到动态更新 Nginx 配置的目的 一、
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211021-etcd_docker/">Etcd单节点应用
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-21
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          由于使用到了阿里的 K8S 托管集群 ACK，于是想占便宜。想用到托管 master node 的 etcd 来保存数据。 结果是，未遂！！无法使用。 阿里有单独的配置管理服务，复杂化了
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211021-libguestfs/">Libguestfs的救援手段
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-21
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          在生产环境中我们大量使用了 kvm 的虚拟技术，虚拟机的镜像系统使用的是 Cloud-init 的技术 不可避免的，虚机会遭到各种损坏，维护的手段就十分必要了 假设我们有一个
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211021-dogecoin/">如何用CPU挖狗币Dogecoin
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-21
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          这是个娱乐话题，Dogecoin 狗币在马斯克的吹捧鼓动下，冲上云霄 其实真的用CPU挖币，应该是挖 xmb 门罗币才是对的选择，挖狗币只是娱乐一下 废话
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211020-chrony/">Chrony的几个详细配置细节
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-20
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          chrony 已经成了事实标准，替代了ntp。 但是，有几个细节，需要非常注意。 给出我们的配置，/etc/chrony.conf 1 2# Use public servers from the pool.ntp.org project. 3# Please consider joining
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211019-ghostunnel/">Ghostunnel使用TLS加密TCP流量
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-19
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          很现实的问题，局域网内有态势感知和网络流量分析，这很讨厌！ 那么，如何把某段流量隐藏起来，让态势感知无法分析呢？ 前提条件，你需要有国外的一台 VPS
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211019-certik/">Certik 证书签发软件
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-19
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          我们会有很多时候需要用到TLS证书，一个非常方便、小众的工具就是 certik 。 这个软件纯由 Go 组成，就一个可执行文件，使用了 etcd 的 boltdb 格式存放所有的证书。 软
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211018-ipset_block_cn/">使用IPSET封掉某个国家整个的访问
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-18
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          现在国内都禁止挖币，什么币安、火币、cnspark之类的都不允许国内 IP 访问了。 如何实现的呢？ 首先需要得到国家IP段，下载地址：http://
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211018-openvpn_limit_bandwidth/">OpenVPN 限制流量带宽
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-18
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          公司安装了 openvpn ，带来方便，但是也有很多不便的地方，机房的总带宽就那么多。 很多人共用 vpn 的时候，就会抢占带宽。 那么，我们需要限制一下，限制 openvpn 所能使
         </div>
       </div>
     </article></div><div class="row table-responsive mb-3">
@@ -245,9 +318,6 @@
       </li>
       <li class="page-item">
         <a href="/posts/page/27/" aria-label="Previous" class="page-link" role="button"><span aria-hidden="true">&laquo;</span></a>
-      </li>
-      <li class="page-item">
-        <a href="/posts/page/24/" aria-label="Page 24" class="page-link" role="button">24</a>
       </li>
       <li class="page-item">
         <a href="/posts/page/25/" aria-label="Page 25" class="page-link" role="button">25</a>
@@ -261,11 +331,14 @@
       <li class="page-item active">
         <a aria-current="page" aria-label="Page 28" class="page-link" role="button">28</a>
       </li>
-      <li class="page-item disabled">
-        <a aria-disabled="true" aria-label="Next" class="page-link" role="button" tabindex="-1"><span aria-hidden="true">&raquo;</span></a>
+      <li class="page-item">
+        <a href="/posts/page/29/" aria-label="Page 29" class="page-link" role="button">29</a>
       </li>
-      <li class="page-item disabled">
-        <a aria-disabled="true" aria-label="Last" class="page-link" role="button" tabindex="-1"><span aria-hidden="true">&raquo;&raquo;</span></a>
+      <li class="page-item">
+        <a href="/posts/page/29/" aria-label="Next" class="page-link" role="button"><span aria-hidden="true">&raquo;</span></a>
+      </li>
+      <li class="page-item">
+        <a href="/posts/page/29/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
       </li>
     </ul></div>
 </div>
@@ -291,11 +364,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240124-freelancer_1/">Freelancer的任务之一：多IP多重匿名代理加认证
-</a></li><li><a href="https://bajie.dev/posts/20240124_freelancer_2/">Freelancer任务之二：建一个scramble Obfuscated Opevpn
-</a></li><li><a href="https://bajie.dev/posts/20240124_freelancer_3/">Freelancer任务之三：Setup Proxy on VPS for Instagram
-</a></li><li><a href="https://bajie.dev/posts/20240124-freelancer_4/">Freelancer任务之四squid查询用户浏览记录
-</a></li><li><a href="https://bajie.dev/posts/20240124-freelancer_5/">Freelancer任务之五多线路聚合vpn
+    <ul><li><a href="https://bajie.dev/posts/20240124-aria2_baidu/">Aria2下载网剧并极速上传到百度网盘
+</a></li><li><a href="https://bajie.dev/posts/20240124-lego_acme/">Cisco Snmpv3的设置
+</a></li><li><a href="https://bajie.dev/posts/20240124-cisco_snmp3/">Cisco Snmpv3的设置
+</a></li><li><a href="https://bajie.dev/posts/20240124-cisco_snmp_reboot/">Cisco交换机通过snmp来重启
+</a></li><li><a href="https://bajie.dev/posts/20240124-cisco_audit/">Cisco 路由器的操作审计
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
