@@ -183,7 +183,33 @@
   </div>
 </nav><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/202401180-ipxe_aoe/">Ipxe与aoe启动
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240119-macos_vpn/">Mac Os下安装openvpn客户端并设置自启动
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-19
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          没办法，网络环境太烂，只能装个openvpn client连接到服务器，系统是mac，要求一直保持连接，还要能重启自动连。 安装过程如下： 1.安
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240119-nvm_forall/">Ubuntu下如何给所有用户安装nodejs的nvm
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-19
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          最近工作比较多在Ubuntu平台下。 用visualenv和nvm比较多，但是nvm遇到的问题比较多。 比如jenkins调用nvm就比较麻烦 如
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240118-ulimit/">Ulimit的用法
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2024-01-18
   </span><span class="post-reading-time" title="reading time">
@@ -191,12 +217,25 @@
   </span></div>
 <div class="post-summary">
           
-          先普及一下，aoe（ata over ethernet），跟iscsi差不多，不过是硬盘协议走在了以太网上。iscsi是3层的协议，aoe是二层的协议
+          基本常识，各种语焉不详啊，其实ulimit最常用的就两个参数 1-u number: 单个用户能运行的最大进程数 2-n number: 单个进程可以同时打开的文件描述符的最大值，缺省
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240118-ipxe_iscsi/">Ipxe远程启动iscsi上面的克隆卷
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240118-flask_mongo/">Flask/Python对mongodb的一些操作
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-18
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          首先是安装mongodb 1yum install -y mongodb-server mongodb 2 3Installing for dependencies: 4 boost-filesystem 5 boost-iostreams 6 boost-program-options 7 boost-system 8 boost-thread 9 gperftools-libs 10 libicu 11 libunwind 12 v8 会装一堆依赖包，boost库，icu库，v8库，gperfto
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240118-f5_irule/">F5 Irule之google站长认证别样用法
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2024-01-18
   </span><span class="post-reading-time" title="reading time">
@@ -204,12 +243,12 @@
   </span></div>
 <div class="post-summary">
           
-          按上一篇所说，我们已经弄了个iscsi上面的win7卷，其实就是把萝卜花园的win7 clone到了一个10G的文件卷上。 引申问题： 大家其实可
+          公司的网站要过google认证，需要在网站根目录下放一个文件，googleb1e6d9a50ea8xxxx.html 内容如下： 1google-site-verification: googleb1e6d9a50ea8xxxx.html 这个无比简
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240118-kvm_iscsi/">Kvm使用iscsi作为存储池安装win
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240118-mbox_3d/">Mbox文件中的=3D是什么鬼(quoted-Printable编码)
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2024-01-18
   </span><span class="post-reading-time" title="reading time">
@@ -217,12 +256,12 @@
   </span></div>
 <div class="post-summary">
           
-          最近都在研究ipxe和iscsi，那么如何让kvm使用存储在iscsi上面的文件卷呢？ 假设我们已经按之前的文章架好了iscsi： 造个10G文
+          最近在搞邮局。有个很奇怪的问题，就是打开mbox的文件，比如说： /var/spool/mail/root 里面信件的部分有奇怪的3D字符： 1&lt;table cellpadding=3D&#34;0&#34; cellspacing=3D&#34;0&#34; style=3D&#34;text-align:le= 2ft;color:#454545;background-color:#fff;font-size:14px;border-radius:10px;pa= 注意，中间多了若干个3D，最后也
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240118-ipxe_hiren/">IPXE万能工具hiren.iso的启动方式
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240118-pure-ftpd/">Linux下virtual FTP的搭建pure-Ftpd
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2024-01-18
   </span><span class="post-reading-time" title="reading time">
@@ -230,12 +269,12 @@
   </span></div>
 <div class="post-summary">
           
-          我们希望有紧急情况出现的时候，ipxe可以用systemrecuecd救急，可能也希望机器上架前测测内存、分区、起个winpe等等。这时候就
+          用过proftpd和vs-ftpd，proftpd有巨恐怖的sftp细粒度控制，特殊场合非常好。 但是总觉得都很复杂，我们文件系统的底层是Gl
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240118-ipxe_sysrecuecd/">IPXE远程运行sysrecuecd系统
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240118-gfs/">GlusterFS的日常应用
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2024-01-18
   </span><span class="post-reading-time" title="reading time">
@@ -243,12 +282,12 @@
   </span></div>
 <div class="post-summary">
           
-          既然用到ipxe，就试试远程运行systemrecuecd。万一系统出毛病，可以用来恢复或者急救。 下载cd 1wget http://downloads.sourceforge.net/project/systemrescuecd/sysresccd-x86/4.7.3/systemrescuecd-x86-4.7.3.iso 装进 http://172.16
+          基本上搭建glusterfs都是用了2个副本，用来保证数据冗余 建立新卷，/export/test-vol目录不用事先建立，会自动建立的： 1gluster volume
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240118-pxe_utuntu_desk/">用IPXE启动个Ubuntu桌面
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240118-ipxe_menu/">Ipxe中menu.c32和vesamenu.c32的用法
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2024-01-18
   </span><span class="post-reading-time" title="reading time">
@@ -256,38 +295,12 @@
   </span></div>
 <div class="post-summary">
           
-          有了上篇IPXE的启动方法，我们来启动一个Ubuntu来玩： 简单的修改boot2.php即可： 1 case &#39;\ec:f4:bb:d9:96:40&#39;: 2 $ip=&#34;172.16.36.2:172.16.37.254:255.255.254.0:myhost-16-36-2&#34;; 3 $ipa=explode(&#39;:&#39;,$ip); 4 echo &#34;ifopen net0\n&#34;; 5 echo &#34;set net0/ip $ipa[0]\n&#34;; 6 echo &#34;set net0/netmask $ipa[2]\n&#34;; 7 echo
+          在做pxelinux启动的过程中，不可避免的会用到菜单选项。有两个选择，menu.c32 和 vesamenu.c32。 效果如下： menu.c32 vesamenu.c32 区别就是一
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240118-ipxe_install/">IPXE Kickstart安装CentOS的方法
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-18
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>6 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          这些年IDC物理机装机的大法也在不断衍进，从最早的手动装一堆tftp/dhcp/syslinux/httpd，到cobbler的一统江湖，到
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240118-kickstart_bongding/">Kickstart安装脚本中如何同时配置bridge和bond
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-18
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          如何在kickstart脚本中既配置br，又配置bonding呢？ 基本篇： 以Dell R730为例，物理网卡名称是em1/em2/em3/em
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240118-idrac_pxe/">Dell Idrac 重启机器进入单次pxe安装
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240118-ipxe_dos/">Ipxe启动Dos 6.22
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2024-01-18
   </span><span class="post-reading-time" title="reading time">
@@ -295,20 +308,7 @@
   </span></div>
 <div class="post-summary">
           
-          用Dell idrac的脚本来使服务器进入单次pxe安装进程。 脚本如下： 1sshpass -p &#34;xxxxxxxx&#34; ssh -oStrictHostKeyChecking=no root@172.16.17.1 racadm set iDRAC.ServerBoot.BootOnce 1 2sshpass -p &#34;xxxxxxxx&#34; ssh -oStrictHostKeyChecking=no root@172.16.17.1 racadm set iDRAC.ServerBoot.FirstBootDevice PXE 3sshpass -p &#34;xxxxxxxx&#34; ssh …
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240118-nxlog_es/">Nxlog推送数据到elasticsearch
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-18
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          其实rsyslog、syslog-ng、nxlog这三种东西真的是都差不多。随便选一个用都没问题。 比较喜欢nxlog的route和json以
+          太古老的命题了，如果想玩Dos 6.22之下的游戏，那就需要引动一个Dos系统了。 系统文件倒是现成的，Dos6.22.img。 如何做个ipxe
         </div>
       </div>
     </article></div><div class="row table-responsive mb-3">
@@ -338,7 +338,7 @@
         <a href="/posts/page/6/" aria-label="Next" class="page-link" role="button"><span aria-hidden="true">&raquo;</span></a>
       </li>
       <li class="page-item">
-        <a href="/posts/page/27/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
+        <a href="/posts/page/28/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
       </li>
     </ul></div>
 </div>
@@ -364,11 +364,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240124-lvm_resize/">LVM调整分区大小
-</a></li><li><a href="https://bajie.dev/posts/20240124-f5_bigip_ssl/">F5-Bigip的SSL每秒传输(TPS)限制
-</a></li><li><a href="https://bajie.dev/posts/20240124-jenkins_two_server/">两台不同系统上Jenkins的联动
-</a></li><li><a href="https://bajie.dev/posts/20240124-postfix_blackhole/">配置postfix转发局域网邮件以及邮件黑洞
-</a></li><li><a href="https://bajie.dev/posts/20240124-ext4_resize/">Ext4分区的缩小
+    <ul><li><a href="https://bajie.dev/posts/20240124-freelancer_1/">Freelancer的任务之一：多IP多重匿名代理加认证
+</a></li><li><a href="https://bajie.dev/posts/20240124_freelancer_2/">Freelancer任务之二：建一个scramble Obfuscated Opevpn
+</a></li><li><a href="https://bajie.dev/posts/20240124_freelancer_3/">Freelancer任务之三：Setup Proxy on VPS for Instagram
+</a></li><li><a href="https://bajie.dev/posts/20240124-freelancer_4/">Freelancer任务之四squid查询用户浏览记录
+</a></li><li><a href="https://bajie.dev/posts/20240124-freelancer_5/">Freelancer任务之五多线路聚合vpn
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

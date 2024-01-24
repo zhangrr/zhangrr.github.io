@@ -180,85 +180,124 @@
 <div class="col-lg-8">
   <div class="container"><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240119-k8s_resource/">Kubernetes中Pod资源清单和解释
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240123-ssd_cache/">在linux下用SSD盘来加速HDD硬盘
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-19
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>4 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          Pod的yaml文件的资源清单和解释，备查 1apiVersion: v1 #必选，版本号，例如v1 2kind: Pod #必选，资源类型，例如 Pod 3metadata: #必选，元数据 4 name: string #必选，Pod名称 5
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240119-url_encode/">Url中的字符转义
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-19
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-23
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          遇到个怪问题，设置http_proxy的时候有用户密码，命令如下： 1export http_proxy=http://user\2016:PmnQ 2016@192.168.0.1:3128 结果不生效，仔细观察上面的命令： 用户名其实是：&ldquo;user
+          如上图，数据写到硬盘有两种方式，一种是Bcache用SSD做缓冲，加速最后的硬盘读写。另一种是直接读写硬盘，bypass模式。我们用的是第一
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240119-extundelete/">如何通过extundelete恢复删除文件
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240123-kvm_disable_dnsmasq/">如何禁止libvirtd自带的dnsmasq启动
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-19
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-23
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          考古篇，记录下来，现在都是xfs了，但是方法不能忘啊！ 恢复过程如下： 1、安装extundelete 1yum -y install e2fsprogs e2fsprogs-libs e2fsprogs-devel 2wget http://jaist.dl.sourceforge.net/project/extundelete/extundelete/0.2.4/extundelete-0.2.4.tar.bz2 3tar -jxvf extundelete-0.2.4.tar.bz2 4cd extundelete-0.2.4 5./configure 6make 7make install 2、卸载
+          服务器要跑dnsmasq，同时机器还跑着kvm，和libvirtd自带dnsmasq的冲突了，需要禁掉libvirtd的。 方法很简单，如下：
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240119-netcat/">Netcat的一些远程用法
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240123-lua_ip_forward/">Nginx下lua根据客户端ip进行分发
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-19
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-23
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          一、远程传输文件压缩包 1tar zcvf - /export/A0 | nc 192.168.86.5 8732 2 3nc -l 8732 &gt; A0.tar.gz 方向倒过来也是可以的，在服务端压缩文件 1tar zcvf - /export/A0 | nc -l -p8732 2 3nc 192.168.86.5 8732 &gt; A0.tar.gz 二、远程传输整个目录 1tar cvf
+          公司的线上环境分为预发布和正式两个部分。 其实两个部分是公用一个Nginx前端的。 这样怎么分发呢？ 用lua即可，如果是公司来的某个固定ip，则
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240119-screen_utf/">Linux下Screen乱码
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240123-lua_redis_nginx_upstream/">Lua与redis结合应用于nginx的动态upstream
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-19
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-23
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          很烦躁的问题，Terminal 终端是UTF8，显示无问题。 可是运行 screen 后就乱码，screen 后的 env 环境跟之前一样，完全无问题 解决方法如下： 在自
+          技术要求很简明： nginx分发请求的时候，upstream是由lua从redis中读取配置动态生成的，这样便于用程序动态修改。 装好nginx
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240119-jenkins_shell/">Jenkins中execute Shell的注意事项
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240123-kvm_netcard_attach/">Kvm的虚机中如何在线挂接一块新网卡
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-19
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-23
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
 <div class="post-summary">
           
-          缺省jenkins的execute shell的方式是如下带着参数的： 1sh -xe hudsonxxx.sh 说明一下： 1-e 打开开关 表示一旦脚本中有命令的返回值为非0，则脚本立即
+          比较古怪的需求，公司拉了根专线到机房。 而使用专线的机器是一台kvm虚机，实体机有自己的路由，实体机的前两个网卡做了双网卡bonding。 那虚
         </div>
       </div>
     </article><article class="row card post component">
       <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240119-jq/">Linux下如何在命令行下解析处理json文件
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240123-mvn_build_log/">Mvn Build的时候控制日志输出
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-23
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          最近在弄jenkins的自动打包部署 出现个问题，项目是用的mvn，打包的时候，如果是在控制台下还好。 如果是在jenkins下，看consol
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240123-syslog_priority/">Syslog级别详解
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-23
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          首先是： [facility].[priority] facility表示设备、设施，特别装置： 1auth # 认证相关的 2authpriv # 权限,授权相关的 3cron # 任务计划相关的 4daemon # 守护进程相关的 5kern # 内核相关的 6lpr #
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240122-xpath_css_selector/">Xpath金手指
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-22
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          最近在搞puppeteer的自动化，有很多地方需要用到CSS Selector，但是某些地方又是用Xpath方便，金手指放一下，备查： Test queries in the
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240121-rsyslog_dns/">禁掉Rsyslog的dns解析
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-21
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          网管检查流量图的时候发现，udp的流量很多 看了看日志： 1Jun 28 00:39:28 172.16.0.1 %ASA-6-305011: Built dynamic UDP translation from inside:172.16.36.2/2160 to outside:124.243.230.6/2160 2Jun 28 00:39:28 172.16.0.1 %ASA-6-302015: Built outbound UDP connection 1369422617 for outside:223.5.5.5/53 (223.5.5.5/53) to inside:172.1... 发现一大堆是查询dns 53的  …
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240119-k8s_java/">Java业务上kubernetes的注意点
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2024-01-19
   </span><span class="post-reading-time" title="reading time">
@@ -266,46 +305,7 @@
   </span></div>
 <div class="post-summary">
           
-          最近调试Elasticsearch比较多，老用curl来查看数据，pretty=on固然是好，可是如果要具体看传回来的json数据，还是不方
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240119-mount_beauty/">Linu下如何让mount显示的很整齐
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-19
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          如果单独执行mount命令，显示的会很杂乱： 1mount 2/dev/sda3 on / type ext4 (rw) 3proc on /proc type proc (rw) 4sysfs on /sys type sysfs (rw) 5devpts on /dev/pts type devpts (rw,gid=5,mode=620) 6tmpfs on /dev/shm type tmpfs (rw) 7/dev/sda1 on /boot type ext4 (rw) 8none on /proc/sys/fs/binfmt_misc type binfmt_misc (rw) 9sunrpc on …
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240119-qunhui_backup/">群晖(黑群晖)的备份
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-19
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>4 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          数据很重要、数据很重要、数据很重要！！！ 重要的话说三遍，话说自己买了个黑群晖，6盘位的，就是为了保存照片和数据&hellip;&hellip
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240119-jpg_gif/">如何把jpg合成gif
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-19
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          用ffmpeg就很简单了 首先把要合并的jpg都变成合适的尺寸 1convert -resize 300x *.jpg 然后变gif 1convert -delay 30 -loop 0 1.jpg 2.jpg 3.jpg 4.jpg result.gif -loop 0 表示无限循环 -delay 30 表示每帧之间等待的时
+          java业务上k8s的话，看到一篇比较好的文章，要注意的地方： 1apiVersion: apps/v1 2kind: Deployment 3metadata: 4 name: java-web 5 namespace: ops 6 labels: 7 app: java-web 8spec: 9 selector: 10 matchLabels: 11 app: java-web 12 replicas: 2 13 strategy: 14 type: RollingUpdate 15 template: 16 metadata: 17 name: java-web
         </div>
       </div>
     </article></div><div class="row table-responsive mb-3">
@@ -335,7 +335,7 @@
         <a href="/page/4/" aria-label="Next" class="page-link" role="button"><span aria-hidden="true">&raquo;</span></a>
       </li>
       <li class="page-item">
-        <a href="/page/27/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
+        <a href="/page/28/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
       </li>
     </ul></div>
 </div>
@@ -361,11 +361,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240124-lvm_resize/">LVM调整分区大小
-</a></li><li><a href="https://bajie.dev/posts/20240124-f5_bigip_ssl/">F5-Bigip的SSL每秒传输(TPS)限制
-</a></li><li><a href="https://bajie.dev/posts/20240124-jenkins_two_server/">两台不同系统上Jenkins的联动
-</a></li><li><a href="https://bajie.dev/posts/20240124-postfix_blackhole/">配置postfix转发局域网邮件以及邮件黑洞
-</a></li><li><a href="https://bajie.dev/posts/20240124-ext4_resize/">Ext4分区的缩小
+    <ul><li><a href="https://bajie.dev/posts/20240124-freelancer_1/">Freelancer的任务之一：多IP多重匿名代理加认证
+</a></li><li><a href="https://bajie.dev/posts/20240124_freelancer_2/">Freelancer任务之二：建一个scramble Obfuscated Opevpn
+</a></li><li><a href="https://bajie.dev/posts/20240124_freelancer_3/">Freelancer任务之三：Setup Proxy on VPS for Instagram
+</a></li><li><a href="https://bajie.dev/posts/20240124-freelancer_4/">Freelancer任务之四squid查询用户浏览记录
+</a></li><li><a href="https://bajie.dev/posts/20240124-freelancer_5/">Freelancer任务之五多线路聚合vpn
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
