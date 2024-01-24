@@ -183,6 +183,32 @@
   </div>
 </nav><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240124-postfix_blackhole/">配置postfix转发局域网邮件以及邮件黑洞
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-24
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          配置postfix允许自由转发内网的邮件，就改一个地方即可，添加允许发送的内网网段： 1vi /etc/postfix/main.cf 2... 3mynetworks = 127.0.0.0/8, 172.16.0.0/16 4... 配置黑洞，所有邮件都接受，然后drop丢
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240124-ext4_resize/">Ext4分区的缩小
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-24
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          缩小/ 的ext4分区步骤如下： 首先查看分区是什么文件类型 1file -sL /dev/sd* 2/dev/sda: x86 boot sector; GRand Unified Bootloader, stage1 version 0x3, boot drive 0x80, 1st sector stage2 0x2044148, GRUB version 0.94; partition 1: ID=0x82, starthead 32, startsector 2048, 8388608 sectors; partition 2: ID=0x83, active, starthead 75, startsector …
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
         <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240123-centos_wifiap/">CentOS下做无线AP热点
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2024-01-23
@@ -285,32 +311,6 @@
           公司的线上环境分为预发布和正式两个部分。 其实两个部分是公用一个Nginx前端的。 这样怎么分发呢？ 用lua即可，如果是公司来的某个固定ip，则
         </div>
       </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240123-lua_redis_nginx_upstream/">Lua与redis结合应用于nginx的动态upstream
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-23
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          技术要求很简明： nginx分发请求的时候，upstream是由lua从redis中读取配置动态生成的，这样便于用程序动态修改。 装好nginx
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20240123-kvm_netcard_attach/">Kvm的虚机中如何在线挂接一块新网卡
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-23
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          比较古怪的需求，公司拉了根专线到机房。 而使用专线的机器是一台kvm虚机，实体机有自己的路由，实体机的前两个网卡做了双网卡bonding。 那虚
-        </div>
-      </div>
     </article></div><div class="row table-responsive mb-3">
     <ul class="pagination pagination-default">
       <li class="page-item disabled">
@@ -338,7 +338,7 @@
         <a href="/posts/page/2/" aria-label="Next" class="page-link" role="button"><span aria-hidden="true">&raquo;</span></a>
       </li>
       <li class="page-item">
-        <a href="/posts/page/26/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
+        <a href="/posts/page/27/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
       </li>
     </ul></div>
 </div>
@@ -364,11 +364,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240123-centos_wifiap/">CentOS下做无线AP热点
+    <ul><li><a href="https://bajie.dev/posts/20240124-postfix_blackhole/">配置postfix转发局域网邮件以及邮件黑洞
+</a></li><li><a href="https://bajie.dev/posts/20240124-ext4_resize/">Ext4分区的缩小
+</a></li><li><a href="https://bajie.dev/posts/20240123-centos_wifiap/">CentOS下做无线AP热点
 </a></li><li><a href="https://bajie.dev/posts/20240123-centos_yum_old/">给老旧的CentOS系统设置yum源
 </a></li><li><a href="https://bajie.dev/posts/20240123-mysql_backup_optimize/">MySQL的备份网络优化
-</a></li><li><a href="https://bajie.dev/posts/20240123-dell_disk/">Dell R730XD服务器如何确定是哪块硬盘坏了
-</a></li><li><a href="https://bajie.dev/posts/20240123-nodejs_gc/">小微vps下运行nodejs需要注意的gc
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
