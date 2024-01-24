@@ -183,6 +183,45 @@
   </div>
 </nav><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211126-kubernetes_minio_oss_gateway/">Kubernetes搭建minio作为阿里OSS的Gateway
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-26
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          阿里的云的 OSS 并不是完全版本的 AWS S3 兼容。 我们如果需要用 S3 协议访问 OSS，就比较麻烦了。 所以搭建一个 minio 来做网关，代理OSS，minio 是基本兼容
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211125-kubernetes_crontab_kala/">替代kubernetes Crontab的神器kala
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-25
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>4 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          本来 k8s 的 crontab 是启动一个容器来运行的，很简单，如下： 1apiVersion: batch/v1beta1 2kind: CronJob 3metadata: 4 name: curl-cron 5spec: 6 schedule: &#34;*/1 * * * *&#34; 7 jobTemplate: 8 spec: 9 template: 10 spec: 11 containers: 12 - name: curl-cron 13 image: radial/busyboxplus:curl 14 imagePullPolicy: IfNotPresent 15 command: 16 - /bin/sh …
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211125-kubernetes_hpa/">Kubernetes的hpa和自定义指标hpa
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-25
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>8 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          kubernetes 的动态伸缩 HPA 是非常有用的特性。 我们的服务器托管在阿里云的 ACK 上，k8s 根据 cpu 或者 内存的使用情况，会自动伸缩关键 pod 的数量，以应对大流量的情形。
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
         <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211124-ansible_vault/">Ansible Vault加密的使用
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-11-24
@@ -272,45 +311,6 @@
           公司用了6年的GlusterFS终于到了要调整卷参数的地步了。 小文件已经多到要影响 IO 的地步了。 首先说一下结论，GlusterFS 安装完成后，
         </div>
       </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211112-python_aiohttp/">Python的协程详细解释
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-12
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>4 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          在实际中遇到这样一个问题，公司软件发布上线自动化。 说简单点，就是需要去登录一个上线的内部网站，然后爬下所有的上线数据。 然后根据爬下来的数据整
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211111-k8s_filebeat/">Kubernetes使用filebeat Multiline自定义收集日志
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-11
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          我们介绍了如何在 kubernetes 环境中使用 filebeat sidecar 方式收集日志 使用的是 filebeat 的 moudle 模块，但凡是常用的软件，基本都有对应的模块可用，所以我们首先应该使用模块来收集日志
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211110-k8s_gfs/">生产环境kubernetes使用持久化卷GlusterFS
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-10
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          在生产环境使用 Kubernetes ，绕不过去的一个问题就是持久化卷。 如果是使用阿里 ACK 托管平台的话，可以用 OSS 来持久化卷，如果是自搭的 kubernetes，那么存
-        </div>
-      </div>
     </article></div><div class="row table-responsive mb-3">
     <ul class="pagination pagination-default">
       <li class="page-item">
@@ -364,11 +364,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240124-postfix_blackhole/">配置postfix转发局域网邮件以及邮件黑洞
+    <ul><li><a href="https://bajie.dev/posts/20240124-lvm_resize/">LVM调整分区大小
+</a></li><li><a href="https://bajie.dev/posts/20240124-f5_bigip_ssl/">F5-Bigip的SSL每秒传输(TPS)限制
+</a></li><li><a href="https://bajie.dev/posts/20240124-jenkins_two_server/">两台不同系统上Jenkins的联动
+</a></li><li><a href="https://bajie.dev/posts/20240124-postfix_blackhole/">配置postfix转发局域网邮件以及邮件黑洞
 </a></li><li><a href="https://bajie.dev/posts/20240124-ext4_resize/">Ext4分区的缩小
-</a></li><li><a href="https://bajie.dev/posts/20240123-centos_wifiap/">CentOS下做无线AP热点
-</a></li><li><a href="https://bajie.dev/posts/20240123-centos_yum_old/">给老旧的CentOS系统设置yum源
-</a></li><li><a href="https://bajie.dev/posts/20240123-mysql_backup_optimize/">MySQL的备份网络优化
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

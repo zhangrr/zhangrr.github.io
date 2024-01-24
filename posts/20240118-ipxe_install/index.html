@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="IPXE kickstart安装CentOS的方法">
 <meta itemprop="description" content="这些年IDC物理机装机的大法也在不断衍进，从最早的手动装一堆tftp/dhcp/syslinux/httpd，到cobbler的一统江湖，到"><meta itemprop="datePublished" content="2024-01-18T13:00:11+08:00" />
 <meta itemprop="dateModified" content="2024-01-18T13:00:11+08:00" />
-<meta itemprop="wordCount" content="2693">
+<meta itemprop="wordCount" content="2688">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="IPXE kickstart安装CentOS的方法" />
 <meta property="og:description" content="这些年IDC物理机装机的大法也在不断衍进，从最早的手动装一堆tftp/dhcp/syslinux/httpd，到cobbler的一统江湖，到" />
 <meta property="og:type" content="article" />
@@ -295,66 +295,65 @@ Syslinux是一个优秀的系统启动加载器(bootloader)，可引导自硬盘
 </span></span><span class="line"><span class="ln">17</span><span class="cl">network  --hostname<span class="o">={</span>hostname<span class="o">}</span>
 </span></span><span class="line"><span class="ln">18</span><span class="cl">
 </span></span><span class="line"><span class="ln">19</span><span class="cl"><span class="c1">#grub-crypt --sha-512</span>
-</span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="c1"># root  pass is password</span>
-</span></span><span class="line"><span class="ln">21</span><span class="cl">rootpw --iscrypted <span class="nv">$6$0</span>Y.SH935/jvt0X.D<span class="nv">$lCte9H</span>/KiFeGbTGrrcuXGZXmnq3Rk4Crz8nAvCgH.Pf2SNmoUdh.g5WGWJqtVO4QTyqvnXc/6FyVjptWIaM4w1  
-</span></span><span class="line"><span class="ln">22</span><span class="cl">timezone Asia/Shanghai --isUtc
-</span></span><span class="line"><span class="ln">23</span><span class="cl">
-</span></span><span class="line"><span class="ln">24</span><span class="cl">bootloader --append<span class="o">=</span><span class="s2">&#34; crashkernel=auto&#34;</span> --location<span class="o">=</span>mbr --boot-drive<span class="o">=</span>sda  
-</span></span><span class="line"><span class="ln">25</span><span class="cl">clearpart --all --drives<span class="o">=</span>sda
-</span></span><span class="line"><span class="ln">26</span><span class="cl">
-</span></span><span class="line"><span class="ln">27</span><span class="cl">part /boot --fstype ext4 --size<span class="o">=</span><span class="m">500</span> --ondisk<span class="o">=</span>/dev/sda  
-</span></span><span class="line"><span class="ln">28</span><span class="cl">part swap --size<span class="o">=</span><span class="m">8192</span> --ondisk<span class="o">=</span>/dev/sda  
-</span></span><span class="line"><span class="ln">29</span><span class="cl">part / --fstype ext4 --size<span class="o">=</span><span class="m">1024</span> --grow --ondisk<span class="o">=</span>/dev/sda
-</span></span><span class="line"><span class="ln">30</span><span class="cl">
-</span></span><span class="line"><span class="ln">31</span><span class="cl">%packages
-</span></span><span class="line"><span class="ln">32</span><span class="cl">@compat-libraries
-</span></span><span class="line"><span class="ln">33</span><span class="cl">@core
-</span></span><span class="line"><span class="ln">34</span><span class="cl">wget  
-</span></span><span class="line"><span class="ln">35</span><span class="cl">net-tools  
-</span></span><span class="line"><span class="ln">36</span><span class="cl">chrony  
-</span></span><span class="line"><span class="ln">37</span><span class="cl">bridge-utils  
-</span></span><span class="line"><span class="ln">38</span><span class="cl">%end
-</span></span><span class="line"><span class="ln">39</span><span class="cl">
-</span></span><span class="line"><span class="ln">40</span><span class="cl">%post
-</span></span><span class="line"><span class="ln">41</span><span class="cl">yum -y erase NetworkManager  
-</span></span><span class="line"><span class="ln">42</span><span class="cl">cat <span class="s">&lt;&lt;EOF &gt;/etc/sysconfig/network-scripts/ifcfg-br0  
-</span></span></span><span class="line"><span class="ln">43</span><span class="cl"><span class="s">DEVICE=br0  
-</span></span></span><span class="line"><span class="ln">44</span><span class="cl"><span class="s">TYPE=Bridge  
-</span></span></span><span class="line"><span class="ln">45</span><span class="cl"><span class="s">BOOTPROTO=static  
-</span></span></span><span class="line"><span class="ln">46</span><span class="cl"><span class="s">ONBOOT=yes  
-</span></span></span><span class="line"><span class="ln">47</span><span class="cl"><span class="s">IPADDR={ip}  
-</span></span></span><span class="line"><span class="ln">48</span><span class="cl"><span class="s">NETMASK={netmask}  
-</span></span></span><span class="line"><span class="ln">49</span><span class="cl"><span class="s">GATEWAY={gateway}  
-</span></span></span><span class="line"><span class="ln">50</span><span class="cl"><span class="s">EOF</span>  
-</span></span><span class="line"><span class="ln">51</span><span class="cl">cat <span class="s">&lt;&lt;EOF &gt; /etc/modprobe.d/bonding.conf  
-</span></span></span><span class="line"><span class="ln">52</span><span class="cl"><span class="s">alias bond0 bonding  
-</span></span></span><span class="line"><span class="ln">53</span><span class="cl"><span class="s">BONDING_OPTS=&#34;miimon=100 mode=1 primary=em1&#34;  
-</span></span></span><span class="line"><span class="ln">54</span><span class="cl"><span class="s">EOF</span>  
-</span></span><span class="line"><span class="ln">55</span><span class="cl">cat <span class="s">&lt;&lt;EOF &gt; /etc/sysconfig/network-scripts/ifcfg-bond0  
-</span></span></span><span class="line"><span class="ln">56</span><span class="cl"><span class="s">DEVICE=bond0  
-</span></span></span><span class="line"><span class="ln">57</span><span class="cl"><span class="s">ONBOOT=yes  
-</span></span></span><span class="line"><span class="ln">58</span><span class="cl"><span class="s">USERCTL=no  
-</span></span></span><span class="line"><span class="ln">59</span><span class="cl"><span class="s">BRIDGE=br0  
-</span></span></span><span class="line"><span class="ln">60</span><span class="cl"><span class="s">EOF</span>  
-</span></span><span class="line"><span class="ln">61</span><span class="cl">cat <span class="s">&lt;&lt;EOF &gt; /etc/sysconfig/network-scripts/ifcfg-em1  
-</span></span></span><span class="line"><span class="ln">62</span><span class="cl"><span class="s">DEVICE=em1  
-</span></span></span><span class="line"><span class="ln">63</span><span class="cl"><span class="s">USERCTL=no  
-</span></span></span><span class="line"><span class="ln">64</span><span class="cl"><span class="s">ONBOOT=yes  
-</span></span></span><span class="line"><span class="ln">65</span><span class="cl"><span class="s">MASTER=bond0  
-</span></span></span><span class="line"><span class="ln">66</span><span class="cl"><span class="s">SLAVE=yes  
-</span></span></span><span class="line"><span class="ln">67</span><span class="cl"><span class="s">BRIDGE=&#34;br0&#34;  
-</span></span></span><span class="line"><span class="ln">68</span><span class="cl"><span class="s">EOF</span>  
-</span></span><span class="line"><span class="ln">69</span><span class="cl">cat <span class="s">&lt;&lt;EOF &gt; /etc/sysconfig/network-scripts/ifcfg-em2  
-</span></span></span><span class="line"><span class="ln">70</span><span class="cl"><span class="s">DEVICE=em2  
-</span></span></span><span class="line"><span class="ln">71</span><span class="cl"><span class="s">USERCTL=no  
-</span></span></span><span class="line"><span class="ln">72</span><span class="cl"><span class="s">ONBOOT=yes  
-</span></span></span><span class="line"><span class="ln">73</span><span class="cl"><span class="s">MASTER=bond0  
-</span></span></span><span class="line"><span class="ln">74</span><span class="cl"><span class="s">SLAVE=yes  
-</span></span></span><span class="line"><span class="ln">75</span><span class="cl"><span class="s">BRIDGE=&#34;br0&#34;  
-</span></span></span><span class="line"><span class="ln">76</span><span class="cl"><span class="s">EOF</span>  
-</span></span><span class="line"><span class="ln">77</span><span class="cl">%end
-</span></span><span class="line"><span class="ln">78</span><span class="cl">
-</span></span><span class="line"><span class="ln">79</span><span class="cl">reboot  
+</span></span><span class="line"><span class="ln">20</span><span class="cl">rootpw --iscrypted <span class="nv">$6$0</span>Y.SH935/jvt0X.D<span class="nv">$lCte9H</span>/KiFeGbTGrrcuXGZXmnq3Rk4Crz8nAvCgH.Pf2SNmoUdh.g5WGWJqtVO4QTyqvnXc/6FyVjptWIaM4w1  
+</span></span><span class="line"><span class="ln">21</span><span class="cl">timezone Asia/Shanghai --isUtc
+</span></span><span class="line"><span class="ln">22</span><span class="cl">
+</span></span><span class="line"><span class="ln">23</span><span class="cl">bootloader --append<span class="o">=</span><span class="s2">&#34; crashkernel=auto&#34;</span> --location<span class="o">=</span>mbr --boot-drive<span class="o">=</span>sda  
+</span></span><span class="line"><span class="ln">24</span><span class="cl">clearpart --all --drives<span class="o">=</span>sda
+</span></span><span class="line"><span class="ln">25</span><span class="cl">
+</span></span><span class="line"><span class="ln">26</span><span class="cl">part /boot --fstype ext4 --size<span class="o">=</span><span class="m">500</span> --ondisk<span class="o">=</span>/dev/sda  
+</span></span><span class="line"><span class="ln">27</span><span class="cl">part swap --size<span class="o">=</span><span class="m">8192</span> --ondisk<span class="o">=</span>/dev/sda  
+</span></span><span class="line"><span class="ln">28</span><span class="cl">part / --fstype ext4 --size<span class="o">=</span><span class="m">1024</span> --grow --ondisk<span class="o">=</span>/dev/sda
+</span></span><span class="line"><span class="ln">29</span><span class="cl">
+</span></span><span class="line"><span class="ln">30</span><span class="cl">%packages
+</span></span><span class="line"><span class="ln">31</span><span class="cl">@compat-libraries
+</span></span><span class="line"><span class="ln">32</span><span class="cl">@core
+</span></span><span class="line"><span class="ln">33</span><span class="cl">wget  
+</span></span><span class="line"><span class="ln">34</span><span class="cl">net-tools  
+</span></span><span class="line"><span class="ln">35</span><span class="cl">chrony  
+</span></span><span class="line"><span class="ln">36</span><span class="cl">bridge-utils  
+</span></span><span class="line"><span class="ln">37</span><span class="cl">%end
+</span></span><span class="line"><span class="ln">38</span><span class="cl">
+</span></span><span class="line"><span class="ln">39</span><span class="cl">%post
+</span></span><span class="line"><span class="ln">40</span><span class="cl">yum -y erase NetworkManager  
+</span></span><span class="line"><span class="ln">41</span><span class="cl">cat <span class="s">&lt;&lt;EOF &gt;/etc/sysconfig/network-scripts/ifcfg-br0  
+</span></span></span><span class="line"><span class="ln">42</span><span class="cl"><span class="s">DEVICE=br0  
+</span></span></span><span class="line"><span class="ln">43</span><span class="cl"><span class="s">TYPE=Bridge  
+</span></span></span><span class="line"><span class="ln">44</span><span class="cl"><span class="s">BOOTPROTO=static  
+</span></span></span><span class="line"><span class="ln">45</span><span class="cl"><span class="s">ONBOOT=yes  
+</span></span></span><span class="line"><span class="ln">46</span><span class="cl"><span class="s">IPADDR={ip}  
+</span></span></span><span class="line"><span class="ln">47</span><span class="cl"><span class="s">NETMASK={netmask}  
+</span></span></span><span class="line"><span class="ln">48</span><span class="cl"><span class="s">GATEWAY={gateway}  
+</span></span></span><span class="line"><span class="ln">49</span><span class="cl"><span class="s">EOF</span>  
+</span></span><span class="line"><span class="ln">50</span><span class="cl">cat <span class="s">&lt;&lt;EOF &gt; /etc/modprobe.d/bonding.conf  
+</span></span></span><span class="line"><span class="ln">51</span><span class="cl"><span class="s">alias bond0 bonding  
+</span></span></span><span class="line"><span class="ln">52</span><span class="cl"><span class="s">BONDING_OPTS=&#34;miimon=100 mode=1 primary=em1&#34;  
+</span></span></span><span class="line"><span class="ln">53</span><span class="cl"><span class="s">EOF</span>  
+</span></span><span class="line"><span class="ln">54</span><span class="cl">cat <span class="s">&lt;&lt;EOF &gt; /etc/sysconfig/network-scripts/ifcfg-bond0  
+</span></span></span><span class="line"><span class="ln">55</span><span class="cl"><span class="s">DEVICE=bond0  
+</span></span></span><span class="line"><span class="ln">56</span><span class="cl"><span class="s">ONBOOT=yes  
+</span></span></span><span class="line"><span class="ln">57</span><span class="cl"><span class="s">USERCTL=no  
+</span></span></span><span class="line"><span class="ln">58</span><span class="cl"><span class="s">BRIDGE=br0  
+</span></span></span><span class="line"><span class="ln">59</span><span class="cl"><span class="s">EOF</span>  
+</span></span><span class="line"><span class="ln">60</span><span class="cl">cat <span class="s">&lt;&lt;EOF &gt; /etc/sysconfig/network-scripts/ifcfg-em1  
+</span></span></span><span class="line"><span class="ln">61</span><span class="cl"><span class="s">DEVICE=em1  
+</span></span></span><span class="line"><span class="ln">62</span><span class="cl"><span class="s">USERCTL=no  
+</span></span></span><span class="line"><span class="ln">63</span><span class="cl"><span class="s">ONBOOT=yes  
+</span></span></span><span class="line"><span class="ln">64</span><span class="cl"><span class="s">MASTER=bond0  
+</span></span></span><span class="line"><span class="ln">65</span><span class="cl"><span class="s">SLAVE=yes  
+</span></span></span><span class="line"><span class="ln">66</span><span class="cl"><span class="s">BRIDGE=&#34;br0&#34;  
+</span></span></span><span class="line"><span class="ln">67</span><span class="cl"><span class="s">EOF</span>  
+</span></span><span class="line"><span class="ln">68</span><span class="cl">cat <span class="s">&lt;&lt;EOF &gt; /etc/sysconfig/network-scripts/ifcfg-em2  
+</span></span></span><span class="line"><span class="ln">69</span><span class="cl"><span class="s">DEVICE=em2  
+</span></span></span><span class="line"><span class="ln">70</span><span class="cl"><span class="s">USERCTL=no  
+</span></span></span><span class="line"><span class="ln">71</span><span class="cl"><span class="s">ONBOOT=yes  
+</span></span></span><span class="line"><span class="ln">72</span><span class="cl"><span class="s">MASTER=bond0  
+</span></span></span><span class="line"><span class="ln">73</span><span class="cl"><span class="s">SLAVE=yes  
+</span></span></span><span class="line"><span class="ln">74</span><span class="cl"><span class="s">BRIDGE=&#34;br0&#34;  
+</span></span></span><span class="line"><span class="ln">75</span><span class="cl"><span class="s">EOF</span>  
+</span></span><span class="line"><span class="ln">76</span><span class="cl">%end
+</span></span><span class="line"><span class="ln">77</span><span class="cl">
+</span></span><span class="line"><span class="ln">78</span><span class="cl">reboot  
 </span></span></code></pre></div><p>注意上面，{ip}、{netmask}、{gateway}、{hostname}是待定的。</p>
 <p>然后看看boot2.php:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">&lt;?php  
@@ -377,7 +376,7 @@ Syslinux是一个优秀的系统启动加载器(bootloader)，可引导自硬盘
 </span></span><span class="line"><span class="ln">18</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;set net0/dns </span><span class="nv">$dns</span><span class="s2">\n&#34;</span><span class="p">;</span>
 </span></span><span class="line"><span class="ln">19</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;set base-url </span><span class="nv">$base7</span><span class="s2">\n&#34;</span><span class="p">;</span>
 </span></span><span class="line"><span class="ln">20</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;kernel \${base-url}/images/pxeboot/vmlinuz\n&#34;</span><span class="p">;</span>
-</span></span><span class="line"><span class="ln">21</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;imgargs vmlinuz inst.ks=</span><span class="nv">$ks7</span><span class="s2">?file=centos7.ks&amp;ip=</span><span class="nv">$ipa</span><span class="s2">[0]&amp;mask=</span><span class="nv">$ipa</span><span class="s2">[2]&amp;gateway=</span><span class="nv">$ipa</span><span class="s2">[1]&amp;hostname=</span><span class="nv">$ipa</span><span class="s2">[3] ksdevice=bootif inst.vnc inst.vncpassword=password inst.sshd\n&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;imgargs vmlinuz inst.ks=</span><span class="nv">$ks7</span><span class="s2">?file=centos7.ks&amp;ip=</span><span class="nv">$ipa</span><span class="s2">[0]&amp;mask=</span><span class="nv">$ipa</span><span class="s2">[2]&amp;gateway=</span><span class="nv">$ipa</span><span class="s2">[1]&amp;hostname=</span><span class="nv">$ipa</span><span class="s2">[3] ksdevice=bootif inst.vnc inst.vncpassword=xxxxxxxx inst.sshd\n&#34;</span><span class="p">;</span>
 </span></span><span class="line"><span class="ln">22</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;initrd \${base-url}/images/pxeboot/initrd.img\n&#34;</span><span class="p">;</span> 
 </span></span><span class="line"><span class="ln">23</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;boot\n&#34;</span><span class="p">;</span>
 </span></span><span class="line"><span class="ln">24</span><span class="cl">    break<span class="p">;</span>
@@ -504,11 +503,11 @@ Syslinux是一个优秀的系统启动加载器(bootloader)，可引导自硬盘
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240124-postfix_blackhole/">配置postfix转发局域网邮件以及邮件黑洞
+    <ul><li><a href="https://bajie.dev/posts/20240124-lvm_resize/">LVM调整分区大小
+</a></li><li><a href="https://bajie.dev/posts/20240124-f5_bigip_ssl/">F5-Bigip的SSL每秒传输(TPS)限制
+</a></li><li><a href="https://bajie.dev/posts/20240124-jenkins_two_server/">两台不同系统上Jenkins的联动
+</a></li><li><a href="https://bajie.dev/posts/20240124-postfix_blackhole/">配置postfix转发局域网邮件以及邮件黑洞
 </a></li><li><a href="https://bajie.dev/posts/20240124-ext4_resize/">Ext4分区的缩小
-</a></li><li><a href="https://bajie.dev/posts/20240123-centos_wifiap/">CentOS下做无线AP热点
-</a></li><li><a href="https://bajie.dev/posts/20240123-centos_yum_old/">给老旧的CentOS系统设置yum源
-</a></li><li><a href="https://bajie.dev/posts/20240123-mysql_backup_optimize/">MySQL的备份网络优化
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

@@ -183,6 +183,45 @@
   </div>
 </nav><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231214-lxc_ip/">LXC更新到Docker之后的IP部分修改
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-14
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          在k8s没有出来之前，我们用的就是LXC，古早版本了。 跑的LXC，基于docker进行管理，网络部分独立。 进化到新版本的Docker后，网络
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231214-lxc_storage/">LXC更新到Docker之后的存储部分修改
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-14
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          在k8s没有出来之前，我们用的就是LXC，古早版本了。 那时候是1：60的虚拟，一台物理机上跑60个LXC，居然这样运行了8年无异常，现在要升
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231214-kvm_nested/">KVM的嵌套虚拟化
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-14
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          kvm生产的虚机内仍然可以再产虚拟机，这就是嵌套虚拟化 我们的目的是要再kvm虚机中安装一套proxmox的系统 首先在实体机上检查当前的Lin
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
         <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231214-kvm_dhcp/">KVM网络如何设置DHCP
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2023-12-14
@@ -272,45 +311,6 @@
           证书会经常面临过期而没有及时续费的情况，写个脚本提醒一下自己吧： crontab -l 0 8 * * * /usr/local/bin/check_ssl.sh www.ddky.com check_ssl.sh的内容： 1#!/bin/bash 2# Print the number of days till certificate expiration 3# 4# Example:
         </div>
       </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231211-crontab_root/">Root的crontab由于root密码失效导致不能正常工作
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-11
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          数据库管理员的 172.18.20.10 和 172.18.20.25 数据库备份脚本是以 root 身份运行的，在 crontab 里跑： 126 11 * * * /root/scripts/mysql_backup_full_3306.sh &gt; /dev/null 2&gt;&amp;1 但是由于 root 密码会每三个月变更一次，如果没有及时变更，会导致 root
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231211-rsyslog_usage/">Rsyslog的一些特殊用法
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-11
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          Rsyslog的模板文件按日期存放： 1$template 10.161.54.11,&#34;/var/log/rsyslog/%fromhost-ip%/netflow_%$YEAR%-%$MONTH%-%$DAY%.log&#34; 2$template 10.161.50.5,&#34;/var/log/rsyslog/%fromhost-ip%/xdns_webeng_%$YEAR%-%$MONTH%-%$DAY%.log&#34; 3$template …
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20231211-netdev_backup/">网络设备配置的备份
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-11
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          这个其实是网络工程师的工作，有以下两种方法： 一、用ssh备份Cisco设备的脚本 需要事先在/root/.ssh/config配置好直接登录，
-        </div>
-      </div>
     </article></div><div class="row table-responsive mb-3">
     <ul class="pagination pagination-default">
       <li class="page-item">
@@ -364,11 +364,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240124-postfix_blackhole/">配置postfix转发局域网邮件以及邮件黑洞
+    <ul><li><a href="https://bajie.dev/posts/20240124-lvm_resize/">LVM调整分区大小
+</a></li><li><a href="https://bajie.dev/posts/20240124-f5_bigip_ssl/">F5-Bigip的SSL每秒传输(TPS)限制
+</a></li><li><a href="https://bajie.dev/posts/20240124-jenkins_two_server/">两台不同系统上Jenkins的联动
+</a></li><li><a href="https://bajie.dev/posts/20240124-postfix_blackhole/">配置postfix转发局域网邮件以及邮件黑洞
 </a></li><li><a href="https://bajie.dev/posts/20240124-ext4_resize/">Ext4分区的缩小
-</a></li><li><a href="https://bajie.dev/posts/20240123-centos_wifiap/">CentOS下做无线AP热点
-</a></li><li><a href="https://bajie.dev/posts/20240123-centos_yum_old/">给老旧的CentOS系统设置yum源
-</a></li><li><a href="https://bajie.dev/posts/20240123-mysql_backup_optimize/">MySQL的备份网络优化
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

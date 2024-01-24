@@ -180,6 +180,45 @@
 <div class="col-lg-8">
   <div class="container"><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220224-gost_tunnel/">Gost Tunnel的使用
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-02-24
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          用过了好几个 tunnel 工具软件，各有长处。 ghostunnel 是支持自定义 tls 证书加密的，这回用个更厉害的，支持各种代理链条的，gost 项目地址：https://git
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220223-kvm_passthrouth/">KVM下宿主机的目录直通到虚机
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-02-23
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          这个需求也很有点意思，DBA 要求做 MySQL 的卸载从库，数据量会很大，硬盘空间后期需要扩容，但是 cpu 反倒占的不多。 单独 MySQL 是无法限制其 CPU 核使用的，这样的
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220222-eth_matic/">如何用CPU挖Polygon网络的MATIC币
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2022-02-22
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          这是个严肃话题，正经挖以太币的话，很多的矿厂都是如果直接挖到以太币地址，那么必须挖到完整一个才允许提现，手续费还特高。 但是如果挖到以太链Po
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
         <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20220118-grafana_prometheus/">Grafana画出prometheus的图
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2022-01-18
@@ -269,45 +308,6 @@
           在 kubernetes 中，ingress 负责转发、融断和限流。 我们以 Nginx ingress 为例，讨论一下这方面的问题。 一、Nginx ingress黑白名单 这个很简单了，丢进黑名
         </div>
       </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211126-kubernetes_minio_oss_gateway/">Kubernetes搭建minio作为阿里OSS的Gateway
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-26
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          阿里的云的 OSS 并不是完全版本的 AWS S3 兼容。 我们如果需要用 S3 协议访问 OSS，就比较麻烦了。 所以搭建一个 minio 来做网关，代理OSS，minio 是基本兼容
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211125-kubernetes_crontab_kala/">替代kubernetes Crontab的神器kala
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-25
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>4 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          本来 k8s 的 crontab 是启动一个容器来运行的，很简单，如下： 1apiVersion: batch/v1beta1 2kind: CronJob 3metadata: 4 name: curl-cron 5spec: 6 schedule: &#34;*/1 * * * *&#34; 7 jobTemplate: 8 spec: 9 template: 10 spec: 11 containers: 12 - name: curl-cron 13 image: radial/busyboxplus:curl 14 imagePullPolicy: IfNotPresent 15 command: 16 - /bin/sh …
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211125-kubernetes_hpa/">Kubernetes的hpa和自定义指标hpa
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-25
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>8 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          kubernetes 的动态伸缩 HPA 是非常有用的特性。 我们的服务器托管在阿里云的 ACK 上，k8s 根据 cpu 或者 内存的使用情况，会自动伸缩关键 pod 的数量，以应对大流量的情形。
-        </div>
-      </div>
     </article></div><div class="row table-responsive mb-3">
     <ul class="pagination pagination-default">
       <li class="page-item">
@@ -361,11 +361,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240124-postfix_blackhole/">配置postfix转发局域网邮件以及邮件黑洞
+    <ul><li><a href="https://bajie.dev/posts/20240124-lvm_resize/">LVM调整分区大小
+</a></li><li><a href="https://bajie.dev/posts/20240124-f5_bigip_ssl/">F5-Bigip的SSL每秒传输(TPS)限制
+</a></li><li><a href="https://bajie.dev/posts/20240124-jenkins_two_server/">两台不同系统上Jenkins的联动
+</a></li><li><a href="https://bajie.dev/posts/20240124-postfix_blackhole/">配置postfix转发局域网邮件以及邮件黑洞
 </a></li><li><a href="https://bajie.dev/posts/20240124-ext4_resize/">Ext4分区的缩小
-</a></li><li><a href="https://bajie.dev/posts/20240123-centos_wifiap/">CentOS下做无线AP热点
-</a></li><li><a href="https://bajie.dev/posts/20240123-centos_yum_old/">给老旧的CentOS系统设置yum源
-</a></li><li><a href="https://bajie.dev/posts/20240123-mysql_backup_optimize/">MySQL的备份网络优化
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
