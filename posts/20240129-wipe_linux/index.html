@@ -1,0 +1,889 @@
+<!doctype html><html lang="zh-cn"
+  >
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Linux下的擦除工具 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
+<meta name="keywords" content="" />
+<meta name="description" content="" /><meta itemprop="name" content="Linux下的擦除工具">
+<meta itemprop="description" content="Linux下的日志擦除软件，无解释珍藏： 1gcc -O3 -DHAVE_LASTLOG_H -DNO_ACCT -o wipe wipe.c 2 3wipe u root #w 命令不显示root 4wipe w root #last 命令擦掉root 5wipe l root #lastlog 命令擦掉root登录记录 源"><meta itemprop="datePublished" content="2024-01-29T10:52:11+08:00" />
+<meta itemprop="dateModified" content="2024-01-29T10:52:11+08:00" />
+<meta itemprop="wordCount" content="1862">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="Linux下的擦除工具" />
+<meta property="og:description" content="Linux下的日志擦除软件，无解释珍藏： 1gcc -O3 -DHAVE_LASTLOG_H -DNO_ACCT -o wipe wipe.c 2 3wipe u root #w 命令不显示root 4wipe w root #last 命令擦掉root 5wipe l root #lastlog 命令擦掉root登录记录 源" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://bajie.dev/posts/20240129-wipe_linux/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2024-01-29T10:52:11+08:00" />
+<meta property="article:modified_time" content="2024-01-29T10:52:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Linux下的擦除工具"/>
+<meta name="twitter:description" content="Linux下的日志擦除软件，无解释珍藏： 1gcc -O3 -DHAVE_LASTLOG_H -DNO_ACCT -o wipe wipe.c 2 3wipe u root #w 命令不显示root 4wipe w root #last 命令擦掉root 5wipe l root #lastlog 命令擦掉root登录记录 源"/>
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <div class="container">
+    <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
+  aria-controls="offcanvasSettings" aria-label="Toggle settings">
+  <i class="fas fa-bars"></i>
+</button>
+
+<div class="offcanvas offcanvas-start surface" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasSettings">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">设置</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body">
+
+<section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+
+<section class="setting">
+  <form class="font-size-switcher-form row">
+    <div class="col-auto">
+      <label for="fontSize" class="form-label"><i class="fas fa-fw fa-font"></i> 字体大小</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <input type="range" class="form-range" min="-2" max="2" id="fontSize">
+    </div>
+  </form>
+</section>
+
+
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a id="btnPalette" class="btn btn-sm btn-outline-primary" role="button" aria-label="palettePicker">
+        <i class="fas fa-eye-dropper"></i>
+      </a>
+    </div>
+  </form>
+  <div class="mt-2 d-flex visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="蓝色"
+        class="btn btn-sm palette" data-palette="blue">
+      </button><button type="button" id="palette-blue-gray" aria-label="蓝灰色"
+        class="btn btn-sm palette" data-palette="blue-gray">
+      </button><button type="button" id="palette-brown" aria-label="棕色"
+        class="btn btn-sm palette" data-palette="brown">
+      </button><button type="button" id="palette-cyan" aria-label="青色"
+        class="btn btn-sm palette" data-palette="cyan">
+      </button><button type="button" id="palette-green" aria-label="绿色"
+        class="btn btn-sm palette" data-palette="green">
+      </button><button type="button" id="palette-indigo" aria-label="靛青色"
+        class="btn btn-sm palette" data-palette="indigo">
+      </button><button type="button" id="palette-orange" aria-label="橙色"
+        class="btn btn-sm palette" data-palette="orange">
+      </button><button type="button" id="palette-pink" aria-label="粉色"
+        class="btn btn-sm palette" data-palette="pink">
+      </button><button type="button" id="palette-purple" aria-label="紫色"
+        class="btn btn-sm palette" data-palette="purple">
+      </button><button type="button" id="palette-red" aria-label="红色"
+        class="btn btn-sm palette" data-palette="red">
+      </button><button type="button" id="palette-teal" aria-label="蓝绿色"
+        class="btn btn-sm palette" data-palette="teal">
+      </button><button type="button" id="palette-yellow" aria-label="黄色"
+        class="btn btn-sm palette" data-palette="yellow">
+      </button></div>
+</section>
+<section class="setting social-share">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-share-alt"></i> Share</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a class="btn btn-sm btn-outline-primary btn-social-share"><i class="fas fa-share"></i></a>
+    </div>
+  </form>
+  <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
+      target="_blank" href="https://twitter.com/intent/tweet?title=Linux%e4%b8%8b%e7%9a%84%e6%93%a6%e9%99%a4%e5%b7%a5%e5%85%b7&url=https%3a%2f%2fbajie.dev%2fposts%2f20240129-wipe_linux%2f">
+      <i class="fab fa-fw fa-twitter"></i> Twitter
+    </a>
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20240129-wipe_linux%2f">
+      <i class="fab fa-fw fa-facebook-f"></i> Facebook
+    </a>
+  </div>
+</section>
+
+</div>
+</div>
+<a class="navbar-brand me-3" href="https://bajie.dev"><img class="logo" alt="Logo" src="https://bajie.dev/images/logo.webp" loading="lazy"
+   width="136" height="69"
+   />
+八戒
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="fas fa-ellipsis-v"></i>
+    </button>
+    <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
+      <form class="search-bar my-1" action="https://bajie.dev/search">
+  <div class="input-group input-group-sm">
+    <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
+    <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
+  </div>
+</form>
+
+      <ul class="navbar-nav ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/categories/">
+            <i class="fas fa-fw fa-folder"></i>分类
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/tags/">
+            <i class="fas fa-fw fa-tags"></i>标签
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/series/">
+            <i class="fas fa-fw fa-columns"></i>专栏
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-chevron-circle-down"></i>下拉菜单
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-dropdown"><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                <i class="fab fa-fw fa-github"></i>Github
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://bajie.dev/zh-cn/series/manual">
+                用户手册
+              </a>
+            </li></ul>
+        </li></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body">
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">Posts</a></li><li class="breadcrumb-item active">Linux下的擦除工具</li></ol>
+  </div>
+</nav><article class="post row card mb-4 component">
+  <div class="card-body"><div class="post-panel-wrapper">
+  <div class="post-panel d-flex flex-column">
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+  <i class="fas fa-fw fa-expand-arrows-alt"></i>
+</a>
+  
+    
+
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
+  <i class="fas fa-fw fa-coffee"></i>
+</a>
+    <a class="action" data-bs-container="body" data-bs-toggle="popover" data-bs-html="true" data-bs-placement="bottom"
+  data-bs-trigger="focus" tabindex="0" type="button" aria-label="Copyright" 
+  data-bs-content="&lt;a target=&#34;_blank&#34; rel=&#34;license noopener noreferrer&#34; href=&#34;https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh&#34;&gt;CC BY-NC-ND 4.0 &lt;i class=&#34;fab fa-fw fa-creative-commons&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-by&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-nc&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-nd&#34;&gt;&lt;/i&gt;&lt;/a&gt;
+">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
+    
+  </div>
+</div>
+<h1 class="card-title my-3">Linux下的擦除工具
+</h1><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-29
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>4 分钟阅读
+  </span></div>
+<div class="post-content mb-3"><p>Linux下的日志擦除软件，无解释珍藏：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">gcc -O3  -DHAVE_LASTLOG_H -DNO_ACCT -o wipe wipe.c
+</span></span><span class="line"><span class="ln">2</span><span class="cl">
+</span></span><span class="line"><span class="ln">3</span><span class="cl">wipe u root <span class="c1">#w 命令不显示root</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">wipe w root <span class="c1">#last 命令擦掉root</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl">wipe l root <span class="c1">#lastlog 命令擦掉root登录记录</span>
+</span></span></code></pre></div><p>源码如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="ln">  1</span><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="ln">  2</span><span class="cl"><span class="cm"> * Wipe v1.00.
+</span></span></span><span class="line"><span class="ln">  3</span><span class="cl"><span class="cm"> *
+</span></span></span><span class="line"><span class="ln">  4</span><span class="cl"><span class="cm"> * Written by The Crawler.
+</span></span></span><span class="line"><span class="ln">  5</span><span class="cl"><span class="cm"> *
+</span></span></span><span class="line"><span class="ln">  6</span><span class="cl"><span class="cm"> * Selectively wipe system logs.
+</span></span></span><span class="line"><span class="ln">  7</span><span class="cl"><span class="cm"> *
+</span></span></span><span class="line"><span class="ln">  8</span><span class="cl"><span class="cm"> * Usage: wipe [l,u,w] username
+</span></span></span><span class="line"><span class="ln">  9</span><span class="cl"><span class="cm"> * ex:    wipe l user;wipe u user;wipe w user
+</span></span></span><span class="line"><span class="ln"> 10</span><span class="cl"><span class="cm"> *
+</span></span></span><span class="line"><span class="ln"> 11</span><span class="cl"><span class="cm"> * Wipes logs on, but not including, Linux, FreeBSD, Sunos 4.x, Solaris 2.x,
+</span></span></span><span class="line"><span class="ln"> 12</span><span class="cl"><span class="cm"> *      Ultrix, AIX, IRIX, Digital UNIX, BSDI, NetBSD, HP/UX.
+</span></span></span><span class="line"><span class="ln"> 13</span><span class="cl"><span class="cm"> * compile with  -DHAVE_LASTLOG_H -DNO_ACCT */</span>
+</span></span><span class="line"><span class="ln"> 14</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 15</span><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/types.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="ln"> 16</span><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/stat.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="ln"> 17</span><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/uio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="ln"> 18</span><span class="cl"><span class="cp">#ifndef NO_ACCT
+</span></span></span><span class="line"><span class="ln"> 19</span><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/acct.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="ln"> 20</span><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="ln"> 21</span><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;utmp.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="ln"> 22</span><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;fcntl.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="ln"> 23</span><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="ln"> 24</span><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="ln"> 25</span><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="ln"> 26</span><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="ln"> 27</span><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;pwd.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="ln"> 28</span><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="ln"> 29</span><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="ln"> 30</span><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="ln"> 31</span><span class="cl"><span class="cp">#ifdef HAVE_LASTLOG_H
+</span></span></span><span class="line"><span class="ln"> 32</span><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;lastlog.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="ln"> 33</span><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="ln"> 34</span><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="ln"> 35</span><span class="cl"><span class="cp">#ifdef HAVE_UTMPX
+</span></span></span><span class="line"><span class="ln"> 36</span><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;utmpx.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="ln"> 37</span><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="ln"> 38</span><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="ln"> 39</span><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="ln"> 40</span><span class="cl"><span class="cm"> * Try to use the paths out of the include files. 
+</span></span></span><span class="line"><span class="ln"> 41</span><span class="cl"><span class="cm"> * But if we can&#39;t find any, revert to the defaults.
+</span></span></span><span class="line"><span class="ln"> 42</span><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="ln"> 43</span><span class="cl"><span class="cp">#ifndef UTMP_FILE
+</span></span></span><span class="line"><span class="ln"> 44</span><span class="cl"><span class="cp">#ifdef _PATH_UTMP
+</span></span></span><span class="line"><span class="ln"> 45</span><span class="cl"><span class="cp">#define UTMP_FILE	_PATH_UTMP
+</span></span></span><span class="line"><span class="ln"> 46</span><span class="cl"><span class="cp">#else
+</span></span></span><span class="line"><span class="ln"> 47</span><span class="cl"><span class="cp">#define UTMP_FILE	&#34;/var/adm/utmp&#34;
+</span></span></span><span class="line"><span class="ln"> 48</span><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="ln"> 49</span><span class="cl"><span class="cp">#endif 
+</span></span></span><span class="line"><span class="ln"> 50</span><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="ln"> 51</span><span class="cl"><span class="cp">#ifndef WTMP_FILE
+</span></span></span><span class="line"><span class="ln"> 52</span><span class="cl"><span class="cp">#ifdef _PATH_WTMP
+</span></span></span><span class="line"><span class="ln"> 53</span><span class="cl"><span class="cp">#define WTMP_FILE	_PATH_WTMP
+</span></span></span><span class="line"><span class="ln"> 54</span><span class="cl"><span class="cp">#else
+</span></span></span><span class="line"><span class="ln"> 55</span><span class="cl"><span class="cp">#define WTMP_FILE	&#34;/var/adm/wtmp&#34;
+</span></span></span><span class="line"><span class="ln"> 56</span><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="ln"> 57</span><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="ln"> 58</span><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="ln"> 59</span><span class="cl"><span class="cp">#ifndef LASTLOG_FILE
+</span></span></span><span class="line"><span class="ln"> 60</span><span class="cl"><span class="cp">#ifdef _PATH_LASTLOG
+</span></span></span><span class="line"><span class="ln"> 61</span><span class="cl"><span class="cp">#define LASTLOG_FILE	_PATH_LASTLOG
+</span></span></span><span class="line"><span class="ln"> 62</span><span class="cl"><span class="cp">#else
+</span></span></span><span class="line"><span class="ln"> 63</span><span class="cl"><span class="cp">#define LASTLOG_FILE	&#34;/var/adm/lastlog&#34;
+</span></span></span><span class="line"><span class="ln"> 64</span><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="ln"> 65</span><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="ln"> 66</span><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="ln"> 67</span><span class="cl"><span class="cp">#ifndef ACCT_FILE
+</span></span></span><span class="line"><span class="ln"> 68</span><span class="cl"><span class="cp">#define ACCT_FILE	&#34;/var/adm/pacct&#34;
+</span></span></span><span class="line"><span class="ln"> 69</span><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="ln"> 70</span><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="ln"> 71</span><span class="cl"><span class="cp">#ifdef HAVE_UTMPX
+</span></span></span><span class="line"><span class="ln"> 72</span><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="ln"> 73</span><span class="cl"><span class="cp">#ifndef UTMPX_FILE
+</span></span></span><span class="line"><span class="ln"> 74</span><span class="cl"><span class="cp">#define UTMPX_FILE	&#34;/var/adm/utmpx&#34;
+</span></span></span><span class="line"><span class="ln"> 75</span><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="ln"> 76</span><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="ln"> 77</span><span class="cl"><span class="cp">#ifndef WTMPX_FILE
+</span></span></span><span class="line"><span class="ln"> 78</span><span class="cl"><span class="cp">#define WTMPX_FILE	&#34;/var/adm/wtmpx&#34;
+</span></span></span><span class="line"><span class="ln"> 79</span><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="ln"> 80</span><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="ln"> 81</span><span class="cl"><span class="cp">#endif </span><span class="cm">/* HAVE_UTMPX */</span><span class="cp">
+</span></span></span><span class="line"><span class="ln"> 82</span><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="ln"> 83</span><span class="cl"><span class="cp">#define BUFFSIZE	8192
+</span></span></span><span class="line"><span class="ln"> 84</span><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="ln"> 85</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 86</span><span class="cl"><span class="cm">/* 
+</span></span></span><span class="line"><span class="ln"> 87</span><span class="cl"><span class="cm"> * This function will copy the src file to the dst file.
+</span></span></span><span class="line"><span class="ln"> 88</span><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="ln"> 89</span><span class="cl"><span class="kt">void</span>
+</span></span><span class="line"><span class="ln"> 90</span><span class="cl"><span class="nf">copy_file</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">src</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">dst</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln"> 91</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 92</span><span class="cl">	<span class="kt">int</span> 	<span class="n">fd1</span><span class="p">,</span> <span class="n">fd2</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 93</span><span class="cl">	<span class="kt">int</span>	<span class="n">n</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 94</span><span class="cl">	<span class="kt">char</span>	<span class="n">buf</span><span class="p">[</span><span class="n">BUFFSIZE</span><span class="p">];</span>
+</span></span><span class="line"><span class="ln"> 95</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 96</span><span class="cl">	<span class="k">if</span> <span class="p">(</span> <span class="p">(</span><span class="n">fd1</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">O_RDONLY</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 97</span><span class="cl">		<span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&#34;ERROR: Opening %s during copy.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">src</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln"> 98</span><span class="cl">		<span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 99</span><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="ln">100</span><span class="cl">
+</span></span><span class="line"><span class="ln">101</span><span class="cl">	<span class="k">if</span> <span class="p">(</span> <span class="p">(</span><span class="n">fd2</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="n">O_WRONLY</span> <span class="o">|</span> <span class="n">O_CREAT</span> <span class="o">|</span> <span class="n">O_TRUNC</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">102</span><span class="cl">		<span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&#34;ERROR: Creating %s during copy.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">dst</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">103</span><span class="cl">		<span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">104</span><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="ln">105</span><span class="cl">	
+</span></span><span class="line"><span class="ln">106</span><span class="cl">	<span class="k">while</span> <span class="p">(</span> <span class="p">(</span><span class="n">n</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">fd1</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">BUFFSIZE</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">107</span><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">write</span><span class="p">(</span><span class="n">fd2</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="o">!=</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">108</span><span class="cl">			<span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&#34;ERROR: Write error during copy.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">109</span><span class="cl">			<span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">110</span><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="ln">111</span><span class="cl">		
+</span></span><span class="line"><span class="ln">112</span><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">113</span><span class="cl">		<span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&#34;ERROR: Read error during copy.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">114</span><span class="cl">		<span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">115</span><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="ln">116</span><span class="cl">
+</span></span><span class="line"><span class="ln">117</span><span class="cl">	<span class="n">close</span><span class="p">(</span><span class="n">fd1</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">118</span><span class="cl">	<span class="n">close</span><span class="p">(</span><span class="n">fd2</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">119</span><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="ln">120</span><span class="cl">
+</span></span><span class="line"><span class="ln">121</span><span class="cl">
+</span></span><span class="line"><span class="ln">122</span><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="ln">123</span><span class="cl"><span class="cm"> * UTMP editing.
+</span></span></span><span class="line"><span class="ln">124</span><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="ln">125</span><span class="cl"><span class="kt">void</span>
+</span></span><span class="line"><span class="ln">126</span><span class="cl"><span class="nf">wipe_utmp</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">who</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">line</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">127</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln">128</span><span class="cl">	<span class="kt">int</span> 		<span class="n">fd1</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">129</span><span class="cl">	<span class="k">struct</span> <span class="n">utmp</span>	<span class="n">ut</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">130</span><span class="cl">	
+</span></span><span class="line"><span class="ln">131</span><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;Patching %s .... &#34;</span><span class="p">,</span> <span class="n">UTMP_FILE</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">132</span><span class="cl">	<span class="n">fflush</span><span class="p">(</span><span class="n">stdout</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">133</span><span class="cl">
+</span></span><span class="line"><span class="ln">134</span><span class="cl">	<span class="cm">/*
+</span></span></span><span class="line"><span class="ln">135</span><span class="cl"><span class="cm">	 * Open the utmp file.
+</span></span></span><span class="line"><span class="ln">136</span><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="ln">137</span><span class="cl">	<span class="k">if</span> <span class="p">(</span> <span class="p">(</span><span class="n">fd1</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="n">UTMP_FILE</span><span class="p">,</span> <span class="n">O_RDWR</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">138</span><span class="cl">		<span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&#34;ERROR: Opening %s</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">UTMP_FILE</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">139</span><span class="cl">		<span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">140</span><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="ln">141</span><span class="cl">	
+</span></span><span class="line"><span class="ln">142</span><span class="cl">	<span class="cm">/*
+</span></span></span><span class="line"><span class="ln">143</span><span class="cl"><span class="cm">	 * Copy utmp file excluding relevent entries. 
+</span></span></span><span class="line"><span class="ln">144</span><span class="cl"><span class="cm">	 */</span>	
+</span></span><span class="line"><span class="ln">145</span><span class="cl">	<span class="k">while</span> <span class="p">(</span> <span class="n">read</span><span class="p">(</span><span class="n">fd1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ut</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">ut</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> 
+</span></span><span class="line"><span class="ln">146</span><span class="cl">		<span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="n">strncmp</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">ut_name</span><span class="p">,</span> <span class="n">who</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">who</span><span class="p">))</span> <span class="p">)</span>
+</span></span><span class="line"><span class="ln">147</span><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">line</span> <span class="o">||</span> <span class="p">(</span><span class="n">line</span> <span class="o">&amp;&amp;</span> 
+</span></span><span class="line"><span class="ln">148</span><span class="cl">			  <span class="o">!</span><span class="n">strncmp</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">ut_line</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">line</span><span class="p">))))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">149</span><span class="cl">				<span class="n">bzero</span><span class="p">((</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">ut</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">ut</span><span class="p">));</span>
+</span></span><span class="line"><span class="ln">150</span><span class="cl">				<span class="n">lseek</span><span class="p">(</span><span class="n">fd1</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span> <span class="o">-</span><span class="k">sizeof</span><span class="p">(</span><span class="n">ut</span><span class="p">),</span> <span class="n">SEEK_CUR</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">151</span><span class="cl">				<span class="n">write</span><span class="p">(</span><span class="n">fd1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ut</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">ut</span><span class="p">));</span>
+</span></span><span class="line"><span class="ln">152</span><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="ln">153</span><span class="cl">
+</span></span><span class="line"><span class="ln">154</span><span class="cl">	<span class="n">close</span><span class="p">(</span><span class="n">fd1</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">155</span><span class="cl">
+</span></span><span class="line"><span class="ln">156</span><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;Done.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">157</span><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="ln">158</span><span class="cl">
+</span></span><span class="line"><span class="ln">159</span><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="ln">160</span><span class="cl"><span class="cm"> * UTMPX editing if supported.
+</span></span></span><span class="line"><span class="ln">161</span><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="ln">162</span><span class="cl"><span class="cp">#ifdef HAVE_UTMPX
+</span></span></span><span class="line"><span class="ln">163</span><span class="cl"><span class="cp"></span><span class="kt">void</span>
+</span></span><span class="line"><span class="ln">164</span><span class="cl"><span class="nf">wipe_utmpx</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">who</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">line</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">165</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln">166</span><span class="cl">	<span class="kt">int</span> 		<span class="n">fd1</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">167</span><span class="cl">	<span class="k">struct</span> <span class="n">utmpx</span>	<span class="n">utx</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">168</span><span class="cl">
+</span></span><span class="line"><span class="ln">169</span><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;Patching %s .... &#34;</span><span class="p">,</span> <span class="n">UTMPX_FILE</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">170</span><span class="cl">	<span class="n">fflush</span><span class="p">(</span><span class="n">stdout</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">171</span><span class="cl">		
+</span></span><span class="line"><span class="ln">172</span><span class="cl">	<span class="cm">/*
+</span></span></span><span class="line"><span class="ln">173</span><span class="cl"><span class="cm">	 * Open the utmp file and temporary file.
+</span></span></span><span class="line"><span class="ln">174</span><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="ln">175</span><span class="cl">	<span class="k">if</span> <span class="p">(</span> <span class="p">(</span><span class="n">fd1</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="n">UTMPX_FILE</span><span class="p">,</span> <span class="n">O_RDWR</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">176</span><span class="cl">		<span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&#34;ERROR: Opening %s</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">UTMPX_FILE</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">177</span><span class="cl">		<span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">178</span><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="ln">179</span><span class="cl">
+</span></span><span class="line"><span class="ln">180</span><span class="cl">	<span class="k">while</span> <span class="p">(</span> <span class="p">(</span><span class="n">read</span><span class="p">(</span><span class="n">fd1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">utx</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">utx</span><span class="p">))</span> <span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> 
+</span></span><span class="line"><span class="ln">181</span><span class="cl">		<span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="n">strncmp</span><span class="p">(</span><span class="n">utx</span><span class="p">.</span><span class="n">ut_name</span><span class="p">,</span> <span class="n">who</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">who</span><span class="p">))</span> <span class="p">)</span>
+</span></span><span class="line"><span class="ln">182</span><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">line</span> <span class="o">||</span> <span class="p">(</span><span class="n">line</span> <span class="o">&amp;&amp;</span> 
+</span></span><span class="line"><span class="ln">183</span><span class="cl">			  <span class="o">!</span><span class="n">strncmp</span><span class="p">(</span><span class="n">utx</span><span class="p">.</span><span class="n">ut_line</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">line</span><span class="p">))))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">184</span><span class="cl">				<span class="n">bzero</span><span class="p">((</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">utx</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">utx</span><span class="p">));</span>
+</span></span><span class="line"><span class="ln">185</span><span class="cl">				<span class="n">lseek</span><span class="p">(</span><span class="n">fd1</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span> <span class="o">-</span><span class="k">sizeof</span><span class="p">(</span><span class="n">utx</span><span class="p">),</span> <span class="n">SEEK_CUR</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">186</span><span class="cl">				<span class="n">write</span><span class="p">(</span><span class="n">fd1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">utx</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">utx</span><span class="p">));</span>
+</span></span><span class="line"><span class="ln">187</span><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="ln">188</span><span class="cl">
+</span></span><span class="line"><span class="ln">189</span><span class="cl">	<span class="n">close</span><span class="p">(</span><span class="n">fd1</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">190</span><span class="cl">
+</span></span><span class="line"><span class="ln">191</span><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;Done.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">192</span><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="ln">193</span><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="ln">194</span><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="ln">195</span><span class="cl">
+</span></span><span class="line"><span class="ln">196</span><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="ln">197</span><span class="cl"><span class="cm"> * WTMP editing.
+</span></span></span><span class="line"><span class="ln">198</span><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="ln">199</span><span class="cl"><span class="kt">void</span>
+</span></span><span class="line"><span class="ln">200</span><span class="cl"><span class="nf">wipe_wtmp</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">who</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">line</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">201</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln">202</span><span class="cl">	<span class="kt">int</span>		<span class="n">fd1</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">203</span><span class="cl">	<span class="k">struct</span> <span class="n">utmp</span>	<span class="n">ut</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">204</span><span class="cl">
+</span></span><span class="line"><span class="ln">205</span><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;Patching %s .... &#34;</span><span class="p">,</span> <span class="n">WTMP_FILE</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">206</span><span class="cl">	<span class="n">fflush</span><span class="p">(</span><span class="n">stdout</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">207</span><span class="cl">	
+</span></span><span class="line"><span class="ln">208</span><span class="cl">        <span class="cm">/*
+</span></span></span><span class="line"><span class="ln">209</span><span class="cl"><span class="cm">	 * Open the wtmp file and temporary file.
+</span></span></span><span class="line"><span class="ln">210</span><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="ln">211</span><span class="cl">	<span class="k">if</span> <span class="p">(</span> <span class="p">(</span><span class="n">fd1</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="n">WTMP_FILE</span><span class="p">,</span> <span class="n">O_RDWR</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">212</span><span class="cl">		<span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&#34;ERROR: Opening %s</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">WTMP_FILE</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">213</span><span class="cl">		<span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">214</span><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="ln">215</span><span class="cl">
+</span></span><span class="line"><span class="ln">216</span><span class="cl">	<span class="cm">/*
+</span></span></span><span class="line"><span class="ln">217</span><span class="cl"><span class="cm">	 * Determine offset of last relevent entry.
+</span></span></span><span class="line"><span class="ln">218</span><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="ln">219</span><span class="cl">	<span class="n">lseek</span><span class="p">(</span><span class="n">fd1</span><span class="p">,</span> <span class="p">(</span><span class="kt">long</span><span class="p">)</span> <span class="o">-</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">ut</span><span class="p">)),</span> <span class="n">SEEK_END</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">220</span><span class="cl">	<span class="k">while</span> <span class="p">(</span> <span class="p">(</span><span class="n">read</span> <span class="p">(</span><span class="n">fd1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ut</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">ut</span><span class="p">)))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">221</span><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">strncmp</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">ut_name</span><span class="p">,</span> <span class="n">who</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">who</span><span class="p">)))</span>
+</span></span><span class="line"><span class="ln">222</span><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">line</span> <span class="o">||</span> <span class="p">(</span><span class="n">line</span> <span class="o">&amp;&amp;</span> 
+</span></span><span class="line"><span class="ln">223</span><span class="cl">			  <span class="o">!</span><span class="n">strncmp</span><span class="p">(</span><span class="n">ut</span><span class="p">.</span><span class="n">ut_line</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">line</span><span class="p">))))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">224</span><span class="cl">			  	<span class="n">bzero</span><span class="p">((</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">ut</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">ut</span><span class="p">));</span>
+</span></span><span class="line"><span class="ln">225</span><span class="cl">				<span class="n">lseek</span><span class="p">(</span><span class="n">fd1</span><span class="p">,</span> <span class="p">(</span><span class="kt">long</span><span class="p">)</span> <span class="o">-</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">ut</span><span class="p">)),</span> <span class="n">SEEK_CUR</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">226</span><span class="cl">			  	<span class="n">write</span><span class="p">(</span><span class="n">fd1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ut</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">ut</span><span class="p">));</span>
+</span></span><span class="line"><span class="ln">227</span><span class="cl">			  	<span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">228</span><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="ln">229</span><span class="cl">		<span class="n">lseek</span><span class="p">(</span><span class="n">fd1</span><span class="p">,</span> <span class="p">(</span><span class="kt">long</span><span class="p">)</span> <span class="o">-</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">ut</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span><span class="p">),</span> <span class="n">SEEK_CUR</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">230</span><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="ln">231</span><span class="cl">
+</span></span><span class="line"><span class="ln">232</span><span class="cl">	<span class="n">close</span><span class="p">(</span><span class="n">fd1</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">233</span><span class="cl">	
+</span></span><span class="line"><span class="ln">234</span><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;Done.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">235</span><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="ln">236</span><span class="cl">
+</span></span><span class="line"><span class="ln">237</span><span class="cl">
+</span></span><span class="line"><span class="ln">238</span><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="ln">239</span><span class="cl"><span class="cm"> * WTMPX editing if supported.
+</span></span></span><span class="line"><span class="ln">240</span><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="ln">241</span><span class="cl"><span class="cp">#ifdef HAVE_UTMPX
+</span></span></span><span class="line"><span class="ln">242</span><span class="cl"><span class="cp"></span><span class="kt">void</span>
+</span></span><span class="line"><span class="ln">243</span><span class="cl"><span class="nf">wipe_wtmpx</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">who</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">line</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">244</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln">245</span><span class="cl">	<span class="kt">int</span> 		<span class="n">fd1</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">246</span><span class="cl">	<span class="k">struct</span> <span class="n">utmpx</span>	<span class="n">utx</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">247</span><span class="cl">	
+</span></span><span class="line"><span class="ln">248</span><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;Patching %s .... &#34;</span><span class="p">,</span> <span class="n">WTMPX_FILE</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">249</span><span class="cl">	<span class="n">fflush</span><span class="p">(</span><span class="n">stdout</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">250</span><span class="cl">	
+</span></span><span class="line"><span class="ln">251</span><span class="cl">	<span class="cm">/*
+</span></span></span><span class="line"><span class="ln">252</span><span class="cl"><span class="cm">	 * Open the utmp file and temporary file.
+</span></span></span><span class="line"><span class="ln">253</span><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="ln">254</span><span class="cl">	<span class="k">if</span> <span class="p">(</span> <span class="p">(</span><span class="n">fd1</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="n">WTMPX_FILE</span><span class="p">,</span> <span class="n">O_RDWR</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">255</span><span class="cl">		<span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&#34;ERROR: Opening %s</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">WTMPX_FILE</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">256</span><span class="cl">		<span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">257</span><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="ln">258</span><span class="cl">
+</span></span><span class="line"><span class="ln">259</span><span class="cl">	<span class="cm">/*
+</span></span></span><span class="line"><span class="ln">260</span><span class="cl"><span class="cm">	 * Determine offset of last relevent entry.
+</span></span></span><span class="line"><span class="ln">261</span><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="ln">262</span><span class="cl">	<span class="n">lseek</span><span class="p">(</span><span class="n">fd1</span><span class="p">,</span> <span class="p">(</span><span class="kt">long</span><span class="p">)</span> <span class="o">-</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">utx</span><span class="p">)),</span> <span class="n">SEEK_END</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">263</span><span class="cl">	<span class="k">while</span> <span class="p">(</span> <span class="p">(</span><span class="n">read</span> <span class="p">(</span><span class="n">fd1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">utx</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">utx</span><span class="p">)))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">264</span><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">strncmp</span><span class="p">(</span><span class="n">utx</span><span class="p">.</span><span class="n">ut_name</span><span class="p">,</span> <span class="n">who</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">who</span><span class="p">)))</span>
+</span></span><span class="line"><span class="ln">265</span><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">line</span> <span class="o">||</span> <span class="p">(</span><span class="n">line</span> <span class="o">&amp;&amp;</span> 
+</span></span><span class="line"><span class="ln">266</span><span class="cl">			  <span class="o">!</span><span class="n">strncmp</span><span class="p">(</span><span class="n">utx</span><span class="p">.</span><span class="n">ut_line</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">line</span><span class="p">))))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">267</span><span class="cl">			  	<span class="n">bzero</span><span class="p">((</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">utx</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">utx</span><span class="p">));</span>
+</span></span><span class="line"><span class="ln">268</span><span class="cl">				<span class="n">lseek</span><span class="p">(</span><span class="n">fd1</span><span class="p">,</span> <span class="p">(</span><span class="kt">long</span><span class="p">)</span> <span class="o">-</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">utx</span><span class="p">)),</span> <span class="n">SEEK_CUR</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">269</span><span class="cl">			  	<span class="n">write</span><span class="p">(</span><span class="n">fd1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">utx</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">utx</span><span class="p">));</span>
+</span></span><span class="line"><span class="ln">270</span><span class="cl">			  	<span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">271</span><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="ln">272</span><span class="cl">		<span class="n">lseek</span><span class="p">(</span><span class="n">fd1</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span> <span class="o">-</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">utx</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span><span class="p">),</span> <span class="n">SEEK_CUR</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">273</span><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="ln">274</span><span class="cl">
+</span></span><span class="line"><span class="ln">275</span><span class="cl">	<span class="n">close</span><span class="p">(</span><span class="n">fd1</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">276</span><span class="cl">
+</span></span><span class="line"><span class="ln">277</span><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;Done.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">278</span><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="ln">279</span><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="ln">280</span><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="ln">281</span><span class="cl">
+</span></span><span class="line"><span class="ln">282</span><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="ln">283</span><span class="cl"><span class="cm"> * LASTLOG editing.
+</span></span></span><span class="line"><span class="ln">284</span><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="ln">285</span><span class="cl"><span class="kt">void</span>
+</span></span><span class="line"><span class="ln">286</span><span class="cl"><span class="nf">wipe_lastlog</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">who</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">line</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">timestr</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">host</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">287</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln">288</span><span class="cl">	<span class="kt">int</span>		<span class="n">fd1</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">289</span><span class="cl">	<span class="k">struct</span> <span class="n">lastlog</span>	<span class="n">ll</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">290</span><span class="cl">	<span class="k">struct</span> <span class="n">passwd</span>	<span class="o">*</span><span class="n">pwd</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">291</span><span class="cl">	<span class="k">struct</span> <span class="n">tm</span>	<span class="o">*</span><span class="n">tm</span><span class="p">;</span> 
+</span></span><span class="line"><span class="ln">292</span><span class="cl">	<span class="kt">char</span>		<span class="n">str</span><span class="p">[</span><span class="mi">4</span><span class="p">];</span>
+</span></span><span class="line"><span class="ln">293</span><span class="cl">
+</span></span><span class="line"><span class="ln">294</span><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;Patching %s .... &#34;</span><span class="p">,</span> <span class="n">LASTLOG_FILE</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">295</span><span class="cl">	<span class="n">fflush</span><span class="p">(</span><span class="n">stdout</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">296</span><span class="cl">
+</span></span><span class="line"><span class="ln">297</span><span class="cl">	<span class="n">tm</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">tm</span> <span class="o">*</span><span class="p">)</span> <span class="n">malloc</span><span class="p">(</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">tm</span><span class="p">)</span> <span class="p">);</span>
+</span></span><span class="line"><span class="ln">298</span><span class="cl">	
+</span></span><span class="line"><span class="ln">299</span><span class="cl">        <span class="cm">/*
+</span></span></span><span class="line"><span class="ln">300</span><span class="cl"><span class="cm">	 * Open the lastlog file.
+</span></span></span><span class="line"><span class="ln">301</span><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="ln">302</span><span class="cl">	<span class="k">if</span> <span class="p">(</span> <span class="p">(</span><span class="n">fd1</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="n">LASTLOG_FILE</span><span class="p">,</span> <span class="n">O_RDWR</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">303</span><span class="cl">		<span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&#34;ERROR: Opening %s</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">LASTLOG_FILE</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">304</span><span class="cl">		<span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">305</span><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="ln">306</span><span class="cl">
+</span></span><span class="line"><span class="ln">307</span><span class="cl">	<span class="k">if</span> <span class="p">(</span> <span class="p">(</span><span class="n">pwd</span> <span class="o">=</span> <span class="n">getpwnam</span><span class="p">(</span><span class="n">who</span><span class="p">))</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">308</span><span class="cl">		<span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&#34;ERROR: Can&#39;t find user in passwd.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">309</span><span class="cl">		<span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">310</span><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="ln">311</span><span class="cl">	
+</span></span><span class="line"><span class="ln">312</span><span class="cl">	<span class="n">lseek</span><span class="p">(</span><span class="n">fd1</span><span class="p">,</span> <span class="p">(</span><span class="kt">long</span><span class="p">)</span> <span class="n">pwd</span><span class="o">-&gt;</span><span class="n">pw_uid</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">lastlog</span><span class="p">),</span> <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">313</span><span class="cl">	<span class="n">bzero</span><span class="p">((</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">ll</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">ll</span><span class="p">));</span>
+</span></span><span class="line"><span class="ln">314</span><span class="cl">
+</span></span><span class="line"><span class="ln">315</span><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">line</span><span class="p">)</span> 
+</span></span><span class="line"><span class="ln">316</span><span class="cl">		<span class="n">strncpy</span><span class="p">(</span><span class="n">ll</span><span class="p">.</span><span class="n">ll_line</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">line</span><span class="p">));</span>
+</span></span><span class="line"><span class="ln">317</span><span class="cl">
+</span></span><span class="line"><span class="ln">318</span><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">timestr</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">319</span><span class="cl">		<span class="cm">/* YYMMddhhmm */</span>
+</span></span><span class="line"><span class="ln">320</span><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">strlen</span><span class="p">(</span><span class="n">timestr</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">10</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">321</span><span class="cl">			<span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&#34;ERROR: Time format is YYMMddhhmm.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">322</span><span class="cl">			<span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">323</span><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="ln">324</span><span class="cl">		
+</span></span><span class="line"><span class="ln">325</span><span class="cl">		<span class="cm">/*
+</span></span></span><span class="line"><span class="ln">326</span><span class="cl"><span class="cm">		 * Extract Times.
+</span></span></span><span class="line"><span class="ln">327</span><span class="cl"><span class="cm">		 */</span>
+</span></span><span class="line"><span class="ln">328</span><span class="cl">		<span class="n">str</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">329</span><span class="cl">		<span class="n">str</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">timestr</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</span></span><span class="line"><span class="ln">330</span><span class="cl">		<span class="n">str</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">timestr</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+</span></span><span class="line"><span class="ln">331</span><span class="cl">		<span class="n">tm</span><span class="o">-&gt;</span><span class="n">tm_year</span> <span class="o">=</span> <span class="n">atoi</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">332</span><span class="cl">		
+</span></span><span class="line"><span class="ln">333</span><span class="cl">		<span class="n">str</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">timestr</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+</span></span><span class="line"><span class="ln">334</span><span class="cl">		<span class="n">str</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">timestr</span><span class="p">[</span><span class="mi">3</span><span class="p">];</span>
+</span></span><span class="line"><span class="ln">335</span><span class="cl">		<span class="n">tm</span><span class="o">-&gt;</span><span class="n">tm_mon</span> <span class="o">=</span> <span class="n">atoi</span><span class="p">(</span><span class="n">str</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">336</span><span class="cl">		
+</span></span><span class="line"><span class="ln">337</span><span class="cl">		<span class="n">str</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">timestr</span><span class="p">[</span><span class="mi">4</span><span class="p">];</span>
+</span></span><span class="line"><span class="ln">338</span><span class="cl">		<span class="n">str</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">timestr</span><span class="p">[</span><span class="mi">5</span><span class="p">];</span>
+</span></span><span class="line"><span class="ln">339</span><span class="cl">		<span class="n">tm</span><span class="o">-&gt;</span><span class="n">tm_mday</span> <span class="o">=</span> <span class="n">atoi</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">340</span><span class="cl">		
+</span></span><span class="line"><span class="ln">341</span><span class="cl">		<span class="n">str</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">timestr</span><span class="p">[</span><span class="mi">6</span><span class="p">];</span>
+</span></span><span class="line"><span class="ln">342</span><span class="cl">		<span class="n">str</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">timestr</span><span class="p">[</span><span class="mi">7</span><span class="p">];</span>
+</span></span><span class="line"><span class="ln">343</span><span class="cl">		<span class="n">tm</span><span class="o">-&gt;</span><span class="n">tm_hour</span> <span class="o">=</span> <span class="n">atoi</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">344</span><span class="cl">		
+</span></span><span class="line"><span class="ln">345</span><span class="cl">		<span class="n">str</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">timestr</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span>
+</span></span><span class="line"><span class="ln">346</span><span class="cl">		<span class="n">str</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">timestr</span><span class="p">[</span><span class="mi">9</span><span class="p">];</span>
+</span></span><span class="line"><span class="ln">347</span><span class="cl">		<span class="n">tm</span><span class="o">-&gt;</span><span class="n">tm_min</span> <span class="o">=</span> <span class="n">atoi</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">348</span><span class="cl">		<span class="n">tm</span><span class="o">-&gt;</span><span class="n">tm_sec</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">349</span><span class="cl">		
+</span></span><span class="line"><span class="ln">350</span><span class="cl">		<span class="n">ll</span><span class="p">.</span><span class="n">ll_time</span> <span class="o">=</span> <span class="n">mktime</span><span class="p">(</span><span class="n">tm</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">351</span><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="ln">352</span><span class="cl">
+</span></span><span class="line"><span class="ln">353</span><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">host</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">354</span><span class="cl">		<span class="n">strncpy</span><span class="p">(</span><span class="n">ll</span><span class="p">.</span><span class="n">ll_host</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">ll</span><span class="p">.</span><span class="n">ll_host</span><span class="p">));</span>
+</span></span><span class="line"><span class="ln">355</span><span class="cl">	
+</span></span><span class="line"><span class="ln">356</span><span class="cl">
+</span></span><span class="line"><span class="ln">357</span><span class="cl">	<span class="n">write</span><span class="p">(</span><span class="n">fd1</span><span class="p">,</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">ll</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">ll</span><span class="p">));</span>
+</span></span><span class="line"><span class="ln">358</span><span class="cl">
+</span></span><span class="line"><span class="ln">359</span><span class="cl">	<span class="n">close</span><span class="p">(</span><span class="n">fd1</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">360</span><span class="cl">
+</span></span><span class="line"><span class="ln">361</span><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;Done.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">362</span><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="ln">363</span><span class="cl">
+</span></span><span class="line"><span class="ln">364</span><span class="cl">
+</span></span><span class="line"><span class="ln">365</span><span class="cl"><span class="cp">#ifndef NO_ACCT
+</span></span></span><span class="line"><span class="ln">366</span><span class="cl"><span class="cp"></span><span class="cm">/*
+</span></span></span><span class="line"><span class="ln">367</span><span class="cl"><span class="cm"> * ACCOUNT editing.
+</span></span></span><span class="line"><span class="ln">368</span><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="ln">369</span><span class="cl"><span class="kt">void</span>
+</span></span><span class="line"><span class="ln">370</span><span class="cl"><span class="nf">wipe_acct</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">who</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">line</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">371</span><span class="cl"><span class="p">{</span>    
+</span></span><span class="line"><span class="ln">372</span><span class="cl">	<span class="kt">int</span>		<span class="n">fd1</span><span class="p">,</span> <span class="n">fd2</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">373</span><span class="cl">	<span class="k">struct</span> <span class="n">acct</span>	<span class="n">ac</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">374</span><span class="cl">	<span class="kt">char</span>		<span class="n">ttyn</span><span class="p">[</span><span class="mi">50</span><span class="p">];</span>
+</span></span><span class="line"><span class="ln">375</span><span class="cl">	<span class="k">struct</span> <span class="n">passwd</span>   <span class="o">*</span><span class="n">pwd</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">376</span><span class="cl">	<span class="k">struct</span> <span class="n">stat</span>	<span class="n">sbuf</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">377</span><span class="cl">	<span class="kt">char</span>		<span class="o">*</span><span class="n">tmpf</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">378</span><span class="cl">	
+</span></span><span class="line"><span class="ln">379</span><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;Patching %s .... &#34;</span><span class="p">,</span> <span class="n">ACCT_FILE</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">380</span><span class="cl">	<span class="n">fflush</span><span class="p">(</span><span class="n">stdout</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">381</span><span class="cl">
+</span></span><span class="line"><span class="ln">382</span><span class="cl">        <span class="cm">/*
+</span></span></span><span class="line"><span class="ln">383</span><span class="cl"><span class="cm">	 * Open the acct file and temporary file.
+</span></span></span><span class="line"><span class="ln">384</span><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="ln">385</span><span class="cl">	<span class="k">if</span> <span class="p">(</span> <span class="p">(</span><span class="n">fd1</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="n">ACCT_FILE</span><span class="p">,</span> <span class="n">O_RDONLY</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">386</span><span class="cl">		<span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&#34;ERROR: Opening %s</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">ACCT_FILE</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">387</span><span class="cl">		<span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">388</span><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="ln">389</span><span class="cl">
+</span></span><span class="line"><span class="ln">390</span><span class="cl">	<span class="cm">/*
+</span></span></span><span class="line"><span class="ln">391</span><span class="cl"><span class="cm">	 * Grab a unique temporary filename.
+</span></span></span><span class="line"><span class="ln">392</span><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="ln">393</span><span class="cl">	<span class="n">tmpf</span> <span class="o">=</span> <span class="n">tmpnam</span><span class="p">((</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span> <span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">394</span><span class="cl">
+</span></span><span class="line"><span class="ln">395</span><span class="cl">	<span class="k">if</span> <span class="p">(</span> <span class="p">(</span><span class="n">fd2</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="n">tmpf</span><span class="p">,</span> <span class="n">O_WRONLY</span> <span class="o">|</span> <span class="n">O_CREAT</span> <span class="o">|</span> <span class="n">O_TRUNC</span><span class="p">,</span> <span class="mi">600</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">396</span><span class="cl">		<span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&#34;ERROR: Opening tmp ACCT file</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">397</span><span class="cl">		<span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">398</span><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="ln">399</span><span class="cl">
+</span></span><span class="line"><span class="ln">400</span><span class="cl">	<span class="k">if</span> <span class="p">(</span> <span class="p">(</span><span class="n">pwd</span> <span class="o">=</span> <span class="n">getpwnam</span><span class="p">(</span><span class="n">who</span><span class="p">))</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">401</span><span class="cl">		<span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&#34;ERROR: Can&#39;t find user in passwd.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">402</span><span class="cl">		<span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">403</span><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="ln">404</span><span class="cl">
+</span></span><span class="line"><span class="ln">405</span><span class="cl">	<span class="cm">/*
+</span></span></span><span class="line"><span class="ln">406</span><span class="cl"><span class="cm">	 * Determine tty&#39;s device number
+</span></span></span><span class="line"><span class="ln">407</span><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="ln">408</span><span class="cl">	<span class="n">strcpy</span><span class="p">(</span><span class="n">ttyn</span><span class="p">,</span> <span class="s">&#34;/dev/&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">409</span><span class="cl">	<span class="n">strcat</span><span class="p">(</span><span class="n">ttyn</span><span class="p">,</span> <span class="n">line</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">410</span><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">stat</span><span class="p">(</span><span class="n">ttyn</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sbuf</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">411</span><span class="cl">		<span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&#34;ERROR: Determining tty device number.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">412</span><span class="cl">		<span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">413</span><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="ln">414</span><span class="cl">	
+</span></span><span class="line"><span class="ln">415</span><span class="cl">	<span class="k">while</span> <span class="p">(</span> <span class="n">read</span><span class="p">(</span><span class="n">fd1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ac</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">ac</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">416</span><span class="cl">		<span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="p">(</span><span class="n">ac</span><span class="p">.</span><span class="n">ac_uid</span> <span class="o">==</span> <span class="n">pwd</span><span class="o">-&gt;</span><span class="n">pw_uid</span> <span class="o">&amp;&amp;</span> <span class="n">ac</span><span class="p">.</span><span class="n">ac_tty</span> <span class="o">==</span> <span class="n">sbuf</span><span class="p">.</span><span class="n">st_rdev</span><span class="p">)</span> <span class="p">)</span>	
+</span></span><span class="line"><span class="ln">417</span><span class="cl">			<span class="n">write</span><span class="p">(</span><span class="n">fd2</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ac</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">ac</span><span class="p">));</span>
+</span></span><span class="line"><span class="ln">418</span><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="ln">419</span><span class="cl">
+</span></span><span class="line"><span class="ln">420</span><span class="cl">	<span class="n">close</span><span class="p">(</span><span class="n">fd1</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">421</span><span class="cl">	<span class="n">close</span><span class="p">(</span><span class="n">fd2</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">422</span><span class="cl">	
+</span></span><span class="line"><span class="ln">423</span><span class="cl">	<span class="n">copy_file</span><span class="p">(</span><span class="n">tmpf</span><span class="p">,</span> <span class="n">ACCT_FILE</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">424</span><span class="cl">	
+</span></span><span class="line"><span class="ln">425</span><span class="cl">	<span class="k">if</span> <span class="p">(</span> <span class="n">unlink</span><span class="p">(</span><span class="n">tmpf</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">426</span><span class="cl">		<span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&#34;ERROR: Unlinking tmp WTMP file.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">427</span><span class="cl">		<span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">428</span><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="ln">429</span><span class="cl">
+</span></span><span class="line"><span class="ln">430</span><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;Done.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">431</span><span class="cl"><span class="p">}</span> 
+</span></span><span class="line"><span class="ln">432</span><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="ln">433</span><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="ln">434</span><span class="cl">
+</span></span><span class="line"><span class="ln">435</span><span class="cl"><span class="kt">void</span>
+</span></span><span class="line"><span class="ln">436</span><span class="cl"><span class="nf">usage</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln">437</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln">438</span><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;USAGE: wipe [ u|w|l|a ] ...options...</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">439</span><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">440</span><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;UTMP editing:</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">441</span><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;    Erase all usernames      :   wipe u [username]</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">442</span><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;    Erase one username on tty:   wipe u [username] [tty]</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">443</span><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">444</span><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;WTMP editing:</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">445</span><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;   Erase last entry for user :   wipe w [username]</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">446</span><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;   Erase last entry on tty   :   wipe w [username] [tty]</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">447</span><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>	
+</span></span><span class="line"><span class="ln">448</span><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;LASTLOG editing:</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">449</span><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;   Blank lastlog for user    :   wipe l [username]</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">450</span><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;   Alter lastlog entry       :   wipe l [username] [tty] [time] [host]</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">451</span><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;	Where [time] is in the format [YYMMddhhmm]</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">452</span><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">453</span><span class="cl"><span class="cp">#ifndef NO_ACCT
+</span></span></span><span class="line"><span class="ln">454</span><span class="cl"><span class="cp"></span>	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;ACCT editing:</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">455</span><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;   Erase acct entries on tty :   wipe a [username] [tty]</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">456</span><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="ln">457</span><span class="cl"><span class="cp"></span>	<span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">458</span><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="ln">459</span><span class="cl">
+</span></span><span class="line"><span class="ln">460</span><span class="cl">
+</span></span><span class="line"><span class="ln">461</span><span class="cl"><span class="kt">int</span>
+</span></span><span class="line"><span class="ln">462</span><span class="cl"><span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+</span></span><span class="line"><span class="ln">463</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln">464</span><span class="cl">	<span class="kt">char</span>	<span class="n">c</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">465</span><span class="cl">	
+</span></span><span class="line"><span class="ln">466</span><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">467</span><span class="cl">		<span class="n">usage</span><span class="p">();</span>
+</span></span><span class="line"><span class="ln">468</span><span class="cl">
+</span></span><span class="line"><span class="ln">469</span><span class="cl">	<span class="cm">/*
+</span></span></span><span class="line"><span class="ln">470</span><span class="cl"><span class="cm">	 * First character of first argument determines which file to edit.
+</span></span></span><span class="line"><span class="ln">471</span><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="ln">472</span><span class="cl">	<span class="n">c</span> <span class="o">=</span> <span class="n">toupper</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]);</span>
+</span></span><span class="line"><span class="ln">473</span><span class="cl">	
+</span></span><span class="line"><span class="ln">474</span><span class="cl">	<span class="cm">/*
+</span></span></span><span class="line"><span class="ln">475</span><span class="cl"><span class="cm">	 * UTMP editing.
+</span></span></span><span class="line"><span class="ln">476</span><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="ln">477</span><span class="cl">	<span class="k">switch</span> <span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">478</span><span class="cl">		<span class="cm">/* UTMP */</span>
+</span></span><span class="line"><span class="ln">479</span><span class="cl">		<span class="k">case</span> <span class="sc">&#39;U&#39;</span> <span class="o">:</span>
+</span></span><span class="line"><span class="ln">480</span><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">==</span> <span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">481</span><span class="cl">				<span class="n">wipe_utmp</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span> <span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">482</span><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">==</span><span class="mi">4</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">483</span><span class="cl">				<span class="n">wipe_utmp</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">]);</span>
+</span></span><span class="line"><span class="ln">484</span><span class="cl">			
+</span></span><span class="line"><span class="ln">485</span><span class="cl"><span class="cp">#ifdef HAVE_UTMPX
+</span></span></span><span class="line"><span class="ln">486</span><span class="cl"><span class="cp"></span>			<span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">==</span> <span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">487</span><span class="cl">				<span class="n">wipe_utmpx</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span> <span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">488</span><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">==</span> <span class="mi">4</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">489</span><span class="cl">				<span class="n">wipe_utmpx</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">]);</span>
+</span></span><span class="line"><span class="ln">490</span><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="ln">491</span><span class="cl"><span class="cp"></span>			
+</span></span><span class="line"><span class="ln">492</span><span class="cl">			<span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">493</span><span class="cl">		<span class="cm">/* WTMP */</span>
+</span></span><span class="line"><span class="ln">494</span><span class="cl">		<span class="k">case</span> <span class="sc">&#39;W&#39;</span> <span class="o">:</span>
+</span></span><span class="line"><span class="ln">495</span><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">==</span> <span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">496</span><span class="cl">				<span class="n">wipe_wtmp</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span> <span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">497</span><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">==</span> <span class="mi">4</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">498</span><span class="cl">				<span class="n">wipe_wtmp</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">]);</span>
+</span></span><span class="line"><span class="ln">499</span><span class="cl">			
+</span></span><span class="line"><span class="ln">500</span><span class="cl"><span class="cp">#ifdef HAVE_UTMPX
+</span></span></span><span class="line"><span class="ln">501</span><span class="cl"><span class="cp"></span>			<span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">==</span> <span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">502</span><span class="cl">				<span class="n">wipe_wtmpx</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span> <span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">503</span><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">==</span> <span class="mi">4</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">504</span><span class="cl">				<span class="n">wipe_wtmpx</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">]);</span>
+</span></span><span class="line"><span class="ln">505</span><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="ln">506</span><span class="cl"><span class="cp"></span>			
+</span></span><span class="line"><span class="ln">507</span><span class="cl">			<span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">508</span><span class="cl">		<span class="cm">/* LASTLOG */</span>
+</span></span><span class="line"><span class="ln">509</span><span class="cl">		<span class="k">case</span> <span class="sc">&#39;L&#39;</span> <span class="o">:</span>
+</span></span><span class="line"><span class="ln">510</span><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">==</span> <span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">511</span><span class="cl">				<span class="n">wipe_lastlog</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span> <span class="nb">NULL</span><span class="p">,</span> 
+</span></span><span class="line"><span class="ln">512</span><span class="cl">					<span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span> <span class="nb">NULL</span><span class="p">,</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span> <span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">513</span><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">==</span> <span class="mi">4</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">514</span><span class="cl">				<span class="n">wipe_lastlog</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span> <span class="nb">NULL</span><span class="p">,</span>
+</span></span><span class="line"><span class="ln">515</span><span class="cl">						<span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span> <span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">516</span><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">==</span> <span class="mi">5</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">517</span><span class="cl">				<span class="n">wipe_lastlog</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">argv</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> 
+</span></span><span class="line"><span class="ln">518</span><span class="cl">						<span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span> <span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">519</span><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">==</span> <span class="mi">6</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">520</span><span class="cl">				<span class="n">wipe_lastlog</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">argv</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> 
+</span></span><span class="line"><span class="ln">521</span><span class="cl">						<span class="n">argv</span><span class="p">[</span><span class="mi">5</span><span class="p">]);</span>
+</span></span><span class="line"><span class="ln">522</span><span class="cl">			<span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">523</span><span class="cl"><span class="cp">#ifndef NO_ACCT
+</span></span></span><span class="line"><span class="ln">524</span><span class="cl"><span class="cp"></span>		<span class="cm">/* ACCT */</span>
+</span></span><span class="line"><span class="ln">525</span><span class="cl">		<span class="k">case</span> <span class="sc">&#39;A&#39;</span> <span class="o">:</span>
+</span></span><span class="line"><span class="ln">526</span><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">527</span><span class="cl">				<span class="n">usage</span><span class="p">();</span>
+</span></span><span class="line"><span class="ln">528</span><span class="cl">			<span class="n">wipe_acct</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">]);</span>
+</span></span><span class="line"><span class="ln">529</span><span class="cl">			<span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">530</span><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="ln">531</span><span class="cl"><span class="cp"></span>	<span class="p">}</span>
+</span></span><span class="line"><span class="ln">532</span><span class="cl">
+</span></span><span class="line"><span class="ln">533</span><span class="cl">	<span class="k">return</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">534</span><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-coffee"></i>打赏</h5>
+        <a href="#" data-bs-dismiss="modal" class="btn btn-sm btn-outline-primary" aria-label="Close"><i class="fas fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs flex-nowrap mb-3" role="tablist"><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>支付宝
+            </a>
+          </li><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>微信
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+  <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
+    <a href="https://bajie.dev/posts/20240124-aria2_baidu/">Aria2下载网剧并极速上传到百度网盘
+</a>
+  </div></div><section class="related-posts-wrapper">
+    <h3>相关文章</h3>
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20240124-aria2_baidu/">Aria2下载网剧并极速上传到百度网盘
+</a></li><li><a href="https://bajie.dev/posts/20240124-lego_acme/">用lego来代替acme申请免费ssl证书
+</a></li><li><a href="https://bajie.dev/posts/20240124-cisco_snmp3/">Cisco Snmpv3的设置
+</a></li><li><a href="https://bajie.dev/posts/20240124-cisco_snmp_reboot/">Cisco交换机通过snmp来重启
+</a></li><li><a href="https://bajie.dev/posts/20240124-cisco_audit/">Cisco 路由器的操作审计
+</a></li></ul>
+  </section></div>
+</article><div class="post-comments card row component">
+  <div class="card-body"><div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-zhangrr-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a></div>
+</div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container">
+    
+    <section class="card row text-center profile component">
+  <div class="card-body">
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Zhang Ranrui" src="https://bajie.dev/images/bajie_01.jpg" loading="lazy"
+   width="391" height="644"
+   />
+</div>
+    <div class="col-12 profile-meta"><div class="profile-name">Zhang Ranrui</div><div class="profile-bio">Devops, SA, 运维全干工程师.</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>Company</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>Earth</div><div class="profile-about"><i class="fas fa-fw fa-user"></i><a target="_blank" rel="noopener noreferrer" href="http://www.rendoumi.com">关于我</a></div></div>
+  </div>
+</section>
+  <section class="featured-posts row card component">
+    <div class="card-body">
+      <h2 class="card-title">精选文章</h2>
+      <ul><li><a href="https://bajie.dev/posts/markdown-syntax/">Markdown Syntax Guide
+</a></li></ul>
+    </div>
+  </section><section class="recent-posts row card component">
+  <div class="card-body">
+    <h2 class="card-title">最近文章</h2>
+    <ul><li><a href="https://bajie.dev/posts/20240129-wipe_linux/">Linux下的擦除工具
+</a></li><li><a href="https://bajie.dev/posts/20240124-aria2_baidu/">Aria2下载网剧并极速上传到百度网盘
+</a></li><li><a href="https://bajie.dev/posts/20240124-lego_acme/">用lego来代替acme申请免费ssl证书
+</a></li><li><a href="https://bajie.dev/posts/20240124-cisco_snmp3/">Cisco Snmpv3的设置
+</a></li><li><a href="https://bajie.dev/posts/20240124-cisco_snmp_reboot/">Cisco交换机通过snmp来重启
+</a></li></ul>
+  </div>
+</section><section class="taxonomies row card component">
+      <div class="card-body">
+        <h2 class="card-title">
+          <a href="https://bajie.dev/series">专栏</a>
+        </h2>
+        <div><a href="https://bajie.dev/series/manual/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Manual">
+            Manual
+          </a></div>
+      </div>
+    </section><section class="taxonomies row card component">
+      <div class="card-body">
+        <h2 class="card-title">
+          <a href="https://bajie.dev/tags">标签</a>
+        </h2>
+        <div><a href="https://bajie.dev/tags/css/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="CSS">
+            CSS
+          </a><a href="https://bajie.dev/tags/html/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="HTML">
+            HTML
+          </a><a href="https://bajie.dev/tags/markdown/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Markdown">
+            Markdown
+          </a></div>
+      </div>
+    </section>
+    
+  </div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:zhangranrui@gmail.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/zhangrr" title="GitHub" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://www.reddit.com/user/defunct9" title="Reddit" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-reddit"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/defunct9" title="Telegram" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a></nav>
+<div class="copyright mb-2">
+  Copyright © 2020-2024 Zhang Ranrui. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+</div></footer>
+
+</body>
+</html>
