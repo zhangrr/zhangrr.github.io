@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="用lego来代替acme申请免费ssl证书">
 <meta itemprop="description" content="amce申请证书实在是太烦了，对于一台只有1cpu 512m的vps来说，装这个东西简直就是费时费劲。 好在有人干脆开发了一个go语言的工具le"><meta itemprop="datePublished" content="2024-01-24T16:09:11+08:00" />
 <meta itemprop="dateModified" content="2024-01-24T16:09:11+08:00" />
-<meta itemprop="wordCount" content="214">
+<meta itemprop="wordCount" content="325">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="用lego来代替acme申请免费ssl证书" />
 <meta property="og:description" content="amce申请证书实在是太烦了，对于一台只有1cpu 512m的vps来说，装这个东西简直就是费时费劲。 好在有人干脆开发了一个go语言的工具le" />
 <meta property="og:type" content="article" />
@@ -225,7 +225,13 @@
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"> lego --email<span class="o">=</span><span class="s2">&#34;foo@bar.com&#34;</span> --domains<span class="o">=</span><span class="s2">&#34;example.com&#34;</span> --http renew
 </span></span></code></pre></div><p>及其简单，也方便搬迁。生成的证书crt是带证书链条的</p>
 <p>申请好就可以装trojan了。实在是方便</p>
-</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<p>如果DNS是托管在阿里云上，可以开一个阿里ram账号，然后用dns的api验证</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="nv">ALICLOUD_ACCESS_KEY</span><span class="o">=</span>aaaaaaaa  <span class="nv">ALICLOUD_SECRET_KEY</span><span class="o">=</span>bbbbbbbb <span class="se">\
+</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="se"></span>./lego --email admin@ddky.com --dns alidns --domains *.ddky.com run
+</span></span></code></pre></div><p>如果DNS是托管在namesilo上，同样可以开一个api的key，时间一定要放长，否则不生效！</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="nv">NAMESILO_API_KEY</span><span class="o">=</span>ccccc <span class="nv">NAMESILO_PROPAGATION_TIMEOUT</span><span class="o">=</span><span class="m">3600</span> <span class="nv">NAMESILO_POLLING_INTERVAL</span><span class="o">=</span><span class="m">120</span> <span class="nv">NAMESILO_TTL</span><span class="o">=</span><span class="m">3600</span> <span class="se">\
+</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="se"></span>./lego --email zhangranrui@gmail.com --dns namesilo --domains *.rendoumi.com run
+</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
