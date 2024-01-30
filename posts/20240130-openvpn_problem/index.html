@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Linux内核TCP连接Keep-Alive timeout的配置 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>Openvpn 的一些问题 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
 <link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="Linux内核TCP连接Keep-Alive timeout的配置">
-<meta itemprop="description" content="Custom Configuration of TCP Socket Keep-Alive Timeouts 这是个古老的话题，我们在机器的优化中，需要设置 TCP Socket 的 Timeout 参数 用来加快 TCP 关闭无用闲置连接的时间 Linux 内核中有三个缺省参数: 1 tcp_keepalive_time 缺省是 7200"><meta itemprop="datePublished" content="2021-11-02T09:00:11+08:00" />
-<meta itemprop="dateModified" content="2021-11-02T09:00:11+08:00" />
-<meta itemprop="wordCount" content="365">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="Linux内核TCP连接Keep-Alive timeout的配置" />
-<meta property="og:description" content="Custom Configuration of TCP Socket Keep-Alive Timeouts 这是个古老的话题，我们在机器的优化中，需要设置 TCP Socket 的 Timeout 参数 用来加快 TCP 关闭无用闲置连接的时间 Linux 内核中有三个缺省参数: 1 tcp_keepalive_time 缺省是 7200" />
+<meta name="description" content="" /><meta itemprop="name" content="Openvpn 的一些问题">
+<meta itemprop="description" content="一些Openvpn问题： 一、OpenVPN - ERROR: Cannot open TUN/TAP dev /dev/net/tun: No such file or directory (errno=2) 没有tun设备，建一个就行： 1mkdir -p /dev/net 2mknod /dev/net/tun c 10 200 3chmod 600 /dev/net/tun 二、vpn进程掉了 加一"><meta itemprop="datePublished" content="2024-01-30T10:00:11+08:00" />
+<meta itemprop="dateModified" content="2024-01-30T10:00:11+08:00" />
+<meta itemprop="wordCount" content="134">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="Openvpn 的一些问题" />
+<meta property="og:description" content="一些Openvpn问题： 一、OpenVPN - ERROR: Cannot open TUN/TAP dev /dev/net/tun: No such file or directory (errno=2) 没有tun设备，建一个就行： 1mkdir -p /dev/net 2mknod /dev/net/tun c 10 200 3chmod 600 /dev/net/tun 二、vpn进程掉了 加一" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://bajie.dev/posts/20211102-tcp_keealive/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2021-11-02T09:00:11+08:00" />
-<meta property="article:modified_time" content="2021-11-02T09:00:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+<meta property="og:url" content="https://bajie.dev/posts/20240130-openvpn_problem/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2024-01-30T10:00:11+08:00" />
+<meta property="article:modified_time" content="2024-01-30T10:00:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Linux内核TCP连接Keep-Alive timeout的配置"/>
-<meta name="twitter:description" content="Custom Configuration of TCP Socket Keep-Alive Timeouts 这是个古老的话题，我们在机器的优化中，需要设置 TCP Socket 的 Timeout 参数 用来加快 TCP 关闭无用闲置连接的时间 Linux 内核中有三个缺省参数: 1 tcp_keepalive_time 缺省是 7200"/>
+<meta name="twitter:title" content="Openvpn 的一些问题"/>
+<meta name="twitter:description" content="一些Openvpn问题： 一、OpenVPN - ERROR: Cannot open TUN/TAP dev /dev/net/tun: No such file or directory (errno=2) 没有tun设备，建一个就行： 1mkdir -p /dev/net 2mknod /dev/net/tun c 10 200 3chmod 600 /dev/net/tun 二、vpn进程掉了 加一"/>
 <link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
   <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=Linux%e5%86%85%e6%a0%b8TCP%e8%bf%9e%e6%8e%a5Keep-Alive%20timeout%e7%9a%84%e9%85%8d%e7%bd%ae&url=https%3a%2f%2fbajie.dev%2fposts%2f20211102-tcp_keealive%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=Openvpn%20%e7%9a%84%e4%b8%80%e4%ba%9b%e9%97%ae%e9%a2%98&url=https%3a%2f%2fbajie.dev%2fposts%2f20240130-openvpn_problem%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20211102-tcp_keealive%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20240130-openvpn_problem%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">Posts</a></li><li class="breadcrumb-item active">Linux内核TCP连接Keep-Alive Timeout的配置</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">Posts</a></li><li class="breadcrumb-item active">Openvpn 的一些问题</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -204,81 +204,35 @@
 ">
   <i class="fas fa-fw fa-copyright"></i>
 </a>
-    <a data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
-  <i class="fas fa-fw fa-list-alt"></i>
-</a>
+    
   </div>
 </div>
-<h1 class="card-title my-3">Linux内核TCP连接Keep-Alive Timeout的配置
+<h1 class="card-title my-3">Openvpn 的一些问题
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-02
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-30
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
-<div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
-  <div class="offcanvas-header">
-    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
-      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
-        <i class="fas fa-times"></i>
-      </button>
-  </div>
-  <div class="offcanvas-body">
-    <nav id="TableOfContents">
-  <ul>
-    <li>
-      <ul>
-        <li></li>
-      </ul>
-    </li>
-  </ul>
-</nav>
-  </div>
-</div><div class="post-content mb-3"><h4 id="custom-configuration-of-tcp-socket-keep-alive-timeouts">Custom Configuration of TCP Socket Keep-Alive Timeouts</h4>
-<p>这是个古老的话题，我们在机器的优化中，需要设置 TCP Socket 的 Timeout 参数</p>
-<p>用来加快 TCP 关闭无用闲置连接的时间</p>
-<p>Linux 内核中有三个缺省参数:</p>
-<ul>
-<li>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plaintext" data-lang="plaintext"><span class="line"><span class="ln">1</span><span class="cl">  tcp_keepalive_time
-</span></span></code></pre></div><ul>
-<li>缺省是 7200 秒</li>
-</ul>
-</li>
-<li>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plaintext" data-lang="plaintext"><span class="line"><span class="ln">1</span><span class="cl">  tcp_keepalive_probes
-</span></span></code></pre></div><ul>
-<li>缺省是 9</li>
-</ul>
-</li>
-<li>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plaintext" data-lang="plaintext"><span class="line"><span class="ln">1</span><span class="cl">  tcp_keepalive_intvl
-</span></span></code></pre></div><ul>
-<li>缺省是 75 秒</li>
-</ul>
-</li>
-</ul>
-<p>处理流程如下：</p>
-<p>一、客户端打开一个 TCP socket 连接，开始跟服务器通讯</p>
-<p>二、如果这条 socket 连接空闲没有任何数据传输，静默了 <code>tcp_keepalive_time</code> 秒后，那么客户端会主动发送一个空的 <code>ACK</code> 包到服务器</p>
-<p>三、那么，根据服务器是否回应了一个相应的 ACK 包来判断</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plaintext" data-lang="plaintext"><span class="line"><span class="ln">1</span><span class="cl">ACK    
-</span></span></code></pre></div><ul>
-<li>未回应
-<ol>
-<li>等待 <code>tcp_keepalive_intvl</code> 秒，然后再发一个 <code>ACK</code> 包</li>
-<li>重复以上等待并发送 ACK 包的过程，直到次数等于 <code>tcp_keepalive_probes</code></li>
-<li>如果第2步做完还收不到任何回应，发送一个 <code>RST</code> 包并关闭连接</li>
-</ol>
-</li>
-<li><strong>回应了</strong>: 回到上述第二步</li>
-</ul>
-<p>那么缺省情况下，7200+75×9，一个没有任何数据传输的 socket 才会被关闭，大概是2小时11分钟。</p>
-<p>这个时间太长了。需要优化一下：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln">1</span><span class="cl"><span class="na">net.ipv4.tcp_keepalive_time</span> <span class="o">=</span> <span class="s">300</span>
-</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="na">net.ipv4.tcp_keepalive_probes</span> <span class="o">=</span> <span class="s">5</span>
-</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="na">net.ipv4.tcp_keepalive_intvl</span> <span class="o">=</span> <span class="s">15</span>
-</span></span></code></pre></div><p>上面的时间是 300 + 5x15，大概是6分钟，大大缩短释放空闲 socket 的时间</p>
-</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<div class="post-content mb-3"><p>一些Openvpn问题：</p>
+<p>一、OpenVPN - ERROR: Cannot open TUN/TAP dev /dev/net/tun: No such file or directory (errno=2)</p>
+<p>没有tun设备，建一个就行：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">mkdir -p /dev/net
+</span></span><span class="line"><span class="ln">2</span><span class="cl">mknod /dev/net/tun c <span class="m">10</span> <span class="m">200</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">chmod <span class="m">600</span> /dev/net/tun
+</span></span></code></pre></div><p>二、vpn进程掉了</p>
+<p>加一个crontab，定时检测，没有就重启</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">*/1 * * * * /usr/local/bin/vpn.sh
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">cat /usr/local/bin/vpn.cn
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="c1">#!/bin/bash</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="nv">vpn_pid</span><span class="o">=</span><span class="k">$(</span>ps ax<span class="p">|</span>grep openvpn<span class="p">|</span>grep -v grep<span class="p">|</span>awk <span class="s1">&#39;{print $1}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="k">if</span> <span class="o">[[</span> ! -n <span class="s2">&#34;</span><span class="nv">$vpn_pid</span><span class="s2">&#34;</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">  <span class="nv">datetime</span><span class="o">=</span><span class="k">$(</span>date +<span class="s2">&#34;%Y%m%d %H:%M:%S&#34;</span><span class="k">)</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">  <span class="nb">echo</span>  <span class="s2">&#34;Restart openvpn at </span><span class="nv">$datetime</span><span class="s2">&#34;</span> &gt;&gt; /tmp/r.txt
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">  sleep <span class="m">5</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">  /app/openvpn/sbin/openvpn --config /etc/openvpn/conf/client1.conf --daemon
+</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="k">fi</span>
+</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -305,19 +259,15 @@
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://bajie.dev/posts/20211029-bash_multithread/">Shell以及find的多线程执行
+    <a href="https://bajie.dev/posts/20240129-wipe_linux/">Linux下的擦除工具
 </a>
-  </div><div class="post-nav post-next">
-    <a href="https://bajie.dev/posts/20211102-sysctl_conf/">Linux内核sysctl内核参数优化
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20211029-bash_multithread/">Shell以及find的多线程执行
-</a></li><li><a href="https://bajie.dev/posts/20211028-trickle/">Linux下的程序限速软件Trickle
-</a></li><li><a href="https://bajie.dev/posts/20211028-dockerfile/">Dockerfile的编写与调试技巧
-</a></li><li><a href="https://bajie.dev/posts/20211028-php_syslog/">PHP程序如何发送syslog到远程服务器
-</a></li><li><a href="https://bajie.dev/posts/20211027-docker_extract_file/">没有装Docker如何从镜像中释放出文件
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20240129-wipe_linux/">Linux下的擦除工具
+</a></li><li><a href="https://bajie.dev/posts/20240124-aria2_baidu/">Aria2下载网剧并极速上传到百度网盘
+</a></li><li><a href="https://bajie.dev/posts/20240124-lego_acme/">用lego来代替acme申请免费ssl证书
+</a></li><li><a href="https://bajie.dev/posts/20240124-cisco_snmp3/">Cisco Snmpv3的设置
+</a></li><li><a href="https://bajie.dev/posts/20240124-cisco_snmp_reboot/">Cisco交换机通过snmp来重启
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
