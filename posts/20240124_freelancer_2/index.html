@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="Freelancer任务之二：建一个scramble obfuscated opevpn">
 <meta itemprop="description" content="这个很奇怪撒，仔细查了下，原作者是这么说的： 1I have created a patch which introduces some forms of scrambling to the packet payload of any OpenVPN connection. 2I have been successfully using the patch with Iranian and Chinese users for some time now. 看来伊朗也比较糟糕啊。 无语"><meta itemprop="datePublished" content="2024-01-24T10:06:11+08:00" />
 <meta itemprop="dateModified" content="2024-01-24T10:06:11+08:00" />
-<meta itemprop="wordCount" content="1409">
+<meta itemprop="wordCount" content="1426">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="Freelancer任务之二：建一个scramble obfuscated opevpn" />
 <meta property="og:description" content="这个很奇怪撒，仔细查了下，原作者是这么说的： 1I have created a patch which introduces some forms of scrambling to the packet payload of any OpenVPN connection. 2I have been successfully using the patch with Iranian and Chinese users for some time now. 看来伊朗也比较糟糕啊。 无语" />
 <meta property="og:type" content="article" />
@@ -233,21 +233,31 @@
 <li><a href="master.zip">master.zip</a>
 </li>
 </ol>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">yum -y install unzip  
-</span></span><span class="line"><span class="ln">2</span><span class="cl">yum -y groupinstall <span class="s2">&#34;development tools&#34;</span>  
-</span></span><span class="line"><span class="ln">3</span><span class="cl">unzip -x 2.4.4.zip  
-</span></span><span class="line"><span class="ln">4</span><span class="cl">unzip -x master.zip  
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1">#centos </span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">yum -y install unzip  
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">yum -y groupinstall <span class="s2">&#34;development tools&#34;</span>  
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="c1">#ubuntu</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">apt update
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">apt install build-essential
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">unzip -x 2.4.4.zip  
+</span></span><span class="line"><span class="ln">10</span><span class="cl">unzip -x master.zip  
 </span></span></code></pre></div><p>应用补丁：</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="nb">cd</span> openvpn-release-2.4/  
 </span></span><span class="line"><span class="ln">2</span><span class="cl">git apply ../openvpn_xorpatch-master/openvpn_xor.patch  
 </span></span></code></pre></div><p>安装依赖包并编译：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">yum install -y openssl-devel lz4-devel net-tools lzo-devel pam-devel
-</span></span><span class="line"><span class="ln">2</span><span class="cl">
-</span></span><span class="line"><span class="ln">3</span><span class="cl">autoreconf -i -v -f  
-</span></span><span class="line"><span class="ln">4</span><span class="cl">./configure --prefix<span class="o">=</span>/export/servers/openvpn
-</span></span><span class="line"><span class="ln">5</span><span class="cl">
-</span></span><span class="line"><span class="ln">6</span><span class="cl">make  
-</span></span><span class="line"><span class="ln">7</span><span class="cl">make install  
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1">#cetnos</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">yum install -y openssl-devel lz4-devel net-tools lzo-devel pam-devel
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="c1">#ubuntu</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">apt install autoreconf liblzo2-dev libpam0g-dev
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">autoreconf -i -v -f  
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">./configure --prefix<span class="o">=</span>/export/servers/openvpn
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">
+</span></span><span class="line"><span class="ln">10</span><span class="cl">make  
+</span></span><span class="line"><span class="ln">11</span><span class="cl">make install  
 </span></span></code></pre></div><p>安装easy-rsa-3.0，不得不击节叫好啊，easy-rsa 3.0比2.0进化多了，就一个可执行文件，也轻省多了：</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">wget http://img.rendoumi.com/soft/vpn/easy-rsa.zip  
 </span></span><span class="line"><span class="ln">2</span><span class="cl">unzip -x easy-rsa.zip  
@@ -600,11 +610,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20240130-openvpn_problem/">Openvpn 的一些问题
+    <ul><li><a href="https://bajie.dev/posts/20240205-postgres_user_manager/">PostgreSQL的用户权限管理
+</a></li><li><a href="https://bajie.dev/posts/20240130-openvpn_problem/">Openvpn 的一些问题
 </a></li><li><a href="https://bajie.dev/posts/20240129-wipe_linux/">Linux下的擦除工具
 </a></li><li><a href="https://bajie.dev/posts/20240124-aria2_baidu/">Aria2下载网剧并极速上传到百度网盘
 </a></li><li><a href="https://bajie.dev/posts/20240124-lego_acme/">用lego来代替acme申请免费ssl证书
-</a></li><li><a href="https://bajie.dev/posts/20240124-cisco_snmp3/">Cisco Snmpv3的设置
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
