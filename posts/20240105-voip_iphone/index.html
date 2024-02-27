@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="出国旅行安装一个FreePBX的voip电话自用">
 <meta itemprop="description" content="新的一年依始，开始定好了旅行计划，但是有个东西却依然心神不宁。 那就是万一在国外有什么变动，如何往国内打电话呢？！ 说到这里，不得不提个东西，那"><meta itemprop="datePublished" content="2024-01-05T09:35:11+08:00" />
 <meta itemprop="dateModified" content="2024-01-05T09:35:11+08:00" />
-<meta itemprop="wordCount" content="2567">
+<meta itemprop="wordCount" content="2778">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="出国旅行安装一个FreePBX的voip电话自用" />
 <meta property="og:description" content="新的一年依始，开始定好了旅行计划，但是有个东西却依然心神不宁。 那就是万一在国外有什么变动，如何往国内打电话呢？！ 说到这里，不得不提个东西，那" />
 <meta property="og:type" content="article" />
@@ -237,6 +237,7 @@
     </li>
     <li><a href="#五配置手机端voip软件">五、配置手机端voip软件</a></li>
     <li><a href="#六路由器设置">六、路由器设置</a></li>
+    <li><a href="#七补充">七、补充</a></li>
   </ul>
 </nav>
   </div>
@@ -516,39 +517,46 @@
 <p>最后仍然是Submit，Apply Config配置生效。</p>
 <p>这样基本上就完工了</p>
 <h2 id="五配置手机端voip软件">五、配置手机端voip软件</h2>
-<p>我只有iphone手机，首先要翻墙，下载zoiper软件，这个就不多说了</p>
-<p><img class="img-fluid" alt="image-20240105161747497" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105161747497.png" loading="lazy"
-   width="233" height="310"
+<p>网上大多数的教程都是用zoiper，这里强烈指出，这个软件根本不行！！！</p>
+<p>一是zoiper必须运行在前台才能接起来打到dongle里的电话，二是zoiper里gsm好的音频编码居然是收费的。</p>
+<p>网上搜了半天，终于找到了个好的，PortSIP，iphone下也是必须用外区id才能搜到并下载安装。</p>
+<p><img class="img-fluid" alt="image-20240227144454366" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240227144454366.png" loading="lazy"
+   width="658" height="488"
    />
 
 </p>
-<p>打开后添加一个SIP账号：</p>
-<ul>
-<li>Account name: zhang ranrui 可以随便填</li>
-<li>Domain: freepbx的ip地址，这个不能胡填</li>
-<li>User name: 888 分机号码</li>
-<li>Password: 密码，就是FreePBX分机的Secret值，一定要设置的够复杂</li>
-<li>Enable video FMTP:  disable不选</li>
-</ul>
-<p><img class="img-fluid" alt="image-20240105161934350.png" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105161934350.png" loading="lazy"
-   width="634" height="1390"
+<p>这个软件其实是一家提供pbx服务的公司提供的客户端，可以接起来打到asterisk手机卡里的手机，而且音频编码g.729等等都是免费的。</p>
+<p>那必须赞一个。高级设置里强制和集成就是接起来的保证，不过会大面积耗电。</p>
+<p><img class="img-fluid" alt="image-20240227144805603" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240227144805603.png" loading="lazy"
+   width="480" height="543"
    />
 
 </p>
-<p>然后在Account的netwok settings中，STUN一定要禁掉，直通。</p>
-<p><img class="img-fluid" alt="image-20240105162240509.png" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240105162240509.png" loading="lazy"
-   width="759" height="1204"
+<p>音频编码器中g.729也是免费的。比zoiper还收你钱厚道多了。</p>
+<p><img class="img-fluid" alt="image-20240227144835248" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240227144835248.png" loading="lazy"
+   width="481" height="680"
    />
 
 </p>
-<p>ok，这样就拨打那个sim的电话就会转到这个888的分机上了。</p>
+<p>设置也及其简单：</p>
+<p><img class="img-fluid" alt="image-20240227145005885" src="https://bajie.dev/posts/20240105-voip_iphone/image-20240227145005885.png" loading="lazy"
+   width="672" height="903"
+   />
+
+</p>
+<p>域名和出站代理都写Freepbx暴露出去的公网ip即可</p>
+<p>用户名就是pbx添加的那个分机888，密码就是secret。</p>
+<p>八戒亲自在泰国普吉测试了很多次，完胜zoiper，强烈推荐啊。</p>
 <h2 id="六路由器设置">六、路由器设置</h2>
 <p>有公网设置，需要做端口映射</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">路由器Port <span class="m">5060</span> udp --&gt; FreePBX Port <span class="m">5060</span> udp
 </span></span><span class="line"><span class="ln">2</span><span class="cl">
 </span></span><span class="line"><span class="ln">3</span><span class="cl">路由器Port 10000-&gt;10004 udp --&gt; FreePBX Port 10000-10004 udp
 </span></span></code></pre></div><p>10000到10004的端口映射出去是因为语音一路，数据一路，我们只有一个sim卡，4路足够了。</p>
-</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<h2 id="七补充">七、补充</h2>
+<p>在freepbx上面发送短信的命令</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">asterisk -rx <span class="s2">&#34;dongle sms dongle1 +8613000000000 信息测试&#34;</span>
+</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
