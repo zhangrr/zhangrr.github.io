@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="阿里云DMS管理数据库变更审批流">
 <meta itemprop="description" content="其实我们用的是yearning来管理 MySQL 数据库变更需求的，但是，类似 Oracle 或者 PolarDB，就用不成了。 这事只能交给阿里云的dms来管理了，其实"><meta itemprop="datePublished" content="2024-03-05T09:35:11+08:00" />
 <meta itemprop="dateModified" content="2024-03-05T09:35:11+08:00" />
-<meta itemprop="wordCount" content="779">
+<meta itemprop="wordCount" content="898">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="阿里云DMS管理数据库变更审批流" />
 <meta property="og:description" content="其实我们用的是yearning来管理 MySQL 数据库变更需求的，但是，类似 Oracle 或者 PolarDB，就用不成了。 这事只能交给阿里云的dms来管理了，其实" />
 <meta property="og:type" content="article" />
@@ -234,21 +234,22 @@
 </nav>
   </div>
 </div><div class="post-content mb-3"><p>其实我们用的是yearning来管理 MySQL 数据库变更需求的，但是，类似 Oracle 或者 PolarDB，就用不成了。</p>
-<p>这事只能交给阿里云的dms来管理了，其实dms要比yearning强大很多，可以精确控制到表的行级别的。</p>
-<p>理由就是dms是个web页面，代理连接到后端的数据库，所以要显示什么，不要显示什么，从web界面是完全可以控制的。实际到数据库级别有的反而控制不住。</p>
-<p>这就梳理一下审批流的使用流程。</p>
+<p>这事只能交给阿里云的dms来管理了，其实dms要比yearning强大很多，可以精确控制到表的行级别权限的。</p>
+<p>理由就是dms是个web页面，代理连接到后端的数据库，所以要显示什么，不要显示什么，从web界面是完全可以控制的。实际到数据库级别反而有的是控制不住的。</p>
+<p>这就梳理一下建立审批流的步骤：</p>
 <h4 id="一dms同步ram用户">一、dms同步ram用户</h4>
-<p>ram用户是管理的基础了，这些用户必须先行导入dms，我们才能赋予owner，DBA的权限</p>
+<p>ram用户是管理的基础了，这些用户必须先行导入dms，我们才能进一步赋予owner，DBA的权限</p>
+<p>用户管理&ndash;&gt;同步子账号，选择要dms要使用的账号同步过来即可</p>
 <p><img class="img-fluid" alt="image-20240305163935106" src="https://bajie.dev/posts/20240305-aliyun_dms/image-20240305163935106.png" loading="lazy"
    width="1063" height="201"
    />
 
 </p>
 <h4 id="二设定实例dba">二、设定实例DBA</h4>
-<p>DMS里的权限是这样的：库有Owner，然后实例是DBA，最上是管理员。</p>
-<p>那么一个实例里有几万张表，没人想一个一个统一赋权吧。</p>
-<p>粗分一下，一个人就是对整个实例有权限审批。这样就要先设定实例的DBA角色。</p>
-<p>我们先编辑用户，让他有DBA的角色</p>
+<p>DMS里的权限是这样的：库的话有Owner，然后实例的话有DBA，最上是管理员。</p>
+<p>那么一个实例里有几万张表，没人会想一个一个点击赋Owner的权限吧。</p>
+<p>那就粗分一下，一个人对整个实例有权限审批即可。这样要先设定整个实例的DBA角色。</p>
+<p>我们先编辑用户，让他有DBA的角色，以供之后在实例级别可以选择他</p>
 <p><img class="img-fluid" alt="image-20240305164233341" src="https://bajie.dev/posts/20240305-aliyun_dms/image-20240305164233341.png" loading="lazy"
    width="489" height="419"
    />
@@ -266,7 +267,7 @@
    />
 
 </p>
-<p>实例的账号、密码、安全协同、安全规则都选上，然后高级信息里，实例DBA就可以选择设置了DBA角色的人了</p>
+<p>实例的账号、密码、安全协同、安全规则都选上，然后高级信息里，实例DBA就可以选择刚才设置了DBA角色的人了</p>
 <p><img class="img-fluid" alt="image-20240305164843708" src="https://bajie.dev/posts/20240305-aliyun_dms/image-20240305164843708.png" loading="lazy"
    width="537" height="215"
    />
@@ -278,38 +279,38 @@
 
 </p>
 <h4 id="三设置审批流程">三、设置审批流程</h4>
-<p>然后去安全与规范，自定义审批流</p>
+<p>然后去安全与规范，审批流程，新增审批模板，来自定义审批流</p>
 <p><img class="img-fluid" alt="image-20240305165022278" src="https://bajie.dev/posts/20240305-aliyun_dms/image-20240305165022278.png" loading="lazy"
    width="1023" height="528"
    />
 
 </p>
-<p>我们公司的审批流不是380哪个，380是这样的：</p>
+<p>我们公司的审批流不是380缺省那个，380是需要三个人审批的：</p>
 <p><img class="img-fluid" alt="image-20240305165111340" src="https://bajie.dev/posts/20240305-aliyun_dms/image-20240305165111340.png" loading="lazy"
    width="1051" height="36"
    />
 
 </p>
-<p>我们的链路很建单，有操作权限的人找实例的DBA审批，然后过最高管理员批就行了，所以是如下的</p>
+<p>我们的链路就很建单了，有操作权限的人找实例的DBA审批，然后过最高管理员批就完了，所以做如下的流程：</p>
 <p><img class="img-fluid" alt="image-20240305165212283" src="https://bajie.dev/posts/20240305-aliyun_dms/image-20240305165212283.png" loading="lazy"
    width="613" height="420"
    />
 
 </p>
 <h4 id="四设置安全规则">四、设置安全规则</h4>
-<p>我们到安全与规范，点击安全规则，找到具体实例里设置的 强管控模式 for MySQL</p>
+<p>我们再到安全与规范，点击安全规则，找到具体实例里设置的 强管控模式 for MySQL</p>
 <p><img class="img-fluid" alt="image-20240305165325268" src="https://bajie.dev/posts/20240305-aliyun_dms/image-20240305165325268.png" loading="lazy"
    width="1635" height="416"
    />
 
 </p>
-<p>可以看到已经有2个实例用上了，然后编辑：</p>
+<p>可以看到已经有2个实例用上了，然后到右边，点击编辑：</p>
+<p>最主要的就是SQL变更，数据变更默认审批模板的设置，我们改成我们自己的审批流即可</p>
 <p><img class="img-fluid" alt="image-20240305165536661" src="https://bajie.dev/posts/20240305-aliyun_dms/image-20240305165536661.png" loading="lazy"
    width="1533" height="321"
    />
 
 </p>
-<p>最主要的就是数据变更默认审批模板，我们改成我们自己的审批流即可</p>
 <p>其他的选项都可以按需进行修改。</p>
 <h4 id="五设置用户权限">五、设置用户权限</h4>
 <p>如上审批流就完成了，我们要登录具体的实例列表，再更多里设置权限</p>
