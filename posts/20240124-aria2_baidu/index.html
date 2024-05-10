@@ -238,11 +238,11 @@
 <p>但是，百度网盘现在基本是磁力和BT都失效了，没办法，只能想个办法看怎么下载并上传到百度网盘了。</p>
 <h4 id="一aria2用来下载bt和磁力文件">一、Aria2，用来下载BT和磁力文件。</h4>
 <p>安装Aria2，这个非常简单，就一个执行文件和一堆配置文件就行了。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln"> 1</span><span class="cl">wget https://github.com/P3TERX/Aria2-Pro-Core/releases/download/1.35.0_2021.02.19/aria2-1.35.0-static-linux-amd64.tar.gz
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">wget https://github.com/P3TERX/Aria2-Pro-Core/releases/download/1.35.0_2021.02.19/aria2-1.35.0-static-linux-amd64.tar.gz
 </span></span><span class="line"><span class="ln"> 2</span><span class="cl">tar zxvf aria2-1.35.0-static-linux-amd64.tar.gz
 </span></span><span class="line"><span class="ln"> 3</span><span class="cl">
 </span></span><span class="line"><span class="ln"> 4</span><span class="cl">mkdir /root/.aria2
-</span></span><span class="line"><span class="ln"> 5</span><span class="cl">cd /root/.aria2
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="nb">cd</span> /root/.aria2
 </span></span><span class="line"><span class="ln"> 6</span><span class="cl">wget https://p3terx.github.io/aria2.conf/aria2.conf
 </span></span><span class="line"><span class="ln"> 7</span><span class="cl">wget https://p3terx.github.io/aria2.conf/clean.sh
 </span></span><span class="line"><span class="ln"> 8</span><span class="cl">wget https://p3terx.github.io/aria2.conf/core
@@ -257,32 +257,32 @@
 </span></span><span class="line"><span class="ln">17</span><span class="cl">touch aria2.session
 </span></span></code></pre></div><p>注意这里是root用户运行，如果要用其他用户，修改/root/.aria2/aria2.conf里面的/root就行。</p>
 <p>然后再造个systemctl的启动控制文件：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln"> 1</span><span class="cl">cat &lt;&lt;EOF&gt;&gt;/etc/systemd/system/aria2.service 
-</span></span><span class="line"><span class="ln"> 2</span><span class="cl">[Unit]
-</span></span><span class="line"><span class="ln"> 3</span><span class="cl">Description=aria2 Service
-</span></span><span class="line"><span class="ln"> 4</span><span class="cl">After=network.target
-</span></span><span class="line"><span class="ln"> 5</span><span class="cl">Wants=network.target
-</span></span><span class="line"><span class="ln"> 6</span><span class="cl">
-</span></span><span class="line"><span class="ln"> 7</span><span class="cl">[Service]
-</span></span><span class="line"><span class="ln"> 8</span><span class="cl">Type=simple
-</span></span><span class="line"><span class="ln"> 9</span><span class="cl">ExecStart=/root/aria2c --conf-path=/root/.aria2/aria2.conf
-</span></span><span class="line"><span class="ln">10</span><span class="cl">Restart=on-failure
-</span></span><span class="line"><span class="ln">11</span><span class="cl"># Don&#39;t restart in the case of configuration error
-</span></span><span class="line"><span class="ln">12</span><span class="cl">RestartPreventExitStatus=23
-</span></span><span class="line"><span class="ln">13</span><span class="cl">
-</span></span><span class="line"><span class="ln">14</span><span class="cl">[Install]
-</span></span><span class="line"><span class="ln">15</span><span class="cl">WantedBy=multi-user.target
-</span></span><span class="line"><span class="ln">16</span><span class="cl">EOF
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">cat <span class="s">&lt;&lt;EOF&gt;&gt;/etc/systemd/system/aria2.service 
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="s">[Unit]
+</span></span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="s">Description=aria2 Service
+</span></span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="s">After=network.target
+</span></span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="s">Wants=network.target
+</span></span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="s">
+</span></span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="s">[Service]
+</span></span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="s">Type=simple
+</span></span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="s">ExecStart=/root/aria2c --conf-path=/root/.aria2/aria2.conf
+</span></span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="s">Restart=on-failure
+</span></span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="s"># Don&#39;t restart in the case of configuration error
+</span></span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="s">RestartPreventExitStatus=23
+</span></span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="s">
+</span></span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="s">[Install]
+</span></span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="s">WantedBy=multi-user.target
+</span></span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="s">EOF</span>
 </span></span><span class="line"><span class="ln">17</span><span class="cl">
 </span></span><span class="line"><span class="ln">18</span><span class="cl">systemctl daemon-reload
 </span></span><span class="line"><span class="ln">19</span><span class="cl">systemctl start aria2 
 </span></span></code></pre></div><p>注意，如果有防火墙，注意打开以下三个端口。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln">1</span><span class="cl">tcp 6800
-</span></span><span class="line"><span class="ln">2</span><span class="cl">tcp 51413
-</span></span><span class="line"><span class="ln">3</span><span class="cl">udp 51413
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">tcp <span class="m">6800</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">tcp <span class="m">51413</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">udp <span class="m">51413</span>
 </span></span></code></pre></div><p>然后就好了，然而但是，没有任何可用界面</p>
 <p>我们弄个界面吧，AriaNG，其实就需要一个文件，index.html</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln">1</span><span class="cl">wget https://github.com/mayswind/AriaNg/releases/download/1.2.1/AriaNg-1.2.1-AllInOne.zip
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">wget https://github.com/mayswind/AriaNg/releases/download/1.2.1/AriaNg-1.2.1-AllInOne.zip
 </span></span></code></pre></div><p>随便放到个web服务器上，然后打开配置一下</p>
 <blockquote>
 <p><img class="img-fluid" alt="image-20240124164421526" src="https://bajie.dev/posts/20240124-aria2_baidu/image-20240124164421526.png" loading="lazy"
@@ -293,7 +293,7 @@
 <p>然后就能随便去下载磁力链和BT了。</p>
 <p>然后呢，怎么传到百度云盘去呢？</p>
 <p>继续，用BaiduPCS-Go</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="ln">1</span><span class="cl">wget https://github.com/qjfoidnh/BaiduPCS-Go/releases/download/v3.7.9/BaiduPCS-Go-v3.7.9-linux-amd64.zip
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">wget https://github.com/qjfoidnh/BaiduPCS-Go/releases/download/v3.7.9/BaiduPCS-Go-v3.7.9-linux-amd64.zip
 </span></span></code></pre></div><p>然后用浏览器打开pan.baidu.com，F12调试，拿到Cookie中的BDUSS值</p>
 <p><img class="img-fluid" alt="image-20240124164452211" src="https://bajie.dev/posts/20240124-aria2_baidu/image-20240124164452211.png" loading="lazy"
    width="1486" height="1444"
