@@ -181,6 +181,32 @@
 <div class="col-lg-8">
   <div class="container"><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211102-sysctl_conf/">Linux内核sysctl内核参数优化
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-02
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          这篇是纯配置篇，解释都在配置里了，是生产服务器 sysctl.conf 的配置 1### KERNEL ### 2 3# Reboot after 10sec. on kernel panic 4kernel.panic = 10 5 6### IMPROVE SYSTEM MEMORY MANAGEMENT ### 7 8# Increase size of file handles and inode cache 9fs.file-max = 2097152 10 11# Insure we always have enough memory 12vm.min_free_kbytes
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211102-tcp_keealive/">Linux内核TCP连接Keep-Alive Timeout的配置
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-02
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          Custom Configuration of TCP Socket Keep-Alive Timeouts 这是个古老的话题，我们在机器的优化中，需要设置 TCP Socket 的 Timeout 参数 用来加快 TCP 关闭无用闲置连接的时间 Linux 内核中有三个缺省参数: 1 tcp_keepalive_time 缺省是 7200
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
         <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211029-bash_multithread/">Shell以及find的多线程执行
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2021-10-29
@@ -283,32 +309,6 @@
           之前介绍过如何制作一个 centos live cdrom 系统 那么，某些情况下我们可能无法弄一个 pxe 系统，而只能通过 idrac 挂载 iso 的方式安装系统 该如何去做呢？ 步骤如下： 一、下载C
         </div>
       </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211025-vsftpd/">Vsftpd的日志设置
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-25
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          为了研发方便就给他们在内网开通了 vsftpd 的服务。 结果 java 直接有封好的 ftp library 可用，大家就直接用了。 导致任何单独的一个文件上传都会起一个 ftp 实例，没有复用 ftp
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://bajie.dev/posts/20211022-pypxe/">PyPXE-一个牛逼的一站式PXE安装包
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-10-22
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          一般来说，我们要搭建一个正式的pxe自动装机系统，需要装 dnsmasq 做 dhcp + tftp ，需要编译 ipxe 来获得 undionly.kpxe ，需要 http 服务器来提供资源下载，repo 同步服务来提供 r
-        </div>
-      </div>
     </article></div><div class="row table-responsive mb-3">
     <ul class="pagination pagination-default">
       <li class="page-item">
@@ -362,11 +362,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20250120-aws_alb_ingress/">AWS Alb 负载均衡做ingress的注意事项
+    <ul><li><a href="https://bajie.dev/posts/20250512-mongodb-restore/">Mongodb 集群的恢复
+</a></li><li><a href="https://bajie.dev/posts/20250122-mongodb_upgrade/">Mongodb 如何升级
+</a></li><li><a href="https://bajie.dev/posts/20250120-aws_alb_ingress/">AWS Alb 负载均衡做ingress的注意事项
 </a></li><li><a href="https://bajie.dev/posts/20250103-msyql_restore/">Mysql的某个表恢复到某一个时间点的操作
 </a></li><li><a href="https://bajie.dev/posts/20240320-mysql_delete_xxllog/">设置Mysql自动定时删除xxljob的日志数据
-</a></li><li><a href="https://bajie.dev/posts/20240305-aliyun_dms/">阿里云DMS管理数据库变更审批流
-</a></li><li><a href="https://bajie.dev/posts/20240304-posfix_relay/">邮箱地址无效导致群发邮件失败
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
