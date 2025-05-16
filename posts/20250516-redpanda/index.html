@@ -1,0 +1,448 @@
+<!doctype html><html lang="zh-cn"
+  >
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>kafka的测试替代品-redpanda - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
+<link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
+<meta name="keywords" content="" />
+<meta name="description" content="" /><meta itemprop="name" content="kafka的测试替代品-redpanda">
+<meta itemprop="description" content="公司的一个公网要搬到内网的一个Rancher集群上，很繁琐 原有的架构有kafka，要在内网复现一个出来 那3节点的kafka和3节点的zook"><meta itemprop="datePublished" content="2025-05-16T12:01:11+08:00" />
+<meta itemprop="dateModified" content="2025-05-16T12:01:11+08:00" />
+<meta itemprop="wordCount" content="796">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="kafka的测试替代品-redpanda" />
+<meta property="og:description" content="公司的一个公网要搬到内网的一个Rancher集群上，很繁琐 原有的架构有kafka，要在内网复现一个出来 那3节点的kafka和3节点的zook" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://bajie.dev/posts/20250516-redpanda/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2025-05-16T12:01:11+08:00" />
+<meta property="article:modified_time" content="2025-05-16T12:01:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="kafka的测试替代品-redpanda"/>
+<meta name="twitter:description" content="公司的一个公网要搬到内网的一个Rancher集群上，很繁琐 原有的架构有kafka，要在内网复现一个出来 那3节点的kafka和3节点的zook"/>
+<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <div class="container">
+    <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
+  aria-controls="offcanvasSettings" aria-label="Toggle settings">
+  <i class="fas fa-bars"></i>
+</button>
+
+<div class="offcanvas offcanvas-start surface" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasSettings">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">设置</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body">
+
+<section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+
+<section class="setting">
+  <form class="font-size-switcher-form row">
+    <div class="col-auto">
+      <label for="fontSize" class="form-label"><i class="fas fa-fw fa-font"></i> 字体大小</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <input type="range" class="form-range" min="-2" max="2" id="fontSize">
+    </div>
+  </form>
+</section>
+
+
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a id="btnPalette" class="btn btn-sm btn-outline-primary" role="button" aria-label="palettePicker">
+        <i class="fas fa-eye-dropper"></i>
+      </a>
+    </div>
+  </form>
+  <div class="mt-2 d-flex visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="蓝色"
+        class="btn btn-sm palette" data-palette="blue">
+      </button><button type="button" id="palette-blue-gray" aria-label="蓝灰色"
+        class="btn btn-sm palette" data-palette="blue-gray">
+      </button><button type="button" id="palette-brown" aria-label="棕色"
+        class="btn btn-sm palette" data-palette="brown">
+      </button><button type="button" id="palette-cyan" aria-label="青色"
+        class="btn btn-sm palette" data-palette="cyan">
+      </button><button type="button" id="palette-green" aria-label="绿色"
+        class="btn btn-sm palette" data-palette="green">
+      </button><button type="button" id="palette-indigo" aria-label="靛青色"
+        class="btn btn-sm palette" data-palette="indigo">
+      </button><button type="button" id="palette-orange" aria-label="橙色"
+        class="btn btn-sm palette" data-palette="orange">
+      </button><button type="button" id="palette-pink" aria-label="粉色"
+        class="btn btn-sm palette" data-palette="pink">
+      </button><button type="button" id="palette-purple" aria-label="紫色"
+        class="btn btn-sm palette" data-palette="purple">
+      </button><button type="button" id="palette-red" aria-label="红色"
+        class="btn btn-sm palette" data-palette="red">
+      </button><button type="button" id="palette-teal" aria-label="蓝绿色"
+        class="btn btn-sm palette" data-palette="teal">
+      </button><button type="button" id="palette-yellow" aria-label="黄色"
+        class="btn btn-sm palette" data-palette="yellow">
+      </button></div>
+</section>
+<section class="setting social-share">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-share-alt"></i> Share</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a class="btn btn-sm btn-outline-primary btn-social-share"><i class="fas fa-share"></i></a>
+    </div>
+  </form>
+  <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
+      target="_blank" href="https://twitter.com/intent/tweet?title=kafka%e7%9a%84%e6%b5%8b%e8%af%95%e6%9b%bf%e4%bb%a3%e5%93%81-redpanda&url=https%3a%2f%2fbajie.dev%2fposts%2f20250516-redpanda%2f">
+      <i class="fab fa-fw fa-twitter"></i> Twitter
+    </a>
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20250516-redpanda%2f">
+      <i class="fab fa-fw fa-facebook-f"></i> Facebook
+    </a>
+  </div>
+</section>
+
+</div>
+</div>
+<a class="navbar-brand me-3" href="https://bajie.dev"><img class="logo" alt="Logo" src="https://bajie.dev/images/logo.webp" loading="lazy"
+   width="136" height="69"
+   />
+八戒
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="fas fa-ellipsis-v"></i>
+    </button>
+    <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
+      <form class="search-bar my-1" action="https://bajie.dev/search">
+  <div class="input-group input-group-sm">
+    <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
+    <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
+  </div>
+</form>
+
+      <ul class="navbar-nav ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/categories/">
+            <i class="fas fa-fw fa-folder"></i>分类
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/tags/">
+            <i class="fas fa-fw fa-tags"></i>标签
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://bajie.dev/series/">
+            <i class="fas fa-fw fa-columns"></i>专栏
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-chevron-circle-down"></i>下拉菜单
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-dropdown"><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                <i class="fab fa-fw fa-github"></i>Github
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://bajie.dev/zh-cn/series/manual">
+                用户手册
+              </a>
+            </li></ul>
+        </li></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body">
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">Posts</a></li><li class="breadcrumb-item active">Kafka的测试替代品-Redpanda</li></ol>
+  </div>
+</nav><article class="post row card mb-4 component">
+  <div class="card-body"><div class="post-panel-wrapper">
+  <div class="post-panel d-flex flex-column">
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+  <i class="fas fa-fw fa-expand-arrows-alt"></i>
+</a>
+  
+    
+
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
+  <i class="fas fa-fw fa-coffee"></i>
+</a>
+    <a class="action" data-bs-container="body" data-bs-toggle="popover" data-bs-html="true" data-bs-placement="bottom"
+  data-bs-trigger="focus" tabindex="0" type="button" aria-label="Copyright" 
+  data-bs-content="&lt;a target=&#34;_blank&#34; rel=&#34;license noopener noreferrer&#34; href=&#34;https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh&#34;&gt;CC BY-NC-ND 4.0 &lt;i class=&#34;fab fa-fw fa-creative-commons&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-by&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-nc&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-nd&#34;&gt;&lt;/i&gt;&lt;/a&gt;
+">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
+    
+  </div>
+</div>
+<h1 class="card-title my-3">Kafka的测试替代品-Redpanda
+</h1><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2025-05-16
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-content mb-3"><p>公司的一个公网要搬到内网的一个Rancher集群上，很繁琐</p>
+<p>原有的架构有kafka，要在内网复现一个出来</p>
+<p>那3节点的kafka和3节点的zookeeper，真的是不想搭啊</p>
+<p>搜啊搜啊搜啊搜，终于找到若干平替：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">Redis 的平替 Dragonfly
+</span></span><span class="line"><span class="ln">2</span><span class="cl">Mongo 的平替 FerretDB
+</span></span><span class="line"><span class="ln">3</span><span class="cl">Kafka 的平替 Redpanda
+</span></span></code></pre></div><p>那就选定用<code>Redpanda</code>来搞，方法还是有一些曲折的：</p>
+<p>Redpanda 在 2025年5月16日这个节点，有5个版本</p>
+<p><img class="img-fluid" alt="image-20250516151644197" src="https://bajie.dev/posts/20250516-redpanda/image-20250516151644197.png" loading="lazy"
+   width="218" height="208"
+   />
+
+</p>
+<p>最新的25.1的版本，如果用docker compose来启动，是个压缩包，好多文件。</p>
+<p>数据盘有三个了，而且用到了minio做后端的持久化卷，这么复杂，那不如直接搞Kafka了</p>
+<p>那只能往前回退，选用24.2的版本，docker compose 就一个文件，不过这个版本 2025年7月31日就终结支持了。</p>
+<p>下载的话：https://docs.redpanda.com/24.2/get-started/quick-start/</p>
+<p>我们要的是一个broker的，那直接给出源文件</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">name: redpanda-quickstart-one-broker
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">networks:
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">  redpanda_network:
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">    driver: bridge
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">volumes:
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">  redpanda-0: null
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">services:
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">  redpanda-0:
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">    command:
+</span></span><span class="line"><span class="ln">10</span><span class="cl">      - redpanda
+</span></span><span class="line"><span class="ln">11</span><span class="cl">      - start
+</span></span><span class="line"><span class="ln">12</span><span class="cl">      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
+</span></span><span class="line"><span class="ln">13</span><span class="cl">      <span class="c1"># Address the broker advertises to clients that connect to the Kafka API.</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">      <span class="c1"># Use the internal addresses to connect to the Redpanda brokers&#39;</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl">      <span class="c1"># from inside the same Docker network.</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">      <span class="c1"># Use the external addresses to connect to the Redpanda brokers&#39;</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl">      <span class="c1"># from outside the Docker network.</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl">      - --advertise-kafka-addr internal://redpanda-0:9092,external://localhost:19092
+</span></span><span class="line"><span class="ln">19</span><span class="cl">      - --pandaproxy-addr internal://0.0.0.0:8082,external://0.0.0.0:18082
+</span></span><span class="line"><span class="ln">20</span><span class="cl">      <span class="c1"># Address the broker advertises to clients that connect to the HTTP Proxy.</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl">      - --advertise-pandaproxy-addr internal://redpanda-0:8082,external://localhost:18082
+</span></span><span class="line"><span class="ln">22</span><span class="cl">      - --schema-registry-addr internal://0.0.0.0:8081,external://0.0.0.0:18081
+</span></span><span class="line"><span class="ln">23</span><span class="cl">      <span class="c1"># Redpanda brokers use the RPC API to communicate with each other internally.</span>
+</span></span><span class="line"><span class="ln">24</span><span class="cl">      - --rpc-addr redpanda-0:33145
+</span></span><span class="line"><span class="ln">25</span><span class="cl">      - --advertise-rpc-addr redpanda-0:33145
+</span></span><span class="line"><span class="ln">26</span><span class="cl">      <span class="c1"># Mode dev-container uses well-known configuration properties for development in containers.</span>
+</span></span><span class="line"><span class="ln">27</span><span class="cl">      - --mode dev-container
+</span></span><span class="line"><span class="ln">28</span><span class="cl">      <span class="c1"># Tells Seastar (the framework Redpanda uses under the hood) to use 1 core on the system.</span>
+</span></span><span class="line"><span class="ln">29</span><span class="cl">      - --smp <span class="m">1</span>
+</span></span><span class="line"><span class="ln">30</span><span class="cl">      - --default-log-level<span class="o">=</span>info
+</span></span><span class="line"><span class="ln">31</span><span class="cl">    image: docker.redpanda.com/redpandadata/redpanda:v25.1.4
+</span></span><span class="line"><span class="ln">32</span><span class="cl">    container_name: redpanda-0
+</span></span><span class="line"><span class="ln">33</span><span class="cl">    volumes:
+</span></span><span class="line"><span class="ln">34</span><span class="cl">      - redpanda-0:/var/lib/redpanda/data
+</span></span><span class="line"><span class="ln">35</span><span class="cl">    networks:
+</span></span><span class="line"><span class="ln">36</span><span class="cl">      - redpanda_network
+</span></span><span class="line"><span class="ln">37</span><span class="cl">    ports:
+</span></span><span class="line"><span class="ln">38</span><span class="cl">      - 18081:18081
+</span></span><span class="line"><span class="ln">39</span><span class="cl">      - 18082:18082
+</span></span><span class="line"><span class="ln">40</span><span class="cl">      - 19092:19092
+</span></span><span class="line"><span class="ln">41</span><span class="cl">      - 19644:9644
+</span></span><span class="line"><span class="ln">42</span><span class="cl">  console:
+</span></span><span class="line"><span class="ln">43</span><span class="cl">    container_name: redpanda-console
+</span></span><span class="line"><span class="ln">44</span><span class="cl">    image: docker.redpanda.com/redpandadata/console:v3.1.0
+</span></span><span class="line"><span class="ln">45</span><span class="cl">    networks:
+</span></span><span class="line"><span class="ln">46</span><span class="cl">      - redpanda_network
+</span></span><span class="line"><span class="ln">47</span><span class="cl">    entrypoint: /bin/sh
+</span></span><span class="line"><span class="ln">48</span><span class="cl">    command: -c <span class="s1">&#39;echo &#34;$$CONSOLE_CONFIG_FILE&#34; &gt; /tmp/config.yml; /app/console&#39;</span>
+</span></span><span class="line"><span class="ln">49</span><span class="cl">    environment:
+</span></span><span class="line"><span class="ln">50</span><span class="cl">      CONFIG_FILEPATH: /tmp/config.yml
+</span></span><span class="line"><span class="ln">51</span><span class="cl">      CONSOLE_CONFIG_FILE: <span class="p">|</span>
+</span></span><span class="line"><span class="ln">52</span><span class="cl">        kafka:
+</span></span><span class="line"><span class="ln">53</span><span class="cl">          brokers: <span class="o">[</span><span class="s2">&#34;redpanda-0:9092&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="ln">54</span><span class="cl">        schemaRegistry:
+</span></span><span class="line"><span class="ln">55</span><span class="cl">          enabled: <span class="nb">true</span>
+</span></span><span class="line"><span class="ln">56</span><span class="cl">          urls: <span class="o">[</span><span class="s2">&#34;http://redpanda-0:8081&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="ln">57</span><span class="cl">        redpanda:
+</span></span><span class="line"><span class="ln">58</span><span class="cl">          adminApi:
+</span></span><span class="line"><span class="ln">59</span><span class="cl">            enabled: <span class="nb">true</span>
+</span></span><span class="line"><span class="ln">60</span><span class="cl">            urls: <span class="o">[</span><span class="s2">&#34;http://redpanda-0:9644&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="ln">61</span><span class="cl">    ports:
+</span></span><span class="line"><span class="ln">62</span><span class="cl">      - 8080:8080
+</span></span><span class="line"><span class="ln">63</span><span class="cl">    depends_on:
+</span></span><span class="line"><span class="ln">64</span><span class="cl">      - redpanda-0
+</span></span></code></pre></div><p>仔细看了一下，这里面有问题，卷是空的，这可不行，必须持久化到本地，改一下</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">volumes:
+</span></span><span class="line"><span class="ln">2</span><span class="cl">  redpanda-0: 
+</span></span><span class="line"><span class="ln">3</span><span class="cl">    driver: <span class="nb">local</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">    driver_opts:
+</span></span><span class="line"><span class="ln">5</span><span class="cl">      type: none
+</span></span><span class="line"><span class="ln">6</span><span class="cl">      device: /data/redpanda/data
+</span></span><span class="line"><span class="ln">7</span><span class="cl">      o: <span class="nb">bind</span>
+</span></span></code></pre></div><p>然后直接启动：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">docker compose up -d
+</span></span></code></pre></div><p>其实是启动了两个容器，一个数据端；一个是console，客户端</p>
+<p>我们打开8080 web的端口，那客户端呢，连的就是19092端口，用法跟kafka完全一样。</p>
+<p><img class="img-fluid" alt="image-20250516154007554" src="https://bajie.dev/posts/20250516-redpanda/image-20250516154007554.png" loading="lazy"
+   width="1774" height="881"
+   />
+
+</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-coffee"></i>打赏</h5>
+        <a href="#" data-bs-dismiss="modal" class="btn btn-sm btn-outline-primary" aria-label="Close"><i class="fas fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs flex-nowrap mb-3" role="tablist"><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>支付宝
+            </a>
+          </li><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>微信
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+  <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
+    <a href="https://bajie.dev/posts/20250516-ubuntu_rdp/">Ubuntu 如何安装远程桌面RDP
+</a>
+  </div></div><section class="related-posts-wrapper">
+    <h3>相关文章</h3>
+    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20250516-ubuntu_rdp/">Ubuntu 如何安装远程桌面RDP
+</a></li><li><a href="https://bajie.dev/posts/20250512-mongodb-restore/">Mongodb 集群的恢复
+</a></li><li><a href="https://bajie.dev/posts/20250122-mongodb_upgrade/">Mongodb 如何升级
+</a></li><li><a href="https://bajie.dev/posts/20250120-aws_alb_ingress/">AWS Alb 负载均衡做ingress的注意事项
+</a></li><li><a href="https://bajie.dev/posts/20250103-msyql_restore/">Mysql的某个表恢复到某一个时间点的操作
+</a></li></ul>
+  </section></div>
+</article><div class="post-comments card row component">
+  <div class="card-body"><div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-zhangrr-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a></div>
+</div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container">
+    
+    <section class="card row text-center profile component">
+  <div class="card-body">
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Zhang Ranrui" src="https://bajie.dev/images/bajie_01.jpg" loading="lazy"
+   width="391" height="644"
+   />
+</div>
+    <div class="col-12 profile-meta"><div class="profile-name">Zhang Ranrui</div><div class="profile-bio">Devops, SA, 运维全干工程师.</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>Company</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>Earth</div><div class="profile-about"><i class="fas fa-fw fa-user"></i><a target="_blank" rel="noopener noreferrer" href="http://www.rendoumi.com">关于我</a></div></div>
+  </div>
+</section>
+  <section class="featured-posts row card component">
+    <div class="card-body">
+      <h2 class="card-title">精选文章</h2>
+      <ul><li><a href="https://bajie.dev/posts/markdown-syntax/">Markdown Syntax Guide
+</a></li></ul>
+    </div>
+  </section><section class="recent-posts row card component">
+  <div class="card-body">
+    <h2 class="card-title">最近文章</h2>
+    <ul><li><a href="https://bajie.dev/posts/20250516-redpanda/">Kafka的测试替代品-Redpanda
+</a></li><li><a href="https://bajie.dev/posts/20250516-ubuntu_rdp/">Ubuntu 如何安装远程桌面RDP
+</a></li><li><a href="https://bajie.dev/posts/20250512-mongodb-restore/">Mongodb 集群的恢复
+</a></li><li><a href="https://bajie.dev/posts/20250122-mongodb_upgrade/">Mongodb 如何升级
+</a></li><li><a href="https://bajie.dev/posts/20250120-aws_alb_ingress/">AWS Alb 负载均衡做ingress的注意事项
+</a></li></ul>
+  </div>
+</section><section class="taxonomies row card component">
+      <div class="card-body">
+        <h2 class="card-title">
+          <a href="https://bajie.dev/series">专栏</a>
+        </h2>
+        <div><a href="https://bajie.dev/series/manual/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Manual">
+            Manual
+          </a></div>
+      </div>
+    </section><section class="taxonomies row card component">
+      <div class="card-body">
+        <h2 class="card-title">
+          <a href="https://bajie.dev/tags">标签</a>
+        </h2>
+        <div><a href="https://bajie.dev/tags/css/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="CSS">
+            CSS
+          </a><a href="https://bajie.dev/tags/html/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="HTML">
+            HTML
+          </a><a href="https://bajie.dev/tags/markdown/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Markdown">
+            Markdown
+          </a></div>
+      </div>
+    </section>
+    
+  </div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:zhangranrui@gmail.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/zhangrr" title="GitHub" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://www.reddit.com/user/defunct9" title="Reddit" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-reddit"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/defunct9" title="Telegram" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a></nav>
+<div class="copyright mb-2">
+  Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+</div></footer>
+
+</body>
+</html>
