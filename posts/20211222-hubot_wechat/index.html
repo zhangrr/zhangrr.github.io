@@ -3,11 +3,11 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>hubot集成企业微信&#43;jenkins&#43;ansible - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
-<link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
-<link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
-<link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
-<link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
+    <title>hubot集成企业微信&#43;jenkins&#43;ansible - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://rendoumi.com/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://rendoumi.com/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://rendoumi.com/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://rendoumi.com/images/favicons/manifest.json">
+<link rel="icon" href="https://rendoumi.com/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
 <meta name="description" content="" /><meta itemprop="name" content="hubot集成企业微信&#43;jenkins&#43;ansible">
 <meta itemprop="description" content="Hubot是一个通用的聊天机器人，能和很多聊天软件集成，比如slack、rockchat、telegram、企业微信、IRC等。 公司用的是企"><meta itemprop="datePublished" content="2021-12-22T09:30:11+08:00" />
@@ -16,16 +16,16 @@
 <meta itemprop="keywords" content="" /><meta property="og:title" content="hubot集成企业微信&#43;jenkins&#43;ansible" />
 <meta property="og:description" content="Hubot是一个通用的聊天机器人，能和很多聊天软件集成，比如slack、rockchat、telegram、企业微信、IRC等。 公司用的是企" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://bajie.dev/posts/20211222-hubot_wechat/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="https://rendoumi.com/posts/20211222-hubot_wechat/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-12-22T09:30:11+08:00" />
 <meta property="article:modified_time" content="2021-12-22T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="hubot集成企业微信&#43;jenkins&#43;ansible"/>
 <meta name="twitter:description" content="Hubot是一个通用的聊天机器人，能和很多聊天软件集成，比如slack、rockchat、telegram、企业微信、IRC等。 公司用的是企"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://rendoumi.com/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://rendoumi.com/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://rendoumi.com/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://rendoumi.com/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=hubot%e9%9b%86%e6%88%90%e4%bc%81%e4%b8%9a%e5%be%ae%e4%bf%a1%2bjenkins%2bansible&url=https%3a%2f%2fbajie.dev%2fposts%2f20211222-hubot_wechat%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=hubot%e9%9b%86%e6%88%90%e4%bc%81%e4%b8%9a%e5%be%ae%e4%bf%a1%2bjenkins%2bansible&url=https%3a%2f%2frendoumi.com%2fposts%2f20211222-hubot_wechat%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20211222-hubot_wechat%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2frendoumi.com%2fposts%2f20211222-hubot_wechat%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -126,7 +126,7 @@
 
 </div>
 </div>
-<a class="navbar-brand me-3" href="https://bajie.dev"><img class="logo" alt="Logo" src="https://bajie.dev/images/logo.webp" loading="lazy"
+<a class="navbar-brand me-3" href="https://rendoumi.com"><img class="logo" alt="Logo" src="https://rendoumi.com/images/logo.webp" loading="lazy"
    width="136" height="69"
    />
 八戒
@@ -136,7 +136,7 @@
       <i class="fas fa-ellipsis-v"></i>
     </button>
     <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
-      <form class="search-bar my-1" action="https://bajie.dev/search">
+      <form class="search-bar my-1" action="https://rendoumi.com/search">
   <div class="input-group input-group-sm">
     <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
     <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
@@ -144,19 +144,19 @@
 </form>
 
       <ul class="navbar-nav ms-auto"><li class="nav-item">
-          <a class="nav-link" href="https://bajie.dev/archives/">
+          <a class="nav-link" href="https://rendoumi.com/archives/">
             <i class="fas fa-fw fa-file-archive"></i>归档
           </a>
         </li><li class="nav-item">
-          <a class="nav-link" href="https://bajie.dev/categories/">
+          <a class="nav-link" href="https://rendoumi.com/categories/">
             <i class="fas fa-fw fa-folder"></i>分类
           </a>
         </li><li class="nav-item">
-          <a class="nav-link" href="https://bajie.dev/tags/">
+          <a class="nav-link" href="https://rendoumi.com/tags/">
             <i class="fas fa-fw fa-tags"></i>标签
           </a>
         </li><li class="nav-item">
-          <a class="nav-link" href="https://bajie.dev/series/">
+          <a class="nav-link" href="https://rendoumi.com/series/">
             <i class="fas fa-fw fa-columns"></i>专栏
           </a>
         </li><li class="nav-item dropdown">
@@ -170,7 +170,7 @@
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://bajie.dev/zh-cn/series/manual">
+                href="https://rendoumi.com/zh-cn/series/manual">
                 用户手册
               </a>
             </li></ul>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">Posts</a></li><li class="breadcrumb-item active">Hubot集成企业微信&#43;jenkins&#43;ansible</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://rendoumi.com/">主页</a></li><li class="breadcrumb-item"><a href="https://rendoumi.com/posts/">Posts</a></li><li class="breadcrumb-item active">Hubot集成企业微信&#43;jenkins&#43;ansible</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -254,30 +254,30 @@
 <li>WECHATWORK_AES_KEY</li>
 </ol>
 <p>首先联系企业微信管理员新增一个应用：</p>
-<p><img class="img-fluid" alt="image-20211222144935256" src="https://bajie.dev/posts/20211222-hubot_wechat/image-20211222144935256.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20211222144935256" src="https://rendoumi.com/posts/20211222-hubot_wechat/image-20211222144935256.png" loading="lazy"
    width="718" height="594"
    />
 
 </p>
 <p>在“管理后台-我的企业”中可以获得地一个信息，企业 ID 信息，CORP_ID  ：</p>
-<p><img class="img-fluid" alt="image-20211222144654696" src="https://bajie.dev/posts/20211222-hubot_wechat/image-20211222144654696.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20211222144654696" src="https://rendoumi.com/posts/20211222-hubot_wechat/image-20211222144654696.png" loading="lazy"
    width="1080" height="861"
    />
 
 拿拿  在“管理后台-应用管理-点击某具体应用-详情”页中可以获得二、三个信息， APP_AGENT_ID 和 APP_SECRET</p>
-<p><img class="img-fluid" alt="image-20211222150424143" src="https://bajie.dev/posts/20211222-hubot_wechat/image-20211222150424143.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20211222150424143" src="https://rendoumi.com/posts/20211222-hubot_wechat/image-20211222150424143.png" loading="lazy"
    width="741" height="244"
    />
 
 </p>
 <p>第四个 AES_KEY 就比较麻烦了，我们进入这个应用，点击配置的图标：</p>
-<p><img class="img-fluid" alt="image-20211222151155307" src="https://bajie.dev/posts/20211222-hubot_wechat/image-20211222151155307.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20211222151155307" src="https://rendoumi.com/posts/20211222-hubot_wechat/image-20211222151155307.png" loading="lazy"
    width="788" height="112"
    />
 
 </p>
 <p>然后进入，点击启用 API 接收</p>
-<p><img class="img-fluid" alt="image-20211222151325525" src="https://bajie.dev/posts/20211222-hubot_wechat/image-20211222151325525.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20211222151325525" src="https://rendoumi.com/posts/20211222-hubot_wechat/image-20211222151325525.png" loading="lazy"
    width="580" height="423"
    />
 
@@ -289,7 +289,7 @@
 <li>Token 点随机获取</li>
 <li>EncodingAESKey 点随机获取，这就是具体的 AESKey 了</li>
 </ul>
-<p><img class="img-fluid" alt="image-20211222151552345" src="https://bajie.dev/posts/20211222-hubot_wechat/image-20211222151552345.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20211222151552345" src="https://rendoumi.com/posts/20211222-hubot_wechat/image-20211222151552345.png" loading="lazy"
    width="1018" height="639"
    />
 
@@ -316,7 +316,7 @@
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">nvm ls-remote
 </span></span><span class="line"><span class="ln">2</span><span class="cl">nvm install v16.13.1
 </span></span><span class="line"><span class="ln">3</span><span class="cl">nvm list
-</span></span></code></pre></div><p><img class="img-fluid" alt="image-20211222154655729" src="https://bajie.dev/posts/20211222-hubot_wechat/image-20211222154655729.png" loading="lazy"
+</span></span></code></pre></div><p><img class="img-fluid" alt="image-20211222154655729" src="https://rendoumi.com/posts/20211222-hubot_wechat/image-20211222154655729.png" loading="lazy"
    width="386" height="273"
    />
 
@@ -358,7 +358,7 @@
 </span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="na">? Description rendoumi corp</span>
 </span></span><span class="line"><span class="ln">19</span><span class="cl"><span class="na">? Bot adapter campfire</span>
 </span></span></code></pre></div><p>然后就会是漫长的等待：</p>
-<p><img class="img-fluid" alt="image-20211222155430133" src="https://bajie.dev/posts/20211222-hubot_wechat/image-20211222155430133.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20211222155430133" src="https://rendoumi.com/posts/20211222-hubot_wechat/image-20211222155430133.png" loading="lazy"
    width="996" height="813"
    />
 
@@ -435,32 +435,32 @@
 </span></span><span class="line"><span class="ln">6</span><span class="cl"><span class="nb">cd</span> /home/bot/myhubot
 </span></span><span class="line"><span class="ln">7</span><span class="cl">./bin/hubot -a wechatwork
 </span></span></code></pre></div><p>看到信息，INFO Yunwei: loading wechatwork Adapter，说明启动没啥毛病</p>
-<p><img class="img-fluid" alt="image-20211228152907465" src="https://bajie.dev/posts/20211222-hubot_wechat/image-20211228152907465.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20211228152907465" src="https://rendoumi.com/posts/20211222-hubot_wechat/image-20211228152907465.png" loading="lazy"
    width="914" height="371"
    />
 
 </p>
 <p>然后我们回到企业微信这个应用的应用管理，点击保存接收消息服务器配置，这次就应该能成功了。</p>
 <p>测试一下，我们在企业微信中，对这个应用机器人私聊，发个 hi：</p>
-<p><img class="img-fluid" alt="image-20211228153139262" src="https://bajie.dev/posts/20211222-hubot_wechat/image-20211228153139262.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20211228153139262" src="https://rendoumi.com/posts/20211222-hubot_wechat/image-20211228153139262.png" loading="lazy"
    width="963" height="118"
    />
 
 </p>
 <p>再发个help，会冒出一堆信息</p>
-<p><img class="img-fluid" alt="image-20211228153351091" src="https://bajie.dev/posts/20211222-hubot_wechat/image-20211228153351091.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20211228153351091" src="https://rendoumi.com/posts/20211222-hubot_wechat/image-20211228153351091.png" loading="lazy"
    width="969" height="744"
    />
 
 </p>
 <p>然后我们可以试试指令，再发个ping，机器人回PONG，这就算正常工作了</p>
-<p><img class="img-fluid" alt="image-20211228153542953" src="https://bajie.dev/posts/20211222-hubot_wechat/image-20211228153542953.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20211228153542953" src="https://rendoumi.com/posts/20211222-hubot_wechat/image-20211228153542953.png" loading="lazy"
    width="962" height="100"
    />
 
 </p>
 <p>同时我们在终端也可以看到接收到的消息</p>
-<p><img class="img-fluid" alt="image-20211228153847963" src="https://bajie.dev/posts/20211222-hubot_wechat/image-20211228153847963.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20211228153847963" src="https://rendoumi.com/posts/20211222-hubot_wechat/image-20211228153847963.png" loading="lazy"
    width="1491" height="78"
    />
 
@@ -472,7 +472,7 @@
 <p>user1,user2 这种是员工企业微信的id，通常是用户名全称，比如 zhangrenren,liudaqiang</p>
 <p>所以说的时候务必要小心，万万记住 chatid 一旦建立就无法收回。</p>
 <p>之后可以调用 sendChatMessage 来给群聊发送消息。</p>
-<p><img class="img-fluid" alt="image-20211228163631248" src="https://bajie.dev/posts/20211222-hubot_wechat/image-20211228163631248.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20211228163631248" src="https://rendoumi.com/posts/20211222-hubot_wechat/image-20211228163631248.png" loading="lazy"
    width="534" height="197"
    />
 
@@ -515,7 +515,7 @@
 </span></span></code></pre></div><h2 id="五集成jenkins">五、集成jenkins</h2>
 <p>准备知识，我们必须在 jenkins 拿到用户名和 token（token是用来代替密码的），用来访问 jenkins</p>
 <p>首先登录 jenkins，访问网址：$JENKINS_URL/me/configure，新建一个 API Token，记录下来</p>
-<p><img class="img-fluid" alt="image-20211228155054104" src="https://bajie.dev/posts/20211222-hubot_wechat/image-20211228155054104.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20211228155054104" src="https://rendoumi.com/posts/20211222-hubot_wechat/image-20211228155054104.png" loading="lazy"
    width="1074" height="705"
    />
 
@@ -552,7 +552,7 @@
 </span></span><span class="line"><span class="ln">29</span><span class="cl">systemctl daemon-reload
 </span></span><span class="line"><span class="ln">30</span><span class="cl">systemctl restart hubot
 </span></span></code></pre></div><p>然后我们私聊这个机器人，对它说: jenkins list，就可以看到项目了， jenkins b 3 就可以开始build第三个项目了，所有命令可以通过对机器人说 help 来获得</p>
-<p><img class="img-fluid" alt="image-20211228155834837" src="https://bajie.dev/posts/20211222-hubot_wechat/image-20211228155834837.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20211228155834837" src="https://rendoumi.com/posts/20211222-hubot_wechat/image-20211228155834837.png" loading="lazy"
    width="964" height="281"
    />
 
@@ -632,13 +632,13 @@
 </span></span><span class="line"><span class="ln">17</span><span class="cl">
 </span></span><span class="line"><span class="ln">18</span><span class="cl">  - debug: <span class="nv">var</span><span class="o">=</span>output.stdout_lines
 </span></span></code></pre></div><p>我们在企业微信对机器说 shell ，就会得到所有命令列表</p>
-<p><img class="img-fluid" alt="image-20211228161435568" src="https://bajie.dev/posts/20211222-hubot_wechat/image-20211228161435568.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20211228161435568" src="https://rendoumi.com/posts/20211222-hubot_wechat/image-20211228161435568.png" loading="lazy"
    width="975" height="157"
    />
 
 </p>
 <p>对它说 shell fuse 172.19.16.1 /export ，就会把本机才有的 dust 命令，拷贝到172.19.16.1的机器上，并对 /export 执行，得到占磁盘空间最大的文件和目录。</p>
-<p><img class="img-fluid" alt="image-20211228161857621" src="https://bajie.dev/posts/20211222-hubot_wechat/image-20211228161857621.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20211228161857621" src="https://rendoumi.com/posts/20211222-hubot_wechat/image-20211228161857621.png" loading="lazy"
    width="961" height="638"
    />
 
@@ -666,28 +666,28 @@
             </a>
           </li></ul>
         <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
-            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/alipay.png" loading="lazy" />
+            <img class="img-fluid post-reward-img" src="https://rendoumi.com/images/reward/alipay.png" loading="lazy" />
           </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
-            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/wechat.png" loading="lazy" />
+            <img class="img-fluid post-reward-img" src="https://rendoumi.com/images/reward/wechat.png" loading="lazy" />
           </div></div>
       </div>
     </div>
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://bajie.dev/posts/20211217-nodejs_nvm/">Nodejs多版本的安装与管理
+    <a href="https://rendoumi.com/posts/20211217-nodejs_nvm/">Nodejs多版本的安装与管理
 </a>
   </div><div class="post-nav post-next">
-    <a href="https://bajie.dev/posts/20220104-javascript_babel_eslint/">Javascript的项目与babel和eslint
+    <a href="https://rendoumi.com/posts/20220104-javascript_babel_eslint/">Javascript的项目与babel和eslint
 </a>
     <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20211217-nodejs_nvm/">Nodejs多版本的安装与管理
-</a></li><li><a href="https://bajie.dev/posts/20211208-backblaze_usage/">Backblaze类S3免费免备案对象存储
-</a></li><li><a href="https://bajie.dev/posts/20211129-kubernetes_custom_503/">Kubernetes下定制服务器503以及其他的403消息
-</a></li><li><a href="https://bajie.dev/posts/20211129-kubernetes_nginx_ingress_limit/">Kubernetes下nginx Ingress的限制
-</a></li><li><a href="https://bajie.dev/posts/20211126-kubernetes_minio_oss_gateway/">Kubernetes搭建minio作为阿里OSS的Gateway
+    <ul class="related-posts"><li><a href="https://rendoumi.com/posts/20211217-nodejs_nvm/">Nodejs多版本的安装与管理
+</a></li><li><a href="https://rendoumi.com/posts/20211208-backblaze_usage/">Backblaze类S3免费免备案对象存储
+</a></li><li><a href="https://rendoumi.com/posts/20211129-kubernetes_custom_503/">Kubernetes下定制服务器503以及其他的403消息
+</a></li><li><a href="https://rendoumi.com/posts/20211129-kubernetes_nginx_ingress_limit/">Kubernetes下nginx Ingress的限制
+</a></li><li><a href="https://rendoumi.com/posts/20211126-kubernetes_minio_oss_gateway/">Kubernetes搭建minio作为阿里OSS的Gateway
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
@@ -717,7 +717,7 @@
     
     <section class="card row text-center profile component">
   <div class="card-body">
-    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Zhang Ranrui" src="https://bajie.dev/images/bajie_01.jpg" loading="lazy"
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Zhang Ranrui" src="https://rendoumi.com/images/bajie_01.jpg" loading="lazy"
    width="391" height="644"
    />
 </div>
@@ -727,38 +727,38 @@
   <section class="featured-posts row card component">
     <div class="card-body">
       <h2 class="card-title">精选文章</h2>
-      <ul><li><a href="https://bajie.dev/posts/markdown-syntax/">Markdown Syntax Guide
+      <ul><li><a href="https://rendoumi.com/posts/markdown-syntax/">Markdown Syntax Guide
 </a></li></ul>
     </div>
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20250516-redpanda/">Kafka的测试替代品-Redpanda
-</a></li><li><a href="https://bajie.dev/posts/20250516-ubuntu_rdp/">Ubuntu 如何安装远程桌面RDP
-</a></li><li><a href="https://bajie.dev/posts/20250512-mongodb-restore/">Mongodb 集群的恢复
-</a></li><li><a href="https://bajie.dev/posts/20250122-mongodb_upgrade/">Mongodb 如何升级
-</a></li><li><a href="https://bajie.dev/posts/20250120-aws_alb_ingress/">AWS Alb 负载均衡做ingress的注意事项
+    <ul><li><a href="https://rendoumi.com/posts/20250516-redpanda/">Kafka的测试替代品-Redpanda
+</a></li><li><a href="https://rendoumi.com/posts/20250516-ubuntu_rdp/">Ubuntu 如何安装远程桌面RDP
+</a></li><li><a href="https://rendoumi.com/posts/20250512-mongodb-restore/">Mongodb 集群的恢复
+</a></li><li><a href="https://rendoumi.com/posts/20250122-mongodb_upgrade/">Mongodb 如何升级
+</a></li><li><a href="https://rendoumi.com/posts/20250120-aws_alb_ingress/">AWS Alb 负载均衡做ingress的注意事项
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
       <div class="card-body">
         <h2 class="card-title">
-          <a href="https://bajie.dev/series">专栏</a>
+          <a href="https://rendoumi.com/series">专栏</a>
         </h2>
-        <div><a href="https://bajie.dev/series/manual/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Manual">
+        <div><a href="https://rendoumi.com/series/manual/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Manual">
             Manual
           </a></div>
       </div>
     </section><section class="taxonomies row card component">
       <div class="card-body">
         <h2 class="card-title">
-          <a href="https://bajie.dev/tags">标签</a>
+          <a href="https://rendoumi.com/tags">标签</a>
         </h2>
-        <div><a href="https://bajie.dev/tags/css/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="CSS">
+        <div><a href="https://rendoumi.com/tags/css/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="CSS">
             CSS
-          </a><a href="https://bajie.dev/tags/html/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="HTML">
+          </a><a href="https://rendoumi.com/tags/html/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="HTML">
             HTML
-          </a><a href="https://bajie.dev/tags/markdown/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Markdown">
+          </a><a href="https://rendoumi.com/tags/markdown/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Markdown">
             Markdown
           </a></div>
       </div>

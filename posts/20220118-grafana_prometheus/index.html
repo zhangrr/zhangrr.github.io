@@ -3,11 +3,11 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Grafana画出prometheus的图 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
-<link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
-<link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
-<link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
-<link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
+    <title>Grafana画出prometheus的图 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://rendoumi.com/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://rendoumi.com/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://rendoumi.com/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://rendoumi.com/images/favicons/manifest.json">
+<link rel="icon" href="https://rendoumi.com/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
 <meta name="description" content="" /><meta itemprop="name" content="Grafana画出prometheus的图">
 <meta itemprop="description" content="公司要做阿里的小程序接入，需要通过测试，测试呢需要提供硬盘的监控报告，比如 iops 。 同事从网上找了一下，iops 监控原文如下：监控磁盘的 iops ，利用 linux"><meta itemprop="datePublished" content="2022-01-18T09:30:11+08:00" />
@@ -16,16 +16,16 @@
 <meta itemprop="keywords" content="" /><meta property="og:title" content="Grafana画出prometheus的图" />
 <meta property="og:description" content="公司要做阿里的小程序接入，需要通过测试，测试呢需要提供硬盘的监控报告，比如 iops 。 同事从网上找了一下，iops 监控原文如下：监控磁盘的 iops ，利用 linux" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://bajie.dev/posts/20220118-grafana_prometheus/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="https://rendoumi.com/posts/20220118-grafana_prometheus/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2022-01-18T09:30:11+08:00" />
 <meta property="article:modified_time" content="2022-01-18T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Grafana画出prometheus的图"/>
 <meta name="twitter:description" content="公司要做阿里的小程序接入，需要通过测试，测试呢需要提供硬盘的监控报告，比如 iops 。 同事从网上找了一下，iops 监控原文如下：监控磁盘的 iops ，利用 linux"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://rendoumi.com/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://rendoumi.com/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://rendoumi.com/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://rendoumi.com/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=Grafana%e7%94%bb%e5%87%baprometheus%e7%9a%84%e5%9b%be&url=https%3a%2f%2fbajie.dev%2fposts%2f20220118-grafana_prometheus%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=Grafana%e7%94%bb%e5%87%baprometheus%e7%9a%84%e5%9b%be&url=https%3a%2f%2frendoumi.com%2fposts%2f20220118-grafana_prometheus%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20220118-grafana_prometheus%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2frendoumi.com%2fposts%2f20220118-grafana_prometheus%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -126,7 +126,7 @@
 
 </div>
 </div>
-<a class="navbar-brand me-3" href="https://bajie.dev"><img class="logo" alt="Logo" src="https://bajie.dev/images/logo.webp" loading="lazy"
+<a class="navbar-brand me-3" href="https://rendoumi.com"><img class="logo" alt="Logo" src="https://rendoumi.com/images/logo.webp" loading="lazy"
    width="136" height="69"
    />
 八戒
@@ -136,7 +136,7 @@
       <i class="fas fa-ellipsis-v"></i>
     </button>
     <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
-      <form class="search-bar my-1" action="https://bajie.dev/search">
+      <form class="search-bar my-1" action="https://rendoumi.com/search">
   <div class="input-group input-group-sm">
     <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
     <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
@@ -144,19 +144,19 @@
 </form>
 
       <ul class="navbar-nav ms-auto"><li class="nav-item">
-          <a class="nav-link" href="https://bajie.dev/archives/">
+          <a class="nav-link" href="https://rendoumi.com/archives/">
             <i class="fas fa-fw fa-file-archive"></i>归档
           </a>
         </li><li class="nav-item">
-          <a class="nav-link" href="https://bajie.dev/categories/">
+          <a class="nav-link" href="https://rendoumi.com/categories/">
             <i class="fas fa-fw fa-folder"></i>分类
           </a>
         </li><li class="nav-item">
-          <a class="nav-link" href="https://bajie.dev/tags/">
+          <a class="nav-link" href="https://rendoumi.com/tags/">
             <i class="fas fa-fw fa-tags"></i>标签
           </a>
         </li><li class="nav-item">
-          <a class="nav-link" href="https://bajie.dev/series/">
+          <a class="nav-link" href="https://rendoumi.com/series/">
             <i class="fas fa-fw fa-columns"></i>专栏
           </a>
         </li><li class="nav-item dropdown">
@@ -170,7 +170,7 @@
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://bajie.dev/zh-cn/series/manual">
+                href="https://rendoumi.com/zh-cn/series/manual">
                 用户手册
               </a>
             </li></ul>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">Posts</a></li><li class="breadcrumb-item active">Grafana画出prometheus的图</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://rendoumi.com/">主页</a></li><li class="breadcrumb-item"><a href="https://rendoumi.com/posts/">Posts</a></li><li class="breadcrumb-item active">Grafana画出prometheus的图</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -219,14 +219,14 @@
 </p>
 <p>仔细研究了一下上面的文章，看了它提供了两张监控图，分析一下：</p>
 <p>第一张图：</p>
-<p><img class="img-fluid" alt="image-20220118093026319" src="https://bajie.dev/posts/20220118-grafana_prometheus/image-20220118093026319.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20220118093026319" src="https://rendoumi.com/posts/20220118-grafana_prometheus/image-20220118093026319.png" loading="lazy"
    width="1458" height="392"
    />
 
 </p>
 <p>有两个指标，绿色的是硬盘每秒的 io 读次数，红色的是硬盘每秒的 io 写次数。</p>
 <p>第二张图：</p>
-<p><img class="img-fluid" alt="image-20220118093147796" src="https://bajie.dev/posts/20220118-grafana_prometheus/image-20220118093147796.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20220118093147796" src="https://rendoumi.com/posts/20220118-grafana_prometheus/image-20220118093147796.png" loading="lazy"
    width="1463" height="386"
    />
 
@@ -254,39 +254,39 @@
 </span></span><span class="line"><span class="ln">3</span><span class="cl">
 </span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="na">node_disk_read_bytes_total{instance</span><span class="o">=</span><span class="s">&#34;192.168.1.1:50000&#34;}</span>
 </span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="na">node_disk_written_bytes_total{instance</span><span class="o">=</span><span class="s">&#34;192.18.1.1:50000&#34;}</span>
-</span></span></code></pre></div><p><img class="img-fluid" alt="image-20220118094728497" src="https://bajie.dev/posts/20220118-grafana_prometheus/image-20220118094728497.png" loading="lazy"
+</span></span></code></pre></div><p><img class="img-fluid" alt="image-20220118094728497" src="https://rendoumi.com/posts/20220118-grafana_prometheus/image-20220118094728497.png" loading="lazy"
    width="1067" height="859"
    />
 
 </p>
 <p>大家看到了 counter 类型，必然是一条斜线直冲天际。</p>
 <p>好了，我们然后去 grafana 里增加面板：</p>
-<p><img class="img-fluid" alt="image-20220118095505602" src="https://bajie.dev/posts/20220118-grafana_prometheus/image-20220118095505602.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20220118095505602" src="https://rendoumi.com/posts/20220118-grafana_prometheus/image-20220118095505602.png" loading="lazy"
    width="424" height="381"
    />
 
 </p>
 <p>选 Add Query</p>
-<p><img class="img-fluid" alt="image-20220118095633780" src="https://bajie.dev/posts/20220118-grafana_prometheus/image-20220118095633780.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20220118095633780" src="https://rendoumi.com/posts/20220118-grafana_prometheus/image-20220118095633780.png" loading="lazy"
    width="749" height="346"
    />
 
 </p>
 <p>先选数据源，选择系统中已经配好的 prometheus，怎么配这里就不说了：</p>
-<p><img class="img-fluid" alt="image-20220118095731944" src="https://bajie.dev/posts/20220118-grafana_prometheus/image-20220118095731944.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20220118095731944" src="https://rendoumi.com/posts/20220118-grafana_prometheus/image-20220118095731944.png" loading="lazy"
    width="427" height="766"
    />
 
 </p>
 <p>然后在 Query 的 Metrics 里填入 <code>node_disk_written_bytes_total{instance=&quot;192.168.1.1:50000&quot;}</code>：</p>
-<p><img class="img-fluid" alt="image-20220118095953220" src="https://bajie.dev/posts/20220118-grafana_prometheus/image-20220118095953220.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20220118095953220" src="https://rendoumi.com/posts/20220118-grafana_prometheus/image-20220118095953220.png" loading="lazy"
    width="1251" height="708"
    />
 
 在 Legend 的空白处随便点一下，大折线出现了，而且给出了提示：Time series is monotonically increasing. Try applying a rate() function.</p>
 <p>听人劝，吃饱饭。我们改一下 Metrics 的查询语句，因为我们是5分钟抓一次数据，所以改成如下格式： <code>rate(node_disk_written_bytes_total{instance=&quot;192.18.1.1:50000&quot;}[5m])</code></p>
 <p>再增加一个查询，Add Query 同时把 read bytes 和 write bytes 放进一张图去：</p>
-<p><img class="img-fluid" alt="image-20220118101108283" src="https://bajie.dev/posts/20220118-grafana_prometheus/image-20220118101108283.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20220118101108283" src="https://rendoumi.com/posts/20220118-grafana_prometheus/image-20220118101108283.png" loading="lazy"
    width="1365" height="793"
    />
 
@@ -299,19 +299,19 @@
 </span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="na">B:</span>
 </span></span><span class="line"><span class="ln">6</span><span class="cl"><span class="na">Metrics: rate(node_disk_written_bytes_total{instance</span><span class="o">=</span><span class="s">&#34;192.168.1.1:50000&#34;}[5m])</span>
 </span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="na">Legend: sda write per second</span>
-</span></span></code></pre></div><p><img class="img-fluid" alt="image-20220118105347566" src="https://bajie.dev/posts/20220118-grafana_prometheus/image-20220118105347566.png" loading="lazy"
+</span></span></code></pre></div><p><img class="img-fluid" alt="image-20220118105347566" src="https://rendoumi.com/posts/20220118-grafana_prometheus/image-20220118105347566.png" loading="lazy"
    width="1173" height="407"
    />
 
 </p>
 <p>再把最大、最小、平均、当前给出来：</p>
-<p><img class="img-fluid" alt="image-20220118105650265" src="https://bajie.dev/posts/20220118-grafana_prometheus/image-20220118105650265.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20220118105650265" src="https://rendoumi.com/posts/20220118-grafana_prometheus/image-20220118105650265.png" loading="lazy"
    width="1012" height="787"
    />
 
 </p>
 <p>这样图就做好了，最后完工的两张图：</p>
-<p><img class="img-fluid" alt="image-20220118110149043" src="https://bajie.dev/posts/20220118-grafana_prometheus/image-20220118110149043.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20220118110149043" src="https://rendoumi.com/posts/20220118-grafana_prometheus/image-20220118110149043.png" loading="lazy"
    width="767" height="690"
    />
 
@@ -335,28 +335,28 @@
             </a>
           </li></ul>
         <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
-            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/alipay.png" loading="lazy" />
+            <img class="img-fluid post-reward-img" src="https://rendoumi.com/images/reward/alipay.png" loading="lazy" />
           </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
-            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/wechat.png" loading="lazy" />
+            <img class="img-fluid post-reward-img" src="https://rendoumi.com/images/reward/wechat.png" loading="lazy" />
           </div></div>
       </div>
     </div>
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://bajie.dev/posts/20220104-javascript_babel_eslint/">Javascript的项目与babel和eslint
+    <a href="https://rendoumi.com/posts/20220104-javascript_babel_eslint/">Javascript的项目与babel和eslint
 </a>
   </div><div class="post-nav post-next">
-    <a href="https://bajie.dev/posts/20220222-eth_matic/">如何用CPU挖Polygon网络的MATIC币
+    <a href="https://rendoumi.com/posts/20220222-eth_matic/">如何用CPU挖Polygon网络的MATIC币
 </a>
     <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20220104-javascript_babel_eslint/">Javascript的项目与babel和eslint
-</a></li><li><a href="https://bajie.dev/posts/20211222-hubot_wechat/">Hubot集成企业微信&#43;jenkins&#43;ansible
-</a></li><li><a href="https://bajie.dev/posts/20211217-nodejs_nvm/">Nodejs多版本的安装与管理
-</a></li><li><a href="https://bajie.dev/posts/20211208-backblaze_usage/">Backblaze类S3免费免备案对象存储
-</a></li><li><a href="https://bajie.dev/posts/20211129-kubernetes_custom_503/">Kubernetes下定制服务器503以及其他的403消息
+    <ul class="related-posts"><li><a href="https://rendoumi.com/posts/20220104-javascript_babel_eslint/">Javascript的项目与babel和eslint
+</a></li><li><a href="https://rendoumi.com/posts/20211222-hubot_wechat/">Hubot集成企业微信&#43;jenkins&#43;ansible
+</a></li><li><a href="https://rendoumi.com/posts/20211217-nodejs_nvm/">Nodejs多版本的安装与管理
+</a></li><li><a href="https://rendoumi.com/posts/20211208-backblaze_usage/">Backblaze类S3免费免备案对象存储
+</a></li><li><a href="https://rendoumi.com/posts/20211129-kubernetes_custom_503/">Kubernetes下定制服务器503以及其他的403消息
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
@@ -386,7 +386,7 @@
     
     <section class="card row text-center profile component">
   <div class="card-body">
-    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Zhang Ranrui" src="https://bajie.dev/images/bajie_01.jpg" loading="lazy"
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Zhang Ranrui" src="https://rendoumi.com/images/bajie_01.jpg" loading="lazy"
    width="391" height="644"
    />
 </div>
@@ -396,38 +396,38 @@
   <section class="featured-posts row card component">
     <div class="card-body">
       <h2 class="card-title">精选文章</h2>
-      <ul><li><a href="https://bajie.dev/posts/markdown-syntax/">Markdown Syntax Guide
+      <ul><li><a href="https://rendoumi.com/posts/markdown-syntax/">Markdown Syntax Guide
 </a></li></ul>
     </div>
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20250516-redpanda/">Kafka的测试替代品-Redpanda
-</a></li><li><a href="https://bajie.dev/posts/20250516-ubuntu_rdp/">Ubuntu 如何安装远程桌面RDP
-</a></li><li><a href="https://bajie.dev/posts/20250512-mongodb-restore/">Mongodb 集群的恢复
-</a></li><li><a href="https://bajie.dev/posts/20250122-mongodb_upgrade/">Mongodb 如何升级
-</a></li><li><a href="https://bajie.dev/posts/20250120-aws_alb_ingress/">AWS Alb 负载均衡做ingress的注意事项
+    <ul><li><a href="https://rendoumi.com/posts/20250516-redpanda/">Kafka的测试替代品-Redpanda
+</a></li><li><a href="https://rendoumi.com/posts/20250516-ubuntu_rdp/">Ubuntu 如何安装远程桌面RDP
+</a></li><li><a href="https://rendoumi.com/posts/20250512-mongodb-restore/">Mongodb 集群的恢复
+</a></li><li><a href="https://rendoumi.com/posts/20250122-mongodb_upgrade/">Mongodb 如何升级
+</a></li><li><a href="https://rendoumi.com/posts/20250120-aws_alb_ingress/">AWS Alb 负载均衡做ingress的注意事项
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
       <div class="card-body">
         <h2 class="card-title">
-          <a href="https://bajie.dev/series">专栏</a>
+          <a href="https://rendoumi.com/series">专栏</a>
         </h2>
-        <div><a href="https://bajie.dev/series/manual/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Manual">
+        <div><a href="https://rendoumi.com/series/manual/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Manual">
             Manual
           </a></div>
       </div>
     </section><section class="taxonomies row card component">
       <div class="card-body">
         <h2 class="card-title">
-          <a href="https://bajie.dev/tags">标签</a>
+          <a href="https://rendoumi.com/tags">标签</a>
         </h2>
-        <div><a href="https://bajie.dev/tags/css/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="CSS">
+        <div><a href="https://rendoumi.com/tags/css/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="CSS">
             CSS
-          </a><a href="https://bajie.dev/tags/html/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="HTML">
+          </a><a href="https://rendoumi.com/tags/html/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="HTML">
             HTML
-          </a><a href="https://bajie.dev/tags/markdown/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Markdown">
+          </a><a href="https://rendoumi.com/tags/markdown/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Markdown">
             Markdown
           </a></div>
       </div>

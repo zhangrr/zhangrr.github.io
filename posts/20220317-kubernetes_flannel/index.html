@@ -3,11 +3,11 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Kubernetes下Flannel网络 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
-<link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
-<link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
-<link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
-<link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
+    <title>Kubernetes下Flannel网络 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://rendoumi.com/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://rendoumi.com/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://rendoumi.com/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://rendoumi.com/images/favicons/manifest.json">
+<link rel="icon" href="https://rendoumi.com/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
 <meta name="description" content="" /><meta itemprop="name" content="Kubernetes下Flannel网络">
 <meta itemprop="description" content="现在各大公有云的 k8s 网络插件基本用的都是 vxlan，我们也需要对这个进行一下详细了解，以便用于公司的正式生产环境。 一、原理 首先，kuberne"><meta itemprop="datePublished" content="2022-03-17T09:30:11+08:00" />
@@ -16,16 +16,16 @@
 <meta itemprop="keywords" content="" /><meta property="og:title" content="Kubernetes下Flannel网络" />
 <meta property="og:description" content="现在各大公有云的 k8s 网络插件基本用的都是 vxlan，我们也需要对这个进行一下详细了解，以便用于公司的正式生产环境。 一、原理 首先，kuberne" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://bajie.dev/posts/20220317-kubernetes_flannel/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="https://rendoumi.com/posts/20220317-kubernetes_flannel/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2022-03-17T09:30:11+08:00" />
 <meta property="article:modified_time" content="2022-03-17T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Kubernetes下Flannel网络"/>
 <meta name="twitter:description" content="现在各大公有云的 k8s 网络插件基本用的都是 vxlan，我们也需要对这个进行一下详细了解，以便用于公司的正式生产环境。 一、原理 首先，kuberne"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://rendoumi.com/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://rendoumi.com/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://rendoumi.com/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://rendoumi.com/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=Kubernetes%e4%b8%8bFlannel%e7%bd%91%e7%bb%9c&url=https%3a%2f%2fbajie.dev%2fposts%2f20220317-kubernetes_flannel%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=Kubernetes%e4%b8%8bFlannel%e7%bd%91%e7%bb%9c&url=https%3a%2f%2frendoumi.com%2fposts%2f20220317-kubernetes_flannel%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20220317-kubernetes_flannel%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2frendoumi.com%2fposts%2f20220317-kubernetes_flannel%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -126,7 +126,7 @@
 
 </div>
 </div>
-<a class="navbar-brand me-3" href="https://bajie.dev"><img class="logo" alt="Logo" src="https://bajie.dev/images/logo.webp" loading="lazy"
+<a class="navbar-brand me-3" href="https://rendoumi.com"><img class="logo" alt="Logo" src="https://rendoumi.com/images/logo.webp" loading="lazy"
    width="136" height="69"
    />
 八戒
@@ -136,7 +136,7 @@
       <i class="fas fa-ellipsis-v"></i>
     </button>
     <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
-      <form class="search-bar my-1" action="https://bajie.dev/search">
+      <form class="search-bar my-1" action="https://rendoumi.com/search">
   <div class="input-group input-group-sm">
     <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
     <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
@@ -144,19 +144,19 @@
 </form>
 
       <ul class="navbar-nav ms-auto"><li class="nav-item">
-          <a class="nav-link" href="https://bajie.dev/archives/">
+          <a class="nav-link" href="https://rendoumi.com/archives/">
             <i class="fas fa-fw fa-file-archive"></i>归档
           </a>
         </li><li class="nav-item">
-          <a class="nav-link" href="https://bajie.dev/categories/">
+          <a class="nav-link" href="https://rendoumi.com/categories/">
             <i class="fas fa-fw fa-folder"></i>分类
           </a>
         </li><li class="nav-item">
-          <a class="nav-link" href="https://bajie.dev/tags/">
+          <a class="nav-link" href="https://rendoumi.com/tags/">
             <i class="fas fa-fw fa-tags"></i>标签
           </a>
         </li><li class="nav-item">
-          <a class="nav-link" href="https://bajie.dev/series/">
+          <a class="nav-link" href="https://rendoumi.com/series/">
             <i class="fas fa-fw fa-columns"></i>专栏
           </a>
         </li><li class="nav-item dropdown">
@@ -170,7 +170,7 @@
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://bajie.dev/zh-cn/series/manual">
+                href="https://rendoumi.com/zh-cn/series/manual">
                 用户手册
               </a>
             </li></ul>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">Posts</a></li><li class="breadcrumb-item active">Kubernetes下Flannel网络</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://rendoumi.com/">主页</a></li><li class="breadcrumb-item"><a href="https://rendoumi.com/posts/">Posts</a></li><li class="breadcrumb-item active">Kubernetes下Flannel网络</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -239,7 +239,7 @@
 </div><div class="post-content mb-3"><p>现在各大公有云的 k8s 网络插件基本用的都是 vxlan，我们也需要对这个进行一下详细了解，以便用于公司的正式生产环境。</p>
 <h2 id="一原理">一、原理</h2>
 <p>首先，kubernetes的网络模型：</p>
-<p><img class="img-fluid" alt="image-20220317101247744" src="https://bajie.dev/posts/20220317-kubernetes_flannel/image-20220317101247744.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20220317101247744" src="https://rendoumi.com/posts/20220317-kubernetes_flannel/image-20220317101247744.png" loading="lazy"
    width="702" height="336"
    />
 
@@ -257,7 +257,7 @@
 </li>
 </ul>
 <p>那来到 flannel，它是一种 Overlay network 覆盖网络，盖在原有的 Node 网络基础上：
-<img class="img-fluid" alt="image-20220317101802355" src="https://bajie.dev/posts/20220317-kubernetes_flannel/image-20220317101802355.png" loading="lazy"
+<img class="img-fluid" alt="image-20220317101802355" src="https://rendoumi.com/posts/20220317-kubernetes_flannel/image-20220317101802355.png" loading="lazy"
    width="984" height="303"
    />
 
@@ -273,7 +273,7 @@
 <p>每个 subnet 都是从一个更大的 IP 池中划分的，flannel 会在每个 Node 上运行一个叫 flanneld 的 agent，其职责就是从池子中分配 subnet。为了在各个主机间共享信息，flannel 用 etcd（与 consul 类似的 key-value 分布式数据库）存放网络配置、已分配的 subnet、host 的 IP 等信息。</p>
 <p>数据包如何在主机间转发是由 backend 实现的。flannel 提供了多种 backend，最常用的有 vxlan 和 host-gw，udp 万万不可使用。</p>
 <p>仔细分析一下两个不同主机上的container跨主机互相通讯的过程：</p>
-<p><img class="img-fluid" alt="image-20220317105412532" src="https://bajie.dev/posts/20220317-kubernetes_flannel/image-20220317105412532.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20220317105412532" src="https://rendoumi.com/posts/20220317-kubernetes_flannel/image-20220317105412532.png" loading="lazy"
    width="916" height="415"
    />
 
@@ -396,7 +396,7 @@
 </span></span><span class="line"><span class="ln">31</span><span class="cl">          <span class="nv">$INSECURE_REGISTRY</span>
 </span></span></code></pre></div><p>然后就可以了。</p>
 <p>那么为什么 flannel 不用 UDP 呢？</p>
-<p><img class="img-fluid" alt="image-20220317130659132" src="https://bajie.dev/posts/20220317-kubernetes_flannel/image-20220317130659132.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20220317130659132" src="https://rendoumi.com/posts/20220317-kubernetes_flannel/image-20220317130659132.png" loading="lazy"
    width="534" height="265"
    />
 
@@ -428,28 +428,28 @@
             </a>
           </li></ul>
         <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
-            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/alipay.png" loading="lazy" />
+            <img class="img-fluid post-reward-img" src="https://rendoumi.com/images/reward/alipay.png" loading="lazy" />
           </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
-            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/wechat.png" loading="lazy" />
+            <img class="img-fluid post-reward-img" src="https://rendoumi.com/images/reward/wechat.png" loading="lazy" />
           </div></div>
       </div>
     </div>
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://bajie.dev/posts/20220225-ucarp/">Ucarp的安装配置
+    <a href="https://rendoumi.com/posts/20220225-ucarp/">Ucarp的安装配置
 </a>
   </div><div class="post-nav post-next">
-    <a href="https://bajie.dev/posts/20220401-nginx_epoll/">面试之Nginx的epoll的优势
+    <a href="https://rendoumi.com/posts/20220401-nginx_epoll/">面试之Nginx的epoll的优势
 </a>
     <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20220225-ucarp/">Ucarp的安装配置
-</a></li><li><a href="https://bajie.dev/posts/20220224-gost_tunnel/">Gost Tunnel的使用
-</a></li><li><a href="https://bajie.dev/posts/20220223-kvm_passthrouth/">KVM下宿主机的目录直通到虚机
-</a></li><li><a href="https://bajie.dev/posts/20220222-eth_matic/">如何用CPU挖Polygon网络的MATIC币
-</a></li><li><a href="https://bajie.dev/posts/20220118-grafana_prometheus/">Grafana画出prometheus的图
+    <ul class="related-posts"><li><a href="https://rendoumi.com/posts/20220225-ucarp/">Ucarp的安装配置
+</a></li><li><a href="https://rendoumi.com/posts/20220224-gost_tunnel/">Gost Tunnel的使用
+</a></li><li><a href="https://rendoumi.com/posts/20220223-kvm_passthrouth/">KVM下宿主机的目录直通到虚机
+</a></li><li><a href="https://rendoumi.com/posts/20220222-eth_matic/">如何用CPU挖Polygon网络的MATIC币
+</a></li><li><a href="https://rendoumi.com/posts/20220118-grafana_prometheus/">Grafana画出prometheus的图
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
@@ -479,7 +479,7 @@
     
     <section class="card row text-center profile component">
   <div class="card-body">
-    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Zhang Ranrui" src="https://bajie.dev/images/bajie_01.jpg" loading="lazy"
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Zhang Ranrui" src="https://rendoumi.com/images/bajie_01.jpg" loading="lazy"
    width="391" height="644"
    />
 </div>
@@ -489,38 +489,38 @@
   <section class="featured-posts row card component">
     <div class="card-body">
       <h2 class="card-title">精选文章</h2>
-      <ul><li><a href="https://bajie.dev/posts/markdown-syntax/">Markdown Syntax Guide
+      <ul><li><a href="https://rendoumi.com/posts/markdown-syntax/">Markdown Syntax Guide
 </a></li></ul>
     </div>
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20250516-redpanda/">Kafka的测试替代品-Redpanda
-</a></li><li><a href="https://bajie.dev/posts/20250516-ubuntu_rdp/">Ubuntu 如何安装远程桌面RDP
-</a></li><li><a href="https://bajie.dev/posts/20250512-mongodb-restore/">Mongodb 集群的恢复
-</a></li><li><a href="https://bajie.dev/posts/20250122-mongodb_upgrade/">Mongodb 如何升级
-</a></li><li><a href="https://bajie.dev/posts/20250120-aws_alb_ingress/">AWS Alb 负载均衡做ingress的注意事项
+    <ul><li><a href="https://rendoumi.com/posts/20250516-redpanda/">Kafka的测试替代品-Redpanda
+</a></li><li><a href="https://rendoumi.com/posts/20250516-ubuntu_rdp/">Ubuntu 如何安装远程桌面RDP
+</a></li><li><a href="https://rendoumi.com/posts/20250512-mongodb-restore/">Mongodb 集群的恢复
+</a></li><li><a href="https://rendoumi.com/posts/20250122-mongodb_upgrade/">Mongodb 如何升级
+</a></li><li><a href="https://rendoumi.com/posts/20250120-aws_alb_ingress/">AWS Alb 负载均衡做ingress的注意事项
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
       <div class="card-body">
         <h2 class="card-title">
-          <a href="https://bajie.dev/series">专栏</a>
+          <a href="https://rendoumi.com/series">专栏</a>
         </h2>
-        <div><a href="https://bajie.dev/series/manual/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Manual">
+        <div><a href="https://rendoumi.com/series/manual/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Manual">
             Manual
           </a></div>
       </div>
     </section><section class="taxonomies row card component">
       <div class="card-body">
         <h2 class="card-title">
-          <a href="https://bajie.dev/tags">标签</a>
+          <a href="https://rendoumi.com/tags">标签</a>
         </h2>
-        <div><a href="https://bajie.dev/tags/css/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="CSS">
+        <div><a href="https://rendoumi.com/tags/css/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="CSS">
             CSS
-          </a><a href="https://bajie.dev/tags/html/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="HTML">
+          </a><a href="https://rendoumi.com/tags/html/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="HTML">
             HTML
-          </a><a href="https://bajie.dev/tags/markdown/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Markdown">
+          </a><a href="https://rendoumi.com/tags/markdown/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Markdown">
             Markdown
           </a></div>
       </div>

@@ -3,11 +3,11 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>kubernetes的hpa和自定义指标hpa - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://bajie.dev/images/favicons/apple-touch-icon.png" sizes="180x180">
-<link rel="icon" href="https://bajie.dev/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
-<link rel="icon" href="https://bajie.dev/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
-<link rel="manifest" href="https://bajie.dev/images/favicons/manifest.json">
-<link rel="icon" href="https://bajie.dev/images/favicons/favicon.ico">
+    <title>kubernetes的hpa和自定义指标hpa - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://rendoumi.com/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://rendoumi.com/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://rendoumi.com/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://rendoumi.com/images/favicons/manifest.json">
+<link rel="icon" href="https://rendoumi.com/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
 <meta name="description" content="" /><meta itemprop="name" content="kubernetes的hpa和自定义指标hpa">
 <meta itemprop="description" content="kubernetes 的动态伸缩 HPA 是非常有用的特性。 我们的服务器托管在阿里云的 ACK 上，k8s 根据 cpu 或者 内存的使用情况，会自动伸缩关键 pod 的数量，以应对大流量的情形。"><meta itemprop="datePublished" content="2021-11-25T09:30:11+08:00" />
@@ -16,16 +16,16 @@
 <meta itemprop="keywords" content="" /><meta property="og:title" content="kubernetes的hpa和自定义指标hpa" />
 <meta property="og:description" content="kubernetes 的动态伸缩 HPA 是非常有用的特性。 我们的服务器托管在阿里云的 ACK 上，k8s 根据 cpu 或者 内存的使用情况，会自动伸缩关键 pod 的数量，以应对大流量的情形。" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://bajie.dev/posts/20211125-kubernetes_hpa/" /><meta property="article:section" content="posts" />
+<meta property="og:url" content="https://rendoumi.com/posts/20211125-kubernetes_hpa/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-11-25T09:30:11+08:00" />
 <meta property="article:modified_time" content="2021-11-25T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="kubernetes的hpa和自定义指标hpa"/>
 <meta name="twitter:description" content="kubernetes 的动态伸缩 HPA 是非常有用的特性。 我们的服务器托管在阿里云的 ACK 上，k8s 根据 cpu 或者 内存的使用情况，会自动伸缩关键 pod 的数量，以应对大流量的情形。"/>
-<link rel="preload" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://bajie.dev/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://bajie.dev/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
-  <body><script src="https://bajie.dev/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+<link rel="preload" href="https://rendoumi.com/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://rendoumi.com/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://rendoumi.com/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://rendoumi.com/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
   <div class="container">
     <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
   aria-controls="offcanvasSettings" aria-label="Toggle settings">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=kubernetes%e7%9a%84hpa%e5%92%8c%e8%87%aa%e5%ae%9a%e4%b9%89%e6%8c%87%e6%a0%87hpa&url=https%3a%2f%2fbajie.dev%2fposts%2f20211125-kubernetes_hpa%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=kubernetes%e7%9a%84hpa%e5%92%8c%e8%87%aa%e5%ae%9a%e4%b9%89%e6%8c%87%e6%a0%87hpa&url=https%3a%2f%2frendoumi.com%2fposts%2f20211125-kubernetes_hpa%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fbajie.dev%2fposts%2f20211125-kubernetes_hpa%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2frendoumi.com%2fposts%2f20211125-kubernetes_hpa%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -126,7 +126,7 @@
 
 </div>
 </div>
-<a class="navbar-brand me-3" href="https://bajie.dev"><img class="logo" alt="Logo" src="https://bajie.dev/images/logo.webp" loading="lazy"
+<a class="navbar-brand me-3" href="https://rendoumi.com"><img class="logo" alt="Logo" src="https://rendoumi.com/images/logo.webp" loading="lazy"
    width="136" height="69"
    />
 八戒
@@ -136,7 +136,7 @@
       <i class="fas fa-ellipsis-v"></i>
     </button>
     <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
-      <form class="search-bar my-1" action="https://bajie.dev/search">
+      <form class="search-bar my-1" action="https://rendoumi.com/search">
   <div class="input-group input-group-sm">
     <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
     <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
@@ -144,19 +144,19 @@
 </form>
 
       <ul class="navbar-nav ms-auto"><li class="nav-item">
-          <a class="nav-link" href="https://bajie.dev/archives/">
+          <a class="nav-link" href="https://rendoumi.com/archives/">
             <i class="fas fa-fw fa-file-archive"></i>归档
           </a>
         </li><li class="nav-item">
-          <a class="nav-link" href="https://bajie.dev/categories/">
+          <a class="nav-link" href="https://rendoumi.com/categories/">
             <i class="fas fa-fw fa-folder"></i>分类
           </a>
         </li><li class="nav-item">
-          <a class="nav-link" href="https://bajie.dev/tags/">
+          <a class="nav-link" href="https://rendoumi.com/tags/">
             <i class="fas fa-fw fa-tags"></i>标签
           </a>
         </li><li class="nav-item">
-          <a class="nav-link" href="https://bajie.dev/series/">
+          <a class="nav-link" href="https://rendoumi.com/series/">
             <i class="fas fa-fw fa-columns"></i>专栏
           </a>
         </li><li class="nav-item dropdown">
@@ -170,7 +170,7 @@
               </a>
             </li><li>
               <a class="dropdown-item"
-                href="https://bajie.dev/zh-cn/series/manual">
+                href="https://rendoumi.com/zh-cn/series/manual">
                 用户手册
               </a>
             </li></ul>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://bajie.dev/">主页</a></li><li class="breadcrumb-item"><a href="https://bajie.dev/posts/">Posts</a></li><li class="breadcrumb-item active">Kubernetes的hpa和自定义指标hpa</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://rendoumi.com/">主页</a></li><li class="breadcrumb-item"><a href="https://rendoumi.com/posts/">Posts</a></li><li class="breadcrumb-item active">Kubernetes的hpa和自定义指标hpa</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -246,7 +246,7 @@
 <h2 id="一核心指标metrics-server">一、核心指标metrics-server</h2>
 <p>阿里的 ACK 缺省是装了 metrics-server 的，看一下，系统里有一个metrics-server</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">kubectl get pods -n kube-system
-</span></span></code></pre></div><p><img class="img-fluid" alt="image-20211125092117637" src="https://bajie.dev/posts/20211125-kubernetes_hpa/image-20211125092117637.png" loading="lazy"
+</span></span></code></pre></div><p><img class="img-fluid" alt="image-20211125092117637" src="https://rendoumi.com/posts/20211125-kubernetes_hpa/image-20211125092117637.png" loading="lazy"
    width="636" height="148"
    />
 
@@ -255,7 +255,7 @@
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">kubectl get --raw <span class="s2">&#34;/apis/metrics.k8s.io&#34;</span> <span class="p">|</span> jq .
 </span></span><span class="line"><span class="ln">2</span><span class="cl">kubectl get --raw <span class="s2">&#34;/apis/metrics.k8s.io/v1beta1&#34;</span> <span class="p">|</span> jq .
 </span></span><span class="line"><span class="ln">3</span><span class="cl">kubectl get --raw <span class="s2">&#34;/apis/metrics.k8s.io/v1beta1/nodes&#34;</span> <span class="p">|</span> jq . 
-</span></span></code></pre></div><p><img class="img-fluid" alt="image-20211125092534308" src="https://bajie.dev/posts/20211125-kubernetes_hpa/image-20211125092534308.png" loading="lazy"
+</span></span></code></pre></div><p><img class="img-fluid" alt="image-20211125092534308" src="https://rendoumi.com/posts/20211125-kubernetes_hpa/image-20211125092534308.png" loading="lazy"
    width="809" height="235"
    />
 
@@ -263,7 +263,7 @@
 <p>可以看到阿里 eci 虚拟节点的 cpu 和 memory 资源。</p>
 <p>再看看 Pod 的指标：</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">kubectl get --raw <span class="s2">&#34;/apis/metrics.k8s.io/v1beta1/pods&#34;</span> <span class="p">|</span> jq . 
-</span></span></code></pre></div><p><img class="img-fluid" alt="image-20211125092730720" src="https://bajie.dev/posts/20211125-kubernetes_hpa/image-20211125092730720.png" loading="lazy"
+</span></span></code></pre></div><p><img class="img-fluid" alt="image-20211125092730720" src="https://rendoumi.com/posts/20211125-kubernetes_hpa/image-20211125092730720.png" loading="lazy"
    width="1159" height="378"
    />
 
@@ -361,7 +361,7 @@
 <h2 id="二自定义指标prometheus">二、自定义指标Prometheus</h2>
 <p>如上其实已经可以满足大多数要求了，但是想更进一步，比如想从 Prometheus 拿到的指标来进行 hpa 伸缩。</p>
 <p>那就比较麻烦了</p>
-<p><img class="img-fluid" alt="image-20211125103113631" src="https://bajie.dev/posts/20211125-kubernetes_hpa/image-20211125103113631.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20211125103113631" src="https://rendoumi.com/posts/20211125-kubernetes_hpa/image-20211125103113631.png" loading="lazy"
    width="663" height="540"
    />
 
@@ -498,7 +498,7 @@
 <p>*<strong>metricsQuery: &lsquo;sum(rate(&laquo;.series&raquo;{&laquo;.labelmatchers&raquo;}10m])) by  (&laquo;.groupby&raquo;)&rsquo;&lt;/.groupby&gt;&lt;/.labelmatchers&gt;&lt;/.series&gt;*</strong></p>
 <p>再给个例子：</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln">1</span><span class="cl"><span class="na">rate(gorush_total_push_count{instance</span><span class="o">=</span><span class="s">&#34;push.server.com:80&#34;,job=&#34;push-server&#34;}[5m])</span>
-</span></span></code></pre></div><p><img class="img-fluid" alt="image-20211125135531725" src="https://bajie.dev/posts/20211125-kubernetes_hpa/image-20211125135531725.png" loading="lazy"
+</span></span></code></pre></div><p><img class="img-fluid" alt="image-20211125135531725" src="https://rendoumi.com/posts/20211125-kubernetes_hpa/image-20211125135531725.png" loading="lazy"
    width="1588" height="560"
    />
 
@@ -689,7 +689,7 @@
 </span></span><span class="line"><span class="ln">68</span><span class="cl">nginx_vts_server_cache_total<span class="o">{</span><span class="nv">host</span><span class="o">=</span><span class="s2">&#34;*&#34;</span>,status<span class="o">=</span><span class="s2">&#34;hit&#34;</span><span class="o">}</span> <span class="m">0</span>
 </span></span><span class="line"><span class="ln">69</span><span class="cl">nginx_vts_server_cache_total<span class="o">{</span><span class="nv">host</span><span class="o">=</span><span class="s2">&#34;*&#34;</span>,status<span class="o">=</span><span class="s2">&#34;scarce&#34;</span><span class="o">}</span> <span class="m">0</span>
 </span></span></code></pre></div><p>然后用 wrk 随机发狂发请求压一把，我们去 prometheus 的面板看看指标被收集到没有</p>
-<p><img class="img-fluid" alt="image-20211125152110040" src="https://bajie.dev/posts/20211125-kubernetes_hpa/image-20211125152110040.png" loading="lazy"
+<p><img class="img-fluid" alt="image-20211125152110040" src="https://rendoumi.com/posts/20211125-kubernetes_hpa/image-20211125152110040.png" loading="lazy"
    width="1589" height="796"
    />
 
@@ -768,28 +768,28 @@
             </a>
           </li></ul>
         <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
-            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/alipay.png" loading="lazy" />
+            <img class="img-fluid post-reward-img" src="https://rendoumi.com/images/reward/alipay.png" loading="lazy" />
           </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
-            <img class="img-fluid post-reward-img" src="https://bajie.dev/images/reward/wechat.png" loading="lazy" />
+            <img class="img-fluid post-reward-img" src="https://rendoumi.com/images/reward/wechat.png" loading="lazy" />
           </div></div>
       </div>
     </div>
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://bajie.dev/posts/20211124-ansible_vault/">Ansible Vault加密的使用
+    <a href="https://rendoumi.com/posts/20211124-ansible_vault/">Ansible Vault加密的使用
 </a>
   </div><div class="post-nav post-next">
-    <a href="https://bajie.dev/posts/20211125-kubernetes_crontab_kala/">替代kubernetes Crontab的神器kala
+    <a href="https://rendoumi.com/posts/20211125-kubernetes_crontab_kala/">替代kubernetes Crontab的神器kala
 </a>
     <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://bajie.dev/posts/20211124-ansible_vault/">Ansible Vault加密的使用
-</a></li><li><a href="https://bajie.dev/posts/20211123-freeipa_freeradius/">使用FreeIPA和FreeRadius搭建双因子认证服务器
-</a></li><li><a href="https://bajie.dev/posts/20211119-kvm_disk_passthrough/">KVM下附加硬盘的passthrough直通
-</a></li><li><a href="https://bajie.dev/posts/20211119-linux_rescue/">CentOS7的救援模式和紧急模式
-</a></li><li><a href="https://bajie.dev/posts/20211116-pacproxy/">Linux下web Pacproxy的用法
+    <ul class="related-posts"><li><a href="https://rendoumi.com/posts/20211124-ansible_vault/">Ansible Vault加密的使用
+</a></li><li><a href="https://rendoumi.com/posts/20211123-freeipa_freeradius/">使用FreeIPA和FreeRadius搭建双因子认证服务器
+</a></li><li><a href="https://rendoumi.com/posts/20211119-kvm_disk_passthrough/">KVM下附加硬盘的passthrough直通
+</a></li><li><a href="https://rendoumi.com/posts/20211119-linux_rescue/">CentOS7的救援模式和紧急模式
+</a></li><li><a href="https://rendoumi.com/posts/20211116-pacproxy/">Linux下web Pacproxy的用法
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
@@ -819,7 +819,7 @@
     
     <section class="card row text-center profile component">
   <div class="card-body">
-    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Zhang Ranrui" src="https://bajie.dev/images/bajie_01.jpg" loading="lazy"
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Zhang Ranrui" src="https://rendoumi.com/images/bajie_01.jpg" loading="lazy"
    width="391" height="644"
    />
 </div>
@@ -829,38 +829,38 @@
   <section class="featured-posts row card component">
     <div class="card-body">
       <h2 class="card-title">精选文章</h2>
-      <ul><li><a href="https://bajie.dev/posts/markdown-syntax/">Markdown Syntax Guide
+      <ul><li><a href="https://rendoumi.com/posts/markdown-syntax/">Markdown Syntax Guide
 </a></li></ul>
     </div>
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://bajie.dev/posts/20250516-redpanda/">Kafka的测试替代品-Redpanda
-</a></li><li><a href="https://bajie.dev/posts/20250516-ubuntu_rdp/">Ubuntu 如何安装远程桌面RDP
-</a></li><li><a href="https://bajie.dev/posts/20250512-mongodb-restore/">Mongodb 集群的恢复
-</a></li><li><a href="https://bajie.dev/posts/20250122-mongodb_upgrade/">Mongodb 如何升级
-</a></li><li><a href="https://bajie.dev/posts/20250120-aws_alb_ingress/">AWS Alb 负载均衡做ingress的注意事项
+    <ul><li><a href="https://rendoumi.com/posts/20250516-redpanda/">Kafka的测试替代品-Redpanda
+</a></li><li><a href="https://rendoumi.com/posts/20250516-ubuntu_rdp/">Ubuntu 如何安装远程桌面RDP
+</a></li><li><a href="https://rendoumi.com/posts/20250512-mongodb-restore/">Mongodb 集群的恢复
+</a></li><li><a href="https://rendoumi.com/posts/20250122-mongodb_upgrade/">Mongodb 如何升级
+</a></li><li><a href="https://rendoumi.com/posts/20250120-aws_alb_ingress/">AWS Alb 负载均衡做ingress的注意事项
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
       <div class="card-body">
         <h2 class="card-title">
-          <a href="https://bajie.dev/series">专栏</a>
+          <a href="https://rendoumi.com/series">专栏</a>
         </h2>
-        <div><a href="https://bajie.dev/series/manual/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Manual">
+        <div><a href="https://rendoumi.com/series/manual/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Manual">
             Manual
           </a></div>
       </div>
     </section><section class="taxonomies row card component">
       <div class="card-body">
         <h2 class="card-title">
-          <a href="https://bajie.dev/tags">标签</a>
+          <a href="https://rendoumi.com/tags">标签</a>
         </h2>
-        <div><a href="https://bajie.dev/tags/css/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="CSS">
+        <div><a href="https://rendoumi.com/tags/css/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="CSS">
             CSS
-          </a><a href="https://bajie.dev/tags/html/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="HTML">
+          </a><a href="https://rendoumi.com/tags/html/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="HTML">
             HTML
-          </a><a href="https://bajie.dev/tags/markdown/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Markdown">
+          </a><a href="https://rendoumi.com/tags/markdown/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Markdown">
             Markdown
           </a></div>
       </div>
