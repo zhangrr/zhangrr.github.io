@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="PostgreSQL的用户权限管理">
 <meta itemprop="description" content="公司选用了阿里云的PolarDB做数据库，这个东西其实就是Postgres增加了外挂，可以支持Oracle语法。 没办法，得仔细研究一下Pos"><meta itemprop="datePublished" content="2024-02-05T10:00:11+08:00" />
 <meta itemprop="dateModified" content="2024-02-05T10:00:11+08:00" />
-<meta itemprop="wordCount" content="1955">
+<meta itemprop="wordCount" content="2698">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="PostgreSQL的用户权限管理" />
 <meta property="og:description" content="公司选用了阿里云的PolarDB做数据库，这个东西其实就是Postgres增加了外挂，可以支持Oracle语法。 没办法，得仔细研究一下Pos" />
 <meta property="og:type" content="article" />
@@ -204,16 +204,36 @@
 ">
   <i class="fas fa-fw fa-copyright"></i>
 </a>
-    
+    <a data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+  <i class="fas fa-fw fa-list-alt"></i>
+</a>
   </div>
 </div>
 <h1 class="card-title my-3">PostgreSQL的用户权限管理
 </h1><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2024-02-05
   </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>4 分钟阅读
+    <i class="fas fa-fw fa-coffee"></i>6 分钟阅读
   </span></div>
-<div class="post-content mb-3"><p>公司选用了阿里云的PolarDB做数据库，这个东西其实就是Postgres增加了外挂，可以支持Oracle语法。</p>
+<div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+  </div>
+  <div class="offcanvas-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div><div class="post-content mb-3"><p>公司选用了阿里云的PolarDB做数据库，这个东西其实就是Postgres增加了外挂，可以支持Oracle语法。</p>
 <p>没办法，得仔细研究一下Postgres的用户管理了。</p>
 <p><strong>PostgreSQL权限架构是宝塔形结构</strong></p>
 <p>最上层是实例</p>
@@ -226,22 +246,22 @@
    />
 
 </p>
-<p>上面schema中有个奇怪的东西，public</p>
-<p>先总结：public是缺省的权限，代表所有人的意思。</p>
+<p>上面schema中有个奇怪的东西，public，注意：是小写。</p>
+<p>先总结：PUBLIC是缺省的权限，代表所有人的意思（是个角色）。</p>
 <blockquote>
-<p>默认情况下，在创建数据库之后，允许public角色连接，即允许任何人连接。</p>
+<p>默认情况下，在创建数据库之后，允许PUBLIC角色(大写)连接，即允许任何人连接。</p>
 <p>默认情况下，数据库在创建后，不允许除了超级用户和owner所有者之外的任何人在数据库中创建schema。</p>
-<p>默认情况下，在创建数据库之后，会自动创建名为 public 的schema，这个schema的all权限已经赋予给public角色，即允许任何人在里面创建对象。</p>
-<p>schema级别的权限，包括允许查看schema中的对象，允许在schema中创建对象。</p>
-<p>默认情况下新建的schema的权限不会赋予给public角色，因此除了超级用户和owner，任何人都没有权限查看schema中的对象或者在schema中新建对象。</p>
+<p>默认情况下，在创建数据库之后，会自动创建名为 public 的schema，这个schema的all权限已经赋予给PUBLIC角色（注意是大写），即允许任何人在里面创建对象。</p>
+<p>schema级别的权限，包括允许查看schema中的对象(USAGE)，以及允许在schema中创建对象(CREATE)。</p>
+<p>默认情况下新建的schema的权限不会赋予给PUBLIC角色，因此除了超级用户和owner，任何人都没有权限查看schema中的对象或者在schema中新建对象。</p>
 </blockquote>
-<p>举例来说，建了个库，又建了用户，没给这个用户赋予任何权限。缺省他就从public schema里继承了对库权限，可以连接到这个库，并且在这个库里建临时表、建表、view等等对象。但是没办法建立schema。</p>
+<p>举例来说，建了个库，又建了用户，没给这个用户赋予任何权限。缺省他就从PUBLIC角色继承了对库里的schema.pulic权限，可以连接到这个schema.pulic，并且在这里建临时表、建表、view等等对象，但是没办法建立其它schema。</p>
 <p>PostgreSQL的模式（SCHEMA）可以看作是一个表的集合。</p>
 <p>一个模式可以包含视图、索引、数据类型、函数和操作符等。</p>
 <p>再来说角色：</p>
 <p>在数据库中所有的权限都和角色挂钩。</p>
 <p>角色和用户的唯一区别在于，角色是<code>nologin</code>的，而用户允许<code>login</code>，仅此而已。</p>
-<p>而&quot;public&quot;是一个特殊的角色，代表着所有人。</p>
+<p>而&quot;PUBLIC&quot;是一个特殊的角色，代表着所有人。</p>
 <p>那又有一个问题：</p>
 <p>每个<code>PostgreSQL</code>对象都有一个名为“所有者”的特殊角色。只有所有者才能执行某些操作，如 <code>ALTER TABLE</code> ，而你不能将这样的权限授予非所有者。</p>
 <p>那不可能只有一个人可以alter表结构吧，我们可以使用角色继承来解决此问题。创建 <code>table_owner</code> 角色并且 <code>GRANT table_owner TO user1, user2</code> （user1和user2继承table_owner)，然后赋权 <code>ALTER TABLE my_table OWNER TO table_owner</code> 赋予<code>table_owner</code>所有者角色。现在表的所有者是 <code>table_owner</code> 了，但是因为 <code>user1</code> 和 <code>user2</code> 是该角色的成员，所以他们也具有继承权限来运行 <code>ALTER TABLE</code>了，如下图 。</p>
@@ -270,24 +290,29 @@
 </span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="c1">#列出所有的schema</span>
 </span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="se">\d</span>n
 </span></span><span class="line"><span class="ln">13</span><span class="cl">
-</span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="c1">#列出所有的对象（table, view, sequences）</span>
-</span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="se">\d</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="c1">#看schema.public权限</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="se">\d</span>n+ public
 </span></span><span class="line"><span class="ln">16</span><span class="cl">
-</span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="c1">#列出所有表</span>
-</span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="se">\d</span>t
+</span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="c1">#列出所有的对象（table, view, sequences）</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="se">\d</span>
 </span></span><span class="line"><span class="ln">19</span><span class="cl">
-</span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="c1">#列出所有索引</span>
-</span></span><span class="line"><span class="ln">21</span><span class="cl"><span class="se">\d</span>i
+</span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="c1">#列出所有的角色</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl"><span class="se">\d</span>u
 </span></span><span class="line"><span class="ln">22</span><span class="cl">
-</span></span><span class="line"><span class="ln">23</span><span class="cl"><span class="c1">#列出所有的角色</span>
-</span></span><span class="line"><span class="ln">24</span><span class="cl"><span class="se">\d</span>u
-</span></span><span class="line"><span class="ln">25</span><span class="cl"><span class="c1">#同样的sql</span>
-</span></span><span class="line"><span class="ln">26</span><span class="cl"><span class="k">select</span> * from pg_roles<span class="p">;</span>
-</span></span><span class="line"><span class="ln">27</span><span class="cl">
-</span></span><span class="line"><span class="ln">28</span><span class="cl"><span class="c1">#看看能登录的用户有哪些</span>
-</span></span><span class="line"><span class="ln">29</span><span class="cl"><span class="k">select</span> * from pg_user<span class="p">;</span>
+</span></span><span class="line"><span class="ln">23</span><span class="cl"><span class="c1">#列出所有表</span>
+</span></span><span class="line"><span class="ln">24</span><span class="cl"><span class="se">\d</span>t
+</span></span><span class="line"><span class="ln">25</span><span class="cl">
+</span></span><span class="line"><span class="ln">26</span><span class="cl"><span class="c1">#列出所有索引</span>
+</span></span><span class="line"><span class="ln">27</span><span class="cl"><span class="se">\d</span>i
+</span></span><span class="line"><span class="ln">28</span><span class="cl">
+</span></span><span class="line"><span class="ln">29</span><span class="cl">
+</span></span><span class="line"><span class="ln">30</span><span class="cl"><span class="c1">#同样的sql</span>
+</span></span><span class="line"><span class="ln">31</span><span class="cl"><span class="k">select</span> * from pg_roles<span class="p">;</span>
+</span></span><span class="line"><span class="ln">32</span><span class="cl">
+</span></span><span class="line"><span class="ln">33</span><span class="cl"><span class="c1">#看看能登录的用户有哪些</span>
+</span></span><span class="line"><span class="ln">34</span><span class="cl"><span class="k">select</span> * from pg_user<span class="p">;</span>
 </span></span></code></pre></div><p>那自顶向下开始：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1">#建立boms_admin角色，非超级用户，可以建立db，可以建立role，可以把权限继承给别人</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1">#建立boms_admin角色：非超级用户+可以建立db+可以建立role+可以把权限继承给别人</span>
 </span></span><span class="line"><span class="ln"> 2</span><span class="cl">create role boms_admin nosuperuser createdb createrole inherit<span class="p">;</span>
 </span></span><span class="line"><span class="ln"> 3</span><span class="cl">
 </span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="c1">#建立用户，继承bomsuser的权限，可以登录，有密码</span>
@@ -306,12 +331,12 @@
 </span></span><span class="line"><span class="ln">17</span><span class="cl">insert into zrr.test values <span class="o">(</span>1<span class="o">)</span>,<span class="o">(</span>2<span class="o">)</span>,<span class="o">(</span>3<span class="o">)</span><span class="p">;</span>
 </span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="k">select</span> * from zrr.test<span class="p">;</span>
 </span></span><span class="line"><span class="ln">19</span><span class="cl">
-</span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="c1">#召回public可以在database test中连接、使用临时表的权限</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="c1">#召回PUBLIC可以在数据库级别中database test中连接、使用临时表的权限</span>
 </span></span><span class="line"><span class="ln">21</span><span class="cl">revoke connect, temporary on database bomsdb from public<span class="p">;</span>
 </span></span><span class="line"><span class="ln">22</span><span class="cl">
-</span></span><span class="line"><span class="ln">23</span><span class="cl"><span class="c1">#召回public可以在schema中可以使用和建立的权限，注意，你现在连接的是哪个库，召回的就是哪个库的public</span>
-</span></span><span class="line"><span class="ln">24</span><span class="cl"><span class="c1">#这里连的是bomsdb库，召回的就是这个库里的public，最后是大写</span>
-</span></span><span class="line"><span class="ln">25</span><span class="cl">revoke usage, create on schema public from PUBLIC<span class="p">;</span>
+</span></span><span class="line"><span class="ln">23</span><span class="cl"><span class="c1">#召回PUBLIC可以在schema级别中可以USAGE使用和CREATE建立的权限，注意，你现在连接的是哪个库，召回的就是哪个库的public</span>
+</span></span><span class="line"><span class="ln">24</span><span class="cl"><span class="c1">#这里连的是bomsdb库，召回的就是这个库里的schema.public</span>
+</span></span><span class="line"><span class="ln">25</span><span class="cl">REVOKE USAGE, CREATE ON SCHEMA public FROM public<span class="p">;</span>
 </span></span><span class="line"><span class="ln">26</span><span class="cl">
 </span></span><span class="line"><span class="ln">27</span><span class="cl"><span class="c1">#这样操作之后只有owner和superuser可以用这个database了</span>
 </span></span><span class="line"><span class="ln">28</span><span class="cl"><span class="c1">#我们必须显式赋权才可以连上并且建库了</span>
@@ -345,6 +370,47 @@
 </span></span><span class="line"><span class="ln">4</span><span class="cl">
 </span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="k">select</span> has_table_privilege<span class="o">(</span>user, table, privilege<span class="o">)</span><span class="p">;</span>
 </span></span></code></pre></div><p>太费劲了，花了两天时间才算大概搞明白。</p>
+<p>再给个初始的直白解释脚本：</p>
+<p>概念神：</p>
+<h5 id="一权限管理在-postgresql-中是递归和分层的因此需要分别管理1数据库2模式3以及模式中的具体对象如表三种级别中的权限">一、权限管理在 PostgreSQL 中是递归和分层的，因此需要分别管理1、数据库、2、模式，3、以及模式中的具体对象（如表）。三种级别中的权限。</h5>
+<h5 id="二postgresql-的权限模型是累加的">二、PostgreSQL 的权限模型是累加的。</h5>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1">#首先用admin登录</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="c1">#建立一个库</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">CREATE DATABASE test<span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="c1">#这时候schema.public直接就被建立了，而且PUBLIC直接赋权了</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="c1">#这时候去\dn+ public</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="se">\d</span>n+ public
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">                        List of schemas
+</span></span><span class="line"><span class="ln">10</span><span class="cl">  Name  <span class="p">|</span>  Owner  <span class="p">|</span> Access privileges  <span class="p">|</span>      Description
+</span></span><span class="line"><span class="ln">11</span><span class="cl">--------+---------+--------------------+------------------------
+</span></span><span class="line"><span class="ln">12</span><span class="cl"> public <span class="p">|</span> dbadmin <span class="p">|</span> <span class="nv">dbadmin</span><span class="o">=</span>UC/dbadmin+<span class="p">|</span> standard public schema
+</span></span><span class="line"><span class="ln">13</span><span class="cl">        <span class="p">|</span>         <span class="p">|</span> <span class="o">=</span>UC/dbadmin        <span class="p">|</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="c1">#上面命令可以看到只有dbadmin是Owner，且权限是UC</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="c1">#但实际从PGadmin里面看，还有个PUBLIC UC（USAGE+CREATE)的权限，缺省就赋予了</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">
+</span></span><span class="line"><span class="ln">17</span><span class="cl">
+</span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="c1">#下面一句虽然召回了public对库的权限，但是，建库就缺省有的PUBLIC对schema的权限不会消失</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl"><span class="c1">#因为postgres的权限机制是累加机制</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="c1">#因此，你撤销了数据库层面的权限，但没有触及 public schema 本身的权限。</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl">REVOKE ALL ON DATABASE <span class="nb">test</span> FROM public<span class="p">;</span>
+</span></span><span class="line"><span class="ln">22</span><span class="cl">
+</span></span><span class="line"><span class="ln">23</span><span class="cl"><span class="c1">#建立角色组，并且可以连接到数据库，在库级别赋予所有权限</span>
+</span></span><span class="line"><span class="ln">24</span><span class="cl"><span class="c1">#依然只会叠加，不会影响到public schema的权限</span>
+</span></span><span class="line"><span class="ln">25</span><span class="cl">CREATE ROLE test_project<span class="p">;</span>
+</span></span><span class="line"><span class="ln">26</span><span class="cl">GRANT CONNECT ON DATABASE <span class="nb">test</span> TO test_project<span class="p">;</span>
+</span></span><span class="line"><span class="ln">27</span><span class="cl">GRANT ALL PRIVILEGES ON DATABASE <span class="nb">test</span> TO test_project<span class="p">;</span>
+</span></span><span class="line"><span class="ln">28</span><span class="cl">
+</span></span><span class="line"><span class="ln">29</span><span class="cl"><span class="c1">#建立角色，把角色组的权限给角色，就搞定了</span>
+</span></span><span class="line"><span class="ln">30</span><span class="cl">CREATE ROLE <span class="nb">test</span> LOGIN PASSWORD <span class="s1">&#39;lankutest&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">31</span><span class="cl">GRANT test_project TO test<span class="p">;</span>
+</span></span></code></pre></div><p>补充：</p>
+<ul>
+<li><code>PUBLIC</code> 和 <code>public</code>（未加引号）是等价的，在 PostgreSQL 上大小写不敏感。</li>
+<li><code>&quot;PUBLIC&quot;</code>（加双引号）会被看作是一个字符串，而非 PostgreSQL 预定义的 <code>PUBLIC</code> 角色。</li>
+<li><code>PUBLIC</code> 是 PostgreSQL 的特殊保留角色，代表所有用户，不能直接创建或管理，也不会出现在 <code>pg_roles</code> 中。</li>
+</ul>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -430,11 +496,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://rendoumi.com/posts/20250709-cert_manager_cloudflare/">内网kubernetes&#43;cloudflare&#43;cert-Manager自动签发证书
+    <ul><li><a href="https://rendoumi.com/posts/20250723-postgres_dump_restore/">Postgres不同实例、不同用户直接的数据导出导入
+</a></li><li><a href="https://rendoumi.com/posts/20250709-cert_manager_cloudflare/">内网kubernetes&#43;cloudflare&#43;cert-Manager自动签发证书
 </a></li><li><a href="https://rendoumi.com/posts/20250617-cors/">CORS跨域在不同环境中的配置
 </a></li><li><a href="https://rendoumi.com/posts/20250521-aws_endpoint/">AWS的跨账号访问不同VPC域中的服务
 </a></li><li><a href="https://rendoumi.com/posts/20250516-redpanda/">Kafka的测试替代品-Redpanda
-</a></li><li><a href="https://rendoumi.com/posts/20250516-ubuntu_rdp/">Ubuntu 如何安装远程桌面RDP
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="内网kubernetes&#43;cloudflare&#43;cert-manager自动签发证书">
 <meta itemprop="description" content="这个场景非常的有意思： 公司内部有若干个kubernetes集群，属于测试环境，研发搭建了一套SAAS的环境，这个环境需要xxx.abc.co"><meta itemprop="datePublished" content="2025-07-09T09:01:11+08:00" />
 <meta itemprop="dateModified" content="2025-07-09T09:01:11+08:00" />
-<meta itemprop="wordCount" content="996">
+<meta itemprop="wordCount" content="1096">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="内网kubernetes&#43;cloudflare&#43;cert-manager自动签发证书" />
 <meta property="og:description" content="这个场景非常的有意思： 公司内部有若干个kubernetes集群，属于测试环境，研发搭建了一套SAAS的环境，这个环境需要xxx.abc.co" />
 <meta property="og:type" content="article" />
@@ -211,7 +211,7 @@
 </h1><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2025-07-09
   </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
   </span></div>
 <div class="post-content mb-3"><p>这个场景非常的有意思：</p>
 <p>公司内部有若干个kubernetes集群，属于测试环境，研发搭建了一套SAAS的环境，这个环境需要xxx.abc.com的域名来访问，域名解析记录全都是192.168.0.x，供内部访问，域名会动态生成，需要证书也随之生成，且dns域名托管在cloudflare上。</p>
@@ -354,6 +354,23 @@
 </span></span><span class="line"><span class="ln">4</span><span class="cl">$ kubectl describe challenge
 </span></span><span class="line"><span class="ln">5</span><span class="cl">$ kubectl describe certificaterequest
 </span></span><span class="line"><span class="ln">6</span><span class="cl">$ kubectl describe order
+</span></span></code></pre></div><p>五、直接申请证书</p>
+<p>上面讲了通过ingress来自动申请证书，那我们如果不通过ingress，直接申请该怎么做呢？</p>
+<p>也很简单，直接来个申请即可</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">---
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">apiVersion: cert-manager.io/v1
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">kind: Certificate
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">metadata:
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">  name: tls-normal
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">  namespace: default
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">spec:
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">  secretName: tls-normal
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">  commonName: abc.cde.com
+</span></span><span class="line"><span class="ln">10</span><span class="cl">  dnsNames:
+</span></span><span class="line"><span class="ln">11</span><span class="cl">  - abc.cde.com
+</span></span><span class="line"><span class="ln">12</span><span class="cl">  issuerRef:
+</span></span><span class="line"><span class="ln">13</span><span class="cl">    name: letsencrypt-prod
+</span></span><span class="line"><span class="ln">14</span><span class="cl">    kind: ClusterIssuer
 </span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -383,6 +400,10 @@
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://rendoumi.com/posts/20250617-cors/">CORS跨域在不同环境中的配置
 </a>
+  </div><div class="post-nav post-next">
+    <a href="https://rendoumi.com/posts/20250723-postgres_dump_restore/">Postgres不同实例、不同用户直接的数据导出导入
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
     <ul class="related-posts"><li><a href="https://rendoumi.com/posts/20250617-cors/">CORS跨域在不同环境中的配置
@@ -435,11 +456,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://rendoumi.com/posts/20250709-cert_manager_cloudflare/">内网kubernetes&#43;cloudflare&#43;cert-Manager自动签发证书
+    <ul><li><a href="https://rendoumi.com/posts/20250723-postgres_dump_restore/">Postgres不同实例、不同用户直接的数据导出导入
+</a></li><li><a href="https://rendoumi.com/posts/20250709-cert_manager_cloudflare/">内网kubernetes&#43;cloudflare&#43;cert-Manager自动签发证书
 </a></li><li><a href="https://rendoumi.com/posts/20250617-cors/">CORS跨域在不同环境中的配置
 </a></li><li><a href="https://rendoumi.com/posts/20250521-aws_endpoint/">AWS的跨账号访问不同VPC域中的服务
 </a></li><li><a href="https://rendoumi.com/posts/20250516-redpanda/">Kafka的测试替代品-Redpanda
-</a></li><li><a href="https://rendoumi.com/posts/20250516-ubuntu_rdp/">Ubuntu 如何安装远程桌面RDP
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
