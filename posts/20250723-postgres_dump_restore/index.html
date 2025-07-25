@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="Postgres不同实例、不同用户直接的数据导出导入">
 <meta itemprop="description" content="公司生产环境在AWS使用了 Aurora Postgres Serveless 的数据库。 测试环境是在内网搭建了一个postgres 13数据库。 那测试和生产的实例不同，数据库不同，用户名也"><meta itemprop="datePublished" content="2025-07-23T09:01:11+08:00" />
 <meta itemprop="dateModified" content="2025-07-23T09:01:11+08:00" />
-<meta itemprop="wordCount" content="1009">
+<meta itemprop="wordCount" content="1010">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="Postgres不同实例、不同用户直接的数据导出导入" />
 <meta property="og:description" content="公司生产环境在AWS使用了 Aurora Postgres Serveless 的数据库。 测试环境是在内网搭建了一个postgres 13数据库。 那测试和生产的实例不同，数据库不同，用户名也" />
 <meta property="og:type" content="article" />
@@ -263,7 +263,7 @@
 <p>四、一些措施</p>
 <p>第三步我们可以看到有问题，Anyway，都无法避免。</p>
 <p>都需要编辑export.sql或者忽略错误来避免。</p>
-<p>测了一下，如果我们把schema.pulic给干掉，也无法避免这种情况！</p>
+<p>测了一下，如果我们把schema.public给干掉，也无法避免这种情况！</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1">#用admin用户登录 target 库，改变schema.public的owner</span>
 </span></span><span class="line"><span class="ln"> 2</span><span class="cl">ALTER SCHEMA public OWNER TO target_user<span class="p">;</span>
 </span></span><span class="line"><span class="ln"> 3</span><span class="cl">
@@ -311,15 +311,15 @@
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://rendoumi.com/posts/20250709-cert_manager_cloudflare/">内网kubernetes&#43;cloudflare&#43;cert-Manager自动签发证书
+    <a href="https://rendoumi.com/posts/20250725_redpanda_license/">Redpanda到期后如何续License
 </a>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://rendoumi.com/posts/20250709-cert_manager_cloudflare/">内网kubernetes&#43;cloudflare&#43;cert-Manager自动签发证书
+    <ul class="related-posts"><li><a href="https://rendoumi.com/posts/20250725_redpanda_license/">Redpanda到期后如何续License
+</a></li><li><a href="https://rendoumi.com/posts/20250709-cert_manager_cloudflare/">内网kubernetes&#43;cloudflare&#43;cert-Manager自动签发证书
 </a></li><li><a href="https://rendoumi.com/posts/20250617-cors/">CORS跨域在不同环境中的配置
 </a></li><li><a href="https://rendoumi.com/posts/20250521-aws_endpoint/">AWS的跨账号访问不同VPC域中的服务
 </a></li><li><a href="https://rendoumi.com/posts/20250516-redpanda/">Kafka的测试替代品-Redpanda
-</a></li><li><a href="https://rendoumi.com/posts/20250516-ubuntu_rdp/">Ubuntu 如何安装远程桌面RDP
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
@@ -366,10 +366,10 @@
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
     <ul><li><a href="https://rendoumi.com/posts/20250723-postgres_dump_restore/">Postgres不同实例、不同用户直接的数据导出导入
+</a></li><li><a href="https://rendoumi.com/posts/20250725_redpanda_license/">Redpanda到期后如何续License
 </a></li><li><a href="https://rendoumi.com/posts/20250709-cert_manager_cloudflare/">内网kubernetes&#43;cloudflare&#43;cert-Manager自动签发证书
 </a></li><li><a href="https://rendoumi.com/posts/20250617-cors/">CORS跨域在不同环境中的配置
 </a></li><li><a href="https://rendoumi.com/posts/20250521-aws_endpoint/">AWS的跨账号访问不同VPC域中的服务
-</a></li><li><a href="https://rendoumi.com/posts/20250516-redpanda/">Kafka的测试替代品-Redpanda
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
