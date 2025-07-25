@@ -183,6 +183,19 @@
   </div>
 </nav><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://rendoumi.com/posts/20240123-nodejs_gc/">小微vps下运行nodejs需要注意的gc
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-23
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          NodeJS默认64位机器GC是有1.4G内存，所以，如果是512或者128兆内存的小vps，立时就不灵了。 需要加参数 1--max_old_space_size=128 --optimize_for_size 一句话搞定。
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
         <h2 class="card-title post-title"><a href="https://rendoumi.com/posts/20240123-ssd_cache/">在linux下用SSD盘来加速HDD硬盘
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2024-01-23
@@ -298,19 +311,6 @@
           网管检查流量图的时候发现，udp的流量很多 看了看日志： 1Jun 28 00:39:28 172.16.0.1 %ASA-6-305011: Built dynamic UDP translation from inside:172.16.36.2/2160 to outside:124.243.230.6/2160 2Jun 28 00:39:28 172.16.0.1 %ASA-6-302015: Built outbound UDP connection 1369422617 for outside:223.5.5.5/53 (223.5.5.5/53) to inside:172.1... 发现一大堆是查询dns 53的  …
         </div>
       </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://rendoumi.com/posts/20240119-k8s_java/">Java业务上kubernetes的注意点
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-19
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          java业务上k8s的话，看到一篇比较好的文章，要注意的地方： 1apiVersion: apps/v1 2kind: Deployment 3metadata: 4 name: java-web 5 namespace: ops 6 labels: 7 app: java-web 8spec: 9 selector: 10 matchLabels: 11 app: java-web 12 replicas: 2 13 strategy: 14 type: RollingUpdate 15 template: 16 metadata: 17 name: java-web
-        </div>
-      </div>
     </article></div><div class="row table-responsive mb-3">
     <ul class="pagination pagination-default">
       <li class="page-item">
@@ -364,11 +364,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://rendoumi.com/posts/20250725_redpanda_license/">Redpanda到期后如何续License
+    <ul><li><a href="https://rendoumi.com/posts/20250725-aws_route53_update_certificate/">Aws的EC2服务器用lego获得免费证书并更新到
+</a></li><li><a href="https://rendoumi.com/posts/20250725_redpanda_license/">Redpanda到期后如何续License
 </a></li><li><a href="https://rendoumi.com/posts/20250723-postgres_dump_restore/">Postgres不同实例、不同用户直接的数据导出导入
 </a></li><li><a href="https://rendoumi.com/posts/20250709-cert_manager_cloudflare/">内网kubernetes&#43;cloudflare&#43;cert-Manager自动签发证书
 </a></li><li><a href="https://rendoumi.com/posts/20250617-cors/">CORS跨域在不同环境中的配置
-</a></li><li><a href="https://rendoumi.com/posts/20250521-aws_endpoint/">AWS的跨账号访问不同VPC域中的服务
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

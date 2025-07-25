@@ -1,0 +1,493 @@
+<!doctype html><html lang="zh-cn"
+  >
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>aws的EC2服务器用lego获得免费证书并更新到 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://rendoumi.com/images/favicons/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" href="https://rendoumi.com/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="https://rendoumi.com/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="manifest" href="https://rendoumi.com/images/favicons/manifest.json">
+<link rel="icon" href="https://rendoumi.com/images/favicons/favicon.ico">
+<meta name="keywords" content="" />
+<meta name="description" content="" /><meta itemprop="name" content="aws的EC2服务器用lego获得免费证书并更新到">
+<meta itemprop="description" content="交代一下背景： 公司在AWS上用的是EKS&#43;Fargate，还有一个跳板机，证书呢就不太想用aws收费的了，干脆用免费的证书好了。 那问题就来了"><meta itemprop="datePublished" content="2025-07-25T10:01:11+08:00" />
+<meta itemprop="dateModified" content="2025-07-25T10:01:11+08:00" />
+<meta itemprop="wordCount" content="1868">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="aws的EC2服务器用lego获得免费证书并更新到" />
+<meta property="og:description" content="交代一下背景： 公司在AWS上用的是EKS&#43;Fargate，还有一个跳板机，证书呢就不太想用aws收费的了，干脆用免费的证书好了。 那问题就来了" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://rendoumi.com/posts/20250725-aws_route53_update_certificate/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2025-07-25T10:01:11+08:00" />
+<meta property="article:modified_time" content="2025-07-25T10:01:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="aws的EC2服务器用lego获得免费证书并更新到"/>
+<meta name="twitter:description" content="交代一下背景： 公司在AWS上用的是EKS&#43;Fargate，还有一个跳板机，证书呢就不太想用aws收费的了，干脆用免费的证书好了。 那问题就来了"/>
+<link rel="preload" href="https://rendoumi.com/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://rendoumi.com/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://rendoumi.com/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
+  <body><script src="https://rendoumi.com/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
+  <div class="container">
+    <button class="navbar-settings me-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings"
+  aria-controls="offcanvasSettings" aria-label="Toggle settings">
+  <i class="fas fa-bars"></i>
+</button>
+
+<div class="offcanvas offcanvas-start surface" tabindex="-1" id="offcanvasSettings" aria-labelledby="offcanvasSettings">
+  <div class="offcanvas-header">
+    <h3 class="offcanvas-title">设置</h3>
+    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body">
+
+<section class="setting">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-adjust"></i> 模式</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="modeSwitcher">
+      </div>
+    </div>
+  </form>
+</section>
+
+<section class="setting">
+  <form class="font-size-switcher-form row">
+    <div class="col-auto">
+      <label for="fontSize" class="form-label"><i class="fas fa-fw fa-font"></i> 字体大小</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <input type="range" class="form-range" min="-2" max="2" id="fontSize">
+    </div>
+  </form>
+</section>
+
+
+<section class="setting palettes">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-palette"></i> 配色</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a id="btnPalette" class="btn btn-sm btn-outline-primary" role="button" aria-label="palettePicker">
+        <i class="fas fa-eye-dropper"></i>
+      </a>
+    </div>
+  </form>
+  <div class="mt-2 d-flex visually-hidden" id="palettePicker"><button type="button" id="palette-blue" aria-label="蓝色"
+        class="btn btn-sm palette" data-palette="blue">
+      </button><button type="button" id="palette-blue-gray" aria-label="蓝灰色"
+        class="btn btn-sm palette" data-palette="blue-gray">
+      </button><button type="button" id="palette-brown" aria-label="棕色"
+        class="btn btn-sm palette" data-palette="brown">
+      </button><button type="button" id="palette-cyan" aria-label="青色"
+        class="btn btn-sm palette" data-palette="cyan">
+      </button><button type="button" id="palette-green" aria-label="绿色"
+        class="btn btn-sm palette" data-palette="green">
+      </button><button type="button" id="palette-indigo" aria-label="靛青色"
+        class="btn btn-sm palette" data-palette="indigo">
+      </button><button type="button" id="palette-orange" aria-label="橙色"
+        class="btn btn-sm palette" data-palette="orange">
+      </button><button type="button" id="palette-pink" aria-label="粉色"
+        class="btn btn-sm palette" data-palette="pink">
+      </button><button type="button" id="palette-purple" aria-label="紫色"
+        class="btn btn-sm palette" data-palette="purple">
+      </button><button type="button" id="palette-red" aria-label="红色"
+        class="btn btn-sm palette" data-palette="red">
+      </button><button type="button" id="palette-teal" aria-label="蓝绿色"
+        class="btn btn-sm palette" data-palette="teal">
+      </button><button type="button" id="palette-yellow" aria-label="黄色"
+        class="btn btn-sm palette" data-palette="yellow">
+      </button></div>
+</section>
+<section class="setting social-share">
+  <form class="row">
+    <div class="col-auto">
+      <label><i class="fas fa-fw fa-share-alt"></i> Share</label>
+    </div>
+    <div class="col-auto ms-auto">
+      <a class="btn btn-sm btn-outline-primary btn-social-share"><i class="fas fa-share"></i></a>
+    </div>
+  </form>
+  <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
+      target="_blank" href="https://twitter.com/intent/tweet?title=aws%e7%9a%84EC2%e6%9c%8d%e5%8a%a1%e5%99%a8%e7%94%a8lego%e8%8e%b7%e5%be%97%e5%85%8d%e8%b4%b9%e8%af%81%e4%b9%a6%e5%b9%b6%e6%9b%b4%e6%96%b0%e5%88%b0&url=https%3a%2f%2frendoumi.com%2fposts%2f20250725-aws_route53_update_certificate%2f">
+      <i class="fab fa-fw fa-twitter"></i> Twitter
+    </a>
+    <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2frendoumi.com%2fposts%2f20250725-aws_route53_update_certificate%2f">
+      <i class="fab fa-fw fa-facebook-f"></i> Facebook
+    </a>
+  </div>
+</section>
+
+</div>
+</div>
+<a class="navbar-brand me-3" href="https://rendoumi.com"><img class="logo" alt="Logo" src="https://rendoumi.com/images/logo.webp" loading="lazy"
+   width="136" height="69"
+   />
+八戒
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="fas fa-ellipsis-v"></i>
+    </button>
+    <div class="collapse navbar-collapse" tabindex="-1" id="navbarSupportedContent" aria-labelledby="navbarSupportedContent">
+      <form class="search-bar my-1" action="https://rendoumi.com/search">
+  <div class="input-group input-group-sm">
+    <span class="btn btn-search disabled position-absolute left-0"><i class="fas fa-fw fa-search"></i></span>
+    <input class="form-control rounded-pill" name="q" type="search" aria-label="Search">
+  </div>
+</form>
+
+      <ul class="navbar-nav ms-auto"><li class="nav-item">
+          <a class="nav-link" href="https://rendoumi.com/archives/">
+            <i class="fas fa-fw fa-file-archive"></i>归档
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://rendoumi.com/categories/">
+            <i class="fas fa-fw fa-folder"></i>分类
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://rendoumi.com/tags/">
+            <i class="fas fa-fw fa-tags"></i>标签
+          </a>
+        </li><li class="nav-item">
+          <a class="nav-link" href="https://rendoumi.com/series/">
+            <i class="fas fa-fw fa-columns"></i>专栏
+          </a>
+        </li><li class="nav-item dropdown">
+          <a class="nav-link" id="navbarDropdown-dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-fw fa-chevron-circle-down"></i>下拉菜单
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown-dropdown"><li>
+              <a class="dropdown-item"
+                href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">
+                <i class="fab fa-fw fa-github"></i>Github
+              </a>
+            </li><li>
+              <a class="dropdown-item"
+                href="https://rendoumi.com/zh-cn/series/manual">
+                用户手册
+              </a>
+            </li></ul>
+        </li></ul>
+    </div>
+  </div>
+</nav>
+</header>
+<main role="main" class="container">
+      <div class="row content">
+<div class="col-lg-8">
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body">
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://rendoumi.com/">主页</a></li><li class="breadcrumb-item"><a href="https://rendoumi.com/posts/">Posts</a></li><li class="breadcrumb-item active">Aws的EC2服务器用lego获得免费证书并更新到</li></ol>
+  </div>
+</nav><article class="post row card mb-4 component">
+  <div class="card-body"><div class="post-panel-wrapper">
+  <div class="post-panel d-flex flex-column">
+    <a id="sidebarToggler" class="action d-none d-lg-block" role="button">
+  <i class="fas fa-fw fa-expand-arrows-alt"></i>
+</a>
+  
+    
+
+    <a class="action btn-reward" role="button" data-bs-toggle="modal" data-bs-target="#rewardModal" title="打赏">
+  <i class="fas fa-fw fa-coffee"></i>
+</a>
+    <a class="action" data-bs-container="body" data-bs-toggle="popover" data-bs-html="true" data-bs-placement="bottom"
+  data-bs-trigger="focus" tabindex="0" type="button" aria-label="Copyright" 
+  data-bs-content="&lt;a target=&#34;_blank&#34; rel=&#34;license noopener noreferrer&#34; href=&#34;https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh&#34;&gt;CC BY-NC-ND 4.0 &lt;i class=&#34;fab fa-fw fa-creative-commons&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-by&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-nc&#34;&gt;&lt;/i&gt;&lt;i class=&#34;fab fa-fw fa-creative-commons-nd&#34;&gt;&lt;/i&gt;&lt;/a&gt;
+">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
+    
+  </div>
+</div>
+<h1 class="card-title my-3">Aws的EC2服务器用lego获得免费证书并更新到
+</h1><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2025-07-25
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>4 分钟阅读
+  </span></div>
+<div class="post-content mb-3"><p>交代一下背景：</p>
+<p>公司在AWS上用的是EKS+Fargate，还有一个跳板机，证书呢就不太想用aws收费的了，干脆用免费的证书好了。</p>
+<p>那问题就来了，Let‘s encrypt的证书90天到期，已经手动更新过3次了，实在太麻烦了，能不能自动申请并更新到ACM呢？</p>
+<p>答案是可以的，原理是：利用EC2可以携带IAM角色的原理，就可以无凭证更新免费证书到AWS Certificate Manager了</p>
+<p>做法如下：</p>
+<p>一、首先去ACM中拿到证书的ARN，要确保IAM权限不外泄，避免更新错证书</p>
+<p><img class="img-fluid" alt="image-20250725144718592" src="https://rendoumi.com/posts/20250725-aws_route53_update_certificate/image-20250725144718592.png" loading="lazy"
+   width="1389" height="319"
+   />
+
+</p>
+<p>二、生成一个IAM的policy，命名为<code>AllowUpdateCertificate</code>，只允许更新这两个特定的证书</p>
+<p>具体策略内容如下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">	<span class="s2">&#34;Version&#34;</span>: <span class="s2">&#34;2012-10-17&#34;</span>,
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">	<span class="s2">&#34;Statement&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">		<span class="o">{</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">			<span class="s2">&#34;Effect&#34;</span>: <span class="s2">&#34;Allow&#34;</span>,
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">			<span class="s2">&#34;Action&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">				<span class="s2">&#34;acm:ImportCertificate&#34;</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">			<span class="o">]</span>,
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">			<span class="s2">&#34;Resource&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">				<span class="s2">&#34;arn:aws:acm:ap-southeast-1:111111111111:certificate/arn01&#34;</span>,
+</span></span><span class="line"><span class="ln">11</span><span class="cl">				<span class="s2">&#34;arn:aws:acm:ap-southeast-1:111111111111:certificate/arn02&#34;</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">			<span class="o">]</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">		<span class="o">}</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">	<span class="o">]</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><p><img class="img-fluid" alt="image-20250725145030921" src="https://rendoumi.com/posts/20250725-aws_route53_update_certificate/image-20250725145030921.png" loading="lazy"
+   width="819" height="421"
+   />
+
+</p>
+<p>三、IAM生成一个role角色，命名为<code>Ec2UpdateCertificateRole</code>，把<code>AllowUpdateCertificate</code>策略给附上</p>
+<p><img class="img-fluid" alt="image-20250725145132762" src="https://rendoumi.com/posts/20250725-aws_route53_update_certificate/image-20250725145132762.png" loading="lazy"
+   width="957" height="517"
+   />
+
+</p>
+<p>四、到EC2的实例详细信息中，操作&ndash;&gt;安全&ndash;&gt;修改IAM角色</p>
+<p><img class="img-fluid" alt="image-20250725145419632" src="https://rendoumi.com/posts/20250725-aws_route53_update_certificate/image-20250725145419632.png" loading="lazy"
+   width="388" height="256"
+   />
+
+</p>
+<p>附上<code>Ec2UpdateCertificateRole</code>这个角色</p>
+<p><img class="img-fluid" alt="image-20250725145533303" src="https://rendoumi.com/posts/20250725-aws_route53_update_certificate/image-20250725145533303.png" loading="lazy"
+   width="622" height="295"
+   />
+
+</p>
+<p>五、在EC2的机器上，装好AWS CLI，还有lego(申请Let&rsquo;s encrypt证书的软件)</p>
+<p>先写好获得证书的脚本 get_cert.sh，域名DNS解析是托管到cloudflare的，所以也直接用API TOKEN来处理</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="cp">#!/bin/bash
+</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="nv">CLOUDFLARE_DNS_API_TOKEN</span><span class="o">=</span><span class="c1">######## /usr/local/bin/lego --path /usr/local/bin/certs --email zhangranrui@rendoumi.com --dns cloudflare --domains *.rendoumi.com --domains rendoumi.com renew --renew-hook=&#34;/usr/local/bin/update_aws_cert.sh&#34;</span>
+</span></span></code></pre></div><p>参数<code>--renew-hook</code>如果有新证书，就调用后面的脚本。如果没有新证书，就无操作，避免无用功。</p>
+<p>然后再写好 update_aws_cert.sh，这就是个千字文了，由gemini生成的：</p>
+<p>由于lego生成的crt是证书+证书链，所以第一步要把证书部分给单独拆出来</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="cp">#!/bin/bash
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="nb">cd</span> /usr/local/bin/certs/certificates
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="c1">#首先把证书单独拆出来</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">awk <span class="s1">&#39;/-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/ {print} /-----END CERTIFICATE-----/ {exit}&#39;</span> _.rendoumi.com.crt &gt; _.rendoumi.com.only
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="c1"># --- 配置部分 ---</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="c1"># 您要更新的现有 ACM 证书的 ARN</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="c1"># 示例：CERTIFICATE_ARN=&#34;arn:aws:acm:ap-southeast-1:123456789012:certificate/abcdefab-1234-5678-abcd-1234567890ab&#34;</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="nv">CERTIFICATE_ARN</span><span class="o">=</span><span class="s2">&#34;arn:aws:acm:ap-southeast-1:111111111111:certificate/11111111-1111-1111-1111-111111111111&#34;</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">
+</span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="c1"># 新证书文件的路径（例如：/opt/certs/new_certificate.crt）</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="c1"># 确保这个路径在您的EC2实例上是正确的</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="nv">CERTIFICATE_BODY_PATH</span><span class="o">=</span><span class="s2">&#34;_.rendoumi.com.only&#34;</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">
+</span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="c1"># 新私钥文件的路径（例如：/opt/certs/private.key）</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="c1"># 确保这个路径在您的EC2实例上是正确的</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl"><span class="nv">PRIVATE_KEY_PATH</span><span class="o">=</span><span class="s2">&#34;_.rendoumi.com.key&#34;</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl">
+</span></span><span class="line"><span class="ln">21</span><span class="cl"><span class="c1"># 证书链文件的路径（可选）</span>
+</span></span><span class="line"><span class="ln">22</span><span class="cl"><span class="c1"># 如果没有证书链，请将此变量留空或注释掉</span>
+</span></span><span class="line"><span class="ln">23</span><span class="cl"><span class="c1"># 示例：CERTIFICATE_CHAIN_PATH=&#34;/opt/certs/ca_bundle.crt&#34;</span>
+</span></span><span class="line"><span class="ln">24</span><span class="cl"><span class="nv">CERTIFICATE_CHAIN_PATH</span><span class="o">=</span><span class="s2">&#34;_.rendoumi.com.issuer.crt&#34;</span> <span class="c1"># 如果没有链，请将其留空 &#34;&#34;</span>
+</span></span><span class="line"><span class="ln">25</span><span class="cl">
+</span></span><span class="line"><span class="ln">26</span><span class="cl"><span class="c1"># ACM 证书所在的 AWS 区域</span>
+</span></span><span class="line"><span class="ln">27</span><span class="cl"><span class="c1"># 这个区域应该与 CERTIFICATE_ARN 中的区域匹配</span>
+</span></span><span class="line"><span class="ln">28</span><span class="cl"><span class="c1"># 示例：AWS_REGION=&#34;ap-southeast-1&#34;</span>
+</span></span><span class="line"><span class="ln">29</span><span class="cl"><span class="nv">AWS_REGION</span><span class="o">=</span><span class="s2">&#34;ap-southeast-1&#34;</span>
+</span></span><span class="line"><span class="ln">30</span><span class="cl"><span class="c1"># --- 配置部分结束 ---</span>
+</span></span><span class="line"><span class="ln">31</span><span class="cl">
+</span></span><span class="line"><span class="ln">32</span><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;--- 开始使用实例角色重新导入 ACM 证书 ---&#34;</span>
+</span></span><span class="line"><span class="ln">33</span><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;证书 ARN: </span><span class="si">${</span><span class="nv">CERTIFICATE_ARN</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="ln">34</span><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;区域: </span><span class="si">${</span><span class="nv">AWS_REGION</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="ln">35</span><span class="cl">
+</span></span><span class="line"><span class="ln">36</span><span class="cl"><span class="c1"># 检查文件是否存在</span>
+</span></span><span class="line"><span class="ln">37</span><span class="cl"><span class="k">if</span> <span class="o">[</span> ! -f <span class="s2">&#34;</span><span class="si">${</span><span class="nv">CERTIFICATE_BODY_PATH</span><span class="si">}</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="ln">38</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;错误：证书文件 &#39;</span><span class="si">${</span><span class="nv">CERTIFICATE_BODY_PATH</span><span class="si">}</span><span class="s2">&#39; 不存在。&#34;</span>
+</span></span><span class="line"><span class="ln">39</span><span class="cl">    <span class="nb">exit</span> <span class="m">1</span>
+</span></span><span class="line"><span class="ln">40</span><span class="cl"><span class="k">fi</span>
+</span></span><span class="line"><span class="ln">41</span><span class="cl">
+</span></span><span class="line"><span class="ln">42</span><span class="cl"><span class="k">if</span> <span class="o">[</span> ! -f <span class="s2">&#34;</span><span class="si">${</span><span class="nv">PRIVATE_KEY_PATH</span><span class="si">}</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="ln">43</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;错误：私钥文件 &#39;</span><span class="si">${</span><span class="nv">PRIVATE_KEY_PATH</span><span class="si">}</span><span class="s2">&#39; 不存在。&#34;</span>
+</span></span><span class="line"><span class="ln">44</span><span class="cl">    <span class="nb">exit</span> <span class="m">1</span>
+</span></span><span class="line"><span class="ln">45</span><span class="cl"><span class="k">fi</span>
+</span></span><span class="line"><span class="ln">46</span><span class="cl">
+</span></span><span class="line"><span class="ln">47</span><span class="cl"><span class="k">if</span> <span class="o">[</span> -n <span class="s2">&#34;</span><span class="si">${</span><span class="nv">CERTIFICATE_CHAIN_PATH</span><span class="si">}</span><span class="s2">&#34;</span> <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="o">[</span> ! -f <span class="s2">&#34;</span><span class="si">${</span><span class="nv">CERTIFICATE_CHAIN_PATH</span><span class="si">}</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="ln">48</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;警告：证书链文件 &#39;</span><span class="si">${</span><span class="nv">CERTIFICATE_CHAIN_PATH</span><span class="si">}</span><span class="s2">&#39; 已指定但不存在。将不包含证书链进行导入。&#34;</span>
+</span></span><span class="line"><span class="ln">49</span><span class="cl">    <span class="nv">CERTIFICATE_CHAIN_PATH</span><span class="o">=</span><span class="s2">&#34;&#34;</span> <span class="c1"># 如果文件不存在，则清空路径</span>
+</span></span><span class="line"><span class="ln">50</span><span class="cl"><span class="k">fi</span>
+</span></span><span class="line"><span class="ln">51</span><span class="cl">
+</span></span><span class="line"><span class="ln">52</span><span class="cl"><span class="c1"># 构造 AWS CLI 命令。AWS CLI 会自动使用实例角色提供的凭证。</span>
+</span></span><span class="line"><span class="ln">53</span><span class="cl"><span class="nv">IMPORT_CMD</span><span class="o">=</span><span class="s2">&#34;aws acm import-certificate \
+</span></span></span><span class="line"><span class="ln">54</span><span class="cl"><span class="s2">  --certificate-arn </span><span class="si">${</span><span class="nv">CERTIFICATE_ARN</span><span class="si">}</span><span class="s2"> \
+</span></span></span><span class="line"><span class="ln">55</span><span class="cl"><span class="s2">  --certificate fileb://</span><span class="si">${</span><span class="nv">CERTIFICATE_BODY_PATH</span><span class="si">}</span><span class="s2"> \
+</span></span></span><span class="line"><span class="ln">56</span><span class="cl"><span class="s2">  --private-key fileb://</span><span class="si">${</span><span class="nv">PRIVATE_KEY_PATH</span><span class="si">}</span><span class="s2"> \
+</span></span></span><span class="line"><span class="ln">57</span><span class="cl"><span class="s2">  --region \&#34;</span><span class="si">${</span><span class="nv">AWS_REGION</span><span class="si">}</span><span class="s2">\&#34;&#34;</span>
+</span></span><span class="line"><span class="ln">58</span><span class="cl">
+</span></span><span class="line"><span class="ln">59</span><span class="cl"><span class="c1"># 如果有证书链，则添加到命令中</span>
+</span></span><span class="line"><span class="ln">60</span><span class="cl"><span class="k">if</span> <span class="o">[</span> -n <span class="s2">&#34;</span><span class="si">${</span><span class="nv">CERTIFICATE_CHAIN_PATH</span><span class="si">}</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="ln">61</span><span class="cl">    <span class="nv">IMPORT_CMD</span><span class="o">=</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">IMPORT_CMD</span><span class="si">}</span><span class="s2"> --certificate-chain fileb://</span><span class="si">${</span><span class="nv">CERTIFICATE_CHAIN_PATH</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="ln">62</span><span class="cl"><span class="k">fi</span>
+</span></span><span class="line"><span class="ln">63</span><span class="cl">
+</span></span><span class="line"><span class="ln">64</span><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;正在执行命令：&#34;</span>
+</span></span><span class="line"><span class="ln">65</span><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$IMPORT_CMD</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="ln">66</span><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;--------------------------&#34;</span>
+</span></span><span class="line"><span class="ln">67</span><span class="cl">
+</span></span><span class="line"><span class="ln">68</span><span class="cl"><span class="c1"># 执行命令</span>
+</span></span><span class="line"><span class="ln">69</span><span class="cl"><span class="c1"># 注意：这里我们不指定 --profile 或任何凭证，AWS CLI 会自动使用实例IAM角色。</span>
+</span></span><span class="line"><span class="ln">70</span><span class="cl"><span class="nb">eval</span> <span class="nv">$IMPORT_CMD</span>
+</span></span><span class="line"><span class="ln">71</span><span class="cl">
+</span></span><span class="line"><span class="ln">72</span><span class="cl"><span class="c1"># 检查命令执行结果</span>
+</span></span><span class="line"><span class="ln">73</span><span class="cl"><span class="k">if</span> <span class="o">[</span> <span class="nv">$?</span> -eq <span class="m">0</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="ln">74</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;--- 证书重新导入成功！---&#34;</span>
+</span></span><span class="line"><span class="ln">75</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;ACM 证书 </span><span class="si">${</span><span class="nv">CERTIFICATE_ARN</span><span class="si">}</span><span class="s2"> 已更新。&#34;</span>
+</span></span><span class="line"><span class="ln">76</span><span class="cl"><span class="k">else</span>
+</span></span><span class="line"><span class="ln">77</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;--- 证书重新导入失败！---&#34;</span>
+</span></span><span class="line"><span class="ln">78</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;请检查错误消息，确保：&#34;</span>
+</span></span><span class="line"><span class="ln">79</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;1. EC2 实例已正确附加了具有 acm:ImportCertificate 权限的 IAM 角色。&#34;</span>
+</span></span><span class="line"><span class="ln">80</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;2. 证书、私钥和链文件路径正确且可读。&#34;</span>
+</span></span><span class="line"><span class="ln">81</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;3. 证书/私钥/链的格式正确。&#34;</span>
+</span></span><span class="line"><span class="ln">82</span><span class="cl"><span class="k">fi</span>
+</span></span><span class="line"><span class="ln">83</span><span class="cl">
+</span></span><span class="line"><span class="ln">84</span><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;--- 脚本执行完毕 ---&#34;</span>
+</span></span></code></pre></div><p>看起来真的是又臭又长，废话连篇。注意：gemini 生成的代码有问题，aws acm import-certificate 的参数中，证书文件的前缀是fileb://，gemini给的是file://，调试了半天，最后去aws看了文档才发现。</p>
+<p>如上操作，脚本放入到crontb中，没有用到任何aws access id和secret，就能正确更新证书，善莫大焉。</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content surface">
+      <div class="modal-header">
+        <h5 class="modal-title" id="rewardModalLabel"><i class="fas fa-fw fa-coffee"></i>打赏</h5>
+        <a href="#" data-bs-dismiss="modal" class="btn btn-sm btn-outline-primary" aria-label="Close"><i class="fas fa-times"></i></a>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs flex-nowrap mb-3" role="tablist"><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link active" id="reward-alipay-tab" data-bs-toggle="tab" href="#reward-alipay" role="tab" aria-controls="reward-alipay" aria-selected="true">
+              <i class="fab fa-fw fa-alipay"></i>支付宝
+            </a>
+          </li><li class="nav-item text-nowrap" role="presentation">
+            <a class="nav-link" id="reward-wechat-tab" data-bs-toggle="tab" href="#reward-wechat" role="tab" aria-controls="reward-wechat" aria-selected="true">
+              <i class="fab fa-fw fa-weixin"></i>微信
+            </a>
+          </li></ul>
+        <div class="tab-content" id="rewardTabContent"><div class="tab-pane fade post-reward-content show active" id="reward-alipay" role="tabpanel" aria-labelledby="reward-alipay-tab">
+            <img class="img-fluid post-reward-img" src="https://rendoumi.com/images/reward/alipay.png" loading="lazy" />
+          </div><div class="tab-pane fade post-reward-content show" id="reward-wechat" role="tabpanel" aria-labelledby="reward-wechat-tab">
+            <img class="img-fluid post-reward-img" src="https://rendoumi.com/images/reward/wechat.png" loading="lazy" />
+          </div></div>
+      </div>
+    </div>
+  </div>
+</div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
+  <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
+    <a href="https://rendoumi.com/posts/20250725_redpanda_license/">Redpanda到期后如何续License
+</a>
+  </div></div><section class="related-posts-wrapper">
+    <h3>相关文章</h3>
+    <ul class="related-posts"><li><a href="https://rendoumi.com/posts/20250725_redpanda_license/">Redpanda到期后如何续License
+</a></li><li><a href="https://rendoumi.com/posts/20250723-postgres_dump_restore/">Postgres不同实例、不同用户直接的数据导出导入
+</a></li><li><a href="https://rendoumi.com/posts/20250709-cert_manager_cloudflare/">内网kubernetes&#43;cloudflare&#43;cert-Manager自动签发证书
+</a></li><li><a href="https://rendoumi.com/posts/20250617-cors/">CORS跨域在不同环境中的配置
+</a></li><li><a href="https://rendoumi.com/posts/20250521-aws_endpoint/">AWS的跨账号访问不同VPC域中的服务
+</a></li></ul>
+  </section></div>
+</article><div class="post-comments card row component">
+  <div class="card-body"><div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "https-zhangrr-github-io" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a></div>
+</div></div>
+</div><aside class="col-lg-4 sidebar d-flex">
+  <div class="container">
+    
+    <section class="card row text-center profile component">
+  <div class="card-body">
+    <div class="col-12 d-flex align-items-center justify-content-center"><img class="profile-avatar rounded-circle" alt="Zhang Ranrui" src="https://rendoumi.com/images/bajie_01.jpg" loading="lazy"
+   width="391" height="644"
+   />
+</div>
+    <div class="col-12 profile-meta"><div class="profile-name">Zhang Ranrui</div><div class="profile-bio">Devops, SA, 运维全干工程师.</div><div class="profile-company"><i class="fas fa-fw fa-building"></i>Company</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>Earth</div><div class="profile-about"><i class="fas fa-fw fa-user"></i><a target="_blank" rel="noopener noreferrer" href="https://blog.rendoumi.com">关于我</a></div></div>
+  </div>
+</section>
+  <section class="featured-posts row card component">
+    <div class="card-body">
+      <h2 class="card-title">精选文章</h2>
+      <ul><li><a href="https://rendoumi.com/posts/markdown-syntax/">Markdown Syntax Guide
+</a></li></ul>
+    </div>
+  </section><section class="recent-posts row card component">
+  <div class="card-body">
+    <h2 class="card-title">最近文章</h2>
+    <ul><li><a href="https://rendoumi.com/posts/20250725-aws_route53_update_certificate/">Aws的EC2服务器用lego获得免费证书并更新到
+</a></li><li><a href="https://rendoumi.com/posts/20250725_redpanda_license/">Redpanda到期后如何续License
+</a></li><li><a href="https://rendoumi.com/posts/20250723-postgres_dump_restore/">Postgres不同实例、不同用户直接的数据导出导入
+</a></li><li><a href="https://rendoumi.com/posts/20250709-cert_manager_cloudflare/">内网kubernetes&#43;cloudflare&#43;cert-Manager自动签发证书
+</a></li><li><a href="https://rendoumi.com/posts/20250617-cors/">CORS跨域在不同环境中的配置
+</a></li></ul>
+  </div>
+</section><section class="taxonomies row card component">
+      <div class="card-body">
+        <h2 class="card-title">
+          <a href="https://rendoumi.com/series">专栏</a>
+        </h2>
+        <div><a href="https://rendoumi.com/series/manual/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Manual">
+            Manual
+          </a></div>
+      </div>
+    </section><section class="taxonomies row card component">
+      <div class="card-body">
+        <h2 class="card-title">
+          <a href="https://rendoumi.com/tags">标签</a>
+        </h2>
+        <div><a href="https://rendoumi.com/tags/css/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="CSS">
+            CSS
+          </a><a href="https://rendoumi.com/tags/html/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="HTML">
+            HTML
+          </a><a href="https://rendoumi.com/tags/markdown/" class="post-taxonomy rounded btn btn-sm btn-outline-primary me-2 mb-2" title="Markdown">
+            Markdown
+          </a></div>
+      </div>
+    </section>
+    
+  </div>
+</aside>
+</div>
+    </main><footer class="footer mt-auto py-3 text-center container"><nav class="social-links nav my-2 justify-content-center"><a class="nav-link social-link" href="mailto:zhangranrui@gmail.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope"></i>
+    </a><a class="nav-link social-link" target="_blank" href="https://github.com/zhangrr" title="GitHub" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-github"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://www.reddit.com/user/defunct9" title="Reddit" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-reddit"></i>
+      </a><a class="nav-link social-link" target="_blank" href="https://t.me/defunct9" title="Telegram" rel="noopener noreferrer">
+        <i class="fa-fw fa-2x fab fa-telegram-plane"></i>
+      </a></nav>
+<div class="copyright mb-2">
+  Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.
+</div>
+<div class="powered-by mb-2">
+  Powered by <a href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">Bootstrap</a> theme.
+</div></footer>
+
+</body>
+</html>
