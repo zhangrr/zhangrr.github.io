@@ -3,17 +3,17 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>aws的EC2服务器用lego获得免费证书并更新到 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://rendoumi.com/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>aws的EC2服务器用lego获得免费证书并更新到ACM - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://rendoumi.com/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://rendoumi.com/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://rendoumi.com/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://rendoumi.com/images/favicons/manifest.json">
 <link rel="icon" href="https://rendoumi.com/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="aws的EC2服务器用lego获得免费证书并更新到">
+<meta name="description" content="" /><meta itemprop="name" content="aws的EC2服务器用lego获得免费证书并更新到ACM">
 <meta itemprop="description" content="交代一下背景： 公司在AWS上用的是EKS&#43;Fargate，还有一个跳板机，证书呢就不太想用aws收费的了，干脆用免费的证书好了。 那问题就来了"><meta itemprop="datePublished" content="2025-07-25T10:01:11+08:00" />
 <meta itemprop="dateModified" content="2025-07-25T10:01:11+08:00" />
 <meta itemprop="wordCount" content="1868">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="aws的EC2服务器用lego获得免费证书并更新到" />
+<meta itemprop="keywords" content="" /><meta property="og:title" content="aws的EC2服务器用lego获得免费证书并更新到ACM" />
 <meta property="og:description" content="交代一下背景： 公司在AWS上用的是EKS&#43;Fargate，还有一个跳板机，证书呢就不太想用aws收费的了，干脆用免费的证书好了。 那问题就来了" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://rendoumi.com/posts/20250725-aws_route53_update_certificate/" /><meta property="article:section" content="posts" />
@@ -21,7 +21,7 @@
 <meta property="article:modified_time" content="2025-07-25T10:01:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="aws的EC2服务器用lego获得免费证书并更新到"/>
+<meta name="twitter:title" content="aws的EC2服务器用lego获得免费证书并更新到ACM"/>
 <meta name="twitter:description" content="交代一下背景： 公司在AWS上用的是EKS&#43;Fargate，还有一个跳板机，证书呢就不太想用aws收费的了，干脆用免费的证书好了。 那问题就来了"/>
 <link rel="preload" href="https://rendoumi.com/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://rendoumi.com/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://rendoumi.com/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
@@ -114,7 +114,7 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=aws%e7%9a%84EC2%e6%9c%8d%e5%8a%a1%e5%99%a8%e7%94%a8lego%e8%8e%b7%e5%be%97%e5%85%8d%e8%b4%b9%e8%af%81%e4%b9%a6%e5%b9%b6%e6%9b%b4%e6%96%b0%e5%88%b0&url=https%3a%2f%2frendoumi.com%2fposts%2f20250725-aws_route53_update_certificate%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=aws%e7%9a%84EC2%e6%9c%8d%e5%8a%a1%e5%99%a8%e7%94%a8lego%e8%8e%b7%e5%be%97%e5%85%8d%e8%b4%b9%e8%af%81%e4%b9%a6%e5%b9%b6%e6%9b%b4%e6%96%b0%e5%88%b0ACM&url=https%3a%2f%2frendoumi.com%2fposts%2f20250725-aws_route53_update_certificate%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://rendoumi.com/">主页</a></li><li class="breadcrumb-item"><a href="https://rendoumi.com/posts/">Posts</a></li><li class="breadcrumb-item active">Aws的EC2服务器用lego获得免费证书并更新到</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://rendoumi.com/">主页</a></li><li class="breadcrumb-item"><a href="https://rendoumi.com/posts/">Posts</a></li><li class="breadcrumb-item active">Aws的EC2服务器用lego获得免费证书并更新到ACM</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -207,7 +207,7 @@
     
   </div>
 </div>
-<h1 class="card-title my-3">Aws的EC2服务器用lego获得免费证书并更新到
+<h1 class="card-title my-3">Aws的EC2服务器用lego获得免费证书并更新到ACM
 </h1><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2025-07-25
   </span><span class="post-reading-time" title="reading time">
@@ -387,6 +387,10 @@
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://rendoumi.com/posts/20250725_redpanda_license/">Redpanda到期后如何续License
 </a>
+  </div><div class="post-nav post-next">
+    <a href="https://rendoumi.com/posts/20250728-kafka_kraft_docker/">用Docker部署kafka且不依赖zookeeper
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
     <ul class="related-posts"><li><a href="https://rendoumi.com/posts/20250725_redpanda_license/">Redpanda到期后如何续License
@@ -439,11 +443,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://rendoumi.com/posts/20250725-aws_route53_update_certificate/">Aws的EC2服务器用lego获得免费证书并更新到
+    <ul><li><a href="https://rendoumi.com/posts/20250728-kafka_kraft_docker/">用Docker部署kafka且不依赖zookeeper
+</a></li><li><a href="https://rendoumi.com/posts/20250725-aws_route53_update_certificate/">Aws的EC2服务器用lego获得免费证书并更新到ACM
 </a></li><li><a href="https://rendoumi.com/posts/20250725_redpanda_license/">Redpanda到期后如何续License
 </a></li><li><a href="https://rendoumi.com/posts/20250723-postgres_dump_restore/">Postgres不同实例、不同用户直接的数据导出导入
 </a></li><li><a href="https://rendoumi.com/posts/20250709-cert_manager_cloudflare/">内网kubernetes&#43;cloudflare&#43;cert-Manager自动签发证书
-</a></li><li><a href="https://rendoumi.com/posts/20250617-cors/">CORS跨域在不同环境中的配置
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">

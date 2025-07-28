@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>一站式Git软件onedev的安装使用 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://rendoumi.com/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>用Docker部署kafka且不依赖zookeeper - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://rendoumi.com/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://rendoumi.com/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://rendoumi.com/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://rendoumi.com/images/favicons/manifest.json">
 <link rel="icon" href="https://rendoumi.com/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="一站式Git软件onedev的安装使用">
-<meta itemprop="description" content="其实一直在用 github、gitlab、jenkins，但是 github 时不时的抽风， gitlab 的 runner 套 Docker in docker 的方法委实很难用。 所以 CI/CD 这一块反倒挺喜欢阿里云效这"><meta itemprop="datePublished" content="2021-11-05T09:30:11+08:00" />
-<meta itemprop="dateModified" content="2021-11-05T09:30:11+08:00" />
-<meta itemprop="wordCount" content="490">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="一站式Git软件onedev的安装使用" />
-<meta property="og:description" content="其实一直在用 github、gitlab、jenkins，但是 github 时不时的抽风， gitlab 的 runner 套 Docker in docker 的方法委实很难用。 所以 CI/CD 这一块反倒挺喜欢阿里云效这" />
+<meta name="description" content="" /><meta itemprop="name" content="用Docker部署kafka且不依赖zookeeper">
+<meta itemprop="description" content="用redpanda居然还要每隔30天更新一下License文件，叔可忍婶不可忍啊。 换掉换掉，直接用Docker部署kafka，后端不用zoo"><meta itemprop="datePublished" content="2025-07-28T09:01:11+08:00" />
+<meta itemprop="dateModified" content="2025-07-28T09:01:11+08:00" />
+<meta itemprop="wordCount" content="693">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="用Docker部署kafka且不依赖zookeeper" />
+<meta property="og:description" content="用redpanda居然还要每隔30天更新一下License文件，叔可忍婶不可忍啊。 换掉换掉，直接用Docker部署kafka，后端不用zoo" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://rendoumi.com/posts/20211105-onedev/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2021-11-05T09:30:11+08:00" />
-<meta property="article:modified_time" content="2021-11-05T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+<meta property="og:url" content="https://rendoumi.com/posts/20250728-kafka_kraft_docker/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2025-07-28T09:01:11+08:00" />
+<meta property="article:modified_time" content="2025-07-28T09:01:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="一站式Git软件onedev的安装使用"/>
-<meta name="twitter:description" content="其实一直在用 github、gitlab、jenkins，但是 github 时不时的抽风， gitlab 的 runner 套 Docker in docker 的方法委实很难用。 所以 CI/CD 这一块反倒挺喜欢阿里云效这"/>
+<meta name="twitter:title" content="用Docker部署kafka且不依赖zookeeper"/>
+<meta name="twitter:description" content="用redpanda居然还要每隔30天更新一下License文件，叔可忍婶不可忍啊。 换掉换掉，直接用Docker部署kafka，后端不用zoo"/>
 <link rel="preload" href="https://rendoumi.com/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://rendoumi.com/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://rendoumi.com/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
   <body><script src="https://rendoumi.com/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=%e4%b8%80%e7%ab%99%e5%bc%8fGit%e8%bd%af%e4%bb%b6onedev%e7%9a%84%e5%ae%89%e8%a3%85%e4%bd%bf%e7%94%a8&url=https%3a%2f%2frendoumi.com%2fposts%2f20211105-onedev%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=%e7%94%a8Docker%e9%83%a8%e7%bd%b2kafka%e4%b8%94%e4%b8%8d%e4%be%9d%e8%b5%96zookeeper&url=https%3a%2f%2frendoumi.com%2fposts%2f20250728-kafka_kraft_docker%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2frendoumi.com%2fposts%2f20211105-onedev%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2frendoumi.com%2fposts%2f20250728-kafka_kraft_docker%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://rendoumi.com/">主页</a></li><li class="breadcrumb-item"><a href="https://rendoumi.com/posts/">Posts</a></li><li class="breadcrumb-item active">一站式Git软件onedev的安装使用</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://rendoumi.com/">主页</a></li><li class="breadcrumb-item"><a href="https://rendoumi.com/posts/">Posts</a></li><li class="breadcrumb-item active">用Docker部署kafka且不依赖zookeeper</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -204,88 +204,80 @@
 ">
   <i class="fas fa-fw fa-copyright"></i>
 </a>
-    <a data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
-  <i class="fas fa-fw fa-list-alt"></i>
-</a>
+    
   </div>
 </div>
-<h1 class="card-title my-3">一站式Git软件onedev的安装使用
+<h1 class="card-title my-3">用Docker部署kafka且不依赖zookeeper
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-05
+    <i class="fas fa-fw fa-calendar-alt"></i>2025-07-28
   </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
   </span></div>
-<div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
-  <div class="offcanvas-header">
-    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
-      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
-        <i class="fas fa-times"></i>
-      </button>
-  </div>
-  <div class="offcanvas-body">
-    <nav id="TableOfContents">
-  <ul>
-    <li><a href="#一安装--java-18-版本">一、安装  java 1.8 版本</a></li>
-    <li><a href="#二安装-git-高版本">二、安装 git 高版本</a></li>
-    <li><a href="#三安装配置-onedev">三、安装配置 onedev</a></li>
-    <li><a href="#三例子">三、例子</a></li>
-  </ul>
-</nav>
-  </div>
-</div><div class="post-content mb-3"><p>其实一直在用 github、gitlab、jenkins，但是 github 时不时的抽风， gitlab 的 runner 套 Docker in docker 的方法委实很难用。</p>
-<p>所以 CI/CD 这一块反倒挺喜欢阿里云效这种简便易行的。但确实找不到其他合适且类似的软件。</p>
-<p>从 V2EX 上看到一个老哥发的 onedev，是一个一站式的开源软件，这不就试试先</p>
-<p>以 centos7 为例，安装过程如下：</p>
-<h2 id="一安装--java-18-版本">一、安装  java 1.8 版本</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">rpm -ivh jdk-8u201-linux-x64.rpm
-</span></span></code></pre></div><h2 id="二安装-git-高版本">二、安装 git 高版本</h2>
-<p>缺省 centos7 和 epel 带的 git 版本太低，不符合要求，得加个新的源装新版本</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">yum -y install https://packages.endpoint.com/rhel/7/os/x86_64/endpoint-repo-1.7-1.x86_64.rpm
-</span></span><span class="line"><span class="ln">2</span><span class="cl">yum -y install git curl
-</span></span></code></pre></div><h2 id="三安装配置-onedev">三、安装配置 onedev</h2>
-<p><a href="https://github.com/theonedev/onedev" target="_blank" rel="noopener noreferrer">https://github.com/theonedev/onedev</a>
-</p>
-<p>下载压缩包，然后解压运行 bin/server.sh start ，很简洁，不错！</p>
-<p>运行完打开 http://192.168.86.101:6610 进行初始配置，就两步就 ok 了。</p>
-<p><img class="img-fluid" alt="image-20211105110253646" src="https://rendoumi.com/posts/20211105-onedev/image-20211105110253646.png" loading="lazy"
-   width="522" height="800"
-   />
-
-</p>
-<p><img class="img-fluid" alt="image-20211105110326330" src="https://rendoumi.com/posts/20211105-onedev/image-20211105110326330.png" loading="lazy"
-   width="440" height="496"
-   />
-
-</p>
-<h2 id="三例子">三、例子</h2>
-<p>我们是要在正式生产环境用的，所以在 projects 新建一个项目 spring-boot，以 spring-petclinic 为例：</p>
-<p>然后到源代码目录下</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">git clone https://github.com/spring-projects/spring-petclinic.git
-</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="nb">cd</span> spring-petclinic
-</span></span><span class="line"><span class="ln"> 3</span><span class="cl">./mvnw package
-</span></span><span class="line"><span class="ln"> 4</span><span class="cl">
-</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="nb">cd</span> spring-petclinic
+<div class="post-content mb-3"><p>用<code>redpanda</code>居然还要每隔30天更新一下License文件，叔可忍婶不可忍啊。</p>
+<p>换掉换掉，直接用Docker部署kafka，后端不用zookeeper，用kraft，天下苦zk也久矣！</p>
+<p>方法很简单，用docker-compose，编辑<code>docker-compose.yml</code>文件</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">name: <span class="s1">&#39;stream&#39;</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">services:
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">  kafka:
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">    image: confluentinc/cp-kafka:latest
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">    hostname: kafka
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">    container_name: kafka
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">    ports:
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">      - 9092:9092
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">      - 9093:9093
+</span></span><span class="line"><span class="ln">10</span><span class="cl">    environment:
+</span></span><span class="line"><span class="ln">11</span><span class="cl">      KAFKA_KRAFT_MODE: <span class="nb">true</span>  <span class="c1"># This enables KRaft mode in Kafka.</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">      KAFKA_PROCESS_ROLES: controller,broker  <span class="c1"># Kafka acts as both broker and controller.</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">      KAFKA_NODE_ID: <span class="m">1</span>  <span class="c1"># A unique ID for this Kafka instance.</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093  <span class="c1"># Defines the controller voters.</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl">      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+</span></span><span class="line"><span class="ln">16</span><span class="cl">      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+</span></span><span class="line"><span class="ln">17</span><span class="cl">      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+</span></span><span class="line"><span class="ln">18</span><span class="cl">      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+</span></span><span class="line"><span class="ln">19</span><span class="cl">      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+</span></span><span class="line"><span class="ln">20</span><span class="cl">      KAFKA_LOG_DIRS: /var/lib/kafka/data  <span class="c1"># Where Kafka stores its logs.</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl">      KAFKA_AUTO_CREATE_TOPICS_ENABLE: <span class="nb">true</span>  <span class="c1"># Kafka will automatically create topics if needed.</span>
+</span></span><span class="line"><span class="ln">22</span><span class="cl">      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: <span class="m">1</span>  <span class="c1"># Since we’re running one broker, one replica is enough.</span>
+</span></span><span class="line"><span class="ln">23</span><span class="cl">      KAFKA_LOG_RETENTION_HOURS: <span class="m">168</span>  <span class="c1"># Keep logs for 7 days.</span>
+</span></span><span class="line"><span class="ln">24</span><span class="cl">      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: <span class="m">0</span>  <span class="c1"># No delay for consumer rebalancing.</span>
+</span></span><span class="line"><span class="ln">25</span><span class="cl">      CLUSTER_ID: Mk3OEYBSD34fcwNTJENDM2Qk  <span class="c1"># A unique ID for the Kafka cluster.</span>
+</span></span><span class="line"><span class="ln">26</span><span class="cl">    volumes:
+</span></span><span class="line"><span class="ln">27</span><span class="cl">      - /var/run/docker.sock:/var/run/docker.sock
+</span></span><span class="line"><span class="ln">28</span><span class="cl">      - ./data:/var/lib/kafka/data  <span class="c1"># Store Kafka logs on your local machine.</span>
+</span></span></code></pre></div><p>注意以上的文件，暴露了2个端口，9092和9093，9092用于客户端连接，9093用于集群通讯；<code>KAFKA_KRAFT_MODE: true</code>用kraft不用zk. ClUSTER_ID可以换个不同的。</p>
+<p>然后文件卷，<code>docker-compose.yml</code>文件的同级目录有个data文件夹，这个文件夹的属主必须是id=1000的用户，在我们的系统中是第一个添加的用户，debian</p>
+<p>所以要设置一下属主：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">chown -R debian:debian data
+</span></span></code></pre></div><p>如果属主不是1000，会爆出以下报错信息并退出：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">kafka  <span class="p">|</span> <span class="o">===</span>&gt; User
+</span></span><span class="line"><span class="ln">2</span><span class="cl">kafka  <span class="p">|</span> <span class="nv">uid</span><span class="o">=</span>1000<span class="o">(</span>appuser<span class="o">)</span> <span class="nv">gid</span><span class="o">=</span>1000<span class="o">(</span>appuser<span class="o">)</span> <span class="nv">groups</span><span class="o">=</span>1000<span class="o">(</span>appuser<span class="o">)</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">kafka  <span class="p">|</span> <span class="o">===</span>&gt; Configuring ...
+</span></span><span class="line"><span class="ln">4</span><span class="cl">kafka  <span class="p">|</span> <span class="o">===</span>&gt; Running preflight checks ... 
+</span></span><span class="line"><span class="ln">5</span><span class="cl">kafka  <span class="p">|</span> <span class="o">===</span>&gt; Check <span class="k">if</span> /var/lib/kafka/data is writable ...
+</span></span><span class="line"><span class="ln">6</span><span class="cl">kafka  <span class="p">|</span> Command <span class="o">[</span>/usr/local/bin/dub path /var/lib/kafka/data writable<span class="o">]</span> FAILED !
+</span></span><span class="line"><span class="ln">7</span><span class="cl">kafka exited with code <span class="m">1</span>
+</span></span></code></pre></div><p>然后启动即可：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">docker-compose up -d
+</span></span></code></pre></div><p>随后测试一下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1">#进入容器bash</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">docker <span class="nb">exec</span> -it kafka bash
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="c1">#建立一个test-topic</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">/usr/bin/kafka-topics --create --topic test-topic --bootstrap-server localhost:9092 --partitions <span class="m">1</span> --replication-factor <span class="m">1</span>
 </span></span><span class="line"><span class="ln"> 6</span><span class="cl">
-</span></span><span class="line"><span class="ln"> 7</span><span class="cl">git init
-</span></span><span class="line"><span class="ln"> 8</span><span class="cl">git add .
-</span></span><span class="line"><span class="ln"> 9</span><span class="cl">git commit -m <span class="s2">&#34;Spring boot demo project&#34;</span>
-</span></span><span class="line"><span class="ln">10</span><span class="cl">
-</span></span><span class="line"><span class="ln">11</span><span class="cl">git remote add origin http://192.168.86.101:6610/spring-boot
-</span></span><span class="line"><span class="ln">12</span><span class="cl">git push --set-upstream origin master
-</span></span></code></pre></div><p>这样就可以在 spring-boot 里看到代码了</p>
-<p><img class="img-fluid" alt="image-20211105113350311" src="https://rendoumi.com/posts/20211105-onedev/image-20211105113350311.png" loading="lazy"
-   width="910" height="290"
-   />
-
-</p>
-<p>然后看上图，有个紫色灯泡，<code>Enable build support by adding.onedev-buildspec.yml</code>，点那个链接就可以进入一系列 build 、push、deploy 的 pipeline 了。</p>
-<p>友情提示，单机的话，机器需要装 onedev 的 agent，然后还有 docker，就可以build了。用起来感觉跟云效差不多，很不错。</p>
-<p><img class="img-fluid" alt="image-20211105154524885" src="https://rendoumi.com/posts/20211105-onedev/image-20211105154524885.png" loading="lazy"
-   width="821" height="559"
-   />
-
-</p>
-</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="c1">#发点消息进去</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">/usr/bin/kafka-console-producer --broker-list localhost:9092 --topic test-topic
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">&gt; Hello Kafka!
+</span></span><span class="line"><span class="ln">10</span><span class="cl">&gt; This is a <span class="nb">test</span> message.
+</span></span><span class="line"><span class="ln">11</span><span class="cl">
+</span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="c1">#另外一个客户端收消息</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">/usr/bin/kafka-console-consumer --bootstrap-server localhost:9092 --topic test-topic -
+</span></span><span class="line"><span class="ln">14</span><span class="cl">Hello Kafka!
+</span></span><span class="line"><span class="ln">15</span><span class="cl">This is a <span class="nb">test</span> message.
+</span></span><span class="line"><span class="ln">16</span><span class="cl">
+</span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="c1">#查看所有的topics</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl">/usr/bin/kafka-topics --list --bootstrap-server localhost:9092
+</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -312,19 +304,15 @@
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://rendoumi.com/posts/20211104-haproxy_restart/">Haproxy的Zero Downtime重启如何做
+    <a href="https://rendoumi.com/posts/20250725-aws_route53_update_certificate/">Aws的EC2服务器用lego获得免费证书并更新到ACM
 </a>
-  </div><div class="post-nav post-next">
-    <a href="https://rendoumi.com/posts/20211105-n2n_vpn/">N2n一种peer to Peer的VPN的使用
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://rendoumi.com/posts/20211104-haproxy_restart/">Haproxy的Zero Downtime重启如何做
-</a></li><li><a href="https://rendoumi.com/posts/20211104-alphine_usage/">Alphine镜像的使用技巧
-</a></li><li><a href="https://rendoumi.com/posts/20211103-alphine_timezone/">Alphine镜像中timezone的设定
-</a></li><li><a href="https://rendoumi.com/posts/20211103-proxmox/">生产环境Proxmox 7.02的安装和配置
-</a></li><li><a href="https://rendoumi.com/posts/20211102-ingress_nginx/">K8s中nginx Ingress的性能优化
+    <ul class="related-posts"><li><a href="https://rendoumi.com/posts/20250725-aws_route53_update_certificate/">Aws的EC2服务器用lego获得免费证书并更新到ACM
+</a></li><li><a href="https://rendoumi.com/posts/20250725_redpanda_license/">Redpanda到期后如何续License
+</a></li><li><a href="https://rendoumi.com/posts/20250723-postgres_dump_restore/">Postgres不同实例、不同用户直接的数据导出导入
+</a></li><li><a href="https://rendoumi.com/posts/20250709-cert_manager_cloudflare/">内网kubernetes&#43;cloudflare&#43;cert-Manager自动签发证书
+</a></li><li><a href="https://rendoumi.com/posts/20250617-cors/">CORS跨域在不同环境中的配置
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
