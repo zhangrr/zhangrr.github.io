@@ -183,6 +183,19 @@
   </div>
 </nav><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://rendoumi.com/posts/20240109-kvm_random_mac/">KVM中网卡地址随机生成方法
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-09
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          用bash随机生成网卡地址： 1echo 52:54:$(dd if=/dev/urandom count=1 2&gt;/dev/null | md5sum | sed &#39;s/^\(..\)\(..\)\(..\)\(..\).*$/\1:\2:\3:\4/&#39;) 252:54:f6:65:52:39 另一种做法： 1openssl rand -hex 6 | sed &#39;s/\(..\)/\1:/g; s/.$//&#39;
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
         <h2 class="card-title post-title"><a href="https://rendoumi.com/posts/20240109-linux_lang/">Linux下设置LANG变量
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2024-01-09
@@ -298,19 +311,6 @@
           NFS的SERVER分两部分： 1、RPC 主程序：rpcbind NFS 本质是一个 RPC 服务，而要启动任何一个 RPC 服务之前，都需要做好 port 的对应 (mapping) 的工作才行
         </div>
       </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://rendoumi.com/posts/20231228-kvm_isoboot/">Kvm虚拟机挂载临时急救iso启动的方法
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-28
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          Kvm虚拟机挂载临时急救iso启动的方法： 首先去到宿主机 编辑虚机文件virsh edit vis-18-32-6 1 &lt;disk type=&#39;file&#39; device=&#39;cdrom&#39;&gt; 2 &lt;driver name=&#39;qemu&#39; type=&#39;raw&#39;/&gt; 3 &lt;target dev=&#39;hda&#39; bus=&#39;ide&#39;/&gt; 4 &lt;readonly/&gt; 5 &lt;address type=&#39;drive&#39; controller=&#39;0&#39; …
-        </div>
-      </div>
     </article></div><div class="row table-responsive mb-3">
     <ul class="pagination pagination-default">
       <li class="page-item">
@@ -364,11 +364,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://rendoumi.com/posts/20250728-kafka_kraft_docker/">用Docker部署kafka且不依赖zookeeper
+    <ul><li><a href="https://rendoumi.com/posts/20250728-kafka_kraft_alone/">单机部署kafka用kraft不依赖zookeeper
+</a></li><li><a href="https://rendoumi.com/posts/20250728-kafka_kraft_docker/">用Docker部署kafka且不依赖zookeeper
 </a></li><li><a href="https://rendoumi.com/posts/20250725-aws_route53_update_certificate/">Aws的EC2服务器用lego获得免费证书并更新到ACM
 </a></li><li><a href="https://rendoumi.com/posts/20250725_redpanda_license/">Redpanda到期后如何续License
 </a></li><li><a href="https://rendoumi.com/posts/20250723-postgres_dump_restore/">Postgres不同实例、不同用户直接的数据导出导入
-</a></li><li><a href="https://rendoumi.com/posts/20250709-cert_manager_cloudflare/">内网kubernetes&#43;cloudflare&#43;cert-Manager自动签发证书
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
