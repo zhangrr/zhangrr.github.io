@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="用Docker部署kafka且不依赖zookeeper">
 <meta itemprop="description" content="用redpanda居然还要每隔30天更新一下License文件，叔可忍婶不可忍啊。 换掉换掉，直接用Docker部署kafka，后端不用zoo"><meta itemprop="datePublished" content="2025-07-28T09:01:11+08:00" />
 <meta itemprop="dateModified" content="2025-07-28T09:01:11+08:00" />
-<meta itemprop="wordCount" content="693">
+<meta itemprop="wordCount" content="740">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="用Docker部署kafka且不依赖zookeeper" />
 <meta property="og:description" content="用redpanda居然还要每隔30天更新一下License文件，叔可忍婶不可忍啊。 换掉换掉，直接用Docker部署kafka，后端不用zoo" />
 <meta property="og:type" content="article" />
@@ -204,7 +204,9 @@
 ">
   <i class="fas fa-fw fa-copyright"></i>
 </a>
-    
+    <a data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
+  <i class="fas fa-fw fa-list-alt"></i>
+</a>
   </div>
 </div>
 <h1 class="card-title my-3">用Docker部署kafka且不依赖zookeeper
@@ -213,7 +215,25 @@
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
   </span></div>
-<div class="post-content mb-3"><p>用<code>redpanda</code>居然还要每隔30天更新一下License文件，叔可忍婶不可忍啊。</p>
+<div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
+      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+  </div>
+  <div class="offcanvas-body">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div><div class="post-content mb-3"><p>用<code>redpanda</code>居然还要每隔30天更新一下License文件，叔可忍婶不可忍啊。</p>
 <p>换掉换掉，直接用Docker部署kafka，后端不用zookeeper，用kraft，天下苦zk也久矣！</p>
 <p>方法很简单，用docker-compose，编辑<code>docker-compose.yml</code>文件</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">name: <span class="s1">&#39;stream&#39;</span>
@@ -229,12 +249,12 @@
 </span></span><span class="line"><span class="ln">11</span><span class="cl">      KAFKA_KRAFT_MODE: <span class="nb">true</span>  <span class="c1"># This enables KRaft mode in Kafka.</span>
 </span></span><span class="line"><span class="ln">12</span><span class="cl">      KAFKA_PROCESS_ROLES: controller,broker  <span class="c1"># Kafka acts as both broker and controller.</span>
 </span></span><span class="line"><span class="ln">13</span><span class="cl">      KAFKA_NODE_ID: <span class="m">1</span>  <span class="c1"># A unique ID for this Kafka instance.</span>
-</span></span><span class="line"><span class="ln">14</span><span class="cl">      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093  <span class="c1"># Defines the controller voters.</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@10.8.1.119:9093  <span class="c1"># Defines the controller voters.</span>
 </span></span><span class="line"><span class="ln">15</span><span class="cl">      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
 </span></span><span class="line"><span class="ln">16</span><span class="cl">      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
 </span></span><span class="line"><span class="ln">17</span><span class="cl">      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
 </span></span><span class="line"><span class="ln">18</span><span class="cl">      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-</span></span><span class="line"><span class="ln">19</span><span class="cl">      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+</span></span><span class="line"><span class="ln">19</span><span class="cl">      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://10.8.1.119:9092
 </span></span><span class="line"><span class="ln">20</span><span class="cl">      KAFKA_LOG_DIRS: /var/lib/kafka/data  <span class="c1"># Where Kafka stores its logs.</span>
 </span></span><span class="line"><span class="ln">21</span><span class="cl">      KAFKA_AUTO_CREATE_TOPICS_ENABLE: <span class="nb">true</span>  <span class="c1"># Kafka will automatically create topics if needed.</span>
 </span></span><span class="line"><span class="ln">22</span><span class="cl">      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: <span class="m">1</span>  <span class="c1"># Since we’re running one broker, one replica is enough.</span>
@@ -245,6 +265,7 @@
 </span></span><span class="line"><span class="ln">27</span><span class="cl">      - /var/run/docker.sock:/var/run/docker.sock
 </span></span><span class="line"><span class="ln">28</span><span class="cl">      - ./data:/var/lib/kafka/data  <span class="c1"># Store Kafka logs on your local machine.</span>
 </span></span></code></pre></div><p>注意以上的文件，暴露了2个端口，9092和9093，9092用于客户端连接，9093用于集群通讯；<code>KAFKA_KRAFT_MODE: true</code>用kraft不用zk. ClUSTER_ID可以换个不同的。</p>
+<h4 id="另外配置有两个1081119地址这是docker宿主机的ip这是对外开放必须要改的">另外配置有两个10.8.1.119地址，这是Docker宿主机的ip，这是对外开放必须要改的。</h4>
 <p>然后文件卷，<code>docker-compose.yml</code>文件的同级目录有个data文件夹，这个文件夹的属主必须是id=1000的用户，在我们的系统中是第一个添加的用户，debian</p>
 <p>所以要设置一下属主：</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">chown -R debian:debian data
@@ -362,7 +383,7 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://rendoumi.com/posts/20250729-route53_lego_bt_certificate/">上难度之内网vps用lego申请route53 DNS证书并更新到BT宝塔
+    <ul><li><a href="https://rendoumi.com/posts/20250729-route53_lego_bt_certificate/">上难度----&gt;内网vps用lego申请route53 DNS证书并更新到BT宝塔
 </a></li><li><a href="https://rendoumi.com/posts/20250728-postgres_wal_pitr/">Postgres的wal和PITR时间点恢复
 </a></li><li><a href="https://rendoumi.com/posts/20250728-kafka_kraft_alone/">单机部署kafka用kraft不依赖zookeeper
 </a></li><li><a href="https://rendoumi.com/posts/20250728-kafka_kraft_docker/">用Docker部署kafka且不依赖zookeeper

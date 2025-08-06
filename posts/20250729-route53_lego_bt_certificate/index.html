@@ -3,17 +3,17 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>上难度之内网vps用lego申请route53 DNS证书并更新到BT宝塔 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://rendoumi.com/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>上难度----&gt;内网vps用lego申请route53 DNS证书并更新到BT宝塔 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://rendoumi.com/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://rendoumi.com/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://rendoumi.com/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://rendoumi.com/images/favicons/manifest.json">
 <link rel="icon" href="https://rendoumi.com/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="上难度之内网vps用lego申请route53 DNS证书并更新到BT宝塔">
+<meta name="description" content="" /><meta itemprop="name" content="上难度----&gt;内网vps用lego申请route53 DNS证书并更新到BT宝塔">
 <meta itemprop="description" content="上一篇我们说了 Aws的EC2服务器用lego获得免费证书并更新到ACM ，这下又来了个更加有难度的挑战： DNS解析是放在了AWS Route 53上，然后"><meta itemprop="datePublished" content="2025-07-29T09:01:11+08:00" />
 <meta itemprop="dateModified" content="2025-07-29T09:01:11+08:00" />
 <meta itemprop="wordCount" content="940">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="上难度之内网vps用lego申请route53 DNS证书并更新到BT宝塔" />
+<meta itemprop="keywords" content="" /><meta property="og:title" content="上难度----&gt;内网vps用lego申请route53 DNS证书并更新到BT宝塔" />
 <meta property="og:description" content="上一篇我们说了 Aws的EC2服务器用lego获得免费证书并更新到ACM ，这下又来了个更加有难度的挑战： DNS解析是放在了AWS Route 53上，然后" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://rendoumi.com/posts/20250729-route53_lego_bt_certificate/" /><meta property="article:section" content="posts" />
@@ -21,7 +21,7 @@
 <meta property="article:modified_time" content="2025-07-29T09:01:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="上难度之内网vps用lego申请route53 DNS证书并更新到BT宝塔"/>
+<meta name="twitter:title" content="上难度----&gt;内网vps用lego申请route53 DNS证书并更新到BT宝塔"/>
 <meta name="twitter:description" content="上一篇我们说了 Aws的EC2服务器用lego获得免费证书并更新到ACM ，这下又来了个更加有难度的挑战： DNS解析是放在了AWS Route 53上，然后"/>
 <link rel="preload" href="https://rendoumi.com/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://rendoumi.com/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://rendoumi.com/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
@@ -114,7 +114,7 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=%e4%b8%8a%e9%9a%be%e5%ba%a6%e4%b9%8b%e5%86%85%e7%bd%91vps%e7%94%a8lego%e7%94%b3%e8%af%b7route53%20DNS%e8%af%81%e4%b9%a6%e5%b9%b6%e6%9b%b4%e6%96%b0%e5%88%b0BT%e5%ae%9d%e5%a1%94&url=https%3a%2f%2frendoumi.com%2fposts%2f20250729-route53_lego_bt_certificate%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=%e4%b8%8a%e9%9a%be%e5%ba%a6----%3e%e5%86%85%e7%bd%91vps%e7%94%a8lego%e7%94%b3%e8%af%b7route53%20DNS%e8%af%81%e4%b9%a6%e5%b9%b6%e6%9b%b4%e6%96%b0%e5%88%b0BT%e5%ae%9d%e5%a1%94&url=https%3a%2f%2frendoumi.com%2fposts%2f20250729-route53_lego_bt_certificate%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://rendoumi.com/">主页</a></li><li class="breadcrumb-item"><a href="https://rendoumi.com/posts/">Posts</a></li><li class="breadcrumb-item active">上难度之内网vps用lego申请route53 DNS证书并更新到BT宝塔</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://rendoumi.com/">主页</a></li><li class="breadcrumb-item"><a href="https://rendoumi.com/posts/">Posts</a></li><li class="breadcrumb-item active">上难度----&gt;内网vps用lego申请route53 DNS证书并更新到BT宝塔</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -209,7 +209,7 @@
 </a>
   </div>
 </div>
-<h1 class="card-title my-3">上难度之内网vps用lego申请route53 DNS证书并更新到BT宝塔
+<h1 class="card-title my-3">上难度----&gt;内网vps用lego申请route53 DNS证书并更新到BT宝塔
 </h1><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2025-07-29
   </span><span class="post-reading-time" title="reading time">
@@ -321,7 +321,7 @@
    />
 
 </p>
-<p>四、配置aws</p>
+<h5 id="四配置aws">四、配置aws</h5>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="nb">cd</span> .aws
 </span></span><span class="line"><span class="ln"> 2</span><span class="cl">
 </span></span><span class="line"><span class="ln"> 3</span><span class="cl">cat credentials 
@@ -335,7 +335,7 @@
 </span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="o">[</span>profile RealUpdateCertRole<span class="o">]</span>
 </span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="nv">role_arn</span> <span class="o">=</span> arn:aws:iam::111111111111:role/RealUpdateCertRole
 </span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="nv">source_profile</span> <span class="o">=</span> CertProxyUser
-</span></span></code></pre></div><p>五、撰写lego获取证书的脚本</p>
+</span></span></code></pre></div><h5 id="五撰写lego获取证书的脚本">五、撰写lego获取证书的脚本</h5>
 <p>/usr/local/bin/get-cert.sh，它会自动用CertProxyUser凭据，获得RealUpdateCertRole的角色，然后去拿到证书</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="cp">#!/bin/bash
 </span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="cp"></span>
@@ -449,7 +449,7 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://rendoumi.com/posts/20250729-route53_lego_bt_certificate/">上难度之内网vps用lego申请route53 DNS证书并更新到BT宝塔
+    <ul><li><a href="https://rendoumi.com/posts/20250729-route53_lego_bt_certificate/">上难度----&gt;内网vps用lego申请route53 DNS证书并更新到BT宝塔
 </a></li><li><a href="https://rendoumi.com/posts/20250728-postgres_wal_pitr/">Postgres的wal和PITR时间点恢复
 </a></li><li><a href="https://rendoumi.com/posts/20250728-kafka_kraft_alone/">单机部署kafka用kraft不依赖zookeeper
 </a></li><li><a href="https://rendoumi.com/posts/20250728-kafka_kraft_docker/">用Docker部署kafka且不依赖zookeeper
