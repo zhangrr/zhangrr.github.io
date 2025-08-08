@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>kubernetes搭建minio作为阿里OSS的Gateway - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://rendoumi.com/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>k3s的安装 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://rendoumi.com/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://rendoumi.com/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://rendoumi.com/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://rendoumi.com/images/favicons/manifest.json">
 <link rel="icon" href="https://rendoumi.com/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="kubernetes搭建minio作为阿里OSS的Gateway">
-<meta itemprop="description" content="阿里的云的 OSS 并不是完全版本的 AWS S3 兼容。 我们如果需要用 S3 协议访问 OSS，就比较麻烦了。 所以搭建一个 minio 来做网关，代理OSS，minio 是基本兼容"><meta itemprop="datePublished" content="2021-11-26T09:30:11+08:00" />
-<meta itemprop="dateModified" content="2021-11-26T09:30:11+08:00" />
-<meta itemprop="wordCount" content="752">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="kubernetes搭建minio作为阿里OSS的Gateway" />
-<meta property="og:description" content="阿里的云的 OSS 并不是完全版本的 AWS S3 兼容。 我们如果需要用 S3 协议访问 OSS，就比较麻烦了。 所以搭建一个 minio 来做网关，代理OSS，minio 是基本兼容" />
+<meta name="description" content="" /><meta itemprop="name" content="k3s的安装">
+<meta itemprop="description" content="这篇是一个大水贴，只是为了记录k3s的安装 这个东西被Rancher用得纯熟，先搭建一个k3s集群，然后再其上装控制软件，再去控制其它集群，非"><meta itemprop="datePublished" content="2025-08-08T09:11:11+08:00" />
+<meta itemprop="dateModified" content="2025-08-08T09:11:11+08:00" />
+<meta itemprop="wordCount" content="204">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="k3s的安装" />
+<meta property="og:description" content="这篇是一个大水贴，只是为了记录k3s的安装 这个东西被Rancher用得纯熟，先搭建一个k3s集群，然后再其上装控制软件，再去控制其它集群，非" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://rendoumi.com/posts/20211126-kubernetes_minio_oss_gateway/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2021-11-26T09:30:11+08:00" />
-<meta property="article:modified_time" content="2021-11-26T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+<meta property="og:url" content="https://rendoumi.com/posts/20250808-k3s_install/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2025-08-08T09:11:11+08:00" />
+<meta property="article:modified_time" content="2025-08-08T09:11:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="kubernetes搭建minio作为阿里OSS的Gateway"/>
-<meta name="twitter:description" content="阿里的云的 OSS 并不是完全版本的 AWS S3 兼容。 我们如果需要用 S3 协议访问 OSS，就比较麻烦了。 所以搭建一个 minio 来做网关，代理OSS，minio 是基本兼容"/>
+<meta name="twitter:title" content="k3s的安装"/>
+<meta name="twitter:description" content="这篇是一个大水贴，只是为了记录k3s的安装 这个东西被Rancher用得纯熟，先搭建一个k3s集群，然后再其上装控制软件，再去控制其它集群，非"/>
 <link rel="preload" href="https://rendoumi.com/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://rendoumi.com/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://rendoumi.com/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
   <body><script src="https://rendoumi.com/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=kubernetes%e6%90%ad%e5%bb%baminio%e4%bd%9c%e4%b8%ba%e9%98%bf%e9%87%8cOSS%e7%9a%84Gateway&url=https%3a%2f%2frendoumi.com%2fposts%2f20211126-kubernetes_minio_oss_gateway%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=k3s%e7%9a%84%e5%ae%89%e8%a3%85&url=https%3a%2f%2frendoumi.com%2fposts%2f20250808-k3s_install%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2frendoumi.com%2fposts%2f20211126-kubernetes_minio_oss_gateway%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2frendoumi.com%2fposts%2f20250808-k3s_install%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://rendoumi.com/">主页</a></li><li class="breadcrumb-item"><a href="https://rendoumi.com/posts/">Posts</a></li><li class="breadcrumb-item active">Kubernetes搭建minio作为阿里OSS的Gateway</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://rendoumi.com/">主页</a></li><li class="breadcrumb-item"><a href="https://rendoumi.com/posts/">Posts</a></li><li class="breadcrumb-item active">K3s的安装</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -207,118 +207,43 @@
     
   </div>
 </div>
-<h1 class="card-title my-3">Kubernetes搭建minio作为阿里OSS的Gateway
+<h1 class="card-title my-3">K3s的安装
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2021-11-26
+    <i class="fas fa-fw fa-calendar-alt"></i>2025-08-08
   </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
   </span></div>
-<div class="post-content mb-3"><p>阿里的云的 OSS 并不是完全版本的 AWS S3 兼容。</p>
-<p>我们如果需要用 S3 协议访问 OSS，就比较麻烦了。</p>
-<p>所以搭建一个 minio 来做网关，代理OSS，minio 是基本兼容S3的，所以这样曲线救国，通过 S3 协议访问 minio 来访问最后端的 OSS</p>
-<p>这里还有一段故事：</p>
-<p>Minio 中间有一版是支持 oss 的，但是后来 oss 改了协议，所以现在的最新版本 minio 反而是不支持代理 oss 的，我们必须手动作出镜像，放到镜像库里，然后阿里 ACK 再使用</p>
-<p>首先去下载那一版直接支持oss的</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">wget http://dl.minio.org.cn/server/minio/release/linux-amd64/archive/minio.RELEASE.2020-04-15T19-42-18Z 
-</span></span><span class="line"><span class="ln">2</span><span class="cl">
-</span></span><span class="line"><span class="ln">3</span><span class="cl">chmod <span class="m">755</span> minio.RELEASE.2020-04-15T19-42-18Z 
-</span></span></code></pre></div><p>这个文件比较宝贵，给个本地备份链接下载：</p>
-<p><a href="minio.RELEASE.2020-04-15T19-42-18Z">minio.RELEASE.2020-04-15T19-42-18Z</a>
-</p>
-<p>然后在当前目录编辑 Dockerfile ，因为 K8S 和 OSS 同一地域，所以用 OSS 私网域名：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="na">FROM alpine:3.12 </span>
+<div class="post-content mb-3"><p>这篇是一个大水贴，只是为了记录k3s的安装</p>
+<p>这个东西被Rancher用得纯熟，先搭建一个k3s集群，然后再其上装控制软件，再去控制其它集群，非常好的想法，值得借鉴</p>
+<p>安装和删除都非常简洁，准备工作：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">apt update <span class="o">&amp;&amp;</span> apt upgrade -y
 </span></span><span class="line"><span class="ln"> 2</span><span class="cl">
-</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="na">RUN apk add --update bash &amp;&amp; rm -rf /var/cache/apk/*  </span>
-</span></span><span class="line"><span class="ln"> 4</span><span class="cl">
-</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="na">COPY minio.RELEASE.2020-04-15T19-42-18Z /data/minio.RELEASE.2020-04-15T19-42-18Z  </span>
-</span></span><span class="line"><span class="ln"> 6</span><span class="cl">
-</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="na">ENV MINIO_ACCESS_KEY</span><span class="o">=</span><span class="s">LTAI5tFFTbsxxxxxuLb  </span>
-</span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="na">ENV MINIO_SECRET_KEY</span><span class="o">=</span><span class="s">t78PyGnHZilxxxxxdxBCjvNgtVC5Y  </span>
-</span></span><span class="line"><span class="ln"> 9</span><span class="cl">
-</span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="na">WORKDIR /data  </span>
-</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="na">EXPOSE 9000  </span>
-</span></span><span class="line"><span class="ln">12</span><span class="cl">
-</span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="na">CMD [&#34;/data/minio.RELEASE.2020-04-15T19-42-18Z&#34;,&#34;gateway&#34;,&#34;oss&#34;,&#34;http://oss-cn-shanghai-internal.aliyuncs.com&#34;] </span>
-</span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="c1"># CMD /bin/sh -c &#34;while true; do echo hi; sleep 10; done&#34;</span>
-</span></span></code></pre></div><p>注意上面，MINIO_ACCESS_KEY 和 MINIO_SECRET_KEY 对应的是阿里云 OSS的 AccessKey ID 和 AccessKey Secret</p>
-<p>打开阿里云网址，新建AccessKey ID 和 AccessKey Secret ，注意这东西只能看见一次，之后再也不能明文看了，所以第一次务必保存好！！！</p>
-<p><a href="https://ram.console.aliyun.com/manage/ak" target="_blank" rel="noopener noreferrer">https://ram.console.aliyun.com/manage/ak</a>
-</p>
-<p><img class="img-fluid" alt="image-20211126094340872" src="https://rendoumi.com/posts/20211126-kubernetes_minio_oss_gateway/image-20211126094340872.png" loading="lazy"
-   width="1212" height="349"
-   />
-
-</p>
-<p>然后还有 Dockerfile 的最后一行，八戒的习惯是保留一个死循环 shell，如果镜像 CMD 有问题，无法启动，就换成这个先启动，然后再进去调试。（经常有什么库错、链接搞不好需要修改）</p>
-<p><code>docker build -t registry.cn-shanghai.aliyuncs.com/rendoumi/minio . </code></p>
-<p>然后 push 上去</p>
-<p><code>docker push registry.cn-shanghai.aliyuncs.com/rendoumi/minio </code></p>
-<p>编写好Deployment和svc，如果想公开还可以写 ingress 向外暴露，自己公司用还是 port-forward 更安全</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ini" data-lang="ini"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="na">---</span>
-</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="na">apiVersion: apps/v1 </span>
-</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="na">kind: Deployment </span>
-</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="na">metadata: </span>
-</span></span><span class="line"><span class="ln"> 5</span><span class="cl">  <span class="na">name: minio-deploy </span>
-</span></span><span class="line"><span class="ln"> 6</span><span class="cl">  <span class="na">labels: </span>
-</span></span><span class="line"><span class="ln"> 7</span><span class="cl">    <span class="na">app: minio </span>
-</span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="na">spec: </span>
-</span></span><span class="line"><span class="ln"> 9</span><span class="cl">  <span class="na">replicas: 1 </span>
-</span></span><span class="line"><span class="ln">10</span><span class="cl">  <span class="na">selector: </span>
-</span></span><span class="line"><span class="ln">11</span><span class="cl">    <span class="na">matchLabels: </span>
-</span></span><span class="line"><span class="ln">12</span><span class="cl">      <span class="na">app: minio </span>
-</span></span><span class="line"><span class="ln">13</span><span class="cl">  <span class="na">template: </span>
-</span></span><span class="line"><span class="ln">14</span><span class="cl">    <span class="na">metadata: </span>
-</span></span><span class="line"><span class="ln">15</span><span class="cl">      <span class="na">labels: </span>
-</span></span><span class="line"><span class="ln">16</span><span class="cl">        <span class="na">app: minio </span>
-</span></span><span class="line"><span class="ln">17</span><span class="cl">    <span class="na">spec: </span>
-</span></span><span class="line"><span class="ln">18</span><span class="cl">      <span class="na">containers: </span>
-</span></span><span class="line"><span class="ln">19</span><span class="cl">      <span class="na">- name: minio </span>
-</span></span><span class="line"><span class="ln">20</span><span class="cl">        <span class="na">image: registry.cn-shanghai.aliyuncs.com/rendoumi/minio:latest </span>
-</span></span><span class="line"><span class="ln">21</span><span class="cl">        <span class="na">ports: </span>
-</span></span><span class="line"><span class="ln">22</span><span class="cl">        <span class="na">- containerPort: 9000 </span>
-</span></span><span class="line"><span class="ln">23</span><span class="cl"><span class="na">---</span>
-</span></span><span class="line"><span class="ln">24</span><span class="cl"><span class="na">apiVersion: v1  </span>
-</span></span><span class="line"><span class="ln">25</span><span class="cl"><span class="na">kind: Service  </span>
-</span></span><span class="line"><span class="ln">26</span><span class="cl"><span class="na">metadata:  </span>
-</span></span><span class="line"><span class="ln">27</span><span class="cl"> <span class="na">name: minio-svc  </span>
-</span></span><span class="line"><span class="ln">28</span><span class="cl"> <span class="na">labels:  </span>
-</span></span><span class="line"><span class="ln">29</span><span class="cl">   <span class="na">app: minio  </span>
-</span></span><span class="line"><span class="ln">30</span><span class="cl"><span class="na">spec:  </span>
-</span></span><span class="line"><span class="ln">31</span><span class="cl"> <span class="na">ports:  </span>
-</span></span><span class="line"><span class="ln">32</span><span class="cl"> <span class="na">- name: http  </span>
-</span></span><span class="line"><span class="ln">33</span><span class="cl">   <span class="na">protocol: TCP  </span>
-</span></span><span class="line"><span class="ln">34</span><span class="cl">   <span class="na">port: 9000  </span>
-</span></span><span class="line"><span class="ln">35</span><span class="cl">   <span class="na">targetPort: 9000  </span>
-</span></span><span class="line"><span class="ln">36</span><span class="cl"> <span class="na">selector:  </span>
-</span></span><span class="line"><span class="ln">37</span><span class="cl">   <span class="na">app: minio  </span>
-</span></span><span class="line"><span class="ln">38</span><span class="cl"> <span class="na">type: ClusterIP </span>
-</span></span></code></pre></div><p>然后开转发：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">kubectl port-forward svc/minio-svc 9000:9000 <span class="p">&amp;</span>
-</span></span></code></pre></div><p>用浏览器访问 http://localhost:9000 就可以了，还得输入一遍密码</p>
-<p><img class="img-fluid" alt="image-20211126095040380" src="https://rendoumi.com/posts/20211126-kubernetes_minio_oss_gateway/image-20211126095040380.png" loading="lazy"
-   width="637" height="360"
-   />
-
-</p>
-<p>这样就可以看到 OSS 的所有桶了</p>
-<p><img class="img-fluid" alt="image-20211126095433603" src="https://rendoumi.com/posts/20211126-kubernetes_minio_oss_gateway/image-20211126095433603.png" loading="lazy"
-   width="638" height="384"
-   />
-
-</p>
-<p>Minio的官方命令行客户端是 mc，使用方法如下：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">wget https://dl.min.io/client/mc/release/linux-amd64/mc 
-</span></span><span class="line"><span class="ln">2</span><span class="cl">chmod <span class="m">755</span> mc 
-</span></span><span class="line"><span class="ln">3</span><span class="cl">
-</span></span><span class="line"><span class="ln">4</span><span class="cl">./mc <span class="nb">alias</span> <span class="nb">set</span> minio http://minio-svc:9000 MINIO_ACCESS_KEY 和 MINIO_SECRET_KEY 
-</span></span><span class="line"><span class="ln">5</span><span class="cl">
-</span></span><span class="line"><span class="ln">6</span><span class="cl">./mc ls minio 
-</span></span></code></pre></div><p>minio 跑在容器外进行 OSS 代理的方法，注意不同地方，OSS 的域名改为公网的了：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="cp">#!/bin/sh
-</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="cp"></span><span class="nb">export</span> <span class="nv">MINIO_ACCESS_KEY</span><span class="o">=</span>LTAI5tFFTbsxxxxxuLb 
-</span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="nb">export</span> <span class="nv">MINIO_SECRET_KEY</span><span class="o">=</span>t78PyGnHZilxxxxxdxBCjvNgtVC5Y 
-</span></span><span class="line"><span class="ln">4</span><span class="cl">nohup ./minio.RELEASE.2020-04-15T19-42-18Z gateway oss http://oss-cn-shanghai.aliyuncs.com &gt;/dev/null 2&gt;<span class="p">&amp;</span><span class="m">1</span> <span class="p">&amp;</span>
-</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="c1"># 三台机器分别设置</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">hostnamectl set-hostname master
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">hostnamectl set-hostname worker-1
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">hostnamectl set-hostname worker-2
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="c1"># vi /etc/hosts</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">127.0.0.1 master
+</span></span><span class="line"><span class="ln">10</span><span class="cl">
+</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="c1"># 两外两台也分别设置</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">127.0.0.1 worker-1
+</span></span><span class="line"><span class="ln">13</span><span class="cl">
+</span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="c1"># 第3台</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl">127.0.0.1 worker-2
+</span></span></code></pre></div><p>准备工作都弄好了。下面安装</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">curl -sfL https://get.k3s.io <span class="p">|</span> sh -
+</span></span><span class="line"><span class="ln">2</span><span class="cl">
+</span></span><span class="line"><span class="ln">3</span><span class="cl">systemctl status k3s
+</span></span><span class="line"><span class="ln">4</span><span class="cl">
+</span></span><span class="line"><span class="ln">5</span><span class="cl">cat /var/lib/rancher/k3s/server/node-token
+</span></span><span class="line"><span class="ln">6</span><span class="cl">
+</span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="c1"># 加入新节点</span>
+</span></span><span class="line"><span class="ln">8</span><span class="cl">curl -sfL https://get.k3s.io <span class="p">|</span> <span class="nv">K3S_URL</span><span class="o">=</span>https://192.168.0.200:6443 <span class="nv">K3S_TOKEN</span><span class="o">=</span>&lt;your-token-here&gt; <span class="nv">INSTALL_K3S_EXEC</span><span class="o">=</span><span class="s2">&#34;--node-ip=&lt;worker-ip&gt;&#34;</span> sh -
+</span></span></code></pre></div><p>删除也就一句</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">/usr/local/bin/k3s-uninstall.sh
+</span></span></code></pre></div><p>可以反复进行安装</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -345,19 +270,15 @@
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://rendoumi.com/posts/20211125-kubernetes_crontab_kala/">替代kubernetes Crontab的神器kala
+    <a href="https://rendoumi.com/posts/20250808-openeuler_pagecache/">欧拉PageCache的内核编译
 </a>
-  </div><div class="post-nav post-next">
-    <a href="https://rendoumi.com/posts/20211129-kubernetes_nginx_ingress_limit/">Kubernetes下nginx Ingress的限制
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://rendoumi.com/posts/20211125-kubernetes_crontab_kala/">替代kubernetes Crontab的神器kala
-</a></li><li><a href="https://rendoumi.com/posts/20211125-kubernetes_hpa/">Kubernetes的hpa和自定义指标hpa
-</a></li><li><a href="https://rendoumi.com/posts/20211124-ansible_vault/">Ansible Vault加密的使用
-</a></li><li><a href="https://rendoumi.com/posts/20211123-freeipa_freeradius/">使用FreeIPA和FreeRadius搭建双因子认证服务器
-</a></li><li><a href="https://rendoumi.com/posts/20211119-kvm_disk_passthrough/">KVM下附加硬盘的passthrough直通
+    <ul class="related-posts"><li><a href="https://rendoumi.com/posts/20250808-openeuler_pagecache/">欧拉PageCache的内核编译
+</a></li><li><a href="https://rendoumi.com/posts/20250807-csi_scaleflash/">为极客天成改写一套CSI存储插件
+</a></li><li><a href="https://rendoumi.com/posts/20250806-vault_approle_env/">Vault使用agent验证approle生成.env环境变量
+</a></li><li><a href="https://rendoumi.com/posts/20250729-route53_lego_bt_certificate/">上难度----&gt;内网vps用lego申请route53 DNS证书并更新到BT宝塔
+</a></li><li><a href="https://rendoumi.com/posts/20250728-postgres_wal_pitr/">Postgres的wal和PITR时间点恢复
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
