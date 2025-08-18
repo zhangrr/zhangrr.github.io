@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="vault使用external secret管理kubernetes secret">
 <meta itemprop="description" content="今天是2025年8月15日，大噩耗啊： external-secrets / external-secrets Link ⭐ 5416 | 🔀 1032 | Go 97.6% External Secrets Operator 项目暂停发布 由于维护团队规模过小，External Secrets Operator 决定暂停所有官方版"><meta itemprop="datePublished" content="2025-08-15T09:01:11+08:00" />
 <meta itemprop="dateModified" content="2025-08-15T09:01:11+08:00" />
-<meta itemprop="wordCount" content="3030">
+<meta itemprop="wordCount" content="3022">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="vault使用external secret管理kubernetes secret" />
 <meta property="og:description" content="今天是2025年8月15日，大噩耗啊： external-secrets / external-secrets Link ⭐ 5416 | 🔀 1032 | Go 97.6% External Secrets Operator 项目暂停发布 由于维护团队规模过小，External Secrets Operator 决定暂停所有官方版" />
 <meta property="og:type" content="article" />
@@ -436,7 +436,7 @@
 </span></span><span class="line"><span class="ln">37</span><span class="cl">  namespace: default <span class="c1"># 使用目标命名空间，可以修改为你的实际命名空间</span>
 </span></span><span class="line"><span class="ln">38</span><span class="cl">type: Opaque
 </span></span><span class="line"><span class="ln">39</span><span class="cl">data:
-</span></span><span class="line"><span class="ln">40</span><span class="cl">  MY_SECRET_NAME: <span class="nv">TGFja3k</span><span class="o">=</span> <span class="c1"># Base64 编码后的 &#34;Lacky&#34;</span>
+</span></span><span class="line"><span class="ln">40</span><span class="cl">  MY_SECRET_NAME: AABBCC
 </span></span></code></pre></div><p>实在太复杂痛苦了，最终的环境变量应该如下：</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="nv">MY_SECRET_NAME</span><span class="o">=</span><span class="s2">&#34;Fuck Dingdang&#34;</span>
 </span></span></code></pre></div><p>但这没有结束呢。</p>
@@ -596,7 +596,7 @@
 </span></span></span><span class="line"><span class="ln"> 59</span><span class="cl"><span class="se"></span>    <span class="nv">policies</span><span class="o">=</span>demo-policy <span class="se">\
 </span></span></span><span class="line"><span class="ln"> 60</span><span class="cl"><span class="se"></span>
 </span></span><span class="line"><span class="ln"> 61</span><span class="cl"><span class="c1"># 存放测试kv数据  </span>
-</span></span><span class="line"><span class="ln"> 62</span><span class="cl">vault kv put secret/demo <span class="nv">MY_SECRET_NAME</span><span class="o">=</span><span class="s2">&#34;Jack Ma&#34;</span>
+</span></span><span class="line"><span class="ln"> 62</span><span class="cl">vault kv put secret/demo <span class="nv">MY_SECRET_NAME</span><span class="o">=</span><span class="s2">&#34;BBCCDDEE&#34;</span>
 </span></span><span class="line"><span class="ln"> 63</span><span class="cl">vault kv get secret/demo
 </span></span><span class="line"><span class="ln"> 64</span><span class="cl">
 </span></span><span class="line"><span class="ln"> 65</span><span class="cl"><span class="c1"># 启动一个deployment</span>
