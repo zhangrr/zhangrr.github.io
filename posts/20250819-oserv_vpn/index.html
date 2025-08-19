@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>gost tunnel的使用 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://rendoumi.com/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>Ocserv VPN的安装和使用 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://rendoumi.com/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://rendoumi.com/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://rendoumi.com/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://rendoumi.com/images/favicons/manifest.json">
 <link rel="icon" href="https://rendoumi.com/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="gost tunnel的使用">
-<meta itemprop="description" content="用过了好几个 tunnel 工具软件，各有长处。 ghostunnel 是支持自定义 tls 证书加密的，这回用个更厉害的，支持各种代理链条的，gost 项目地址：https://git"><meta itemprop="datePublished" content="2022-02-24T09:30:11+08:00" />
-<meta itemprop="dateModified" content="2022-02-24T09:30:11+08:00" />
-<meta itemprop="wordCount" content="768">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="gost tunnel的使用" />
-<meta property="og:description" content="用过了好几个 tunnel 工具软件，各有长处。 ghostunnel 是支持自定义 tls 证书加密的，这回用个更厉害的，支持各种代理链条的，gost 项目地址：https://git" />
+<meta name="description" content="" /><meta itemprop="name" content="Ocserv VPN的安装和使用">
+<meta itemprop="description" content="由于ios的openvpn大陆地区无法安装，而员工又需要手机或PC登录VPN访问云上的资源，没办法，找了又找，终于，发现cisco的vpn还"><meta itemprop="datePublished" content="2025-08-19T09:01:11+08:00" />
+<meta itemprop="dateModified" content="2025-08-19T09:01:11+08:00" />
+<meta itemprop="wordCount" content="526">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="Ocserv VPN的安装和使用" />
+<meta property="og:description" content="由于ios的openvpn大陆地区无法安装，而员工又需要手机或PC登录VPN访问云上的资源，没办法，找了又找，终于，发现cisco的vpn还" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://rendoumi.com/posts/20220224-gost_tunnel/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2022-02-24T09:30:11+08:00" />
-<meta property="article:modified_time" content="2022-02-24T09:30:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+<meta property="og:url" content="https://rendoumi.com/posts/20250819-oserv_vpn/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2025-08-19T09:01:11+08:00" />
+<meta property="article:modified_time" content="2025-08-19T09:01:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="gost tunnel的使用"/>
-<meta name="twitter:description" content="用过了好几个 tunnel 工具软件，各有长处。 ghostunnel 是支持自定义 tls 证书加密的，这回用个更厉害的，支持各种代理链条的，gost 项目地址：https://git"/>
+<meta name="twitter:title" content="Ocserv VPN的安装和使用"/>
+<meta name="twitter:description" content="由于ios的openvpn大陆地区无法安装，而员工又需要手机或PC登录VPN访问云上的资源，没办法，找了又找，终于，发现cisco的vpn还"/>
 <link rel="preload" href="https://rendoumi.com/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://rendoumi.com/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://rendoumi.com/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
   <body><script src="https://rendoumi.com/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=gost%20tunnel%e7%9a%84%e4%bd%bf%e7%94%a8&url=https%3a%2f%2frendoumi.com%2fposts%2f20220224-gost_tunnel%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=Ocserv%20VPN%e7%9a%84%e5%ae%89%e8%a3%85%e5%92%8c%e4%bd%bf%e7%94%a8&url=https%3a%2f%2frendoumi.com%2fposts%2f20250819-oserv_vpn%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2frendoumi.com%2fposts%2f20220224-gost_tunnel%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2frendoumi.com%2fposts%2f20250819-oserv_vpn%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://rendoumi.com/">主页</a></li><li class="breadcrumb-item"><a href="https://rendoumi.com/posts/">Posts</a></li><li class="breadcrumb-item active">Gost Tunnel的使用</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://rendoumi.com/">主页</a></li><li class="breadcrumb-item"><a href="https://rendoumi.com/posts/">Posts</a></li><li class="breadcrumb-item active">Ocserv VPN的安装和使用</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -204,62 +204,68 @@
 ">
   <i class="fas fa-fw fa-copyright"></i>
 </a>
-    <a data-bs-toggle="offcanvas" href="#offcanvasTOC" aria-controls="offcanvasTOC" role="button">
-  <i class="fas fa-fw fa-list-alt"></i>
-</a>
+    
   </div>
 </div>
-<h1 class="card-title my-3">Gost Tunnel的使用
+<h1 class="card-title my-3">Ocserv VPN的安装和使用
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2022-02-24
+    <i class="fas fa-fw fa-calendar-alt"></i>2025-08-19
   </span><span class="post-reading-time" title="reading time">
     <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
   </span></div>
-<div class="offcanvas offcanvas-end surface" tabindex="-1" id="offcanvasTOC" aria-labelledby="offcanvasTOCLabel">
-  <div class="offcanvas-header">
-    <h2 class="offcanvas-title" id="offcanvasTOCLabel">目录</h5>
-      <button type="button" class="btn btn-sm btn-outline-primary" data-bs-dismiss="offcanvas" aria-label="Close">
-        <i class="fas fa-times"></i>
-      </button>
-  </div>
-  <div class="offcanvas-body">
-    <nav id="TableOfContents">
-  <ul>
-    <li>
-      <ul>
-        <li></li>
-      </ul>
-    </li>
-  </ul>
-</nav>
-  </div>
-</div><div class="post-content mb-3"><p>用过了好几个 tunnel 工具软件，各有长处。</p>
-<p>ghostunnel 是支持自定义 tls 证书加密的，这回用个更厉害的，支持各种代理链条的，gost</p>
-<p>项目地址：https://github.com/ginuerzh/gost</p>
-<p>里面的概念有点意思，其实就两条，-L 本地监听，-F 链条转发。</p>
-<p>注意的就一点，-F 的时候实际是一个中转服务器。这个中转服务器要转发的规则需要在 -L 参数里指定。</p>
-<p>那么举个具体的例子：</p>
-<p>中转服务器开了一个明文端口 9999，这个端口跑的是 ghostunnel client，加密数据后传到另外一个ghostunnel server服务器，然后数据明文穿出，访问具体的目的网站的端口。</p>
-<p>客户端的服务器呢无外网访问权限，需要访问中转服务器 192.168.1.1 的 9999 端口，然后数据通过 ghostunnel 加密穿出到外网。</p>
-<p>中转服务器配置如下：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1"># ghostunnel 监听本地环回地址的9999端口，TLS 加密穿越到外网110.114.5.19:9999，然后根据外网 server 里面的配置，到达最终目的地 ip 和 端口</span>
-</span></span><span class="line"><span class="ln">2</span><span class="cl">ghostunnel client --listen localhost:9999 --target 110.114.5.19:9999 --keystore client.pem --cacert ca.pem --unsafe-listen
+<div class="post-content mb-3"><p>由于ios的openvpn大陆地区无法安装，而员工又需要手机或PC登录VPN访问云上的资源，没办法，找了又找，终于，发现cisco的vpn还是能在苹果市场下载安装的，那就装个开源的Ocserv吧，别说还挺好，能分组控制路由的发布，非常不错</p>
+<p>记录一下安装配置过程，使用Ubuntu 24.04的底版：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">apt update
+</span></span><span class="line"><span class="ln">2</span><span class="cl">apt upgrade
 </span></span><span class="line"><span class="ln">3</span><span class="cl">
-</span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="c1"># gost 监听本地网卡192.168.1.1的9999端口</span>
-</span></span><span class="line"><span class="ln">5</span><span class="cl">gost-linux-amd64-2.11.1 -L<span class="o">=</span>tls://192.168.1.1:9999
-</span></span></code></pre></div><p>客户端配置如下：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">gost-linux-amd64-2.11.1 -L<span class="o">=</span>tcp://localhost:9999/localhost:9999 -F<span class="o">=</span>tls://192.168.1.1:9999
-</span></span></code></pre></div><p>这样客户端的程序，只要连接 localhost:9999 的 tcp 端口，就可以接力中转服务器穿出去了。</p>
-<p>上面的配置非常怪异吧，仔细解释一下：</p>
-<p>中转服务器呢有两个地址，localhost的环回地址，以及本地网卡192.168.1.1</p>
-<p>localhost:9999 是用 ghostunnel 加密 tcp 流量，tls 穿到外网 110.114.5.19 的 9999 端口，然后外网再转发。</p>
-<p>中转服务器同时监听了一个 192.168.1.1:9999 端口 tls 的加密代理端口。</p>
-<p>中转服务器的部分就完了。</p>
-<p>而客户端配置 -L = tcp://localhost:9999/localhost:9999</p>
-<p>第一个 localhost:9999 指的是本机的地址，第二个 localhost:9999 指的是中转机上面的转发地址，这个地方非常让人迷惑。</p>
-<h4 id="强调一下中转代理的转发配置是在客户端设置而不是中转代理上设置">强调一下：中转代理的转发配置是在客户端设置，而不是中转代理上设置。</h4>
-<p>然后 -F 指定了中转服务器，就可以了。</p>
-<p>最后一个要注意的地方，代理协议无论是 tls 、kcp  等，都自带缺省的证书，如果不满意，可以自己指定的。这个工具不用特意生成证书来使用。</p>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">apt-cache show ocserv
+</span></span><span class="line"><span class="ln">5</span><span class="cl">apt-get install -y ocserv
+</span></span><span class="line"><span class="ln">6</span><span class="cl">
+</span></span><span class="line"><span class="ln">7</span><span class="cl">ocserv --version
+</span></span></code></pre></div><p>安装步骤就如上，非常简单，跟openvpn一样，配置文件就一个 <code>/etc/ocserv/ocserv.conf</code>, 编辑一下：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1"># 认证方式为用户名密码认证</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="nv">auth</span> <span class="o">=</span> <span class="s2">&#34;plain[passwd=/etc/ocserv/passwd]&#34;</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="c1"># 开放端口</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">tcp-port <span class="o">=</span> <span class="m">443</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">udp-port <span class="o">=</span> <span class="m">443</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="c1"># 证书</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">server-cert <span class="o">=</span> /etc/ocserv/_.rendoumi.com.crt
+</span></span><span class="line"><span class="ln">10</span><span class="cl">server-key <span class="o">=</span> /etc/ocserv/_.rendoumi.com.key
+</span></span><span class="line"><span class="ln">11</span><span class="cl">
+</span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="c1"># 最多用户数</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">max-clients <span class="o">=</span> <span class="m">1024</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">
+</span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="c1"># 绑定域名</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">default-domain <span class="o">=</span> m.rendoumi.com
+</span></span><span class="line"><span class="ln">17</span><span class="cl">
+</span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="c1"># 分配的动态ip段</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl">ipv4-network <span class="o">=</span> 10.8.12.0
+</span></span><span class="line"><span class="ln">20</span><span class="cl">ipv4-netmask <span class="o">=</span> 255.255.255.0
+</span></span><span class="line"><span class="ln">21</span><span class="cl">
+</span></span><span class="line"><span class="ln">22</span><span class="cl"><span class="c1"># 不路由</span>
+</span></span><span class="line"><span class="ln">23</span><span class="cl">no-route <span class="o">=</span> 10.0.0.0/255.0.0.0
+</span></span><span class="line"><span class="ln">24</span><span class="cl">no-route <span class="o">=</span> 172.16.0.0/255.240.0.0
+</span></span><span class="line"><span class="ln">25</span><span class="cl">no-route <span class="o">=</span> 192.168.0.0/255.255.0.0
+</span></span><span class="line"><span class="ln">26</span><span class="cl">
+</span></span><span class="line"><span class="ln">27</span><span class="cl"><span class="c1"># 发布路由</span>
+</span></span><span class="line"><span class="ln">28</span><span class="cl"><span class="nv">route</span> <span class="o">=</span> 10.8.2.15/32
+</span></span><span class="line"><span class="ln">29</span><span class="cl"><span class="nv">route</span> <span class="o">=</span> 10.10.247.234/32
+</span></span><span class="line"><span class="ln">30</span><span class="cl"><span class="nv">route</span> <span class="o">=</span> 10.10.240.37/32
+</span></span></code></pre></div><p>说明：端口开在了443端口，证书用的是acme的免费证书，域名是m.rendoumi.com，ip段是10.8.12.0/24</p>
+<p>然后首先私网路由全禁止，然后只放了3条/32的单独ip路由，这样就好了</p>
+<p>最后转发设置一下，这台服务器的内网地址是 10.10.240.249</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1"># 设置转发</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">cat /etc/sysctl.conf
+</span></span><span class="line"><span class="ln">3</span><span class="cl">net.ipv4.ip_forward <span class="o">=</span> <span class="m">1</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">
+</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="c1"># 设置iptalbes</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl">iptables -t nat -A POSTROUTING -s 10.8.12.0/24 -j SNAT --to-source 10.10.240.249
+</span></span><span class="line"><span class="ln">7</span><span class="cl">
+</span></span><span class="line"><span class="ln">8</span><span class="cl"><span class="c1"># 生成用户认证文件</span>
+</span></span><span class="line"><span class="ln">9</span><span class="cl">ocpasswd -c /etc/ocserv/passwd zhangrr
+</span></span></code></pre></div><p>然后去IOS下载Cisco secure client，直接建立m.rendoumi.com的连接，输入用户名和密码，就可以连接了。</p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -287,19 +293,15 @@
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://rendoumi.com/posts/20220223-kvm_passthrouth/">KVM下宿主机的目录直通到虚机
+    <a href="https://rendoumi.com/posts/20250818-vault_sts_token/">Vault使用AWS的federation_token进行交互
 </a>
-  </div><div class="post-nav post-next">
-    <a href="https://rendoumi.com/posts/20220225-ucarp/">Ucarp的安装配置
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://rendoumi.com/posts/20220223-kvm_passthrouth/">KVM下宿主机的目录直通到虚机
-</a></li><li><a href="https://rendoumi.com/posts/20220222-eth_matic/">如何用CPU挖Polygon网络的MATIC币
-</a></li><li><a href="https://rendoumi.com/posts/20220118-grafana_prometheus/">Grafana画出prometheus的图
-</a></li><li><a href="https://rendoumi.com/posts/20220104-javascript_babel_eslint/">Javascript的项目与babel和eslint
-</a></li><li><a href="https://rendoumi.com/posts/20211222-hubot_wechat/">Hubot集成企业微信&#43;jenkins&#43;ansible
+    <ul class="related-posts"><li><a href="https://rendoumi.com/posts/20250818-vault_sts_token/">Vault使用AWS的federation_token进行交互
+</a></li><li><a href="https://rendoumi.com/posts/20250815-vault_k8s/">Vault使用external Secret管理kubernetes Secret
+</a></li><li><a href="https://rendoumi.com/posts/20250808-k3s_install/">K3s的安装
+</a></li><li><a href="https://rendoumi.com/posts/20250808-openeuler_pagecache/">欧拉PageCache的内核编译
+</a></li><li><a href="https://rendoumi.com/posts/20250807-csi_scaleflash/">为极客天成改写一套CSI存储插件
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
