@@ -183,6 +183,19 @@
   </div>
 </nav><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://rendoumi.com/posts/20240109-kvm_random_mac/">KVM中网卡地址随机生成方法
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-09
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          用bash随机生成网卡地址： 1echo 52:54:$(dd if=/dev/urandom count=1 2&gt;/dev/null | md5sum | sed &#39;s/^\(..\)\(..\)\(..\)\(..\).*$/\1:\2:\3:\4/&#39;) 252:54:f6:65:52:39 另一种做法： 1openssl rand -hex 6 | sed &#39;s/\(..\)/\1:/g; s/.$//&#39;
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
         <h2 class="card-title post-title"><a href="https://rendoumi.com/posts/20240109-linux_lang/">Linux下设置LANG变量
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2024-01-09
@@ -298,19 +311,6 @@
           NFS的SERVER分两部分： 1、RPC 主程序：rpcbind NFS 本质是一个 RPC 服务，而要启动任何一个 RPC 服务之前，都需要做好 port 的对应 (mapping) 的工作才行
         </div>
       </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://rendoumi.com/posts/20231228-kvm_isoboot/">Kvm虚拟机挂载临时急救iso启动的方法
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2023-12-28
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          Kvm虚拟机挂载临时急救iso启动的方法： 首先去到宿主机 编辑虚机文件virsh edit vis-18-32-6 1 &lt;disk type=&#39;file&#39; device=&#39;cdrom&#39;&gt; 2 &lt;driver name=&#39;qemu&#39; type=&#39;raw&#39;/&gt; 3 &lt;target dev=&#39;hda&#39; bus=&#39;ide&#39;/&gt; 4 &lt;readonly/&gt; 5 &lt;address type=&#39;drive&#39; controller=&#39;0&#39; …
-        </div>
-      </div>
     </article></div><div class="row table-responsive mb-3">
     <ul class="pagination pagination-default">
       <li class="page-item">
@@ -364,11 +364,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://rendoumi.com/posts/20250819-oserv_vpn/">Ocserv VPN的安装和使用
+    <ul><li><a href="https://rendoumi.com/posts/20250820-aws_valkey_to_redis_io/">AWS托管的Valkey数据转移到社区Redis.io去
+</a></li><li><a href="https://rendoumi.com/posts/20250819-oserv_vpn/">Ocserv VPN的安装和使用
 </a></li><li><a href="https://rendoumi.com/posts/20250818-vault_sts_token/">Vault使用AWS的federation_token进行交互
 </a></li><li><a href="https://rendoumi.com/posts/20250815-vault_k8s/">Vault使用external Secret管理kubernetes Secret
 </a></li><li><a href="https://rendoumi.com/posts/20250808-k3s_install/">K3s的安装
-</a></li><li><a href="https://rendoumi.com/posts/20250808-openeuler_pagecache/">欧拉PageCache的内核编译
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
