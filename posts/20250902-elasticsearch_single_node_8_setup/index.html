@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="生产环境Elasticsearch 8单节点Docker-compose的安装方法">
 <meta itemprop="description" content="要在生产环境建一套Elasticsearch 8.0，单节点搭配Kibana，确实是困难重重，新版本需要TLS验证了 现在这个时间节点，2025"><meta itemprop="datePublished" content="2025-09-02T09:01:11+08:00" />
 <meta itemprop="dateModified" content="2025-09-02T09:01:11+08:00" />
-<meta itemprop="wordCount" content="1512">
+<meta itemprop="wordCount" content="1940">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="生产环境Elasticsearch 8单节点Docker-compose的安装方法" />
 <meta property="og:description" content="要在生产环境建一套Elasticsearch 8.0，单节点搭配Kibana，确实是困难重重，新版本需要TLS验证了 现在这个时间节点，2025" />
 <meta property="og:type" content="article" />
@@ -408,6 +408,86 @@
    />
 
 </p>
+<h5 id="五后记">五、后记</h5>
+<p>无语啊无语，弄了自签证书，结果同事反映连接报证书错误</p>
+<p>算了，给个不要证书的配置docker-compose.yaml</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">services:
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">  es01:
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">    container_name: es
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">    <span class="c1"># The Docker image to use for this service</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">    image: docker.elastic.co/elasticsearch/elasticsearch:8.18.6
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">    <span class="c1"># The volumes to mount into this service</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">    volumes:
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">      - ./certs:/usr/share/elasticsearch/config/certs
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">      - ./esdata01:/usr/share/elasticsearch/data
+</span></span><span class="line"><span class="ln">10</span><span class="cl">    <span class="c1"># The ports to expose from this service</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">    ports:
+</span></span><span class="line"><span class="ln">12</span><span class="cl">      - 9200:9200
+</span></span><span class="line"><span class="ln">13</span><span class="cl">    <span class="c1"># The environment variables to set inside the container</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">    environment:
+</span></span><span class="line"><span class="ln">15</span><span class="cl">      - node.name<span class="o">=</span>es01
+</span></span><span class="line"><span class="ln">16</span><span class="cl">      - cluster.name<span class="o">=</span>lancode-cluster
+</span></span><span class="line"><span class="ln">17</span><span class="cl">      - discovery.type<span class="o">=</span>single-node
+</span></span><span class="line"><span class="ln">18</span><span class="cl">      - <span class="nv">ELASTIC_PASSWORD</span><span class="o">=</span>aaaaaaaaaaaa
+</span></span><span class="line"><span class="ln">19</span><span class="cl">      - bootstrap.memory_lock<span class="o">=</span><span class="nb">true</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl">      - <span class="s2">&#34;ES_JAVA_OPTS=-Xms10g -Xmx10g&#34;</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl">      - xpack.security.enabled<span class="o">=</span><span class="nb">false</span>
+</span></span><span class="line"><span class="ln">22</span><span class="cl">      - xpack.license.self_generated.type<span class="o">=</span>basic
+</span></span><span class="line"><span class="ln">23</span><span class="cl">    <span class="c1"># The memory limit for this service 12g = 1024*1024*1024*12</span>
+</span></span><span class="line"><span class="ln">24</span><span class="cl">    mem_limit: <span class="m">12884901888</span>
+</span></span><span class="line"><span class="ln">25</span><span class="cl">    <span class="c1"># The ulimits to set for this service</span>
+</span></span><span class="line"><span class="ln">26</span><span class="cl">    ulimits:
+</span></span><span class="line"><span class="ln">27</span><span class="cl">      memlock:
+</span></span><span class="line"><span class="ln">28</span><span class="cl">        soft: -1
+</span></span><span class="line"><span class="ln">29</span><span class="cl">        hard: -1
+</span></span><span class="line"><span class="ln">30</span><span class="cl">    <span class="c1"># The healthcheck to determine the health of this service</span>
+</span></span><span class="line"><span class="ln">31</span><span class="cl">    healthcheck:
+</span></span><span class="line"><span class="ln">32</span><span class="cl">      test:
+</span></span><span class="line"><span class="ln">33</span><span class="cl">        <span class="o">[</span>
+</span></span><span class="line"><span class="ln">34</span><span class="cl">          <span class="s2">&#34;CMD-SHELL&#34;</span>,
+</span></span><span class="line"><span class="ln">35</span><span class="cl">          <span class="s2">&#34;curl -s -I http://localhost:9200 | grep -q &#39;HTTP/1.1 200 OK&#39;&#34;</span>,
+</span></span><span class="line"><span class="ln">36</span><span class="cl">        <span class="o">]</span>
+</span></span><span class="line"><span class="ln">37</span><span class="cl">      interval: 10s
+</span></span><span class="line"><span class="ln">38</span><span class="cl">      timeout: 10s
+</span></span><span class="line"><span class="ln">39</span><span class="cl">      retries: <span class="m">120</span>
+</span></span><span class="line"><span class="ln">40</span><span class="cl">  <span class="c1"># The kibana service represents a Kibana instance</span>
+</span></span><span class="line"><span class="ln">41</span><span class="cl">  kibana:
+</span></span><span class="line"><span class="ln">42</span><span class="cl">    <span class="c1"># This service depends on the es01 service</span>
+</span></span><span class="line"><span class="ln">43</span><span class="cl">    depends_on:
+</span></span><span class="line"><span class="ln">44</span><span class="cl">      es01:
+</span></span><span class="line"><span class="ln">45</span><span class="cl">        condition: service_healthy
+</span></span><span class="line"><span class="ln">46</span><span class="cl">    container_name: kibana
+</span></span><span class="line"><span class="ln">47</span><span class="cl">    <span class="c1"># The Docker image to use for this service</span>
+</span></span><span class="line"><span class="ln">48</span><span class="cl">    image: docker.elastic.co/kibana/kibana:8.18.6
+</span></span><span class="line"><span class="ln">49</span><span class="cl">    <span class="c1"># The volumes to mount into this service</span>
+</span></span><span class="line"><span class="ln">50</span><span class="cl">    volumes:
+</span></span><span class="line"><span class="ln">51</span><span class="cl">      - ./certs:/usr/share/kibana/config/certs
+</span></span><span class="line"><span class="ln">52</span><span class="cl">      - ./kibanadata:/usr/share/kibana/data
+</span></span><span class="line"><span class="ln">53</span><span class="cl">    <span class="c1"># The ports to expose from this service</span>
+</span></span><span class="line"><span class="ln">54</span><span class="cl">    ports:
+</span></span><span class="line"><span class="ln">55</span><span class="cl">      - 5601:5601
+</span></span><span class="line"><span class="ln">56</span><span class="cl">    <span class="c1"># The environment variables to set inside the container</span>
+</span></span><span class="line"><span class="ln">57</span><span class="cl">    environment:
+</span></span><span class="line"><span class="ln">58</span><span class="cl">      - <span class="nv">SERVERNAME</span><span class="o">=</span>kibana
+</span></span><span class="line"><span class="ln">59</span><span class="cl">      - <span class="nv">ELASTICSEARCH_HOSTS</span><span class="o">=</span>http://es01:9200
+</span></span><span class="line"><span class="ln">60</span><span class="cl">      - <span class="nv">ELASTICSEARCH_USERNAME</span><span class="o">=</span>kibana_system
+</span></span><span class="line"><span class="ln">61</span><span class="cl">      - <span class="nv">ELASTICSEARCH_PASSWORD</span><span class="o">=</span>bbbbbbbbbbbbbbb
+</span></span><span class="line"><span class="ln">62</span><span class="cl">      - xpack.security.enabled<span class="o">=</span><span class="nb">false</span>
+</span></span><span class="line"><span class="ln">63</span><span class="cl">      - xpack.security.audit.enabled<span class="o">=</span><span class="nb">true</span>
+</span></span><span class="line"><span class="ln">64</span><span class="cl">      - <span class="nv">XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY</span><span class="o">=</span>cccccccccccccccccccccc
+</span></span><span class="line"><span class="ln">65</span><span class="cl">    <span class="c1"># The memory limit for this service 2g = 1024*1024*1024*2</span>
+</span></span><span class="line"><span class="ln">66</span><span class="cl">    mem_limit: <span class="m">2147483648</span>
+</span></span><span class="line"><span class="ln">67</span><span class="cl">    <span class="c1"># The healthcheck to determine the health of this service</span>
+</span></span><span class="line"><span class="ln">68</span><span class="cl">    healthcheck:
+</span></span><span class="line"><span class="ln">69</span><span class="cl">      test:
+</span></span><span class="line"><span class="ln">70</span><span class="cl">        <span class="o">[</span>
+</span></span><span class="line"><span class="ln">71</span><span class="cl">          <span class="s2">&#34;CMD-SHELL&#34;</span>,
+</span></span><span class="line"><span class="ln">72</span><span class="cl">          <span class="s2">&#34;curl -s -I http://localhost:5601 | grep -q &#39;HTTP/1.1 302 Found&#39;&#34;</span>,
+</span></span><span class="line"><span class="ln">73</span><span class="cl">        <span class="o">]</span>
+</span></span><span class="line"><span class="ln">74</span><span class="cl">      interval: 10s
+</span></span><span class="line"><span class="ln">75</span><span class="cl">      timeout: 10s
+</span></span><span class="line"><span class="ln">76</span><span class="cl">      retries: <span class="m">120</span>
+</span></span></code></pre></div><p>区别在于 xpack.security.enabled=false和healthcheck</p>
 </div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -437,6 +517,10 @@
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://rendoumi.com/posts/20250820-aws_valkey_to_redis_io/">AWS托管的Valkey数据转移到社区Redis.io去
 </a>
+  </div><div class="post-nav post-next">
+    <a href="https://rendoumi.com/posts/20250915-seeweed_single_deploy/">Seaweed S3服务单机版正式环境的部署
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
     <ul class="related-posts"><li><a href="https://rendoumi.com/posts/20250820-aws_valkey_to_redis_io/">AWS托管的Valkey数据转移到社区Redis.io去
@@ -489,11 +573,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://rendoumi.com/posts/20250902-elasticsearch_single_node_8_setup/">生产环境Elasticsearch 8单节点Docker-Compose的安装方法
+    <ul><li><a href="https://rendoumi.com/posts/20250915-seeweed_single_deploy/">Seaweed S3服务单机版正式环境的部署
+</a></li><li><a href="https://rendoumi.com/posts/20250902-elasticsearch_single_node_8_setup/">生产环境Elasticsearch 8单节点Docker-Compose的安装方法
 </a></li><li><a href="https://rendoumi.com/posts/20250820-aws_valkey_to_redis_io/">AWS托管的Valkey数据转移到社区Redis.io去
 </a></li><li><a href="https://rendoumi.com/posts/20250819-oserv_vpn/">Ocserv VPN的安装和使用
 </a></li><li><a href="https://rendoumi.com/posts/20250818-vault_sts_token/">Vault使用AWS的federation_token进行交互
-</a></li><li><a href="https://rendoumi.com/posts/20250815-vault_k8s/">Vault使用external Secret管理kubernetes Secret
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
