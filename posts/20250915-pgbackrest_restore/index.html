@@ -3,17 +3,17 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Postgres pgbackrest备份已经定点恢复 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://rendoumi.com/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>Postgres pgbackrest备份以及指定时间点恢复 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://rendoumi.com/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://rendoumi.com/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://rendoumi.com/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://rendoumi.com/images/favicons/manifest.json">
 <link rel="icon" href="https://rendoumi.com/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="Postgres pgbackrest备份已经定点恢复">
+<meta name="description" content="" /><meta itemprop="name" content="Postgres pgbackrest备份以及指定时间点恢复">
 <meta itemprop="description" content="最近狠折腾了一通postgres的备份，跟MySQL的阿里RDB恢复一样，如何不停止数据库服务，恢复某个表的数据到某个时间点，然后放到另一个"><meta itemprop="datePublished" content="2025-09-15T10:01:11+08:00" />
 <meta itemprop="dateModified" content="2025-09-15T10:01:11+08:00" />
-<meta itemprop="wordCount" content="1549">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="Postgres pgbackrest备份已经定点恢复" />
+<meta itemprop="wordCount" content="1543">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="Postgres pgbackrest备份以及指定时间点恢复" />
 <meta property="og:description" content="最近狠折腾了一通postgres的备份，跟MySQL的阿里RDB恢复一样，如何不停止数据库服务，恢复某个表的数据到某个时间点，然后放到另一个" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://rendoumi.com/posts/20250915-pgbackrest_restore/" /><meta property="article:section" content="posts" />
@@ -21,7 +21,7 @@
 <meta property="article:modified_time" content="2025-09-15T10:01:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Postgres pgbackrest备份已经定点恢复"/>
+<meta name="twitter:title" content="Postgres pgbackrest备份以及指定时间点恢复"/>
 <meta name="twitter:description" content="最近狠折腾了一通postgres的备份，跟MySQL的阿里RDB恢复一样，如何不停止数据库服务，恢复某个表的数据到某个时间点，然后放到另一个"/>
 <link rel="preload" href="https://rendoumi.com/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://rendoumi.com/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://rendoumi.com/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
@@ -114,7 +114,7 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=Postgres%20pgbackrest%e5%a4%87%e4%bb%bd%e5%b7%b2%e7%bb%8f%e5%ae%9a%e7%82%b9%e6%81%a2%e5%a4%8d&url=https%3a%2f%2frendoumi.com%2fposts%2f20250915-pgbackrest_restore%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=Postgres%20pgbackrest%e5%a4%87%e4%bb%bd%e4%bb%a5%e5%8f%8a%e6%8c%87%e5%ae%9a%e6%97%b6%e9%97%b4%e7%82%b9%e6%81%a2%e5%a4%8d&url=https%3a%2f%2frendoumi.com%2fposts%2f20250915-pgbackrest_restore%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://rendoumi.com/">主页</a></li><li class="breadcrumb-item"><a href="https://rendoumi.com/posts/">Posts</a></li><li class="breadcrumb-item active">Postgres Pgbackrest备份已经定点恢复</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://rendoumi.com/">主页</a></li><li class="breadcrumb-item"><a href="https://rendoumi.com/posts/">Posts</a></li><li class="breadcrumb-item active">Postgres Pgbackrest备份以及指定时间点恢复</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -209,7 +209,7 @@
 </a>
   </div>
 </div>
-<h1 class="card-title my-3">Postgres Pgbackrest备份已经定点恢复
+<h1 class="card-title my-3">Postgres Pgbackrest备份以及指定时间点恢复
 </h1><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2025-09-15
   </span><span class="post-reading-time" title="reading time">
@@ -350,10 +350,10 @@
 </span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="k">fi</span>
 </span></span></code></pre></div><p>编辑crontab</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1"># 每周日凌晨2点执行完整备份 (full.sh)</span>
-</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="m">0</span> <span class="m">2</span> * * <span class="m">0</span> /path/to/full.sh &gt;&gt; /path/to/log/full.log 2&gt;<span class="p">&amp;</span><span class="m">1</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="m">0</span> <span class="m">2</span> * * <span class="m">0</span> /path/to/full.sh
 </span></span><span class="line"><span class="ln">3</span><span class="cl">
 </span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="c1"># 从周一到周六凌晨2点执行增量备份 (incr.sh)</span>
-</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="m">0</span> <span class="m">2</span> * * 1-6 /path/to/incr.sh &gt;&gt; /path/to/log/incr.log 2&gt;<span class="p">&amp;</span><span class="m">1</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="m">0</span> <span class="m">2</span> * * 1-6 /path/to/incr.sh
 </span></span></code></pre></div><h5 id="五新实例postgres安装">五、新实例postgres安装</h5>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1"># 这是台新的debian 12系统, 要装 postgresql 13</span>
 </span></span><span class="line"><span class="ln"> 2</span><span class="cl">apt update
@@ -455,6 +455,10 @@
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
     <a href="https://rendoumi.com/posts/20250915-seeweed_single_deploy/">Seaweed S3服务单机版正式环境的部署
 </a>
+  </div><div class="post-nav post-next">
+    <a href="https://rendoumi.com/posts/20250917-seaweedfs_prod/">Seaweedfs的s3进阶试用方法
+</a>
+    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
     <ul class="related-posts"><li><a href="https://rendoumi.com/posts/20250915-seeweed_single_deploy/">Seaweed S3服务单机版正式环境的部署
@@ -507,11 +511,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://rendoumi.com/posts/20250915-pgbackrest_restore/">Postgres Pgbackrest备份已经定点恢复
+    <ul><li><a href="https://rendoumi.com/posts/20250917-seaweedfs_prod/">Seaweedfs的s3进阶试用方法
+</a></li><li><a href="https://rendoumi.com/posts/20250915-pgbackrest_restore/">Postgres Pgbackrest备份以及指定时间点恢复
 </a></li><li><a href="https://rendoumi.com/posts/20250915-seeweed_single_deploy/">Seaweed S3服务单机版正式环境的部署
 </a></li><li><a href="https://rendoumi.com/posts/20250902-elasticsearch_single_node_8_setup/">生产环境Elasticsearch 8单节点Docker-Compose的安装方法
 </a></li><li><a href="https://rendoumi.com/posts/20250820-aws_valkey_to_redis_io/">AWS托管的Valkey数据转移到社区Redis.io去
-</a></li><li><a href="https://rendoumi.com/posts/20250819-oserv_vpn/">Ocserv VPN的安装和使用
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
