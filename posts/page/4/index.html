@@ -183,6 +183,45 @@
   </div>
 </nav><div class="posts mb-4"><article class="row card post component">
       <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://rendoumi.com/posts/20250103-msyql_restore/">Mysql的某个表恢复到某一个时间点的操作
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2025-01-03
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          同事上线，把数据库初始化脚本改了名。结果导致上线把库表的数据全给重新初始化了。这下事来了，恢复库表。 之前用过阿里云的库表恢复，非常简洁，那这
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://rendoumi.com/posts/20240320-mysql_delete_xxllog/">设置Mysql自动定时删除xxljob的日志数据
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-03-20
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          xxl-job的日志数据实在是太大了，压根就没有清理过，设置一个定时任务来定时删除无用的废数据吧： 首先要确认定时任务开关已经打开了 1show variables like &#39;event_scheduler&#39;; 2
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
+        <h2 class="card-title post-title"><a href="https://rendoumi.com/posts/20240305-aliyun_dms/">阿里云DMS管理数据库变更审批流
+</a></h2><div class="post-meta"><span class="post-date" title="created on">
+    <i class="fas fa-fw fa-calendar-alt"></i>2024-03-05
+  </span><span class="post-reading-time" title="reading time">
+    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
+  </span></div>
+<div class="post-summary">
+          
+          其实我们用的是yearning来管理 MySQL 数据库变更需求的，但是，类似 Oracle 或者 PolarDB，就用不成了。 这事只能交给阿里云的dms来管理了，其实
+        </div>
+      </div>
+    </article><article class="row card post component">
+      <div class="card-body">
         <h2 class="card-title post-title"><a href="https://rendoumi.com/posts/20240304-posfix_relay/">邮箱地址无效导致群发邮件失败
 </a></h2><div class="post-meta"><span class="post-date" title="created on">
     <i class="fas fa-fw fa-calendar-alt"></i>2024-03-04
@@ -272,45 +311,6 @@
           amce申请证书实在是太烦了，对于一台只有1cpu 512m的vps来说，装这个东西简直就是费时费劲。 好在有人干脆开发了一个go语言的工具le
         </div>
       </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://rendoumi.com/posts/20240124-cisco_snmp3/">Cisco Snmpv3的设置
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-24
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          https://www.cisco.com/c/en/us/support/docs/smb/routers/cisco-rv-series-small-business-routers/smb4127-configure-simple-network-management-protocol-snmp-on-rv320-a.html 这篇说的很详细了 按图索骥即可 snmpwalk v3参数解释： 1-v 1|2c|3 specifies SNMP version to use 2-u USER-NAME set security name (e.g. bert) 3-l LEVEL set security level …
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://rendoumi.com/posts/20240124-cisco_snmp_reboot/">Cisco交换机通过snmp来重启
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-24
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          这是个什么命题？！没办法，有时候需要用到这种方式 首先去cisco交换机配置： 1snmp-server community private RW 2snmp-server system-shutdown 然后在linux机器上执行： 1# snmpset -v 2c -c private 192.168.1.1 .1.3.6.1.4.1.9.2.9.9.0 i 2 2 3!---
-        </div>
-      </div>
-    </article><article class="row card post component">
-      <div class="card-body">
-        <h2 class="card-title post-title"><a href="https://rendoumi.com/posts/20240124-cisco_audit/">Cisco 路由器的操作审计
-</a></h2><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-24
-  </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>2 分钟阅读
-  </span></div>
-<div class="post-summary">
-          
-          我们用的是Cisco ASR 1001-X这个路由器来做BGP的。 前两天做多线BGP的时候，也不知道是遇到Bug了，还是操作顺序有问题，大断网，然后
-        </div>
-      </div>
     </article></div><div class="row table-responsive mb-3">
     <ul class="pagination pagination-default">
       <li class="page-item">
@@ -338,7 +338,7 @@
         <a href="/posts/page/5/" aria-label="Next" class="page-link" role="button"><span aria-hidden="true">&raquo;</span></a>
       </li>
       <li class="page-item">
-        <a href="/posts/page/32/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
+        <a href="/posts/page/33/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
       </li>
     </ul></div>
 </div>
@@ -364,11 +364,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://rendoumi.com/posts/20250917-seaweedfs_prod/">Seaweedfs的s3进阶试用方法
+    <ul><li><a href="https://rendoumi.com/posts/20251014-opensense_nginx/">OPNsense如何做LoadBalance接入后端的Kubernetes Nginx Ingress --- Nginx篇
+</a></li><li><a href="https://rendoumi.com/posts/20251014-opnsense_caddy/">OPNsense如何做LoadBalance接入后端的Kubernetes Nginx Ingress --- Caddy篇
+</a></li><li><a href="https://rendoumi.com/posts/20251014-opnsense_relayd/">OPNsense如何做LoadBalance接入后端的Kubernetes Nginx Ingress --- Relayd篇
+</a></li><li><a href="https://rendoumi.com/posts/20250917-seaweedfs_prod/">Seaweedfs的s3进阶试用方法
 </a></li><li><a href="https://rendoumi.com/posts/20250915-pgbackrest_restore/">Postgres Pgbackrest备份以及指定时间点恢复
-</a></li><li><a href="https://rendoumi.com/posts/20250915-seeweed_single_deploy/">Seaweed S3服务单机版正式环境的部署
-</a></li><li><a href="https://rendoumi.com/posts/20250902-elasticsearch_single_node_8_setup/">生产环境Elasticsearch 8单节点Docker-Compose的安装方法
-</a></li><li><a href="https://rendoumi.com/posts/20250820-aws_valkey_to_redis_io/">AWS托管的Valkey数据转移到社区Redis.io去
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
