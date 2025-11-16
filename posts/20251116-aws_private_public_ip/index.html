@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ipxe中menu.c32和vesamenu.c32的用法 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://rendoumi.com/images/favicons/apple-touch-icon.png" sizes="180x180">
+    <title>AWS 放错在Private子网的机器如何用公网IP连进去 - 八戒的技术博客</title><link rel="apple-touch-icon" href="https://rendoumi.com/images/favicons/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" href="https://rendoumi.com/images/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="https://rendoumi.com/images/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="manifest" href="https://rendoumi.com/images/favicons/manifest.json">
 <link rel="icon" href="https://rendoumi.com/images/favicons/favicon.ico">
 <meta name="keywords" content="" />
-<meta name="description" content="" /><meta itemprop="name" content="ipxe中menu.c32和vesamenu.c32的用法">
-<meta itemprop="description" content="在做pxelinux启动的过程中，不可避免的会用到菜单选项。有两个选择，menu.c32 和 vesamenu.c32。 效果如下： menu.c32 vesamenu.c32 区别就是一"><meta itemprop="datePublished" content="2024-01-18T17:02:11+08:00" />
-<meta itemprop="dateModified" content="2024-01-18T17:02:11+08:00" />
-<meta itemprop="wordCount" content="357">
-<meta itemprop="keywords" content="" /><meta property="og:title" content="ipxe中menu.c32和vesamenu.c32的用法" />
-<meta property="og:description" content="在做pxelinux启动的过程中，不可避免的会用到菜单选项。有两个选择，menu.c32 和 vesamenu.c32。 效果如下： menu.c32 vesamenu.c32 区别就是一" />
+<meta name="description" content="" /><meta itemprop="name" content="AWS 放错在Private子网的机器如何用公网IP连进去">
+<meta itemprop="description" content="今天面试了一下，面试官问到AWS的子网问题，来说说AWS的最佳实践： 首先是VPC的划定，然后就是三个public子网，三个private子网"><meta itemprop="datePublished" content="2025-11-16T09:01:11+08:00" />
+<meta itemprop="dateModified" content="2025-11-16T09:01:11+08:00" />
+<meta itemprop="wordCount" content="1077">
+<meta itemprop="keywords" content="" /><meta property="og:title" content="AWS 放错在Private子网的机器如何用公网IP连进去" />
+<meta property="og:description" content="今天面试了一下，面试官问到AWS的子网问题，来说说AWS的最佳实践： 首先是VPC的划定，然后就是三个public子网，三个private子网" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://rendoumi.com/posts/20240118-ipxe_menu/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2024-01-18T17:02:11+08:00" />
-<meta property="article:modified_time" content="2024-01-18T17:02:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
+<meta property="og:url" content="https://rendoumi.com/posts/20251116-aws_private_public_ip/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2025-11-16T09:01:11+08:00" />
+<meta property="article:modified_time" content="2025-11-16T09:01:11+08:00" /><meta property="og:site_name" content="八戒的技术博客" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="ipxe中menu.c32和vesamenu.c32的用法"/>
-<meta name="twitter:description" content="在做pxelinux启动的过程中，不可避免的会用到菜单选项。有两个选择，menu.c32 和 vesamenu.c32。 效果如下： menu.c32 vesamenu.c32 区别就是一"/>
+<meta name="twitter:title" content="AWS 放错在Private子网的机器如何用公网IP连进去"/>
+<meta name="twitter:description" content="今天面试了一下，面试官问到AWS的子网问题，来说说AWS的最佳实践： 首先是VPC的划定，然后就是三个public子网，三个private子网"/>
 <link rel="preload" href="https://rendoumi.com/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous" as="style" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://rendoumi.com/css/bundle.min.e365f7bedd89b1aa152cc3ee28f42da5cf2fa0e59fe9fd0dc125b31b0c21779f.css" integrity="sha256-42X3vt2JsaoVLMPuKPQtpc8voOWf6f0NwSWzGwwhd58=" crossorigin="anonymous"></noscript><script src="https://rendoumi.com/js/bundle.min.e800632e2780da48bed8dcbc482b21808ead775cb6deaad34acf1e0a135ec77f.js" integrity="sha256-6ABjLieA2ki&#43;2Ny8SCshgI6td1y23qrTSs8eChNex38=" crossorigin="anonymous"></script></head>
   <body><script src="https://rendoumi.com/js/bootstrap.min.062c2e66b557cb779d59cedff7e0cc76e84beb665a1076e474e87d940be44245.js" integrity="sha256-BiwuZrVXy3edWc7f9&#43;DMduhL62ZaEHbkdOh9lAvkQkU=" crossorigin="anonymous"></script><header><nav class="navbar top-app-bar top-app-bar-expand-lg fixed-top">
@@ -114,11 +114,11 @@
   </form>
   <div class="mt-2 social-share-buttons d-flex visually-hidden flex-nowrap">
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Twitter Share Button"
-      target="_blank" href="https://twitter.com/intent/tweet?title=ipxe%e4%b8%admenu.c32%e5%92%8cvesamenu.c32%e7%9a%84%e7%94%a8%e6%b3%95&url=https%3a%2f%2frendoumi.com%2fposts%2f20240118-ipxe_menu%2f">
+      target="_blank" href="https://twitter.com/intent/tweet?title=AWS%20%e6%94%be%e9%94%99%e5%9c%a8Private%e5%ad%90%e7%bd%91%e7%9a%84%e6%9c%ba%e5%99%a8%e5%a6%82%e4%bd%95%e7%94%a8%e5%85%ac%e7%bd%91IP%e8%bf%9e%e8%bf%9b%e5%8e%bb&url=https%3a%2f%2frendoumi.com%2fposts%2f20251116-aws_private_public_ip%2f">
       <i class="fab fa-fw fa-twitter"></i> Twitter
     </a>
     <a class="btn btn-sm btn-outline-primary social-share-button" rel="noopener noreferrer" aria-label="Facebook Share Button"
-      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2frendoumi.com%2fposts%2f20240118-ipxe_menu%2f">
+      target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2frendoumi.com%2fposts%2f20251116-aws_private_public_ip%2f">
       <i class="fab fa-fw fa-facebook-f"></i> Facebook
     </a>
   </div>
@@ -184,7 +184,7 @@
 <div class="col-lg-8">
   <div class="container"><nav class="row card component" aria-label="breadcrumb">
   <div class="card-body">
-    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://rendoumi.com/">主页</a></li><li class="breadcrumb-item"><a href="https://rendoumi.com/posts/">Posts</a></li><li class="breadcrumb-item active">Ipxe中menu.c32和vesamenu.c32的用法</li></ol>
+    <ol class="breadcrumb "><li class="breadcrumb-item"><a href="https://rendoumi.com/">主页</a></li><li class="breadcrumb-item"><a href="https://rendoumi.com/posts/">Posts</a></li><li class="breadcrumb-item active">AWS 放错在Private子网的机器如何用公网IP连进去</li></ol>
   </div>
 </nav><article class="post row card mb-4 component">
   <div class="card-body"><div class="post-panel-wrapper">
@@ -207,69 +207,99 @@
     
   </div>
 </div>
-<h1 class="card-title my-3">Ipxe中menu.c32和vesamenu.c32的用法
+<h1 class="card-title my-3">AWS 放错在Private子网的机器如何用公网IP连进去
 </h1><div class="post-meta"><span class="post-date" title="created on">
-    <i class="fas fa-fw fa-calendar-alt"></i>2024-01-18
+    <i class="fas fa-fw fa-calendar-alt"></i>2025-11-16
   </span><span class="post-reading-time" title="reading time">
-    <i class="fas fa-fw fa-coffee"></i>1 分钟阅读
+    <i class="fas fa-fw fa-coffee"></i>3 分钟阅读
   </span></div>
-<div class="post-content mb-3"><p>在做pxelinux启动的过程中，不可避免的会用到菜单选项。有两个选择，menu.c32 和 vesamenu.c32。</p>
-<p>效果如下： menu.c32
-<img class="img-fluid" alt="image-20240118172119725" src="https://rendoumi.com/posts/20240118-ipxe_menu/image-20240118172119725.png" loading="lazy"
-   width="1250" height="644"
-   />
-
-</p>
-<p>vesamenu.c32
-<img class="img-fluid" alt="image-20240118172137015" src="https://rendoumi.com/posts/20240118-ipxe_menu/image-20240118172137015.png" loading="lazy"
-   width="1276" height="660"
-   />
-
-</p>
-<p>区别就是一个地方，我们看一下配置文件：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl">default vesamenu.c32  
-</span></span><span class="line"><span class="ln"> 2</span><span class="cl">PROMPT <span class="m">0</span>  
-</span></span><span class="line"><span class="ln"> 3</span><span class="cl">NOESCAPE <span class="m">0</span>  
-</span></span><span class="line"><span class="ln"> 4</span><span class="cl">ALLOWOPTIONS <span class="m">0</span>  
-</span></span><span class="line"><span class="ln"> 5</span><span class="cl">TIMEOUT <span class="m">200</span>
-</span></span><span class="line"><span class="ln"> 6</span><span class="cl">
-</span></span><span class="line"><span class="ln"> 7</span><span class="cl">
-</span></span><span class="line"><span class="ln"> 8</span><span class="cl">MENU TITLE Boot Menu
-</span></span><span class="line"><span class="ln"> 9</span><span class="cl">
-</span></span><span class="line"><span class="ln">10</span><span class="cl">LABEL Ghost_Client_UNDI  
-</span></span><span class="line"><span class="ln">11</span><span class="cl">  MENU LABEL ^1. Ghost Client UNDI
-</span></span><span class="line"><span class="ln">12</span><span class="cl">  MENU DEFAULT
-</span></span><span class="line"><span class="ln">13</span><span class="cl">  kernel memdisk
-</span></span><span class="line"><span class="ln">14</span><span class="cl">  append keeppxe <span class="nv">initrd</span><span class="o">=</span>imz/Client_undi.imz
-</span></span><span class="line"><span class="ln">15</span><span class="cl">
-</span></span><span class="line"><span class="ln">16</span><span class="cl">LABEL Ghost_Client_NDIS  
-</span></span><span class="line"><span class="ln">17</span><span class="cl">  MENU LABEL ^2. Ghost Client NDIS
-</span></span><span class="line"><span class="ln">18</span><span class="cl">  kernel memdisk
-</span></span><span class="line"><span class="ln">19</span><span class="cl">  APPEND keeppxe <span class="nv">initrd</span><span class="o">=</span>imz/Client_ndis.IMZ
-</span></span><span class="line"><span class="ln">20</span><span class="cl">
-</span></span><span class="line"><span class="ln">21</span><span class="cl">LABEL WinPE  
-</span></span><span class="line"><span class="ln">22</span><span class="cl">  MENU LABEL ^3. WinPE 2.0
-</span></span><span class="line"><span class="ln">23</span><span class="cl">  KERNEL boot/pxeboot.0
-</span></span><span class="line"><span class="ln">24</span><span class="cl">
-</span></span><span class="line"><span class="ln">25</span><span class="cl">LABEL PartedMagic  
-</span></span><span class="line"><span class="ln">26</span><span class="cl">  MENU LABEL ^4. Parted Magic
-</span></span><span class="line"><span class="ln">27</span><span class="cl">  kernel utils/pmagic/bzImage
-</span></span><span class="line"><span class="ln">28</span><span class="cl">
-</span></span><span class="line"><span class="ln">29</span><span class="cl">LABEL Local_Drive  
-</span></span><span class="line"><span class="ln">30</span><span class="cl"> MENU LABEL ^5. Boot Local Drive
-</span></span><span class="line"><span class="ln">31</span><span class="cl"> <span class="c1">#  localboot 0</span>
-</span></span><span class="line"><span class="ln">32</span><span class="cl"> KERNEL chain.c32
-</span></span><span class="line"><span class="ln">33</span><span class="cl"> APPEND hd0 <span class="m">0</span>
-</span></span></code></pre></div><p>区别就是第一行:</p>
-<p>menu.c32 是 <strong>UI menu.c32</strong></p>
-<p>vesamenu.c32 是 <strong>default vesamenu.c32</strong></p>
-<p>个人还是觉得menu.c32比较好，习惯了这种蓝色。</p>
-<p>那么，我们如果想把pxelinux.0、menu.c32、vesamenu.c32都扔到/ks/pxelinux的子目录下，而不是扔在/ks的根目录下，那么配一下dnsmasq的209和210即可，看一下boot2.php文件：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">  <span class="k">case</span> <span class="s1">&#39;\52:54:00:7f:65:bb&#39;</span>:
-</span></span><span class="line"><span class="ln">2</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;set 209:string vesamenu.conf\n&#34;</span><span class="p">;</span>
-</span></span><span class="line"><span class="ln">3</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;set 210:string http://172.16.8.1/ks/pxelinux/\n&#34;</span><span class="p">;</span>
-</span></span><span class="line"><span class="ln">4</span><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;chain http://172.16.8.1/ks/pxelinux/pxelinux.0\n&#34;</span><span class="p">;</span>
-</span></span><span class="line"><span class="ln">5</span><span class="cl">    break<span class="p">;</span>
+<div class="post-content mb-3"><p>今天面试了一下，面试官问到AWS的子网问题，来说说AWS的最佳实践：</p>
+<p>首先是VPC的划定，然后就是三个public子网，三个private子网，都是一个zone分布在a、b、c三个不同机房</p>
+<p>来保证最大冗余性，然后pub子网通过IGW来出公网，那Private子网就通过NAT出公网。</p>
+<p>但是，但是，但是</p>
+<p>如果你把一台EC2服务器一开始放错了子网，放到了private子网里，然后又跑了重要的服务，无法迁移，无法重启，而且整个vpc里只有这一台ec2，其它东西都是服务或者fargate、lamda之类的无服务器，这时候你想进去调试，那就麻烦大了</p>
+<p>那能不能给这台private的机器加上公网ip来当作跳板机直接访问呢？</p>
+<p>答案是肯定的，可以。</p>
+<p>但是，如果这么配置了，你要对路由非常的熟悉，因为随后发生错乱的情况可能需要你手动添加路由，最麻烦的不是配置网卡，而是配置路由！</p>
+<p>做法如下：</p>
+<p>一、动态添加弹性ip到这个ec2的第二个网卡</p>
+<p>二、配置网络</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1"># vi /etc/netplan/50-cloud-init.yaml</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="c1"># This file is generated from information provided by the datasource.  Changes</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="c1"># to it will not persist across an instance reboot.  To disable cloud-init&#39;s</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="c1"># network configuration capabilities, write a file</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="c1"># /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg with the following:</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="c1"># network: {config: disabled}</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">network:
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">    ethernets:
+</span></span><span class="line"><span class="ln">10</span><span class="cl">        enX0:
+</span></span><span class="line"><span class="ln">11</span><span class="cl">            addresses:
+</span></span><span class="line"><span class="ln">12</span><span class="cl">              - 10.0.132.169/20 <span class="c1">#The private IP address of primary ENI</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">            nameservers:
+</span></span><span class="line"><span class="ln">14</span><span class="cl">              addresses:
+</span></span><span class="line"><span class="ln">15</span><span class="cl">                - 10.0.0.2
+</span></span><span class="line"><span class="ln">16</span><span class="cl">            routes:
+</span></span><span class="line"><span class="ln">17</span><span class="cl">             - to: 0.0.0.0/0
+</span></span><span class="line"><span class="ln">18</span><span class="cl">               via: 10.0.128.1 <span class="c1"># Default gateway, you can find it using** ip r** command</span>
+</span></span><span class="line"><span class="ln">19</span><span class="cl">               table: <span class="m">1001</span> 
+</span></span><span class="line"><span class="ln">20</span><span class="cl">             - to: 10.0.132.169
+</span></span><span class="line"><span class="ln">21</span><span class="cl">               via: 0.0.0.0
+</span></span><span class="line"><span class="ln">22</span><span class="cl">               scope: link
+</span></span><span class="line"><span class="ln">23</span><span class="cl">               table: <span class="m">1001</span>
+</span></span><span class="line"><span class="ln">24</span><span class="cl">            routing-policy:
+</span></span><span class="line"><span class="ln">25</span><span class="cl">             - from: 10.0.132.169
+</span></span><span class="line"><span class="ln">26</span><span class="cl">               table: <span class="m">1001</span>
+</span></span><span class="line"><span class="ln">27</span><span class="cl">            dhcp4: no
+</span></span><span class="line"><span class="ln">28</span><span class="cl">            dhcp6: <span class="nb">false</span>
+</span></span><span class="line"><span class="ln">29</span><span class="cl">            match:
+</span></span><span class="line"><span class="ln">30</span><span class="cl">                macaddress: 06:36:82:ef:39:39
+</span></span><span class="line"><span class="ln">31</span><span class="cl">            set-name: enX0
+</span></span><span class="line"><span class="ln">32</span><span class="cl">        enX1:
+</span></span><span class="line"><span class="ln">33</span><span class="cl">            addresses:
+</span></span><span class="line"><span class="ln">34</span><span class="cl">              - 10.0.3.176/20 <span class="c1">#The private IP address of primary ENI</span>
+</span></span><span class="line"><span class="ln">35</span><span class="cl">            gateway4: 10.0.0.1
+</span></span><span class="line"><span class="ln">36</span><span class="cl">            nameservers:
+</span></span><span class="line"><span class="ln">37</span><span class="cl">              addresses:
+</span></span><span class="line"><span class="ln">38</span><span class="cl">                - 8.8.8.8
+</span></span><span class="line"><span class="ln">39</span><span class="cl">                - 1.1.1.1
+</span></span><span class="line"><span class="ln">40</span><span class="cl">            routes:
+</span></span><span class="line"><span class="ln">41</span><span class="cl">             - to: 0.0.0.0/0
+</span></span><span class="line"><span class="ln">42</span><span class="cl">               via: 10.0.0.1 <span class="c1"># Default gateway, you can find it using** ip r** command</span>
+</span></span><span class="line"><span class="ln">43</span><span class="cl">               table: <span class="m">1002</span> 
+</span></span><span class="line"><span class="ln">44</span><span class="cl">             - to: 10.0.3.176
+</span></span><span class="line"><span class="ln">45</span><span class="cl">               via: 0.0.0.0
+</span></span><span class="line"><span class="ln">46</span><span class="cl">               scope: link
+</span></span><span class="line"><span class="ln">47</span><span class="cl">               table: <span class="m">1002</span>
+</span></span><span class="line"><span class="ln">48</span><span class="cl">            routing-policy:
+</span></span><span class="line"><span class="ln">49</span><span class="cl">             - from: 10.0.3.176
+</span></span><span class="line"><span class="ln">50</span><span class="cl">               table: <span class="m">1002</span>
+</span></span><span class="line"><span class="ln">51</span><span class="cl">             - from: 120.116.111.99
+</span></span><span class="line"><span class="ln">52</span><span class="cl">               table: <span class="m">1002</span>             
+</span></span><span class="line"><span class="ln">53</span><span class="cl">            dhcp4: no
+</span></span><span class="line"><span class="ln">54</span><span class="cl">            dhcp6: <span class="nb">false</span>
+</span></span><span class="line"><span class="ln">55</span><span class="cl">            match:
+</span></span><span class="line"><span class="ln">56</span><span class="cl">                macaddress: 06:29:c3:b2:c5:f9
+</span></span><span class="line"><span class="ln">57</span><span class="cl">            set-name: enX1
+</span></span><span class="line"><span class="ln">58</span><span class="cl">    version: <span class="m">2</span>
+</span></span><span class="line"><span class="ln">59</span><span class="cl">    
+</span></span><span class="line"><span class="ln">60</span><span class="cl">    
+</span></span><span class="line"><span class="ln">61</span><span class="cl">netplan apply
+</span></span></code></pre></div><p>详细解释一下，enX0是private子网的网卡，enX1是弹性IP的网卡，注意，即使是弹性IP，也是个内网地址，这两个IP呢，都有各自独立的网关，第二个网卡还有自己的DNS。这就容易发生错乱了，因为缺省路由走第一个网卡，那如果从第二个网卡的公网IP入，出的时候走第一张网卡，那就有意思了。</p>
+<p>所以哪来会哪，每个网卡的第二个路由，都是自己走自己。</p>
+<p>然后第二个网卡的第三个路由，是指定的，本质意思其实是从120.116.111.99访问弹性公网IP的wireguard数据包，回程的时候强制指定走第二个网卡。</p>
+<p>痛苦吧！</p>
+<p>而且这台EC2作为跳板机，可以代理访问AWS中各种服务，这样就麻烦了，那数据包究竟要从哪个网卡出去，你必须非常清楚，如果走错了，你就必须手动增加路由表</p>
+<p>从第一张网卡可以访问到各种aws的内网endpoint的dns解析地址，第二张网卡由于是公网dns不行；第一张网卡是缺省路由；务必谨记这两点。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">ip route show table all
+</span></span><span class="line"><span class="ln">2</span><span class="cl">ip rule show
+</span></span><span class="line"><span class="ln">3</span><span class="cl">
+</span></span><span class="line"><span class="ln">4</span><span class="cl">ip rule show table <span class="m">1001</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl">ip rule show table <span class="m">1002</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl">
+</span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="c1"># 手动新增路由</span>
+</span></span><span class="line"><span class="ln">8</span><span class="cl">ip rule add from 120.116.111.99 table <span class="m">1002</span>
+</span></span><span class="line"><span class="ln">9</span><span class="cl">ip rule add to   120.116.111.99 table <span class="m">1002</span>
 </span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
@@ -297,19 +327,15 @@
   </div>
 </div><hr /><div class="post-navs d-flex mb-3 justify-content-evenly">
   <div class="post-nav post-prev"><i class="fas fa-fw fa-chevron-left"></i>
-    <a href="https://rendoumi.com/posts/20240118-ipxe_dos/">Ipxe启动Dos 6.22
+    <a href="https://rendoumi.com/posts/20251111-zot_registry/">安装轻量级的Docker Registry：zot
 </a>
-  </div><div class="post-nav post-next">
-    <a href="https://rendoumi.com/posts/20240118-gfs/">GlusterFS的日常应用
-</a>
-    <i class="fas fa-fw fa-chevron-right"></i>
   </div></div><section class="related-posts-wrapper">
     <h3>相关文章</h3>
-    <ul class="related-posts"><li><a href="https://rendoumi.com/posts/20240118-ipxe_aoe/">Ipxe与aoe启动
-</a></li><li><a href="https://rendoumi.com/posts/20240118-ipxe_dos/">Ipxe启动Dos 6.22
-</a></li><li><a href="https://rendoumi.com/posts/20240118-ipxe_iscsi/">Ipxe远程启动iscsi上面的克隆卷
-</a></li><li><a href="https://rendoumi.com/posts/20240118-kvm_iscsi/">Kvm使用iscsi作为存储池安装win
-</a></li><li><a href="https://rendoumi.com/posts/20240118-ipxe_hiren/">IPXE万能工具hiren.iso的启动方式
+    <ul class="related-posts"><li><a href="https://rendoumi.com/posts/20251111-zot_registry/">安装轻量级的Docker Registry：zot
+</a></li><li><a href="https://rendoumi.com/posts/20251110-caddy_wild_certificate/">Caddy自动签发任意域名证书
+</a></li><li><a href="https://rendoumi.com/posts/20251110-aws-ecs_fargate/">AWS的ECS使用Fargate服务器如何开启shell进入容器调试
+</a></li><li><a href="https://rendoumi.com/posts/20251029-mongodb-rs0/">MongoDB的伪副本模式
+</a></li><li><a href="https://rendoumi.com/posts/20251024-certmanager_issuer/">Cert-Manager的不同clusterissuer验证方式
 </a></li></ul>
   </section></div>
 </article><div class="post-comments card row component">
