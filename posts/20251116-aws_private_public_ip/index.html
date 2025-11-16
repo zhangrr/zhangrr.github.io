@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="AWS 放错在Private子网的机器如何用公网IP连进去">
 <meta itemprop="description" content="今天面试了一下，面试官问到AWS的子网问题，来说说AWS的最佳实践： 首先是VPC的划定，然后就是三个public子网，三个private子网"><meta itemprop="datePublished" content="2025-11-16T09:01:11+08:00" />
 <meta itemprop="dateModified" content="2025-11-16T09:01:11+08:00" />
-<meta itemprop="wordCount" content="1077">
+<meta itemprop="wordCount" content="1164">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="AWS 放错在Private子网的机器如何用公网IP连进去" />
 <meta property="og:description" content="今天面试了一下，面试官问到AWS的子网问题，来说说AWS的最佳实践： 首先是VPC的划定，然后就是三个public子网，三个private子网" />
 <meta property="og:type" content="article" />
@@ -216,11 +216,11 @@
 <div class="post-content mb-3"><p>今天面试了一下，面试官问到AWS的子网问题，来说说AWS的最佳实践：</p>
 <p>首先是VPC的划定，然后就是三个public子网，三个private子网，都是一个zone分布在a、b、c三个不同机房</p>
 <p>来保证最大冗余性，然后pub子网通过IGW来出公网，那Private子网就通过NAT出公网。</p>
-<p>但是，但是，但是</p>
-<p>如果你把一台EC2服务器一开始放错了子网，放到了private子网里，然后又跑了重要的服务，无法迁移，无法重启，而且整个vpc里只有这一台ec2，其它东西都是服务或者fargate、lamda之类的无服务器，这时候你想进去调试，那就麻烦大了</p>
+<p>但是，但是，但是：</p>
+<p>如果你把一台EC2服务器一开始就放错了子网，放到了private子网里，然后上面又跑了重要的服务，无法迁移，无法重启，而且整个vpc里只有这一台ec2，其它东西都是aws的服务或者市场的服务又或者fargate、lambda之类的无服务器，这时候你想进去调试，那就麻烦大了</p>
 <p>那能不能给这台private的机器加上公网ip来当作跳板机直接访问呢？</p>
 <p>答案是肯定的，可以。</p>
-<p>但是，如果这么配置了，你要对路由非常的熟悉，因为随后发生错乱的情况可能需要你手动添加路由，最麻烦的不是配置网卡，而是配置路由！</p>
+<p>但是又来了，如果这么配置了，你要对路由非常的熟悉，因为随后发生错乱的情况可能需要你手动添加路由，最麻烦的不是配置网卡，而是配置路由！</p>
 <p>做法如下：</p>
 <p>一、动态添加弹性ip到这个ec2的第二个网卡</p>
 <p>二、配置网络</p>
@@ -286,11 +286,11 @@
 </span></span><span class="line"><span class="ln">60</span><span class="cl">    
 </span></span><span class="line"><span class="ln">61</span><span class="cl">netplan apply
 </span></span></code></pre></div><p>详细解释一下，enX0是private子网的网卡，enX1是弹性IP的网卡，注意，即使是弹性IP，也是个内网地址，这两个IP呢，都有各自独立的网关，第二个网卡还有自己的DNS。这就容易发生错乱了，因为缺省路由走第一个网卡，那如果从第二个网卡的公网IP入，出的时候走第一张网卡，那就有意思了。</p>
-<p>所以哪来会哪，每个网卡的第二个路由，都是自己走自己。</p>
-<p>然后第二个网卡的第三个路由，是指定的，本质意思其实是从120.116.111.99访问弹性公网IP的wireguard数据包，回程的时候强制指定走第二个网卡。</p>
+<p>所以哪来回哪，每个网卡的第二个路由，都是自己走自，策略路由的第一跳，也是自己走自己。</p>
+<p>然后第二个网卡的第二条策略路由，是指定的，本质意思其实是从120.116.111.99访问弹性公网IP的wireguard数据包，回程的时候强制指定走第二个网卡。</p>
 <p>痛苦吧！</p>
-<p>而且这台EC2作为跳板机，可以代理访问AWS中各种服务，这样就麻烦了，那数据包究竟要从哪个网卡出去，你必须非常清楚，如果走错了，你就必须手动增加路由表</p>
-<p>从第一张网卡可以访问到各种aws的内网endpoint的dns解析地址，第二张网卡由于是公网dns不行；第一张网卡是缺省路由；务必谨记这两点。</p>
+<p>而且这台EC2作为跳板机，需要代理访问AWS中各种服务，这样就麻烦了，那数据包究竟要从哪个网卡出去，你必须非常清楚，如果走错了，你就必须手动增加路由表</p>
+<p>从第一张网卡是aws的dns服务器，是可以访问到各种aws的内网endpoint的解析地址的，第二张网卡由于是公网dns服务器，所以不行；另外第一张网卡是缺省路由；务必谨记这两点。</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">ip route show table all
 </span></span><span class="line"><span class="ln">2</span><span class="cl">ip rule show
 </span></span><span class="line"><span class="ln">3</span><span class="cl">
@@ -300,7 +300,8 @@
 </span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="c1"># 手动新增路由</span>
 </span></span><span class="line"><span class="ln">8</span><span class="cl">ip rule add from 120.116.111.99 table <span class="m">1002</span>
 </span></span><span class="line"><span class="ln">9</span><span class="cl">ip rule add to   120.116.111.99 table <span class="m">1002</span>
-</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+</span></span></code></pre></div><p>存在即合理，AWS本质也是魔改了LInux的各种软件和服务。</p>
+</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
