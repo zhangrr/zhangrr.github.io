@@ -12,7 +12,7 @@
 <meta name="description" content="" /><meta itemprop="name" content="PostgreSQL的用户权限管理">
 <meta itemprop="description" content="公司选用了阿里云的PolarDB做数据库，这个东西其实就是Postgres增加了外挂，可以支持Oracle语法。 没办法，得仔细研究一下Pos"><meta itemprop="datePublished" content="2024-02-05T10:00:11+08:00" />
 <meta itemprop="dateModified" content="2024-02-05T10:00:11+08:00" />
-<meta itemprop="wordCount" content="2698">
+<meta itemprop="wordCount" content="2763">
 <meta itemprop="keywords" content="" /><meta property="og:title" content="PostgreSQL的用户权限管理" />
 <meta property="og:description" content="公司选用了阿里云的PolarDB做数据库，这个东西其实就是Postgres增加了外挂，可以支持Oracle语法。 没办法，得仔细研究一下Pos" />
 <meta property="og:type" content="article" />
@@ -411,7 +411,14 @@
 <li><code>&quot;PUBLIC&quot;</code>（加双引号）会被看作是一个字符串，而非 PostgreSQL 预定义的 <code>PUBLIC</code> 角色。</li>
 <li><code>PUBLIC</code> 是 PostgreSQL 的特殊保留角色，代表所有用户，不能直接创建或管理，也不会出现在 <code>pg_roles</code> 中。</li>
 </ul>
-</div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
+<p>再补充一下，如果就是建一个用户，然后对一个库有权限，简单了</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl"><span class="c1"># 生成密码</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl">tr -cd <span class="s1">&#39;[:alnum:]&#39;</span> &lt; /dev/urandom <span class="p">|</span> fold -w <span class="s2">&#34;21&#34;</span> <span class="p">|</span> head -n <span class="m">1</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">
+</span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="c1"># 建用户和库</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl">CREATE USER <span class="s2">&#34;work-booking&#34;</span> WITH PASSWORD <span class="s1">&#39;xxxxxxxx&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl">CREATE DATABASE <span class="s2">&#34;work-booking&#34;</span> OWNER <span class="s2">&#34;work-booking&#34;</span><span class="p">;</span>
+</span></span></code></pre></div></div><div class="modal fade" id="rewardModal" tabindex="-1" aria-labelledby="rewardModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content surface">
       <div class="modal-header">
@@ -496,11 +503,11 @@
   </section><section class="recent-posts row card component">
   <div class="card-body">
     <h2 class="card-title">最近文章</h2>
-    <ul><li><a href="https://rendoumi.com/posts/20251117-java_profile/">Java进程cpu高排查
+    <ul><li><a href="https://rendoumi.com/posts/20251121-flink_install/">生产环境Flink的搭建
+</a></li><li><a href="https://rendoumi.com/posts/20251117-java_profile/">Java进程cpu高排查
 </a></li><li><a href="https://rendoumi.com/posts/20251117-k8s_resource_backup/">Kubernetes下各种资源的每日定期备份
 </a></li><li><a href="https://rendoumi.com/posts/20251116-aws_private_public_ip/">AWS 放错在Private子网的机器如何用公网IP连进去
 </a></li><li><a href="https://rendoumi.com/posts/20251111-zot_registry/">安装轻量级的Docker Registry：zot
-</a></li><li><a href="https://rendoumi.com/posts/20251110-caddy_wild_certificate/">Caddy自动签发任意域名证书
 </a></li></ul>
   </div>
 </section><section class="taxonomies row card component">
