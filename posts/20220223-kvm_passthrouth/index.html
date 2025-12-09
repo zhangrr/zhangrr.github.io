@@ -1,4 +1,4 @@
-<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>KVM下宿主机的目录直通到虚机 | 八戒的技术博客</title>
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3988508441804851" crossorigin=anonymous></script><title>KVM下宿主机的目录直通到虚机 | 八戒的技术博客</title>
 <meta name=keywords content><meta name=description content="这个需求也很有点意思，DBA 要求做 MySQL 的卸载从库，数据量会很大，硬盘空间后期需要扩容，但是 cpu 反倒占的不多。
 单独 MySQL 是无法限制其 CPU 核使用的，这样的话，最好就是做个虚机来控制 MySQL 总 CPU 核数的使用，然后硬盘扩容的话，比如要拉伸虚机的附加第二块硬盘，如果是 QEMU 格式，会花费很长时间，所以干脆把宿主机的目录直接透传进虚机，之后如果要扩容加硬盘，直接把新的大硬盘 mount 出来再透进去即可，新旧硬盘拷贝数据也比拉伸虚机硬盘快。
 CentOS7 下的做法如下：

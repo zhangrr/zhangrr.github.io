@@ -1,4 +1,4 @@
-<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Kubernetes下各种资源的每日定期备份 | 八戒的技术博客</title>
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3988508441804851" crossorigin=anonymous></script><title>Kubernetes下各种资源的每日定期备份 | 八戒的技术博客</title>
 <meta name=keywords content><meta name=description content='这个问题其实比较有意思，同事早上用k9s修改Deployment的时候误删了一个deployment，这下麻烦了。那其实自己也有过类似操作，迁移的时候误删过influxdb，最后考古才弄回来，也误删过一个ns的secret，都是大麻烦！
 其实系统是有velero备份的，但是从那里面去弄出单独一个ns的deploy进行恢复，怎么也来不及，那幸好有每日资源备份，直接拿过来重建即可。分享一下脚本，那注意一下，因为主节点的etcd也是非常要命的东西，也必须备一下，防止主节点脑裂，到时候可以用备份进行恢复。
 #!/bin/bash

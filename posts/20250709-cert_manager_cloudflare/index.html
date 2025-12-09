@@ -1,4 +1,4 @@
-<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>内网kubernetes+cloudflare+cert-manager自动签发证书 | 八戒的技术博客</title>
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3988508441804851" crossorigin=anonymous></script><title>内网kubernetes+cloudflare+cert-manager自动签发证书 | 八戒的技术博客</title>
 <meta name=keywords content><meta name=description content="这个场景非常的有意思：
 公司内部有若干个kubernetes集群，属于测试环境，研发搭建了一套SAAS的环境，这个环境需要xxx.abc.com的域名来访问，域名解析记录全都是192.168.0.x，供内部访问，域名会动态生成，需要证书也随之生成，且dns域名托管在cloudflare上。
 基本环境如上，麻烦的是 cert-manager 不可能签发私网的证书，只能曲线救国，用dns验证的方式来签发证书了，如果配上 external-dns，那dns解析也不用做了；只要发布一个ingress，就直接生成dns解析记录和对应的https证书。
