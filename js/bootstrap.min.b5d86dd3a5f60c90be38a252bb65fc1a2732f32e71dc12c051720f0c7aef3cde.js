@@ -1,1 +1,0 @@
-const items=['mode','palette'];items.forEach(function(a){const b=localStorage.getItem('hbs-'+a);b&&document.body.parentElement.setAttribute('data-'+a,b)})
