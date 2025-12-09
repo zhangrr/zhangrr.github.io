@@ -1,0 +1,150 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Kubernetes下Flannel网络 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="现在各大公有云的 k8s 网络插件基本用的都是 vxlan，我们也需要对这个进行一下详细了解，以便用于公司的正式生产环境。
+一、原理
+首先，kubernetes的网络模型：
+
+包含三要素：
+
+
+所有的容器(container)之间能够在不使用 NAT 的情况下互相通讯
+
+
+所有的节点(Node)能够在不使用 NAT 的情况下跟所有的容器(container)互相通讯（反之容器访问节点亦然）
+
+
+容器(container)中的IP地址，在容器内和容器外面看起来是一样的
+
+
+那来到 flannel，它是一种 Overlay network 覆盖网络，盖在原有的 Node 网络基础上：
+
+上图要仔细分析， K8S 中存在三个+一个网络段：
+
+node 网络段，上图是 172.20.32.0/19，这是基础网络段
+pod 网络段，100.96.0.0/16，2¹⁶(65536)个IP，这是由 flannel 产生的 overlay network，所有的 pod 都站在一个大广场上，互相可见
+svc 网络段，上图未提，我们需要知道，想要把 pod 的 ip 给固定下来，就得使用 svc 来分配固定的域名，这个是由 iptables 来维护的
+In-Host docker network网络段，这是每个 Node 主机的单独网络段，flannel给每个 Node 主机划分了一个 100.96.x.0/24 段，然后在 etcd 内进行维护，来避免不同的 Node 主机分配IP冲突。
+
+综述：flannel 为每个 Node 分配一个 subnet，容器(container)从此 subnet 中分配 IP，这些 IP 可以在 Node 间路由，容器间无需 NAT 和 port mapping 就可以跨主机通信。"><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20220317-kubernetes_flannel/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20220317-kubernetes_flannel/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20220317-kubernetes_flannel/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="Kubernetes下Flannel网络"><meta property="og:description" content="现在各大公有云的 k8s 网络插件基本用的都是 vxlan，我们也需要对这个进行一下详细了解，以便用于公司的正式生产环境。
+一、原理 首先，kubernetes的网络模型：
+包含三要素：
+所有的容器(container)之间能够在不使用 NAT 的情况下互相通讯
+所有的节点(Node)能够在不使用 NAT 的情况下跟所有的容器(container)互相通讯（反之容器访问节点亦然）
+容器(container)中的IP地址，在容器内和容器外面看起来是一样的
+那来到 flannel，它是一种 Overlay network 覆盖网络，盖在原有的 Node 网络基础上： 上图要仔细分析， K8S 中存在三个+一个网络段：
+node 网络段，上图是 172.20.32.0/19，这是基础网络段 pod 网络段，100.96.0.0/16，2¹⁶(65536)个IP，这是由 flannel 产生的 overlay network，所有的 pod 都站在一个大广场上，互相可见 svc 网络段，上图未提，我们需要知道，想要把 pod 的 ip 给固定下来，就得使用 svc 来分配固定的域名，这个是由 iptables 来维护的 In-Host docker network网络段，这是每个 Node 主机的单独网络段，flannel给每个 Node 主机划分了一个 100.96.x.0/24 段，然后在 etcd 内进行维护，来避免不同的 Node 主机分配IP冲突。 综述：flannel 为每个 Node 分配一个 subnet，容器(container)从此 subnet 中分配 IP，这些 IP 可以在 Node 间路由，容器间无需 NAT 和 port mapping 就可以跨主机通信。"><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-03-17T09:30:11+08:00"><meta property="article:modified_time" content="2022-03-17T09:30:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Kubernetes下Flannel网络"><meta name=twitter:description content="现在各大公有云的 k8s 网络插件基本用的都是 vxlan，我们也需要对这个进行一下详细了解，以便用于公司的正式生产环境。
+一、原理
+首先，kubernetes的网络模型：
+
+包含三要素：
+
+
+所有的容器(container)之间能够在不使用 NAT 的情况下互相通讯
+
+
+所有的节点(Node)能够在不使用 NAT 的情况下跟所有的容器(container)互相通讯（反之容器访问节点亦然）
+
+
+容器(container)中的IP地址，在容器内和容器外面看起来是一样的
+
+
+那来到 flannel，它是一种 Overlay network 覆盖网络，盖在原有的 Node 网络基础上：
+
+上图要仔细分析， K8S 中存在三个+一个网络段：
+
+node 网络段，上图是 172.20.32.0/19，这是基础网络段
+pod 网络段，100.96.0.0/16，2¹⁶(65536)个IP，这是由 flannel 产生的 overlay network，所有的 pod 都站在一个大广场上，互相可见
+svc 网络段，上图未提，我们需要知道，想要把 pod 的 ip 给固定下来，就得使用 svc 来分配固定的域名，这个是由 iptables 来维护的
+In-Host docker network网络段，这是每个 Node 主机的单独网络段，flannel给每个 Node 主机划分了一个 100.96.x.0/24 段，然后在 etcd 内进行维护，来避免不同的 Node 主机分配IP冲突。
+
+综述：flannel 为每个 Node 分配一个 subnet，容器(container)从此 subnet 中分配 IP，这些 IP 可以在 Node 间路由，容器间无需 NAT 和 port mapping 就可以跨主机通信。"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"Kubernetes下Flannel网络","item":"https://rendoumi.com/posts/20220317-kubernetes_flannel/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Kubernetes下Flannel网络","name":"Kubernetes下Flannel网络","description":"现在各大公有云的 k8s 网络插件基本用的都是 vxlan，我们也需要对这个进行一下详细了解，以便用于公司的正式生产环境。\n一、原理 首先，kubernetes的网络模型：\n包含三要素：\n所有的容器(container)之间能够在不使用 NAT 的情况下互相通讯\n所有的节点(Node)能够在不使用 NAT 的情况下跟所有的容器(container)互相通讯（反之容器访问节点亦然）\n容器(container)中的IP地址，在容器内和容器外面看起来是一样的\n那来到 flannel，它是一种 Overlay network 覆盖网络，盖在原有的 Node 网络基础上： 上图要仔细分析， K8S 中存在三个+一个网络段：\nnode 网络段，上图是 172.20.32.0/19，这是基础网络段 pod 网络段，100.96.0.0/16，2¹⁶(65536)个IP，这是由 flannel 产生的 overlay network，所有的 pod 都站在一个大广场上，互相可见 svc 网络段，上图未提，我们需要知道，想要把 pod 的 ip 给固定下来，就得使用 svc 来分配固定的域名，这个是由 iptables 来维护的 In-Host docker network网络段，这是每个 Node 主机的单独网络段，flannel给每个 Node 主机划分了一个 100.96.x.0/24 段，然后在 etcd 内进行维护，来避免不同的 Node 主机分配IP冲突。 综述：flannel 为每个 Node 分配一个 subnet，容器(container)从此 subnet 中分配 IP，这些 IP 可以在 Node 间路由，容器间无需 NAT 和 port mapping 就可以跨主机通信。\n","keywords":[],"articleBody":"现在各大公有云的 k8s 网络插件基本用的都是 vxlan，我们也需要对这个进行一下详细了解，以便用于公司的正式生产环境。\n一、原理 首先，kubernetes的网络模型：\n包含三要素：\n所有的容器(container)之间能够在不使用 NAT 的情况下互相通讯\n所有的节点(Node)能够在不使用 NAT 的情况下跟所有的容器(container)互相通讯（反之容器访问节点亦然）\n容器(container)中的IP地址，在容器内和容器外面看起来是一样的\n那来到 flannel，它是一种 Overlay network 覆盖网络，盖在原有的 Node 网络基础上： 上图要仔细分析， K8S 中存在三个+一个网络段：\nnode 网络段，上图是 172.20.32.0/19，这是基础网络段 pod 网络段，100.96.0.0/16，2¹⁶(65536)个IP，这是由 flannel 产生的 overlay network，所有的 pod 都站在一个大广场上，互相可见 svc 网络段，上图未提，我们需要知道，想要把 pod 的 ip 给固定下来，就得使用 svc 来分配固定的域名，这个是由 iptables 来维护的 In-Host docker network网络段，这是每个 Node 主机的单独网络段，flannel给每个 Node 主机划分了一个 100.96.x.0/24 段，然后在 etcd 内进行维护，来避免不同的 Node 主机分配IP冲突。 综述：flannel 为每个 Node 分配一个 subnet，容器(container)从此 subnet 中分配 IP，这些 IP 可以在 Node 间路由，容器间无需 NAT 和 port mapping 就可以跨主机通信。\n每个 subnet 都是从一个更大的 IP 池中划分的，flannel 会在每个 Node 上运行一个叫 flanneld 的 agent，其职责就是从池子中分配 subnet。为了在各个主机间共享信息，flannel 用 etcd（与 consul 类似的 key-value 分布式数据库）存放网络配置、已分配的 subnet、host 的 IP 等信息。\n数据包如何在主机间转发是由 backend 实现的。flannel 提供了多种 backend，最常用的有 vxlan 和 host-gw，udp 万万不可使用。\n仔细分析一下两个不同主机上的container跨主机互相通讯的过程：\ncontainer-1 首先建立 IP 包， src: 100.96.1.2 -\u003e dst: 100.96.2.3, 包发到 docker0 网桥，docker0 是 container-1 的缺省 gateway 网关。\n在每个 Node 上，flannel 都会跑一个flanneld的守护进程，它会在 Linux 的 kernel 路由表中建立若干条路由， Node1 的路由表如下:\nadmin@ip-172-20-33-102:~$ ip route default via 172.20.32.1 dev eth0 100.96.0.0/16 dev flannel0 proto kernel scope link src 100.96.1.0 100.96.1.0/24 dev docker0 proto kernel scope link src 100.96.1.1 172.20.32.0/19 dev eth0 proto kernel scope link src 172.20.33.102 对照路由表，dst 100.96.2.3 的路由会落到 100.96.0.0/16 这一条上，也就是说会落到 flannel0 这个设备上继续转发出去。\nflannel0 呢本质上是一个由flanneld 进程建立的 TUN 虚拟网卡设备：\n写TUN：当 IP 包写到flannel0后，会转发到 kernel，然后 kernel 查路由表再转发 读TUN：当 IP 包首先到达核心，路由表显示下一跳是flannel0虚拟网卡，kernel会直接把包发到产生这个虚拟网卡的进程去，也就是flanneld进行读包 看上图，IP 包首先到达 Docker0，因为它是网关，然后查内核路由表，到达flannel0虚拟网卡，然后就到达flanneld进程读包， 这时候flanneld会做什么呢？\nflanneld从 etcd 中获得各个主机网段对应的节点信息：\nadmin@ip-172-20-33-102:~$ etcdctl ls /coreos.com/network/subnets /coreos.com/network/subnets/100.96.1.0-24 /coreos.com/network/subnets/100.96.2.0-24 /coreos.com/network/subnets/100.96.3.0-24 admin@ip-172-20-33-102:~$ etcdctl get /coreos.com/network/subnets/100.96.2.0-24 {\"PublicIP\":\"172.20.54.98\"} 于是乎 Node1 上面的 flanneld 进程得知 100.96.2.3 IP对应的网段是 100.96.2.0/24 ，再进一步对应到 Node2 的公网IP 172.20.54.98，然后它就会继续封装这个IP包，用UDP或者VXLAN，把这个 IP 包再包裹一层封起来送到 Node2 的 flanneld 进程去。\nNode2：包首先从网卡到达 Node2 的核心 kernel，路由表显示下一跳是flannel0 虚拟网卡，包就转发到 flanneld 进程读包，flanneld接收到包后，就会做拆包，拆完包直接写包到 TUN，然后包到达本地核心路由，再查路由表转发到docker0，最终到达 container-2\n我们同样可以查看 Node2 的路由表，应该显示如下结果：\nadmin@ip-172-20-54-98:~$ ip route default via 172.20.32.1 dev eth0 100.96.0.0/16 dev flannel0 proto kernel scope link src 100.96.2.0 100.96.2.0/24 dev docker0 proto kernel scope link src 100.96.2.1 172.20.32.0/19 dev eth0 proto kernel scope link src 172.20.54.98 这样整个过程就明晰了。\n道理明晰了，下面我们就需要来实际操作了。\n二、实战 直接在 k8s 里装就很简单，用 yaml 一步操作就行了，这里我们不做任何介绍。\n我们下面说的是如何单独把 flannel 单独拿出来使用：\n1、首先要装etcd 参照之前的帖子：Etcd单节点应用\n这里也给出不用Docker，用systemctl来运行的方案：\n准备工作，关闭selinux，打开包转发：\necho 1 \u003e /proc/sys/net/ipv4/ip_forward #或者修改/etc/sysctl.conf，然后sysctl -p #net.ipv4.ip_forward = 1 systemctl disable firewalld.service systemctl stop firewalld.service iptables -P FORWARD ACCEPT 安装 etcd ：\nyum install etcd -y cp /etc/etcd/etcd.conf/etc/etcd/etcd.conf.bak vi /etc/etcd/etcd.conf ETCD_LISTEN_PEER_URLS=\"http://172.16.9.110:2380\" ETCD_LISTEN_CLIENT_URLS=http://172.16.9.110:2379,http://127.0.0.1:2379 ETCD_NAME=\"default\" ETCD_INITIAL_ADVERTISE_PEER_URLS=\"http://172.16.9.110:2380\" ETCD_ADVERTISE_CLIENT_URLS=http://172.16.9.110:2379 systemctl enable --now etcd 配置 etcd：\nvi /root/etcd.sh { \"Network\": \"10.10.0.0/16\",\"SubnetLen\": 24,\"Backend\": {\"Type\":\"vxlan\"} } etcdctl --endpoints=http://172.16.9.110:2379 set kubernetes‑cluster/network/config \u003c /root/etcd.sh etcdctl ls kubernetes‑cluster/network/config curl -s http://172.16.9.110:2379/v2/keys/kubernetes‑cluster/network/subnets 解释一下：pod 的网段是 10.10.0.0/16，掩码是 /16 ，本地 Node 主机的掩码是/24，也就是说一台宿主机上最多产256台container。\n然后 etcd 的 key 是 kubernetes‑cluster/network\n2、然后装 flannel： 注意 etcd 的配置跟上面一致：\nyum install flannel -y cp /etc/sysconfig/flanneld/etc/sysconfig/flanneld.bak vi/etc/sysconfig/flanneld FLANNEL_ETCD_ENDPOINTS=http://172.16.9.110:2379 FLANNEL_ETCD_PREFIX=\"kubernetes‑cluster/network\" systemctl enable --now flanneld 3、重启Docker 编辑docker启动配置文件：\ncat /run/flannel/subnet.env FLANNEL_NETWORK=10.10.0.0/16 FLANNEL_SUBNET=10.10.1.1/24 FLANNEL_MTU=1450 FLANNEL_IPMASQ=false /usr/lib/systemd/system/docker.service # Add: --bip= and --mtu= vi /usr/lib/systemd/system/docker.service dockerd --bip=$FLANNEL_SUBNET --mtu=$FLANNEL_MTU 或者 cat /run/flannel/docker DOCKER_OPT_BIP=\"‑‑bip=10.10.1.1/24\" DOCKER_OPT_IPMASQ=\"‑‑ip‑masq=true\" DOCKER_OPT_MTU=\"‑‑mtu=1450\" DOCKER_NETWORK_OPTIONS=\" ‑‑bip=10.10.1.1/24 ‑‑ip‑masq=false ‑‑mtu=1450 \" cat /etc/systemd/system/docker.service.d/docker.conf ServiceEnvironmentFile=‑/etc/sysconfig/docker EnvironmentFile=‑/etc/sysconfig/docker‑storage EnvironmentFile=‑/etc/sysconfig/docker‑network EnvironmentFile=‑/run/flannel/docker ExecStart= ExecStart=/usr/bin/dockerd $OPTIONS $DOCKER_STORAGE_OPTIONS $DOCKER_NETWORK_OPTIONS $BLOCK_REGISTRY $INSECURE_REGISTRY 然后就可以了。\n那么为什么 flannel 不用 UDP 呢？\n看上图，包从用户空间到内核空间的流入流出，会经过1、2、3的来回拷贝翻转，性能损失较大，所以 UDP 只能用在测试环境。\n最后 flannel 的 VXLAN 和 HOST-GW 又有什么区别呢？\n与 vxlan 不同，host-gw 不会封装数据包，而是在主机的路由表中创建到其他主机 subnet 的路由条目，从而实现容器跨主机通信 host-gw 把每个主机都配置成网关，主机知道其他主机的 subnet 和转发地址。 vxlan 则在主机间建立隧道，不同主机的容器都在一个大的网段内（比如 10.2.0.0/16）。 虽然 vxlan 与 host-gw 使用不同的机制建立主机之间连接，但对于容器则无需任何改变。 由于 vxlan 需要对数据进行额外打包和拆包，性能会稍逊于 host-gw。 ","wordCount":"462","inLanguage":"zh","datePublished":"2022-03-17T09:30:11+08:00","dateModified":"2022-03-17T09:30:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20220317-kubernetes_flannel/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">Kubernetes下Flannel网络
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2022-03-17 09:30:11 +0800 CST'>2022年3月17日</span></div></header><div class=post-content><p>现在各大公有云的 k8s 网络插件基本用的都是 vxlan，我们也需要对这个进行一下详细了解，以便用于公司的正式生产环境。</p><h2 id=一原理>一、原理<a hidden class=anchor aria-hidden=true href=#一原理>#</a></h2><p>首先，kubernetes的网络模型：</p><p><img alt=image-20220317101247744 loading=lazy src=/posts/20220317-kubernetes_flannel/image-20220317101247744.png></p><p>包含三要素：</p><ul><li><p>所有的容器(container)之间能够在不使用 NAT 的情况下互相通讯</p></li><li><p>所有的节点(Node)能够在不使用 NAT 的情况下跟所有的容器(container)互相通讯（反之容器访问节点亦然）</p></li><li><p>容器(container)中的IP地址，在容器内和容器外面看起来是一样的</p></li></ul><p>那来到 flannel，它是一种 Overlay network 覆盖网络，盖在原有的 Node 网络基础上：
+<img alt=image-20220317101802355 loading=lazy src=/posts/20220317-kubernetes_flannel/image-20220317101802355.png></p><p>上图要仔细分析， K8S 中存在三个+一个网络段：</p><ul><li>node 网络段，上图是 172.20.32.0/19，这是基础网络段</li><li>pod 网络段，100.96.0.0/16，2¹⁶(65536)个IP，这是由 flannel 产生的 overlay network，所有的 pod 都站在一个大广场上，互相可见</li><li>svc 网络段，上图未提，我们需要知道，想要把 pod 的 ip 给固定下来，就得使用 svc 来分配固定的域名，这个是由 iptables 来维护的</li><li>In-Host docker network网络段，这是每个 Node 主机的单独网络段，flannel给每个 Node 主机划分了一个 100.96.x.0/24 段，然后在 etcd 内进行维护，来避免不同的 Node 主机分配IP冲突。</li></ul><p>综述：flannel 为每个 Node 分配一个 subnet，容器(container)从此 subnet 中分配 IP，这些 IP 可以在 Node 间路由，容器间无需 NAT 和 port mapping 就可以跨主机通信。</p><p>每个 subnet 都是从一个更大的 IP 池中划分的，flannel 会在每个 Node 上运行一个叫 flanneld 的 agent，其职责就是从池子中分配 subnet。为了在各个主机间共享信息，flannel 用 etcd（与 consul 类似的 key-value 分布式数据库）存放网络配置、已分配的 subnet、host 的 IP 等信息。</p><p>数据包如何在主机间转发是由 backend 实现的。flannel 提供了多种 backend，最常用的有 vxlan 和 host-gw，udp 万万不可使用。</p><p>仔细分析一下两个不同主机上的container跨主机互相通讯的过程：</p><p><img alt=image-20220317105412532 loading=lazy src=/posts/20220317-kubernetes_flannel/image-20220317105412532.png></p><p>container-1 首先建立 IP 包， <code>src: 100.96.1.2 -> dst: 100.96.2.3</code>, 包发到 docker0 网桥，docker0 是 container-1 的缺省 gateway 网关。</p><p>在每个 Node 上，flannel 都会跑一个<code>flanneld</code>的守护进程，它会在 Linux 的 kernel 路由表中建立若干条路由， Node1 的路由表如下:</p><pre tabindex=0><code>admin@ip-172-20-33-102:~$ ip route
+default via 172.20.32.1 dev eth0
+100.96.0.0/16 dev flannel0  proto kernel  scope link  src 100.96.1.0
+100.96.1.0/24 dev docker0  proto kernel  scope link  src 100.96.1.1
+172.20.32.0/19 dev eth0  proto kernel  scope link  src 172.20.33.102
+</code></pre><p>对照路由表，<code>dst 100.96.2.3</code> 的路由会落到 <code>100.96.0.0/16</code> 这一条上，也就是说会落到 <code>flannel0</code> 这个设备上继续转发出去。</p><p><code>flannel0</code> 呢本质上是一个由<code>flanneld</code> 进程建立的 TUN 虚拟网卡设备：</p><ul><li>写TUN：当 IP 包写到<code>flannel0</code>后，会转发到 kernel，然后 kernel 查路由表再转发</li><li>读TUN：当 IP 包首先到达核心，路由表显示下一跳是<code>flannel0</code>虚拟网卡，kernel会直接把包发到产生这个虚拟网卡的进程去，也就是<code>flanneld</code>进行读包</li></ul><p>看上图，IP 包首先到达 Docker0，因为它是网关，然后查内核路由表，到达<code>flannel0</code>虚拟网卡，然后就到达<code>flanneld</code>进程读包， 这时候<code>flanneld</code>会做什么呢？</p><p><code>flanneld</code>从 etcd 中获得各个主机网段对应的节点信息：</p><pre tabindex=0><code>admin@ip-172-20-33-102:~$ etcdctl ls /coreos.com/network/subnets
+/coreos.com/network/subnets/100.96.1.0-24
+/coreos.com/network/subnets/100.96.2.0-24
+/coreos.com/network/subnets/100.96.3.0-24
+
+admin@ip-172-20-33-102:~$ etcdctl get /coreos.com/network/subnets/100.96.2.0-24
+{&#34;PublicIP&#34;:&#34;172.20.54.98&#34;}
+</code></pre><p>于是乎 Node1 上面的 flanneld 进程得知 100.96.2.3 IP对应的网段是 100.96.2.0/24 ，再进一步对应到 Node2 的公网IP 172.20.54.98，然后它就会继续封装这个IP包，用UDP或者VXLAN，把这个 IP 包再包裹一层封起来送到 Node2 的 flanneld 进程去。</p><p>Node2：包首先从网卡到达 Node2 的核心 kernel，路由表显示下一跳是flannel0 虚拟网卡，包就转发到 flanneld 进程读包，flanneld接收到包后，就会做拆包，拆完包直接写包到 TUN，然后包到达本地核心路由，再查路由表转发到docker0，最终到达 container-2</p><p>我们同样可以查看 Node2 的路由表，应该显示如下结果：</p><pre tabindex=0><code>admin@ip-172-20-54-98:~$ ip route
+default via 172.20.32.1 dev eth0
+100.96.0.0/16 dev flannel0  proto kernel  scope link  src 100.96.2.0
+100.96.2.0/24 dev docker0  proto kernel  scope link  src 100.96.2.1
+172.20.32.0/19 dev eth0  proto kernel  scope link  src 172.20.54.98
+</code></pre><p>这样整个过程就明晰了。</p><p>道理明晰了，下面我们就需要来实际操作了。</p><h2 id=二实战>二、实战<a hidden class=anchor aria-hidden=true href=#二实战>#</a></h2><p>直接在 k8s 里装就很简单，用 yaml 一步操作就行了，这里我们不做任何介绍。</p><p>我们下面说的是如何单独把 flannel 单独拿出来使用：</p><h3 id=1首先要装etcd>1、首先要装etcd<a hidden class=anchor aria-hidden=true href=#1首先要装etcd>#</a></h3><p>参照之前的帖子：<a href=../20211021-etcd_docker/>Etcd单节点应用</a></p><p>这里也给出不用Docker，用systemctl来运行的方案：</p><p>准备工作，关闭selinux，打开包转发：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>echo</span> <span class=m>1</span> &gt; /proc/sys/net/ipv4/ip_forward
+</span></span><span class=line><span class=cl><span class=c1>#或者修改/etc/sysctl.conf，然后sysctl -p</span>
+</span></span><span class=line><span class=cl><span class=c1>#net.ipv4.ip_forward = 1</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>systemctl disable firewalld.service
+</span></span><span class=line><span class=cl>systemctl stop firewalld.service
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>iptables -P FORWARD ACCEPT
+</span></span></code></pre></div><p>安装 etcd ：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>yum install etcd -y
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>cp /etc/etcd/etcd.conf/etc/etcd/etcd.conf.bak
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>vi /etc/etcd/etcd.conf
+</span></span><span class=line><span class=cl><span class=nv>ETCD_LISTEN_PEER_URLS</span><span class=o>=</span><span class=s2>&#34;http://172.16.9.110:2380&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>ETCD_LISTEN_CLIENT_URLS</span><span class=o>=</span>http://172.16.9.110:2379,http://127.0.0.1:2379
+</span></span><span class=line><span class=cl><span class=nv>ETCD_NAME</span><span class=o>=</span><span class=s2>&#34;default&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>ETCD_INITIAL_ADVERTISE_PEER_URLS</span><span class=o>=</span><span class=s2>&#34;http://172.16.9.110:2380&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>ETCD_ADVERTISE_CLIENT_URLS</span><span class=o>=</span>http://172.16.9.110:2379
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>systemctl <span class=nb>enable</span> --now etcd
+</span></span></code></pre></div><p>配置 etcd：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>vi /root/etcd.sh
+</span></span><span class=line><span class=cl><span class=o>{</span> <span class=s2>&#34;Network&#34;</span>: <span class=s2>&#34;10.10.0.0/16&#34;</span>,<span class=s2>&#34;SubnetLen&#34;</span>: 24,<span class=s2>&#34;Backend&#34;</span>: <span class=o>{</span><span class=s2>&#34;Type&#34;</span>:<span class=s2>&#34;vxlan&#34;</span><span class=o>}</span> <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>etcdctl --endpoints<span class=o>=</span>http://172.16.9.110:2379 <span class=nb>set</span> kubernetes‑cluster/network/config &lt; /root/etcd.sh
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>etcdctl ls kubernetes‑cluster/network/config
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>curl -s http://172.16.9.110:2379/v2/keys/kubernetes‑cluster/network/subnets 
+</span></span></code></pre></div><p>解释一下：pod 的网段是 10.10.0.0/16，掩码是 /16 ，本地 Node 主机的掩码是/24，也就是说一台宿主机上最多产256台container。</p><p>然后 etcd 的 key 是 kubernetes‑cluster/network</p><h3 id=2然后装-flannel>2、然后装 flannel：<a hidden class=anchor aria-hidden=true href=#2然后装-flannel>#</a></h3><p>注意 etcd 的配置跟上面一致：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>yum install flannel -y
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>cp /etc/sysconfig/flanneld/etc/sysconfig/flanneld.bak
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>vi/etc/sysconfig/flanneld
+</span></span><span class=line><span class=cl><span class=nv>FLANNEL_ETCD_ENDPOINTS</span><span class=o>=</span>http://172.16.9.110:2379
+</span></span><span class=line><span class=cl><span class=nv>FLANNEL_ETCD_PREFIX</span><span class=o>=</span><span class=s2>&#34;kubernetes‑cluster/network&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>systemctl <span class=nb>enable</span> --now flanneld
+</span></span></code></pre></div><h3 id=3重启docker>3、重启Docker<a hidden class=anchor aria-hidden=true href=#3重启docker>#</a></h3><p>编辑docker启动配置文件：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat /run/flannel/subnet.env
+</span></span><span class=line><span class=cl><span class=nv>FLANNEL_NETWORK</span><span class=o>=</span>10.10.0.0/16
+</span></span><span class=line><span class=cl><span class=nv>FLANNEL_SUBNET</span><span class=o>=</span>10.10.1.1/24
+</span></span><span class=line><span class=cl><span class=nv>FLANNEL_MTU</span><span class=o>=</span><span class=m>1450</span>
+</span></span><span class=line><span class=cl><span class=nv>FLANNEL_IPMASQ</span><span class=o>=</span><span class=nb>false</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>/usr/lib/systemd/system/docker.service
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Add: --bip= and --mtu=</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>vi /usr/lib/systemd/system/docker.service
+</span></span><span class=line><span class=cl>dockerd --bip<span class=o>=</span><span class=nv>$FLANNEL_SUBNET</span> --mtu<span class=o>=</span><span class=nv>$FLANNEL_MTU</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>或者
+</span></span><span class=line><span class=cl>cat /run/flannel/docker
+</span></span><span class=line><span class=cl><span class=nv>DOCKER_OPT_BIP</span><span class=o>=</span><span class=s2>&#34;‑‑bip=10.10.1.1/24&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>DOCKER_OPT_IPMASQ</span><span class=o>=</span><span class=s2>&#34;‑‑ip‑masq=true&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>DOCKER_OPT_MTU</span><span class=o>=</span><span class=s2>&#34;‑‑mtu=1450&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>DOCKER_NETWORK_OPTIONS</span><span class=o>=</span><span class=s2>&#34; ‑‑bip=10.10.1.1/24 ‑‑ip‑masq=false ‑‑mtu=1450 &#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>cat /etc/systemd/system/docker.service.d/docker.conf
+</span></span><span class=line><span class=cl><span class=nv>ServiceEnvironmentFile</span><span class=o>=</span>‑/etc/sysconfig/docker
+</span></span><span class=line><span class=cl><span class=nv>EnvironmentFile</span><span class=o>=</span>‑/etc/sysconfig/docker‑storage
+</span></span><span class=line><span class=cl><span class=nv>EnvironmentFile</span><span class=o>=</span>‑/etc/sysconfig/docker‑network
+</span></span><span class=line><span class=cl><span class=nv>EnvironmentFile</span><span class=o>=</span>‑/run/flannel/docker
+</span></span><span class=line><span class=cl><span class=nv>ExecStart</span><span class=o>=</span>
+</span></span><span class=line><span class=cl><span class=nv>ExecStart</span><span class=o>=</span>/usr/bin/dockerd <span class=nv>$OPTIONS</span> 
+</span></span><span class=line><span class=cl>          <span class=nv>$DOCKER_STORAGE_OPTIONS</span> 
+</span></span><span class=line><span class=cl>          <span class=nv>$DOCKER_NETWORK_OPTIONS</span> 
+</span></span><span class=line><span class=cl>          <span class=nv>$BLOCK_REGISTRY</span> 
+</span></span><span class=line><span class=cl>          <span class=nv>$INSECURE_REGISTRY</span>
+</span></span></code></pre></div><p>然后就可以了。</p><p>那么为什么 flannel 不用 UDP 呢？</p><p><img alt=image-20220317130659132 loading=lazy src=/posts/20220317-kubernetes_flannel/image-20220317130659132.png></p><p>看上图，包从用户空间到内核空间的流入流出，会经过1、2、3的来回拷贝翻转，性能损失较大，所以 UDP 只能用在测试环境。</p><p>最后 flannel 的 VXLAN 和 HOST-GW 又有什么区别呢？</p><ul><li>与 vxlan 不同，host-gw 不会封装数据包，而是在主机的路由表中创建到其他主机 subnet 的路由条目，从而实现容器跨主机通信</li><li>host-gw 把每个主机都配置成网关，主机知道其他主机的 subnet 和转发地址。</li><li>vxlan 则在主机间建立隧道，不同主机的容器都在一个大的网段内（比如 10.2.0.0/16）。</li><li>虽然 vxlan 与 host-gw 使用不同的机制建立主机之间连接，但对于容器则无需任何改变。</li><li>由于 vxlan 需要对数据进行额外打包和拆包，性能会稍逊于 host-gw。</li></ul></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

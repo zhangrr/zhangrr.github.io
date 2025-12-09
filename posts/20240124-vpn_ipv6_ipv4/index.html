@@ -1,0 +1,168 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>配置一个提供IPv6 tunnel over IPv4的OpenVPN服务器 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="先普及一下IPv6 地址。
+IPv6 地址大小为 128 位。
+首选 IPv6 地址表示法为8组数字用冒号分隔，其中每组是 8 个 16 位部分的十六进制值。IPv6 地址范围从 0000:0000:0000:0000:0000:0000:0000:0000 至 ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff。
+除此首选格式之外，IPv6 地址还可以用其他两种短格式指定：
+
+省略前导零
+通过省略前导零指定 IPv6 地址。
+例如，IPv6 地址 1050:0000:0000:0000:0005:0600:300c:326b 可写作 1050:0:0:0:5:600:300c:326b。
+双冒号
+通过使用双冒号（::）替换一系列零来指定 IPv6 地址。
+例如，IPv6 地址 ff06:0:0:0:0:0:0:c3 可写作 ff06::c3。
+一个 IP 地址中只可使用一次双冒号。
+
+在一般IPv6网络环境下，一个局域网的子网大小为/64，接口通过NDP协议获得自己的唯一IPv6地址（前64位为子网前缀，后64位一般由接口本身的MAC地址产生）
+我们的场景：
+
+服务器的IPV4地址是 1.2.3.4
+服务器的IPV6地址是 aaaa:bbbb:cccc:dddd::/64
+IPV4和IPV6的地址都在eth0上
+VPN分配给客户端的IPV6地址是aaaa:bbbb:cccc:dddd:80::/112，使用的接口是tun0
+
+配置过程如下： 首先修改/etc/sysctl.conf文件
+net.ipv4.ip_forward=1  
+    ...
+net.ipv6.conf.all.forwarding=1  
+net.ipv6.conf.all.proxy_ndp = 1  
+    ...
+net.ipv4.conf.all.accept_redirects = 0  
+net.ipv6.conf.all.accept_redirects = 0  
+    ...
+net.ipv4.conf.all.send_redirects = 0  
+接下来，可以先做iptable，使得openvpn server对包进行SNAT
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE  
+或者
+iptables -t nat -A POSTROUTING -s 10.11.0.0/16 -j SNAT --to 172.16.8.1  
+编辑/etc/openvpn/variables变量"><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20240124-vpn_ipv6_ipv4/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20240124-vpn_ipv6_ipv4/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20240124-vpn_ipv6_ipv4/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="配置一个提供IPv6 tunnel over IPv4的OpenVPN服务器"><meta property="og:description" content="先普及一下IPv6 地址。
+IPv6 地址大小为 128 位。
+首选 IPv6 地址表示法为8组数字用冒号分隔，其中每组是 8 个 16 位部分的十六进制值。IPv6 地址范围从 0000:0000:0000:0000:0000:0000:0000:0000 至 ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff。
+除此首选格式之外，IPv6 地址还可以用其他两种短格式指定：
+省略前导零 通过省略前导零指定 IPv6 地址。 例如，IPv6 地址 1050:0000:0000:0000:0005:0600:300c:326b 可写作 1050:0:0:0:5:600:300c:326b。 双冒号 通过使用双冒号（::）替换一系列零来指定 IPv6 地址。 例如，IPv6 地址 ff06:0:0:0:0:0:0:c3 可写作 ff06::c3。 一个 IP 地址中只可使用一次双冒号。 在一般IPv6网络环境下，一个局域网的子网大小为/64，接口通过NDP协议获得自己的唯一IPv6地址（前64位为子网前缀，后64位一般由接口本身的MAC地址产生）
+我们的场景：
+服务器的IPV4地址是 1.2.3.4 服务器的IPV6地址是 aaaa:bbbb:cccc:dddd::/64 IPV4和IPV6的地址都在eth0上 VPN分配给客户端的IPV6地址是aaaa:bbbb:cccc:dddd:80::/112，使用的接口是tun0 配置过程如下： 首先修改/etc/sysctl.conf文件
+net.ipv4.ip_forward=1 ... net.ipv6.conf.all.forwarding=1 net.ipv6.conf.all.proxy_ndp = 1 ... net.ipv4.conf.all.accept_redirects = 0 net.ipv6.conf.all.accept_redirects = 0 ... net.ipv4.conf.all.send_redirects = 0 接下来，可以先做iptable，使得openvpn server对包进行SNAT
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE 或者 iptables -t nat -A POSTROUTING -s 10.11.0.0/16 -j SNAT --to 172.16.8.1 编辑/etc/openvpn/variables变量"><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2024-01-24T14:10:11+08:00"><meta property="article:modified_time" content="2024-01-24T14:10:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="配置一个提供IPv6 tunnel over IPv4的OpenVPN服务器"><meta name=twitter:description content="先普及一下IPv6 地址。
+IPv6 地址大小为 128 位。
+首选 IPv6 地址表示法为8组数字用冒号分隔，其中每组是 8 个 16 位部分的十六进制值。IPv6 地址范围从 0000:0000:0000:0000:0000:0000:0000:0000 至 ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff。
+除此首选格式之外，IPv6 地址还可以用其他两种短格式指定：
+
+省略前导零
+通过省略前导零指定 IPv6 地址。
+例如，IPv6 地址 1050:0000:0000:0000:0005:0600:300c:326b 可写作 1050:0:0:0:5:600:300c:326b。
+双冒号
+通过使用双冒号（::）替换一系列零来指定 IPv6 地址。
+例如，IPv6 地址 ff06:0:0:0:0:0:0:c3 可写作 ff06::c3。
+一个 IP 地址中只可使用一次双冒号。
+
+在一般IPv6网络环境下，一个局域网的子网大小为/64，接口通过NDP协议获得自己的唯一IPv6地址（前64位为子网前缀，后64位一般由接口本身的MAC地址产生）
+我们的场景：
+
+服务器的IPV4地址是 1.2.3.4
+服务器的IPV6地址是 aaaa:bbbb:cccc:dddd::/64
+IPV4和IPV6的地址都在eth0上
+VPN分配给客户端的IPV6地址是aaaa:bbbb:cccc:dddd:80::/112，使用的接口是tun0
+
+配置过程如下： 首先修改/etc/sysctl.conf文件
+net.ipv4.ip_forward=1  
+    ...
+net.ipv6.conf.all.forwarding=1  
+net.ipv6.conf.all.proxy_ndp = 1  
+    ...
+net.ipv4.conf.all.accept_redirects = 0  
+net.ipv6.conf.all.accept_redirects = 0  
+    ...
+net.ipv4.conf.all.send_redirects = 0  
+接下来，可以先做iptable，使得openvpn server对包进行SNAT
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE  
+或者
+iptables -t nat -A POSTROUTING -s 10.11.0.0/16 -j SNAT --to 172.16.8.1  
+编辑/etc/openvpn/variables变量"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"配置一个提供IPv6 tunnel over IPv4的OpenVPN服务器","item":"https://rendoumi.com/posts/20240124-vpn_ipv6_ipv4/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"配置一个提供IPv6 tunnel over IPv4的OpenVPN服务器","name":"配置一个提供IPv6 tunnel over IPv4的OpenVPN服务器","description":"先普及一下IPv6 地址。\nIPv6 地址大小为 128 位。\n首选 IPv6 地址表示法为8组数字用冒号分隔，其中每组是 8 个 16 位部分的十六进制值。IPv6 地址范围从 0000:0000:0000:0000:0000:0000:0000:0000 至 ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff。\n除此首选格式之外，IPv6 地址还可以用其他两种短格式指定：\n省略前导零 通过省略前导零指定 IPv6 地址。 例如，IPv6 地址 1050:0000:0000:0000:0005:0600:300c:326b 可写作 1050:0:0:0:5:600:300c:326b。 双冒号 通过使用双冒号（::）替换一系列零来指定 IPv6 地址。 例如，IPv6 地址 ff06:0:0:0:0:0:0:c3 可写作 ff06::c3。 一个 IP 地址中只可使用一次双冒号。 在一般IPv6网络环境下，一个局域网的子网大小为/64，接口通过NDP协议获得自己的唯一IPv6地址（前64位为子网前缀，后64位一般由接口本身的MAC地址产生）\n我们的场景：\n服务器的IPV4地址是 1.2.3.4 服务器的IPV6地址是 aaaa:bbbb:cccc:dddd::/64 IPV4和IPV6的地址都在eth0上 VPN分配给客户端的IPV6地址是aaaa:bbbb:cccc:dddd:80::/112，使用的接口是tun0 配置过程如下： 首先修改/etc/sysctl.conf文件\nnet.ipv4.ip_forward=1 ... net.ipv6.conf.all.forwarding=1 net.ipv6.conf.all.proxy_ndp = 1 ... net.ipv4.conf.all.accept_redirects = 0 net.ipv6.conf.all.accept_redirects = 0 ... net.ipv4.conf.all.send_redirects = 0 接下来，可以先做iptable，使得openvpn server对包进行SNAT\niptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE 或者 iptables -t nat -A POSTROUTING -s 10.11.0.0/16 -j SNAT --to 172.16.8.1 编辑/etc/openvpn/variables变量\n","keywords":[],"articleBody":"先普及一下IPv6 地址。\nIPv6 地址大小为 128 位。\n首选 IPv6 地址表示法为8组数字用冒号分隔，其中每组是 8 个 16 位部分的十六进制值。IPv6 地址范围从 0000:0000:0000:0000:0000:0000:0000:0000 至 ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff。\n除此首选格式之外，IPv6 地址还可以用其他两种短格式指定：\n省略前导零 通过省略前导零指定 IPv6 地址。 例如，IPv6 地址 1050:0000:0000:0000:0005:0600:300c:326b 可写作 1050:0:0:0:5:600:300c:326b。 双冒号 通过使用双冒号（::）替换一系列零来指定 IPv6 地址。 例如，IPv6 地址 ff06:0:0:0:0:0:0:c3 可写作 ff06::c3。 一个 IP 地址中只可使用一次双冒号。 在一般IPv6网络环境下，一个局域网的子网大小为/64，接口通过NDP协议获得自己的唯一IPv6地址（前64位为子网前缀，后64位一般由接口本身的MAC地址产生）\n我们的场景：\n服务器的IPV4地址是 1.2.3.4 服务器的IPV6地址是 aaaa:bbbb:cccc:dddd::/64 IPV4和IPV6的地址都在eth0上 VPN分配给客户端的IPV6地址是aaaa:bbbb:cccc:dddd:80::/112，使用的接口是tun0 配置过程如下： 首先修改/etc/sysctl.conf文件\nnet.ipv4.ip_forward=1 ... net.ipv6.conf.all.forwarding=1 net.ipv6.conf.all.proxy_ndp = 1 ... net.ipv4.conf.all.accept_redirects = 0 net.ipv6.conf.all.accept_redirects = 0 ... net.ipv4.conf.all.send_redirects = 0 接下来，可以先做iptable，使得openvpn server对包进行SNAT\niptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE 或者 iptables -t nat -A POSTROUTING -s 10.11.0.0/16 -j SNAT --to 172.16.8.1 编辑/etc/openvpn/variables变量\n# 客户端IP段前缀 # Tunnel subnet prefix prefix=aaaa:bbbb:cccc:dddd:80: # netmask prefixlen=112 准备两个脚本，在与客户端建立连接和断开连接时执行，用来建立或者取消NDP proxy rules。 /etc/openvpn/up.sh\n#!/bin/sh # Check client variables if [ -z \"$ifconfig_pool_remote_ip\" ] || [ -z \"$common_name\" ]; then echo \"Missing environment variable.\" exit 1 fi # Load server variables . /etc/openvpn/variables ipv6=\"\" ipp=$(echo \"$ifconfig_pool_remote_ip\" | cut -d. -f4) if ! [ \"$ipp\" -ge 2 -a \"$ipp\" -le 254 ] 2\u003e/dev/null; then echo \"Invalid IPv4 part.\" exit 1 fi hexipp=$(printf '%x' $ipp) ipv6=\"$prefix$hexipp\" # Create proxy rule /sbin/ip -6 neigh add proxy $ipv6 dev eth0 /etc/openvpn/down.sh\n#!/bin/sh # Check client variables if [ -z \"$ifconfig_pool_remote_ip\" ] || [ -z \"$common_name\" ]; then echo \"Missing environment variable.\" exit 1 fi # Load server variables . /etc/openvpn/variables ipv6=\"\" ipp=$(echo \"$ifconfig_pool_remote_ip\" | cut -d. -f4) if ! [ \"$ipp\" -ge 2 -a \"$ipp\" -le 254 ] 2\u003e/dev/null; then echo \"Invalid IPv4 part.\" exit 1 fi hexipp=$(printf '%x' $ipp) ipv6=\"$prefix$hexipp\" # Delete proxy rule /sbin/ip -6 neigh del proxy $ipv6 dev eth0 这两个脚本权限应该都是755\n服务器端server.conf中的相关配置：\n# Run client-specific script on connection and disconnection script-security 2 client-connect \"/etc/openvpn/up.sh\" client-disconnect \"/etc/openvpn/down.sh\" # Server mode and client subnets server 10.8.0.0 255.255.255.0 server-ipv6 aaaa:bbbb:cccc:dddd:80::/112 topology subnet # IPv6 routes push \"route-ipv6 aaaa:bbbb:cccc:dddd::/64\" push \"route-ipv6 2000::/3\" 客户端client.ovpn中的相关配置\nremote 1.2.3.4 1194 启动服务器端，然后再启动客户端连接 测试一下：\ntraceroute6 ipv6.google.com 这样就ok了。\n","wordCount":"297","inLanguage":"zh","datePublished":"2024-01-24T14:10:11+08:00","dateModified":"2024-01-24T14:10:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20240124-vpn_ipv6_ipv4/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">配置一个提供IPv6 tunnel over IPv4的OpenVPN服务器
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2024-01-24 14:10:11 +0800 CST'>2024年1月24日</span></div></header><div class=post-content><p>先普及一下IPv6 地址。</p><p>IPv6 地址大小为 128 位。</p><p>首选 IPv6 地址表示法为8组数字用冒号分隔，其中每组是 8 个 16 位部分的十六进制值。IPv6 地址范围从 0000:0000:0000:0000:0000:0000:0000:0000 至 ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff。</p><p>除此首选格式之外，IPv6 地址还可以用其他两种短格式指定：</p><ul><li>省略前导零
+通过省略前导零指定 IPv6 地址。
+例如，IPv6 地址 1050:0000:0000:0000:0005:0600:300c:326b 可写作 1050:0:0:0:5:600:300c:326b。</li><li>双冒号
+通过使用双冒号（::）替换一系列零来指定 IPv6 地址。
+例如，IPv6 地址 ff06:0:0:0:0:0:0:c3 可写作 ff06::c3。
+一个 IP 地址中只可使用一次双冒号。</li></ul><p>在一般IPv6网络环境下，一个局域网的子网大小为/64，接口通过NDP协议获得自己的唯一IPv6地址（前64位为子网前缀，后64位一般由接口本身的MAC地址产生）</p><p>我们的场景：</p><ul><li>服务器的IPV4地址是 1.2.3.4</li><li>服务器的IPV6地址是 aaaa:bbbb:cccc:dddd::/64</li><li>IPV4和IPV6的地址都在eth0上</li><li>VPN分配给客户端的IPV6地址是aaaa:bbbb:cccc:dddd:80::/112，使用的接口是tun0</li></ul><p>配置过程如下： 首先修改<code>/etc/sysctl.conf</code>文件</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>net.ipv4.ip_forward<span class=o>=</span><span class=m>1</span>  
+</span></span><span class=line><span class=cl>    ...
+</span></span><span class=line><span class=cl>net.ipv6.conf.all.forwarding<span class=o>=</span><span class=m>1</span>  
+</span></span><span class=line><span class=cl>net.ipv6.conf.all.proxy_ndp <span class=o>=</span> <span class=m>1</span>  
+</span></span><span class=line><span class=cl>    ...
+</span></span><span class=line><span class=cl>net.ipv4.conf.all.accept_redirects <span class=o>=</span> <span class=m>0</span>  
+</span></span><span class=line><span class=cl>net.ipv6.conf.all.accept_redirects <span class=o>=</span> <span class=m>0</span>  
+</span></span><span class=line><span class=cl>    ...
+</span></span><span class=line><span class=cl>net.ipv4.conf.all.send_redirects <span class=o>=</span> <span class=m>0</span>  
+</span></span></code></pre></div><p>接下来，可以先做iptable，使得openvpn server对包进行SNAT</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE  
+</span></span><span class=line><span class=cl>或者
+</span></span><span class=line><span class=cl>iptables -t nat -A POSTROUTING -s 10.11.0.0/16 -j SNAT --to 172.16.8.1  
+</span></span></code></pre></div><p>编辑<code>/etc/openvpn/variables</code>变量</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 客户端IP段前缀</span>
+</span></span><span class=line><span class=cl><span class=c1># Tunnel subnet prefix</span>
+</span></span><span class=line><span class=cl><span class=nv>prefix</span><span class=o>=</span>aaaa:bbbb:cccc:dddd:80:  
+</span></span><span class=line><span class=cl><span class=c1># netmask</span>
+</span></span><span class=line><span class=cl><span class=nv>prefixlen</span><span class=o>=</span><span class=m>112</span>  
+</span></span></code></pre></div><p>准备两个脚本，在与客户端建立连接和断开连接时执行，用来建立或者取消NDP proxy rules。 /etc/openvpn/up.sh</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/bin/sh
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=c1># Check client variables</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[</span> -z <span class=s2>&#34;</span><span class=nv>$ifconfig_pool_remote_ip</span><span class=s2>&#34;</span> <span class=o>]</span> <span class=o>||</span> <span class=o>[</span> -z <span class=s2>&#34;</span><span class=nv>$common_name</span><span class=s2>&#34;</span> <span class=o>]</span><span class=p>;</span> <span class=k>then</span>  
+</span></span><span class=line><span class=cl>        <span class=nb>echo</span> <span class=s2>&#34;Missing environment variable.&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=nb>exit</span> <span class=m>1</span>
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Load server variables</span>
+</span></span><span class=line><span class=cl>. /etc/openvpn/variables
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>ipv6</span><span class=o>=</span><span class=s2>&#34;&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>ipp</span><span class=o>=</span><span class=k>$(</span><span class=nb>echo</span> <span class=s2>&#34;</span><span class=nv>$ifconfig_pool_remote_ip</span><span class=s2>&#34;</span> <span class=p>|</span> cut -d. -f4<span class=k>)</span>  
+</span></span><span class=line><span class=cl><span class=k>if</span> ! <span class=o>[</span> <span class=s2>&#34;</span><span class=nv>$ipp</span><span class=s2>&#34;</span> -ge <span class=m>2</span> -a <span class=s2>&#34;</span><span class=nv>$ipp</span><span class=s2>&#34;</span> -le <span class=m>254</span> <span class=o>]</span> 2&gt;/dev/null<span class=p>;</span> <span class=k>then</span>  
+</span></span><span class=line><span class=cl>        <span class=nb>echo</span> <span class=s2>&#34;Invalid IPv4 part.&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=nb>exit</span> <span class=m>1</span>
+</span></span><span class=line><span class=cl><span class=k>fi</span>  
+</span></span><span class=line><span class=cl><span class=nv>hexipp</span><span class=o>=</span><span class=k>$(</span><span class=nb>printf</span> <span class=s1>&#39;%x&#39;</span> <span class=nv>$ipp</span><span class=k>)</span>  
+</span></span><span class=line><span class=cl><span class=nv>ipv6</span><span class=o>=</span><span class=s2>&#34;</span><span class=nv>$prefix$hexipp</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Create proxy rule</span>
+</span></span><span class=line><span class=cl>/sbin/ip -6 neigh add proxy <span class=nv>$ipv6</span> dev eth0
+</span></span></code></pre></div><p>/etc/openvpn/down.sh</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/bin/sh
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=c1># Check client variables</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[</span> -z <span class=s2>&#34;</span><span class=nv>$ifconfig_pool_remote_ip</span><span class=s2>&#34;</span> <span class=o>]</span> <span class=o>||</span> <span class=o>[</span> -z <span class=s2>&#34;</span><span class=nv>$common_name</span><span class=s2>&#34;</span> <span class=o>]</span><span class=p>;</span> <span class=k>then</span>  
+</span></span><span class=line><span class=cl>        <span class=nb>echo</span> <span class=s2>&#34;Missing environment variable.&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=nb>exit</span> <span class=m>1</span>
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Load server variables</span>
+</span></span><span class=line><span class=cl>. /etc/openvpn/variables
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>ipv6</span><span class=o>=</span><span class=s2>&#34;&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>ipp</span><span class=o>=</span><span class=k>$(</span><span class=nb>echo</span> <span class=s2>&#34;</span><span class=nv>$ifconfig_pool_remote_ip</span><span class=s2>&#34;</span> <span class=p>|</span> cut -d. -f4<span class=k>)</span>  
+</span></span><span class=line><span class=cl><span class=k>if</span> ! <span class=o>[</span> <span class=s2>&#34;</span><span class=nv>$ipp</span><span class=s2>&#34;</span> -ge <span class=m>2</span> -a <span class=s2>&#34;</span><span class=nv>$ipp</span><span class=s2>&#34;</span> -le <span class=m>254</span> <span class=o>]</span> 2&gt;/dev/null<span class=p>;</span> <span class=k>then</span>  
+</span></span><span class=line><span class=cl>        <span class=nb>echo</span> <span class=s2>&#34;Invalid IPv4 part.&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=nb>exit</span> <span class=m>1</span>
+</span></span><span class=line><span class=cl><span class=k>fi</span>  
+</span></span><span class=line><span class=cl><span class=nv>hexipp</span><span class=o>=</span><span class=k>$(</span><span class=nb>printf</span> <span class=s1>&#39;%x&#39;</span> <span class=nv>$ipp</span><span class=k>)</span>  
+</span></span><span class=line><span class=cl><span class=nv>ipv6</span><span class=o>=</span><span class=s2>&#34;</span><span class=nv>$prefix$hexipp</span><span class=s2>&#34;</span> 
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Delete proxy rule</span>
+</span></span><span class=line><span class=cl>/sbin/ip -6 neigh del proxy <span class=nv>$ipv6</span> dev eth0
+</span></span></code></pre></div><p>这两个脚本权限应该都是755</p><p>服务器端server.conf中的相关配置：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Run client-specific script on connection and disconnection</span>
+</span></span><span class=line><span class=cl>script-security <span class=m>2</span>  
+</span></span><span class=line><span class=cl>client-connect <span class=s2>&#34;/etc/openvpn/up.sh&#34;</span>  
+</span></span><span class=line><span class=cl>client-disconnect <span class=s2>&#34;/etc/openvpn/down.sh&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Server mode and client subnets</span>
+</span></span><span class=line><span class=cl>server 10.8.0.0 255.255.255.0  
+</span></span><span class=line><span class=cl>server-ipv6 aaaa:bbbb:cccc:dddd:80::/112  
+</span></span><span class=line><span class=cl>topology subnet
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># IPv6 routes</span>
+</span></span><span class=line><span class=cl>push <span class=s2>&#34;route-ipv6 aaaa:bbbb:cccc:dddd::/64&#34;</span>  
+</span></span><span class=line><span class=cl>push <span class=s2>&#34;route-ipv6 2000::/3&#34;</span>  
+</span></span></code></pre></div><p>客户端client.ovpn中的相关配置</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>remote 1.2.3.4 <span class=m>1194</span>  
+</span></span></code></pre></div><p>启动服务器端，然后再启动客户端连接 测试一下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl> traceroute6 ipv6.google.com
+</span></span></code></pre></div><p>这样就ok了。</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

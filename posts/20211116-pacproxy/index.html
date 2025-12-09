@@ -1,0 +1,121 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>linux下web pacproxy的用法 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='说实在话，这个场景非常怪异，客户在 linux 下要动态根据 url 选择代理：
+
+看图，中间的是前端代理，地址是 192.168.1.1:8080，然后客户设置使用这个代理
+export http_proxy=http://192.168.1.1:8080
+export https_proxy=http://192.168.1.1:8080
+然后对应后端有三个代理，两个 http 代理，一个 socks 代理
+http  192.168.2.1:3128
+socks 192.168.2.2:1080
+http  192.168.2.3:3128
+我们要根据客户的请求 URL 来决定具体要使用后端的哪个代理
+这个如果在浏览器上设置非常容易，设置 PAC 即可。但是偏偏客户端不是浏览器，而是一个程序，那么麻烦就来了。怎么设置呢？
+步骤很简单：
+一、安装 pacproxy
+网址：https://github.com/williambailey/pacproxy
+wget https://github.com/williambailey/pacproxy/releases/download/v.2.0.4/pacproxy_2.0.4_linux_amd64.tar.gz
+tar zxvf pacproxy_2.0.4_linux_amd64.tar.gz
+拷出来 pacproxy 备用
+二、生成配置文件
+最主要的就是 PAC 文件的生成
+我们给个例子：
+cat << EOF >> pac
+function FindProxyForURL(url, host)
+{
+    if (host == "www.baidu.com") {
+        return "PROXY 192.168.2.1:3128";
+    }
+    else if (host == "www.sina.com.cn") {
+        return "SOCKS 192.168.2.2:1080";
+    }
+    else if (host == "www.sohu.com") {
+        return "SOCKS 192.168.2.3:1080";
+    }    
+    else {
+        return "DIRECT";
+    }
+}
+EOF
+其实 PAC 文件的内容就是一段 javascript，用来返回代理的地址'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20211116-pacproxy/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20211116-pacproxy/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20211116-pacproxy/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="linux下web pacproxy的用法"><meta property="og:description" content='说实在话，这个场景非常怪异，客户在 linux 下要动态根据 url 选择代理：
+看图，中间的是前端代理，地址是 192.168.1.1:8080，然后客户设置使用这个代理
+export http_proxy=http://192.168.1.1:8080 export https_proxy=http://192.168.1.1:8080 然后对应后端有三个代理，两个 http 代理，一个 socks 代理
+http 192.168.2.1:3128 socks 192.168.2.2:1080 http 192.168.2.3:3128 我们要根据客户的请求 URL 来决定具体要使用后端的哪个代理
+这个如果在浏览器上设置非常容易，设置 PAC 即可。但是偏偏客户端不是浏览器，而是一个程序，那么麻烦就来了。怎么设置呢？
+步骤很简单：
+一、安装 pacproxy 网址：https://github.com/williambailey/pacproxy
+wget https://github.com/williambailey/pacproxy/releases/download/v.2.0.4/pacproxy_2.0.4_linux_amd64.tar.gz tar zxvf pacproxy_2.0.4_linux_amd64.tar.gz 拷出来 pacproxy 备用
+二、生成配置文件 最主要的就是 PAC 文件的生成
+我们给个例子：
+cat << EOF >> pac function FindProxyForURL(url, host) { if (host == "www.baidu.com") { return "PROXY 192.168.2.1:3128"; } else if (host == "www.sina.com.cn") { return "SOCKS 192.168.2.2:1080"; } else if (host == "www.sohu.com") { return "SOCKS 192.168.2.3:1080"; } else { return "DIRECT"; } } EOF 其实 PAC 文件的内容就是一段 javascript，用来返回代理的地址'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2021-11-16T09:30:11+08:00"><meta property="article:modified_time" content="2021-11-16T09:30:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="linux下web pacproxy的用法"><meta name=twitter:description content='说实在话，这个场景非常怪异，客户在 linux 下要动态根据 url 选择代理：
+
+看图，中间的是前端代理，地址是 192.168.1.1:8080，然后客户设置使用这个代理
+export http_proxy=http://192.168.1.1:8080
+export https_proxy=http://192.168.1.1:8080
+然后对应后端有三个代理，两个 http 代理，一个 socks 代理
+http  192.168.2.1:3128
+socks 192.168.2.2:1080
+http  192.168.2.3:3128
+我们要根据客户的请求 URL 来决定具体要使用后端的哪个代理
+这个如果在浏览器上设置非常容易，设置 PAC 即可。但是偏偏客户端不是浏览器，而是一个程序，那么麻烦就来了。怎么设置呢？
+步骤很简单：
+一、安装 pacproxy
+网址：https://github.com/williambailey/pacproxy
+wget https://github.com/williambailey/pacproxy/releases/download/v.2.0.4/pacproxy_2.0.4_linux_amd64.tar.gz
+tar zxvf pacproxy_2.0.4_linux_amd64.tar.gz
+拷出来 pacproxy 备用
+二、生成配置文件
+最主要的就是 PAC 文件的生成
+我们给个例子：
+cat << EOF >> pac
+function FindProxyForURL(url, host)
+{
+    if (host == "www.baidu.com") {
+        return "PROXY 192.168.2.1:3128";
+    }
+    else if (host == "www.sina.com.cn") {
+        return "SOCKS 192.168.2.2:1080";
+    }
+    else if (host == "www.sohu.com") {
+        return "SOCKS 192.168.2.3:1080";
+    }    
+    else {
+        return "DIRECT";
+    }
+}
+EOF
+其实 PAC 文件的内容就是一段 javascript，用来返回代理的地址'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"linux下web pacproxy的用法","item":"https://rendoumi.com/posts/20211116-pacproxy/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"linux下web pacproxy的用法","name":"linux下web pacproxy的用法","description":"说实在话，这个场景非常怪异，客户在 linux 下要动态根据 url 选择代理：\n看图，中间的是前端代理，地址是 192.168.1.1:8080，然后客户设置使用这个代理\nexport http_proxy=http://192.168.1.1:8080 export https_proxy=http://192.168.1.1:8080 然后对应后端有三个代理，两个 http 代理，一个 socks 代理\nhttp 192.168.2.1:3128 socks 192.168.2.2:1080 http 192.168.2.3:3128 我们要根据客户的请求 URL 来决定具体要使用后端的哪个代理\n这个如果在浏览器上设置非常容易，设置 PAC 即可。但是偏偏客户端不是浏览器，而是一个程序，那么麻烦就来了。怎么设置呢？\n步骤很简单：\n一、安装 pacproxy 网址：https://github.com/williambailey/pacproxy\nwget https://github.com/williambailey/pacproxy/releases/download/v.2.0.4/pacproxy_2.0.4_linux_amd64.tar.gz tar zxvf pacproxy_2.0.4_linux_amd64.tar.gz 拷出来 pacproxy 备用\n二、生成配置文件 最主要的就是 PAC 文件的生成\n我们给个例子：\ncat \u0026lt;\u0026lt; EOF \u0026gt;\u0026gt; pac function FindProxyForURL(url, host) { if (host == \u0026#34;www.baidu.com\u0026#34;) { return \u0026#34;PROXY 192.168.2.1:3128\u0026#34;; } else if (host == \u0026#34;www.sina.com.cn\u0026#34;) { return \u0026#34;SOCKS 192.168.2.2:1080\u0026#34;; } else if (host == \u0026#34;www.sohu.com\u0026#34;) { return \u0026#34;SOCKS 192.168.2.3:1080\u0026#34;; } else { return \u0026#34;DIRECT\u0026#34;; } } EOF 其实 PAC 文件的内容就是一段 javascript，用来返回代理的地址\n","keywords":[],"articleBody":"说实在话，这个场景非常怪异，客户在 linux 下要动态根据 url 选择代理：\n看图，中间的是前端代理，地址是 192.168.1.1:8080，然后客户设置使用这个代理\nexport http_proxy=http://192.168.1.1:8080 export https_proxy=http://192.168.1.1:8080 然后对应后端有三个代理，两个 http 代理，一个 socks 代理\nhttp 192.168.2.1:3128 socks 192.168.2.2:1080 http 192.168.2.3:3128 我们要根据客户的请求 URL 来决定具体要使用后端的哪个代理\n这个如果在浏览器上设置非常容易，设置 PAC 即可。但是偏偏客户端不是浏览器，而是一个程序，那么麻烦就来了。怎么设置呢？\n步骤很简单：\n一、安装 pacproxy 网址：https://github.com/williambailey/pacproxy\nwget https://github.com/williambailey/pacproxy/releases/download/v.2.0.4/pacproxy_2.0.4_linux_amd64.tar.gz tar zxvf pacproxy_2.0.4_linux_amd64.tar.gz 拷出来 pacproxy 备用\n二、生成配置文件 最主要的就是 PAC 文件的生成\n我们给个例子：\ncat \u003c\u003c EOF \u003e\u003e pac function FindProxyForURL(url, host) { if (host == \"www.baidu.com\") { return \"PROXY 192.168.2.1:3128\"; } else if (host == \"www.sina.com.cn\") { return \"SOCKS 192.168.2.2:1080\"; } else if (host == \"www.sohu.com\") { return \"SOCKS 192.168.2.3:1080\"; } else { return \"DIRECT\"; } } EOF 其实 PAC 文件的内容就是一段 javascript，用来返回代理的地址\n运行并测试：\npacproxy -c pac -l 0.0.0.0:8080 -v export http_proxy=http://192.168.1.1:8080 export https_proxy=http://192.168.1.1:8080 curl -I www.baidu.com 这样就在 Linux 搭建了一个动态的 PAC 代理\nPAC文件的参考资料：\nhttps://web.archive.org/web/20070602031929/http://wp.netscape.com/eng/mozilla/2.0/relnotes/demo/proxy-live.html\nhttps://developer.mozilla.org/zh-CN/docs/Web/HTTP/Proxy_servers_and_tunneling/Proxy_Auto-Configuration_PAC_file\nhttps://www.websense.com/content/support/library/web/v76/pac_file_best_practices/PAC_file_sample.aspx\n","wordCount":"117","inLanguage":"zh","datePublished":"2021-11-16T09:30:11+08:00","dateModified":"2021-11-16T09:30:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20211116-pacproxy/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">linux下web pacproxy的用法
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2021-11-16 09:30:11 +0800 CST'>2021年11月16日</span></div></header><div class=post-content><p>说实在话，这个场景非常怪异，客户在 linux 下要动态根据 url 选择代理：</p><p><img alt=image-20211116132624536 loading=lazy src=/posts/20211116-pacproxy/image-20211116132624536.png></p><p>看图，中间的是前端代理，地址是 192.168.1.1:8080，然后客户设置使用这个代理</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>export</span> <span class=nv>http_proxy</span><span class=o>=</span>http://192.168.1.1:8080
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>https_proxy</span><span class=o>=</span>http://192.168.1.1:8080
+</span></span></code></pre></div><p>然后对应后端有三个代理，两个 http 代理，一个 socks 代理</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>http  192.168.2.1:3128
+</span></span><span class=line><span class=cl>socks 192.168.2.2:1080
+</span></span><span class=line><span class=cl>http  192.168.2.3:3128
+</span></span></code></pre></div><p>我们要根据客户的请求 URL 来决定具体要使用后端的哪个代理</p><p>这个如果在浏览器上设置非常容易，设置 PAC 即可。但是偏偏客户端不是浏览器，而是一个程序，那么麻烦就来了。怎么设置呢？</p><p>步骤很简单：</p><h2 id=一安装-pacproxy>一、安装 pacproxy<a hidden class=anchor aria-hidden=true href=#一安装-pacproxy>#</a></h2><p>网址：https://github.com/williambailey/pacproxy</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>wget https://github.com/williambailey/pacproxy/releases/download/v.2.0.4/pacproxy_2.0.4_linux_amd64.tar.gz
+</span></span><span class=line><span class=cl>tar zxvf pacproxy_2.0.4_linux_amd64.tar.gz
+</span></span></code></pre></div><p>拷出来 pacproxy 备用</p><h2 id=二生成配置文件>二、生成配置文件<a hidden class=anchor aria-hidden=true href=#二生成配置文件>#</a></h2><p>最主要的就是 PAC 文件的生成</p><p>我们给个例子：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat <span class=s>&lt;&lt; EOF &gt;&gt; pac
+</span></span></span><span class=line><span class=cl><span class=s>function FindProxyForURL(url, host)
+</span></span></span><span class=line><span class=cl><span class=s>{
+</span></span></span><span class=line><span class=cl><span class=s>    if (host == &#34;www.baidu.com&#34;) {
+</span></span></span><span class=line><span class=cl><span class=s>        return &#34;PROXY 192.168.2.1:3128&#34;;
+</span></span></span><span class=line><span class=cl><span class=s>    }
+</span></span></span><span class=line><span class=cl><span class=s>    else if (host == &#34;www.sina.com.cn&#34;) {
+</span></span></span><span class=line><span class=cl><span class=s>        return &#34;SOCKS 192.168.2.2:1080&#34;;
+</span></span></span><span class=line><span class=cl><span class=s>    }
+</span></span></span><span class=line><span class=cl><span class=s>    else if (host == &#34;www.sohu.com&#34;) {
+</span></span></span><span class=line><span class=cl><span class=s>        return &#34;SOCKS 192.168.2.3:1080&#34;;
+</span></span></span><span class=line><span class=cl><span class=s>    }    
+</span></span></span><span class=line><span class=cl><span class=s>    else {
+</span></span></span><span class=line><span class=cl><span class=s>        return &#34;DIRECT&#34;;
+</span></span></span><span class=line><span class=cl><span class=s>    }
+</span></span></span><span class=line><span class=cl><span class=s>}
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span></code></pre></div><p>其实 PAC 文件的内容就是一段 javascript，用来返回代理的地址</p><p>运行并测试：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>pacproxy -c pac -l 0.0.0.0:8080 -v
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>http_proxy</span><span class=o>=</span>http://192.168.1.1:8080
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>https_proxy</span><span class=o>=</span>http://192.168.1.1:8080
+</span></span><span class=line><span class=cl>curl -I www.baidu.com
+</span></span></code></pre></div><p>这样就在 Linux 搭建了一个动态的 PAC 代理</p><p>PAC文件的参考资料：</p><ul><li><p><a href=https://web.archive.org/web/20070602031929/http://wp.netscape.com/eng/mozilla/2.0/relnotes/demo/proxy-live.html>https://web.archive.org/web/20070602031929/http://wp.netscape.com/eng/mozilla/2.0/relnotes/demo/proxy-live.html</a></p></li><li><p><a href=https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Proxy_servers_and_tunneling/Proxy_Auto-Configuration_PAC_file>https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Proxy_servers_and_tunneling/Proxy_Auto-Configuration_PAC_file</a></p></li><li><p><a href=https://www.websense.com/content/support/library/web/v76/pac_file_best_practices/PAC_file_sample.aspx>https://www.websense.com/content/support/library/web/v76/pac_file_best_practices/PAC_file_sample.aspx</a></p></li></ul></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

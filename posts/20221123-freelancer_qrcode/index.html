@@ -1,0 +1,503 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Freelancer之QRCode | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='客户发了一个需求如下：
+TODO: 在sortFiles中，获取最新的域名，生成二维码，覆盖QRCodePath图片
+TODO:将QRCodePath图片上传到阿里云0S根目录，重复则覆盖
+又具体询问了一下细节，是一个 csharp 的程序
+var sortFiles = Directory.GetFiles(zipPath, "*.zip").Select(fn => new FileInfo(fn)).OrderBy(f => f.LastAccessTime);
+
+// TODO: 在sortFiles中，获取最新的域名（文件名去掉.zip就是域名），结合logoUrl生成二维码，覆盖QRCodePath图片
+
+
+// TODO: 将QRCodePath图片上传到阿里云OOS根目录，重复则覆盖，
+看了一下，觉得思路如下，这是个管道流，无论徒手写代码生成QRCODE(还有个logo图需要放到二维码中央)，还是集成OSS的SDK都麻烦
+最快速方法是直接调用外部成程序做这两步，第一步用Go写个程序生成二维码，第二步用阿里的ossutil64工具上传
+一、Go程序Gen出QRCode
+go 有很多库，我们直接拿来用好了，但是基本上都是老代码，所以需要下载 go1.13.15 来用
+# 下载go 1.13.15，解压到E:\go，并建立一个E:\go\go-work目录，下载的模块会放到这里
+https://dl.google.com/go/go1.13.15.windows-amd64.zip
+
+# 设置三个变量
+GOROOT=E:\go
+GOPATH=E:\go\go-work
+PATH中增加好E:\go\bin的目录
+
+# 设置一下代理，有时候模块拉不下来
+go env -w GOPROXY=https://goproxy.cn,direct
+然后就准备gen qrcode的程序，main.go
+package main
+
+import (
+	"flag"
+	"image"
+	"image/draw"
+	"image/jpeg"
+	_ "image/png"
+	"os"
+	"path/filepath"
+
+	"github.com/LyricTian/logger"
+	"github.com/nfnt/resize"
+	"github.com/skip2/go-qrcode"
+)
+
+var (
+	text    string
+	logo    string
+	percent int
+	size    int
+	out     string
+)
+
+func init() {
+	flag.StringVar(&amp;text, "t", "", "二维码内容")
+	flag.StringVar(&amp;logo, "l", "", "二维码Logo(png)")
+	flag.IntVar(&amp;percent, "p", 15, "二维码Logo的显示比例(默认15%)")
+	flag.IntVar(&amp;size, "s", 256, "二维码的大小(默认256)")
+	flag.StringVar(&amp;out, "o", "", "输出文件")
+}
+
+func main() {
+	flag.Parse()
+
+	if text == "" {
+		logger.Fatalf("请指定二维码的生成内容")
+	}
+
+	if out == "" {
+		logger.Fatalf("请指定输出文件")
+	}
+
+	if exists, err := checkFile(out); err != nil {
+		logger.Fatalf("检查输出文件发生错误：%s", err.Error())
+	} else if exists {
+		logger.Fatalf("输出文件已经存在，请重新指定")
+	}
+
+	code, err := qrcode.New(text, qrcode.Highest)
+	if err != nil {
+		logger.Fatalf("创建二维码发生错误：%s", err.Error())
+	}
+
+	srcImage := code.Image(size)
+	if logo != "" {
+		logoSize := float64(size) * float64(percent) / 100
+
+		srcImage, err = addLogo(srcImage, logo, int(logoSize))
+		if err != nil {
+			logger.Fatalf("增加Logo发生错误：%s", err.Error())
+		}
+	}
+
+	outAbs, err := filepath.Abs(out)
+	if err != nil {
+		logger.Fatalf("获取输出文件绝对路径发生错误：%s", err.Error())
+	}
+
+	os.MkdirAll(filepath.Dir(outAbs), 0777)
+	outFile, err := os.Create(outAbs)
+	if err != nil {
+		logger.Fatalf("创建输出文件发生错误：%s", err.Error())
+	}
+	defer outFile.Close()
+
+	jpeg.Encode(outFile, srcImage, &amp;jpeg.Options{Quality: 100})
+
+	logger.Infof("二维码生成成功，文件路径：%s", outAbs)
+}
+
+func checkFile(name string) (bool, error) {
+	_, err := os.Stat(name)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
+
+func resizeLogo(logo string, size uint) (image.Image, error) {
+	file, err := os.Open(logo)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	img, _, err := image.Decode(file)
+	if err != nil {
+		return nil, err
+	}
+
+	img = resize.Resize(size, size, img, resize.Lanczos3)
+	return img, nil
+}
+
+func addLogo(srcImage image.Image, logo string, size int) (image.Image, error) {
+	logoImage, err := resizeLogo(logo, uint(size))
+	if err != nil {
+		return nil, err
+	}
+
+	offset := image.Pt((srcImage.Bounds().Dx()-logoImage.Bounds().Dx())/2, (srcImage.Bounds().Dy()-logoImage.Bounds().Dy())/2)
+	b := srcImage.Bounds()
+	m := image.NewNRGBA(b)
+	draw.Draw(m, b, srcImage, image.ZP, draw.Src)
+	draw.Draw(m, logoImage.Bounds().Add(offset), logoImage, image.ZP, draw.Over)
+
+	return m, nil
+}
+上面很简单，用到了别人的三个模块，需要安装一下'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20221123-freelancer_qrcode/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20221123-freelancer_qrcode/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20221123-freelancer_qrcode/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="Freelancer之QRCode"><meta property="og:description" content='客户发了一个需求如下：
+TODO: 在sortFiles中，获取最新的域名，生成二维码，覆盖QRCodePath图片 TODO:将QRCodePath图片上传到阿里云0S根目录，重复则覆盖 又具体询问了一下细节，是一个 csharp 的程序
+var sortFiles = Directory.GetFiles(zipPath, "*.zip").Select(fn => new FileInfo(fn)).OrderBy(f => f.LastAccessTime);// TODO: 在sortFiles中，获取最新的域名（文件名去掉.zip就是域名），结合logoUrl生成二维码，覆盖QRCodePath图片// TODO: 将QRCodePath图片上传到阿里云OOS根目录，重复则覆盖， 看了一下，觉得思路如下，这是个管道流，无论徒手写代码生成QRCODE(还有个logo图需要放到二维码中央)，还是集成OSS的SDK都麻烦
+最快速方法是直接调用外部成程序做这两步，第一步用Go写个程序生成二维码，第二步用阿里的ossutil64工具上传
+一、Go程序Gen出QRCode go 有很多库，我们直接拿来用好了，但是基本上都是老代码，所以需要下载 go1.13.15 来用
+# 下载go 1.13.15，解压到E:\go，并建立一个E:\go\go-work目录，下载的模块会放到这里https://dl.google.com/go/go1.13.15.windows-amd64.zip# 设置三个变量GOROOT=E:\goGOPATH=E:\go\go-workPATH中增加好E:\go\bin的目录# 设置一下代理，有时候模块拉不下来go env -w GOPROXY=https://goproxy.cn,direct 然后就准备gen qrcode的程序，main.go
+package mainimport ("flag""image""image/draw""image/jpeg"_ "image/png""os""path/filepath""github.com/LyricTian/logger""github.com/nfnt/resize""github.com/skip2/go-qrcode")var (text stringlogo stringpercent intsize intout string)func init() {flag.StringVar(&amp;text, "t", "", "二维码内容")flag.StringVar(&amp;logo, "l", "", "二维码Logo(png)")flag.IntVar(&amp;percent, "p", 15, "二维码Logo的显示比例(默认15%)")flag.IntVar(&amp;size, "s", 256, "二维码的大小(默认256)")flag.StringVar(&amp;out, "o", "", "输出文件")}func main() {flag.Parse()if text == "" {logger.Fatalf("请指定二维码的生成内容")}if out == "" {logger.Fatalf("请指定输出文件")}if exists, err := checkFile(out); err != nil {logger.Fatalf("检查输出文件发生错误：%s", err.Error())} else if exists {logger.Fatalf("输出文件已经存在，请重新指定")}code, err := qrcode.New(text, qrcode.Highest)if err != nil {logger.Fatalf("创建二维码发生错误：%s", err.Error())}srcImage := code.Image(size)if logo != "" {logoSize := float64(size) * float64(percent) / 100srcImage, err = addLogo(srcImage, logo, int(logoSize))if err != nil {logger.Fatalf("增加Logo发生错误：%s", err.Error())}}outAbs, err := filepath.Abs(out)if err != nil {logger.Fatalf("获取输出文件绝对路径发生错误：%s", err.Error())}os.MkdirAll(filepath.Dir(outAbs), 0777)outFile, err := os.Create(outAbs)if err != nil {logger.Fatalf("创建输出文件发生错误：%s", err.Error())}defer outFile.Close()jpeg.Encode(outFile, srcImage, &amp;jpeg.Options{Quality: 100})logger.Infof("二维码生成成功，文件路径：%s", outAbs)}func checkFile(name string) (bool, error) {_, err := os.Stat(name)if err != nil {if os.IsNotExist(err) {return false, nil}return false, err}return true, nil}func resizeLogo(logo string, size uint) (image.Image, error) {file, err := os.Open(logo)if err != nil {return nil, err}defer file.Close()img, _, err := image.Decode(file)if err != nil {return nil, err}img = resize.Resize(size, size, img, resize.Lanczos3)return img, nil}func addLogo(srcImage image.Image, logo string, size int) (image.Image, error) {logoImage, err := resizeLogo(logo, uint(size))if err != nil {return nil, err}offset := image.Pt((srcImage.Bounds().Dx()-logoImage.Bounds().Dx())/2, (srcImage.Bounds().Dy()-logoImage.Bounds().Dy())/2)b := srcImage.Bounds()m := image.NewNRGBA(b)draw.Draw(m, b, srcImage, image.ZP, draw.Src)draw.Draw(m, logoImage.Bounds().Add(offset), logoImage, image.ZP, draw.Over)return m, nil} 上面很简单，用到了别人的三个模块，需要安装一下'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-11-23T09:30:11+08:00"><meta property="article:modified_time" content="2022-11-23T09:30:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Freelancer之QRCode"><meta name=twitter:description content='客户发了一个需求如下：
+TODO: 在sortFiles中，获取最新的域名，生成二维码，覆盖QRCodePath图片
+TODO:将QRCodePath图片上传到阿里云0S根目录，重复则覆盖
+又具体询问了一下细节，是一个 csharp 的程序
+var sortFiles = Directory.GetFiles(zipPath, "*.zip").Select(fn => new FileInfo(fn)).OrderBy(f => f.LastAccessTime);
+
+// TODO: 在sortFiles中，获取最新的域名（文件名去掉.zip就是域名），结合logoUrl生成二维码，覆盖QRCodePath图片
+
+
+// TODO: 将QRCodePath图片上传到阿里云OOS根目录，重复则覆盖，
+看了一下，觉得思路如下，这是个管道流，无论徒手写代码生成QRCODE(还有个logo图需要放到二维码中央)，还是集成OSS的SDK都麻烦
+最快速方法是直接调用外部成程序做这两步，第一步用Go写个程序生成二维码，第二步用阿里的ossutil64工具上传
+一、Go程序Gen出QRCode
+go 有很多库，我们直接拿来用好了，但是基本上都是老代码，所以需要下载 go1.13.15 来用
+# 下载go 1.13.15，解压到E:\go，并建立一个E:\go\go-work目录，下载的模块会放到这里
+https://dl.google.com/go/go1.13.15.windows-amd64.zip
+
+# 设置三个变量
+GOROOT=E:\go
+GOPATH=E:\go\go-work
+PATH中增加好E:\go\bin的目录
+
+# 设置一下代理，有时候模块拉不下来
+go env -w GOPROXY=https://goproxy.cn,direct
+然后就准备gen qrcode的程序，main.go
+package main
+
+import (
+	"flag"
+	"image"
+	"image/draw"
+	"image/jpeg"
+	_ "image/png"
+	"os"
+	"path/filepath"
+
+	"github.com/LyricTian/logger"
+	"github.com/nfnt/resize"
+	"github.com/skip2/go-qrcode"
+)
+
+var (
+	text    string
+	logo    string
+	percent int
+	size    int
+	out     string
+)
+
+func init() {
+	flag.StringVar(&amp;text, "t", "", "二维码内容")
+	flag.StringVar(&amp;logo, "l", "", "二维码Logo(png)")
+	flag.IntVar(&amp;percent, "p", 15, "二维码Logo的显示比例(默认15%)")
+	flag.IntVar(&amp;size, "s", 256, "二维码的大小(默认256)")
+	flag.StringVar(&amp;out, "o", "", "输出文件")
+}
+
+func main() {
+	flag.Parse()
+
+	if text == "" {
+		logger.Fatalf("请指定二维码的生成内容")
+	}
+
+	if out == "" {
+		logger.Fatalf("请指定输出文件")
+	}
+
+	if exists, err := checkFile(out); err != nil {
+		logger.Fatalf("检查输出文件发生错误：%s", err.Error())
+	} else if exists {
+		logger.Fatalf("输出文件已经存在，请重新指定")
+	}
+
+	code, err := qrcode.New(text, qrcode.Highest)
+	if err != nil {
+		logger.Fatalf("创建二维码发生错误：%s", err.Error())
+	}
+
+	srcImage := code.Image(size)
+	if logo != "" {
+		logoSize := float64(size) * float64(percent) / 100
+
+		srcImage, err = addLogo(srcImage, logo, int(logoSize))
+		if err != nil {
+			logger.Fatalf("增加Logo发生错误：%s", err.Error())
+		}
+	}
+
+	outAbs, err := filepath.Abs(out)
+	if err != nil {
+		logger.Fatalf("获取输出文件绝对路径发生错误：%s", err.Error())
+	}
+
+	os.MkdirAll(filepath.Dir(outAbs), 0777)
+	outFile, err := os.Create(outAbs)
+	if err != nil {
+		logger.Fatalf("创建输出文件发生错误：%s", err.Error())
+	}
+	defer outFile.Close()
+
+	jpeg.Encode(outFile, srcImage, &amp;jpeg.Options{Quality: 100})
+
+	logger.Infof("二维码生成成功，文件路径：%s", outAbs)
+}
+
+func checkFile(name string) (bool, error) {
+	_, err := os.Stat(name)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
+
+func resizeLogo(logo string, size uint) (image.Image, error) {
+	file, err := os.Open(logo)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	img, _, err := image.Decode(file)
+	if err != nil {
+		return nil, err
+	}
+
+	img = resize.Resize(size, size, img, resize.Lanczos3)
+	return img, nil
+}
+
+func addLogo(srcImage image.Image, logo string, size int) (image.Image, error) {
+	logoImage, err := resizeLogo(logo, uint(size))
+	if err != nil {
+		return nil, err
+	}
+
+	offset := image.Pt((srcImage.Bounds().Dx()-logoImage.Bounds().Dx())/2, (srcImage.Bounds().Dy()-logoImage.Bounds().Dy())/2)
+	b := srcImage.Bounds()
+	m := image.NewNRGBA(b)
+	draw.Draw(m, b, srcImage, image.ZP, draw.Src)
+	draw.Draw(m, logoImage.Bounds().Add(offset), logoImage, image.ZP, draw.Over)
+
+	return m, nil
+}
+上面很简单，用到了别人的三个模块，需要安装一下'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"Freelancer之QRCode","item":"https://rendoumi.com/posts/20221123-freelancer_qrcode/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Freelancer之QRCode","name":"Freelancer之QRCode","description":"客户发了一个需求如下：\nTODO: 在sortFiles中，获取最新的域名，生成二维码，覆盖QRCodePath图片 TODO:将QRCodePath图片上传到阿里云0S根目录，重复则覆盖 又具体询问了一下细节，是一个 csharp 的程序\nvar sortFiles = Directory.GetFiles(zipPath, \u0026#34;*.zip\u0026#34;).Select(fn =\u0026gt; new FileInfo(fn)).OrderBy(f =\u0026gt; f.LastAccessTime);\r// TODO: 在sortFiles中，获取最新的域名（文件名去掉.zip就是域名），结合logoUrl生成二维码，覆盖QRCodePath图片\r// TODO: 将QRCodePath图片上传到阿里云OOS根目录，重复则覆盖， 看了一下，觉得思路如下，这是个管道流，无论徒手写代码生成QRCODE(还有个logo图需要放到二维码中央)，还是集成OSS的SDK都麻烦\n最快速方法是直接调用外部成程序做这两步，第一步用Go写个程序生成二维码，第二步用阿里的ossutil64工具上传\n一、Go程序Gen出QRCode go 有很多库，我们直接拿来用好了，但是基本上都是老代码，所以需要下载 go1.13.15 来用\n# 下载go 1.13.15，解压到E:\\go，并建立一个E:\\go\\go-work目录，下载的模块会放到这里\rhttps://dl.google.com/go/go1.13.15.windows-amd64.zip\r# 设置三个变量\rGOROOT=E:\\go\rGOPATH=E:\\go\\go-work\rPATH中增加好E:\\go\\bin的目录\r# 设置一下代理，有时候模块拉不下来\rgo env -w GOPROXY=https://goproxy.cn,direct 然后就准备gen qrcode的程序，main.go\npackage main\rimport (\r\u0026#34;flag\u0026#34;\r\u0026#34;image\u0026#34;\r\u0026#34;image/draw\u0026#34;\r\u0026#34;image/jpeg\u0026#34;\r_ \u0026#34;image/png\u0026#34;\r\u0026#34;os\u0026#34;\r\u0026#34;path/filepath\u0026#34;\r\u0026#34;github.com/LyricTian/logger\u0026#34;\r\u0026#34;github.com/nfnt/resize\u0026#34;\r\u0026#34;github.com/skip2/go-qrcode\u0026#34;\r)\rvar (\rtext string\rlogo string\rpercent int\rsize int\rout string\r)\rfunc init() {\rflag.StringVar(\u0026amp;text, \u0026#34;t\u0026#34;, \u0026#34;\u0026#34;, \u0026#34;二维码内容\u0026#34;)\rflag.StringVar(\u0026amp;logo, \u0026#34;l\u0026#34;, \u0026#34;\u0026#34;, \u0026#34;二维码Logo(png)\u0026#34;)\rflag.IntVar(\u0026amp;percent, \u0026#34;p\u0026#34;, 15, \u0026#34;二维码Logo的显示比例(默认15%)\u0026#34;)\rflag.IntVar(\u0026amp;size, \u0026#34;s\u0026#34;, 256, \u0026#34;二维码的大小(默认256)\u0026#34;)\rflag.StringVar(\u0026amp;out, \u0026#34;o\u0026#34;, \u0026#34;\u0026#34;, \u0026#34;输出文件\u0026#34;)\r}\rfunc main() {\rflag.Parse()\rif text == \u0026#34;\u0026#34; {\rlogger.Fatalf(\u0026#34;请指定二维码的生成内容\u0026#34;)\r}\rif out == \u0026#34;\u0026#34; {\rlogger.Fatalf(\u0026#34;请指定输出文件\u0026#34;)\r}\rif exists, err := checkFile(out); err != nil {\rlogger.Fatalf(\u0026#34;检查输出文件发生错误：%s\u0026#34;, err.Error())\r} else if exists {\rlogger.Fatalf(\u0026#34;输出文件已经存在，请重新指定\u0026#34;)\r}\rcode, err := qrcode.New(text, qrcode.Highest)\rif err != nil {\rlogger.Fatalf(\u0026#34;创建二维码发生错误：%s\u0026#34;, err.Error())\r}\rsrcImage := code.Image(size)\rif logo != \u0026#34;\u0026#34; {\rlogoSize := float64(size) * float64(percent) / 100\rsrcImage, err = addLogo(srcImage, logo, int(logoSize))\rif err != nil {\rlogger.Fatalf(\u0026#34;增加Logo发生错误：%s\u0026#34;, err.Error())\r}\r}\routAbs, err := filepath.Abs(out)\rif err != nil {\rlogger.Fatalf(\u0026#34;获取输出文件绝对路径发生错误：%s\u0026#34;, err.Error())\r}\ros.MkdirAll(filepath.Dir(outAbs), 0777)\routFile, err := os.Create(outAbs)\rif err != nil {\rlogger.Fatalf(\u0026#34;创建输出文件发生错误：%s\u0026#34;, err.Error())\r}\rdefer outFile.Close()\rjpeg.Encode(outFile, srcImage, \u0026amp;jpeg.Options{Quality: 100})\rlogger.Infof(\u0026#34;二维码生成成功，文件路径：%s\u0026#34;, outAbs)\r}\rfunc checkFile(name string) (bool, error) {\r_, err := os.Stat(name)\rif err != nil {\rif os.IsNotExist(err) {\rreturn false, nil\r}\rreturn false, err\r}\rreturn true, nil\r}\rfunc resizeLogo(logo string, size uint) (image.Image, error) {\rfile, err := os.Open(logo)\rif err != nil {\rreturn nil, err\r}\rdefer file.Close()\rimg, _, err := image.Decode(file)\rif err != nil {\rreturn nil, err\r}\rimg = resize.Resize(size, size, img, resize.Lanczos3)\rreturn img, nil\r}\rfunc addLogo(srcImage image.Image, logo string, size int) (image.Image, error) {\rlogoImage, err := resizeLogo(logo, uint(size))\rif err != nil {\rreturn nil, err\r}\roffset := image.Pt((srcImage.Bounds().Dx()-logoImage.Bounds().Dx())/2, (srcImage.Bounds().Dy()-logoImage.Bounds().Dy())/2)\rb := srcImage.Bounds()\rm := image.NewNRGBA(b)\rdraw.Draw(m, b, srcImage, image.ZP, draw.Src)\rdraw.Draw(m, logoImage.Bounds().Add(offset), logoImage, image.ZP, draw.Over)\rreturn m, nil\r} 上面很简单，用到了别人的三个模块，需要安装一下\n","keywords":[],"articleBody":"客户发了一个需求如下：\nTODO: 在sortFiles中，获取最新的域名，生成二维码，覆盖QRCodePath图片 TODO:将QRCodePath图片上传到阿里云0S根目录，重复则覆盖 又具体询问了一下细节，是一个 csharp 的程序\nvar sortFiles = Directory.GetFiles(zipPath, \"*.zip\").Select(fn =\u003e new FileInfo(fn)).OrderBy(f =\u003e f.LastAccessTime);\r// TODO: 在sortFiles中，获取最新的域名（文件名去掉.zip就是域名），结合logoUrl生成二维码，覆盖QRCodePath图片\r// TODO: 将QRCodePath图片上传到阿里云OOS根目录，重复则覆盖， 看了一下，觉得思路如下，这是个管道流，无论徒手写代码生成QRCODE(还有个logo图需要放到二维码中央)，还是集成OSS的SDK都麻烦\n最快速方法是直接调用外部成程序做这两步，第一步用Go写个程序生成二维码，第二步用阿里的ossutil64工具上传\n一、Go程序Gen出QRCode go 有很多库，我们直接拿来用好了，但是基本上都是老代码，所以需要下载 go1.13.15 来用\n# 下载go 1.13.15，解压到E:\\go，并建立一个E:\\go\\go-work目录，下载的模块会放到这里\rhttps://dl.google.com/go/go1.13.15.windows-amd64.zip\r# 设置三个变量\rGOROOT=E:\\go\rGOPATH=E:\\go\\go-work\rPATH中增加好E:\\go\\bin的目录\r# 设置一下代理，有时候模块拉不下来\rgo env -w GOPROXY=https://goproxy.cn,direct 然后就准备gen qrcode的程序，main.go\npackage main\rimport (\r\"flag\"\r\"image\"\r\"image/draw\"\r\"image/jpeg\"\r_ \"image/png\"\r\"os\"\r\"path/filepath\"\r\"github.com/LyricTian/logger\"\r\"github.com/nfnt/resize\"\r\"github.com/skip2/go-qrcode\"\r)\rvar (\rtext string\rlogo string\rpercent int\rsize int\rout string\r)\rfunc init() {\rflag.StringVar(\u0026text, \"t\", \"\", \"二维码内容\")\rflag.StringVar(\u0026logo, \"l\", \"\", \"二维码Logo(png)\")\rflag.IntVar(\u0026percent, \"p\", 15, \"二维码Logo的显示比例(默认15%)\")\rflag.IntVar(\u0026size, \"s\", 256, \"二维码的大小(默认256)\")\rflag.StringVar(\u0026out, \"o\", \"\", \"输出文件\")\r}\rfunc main() {\rflag.Parse()\rif text == \"\" {\rlogger.Fatalf(\"请指定二维码的生成内容\")\r}\rif out == \"\" {\rlogger.Fatalf(\"请指定输出文件\")\r}\rif exists, err := checkFile(out); err != nil {\rlogger.Fatalf(\"检查输出文件发生错误：%s\", err.Error())\r} else if exists {\rlogger.Fatalf(\"输出文件已经存在，请重新指定\")\r}\rcode, err := qrcode.New(text, qrcode.Highest)\rif err != nil {\rlogger.Fatalf(\"创建二维码发生错误：%s\", err.Error())\r}\rsrcImage := code.Image(size)\rif logo != \"\" {\rlogoSize := float64(size) * float64(percent) / 100\rsrcImage, err = addLogo(srcImage, logo, int(logoSize))\rif err != nil {\rlogger.Fatalf(\"增加Logo发生错误：%s\", err.Error())\r}\r}\routAbs, err := filepath.Abs(out)\rif err != nil {\rlogger.Fatalf(\"获取输出文件绝对路径发生错误：%s\", err.Error())\r}\ros.MkdirAll(filepath.Dir(outAbs), 0777)\routFile, err := os.Create(outAbs)\rif err != nil {\rlogger.Fatalf(\"创建输出文件发生错误：%s\", err.Error())\r}\rdefer outFile.Close()\rjpeg.Encode(outFile, srcImage, \u0026jpeg.Options{Quality: 100})\rlogger.Infof(\"二维码生成成功，文件路径：%s\", outAbs)\r}\rfunc checkFile(name string) (bool, error) {\r_, err := os.Stat(name)\rif err != nil {\rif os.IsNotExist(err) {\rreturn false, nil\r}\rreturn false, err\r}\rreturn true, nil\r}\rfunc resizeLogo(logo string, size uint) (image.Image, error) {\rfile, err := os.Open(logo)\rif err != nil {\rreturn nil, err\r}\rdefer file.Close()\rimg, _, err := image.Decode(file)\rif err != nil {\rreturn nil, err\r}\rimg = resize.Resize(size, size, img, resize.Lanczos3)\rreturn img, nil\r}\rfunc addLogo(srcImage image.Image, logo string, size int) (image.Image, error) {\rlogoImage, err := resizeLogo(logo, uint(size))\rif err != nil {\rreturn nil, err\r}\roffset := image.Pt((srcImage.Bounds().Dx()-logoImage.Bounds().Dx())/2, (srcImage.Bounds().Dy()-logoImage.Bounds().Dy())/2)\rb := srcImage.Bounds()\rm := image.NewNRGBA(b)\rdraw.Draw(m, b, srcImage, image.ZP, draw.Src)\rdraw.Draw(m, logoImage.Bounds().Add(offset), logoImage, image.ZP, draw.Over)\rreturn m, nil\r} 上面很简单，用到了别人的三个模块，需要安装一下\ngo get -u github.com/LyricTian/logger@latest go get -u github.com/nfnt/resize@latest go get -u github.com/skip2/go-qrcode@latest 注意，这些命令是针对 go 1.13.15 的，如果用高版本的，命令是不一样的\n然后就编译\ngo build -o qr.exe main.go 找个中心图，然后测试\nE:\\qr\\qr.exe -h Usage of qr: -l string 二维码Logo(png) -o string 输出文件 -p int 二维码Logo的显示比例(默认15%) (default 15) -s int 二维码的大小(默认256) (default 256) -t string 二维码内容 E:\\qr\\qr.exe -t \"http://www.zz.ha.cn' -l logo.png -o qr.png 就会生成二维码图像\n二、用ossutils64.exe上传OSS 这个就简单了，下载阿里的工具，大概是这个样子\nossutil64.exe --config-file oss.conf cp 上传文件 s3://桶名/\"; 三、整合进csharp 这步也比较麻烦，涉及到csharp的单独语法\nvar sortFiles = Directory.GetFiles(zipPath, \"*.zip\").Select(fn =\u003e new FileInfo(fn)).OrderBy(f =\u003e f.LastAccessTime); // TODO: 在sortFiles中，获取最新的域名（文件名去掉.zip就是域名），结合logoUrl生成二维码，覆盖QRCodePath图片 for (int i = 0; i \u003c sortFiles.Length; ++i) { sortFiles[i] = Path.GetFileNameWithoutExtension(sortFiles[i]); System.Diagnostics.Process process = new System.Diagnostics.Process(); System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo(); startInfo1.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden; startInfo1.FileName = \"qr.exe\"; string parm01 = string.Format(\"-t {0} -o {1} -l {2}\", sorFiles[i], sortFiles[i], logoUrl\"); startInfo1.Arguments = param01; process.StartInfo = startInfo1; process.Start(); // TODO: 将QRCodePath图片上传到阿里云OOS根目录，重复则覆盖，AccessKey ID: LTAI5bbbb AccessKey Secret: NZPwtssss System.Diagnostics.Process process = new System.Diagnostics.Process(); System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo(); startInfo1.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden; startInfo1.FileName = \"ossutil64.exe\"; startInfo1.Arguments = \"--config-file oss.conf cp sortFiles[i] s3:///\"; string parm01 = string.Format(\"-t {0} -o {1} -l {2}\", sorFiles[i], sortFiles[i], logoUrl\"); process.StartInfo = startInfo1; process.Start(); } 关键点有两个：\n1、获取sortFiles有后缀，需要去掉\nfor (int i = 0; i \u003c sortFiles.Length; ++i) {\rsortFiles[i] = Path.GetFileNameWithoutExtension(sortFiles[i]);\r} 2、要执行命令，需要后台执行\nSystem.Diagnostics.Process process = new System.Diagnostics.Process();\rSystem.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();\rstartInfo1.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;\rstartInfo1.FileName = \"qr.exe\";\rstring parm01 = string.Format(\"-t {0} -o {1} -l {2}\", sorFiles[i], sortFiles[i], logoUrl\"); startInfo1.Arguments = param01;\rprocess.StartInfo = startInfo1;\rprocess.Start(); 这样就搞完了，但是，没真机测试啊，go和oss的部分没问题，csharp的部分没有真机，无法验证。\n","wordCount":"567","inLanguage":"zh","datePublished":"2022-11-23T09:30:11+08:00","dateModified":"2022-11-23T09:30:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20221123-freelancer_qrcode/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">Freelancer之QRCode
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2022-11-23 09:30:11 +0800 CST'>2022年11月23日</span></div></header><div class=post-content><p>客户发了一个需求如下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>TODO: 在sortFiles中，获取最新的域名，生成二维码，覆盖QRCodePath图片
+</span></span><span class=line><span class=cl>TODO:将QRCodePath图片上传到阿里云0S根目录，重复则覆盖
+</span></span></code></pre></div><p>又具体询问了一下细节，是一个 csharp 的程序</p><pre tabindex=0><code>var sortFiles = Directory.GetFiles(zipPath, &#34;*.zip&#34;).Select(fn =&gt; new FileInfo(fn)).OrderBy(f =&gt; f.LastAccessTime);
+
+// TODO: 在sortFiles中，获取最新的域名（文件名去掉.zip就是域名），结合logoUrl生成二维码，覆盖QRCodePath图片
+
+
+// TODO: 将QRCodePath图片上传到阿里云OOS根目录，重复则覆盖，
+</code></pre><p>看了一下，觉得思路如下，这是个管道流，无论徒手写代码生成QRCODE(还有个logo图需要放到二维码中央)，还是集成OSS的SDK都麻烦</p><p>最快速方法是直接调用外部成程序做这两步，第一步用Go写个程序生成二维码，第二步用阿里的ossutil64工具上传</p><h4 id=一go程序gen出qrcode>一、Go程序Gen出QRCode<a hidden class=anchor aria-hidden=true href=#一go程序gen出qrcode>#</a></h4><p>go 有很多库，我们直接拿来用好了，但是基本上都是老代码，所以需要下载 go1.13.15 来用</p><pre tabindex=0><code># 下载go 1.13.15，解压到E:\go，并建立一个E:\go\go-work目录，下载的模块会放到这里
+https://dl.google.com/go/go1.13.15.windows-amd64.zip
+
+# 设置三个变量
+GOROOT=E:\go
+GOPATH=E:\go\go-work
+PATH中增加好E:\go\bin的目录
+
+# 设置一下代理，有时候模块拉不下来
+go env -w GOPROXY=https://goproxy.cn,direct
+</code></pre><p>然后就准备gen qrcode的程序，main.go</p><pre tabindex=0><code>package main
+
+import (
+	&#34;flag&#34;
+	&#34;image&#34;
+	&#34;image/draw&#34;
+	&#34;image/jpeg&#34;
+	_ &#34;image/png&#34;
+	&#34;os&#34;
+	&#34;path/filepath&#34;
+
+	&#34;github.com/LyricTian/logger&#34;
+	&#34;github.com/nfnt/resize&#34;
+	&#34;github.com/skip2/go-qrcode&#34;
+)
+
+var (
+	text    string
+	logo    string
+	percent int
+	size    int
+	out     string
+)
+
+func init() {
+	flag.StringVar(&amp;text, &#34;t&#34;, &#34;&#34;, &#34;二维码内容&#34;)
+	flag.StringVar(&amp;logo, &#34;l&#34;, &#34;&#34;, &#34;二维码Logo(png)&#34;)
+	flag.IntVar(&amp;percent, &#34;p&#34;, 15, &#34;二维码Logo的显示比例(默认15%)&#34;)
+	flag.IntVar(&amp;size, &#34;s&#34;, 256, &#34;二维码的大小(默认256)&#34;)
+	flag.StringVar(&amp;out, &#34;o&#34;, &#34;&#34;, &#34;输出文件&#34;)
+}
+
+func main() {
+	flag.Parse()
+
+	if text == &#34;&#34; {
+		logger.Fatalf(&#34;请指定二维码的生成内容&#34;)
+	}
+
+	if out == &#34;&#34; {
+		logger.Fatalf(&#34;请指定输出文件&#34;)
+	}
+
+	if exists, err := checkFile(out); err != nil {
+		logger.Fatalf(&#34;检查输出文件发生错误：%s&#34;, err.Error())
+	} else if exists {
+		logger.Fatalf(&#34;输出文件已经存在，请重新指定&#34;)
+	}
+
+	code, err := qrcode.New(text, qrcode.Highest)
+	if err != nil {
+		logger.Fatalf(&#34;创建二维码发生错误：%s&#34;, err.Error())
+	}
+
+	srcImage := code.Image(size)
+	if logo != &#34;&#34; {
+		logoSize := float64(size) * float64(percent) / 100
+
+		srcImage, err = addLogo(srcImage, logo, int(logoSize))
+		if err != nil {
+			logger.Fatalf(&#34;增加Logo发生错误：%s&#34;, err.Error())
+		}
+	}
+
+	outAbs, err := filepath.Abs(out)
+	if err != nil {
+		logger.Fatalf(&#34;获取输出文件绝对路径发生错误：%s&#34;, err.Error())
+	}
+
+	os.MkdirAll(filepath.Dir(outAbs), 0777)
+	outFile, err := os.Create(outAbs)
+	if err != nil {
+		logger.Fatalf(&#34;创建输出文件发生错误：%s&#34;, err.Error())
+	}
+	defer outFile.Close()
+
+	jpeg.Encode(outFile, srcImage, &amp;jpeg.Options{Quality: 100})
+
+	logger.Infof(&#34;二维码生成成功，文件路径：%s&#34;, outAbs)
+}
+
+func checkFile(name string) (bool, error) {
+	_, err := os.Stat(name)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
+
+func resizeLogo(logo string, size uint) (image.Image, error) {
+	file, err := os.Open(logo)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	img, _, err := image.Decode(file)
+	if err != nil {
+		return nil, err
+	}
+
+	img = resize.Resize(size, size, img, resize.Lanczos3)
+	return img, nil
+}
+
+func addLogo(srcImage image.Image, logo string, size int) (image.Image, error) {
+	logoImage, err := resizeLogo(logo, uint(size))
+	if err != nil {
+		return nil, err
+	}
+
+	offset := image.Pt((srcImage.Bounds().Dx()-logoImage.Bounds().Dx())/2, (srcImage.Bounds().Dy()-logoImage.Bounds().Dy())/2)
+	b := srcImage.Bounds()
+	m := image.NewNRGBA(b)
+	draw.Draw(m, b, srcImage, image.ZP, draw.Src)
+	draw.Draw(m, logoImage.Bounds().Add(offset), logoImage, image.ZP, draw.Over)
+
+	return m, nil
+}
+</code></pre><p>上面很简单，用到了别人的三个模块，需要安装一下</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>go get -u github.com/LyricTian/logger@latest
+</span></span><span class=line><span class=cl>go get -u github.com/nfnt/resize@latest
+</span></span><span class=line><span class=cl>go get -u github.com/skip2/go-qrcode@latest
+</span></span></code></pre></div><p>注意，这些命令是针对 go 1.13.15 的，如果用高版本的，命令是不一样的</p><p>然后就编译</p><pre tabindex=0><code>go build -o qr.exe main.go
+</code></pre><p>找个中心图，然后测试</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>E:<span class=se>\q</span>r<span class=se>\q</span>r.exe -h
+</span></span><span class=line><span class=cl>Usage of qr:
+</span></span><span class=line><span class=cl>  -l string
+</span></span><span class=line><span class=cl>        二维码Logo<span class=o>(</span>png<span class=o>)</span>
+</span></span><span class=line><span class=cl>  -o string
+</span></span><span class=line><span class=cl>        输出文件
+</span></span><span class=line><span class=cl>  -p int
+</span></span><span class=line><span class=cl>        二维码Logo的显示比例<span class=o>(</span>默认15%<span class=o>)</span> <span class=o>(</span>default 15<span class=o>)</span>
+</span></span><span class=line><span class=cl>  -s int
+</span></span><span class=line><span class=cl>        二维码的大小<span class=o>(</span>默认256<span class=o>)</span> <span class=o>(</span>default 256<span class=o>)</span>
+</span></span><span class=line><span class=cl>  -t string
+</span></span><span class=line><span class=cl>        二维码内容
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>E:<span class=se>\q</span>r<span class=se>\q</span>r.exe -t <span class=s2>&#34;http://www.zz.ha.cn&#39; -l logo.png -o qr.png
+</span></span></span></code></pre></div><p>就会生成二维码图像</p><p><img alt=image-20221123105722718 loading=lazy src=/posts/20221123-freelancer_qrcode/image-20221123105722718.png></p><h4 id=二用ossutils64exe上传oss>二、用ossutils64.exe上传OSS<a hidden class=anchor aria-hidden=true href=#二用ossutils64exe上传oss>#</a></h4><p>这个就简单了，下载阿里的工具，大概是这个样子</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>ossutil64.exe  --config-file oss.conf cp 上传文件 s3://桶名/<span class=s2>&#34;;
+</span></span></span></code></pre></div><h4 id=三整合进csharp>三、整合进csharp<a hidden class=anchor aria-hidden=true href=#三整合进csharp>#</a></h4><p>这步也比较麻烦，涉及到csharp的单独语法</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-c# data-lang=c#><span class=line><span class=cl><span class=kt>var</span> <span class=n>sortFiles</span> <span class=p>=</span> <span class=n>Directory</span><span class=p>.</span><span class=n>GetFiles</span><span class=p>(</span><span class=n>zipPath</span><span class=p>,</span> <span class=s>&#34;*.zip&#34;</span><span class=p>).</span><span class=n>Select</span><span class=p>(</span><span class=n>fn</span> <span class=p>=&gt;</span> <span class=k>new</span> <span class=n>FileInfo</span><span class=p>(</span><span class=n>fn</span><span class=p>)).</span><span class=n>OrderBy</span><span class=p>(</span><span class=n>f</span> <span class=p>=&gt;</span> <span class=n>f</span><span class=p>.</span><span class=n>LastAccessTime</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// TODO: 在sortFiles中，获取最新的域名（文件名去掉.zip就是域名），结合logoUrl生成二维码，覆盖QRCodePath图片</span>
+</span></span><span class=line><span class=cl>            <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=p>=</span> <span class=m>0</span><span class=p>;</span> <span class=n>i</span> <span class=p>&lt;</span> <span class=n>sortFiles</span><span class=p>.</span><span class=n>Length</span><span class=p>;</span> <span class=p>++</span><span class=n>i</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=n>sortFiles</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=p>=</span> <span class=n>Path</span><span class=p>.</span><span class=n>GetFileNameWithoutExtension</span><span class=p>(</span><span class=n>sortFiles</span><span class=p>[</span><span class=n>i</span><span class=p>]);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>                <span class=n>System</span><span class=p>.</span><span class=n>Diagnostics</span><span class=p>.</span><span class=n>Process</span> <span class=n>process</span> <span class=p>=</span> <span class=k>new</span> <span class=n>System</span><span class=p>.</span><span class=n>Diagnostics</span><span class=p>.</span><span class=n>Process</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>                <span class=n>System</span><span class=p>.</span><span class=n>Diagnostics</span><span class=p>.</span><span class=n>ProcessStartInfo</span> <span class=n>startInfo</span> <span class=p>=</span> <span class=k>new</span> <span class=n>System</span><span class=p>.</span><span class=n>Diagnostics</span><span class=p>.</span><span class=n>ProcessStartInfo</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>                <span class=n>startInfo1</span><span class=p>.</span><span class=n>WindowStyle</span> <span class=p>=</span> <span class=n>System</span><span class=p>.</span><span class=n>Diagnostics</span><span class=p>.</span><span class=n>ProcessWindowStyle</span><span class=p>.</span><span class=n>Hidden</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>                <span class=n>startInfo1</span><span class=p>.</span><span class=n>FileName</span> <span class=p>=</span> <span class=s>&#34;qr.exe&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>                <span class=kt>string</span> <span class=n>parm01</span> <span class=p>=</span> <span class=kt>string</span><span class=p>.</span><span class=n>Format</span><span class=p>(</span><span class=s>&#34;-t {0} -o {1} -l {2}&#34;</span><span class=p>,</span> <span class=n>sorFiles</span><span class=p>[</span><span class=n>i</span><span class=p>],</span> <span class=n>sortFiles</span><span class=p>[</span><span class=n>i</span><span class=p>],</span> <span class=n>logoUrl</span><span class=s>&#34;); 
+</span></span></span><span class=line><span class=cl><span class=s></span>                <span class=n>startInfo1</span><span class=p>.</span><span class=n>Arguments</span> <span class=p>=</span> <span class=n>param01</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>                <span class=n>process</span><span class=p>.</span><span class=n>StartInfo</span> <span class=p>=</span> <span class=n>startInfo1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>                <span class=n>process</span><span class=p>.</span><span class=n>Start</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>            <span class=c1>// TODO: 将QRCodePath图片上传到阿里云OOS根目录，重复则覆盖，AccessKey ID: LTAI5bbbb    AccessKey Secret: NZPwtssss</span>
+</span></span><span class=line><span class=cl>                <span class=n>System</span><span class=p>.</span><span class=n>Diagnostics</span><span class=p>.</span><span class=n>Process</span> <span class=n>process</span> <span class=p>=</span> <span class=k>new</span> <span class=n>System</span><span class=p>.</span><span class=n>Diagnostics</span><span class=p>.</span><span class=n>Process</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>                <span class=n>System</span><span class=p>.</span><span class=n>Diagnostics</span><span class=p>.</span><span class=n>ProcessStartInfo</span> <span class=n>startInfo</span> <span class=p>=</span> <span class=k>new</span> <span class=n>System</span><span class=p>.</span><span class=n>Diagnostics</span><span class=p>.</span><span class=n>ProcessStartInfo</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>                <span class=n>startInfo1</span><span class=p>.</span><span class=n>WindowStyle</span> <span class=p>=</span> <span class=n>System</span><span class=p>.</span><span class=n>Diagnostics</span><span class=p>.</span><span class=n>ProcessWindowStyle</span><span class=p>.</span><span class=n>Hidden</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>                <span class=n>startInfo1</span><span class=p>.</span><span class=n>FileName</span> <span class=p>=</span> <span class=s>&#34;ossutil64.exe&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>                <span class=n>startInfo1</span><span class=p>.</span><span class=n>Arguments</span> <span class=p>=</span> <span class=s>&#34;--config-file oss.conf cp sortFiles[i] s3:///&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>                <span class=kt>string</span> <span class=n>parm01</span> <span class=p>=</span> <span class=kt>string</span><span class=p>.</span><span class=n>Format</span><span class=p>(</span><span class=s>&#34;-t {0} -o {1} -l {2}&#34;</span><span class=p>,</span> <span class=n>sorFiles</span><span class=p>[</span><span class=n>i</span><span class=p>],</span> <span class=n>sortFiles</span><span class=p>[</span><span class=n>i</span><span class=p>],</span> <span class=n>logoUrl</span><span class=s>&#34;); 
+</span></span></span><span class=line><span class=cl><span class=s></span>                <span class=n>process</span><span class=p>.</span><span class=n>StartInfo</span> <span class=p>=</span> <span class=n>startInfo1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>                <span class=n>process</span><span class=p>.</span><span class=n>Start</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>            <span class=p>}</span>
+</span></span></code></pre></div><p>关键点有两个：</p><p>1、获取sortFiles有后缀，需要去掉</p><pre tabindex=0><code>for (int i = 0; i &lt; sortFiles.Length; ++i) {
+                sortFiles[i] = Path.GetFileNameWithoutExtension(sortFiles[i]);
+}
+</code></pre><p>2、要执行命令，需要后台执行</p><pre tabindex=0><code>                System.Diagnostics.Process process = new System.Diagnostics.Process();
+                System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+                startInfo1.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                startInfo1.FileName = &#34;qr.exe&#34;;
+                string parm01 = string.Format(&#34;-t {0} -o {1} -l {2}&#34;, sorFiles[i], sortFiles[i], logoUrl&#34;); 
+                startInfo1.Arguments = param01;
+                process.StartInfo = startInfo1;
+                process.Start();
+</code></pre><p>这样就搞完了，但是，没真机测试啊，go和oss的部分没问题，csharp的部分没有真机，无法验证。</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

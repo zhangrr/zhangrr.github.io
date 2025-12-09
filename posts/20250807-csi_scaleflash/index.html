@@ -1,0 +1,420 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>为极客天成改写一套CSI存储插件 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='极客天成有个很厉害的scaleflash网络文件系统，充分利用rdma的无损网络特性，并进一步发扬光大。研发出来了可以顶替EMC盘阵的存储系统，可以在其上跑Oracle等数据库系统，真的是国货之光了。
+帮它们改写了一个csi的存储插件，记录一下，基于yandex的s3 csi而来，这样既可以跑到底层上提供文件块设备，也可以上升到类似NFS或者S3的层次提供文件系统，能满足大多数需求。那源代码就绝对不提供了，只说一下过程：
+CSI PLUGIN的使用方法：
+一、导入镜像
+csi存储插件的image
+cr.yandex/crp9ftr22d26age3hulg/csi-s3:0.42.66
+文件：csi.tar
+将文件放到所有worknode上，导入本地镜像库:
+ctr --address /run/k3s/containerd/containerd.sock -n k8s.io images import /root/csi.tar
+
+crictl -r unix:///run/k3s/containerd/containerd.sock images
+看到有 cr.yandex/crp9ftr22d26age3hulg/csi-s3:0.42.66 既是导入成功
+
+二、安装controller和nodeserver
+安装driver
+文件：driver.yaml
+kubectl apply -f driver.yaml
+安装controller
+文件：controller.yaml
+kubectl apply -f controller.yaml
+安装nodeserver
+文件：nodeserver.yaml
+解释一下，controller是一个statefulset，整个集群运行一个即可；而nodeservershi则是一个daemonset，每个worknode都会运行一个副本
+
+上面 worknode 是3个，所以有3个副本
+三、scaleflash 块设备的使用
+块设备最小单位是G，所以如果需求了100M，那也是1G。
+首先必须定义一个storageclass，以后使用这一个storageclass就可以了：
+cat << EOF >scaleflash-storageclass.yaml
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: scaleflash
+provisioner: ru.yandex.s3.csi
+parameters:
+  mounter: scaleflash
+  clstID: "nvmatrix_101"
+  fsType: "xfs"
+EOF
+
+kubectl apply -f scaleflash-storageclass.yaml
+再定义pvc'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20250807-csi_scaleflash/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20250807-csi_scaleflash/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20250807-csi_scaleflash/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="为极客天成改写一套CSI存储插件"><meta property="og:description" content='极客天成有个很厉害的scaleflash网络文件系统，充分利用rdma的无损网络特性，并进一步发扬光大。研发出来了可以顶替EMC盘阵的存储系统，可以在其上跑Oracle等数据库系统，真的是国货之光了。
+帮它们改写了一个csi的存储插件，记录一下，基于yandex的s3 csi而来，这样既可以跑到底层上提供文件块设备，也可以上升到类似NFS或者S3的层次提供文件系统，能满足大多数需求。那源代码就绝对不提供了，只说一下过程：
+CSI PLUGIN的使用方法： 一、导入镜像 csi存储插件的image
+cr.yandex/crp9ftr22d26age3hulg/csi-s3:0.42.66 文件：csi.tar
+将文件放到所有worknode上，导入本地镜像库:
+ctr --address /run/k3s/containerd/containerd.sock -n k8s.io images import /root/csi.tar crictl -r unix:///run/k3s/containerd/containerd.sock images 看到有 cr.yandex/crp9ftr22d26age3hulg/csi-s3:0.42.66 既是导入成功
+二、安装controller和nodeserver 安装driver
+文件：driver.yaml
+kubectl apply -f driver.yaml 安装controller
+文件：controller.yaml
+kubectl apply -f controller.yaml 安装nodeserver
+文件：nodeserver.yaml
+解释一下，controller是一个statefulset，整个集群运行一个即可；而nodeservershi则是一个daemonset，每个worknode都会运行一个副本
+上面 worknode 是3个，所以有3个副本
+三、scaleflash 块设备的使用 块设备最小单位是G，所以如果需求了100M，那也是1G。
+首先必须定义一个storageclass，以后使用这一个storageclass就可以了：
+cat << EOF >scaleflash-storageclass.yaml --- kind: StorageClass apiVersion: storage.k8s.io/v1 metadata: name: scaleflash provisioner: ru.yandex.s3.csi parameters: mounter: scaleflash clstID: "nvmatrix_101" fsType: "xfs" EOF kubectl apply -f scaleflash-storageclass.yaml 再定义pvc'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2025-08-07T09:01:11+08:00"><meta property="article:modified_time" content="2025-08-07T09:01:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="为极客天成改写一套CSI存储插件"><meta name=twitter:description content='极客天成有个很厉害的scaleflash网络文件系统，充分利用rdma的无损网络特性，并进一步发扬光大。研发出来了可以顶替EMC盘阵的存储系统，可以在其上跑Oracle等数据库系统，真的是国货之光了。
+帮它们改写了一个csi的存储插件，记录一下，基于yandex的s3 csi而来，这样既可以跑到底层上提供文件块设备，也可以上升到类似NFS或者S3的层次提供文件系统，能满足大多数需求。那源代码就绝对不提供了，只说一下过程：
+CSI PLUGIN的使用方法：
+一、导入镜像
+csi存储插件的image
+cr.yandex/crp9ftr22d26age3hulg/csi-s3:0.42.66
+文件：csi.tar
+将文件放到所有worknode上，导入本地镜像库:
+ctr --address /run/k3s/containerd/containerd.sock -n k8s.io images import /root/csi.tar
+
+crictl -r unix:///run/k3s/containerd/containerd.sock images
+看到有 cr.yandex/crp9ftr22d26age3hulg/csi-s3:0.42.66 既是导入成功
+
+二、安装controller和nodeserver
+安装driver
+文件：driver.yaml
+kubectl apply -f driver.yaml
+安装controller
+文件：controller.yaml
+kubectl apply -f controller.yaml
+安装nodeserver
+文件：nodeserver.yaml
+解释一下，controller是一个statefulset，整个集群运行一个即可；而nodeservershi则是一个daemonset，每个worknode都会运行一个副本
+
+上面 worknode 是3个，所以有3个副本
+三、scaleflash 块设备的使用
+块设备最小单位是G，所以如果需求了100M，那也是1G。
+首先必须定义一个storageclass，以后使用这一个storageclass就可以了：
+cat << EOF >scaleflash-storageclass.yaml
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: scaleflash
+provisioner: ru.yandex.s3.csi
+parameters:
+  mounter: scaleflash
+  clstID: "nvmatrix_101"
+  fsType: "xfs"
+EOF
+
+kubectl apply -f scaleflash-storageclass.yaml
+再定义pvc'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"为极客天成改写一套CSI存储插件","item":"https://rendoumi.com/posts/20250807-csi_scaleflash/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"为极客天成改写一套CSI存储插件","name":"为极客天成改写一套CSI存储插件","description":"极客天成有个很厉害的scaleflash网络文件系统，充分利用rdma的无损网络特性，并进一步发扬光大。研发出来了可以顶替EMC盘阵的存储系统，可以在其上跑Oracle等数据库系统，真的是国货之光了。\n帮它们改写了一个csi的存储插件，记录一下，基于yandex的s3 csi而来，这样既可以跑到底层上提供文件块设备，也可以上升到类似NFS或者S3的层次提供文件系统，能满足大多数需求。那源代码就绝对不提供了，只说一下过程：\nCSI PLUGIN的使用方法： 一、导入镜像 csi存储插件的image\ncr.yandex/crp9ftr22d26age3hulg/csi-s3:0.42.66 文件：csi.tar\n将文件放到所有worknode上，导入本地镜像库:\nctr --address /run/k3s/containerd/containerd.sock -n k8s.io images import /root/csi.tar crictl -r unix:///run/k3s/containerd/containerd.sock images 看到有 cr.yandex/crp9ftr22d26age3hulg/csi-s3:0.42.66 既是导入成功\n二、安装controller和nodeserver 安装driver\n文件：driver.yaml\nkubectl apply -f driver.yaml 安装controller\n文件：controller.yaml\nkubectl apply -f controller.yaml 安装nodeserver\n文件：nodeserver.yaml\n解释一下，controller是一个statefulset，整个集群运行一个即可；而nodeservershi则是一个daemonset，每个worknode都会运行一个副本\n上面 worknode 是3个，所以有3个副本\n三、scaleflash 块设备的使用 块设备最小单位是G，所以如果需求了100M，那也是1G。\n首先必须定义一个storageclass，以后使用这一个storageclass就可以了：\ncat \u0026lt;\u0026lt; EOF \u0026gt;scaleflash-storageclass.yaml --- kind: StorageClass apiVersion: storage.k8s.io/v1 metadata: name: scaleflash provisioner: ru.yandex.s3.csi parameters: mounter: scaleflash clstID: \u0026#34;nvmatrix_101\u0026#34; fsType: \u0026#34;xfs\u0026#34; EOF kubectl apply -f scaleflash-storageclass.yaml 再定义pvc\n","keywords":[],"articleBody":"极客天成有个很厉害的scaleflash网络文件系统，充分利用rdma的无损网络特性，并进一步发扬光大。研发出来了可以顶替EMC盘阵的存储系统，可以在其上跑Oracle等数据库系统，真的是国货之光了。\n帮它们改写了一个csi的存储插件，记录一下，基于yandex的s3 csi而来，这样既可以跑到底层上提供文件块设备，也可以上升到类似NFS或者S3的层次提供文件系统，能满足大多数需求。那源代码就绝对不提供了，只说一下过程：\nCSI PLUGIN的使用方法： 一、导入镜像 csi存储插件的image\ncr.yandex/crp9ftr22d26age3hulg/csi-s3:0.42.66 文件：csi.tar\n将文件放到所有worknode上，导入本地镜像库:\nctr --address /run/k3s/containerd/containerd.sock -n k8s.io images import /root/csi.tar crictl -r unix:///run/k3s/containerd/containerd.sock images 看到有 cr.yandex/crp9ftr22d26age3hulg/csi-s3:0.42.66 既是导入成功\n二、安装controller和nodeserver 安装driver\n文件：driver.yaml\nkubectl apply -f driver.yaml 安装controller\n文件：controller.yaml\nkubectl apply -f controller.yaml 安装nodeserver\n文件：nodeserver.yaml\n解释一下，controller是一个statefulset，整个集群运行一个即可；而nodeservershi则是一个daemonset，每个worknode都会运行一个副本\n上面 worknode 是3个，所以有3个副本\n三、scaleflash 块设备的使用 块设备最小单位是G，所以如果需求了100M，那也是1G。\n首先必须定义一个storageclass，以后使用这一个storageclass就可以了：\ncat \u003c\u003c EOF \u003escaleflash-storageclass.yaml --- kind: StorageClass apiVersion: storage.k8s.io/v1 metadata: name: scaleflash provisioner: ru.yandex.s3.csi parameters: mounter: scaleflash clstID: \"nvmatrix_101\" fsType: \"xfs\" EOF kubectl apply -f scaleflash-storageclass.yaml 再定义pvc\ncat \u003c\u003c EOF \u003e csi-pvc.yaml apiVersion: v1 kind: PersistentVolumeClaim metadata: name: csi-pvc namespace: default spec: accessModes: - ReadWriteOnce resources: requests: storage: 100M storageClassName: scaleflash EOF kubectl apply -f csi-pvc.yaml 定义Pod使用这个pvc\ncat \u003c\u003c EOF \u003e nginx-csi-pvc.yaml --- apiVersion: v1 kind: Pod metadata: name: nginx-pod-s3 spec: containers: - name: nginx-pod-s3 image: docker.io/library/nginx:latest imagePullPolicy: IfNotPresent volumeMounts: - mountPath: \"/usr/share/nginx/html\" name: dynamic-storage volumes: - name: dynamic-storage persistentVolumeClaim: claimName: csi-pvc EOF kubectl apply -f nginx-csi-pvc.yaml 进入pod，看到lun已经被mount上了，就ok了\n反向删除掉Pod和pvc资源：\nkubectl delete -f nginx-csi-pvc.yaml kubectl delete -f csi-pvc.yaml 验证statefulset:\ncat \u003c\u003c EOF \u003e stateful.yaml apiVersion: apps/v1 kind: StatefulSet metadata: name: statefulset-smb namespace: default labels: app: nginx spec: serviceName: statefulset-smb replicas: 3 template: metadata: labels: app: nginx spec: containers: - name: statefulset-smb image: docker.io/library/nginx:latest imagePullPolicy: IfNotPresent command: - \"/bin/bash\" - \"-c\" - set -euo pipefail; while true; do echo $(date) \u003e\u003e /mnt/data/outfile; sleep 1; done volumeMounts: - name: persistent-storage mountPath: /mnt/data readOnly: false updateStrategy: type: RollingUpdate selector: matchLabels: app: nginx volumeClaimTemplates: - metadata: name: persistent-storage namespace: default spec: storageClassName: scaleflash accessModes: - ReadWriteOnce resources: requests: storage: 1Gi EOF kubectl apply -f stateful.yaml 可以放缩副本数，然后观察 /mnt/data/outfile 是否带有刚启动时候的时间戳来确定卷是否是保留的。\n四、nvfile的使用（类似NFS） 注意点：rootPath 必须是存在/mnt下，因为只有/mnt被挂进了controller，挂/进去是不行的，所以其它的都无法识别出来\n卷容量大小跟NFS一样没有意义，写了也不起任何作用。\n定义storageclass\ncat \u003c\u003c EOF \u003e storageclass01.yaml --- kind: StorageClass apiVersion: storage.k8s.io/v1 metadata: name: nvfile provisioner: ru.yandex.s3.csi parameters: mounter: nvfile rootPath: \"/mnt/nvfile\" modePerm: \"0777\" EOF kubectl apply -f storageclass01.yaml 注意上面，没有定义subPath，所以新目录都会被建立在/mnt/nvfile下。\n如果要定义在某个子目录（比如prod）下， 可以再定义一个storageClass，到时候引用这个新storageclass即可\n--- kind: StorageClass apiVersion: storage.k8s.io/v1 metadata: name: nvfile-prod provisioner: ru.yandex.s3.csi parameters: mounter: nvfile rootPath: \"/mnt/nvfile\" subPath: \"/prod\" modePerm: \"0777\" 定义pvc\ncat \u003c\u003c EOF \u003e nvfile-pvc.yaml --- apiVersion: v1 kind: PersistentVolumeClaim metadata: name: nvfile-pvc namespace: default spec: accessModes: - ReadWriteOnce resources: requests: storage: 100M storageClassName: nvfile EOF kubectl apply -f nvfile-pvc.yaml 定义一个Pod，使用上面的pvc\ncat \u003c\u003c EOF \u003e nginx-nvfile.yaml --- apiVersion: v1 kind: Pod metadata: name: nginx-nvfile spec: containers: - name: nginx-nvfile image: docker.io/library/nginx:latest imagePullPolicy: IfNotPresent volumeMounts: - mountPath: \"/usr/share/nginx/html\" name: dynamic-storage volumes: - name: dynamic-storage persistentVolumeClaim: claimName: nvfile-pvc EOF kubectl apply -f nginx-nvfile.yaml 进入容器，看到nvfile_nodev的mount点就是成功\nstatefulset的验证：\ncat \u003c\u003c EOF \u003e stateful-nvfile.yaml --- apiVersion: apps/v1 kind: StatefulSet metadata: name: statefulset-nvfile-ng namespace: default labels: app: nvfile-nginx spec: serviceName: statefulset-nvfie-ng replicas: 3 template: metadata: labels: app: nvfile-nginx spec: containers: - name: statefulset-nvfile-ng image: docker.io/library/nginx:latest imagePullPolicy: IfNotPresent command: - \"/bin/bash\" - \"-c\" - set -euo pipefail; while true; do echo $(date) \u003e\u003e /mnt/smb/outfile; sleep 1; done volumeMounts: - name: pvc mountPath: /mnt/smb readOnly: false updateStrategy: type: RollingUpdate selector: matchLabels: app: nvfile-nginx volumeClaimTemplates: - metadata: name: pvc spec: storageClassName: nvfile accessModes: [\"ReadWriteOnce\"] resources: requests: storage: 1Gi EOF kubectl apply -f stateful-nvfile.yaml 同样进行伸缩，查看mount点上的文件/mnt/smb/outfile，是否带有刚启动时候的时间戳来判断是否为原始卷\n五、S3的使用 S3的话就没有任何约束，只要能跑S3协议，虚机也可以用。\n首先建立个minio的S3来模拟，因为9000端口被占，所以用8000端口\nhttp://192.168.66.101:8000\nusername: abcdefg\npassword: abcdefg\n进入后，gen一对key，赋予S3的所有权限，确保可以建立新bucket\n{ \"Version\": \"2012-10-17\", \"Statement\": [ { \"Effect\": \"Allow\", \"Action\": [ \"s3:*\" ], \"Resource\": [ \"arn:aws:s3:::*\" ] } ] } key:\naccessKeyID: lj7mL2gAFgRCykTaaabbb secretAccessKey: 0YklYzUmcxYcPjZKtmvHRN3cMQrUaCraaaabbbb 然后建立secret\ncat \u003c\u003c EOF \u003e secret-s3.yaml --- apiVersion: v1 kind: Secret metadata: name: csi-s3-secret # Namespace depends on the configuration in the storageclass.yaml namespace: kube-system stringData: accessKeyID: lj7mL2gAFgRCyaaaabbbb secretAccessKey: 0YklYzUmcxYcPjZKtmvHRN3cMQrUaCraaaabbbb # For AWS set it to \"https://s3..amazonaws.com\", for example https://s3.eu-central-1.amazonaws.com endpoint: http://192.168.66.101:8000 # For AWS set it to AWS region #region: \"\" EOF kubectl apply -f secret-s3.yaml 再建立storageclass\ncat \u003c\u003c EOF \u003e s3-storageclass.yaml --- kind: StorageClass apiVersion: storage.k8s.io/v1 metadata: name: csi-s3 provisioner: ru.yandex.s3.csi parameters: mounter: geesefs # you can set mount options here, for example limit memory cache size (recommended) options: \"--memory-limit 1000 --dir-mode 0777 --file-mode 0666\" # to use an existing bucket, specify it here: #bucket: some-existing-bucket csi.storage.k8s.io/provisioner-secret-name: csi-s3-secret csi.storage.k8s.io/provisioner-secret-namespace: kube-system csi.storage.k8s.io/controller-publish-secret-name: csi-s3-secret csi.storage.k8s.io/controller-publish-secret-namespace: kube-system csi.storage.k8s.io/node-stage-secret-name: csi-s3-secret csi.storage.k8s.io/node-stage-secret-namespace: kube-system csi.storage.k8s.io/node-publish-secret-name: csi-s3-secret csi.storage.k8s.io/node-publish-secret-namespace: kube-system EOF kubectl apply -f s3-storageclass.yaml 建立pvc\ncat \u003c\u003c EOF \u003e pvc-s3.yaml --- apiVersion: v1 kind: PersistentVolumeClaim metadata: name: csi-s3-pvc namespace: default spec: accessModes: - ReadWriteMany resources: requests: storage: 5Gi storageClassName: csi-s3 EOF kubectl apply -f csi-s3.yaml 建立pod\ncat \u003c\u003c EOF \u003e nginx-s3.yaml --- apiVersion: v1 kind: Pod metadata: name: csi-s3-test-nginx namespace: default spec: containers: - name: csi-s3-test-nginx image: docker.io/library/nginx:latest imagePullPolicy: IfNotPresent volumeMounts: - mountPath: /usr/share/nginx/html/s3 name: webroot volumes: - name: webroot persistentVolumeClaim: claimName: csi-s3-pvc readOnly: false EOF kubectl apply -f nginx-s3.yaml 进入容器，看到一个pvc的卷即可\n去minio的界面，看到这个新卷对应的桶\nstatefulset也一样。\ns3更具体的可以参看：https://github.com/yandex-cloud/k8s-csi-s3/\n","wordCount":"712","inLanguage":"zh","datePublished":"2025-08-07T09:01:11+08:00","dateModified":"2025-08-07T09:01:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20250807-csi_scaleflash/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">为极客天成改写一套CSI存储插件
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2025-08-07 09:01:11 +0800 CST'>2025年8月7日</span></div></header><div class=post-content><p>极客天成有个很厉害的scaleflash网络文件系统，充分利用rdma的无损网络特性，并进一步发扬光大。研发出来了可以顶替EMC盘阵的存储系统，可以在其上跑Oracle等数据库系统，真的是国货之光了。</p><p>帮它们改写了一个csi的存储插件，记录一下，基于yandex的s3 csi而来，这样既可以跑到底层上提供文件块设备，也可以上升到类似NFS或者S3的层次提供文件系统，能满足大多数需求。那源代码就绝对不提供了，只说一下过程：</p><h2 id=csi-plugin的使用方法>CSI PLUGIN的使用方法：<a hidden class=anchor aria-hidden=true href=#csi-plugin的使用方法>#</a></h2><h4 id=一导入镜像>一、导入镜像<a hidden class=anchor aria-hidden=true href=#一导入镜像>#</a></h4><p>csi存储插件的image</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cr.yandex/crp9ftr22d26age3hulg/csi-s3:0.42.66
+</span></span></code></pre></div><p>文件：csi.tar</p><p><strong>将文件放到所有worknode上，导入本地镜像库:</strong></p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>ctr --address /run/k3s/containerd/containerd.sock -n k8s.io images import /root/csi.tar
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>crictl -r unix:///run/k3s/containerd/containerd.sock images
+</span></span></code></pre></div><p>看到有 cr.yandex/crp9ftr22d26age3hulg/csi-s3:0.42.66 既是导入成功</p><p><img alt=image-20250807151100045 loading=lazy src=/posts/20250807-csi_scaleflash/image-20250807151100045.png></p><h4 id=二安装controller和nodeserver>二、安装controller和nodeserver<a hidden class=anchor aria-hidden=true href=#二安装controller和nodeserver>#</a></h4><p>安装driver</p><p>文件：driver.yaml</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>kubectl apply -f driver.yaml
+</span></span></code></pre></div><p>安装controller</p><p>文件：controller.yaml</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>kubectl apply -f controller.yaml
+</span></span></code></pre></div><p>安装nodeserver</p><p>文件：nodeserver.yaml</p><p>解释一下，controller是一个statefulset，整个集群运行一个即可；而nodeservershi则是一个daemonset，每个worknode都会运行一个副本</p><p><img alt=image-20250807151213874 loading=lazy src=/posts/20250807-csi_scaleflash/image-20250807151213874.png></p><p>上面 worknode 是3个，所以有3个副本</p><h4 id=三scaleflash-块设备的使用>三、scaleflash 块设备的使用<a hidden class=anchor aria-hidden=true href=#三scaleflash-块设备的使用>#</a></h4><p>块设备最小单位是G，所以如果需求了100M，那也是1G。</p><p>首先必须定义一个storageclass，以后使用这一个storageclass就可以了：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat <span class=s>&lt;&lt; EOF &gt;scaleflash-storageclass.yaml
+</span></span></span><span class=line><span class=cl><span class=s>---
+</span></span></span><span class=line><span class=cl><span class=s>kind: StorageClass
+</span></span></span><span class=line><span class=cl><span class=s>apiVersion: storage.k8s.io/v1
+</span></span></span><span class=line><span class=cl><span class=s>metadata:
+</span></span></span><span class=line><span class=cl><span class=s>  name: scaleflash
+</span></span></span><span class=line><span class=cl><span class=s>provisioner: ru.yandex.s3.csi
+</span></span></span><span class=line><span class=cl><span class=s>parameters:
+</span></span></span><span class=line><span class=cl><span class=s>  mounter: scaleflash
+</span></span></span><span class=line><span class=cl><span class=s>  clstID: &#34;nvmatrix_101&#34;
+</span></span></span><span class=line><span class=cl><span class=s>  fsType: &#34;xfs&#34;
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>kubectl apply -f scaleflash-storageclass.yaml
+</span></span></code></pre></div><p>再定义pvc</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat <span class=s>&lt;&lt; EOF &gt; csi-pvc.yaml
+</span></span></span><span class=line><span class=cl><span class=s>apiVersion: v1
+</span></span></span><span class=line><span class=cl><span class=s>kind: PersistentVolumeClaim
+</span></span></span><span class=line><span class=cl><span class=s>metadata:
+</span></span></span><span class=line><span class=cl><span class=s>  name: csi-pvc
+</span></span></span><span class=line><span class=cl><span class=s>  namespace: default
+</span></span></span><span class=line><span class=cl><span class=s>spec:
+</span></span></span><span class=line><span class=cl><span class=s>  accessModes:
+</span></span></span><span class=line><span class=cl><span class=s>  - ReadWriteOnce
+</span></span></span><span class=line><span class=cl><span class=s>  resources:
+</span></span></span><span class=line><span class=cl><span class=s>    requests:
+</span></span></span><span class=line><span class=cl><span class=s>      storage: 100M
+</span></span></span><span class=line><span class=cl><span class=s>  storageClassName: scaleflash
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>kubectl apply -f csi-pvc.yaml
+</span></span></code></pre></div><p>定义Pod使用这个pvc</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat <span class=s>&lt;&lt; EOF &gt; nginx-csi-pvc.yaml
+</span></span></span><span class=line><span class=cl><span class=s>---
+</span></span></span><span class=line><span class=cl><span class=s>apiVersion: v1
+</span></span></span><span class=line><span class=cl><span class=s>kind: Pod
+</span></span></span><span class=line><span class=cl><span class=s>metadata:
+</span></span></span><span class=line><span class=cl><span class=s>  name: nginx-pod-s3
+</span></span></span><span class=line><span class=cl><span class=s>spec:
+</span></span></span><span class=line><span class=cl><span class=s>  containers:
+</span></span></span><span class=line><span class=cl><span class=s>  - name: nginx-pod-s3
+</span></span></span><span class=line><span class=cl><span class=s>    image: docker.io/library/nginx:latest
+</span></span></span><span class=line><span class=cl><span class=s>    imagePullPolicy: IfNotPresent
+</span></span></span><span class=line><span class=cl><span class=s>    volumeMounts:
+</span></span></span><span class=line><span class=cl><span class=s>    - mountPath: &#34;/usr/share/nginx/html&#34;
+</span></span></span><span class=line><span class=cl><span class=s>      name: dynamic-storage
+</span></span></span><span class=line><span class=cl><span class=s>  volumes:
+</span></span></span><span class=line><span class=cl><span class=s>  - name: dynamic-storage
+</span></span></span><span class=line><span class=cl><span class=s>    persistentVolumeClaim:
+</span></span></span><span class=line><span class=cl><span class=s>      claimName: csi-pvc
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>kubectl apply -f nginx-csi-pvc.yaml
+</span></span></code></pre></div><p>进入pod，看到lun已经被mount上了，就ok了</p><p><img alt=image-20250807151232387 loading=lazy src=/posts/20250807-csi_scaleflash/image-20250807151232387.png></p><p>反向删除掉Pod和pvc资源：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>kubectl delete -f nginx-csi-pvc.yaml
+</span></span><span class=line><span class=cl>kubectl delete -f csi-pvc.yaml
+</span></span></code></pre></div><p>验证statefulset:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat <span class=s>&lt;&lt; EOF &gt; stateful.yaml
+</span></span></span><span class=line><span class=cl><span class=s>apiVersion: apps/v1
+</span></span></span><span class=line><span class=cl><span class=s>kind: StatefulSet
+</span></span></span><span class=line><span class=cl><span class=s>metadata:
+</span></span></span><span class=line><span class=cl><span class=s>  name: statefulset-smb
+</span></span></span><span class=line><span class=cl><span class=s>  namespace: default
+</span></span></span><span class=line><span class=cl><span class=s>  labels:
+</span></span></span><span class=line><span class=cl><span class=s>    app: nginx
+</span></span></span><span class=line><span class=cl><span class=s>spec:
+</span></span></span><span class=line><span class=cl><span class=s>  serviceName: statefulset-smb
+</span></span></span><span class=line><span class=cl><span class=s>  replicas: 3
+</span></span></span><span class=line><span class=cl><span class=s>  template:
+</span></span></span><span class=line><span class=cl><span class=s>    metadata:
+</span></span></span><span class=line><span class=cl><span class=s>      labels:
+</span></span></span><span class=line><span class=cl><span class=s>        app: nginx
+</span></span></span><span class=line><span class=cl><span class=s>    spec:
+</span></span></span><span class=line><span class=cl><span class=s>      containers:
+</span></span></span><span class=line><span class=cl><span class=s>        - name: statefulset-smb
+</span></span></span><span class=line><span class=cl><span class=s>          image: docker.io/library/nginx:latest
+</span></span></span><span class=line><span class=cl><span class=s>          imagePullPolicy: IfNotPresent
+</span></span></span><span class=line><span class=cl><span class=s>          command:
+</span></span></span><span class=line><span class=cl><span class=s>            - &#34;/bin/bash&#34;
+</span></span></span><span class=line><span class=cl><span class=s>            - &#34;-c&#34;
+</span></span></span><span class=line><span class=cl><span class=s>            - set -euo pipefail; while true; do echo $(date) &gt;&gt; /mnt/data/outfile; sleep 1; done
+</span></span></span><span class=line><span class=cl><span class=s>          volumeMounts:
+</span></span></span><span class=line><span class=cl><span class=s>            - name: persistent-storage
+</span></span></span><span class=line><span class=cl><span class=s>              mountPath: /mnt/data
+</span></span></span><span class=line><span class=cl><span class=s>              readOnly: false
+</span></span></span><span class=line><span class=cl><span class=s>  updateStrategy:
+</span></span></span><span class=line><span class=cl><span class=s>    type: RollingUpdate
+</span></span></span><span class=line><span class=cl><span class=s>  selector:
+</span></span></span><span class=line><span class=cl><span class=s>    matchLabels:
+</span></span></span><span class=line><span class=cl><span class=s>      app: nginx
+</span></span></span><span class=line><span class=cl><span class=s>  volumeClaimTemplates:
+</span></span></span><span class=line><span class=cl><span class=s>    - metadata:
+</span></span></span><span class=line><span class=cl><span class=s>        name: persistent-storage
+</span></span></span><span class=line><span class=cl><span class=s>        namespace: default
+</span></span></span><span class=line><span class=cl><span class=s>      spec:
+</span></span></span><span class=line><span class=cl><span class=s>        storageClassName: scaleflash
+</span></span></span><span class=line><span class=cl><span class=s>        accessModes:
+</span></span></span><span class=line><span class=cl><span class=s>          - ReadWriteOnce
+</span></span></span><span class=line><span class=cl><span class=s>        resources:
+</span></span></span><span class=line><span class=cl><span class=s>          requests:
+</span></span></span><span class=line><span class=cl><span class=s>            storage: 1Gi
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>kubectl apply -f stateful.yaml
+</span></span></code></pre></div><p>可以放缩副本数，然后观察 /mnt/data/outfile 是否带有刚启动时候的时间戳来确定卷是否是保留的。</p><h4 id=四nvfile的使用类似nfs>四、nvfile的使用（类似NFS）<a hidden class=anchor aria-hidden=true href=#四nvfile的使用类似nfs>#</a></h4><p><strong>注意点：rootPath 必须是存在/mnt下，因为只有/mnt被挂进了controller，挂/进去是不行的，所以其它的都无法识别出来</strong></p><p><strong>卷容量大小跟NFS一样没有意义，写了也不起任何作用。</strong></p><p>定义storageclass</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat <span class=s>&lt;&lt; EOF &gt; storageclass01.yaml
+</span></span></span><span class=line><span class=cl><span class=s>---
+</span></span></span><span class=line><span class=cl><span class=s>kind: StorageClass
+</span></span></span><span class=line><span class=cl><span class=s>apiVersion: storage.k8s.io/v1
+</span></span></span><span class=line><span class=cl><span class=s>metadata:
+</span></span></span><span class=line><span class=cl><span class=s>  name: nvfile
+</span></span></span><span class=line><span class=cl><span class=s>provisioner: ru.yandex.s3.csi
+</span></span></span><span class=line><span class=cl><span class=s>parameters:
+</span></span></span><span class=line><span class=cl><span class=s>  mounter: nvfile
+</span></span></span><span class=line><span class=cl><span class=s>  rootPath: &#34;/mnt/nvfile&#34;
+</span></span></span><span class=line><span class=cl><span class=s>  modePerm: &#34;0777&#34;
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>kubectl apply -f storageclass01.yaml
+</span></span></code></pre></div><p>注意上面，没有定义subPath，所以新目录都会被建立在/mnt/nvfile下。</p><p>如果要定义在某个子目录（比如prod）下， 可以再定义一个storageClass，到时候引用这个新storageclass即可</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>---
+</span></span><span class=line><span class=cl>kind: StorageClass
+</span></span><span class=line><span class=cl>apiVersion: storage.k8s.io/v1
+</span></span><span class=line><span class=cl>metadata:
+</span></span><span class=line><span class=cl>  name: nvfile-prod
+</span></span><span class=line><span class=cl>provisioner: ru.yandex.s3.csi
+</span></span><span class=line><span class=cl>parameters:
+</span></span><span class=line><span class=cl>  mounter: nvfile
+</span></span><span class=line><span class=cl>  rootPath: <span class=s2>&#34;/mnt/nvfile&#34;</span>
+</span></span><span class=line><span class=cl>  subPath: <span class=s2>&#34;/prod&#34;</span>
+</span></span><span class=line><span class=cl>  modePerm: <span class=s2>&#34;0777&#34;</span>
+</span></span></code></pre></div><p>定义pvc</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat <span class=s>&lt;&lt; EOF &gt; nvfile-pvc.yaml
+</span></span></span><span class=line><span class=cl><span class=s>---
+</span></span></span><span class=line><span class=cl><span class=s>apiVersion: v1
+</span></span></span><span class=line><span class=cl><span class=s>kind: PersistentVolumeClaim
+</span></span></span><span class=line><span class=cl><span class=s>metadata:
+</span></span></span><span class=line><span class=cl><span class=s>  name: nvfile-pvc
+</span></span></span><span class=line><span class=cl><span class=s>  namespace: default
+</span></span></span><span class=line><span class=cl><span class=s>spec:
+</span></span></span><span class=line><span class=cl><span class=s>  accessModes:
+</span></span></span><span class=line><span class=cl><span class=s>  - ReadWriteOnce
+</span></span></span><span class=line><span class=cl><span class=s>  resources:
+</span></span></span><span class=line><span class=cl><span class=s>    requests:
+</span></span></span><span class=line><span class=cl><span class=s>      storage: 100M
+</span></span></span><span class=line><span class=cl><span class=s>  storageClassName: nvfile
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>kubectl apply -f nvfile-pvc.yaml
+</span></span></code></pre></div><p>定义一个Pod，使用上面的pvc</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat <span class=s>&lt;&lt; EOF &gt; nginx-nvfile.yaml
+</span></span></span><span class=line><span class=cl><span class=s>---
+</span></span></span><span class=line><span class=cl><span class=s>apiVersion: v1
+</span></span></span><span class=line><span class=cl><span class=s>kind: Pod
+</span></span></span><span class=line><span class=cl><span class=s>metadata:
+</span></span></span><span class=line><span class=cl><span class=s>  name: nginx-nvfile
+</span></span></span><span class=line><span class=cl><span class=s>spec:
+</span></span></span><span class=line><span class=cl><span class=s>  containers:
+</span></span></span><span class=line><span class=cl><span class=s>  - name: nginx-nvfile
+</span></span></span><span class=line><span class=cl><span class=s>    image: docker.io/library/nginx:latest
+</span></span></span><span class=line><span class=cl><span class=s>    imagePullPolicy: IfNotPresent
+</span></span></span><span class=line><span class=cl><span class=s>    volumeMounts:
+</span></span></span><span class=line><span class=cl><span class=s>    - mountPath: &#34;/usr/share/nginx/html&#34;
+</span></span></span><span class=line><span class=cl><span class=s>      name: dynamic-storage
+</span></span></span><span class=line><span class=cl><span class=s>  volumes:
+</span></span></span><span class=line><span class=cl><span class=s>  - name: dynamic-storage
+</span></span></span><span class=line><span class=cl><span class=s>    persistentVolumeClaim:
+</span></span></span><span class=line><span class=cl><span class=s>      claimName: nvfile-pvc
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>kubectl apply -f nginx-nvfile.yaml
+</span></span></code></pre></div><p>进入容器，看到nvfile_nodev的mount点就是成功</p><p><img alt=image-20250807151249979 loading=lazy src=/posts/20250807-csi_scaleflash/image-20250807151249979.png></p><p>statefulset的验证：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat <span class=s>&lt;&lt; EOF &gt; stateful-nvfile.yaml
+</span></span></span><span class=line><span class=cl><span class=s>---
+</span></span></span><span class=line><span class=cl><span class=s>apiVersion: apps/v1
+</span></span></span><span class=line><span class=cl><span class=s>kind: StatefulSet
+</span></span></span><span class=line><span class=cl><span class=s>metadata:
+</span></span></span><span class=line><span class=cl><span class=s>  name: statefulset-nvfile-ng
+</span></span></span><span class=line><span class=cl><span class=s>  namespace: default
+</span></span></span><span class=line><span class=cl><span class=s>  labels:
+</span></span></span><span class=line><span class=cl><span class=s>    app: nvfile-nginx
+</span></span></span><span class=line><span class=cl><span class=s>spec:
+</span></span></span><span class=line><span class=cl><span class=s>  serviceName: statefulset-nvfie-ng
+</span></span></span><span class=line><span class=cl><span class=s>  replicas: 3
+</span></span></span><span class=line><span class=cl><span class=s>  template:
+</span></span></span><span class=line><span class=cl><span class=s>    metadata:
+</span></span></span><span class=line><span class=cl><span class=s>      labels:
+</span></span></span><span class=line><span class=cl><span class=s>        app: nvfile-nginx
+</span></span></span><span class=line><span class=cl><span class=s>    spec:
+</span></span></span><span class=line><span class=cl><span class=s>      containers:
+</span></span></span><span class=line><span class=cl><span class=s>        - name: statefulset-nvfile-ng
+</span></span></span><span class=line><span class=cl><span class=s>          image: docker.io/library/nginx:latest
+</span></span></span><span class=line><span class=cl><span class=s>          imagePullPolicy: IfNotPresent
+</span></span></span><span class=line><span class=cl><span class=s>          command:
+</span></span></span><span class=line><span class=cl><span class=s>            - &#34;/bin/bash&#34;
+</span></span></span><span class=line><span class=cl><span class=s>            - &#34;-c&#34;
+</span></span></span><span class=line><span class=cl><span class=s>            - set -euo pipefail; while true; do echo $(date) &gt;&gt; /mnt/smb/outfile; sleep 1; done
+</span></span></span><span class=line><span class=cl><span class=s>          volumeMounts:
+</span></span></span><span class=line><span class=cl><span class=s>            - name: pvc
+</span></span></span><span class=line><span class=cl><span class=s>              mountPath: /mnt/smb
+</span></span></span><span class=line><span class=cl><span class=s>              readOnly: false
+</span></span></span><span class=line><span class=cl><span class=s>  updateStrategy:
+</span></span></span><span class=line><span class=cl><span class=s>    type: RollingUpdate
+</span></span></span><span class=line><span class=cl><span class=s>  selector:
+</span></span></span><span class=line><span class=cl><span class=s>    matchLabels:
+</span></span></span><span class=line><span class=cl><span class=s>      app: nvfile-nginx
+</span></span></span><span class=line><span class=cl><span class=s>  volumeClaimTemplates:
+</span></span></span><span class=line><span class=cl><span class=s>    - metadata:
+</span></span></span><span class=line><span class=cl><span class=s>        name: pvc
+</span></span></span><span class=line><span class=cl><span class=s>      spec:
+</span></span></span><span class=line><span class=cl><span class=s>        storageClassName: nvfile
+</span></span></span><span class=line><span class=cl><span class=s>        accessModes: [&#34;ReadWriteOnce&#34;]
+</span></span></span><span class=line><span class=cl><span class=s>        resources:
+</span></span></span><span class=line><span class=cl><span class=s>          requests:
+</span></span></span><span class=line><span class=cl><span class=s>            storage: 1Gi
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>kubectl apply -f stateful-nvfile.yaml
+</span></span></code></pre></div><p>同样进行伸缩，查看mount点上的文件/mnt/smb/outfile，是否带有刚启动时候的时间戳来判断是否为原始卷</p><h4 id=五s3的使用>五、S3的使用<a hidden class=anchor aria-hidden=true href=#五s3的使用>#</a></h4><p><strong>S3的话就没有任何约束，只要能跑S3协议，虚机也可以用。</strong></p><p>首先建立个minio的S3来模拟，因为9000端口被占，所以用8000端口</p><p>http://192.168.66.101:8000</p><p>username: abcdefg</p><p>password: abcdefg</p><p>进入后，gen一对key，赋予S3的所有权限，确保可以建立新bucket</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=o>{</span>
+</span></span><span class=line><span class=cl> <span class=s2>&#34;Version&#34;</span>: <span class=s2>&#34;2012-10-17&#34;</span>,
+</span></span><span class=line><span class=cl> <span class=s2>&#34;Statement&#34;</span>: <span class=o>[</span>
+</span></span><span class=line><span class=cl>  <span class=o>{</span>
+</span></span><span class=line><span class=cl>   <span class=s2>&#34;Effect&#34;</span>: <span class=s2>&#34;Allow&#34;</span>,
+</span></span><span class=line><span class=cl>   <span class=s2>&#34;Action&#34;</span>: <span class=o>[</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;s3:*&#34;</span>
+</span></span><span class=line><span class=cl>   <span class=o>]</span>,
+</span></span><span class=line><span class=cl>   <span class=s2>&#34;Resource&#34;</span>: <span class=o>[</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;arn:aws:s3:::*&#34;</span>
+</span></span><span class=line><span class=cl>   <span class=o>]</span>
+</span></span><span class=line><span class=cl>  <span class=o>}</span>
+</span></span><span class=line><span class=cl> <span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></div><p>key:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>  accessKeyID: lj7mL2gAFgRCykTaaabbb
+</span></span><span class=line><span class=cl>  secretAccessKey: 0YklYzUmcxYcPjZKtmvHRN3cMQrUaCraaaabbbb
+</span></span></code></pre></div><p>然后建立secret</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat <span class=s>&lt;&lt; EOF &gt; secret-s3.yaml
+</span></span></span><span class=line><span class=cl><span class=s>---
+</span></span></span><span class=line><span class=cl><span class=s>apiVersion: v1
+</span></span></span><span class=line><span class=cl><span class=s>kind: Secret
+</span></span></span><span class=line><span class=cl><span class=s>metadata:
+</span></span></span><span class=line><span class=cl><span class=s>  name: csi-s3-secret
+</span></span></span><span class=line><span class=cl><span class=s>  # Namespace depends on the configuration in the storageclass.yaml
+</span></span></span><span class=line><span class=cl><span class=s>  namespace: kube-system
+</span></span></span><span class=line><span class=cl><span class=s>stringData:
+</span></span></span><span class=line><span class=cl><span class=s>  accessKeyID: lj7mL2gAFgRCyaaaabbbb
+</span></span></span><span class=line><span class=cl><span class=s>  secretAccessKey: 0YklYzUmcxYcPjZKtmvHRN3cMQrUaCraaaabbbb
+</span></span></span><span class=line><span class=cl><span class=s>  # For AWS set it to &#34;https://s3.&lt;region&gt;.amazonaws.com&#34;, for example https://s3.eu-central-1.amazonaws.com
+</span></span></span><span class=line><span class=cl><span class=s>  endpoint: http://192.168.66.101:8000
+</span></span></span><span class=line><span class=cl><span class=s>  # For AWS set it to AWS region
+</span></span></span><span class=line><span class=cl><span class=s>  #region: &#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>kubectl apply -f secret-s3.yaml
+</span></span></code></pre></div><p>再建立storageclass</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat <span class=s>&lt;&lt; EOF &gt; s3-storageclass.yaml
+</span></span></span><span class=line><span class=cl><span class=s>---
+</span></span></span><span class=line><span class=cl><span class=s>kind: StorageClass
+</span></span></span><span class=line><span class=cl><span class=s>apiVersion: storage.k8s.io/v1
+</span></span></span><span class=line><span class=cl><span class=s>metadata:
+</span></span></span><span class=line><span class=cl><span class=s>  name: csi-s3
+</span></span></span><span class=line><span class=cl><span class=s>provisioner: ru.yandex.s3.csi
+</span></span></span><span class=line><span class=cl><span class=s>parameters:
+</span></span></span><span class=line><span class=cl><span class=s>  mounter: geesefs
+</span></span></span><span class=line><span class=cl><span class=s>  # you can set mount options here, for example limit memory cache size (recommended)
+</span></span></span><span class=line><span class=cl><span class=s>  options: &#34;--memory-limit 1000 --dir-mode 0777 --file-mode 0666&#34;
+</span></span></span><span class=line><span class=cl><span class=s>  # to use an existing bucket, specify it here:
+</span></span></span><span class=line><span class=cl><span class=s>  #bucket: some-existing-bucket
+</span></span></span><span class=line><span class=cl><span class=s>  csi.storage.k8s.io/provisioner-secret-name: csi-s3-secret
+</span></span></span><span class=line><span class=cl><span class=s>  csi.storage.k8s.io/provisioner-secret-namespace: kube-system
+</span></span></span><span class=line><span class=cl><span class=s>  csi.storage.k8s.io/controller-publish-secret-name: csi-s3-secret
+</span></span></span><span class=line><span class=cl><span class=s>  csi.storage.k8s.io/controller-publish-secret-namespace: kube-system
+</span></span></span><span class=line><span class=cl><span class=s>  csi.storage.k8s.io/node-stage-secret-name: csi-s3-secret
+</span></span></span><span class=line><span class=cl><span class=s>  csi.storage.k8s.io/node-stage-secret-namespace: kube-system
+</span></span></span><span class=line><span class=cl><span class=s>  csi.storage.k8s.io/node-publish-secret-name: csi-s3-secret
+</span></span></span><span class=line><span class=cl><span class=s>  csi.storage.k8s.io/node-publish-secret-namespace: kube-system
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>kubectl apply -f s3-storageclass.yaml
+</span></span></code></pre></div><p>建立pvc</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat <span class=s>&lt;&lt; EOF &gt; pvc-s3.yaml
+</span></span></span><span class=line><span class=cl><span class=s>---
+</span></span></span><span class=line><span class=cl><span class=s>apiVersion: v1
+</span></span></span><span class=line><span class=cl><span class=s>kind: PersistentVolumeClaim
+</span></span></span><span class=line><span class=cl><span class=s>metadata:
+</span></span></span><span class=line><span class=cl><span class=s>  name: csi-s3-pvc
+</span></span></span><span class=line><span class=cl><span class=s>  namespace: default
+</span></span></span><span class=line><span class=cl><span class=s>spec:
+</span></span></span><span class=line><span class=cl><span class=s>  accessModes:
+</span></span></span><span class=line><span class=cl><span class=s>  - ReadWriteMany
+</span></span></span><span class=line><span class=cl><span class=s>  resources:
+</span></span></span><span class=line><span class=cl><span class=s>    requests:
+</span></span></span><span class=line><span class=cl><span class=s>      storage: 5Gi
+</span></span></span><span class=line><span class=cl><span class=s>  storageClassName: csi-s3
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>kubectl apply -f csi-s3.yaml
+</span></span></code></pre></div><p>建立pod</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat <span class=s>&lt;&lt; EOF &gt; nginx-s3.yaml
+</span></span></span><span class=line><span class=cl><span class=s>---
+</span></span></span><span class=line><span class=cl><span class=s>apiVersion: v1
+</span></span></span><span class=line><span class=cl><span class=s>kind: Pod
+</span></span></span><span class=line><span class=cl><span class=s>metadata:
+</span></span></span><span class=line><span class=cl><span class=s>  name: csi-s3-test-nginx
+</span></span></span><span class=line><span class=cl><span class=s>  namespace: default
+</span></span></span><span class=line><span class=cl><span class=s>spec:
+</span></span></span><span class=line><span class=cl><span class=s>  containers:
+</span></span></span><span class=line><span class=cl><span class=s>   - name: csi-s3-test-nginx
+</span></span></span><span class=line><span class=cl><span class=s>     image: docker.io/library/nginx:latest
+</span></span></span><span class=line><span class=cl><span class=s>     imagePullPolicy: IfNotPresent
+</span></span></span><span class=line><span class=cl><span class=s>     volumeMounts:
+</span></span></span><span class=line><span class=cl><span class=s>       - mountPath: /usr/share/nginx/html/s3
+</span></span></span><span class=line><span class=cl><span class=s>         name: webroot
+</span></span></span><span class=line><span class=cl><span class=s>  volumes:
+</span></span></span><span class=line><span class=cl><span class=s>   - name: webroot
+</span></span></span><span class=line><span class=cl><span class=s>     persistentVolumeClaim:
+</span></span></span><span class=line><span class=cl><span class=s>       claimName: csi-s3-pvc
+</span></span></span><span class=line><span class=cl><span class=s>       readOnly: false
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>kubectl apply -f nginx-s3.yaml
+</span></span></code></pre></div><p>进入容器，看到一个pvc的卷即可</p><p><img alt=image-20250807151406970 loading=lazy src=/posts/20250807-csi_scaleflash/image-20250807151406970.png></p><p>去minio的界面，看到这个新卷对应的桶</p><p><img alt=image-20250807151433567 loading=lazy src=/posts/20250807-csi_scaleflash/image-20250807151433567.png></p><p>statefulset也一样。</p><p>s3更具体的可以参看：https://github.com/yandex-cloud/k8s-csi-s3/</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

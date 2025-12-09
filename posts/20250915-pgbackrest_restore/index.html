@@ -1,0 +1,312 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Postgres pgbackrest备份以及指定时间点恢复 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="最近狠折腾了一通postgres的备份，跟MySQL的阿里RDB恢复一样，如何不停止数据库服务，恢复某个表的数据到某个时间点，然后放到另一个表中呢？
+其实用之前的wal恢复一样的，就是要把当天实例的全备份和wal都复制到另外一台上，然后恢复，再把数据给dump下来，再建一个新表，把数据导回去。
+Postgres的wal和PITR时间点恢复
+用pgbackrest感觉会好一些，其实都差不多，步骤如下：
+一、安装并配置pgbackrest
+apt install pgbackrest
+
+# 建立备份的大本营
+mkdir -p /var/lib/pgbackrest
+chmod 750 /var/lib/pgbackrest
+chown postgres:postgres /var/lib/pgbackrest
+
+# 编辑 /etc/pgbackrest.conf
+[global]
+repo1-path=/var/lib/pgbackrest
+repo1-retention-full=26
+repo1-retention-archive=180
+log-level-file=info
+log-level-console=info
+
+[global:archive-push]
+compress-level=3
+
+[main]
+pg1-path=/var/lib/postgresql/13/main
+pg1-port=5432
+讲解一下参数
+
+
+global里面是全局配置
+
+
+repo1-path=/var/lib/pgbackrest   # pgBackRest 存储库路径
+repo1-retention-full=26          # 保留最近的 26 个全量备份，大概6个月，180天
+repo1-retention-archive=180      # 保留最近 180 天的 WAL 日志
+log-level-file=info              # 文件日志级别
+log-level-console=info           # 控制台日志级别
+
+
+
+
+global:archive-push 设置的是wal归档的保存方式是压缩保存
+
+
+main部分设置的是要备份的postgres源的路径和端口，【main】是stanza的名字
+
+
+上面的备份其实有三种备份，full和incr和wal备份，那如果full和增量都没了，只要wal还在，那么依然能恢复到180天之内的某个时间点。wal很占空间，full也很占空间，一定要算准了。
+那其实pgbackrest是用postgres身份去执行命令的，所以不用认证身份。
+二、配置postgres
+vi /etc/postgresql/13/main/postgresql.conf
+
+# wal归档方法：
+#archive_mode = on
+#archive_command = 'cp %p /data/backup/%f'
+
+# pgbackrest归档方法：
+archive_mode = on                  
+archive_command = 'pgbackrest --stanza=main archive-push %p'  
+wal_level = replica   #备份级别是副本
+max_wal_senders = 3   #最多wal日志发到3个客户端去
+
+# 需要重启postgres
+systemctl restart postgresql
+三、测试pgbackrest的备份功能
+  # 建立一个stanza
+  sudo -u postgres pgbackrest --stanza=main --log-level-console=info stanza-create
+  
+  # 检查
+  sudo -u postgres pgbackrest --stanza=main --log-level-console=info check
+  
+  # 查看信息
+  sudo -u postgres pgbackrest info
+"><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20250915-pgbackrest_restore/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20250915-pgbackrest_restore/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20250915-pgbackrest_restore/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="Postgres pgbackrest备份以及指定时间点恢复"><meta property="og:description" content="最近狠折腾了一通postgres的备份，跟MySQL的阿里RDB恢复一样，如何不停止数据库服务，恢复某个表的数据到某个时间点，然后放到另一个表中呢？
+其实用之前的wal恢复一样的，就是要把当天实例的全备份和wal都复制到另外一台上，然后恢复，再把数据给dump下来，再建一个新表，把数据导回去。
+Postgres的wal和PITR时间点恢复
+用pgbackrest感觉会好一些，其实都差不多，步骤如下：
+一、安装并配置pgbackrest apt install pgbackrest # 建立备份的大本营 mkdir -p /var/lib/pgbackrest chmod 750 /var/lib/pgbackrest chown postgres:postgres /var/lib/pgbackrest # 编辑 /etc/pgbackrest.conf [global] repo1-path=/var/lib/pgbackrest repo1-retention-full=26 repo1-retention-archive=180 log-level-file=info log-level-console=info [global:archive-push] compress-level=3 [main] pg1-path=/var/lib/postgresql/13/main pg1-port=5432 讲解一下参数
+global里面是全局配置
+repo1-path=/var/lib/pgbackrest # pgBackRest 存储库路径 repo1-retention-full=26 # 保留最近的 26 个全量备份，大概6个月，180天 repo1-retention-archive=180 # 保留最近 180 天的 WAL 日志 log-level-file=info # 文件日志级别 log-level-console=info # 控制台日志级别 global:archive-push 设置的是wal归档的保存方式是压缩保存
+main部分设置的是要备份的postgres源的路径和端口，【main】是stanza的名字
+上面的备份其实有三种备份，full和incr和wal备份，那如果full和增量都没了，只要wal还在，那么依然能恢复到180天之内的某个时间点。wal很占空间，full也很占空间，一定要算准了。
+那其实pgbackrest是用postgres身份去执行命令的，所以不用认证身份。
+二、配置postgres vi /etc/postgresql/13/main/postgresql.conf # wal归档方法： #archive_mode = on #archive_command = 'cp %p /data/backup/%f' # pgbackrest归档方法： archive_mode = on archive_command = 'pgbackrest --stanza=main archive-push %p' wal_level = replica #备份级别是副本 max_wal_senders = 3 #最多wal日志发到3个客户端去 # 需要重启postgres systemctl restart postgresql 三、测试pgbackrest的备份功能 # 建立一个stanza sudo -u postgres pgbackrest --stanza=main --log-level-console=info stanza-create # 检查 sudo -u postgres pgbackrest --stanza=main --log-level-console=info check # 查看信息 sudo -u postgres pgbackrest info "><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2025-09-15T10:01:11+08:00"><meta property="article:modified_time" content="2025-09-15T10:01:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Postgres pgbackrest备份以及指定时间点恢复"><meta name=twitter:description content="最近狠折腾了一通postgres的备份，跟MySQL的阿里RDB恢复一样，如何不停止数据库服务，恢复某个表的数据到某个时间点，然后放到另一个表中呢？
+其实用之前的wal恢复一样的，就是要把当天实例的全备份和wal都复制到另外一台上，然后恢复，再把数据给dump下来，再建一个新表，把数据导回去。
+Postgres的wal和PITR时间点恢复
+用pgbackrest感觉会好一些，其实都差不多，步骤如下：
+一、安装并配置pgbackrest
+apt install pgbackrest
+
+# 建立备份的大本营
+mkdir -p /var/lib/pgbackrest
+chmod 750 /var/lib/pgbackrest
+chown postgres:postgres /var/lib/pgbackrest
+
+# 编辑 /etc/pgbackrest.conf
+[global]
+repo1-path=/var/lib/pgbackrest
+repo1-retention-full=26
+repo1-retention-archive=180
+log-level-file=info
+log-level-console=info
+
+[global:archive-push]
+compress-level=3
+
+[main]
+pg1-path=/var/lib/postgresql/13/main
+pg1-port=5432
+讲解一下参数
+
+
+global里面是全局配置
+
+
+repo1-path=/var/lib/pgbackrest   # pgBackRest 存储库路径
+repo1-retention-full=26          # 保留最近的 26 个全量备份，大概6个月，180天
+repo1-retention-archive=180      # 保留最近 180 天的 WAL 日志
+log-level-file=info              # 文件日志级别
+log-level-console=info           # 控制台日志级别
+
+
+
+
+global:archive-push 设置的是wal归档的保存方式是压缩保存
+
+
+main部分设置的是要备份的postgres源的路径和端口，【main】是stanza的名字
+
+
+上面的备份其实有三种备份，full和incr和wal备份，那如果full和增量都没了，只要wal还在，那么依然能恢复到180天之内的某个时间点。wal很占空间，full也很占空间，一定要算准了。
+那其实pgbackrest是用postgres身份去执行命令的，所以不用认证身份。
+二、配置postgres
+vi /etc/postgresql/13/main/postgresql.conf
+
+# wal归档方法：
+#archive_mode = on
+#archive_command = 'cp %p /data/backup/%f'
+
+# pgbackrest归档方法：
+archive_mode = on                  
+archive_command = 'pgbackrest --stanza=main archive-push %p'  
+wal_level = replica   #备份级别是副本
+max_wal_senders = 3   #最多wal日志发到3个客户端去
+
+# 需要重启postgres
+systemctl restart postgresql
+三、测试pgbackrest的备份功能
+  # 建立一个stanza
+  sudo -u postgres pgbackrest --stanza=main --log-level-console=info stanza-create
+  
+  # 检查
+  sudo -u postgres pgbackrest --stanza=main --log-level-console=info check
+  
+  # 查看信息
+  sudo -u postgres pgbackrest info
+"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"Postgres pgbackrest备份以及指定时间点恢复","item":"https://rendoumi.com/posts/20250915-pgbackrest_restore/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Postgres pgbackrest备份以及指定时间点恢复","name":"Postgres pgbackrest备份以及指定时间点恢复","description":"最近狠折腾了一通postgres的备份，跟MySQL的阿里RDB恢复一样，如何不停止数据库服务，恢复某个表的数据到某个时间点，然后放到另一个表中呢？\n其实用之前的wal恢复一样的，就是要把当天实例的全备份和wal都复制到另外一台上，然后恢复，再把数据给dump下来，再建一个新表，把数据导回去。\nPostgres的wal和PITR时间点恢复\n用pgbackrest感觉会好一些，其实都差不多，步骤如下：\n一、安装并配置pgbackrest apt install pgbackrest # 建立备份的大本营 mkdir -p /var/lib/pgbackrest chmod 750 /var/lib/pgbackrest chown postgres:postgres /var/lib/pgbackrest # 编辑 /etc/pgbackrest.conf [global] repo1-path=/var/lib/pgbackrest repo1-retention-full=26 repo1-retention-archive=180 log-level-file=info log-level-console=info [global:archive-push] compress-level=3 [main] pg1-path=/var/lib/postgresql/13/main pg1-port=5432 讲解一下参数\nglobal里面是全局配置\nrepo1-path=/var/lib/pgbackrest # pgBackRest 存储库路径 repo1-retention-full=26 # 保留最近的 26 个全量备份，大概6个月，180天 repo1-retention-archive=180 # 保留最近 180 天的 WAL 日志 log-level-file=info # 文件日志级别 log-level-console=info # 控制台日志级别 global:archive-push 设置的是wal归档的保存方式是压缩保存\nmain部分设置的是要备份的postgres源的路径和端口，【main】是stanza的名字\n上面的备份其实有三种备份，full和incr和wal备份，那如果full和增量都没了，只要wal还在，那么依然能恢复到180天之内的某个时间点。wal很占空间，full也很占空间，一定要算准了。\n那其实pgbackrest是用postgres身份去执行命令的，所以不用认证身份。\n二、配置postgres vi /etc/postgresql/13/main/postgresql.conf # wal归档方法： #archive_mode = on #archive_command = \u0026#39;cp %p /data/backup/%f\u0026#39; # pgbackrest归档方法： archive_mode = on archive_command = \u0026#39;pgbackrest --stanza=main archive-push %p\u0026#39; wal_level = replica #备份级别是副本 max_wal_senders = 3 #最多wal日志发到3个客户端去 # 需要重启postgres systemctl restart postgresql 三、测试pgbackrest的备份功能 # 建立一个stanza sudo -u postgres pgbackrest --stanza=main --log-level-console=info stanza-create # 检查 sudo -u postgres pgbackrest --stanza=main --log-level-console=info check # 查看信息 sudo -u postgres pgbackrest info ","keywords":[],"articleBody":"最近狠折腾了一通postgres的备份，跟MySQL的阿里RDB恢复一样，如何不停止数据库服务，恢复某个表的数据到某个时间点，然后放到另一个表中呢？\n其实用之前的wal恢复一样的，就是要把当天实例的全备份和wal都复制到另外一台上，然后恢复，再把数据给dump下来，再建一个新表，把数据导回去。\nPostgres的wal和PITR时间点恢复\n用pgbackrest感觉会好一些，其实都差不多，步骤如下：\n一、安装并配置pgbackrest apt install pgbackrest # 建立备份的大本营 mkdir -p /var/lib/pgbackrest chmod 750 /var/lib/pgbackrest chown postgres:postgres /var/lib/pgbackrest # 编辑 /etc/pgbackrest.conf [global] repo1-path=/var/lib/pgbackrest repo1-retention-full=26 repo1-retention-archive=180 log-level-file=info log-level-console=info [global:archive-push] compress-level=3 [main] pg1-path=/var/lib/postgresql/13/main pg1-port=5432 讲解一下参数\nglobal里面是全局配置\nrepo1-path=/var/lib/pgbackrest # pgBackRest 存储库路径 repo1-retention-full=26 # 保留最近的 26 个全量备份，大概6个月，180天 repo1-retention-archive=180 # 保留最近 180 天的 WAL 日志 log-level-file=info # 文件日志级别 log-level-console=info # 控制台日志级别 global:archive-push 设置的是wal归档的保存方式是压缩保存\nmain部分设置的是要备份的postgres源的路径和端口，【main】是stanza的名字\n上面的备份其实有三种备份，full和incr和wal备份，那如果full和增量都没了，只要wal还在，那么依然能恢复到180天之内的某个时间点。wal很占空间，full也很占空间，一定要算准了。\n那其实pgbackrest是用postgres身份去执行命令的，所以不用认证身份。\n二、配置postgres vi /etc/postgresql/13/main/postgresql.conf # wal归档方法： #archive_mode = on #archive_command = 'cp %p /data/backup/%f' # pgbackrest归档方法： archive_mode = on archive_command = 'pgbackrest --stanza=main archive-push %p' wal_level = replica #备份级别是副本 max_wal_senders = 3 #最多wal日志发到3个客户端去 # 需要重启postgres systemctl restart postgresql 三、测试pgbackrest的备份功能 # 建立一个stanza sudo -u postgres pgbackrest --stanza=main --log-level-console=info stanza-create # 检查 sudo -u postgres pgbackrest --stanza=main --log-level-console=info check # 查看信息 sudo -u postgres pgbackrest info 看到如上信息就ok了。\n四、正式的full和incr备份 全量备份的脚本full.sh：\n#!/bin/bash # 设置 pgBackRest 的相关参数和变量 PG_BACKREST_COMMAND=\"/usr/bin/pgbackrest\" STANZA=\"main\" LOG_FILE=\"/var/log/pgbackrest_full_backup.log\" # 执行全量备份 sudo -u postgres ${PG_BACKREST_COMMAND} --stanza=${STANZA} --log-level-console=info backup --type=full \u003e\u003e ${LOG_FILE} 2\u003e\u00261 # 检测备份是否成功 if [ $? -eq 0 ]; then echo \"$(date '+%Y-%m-%d %H:%M:%S') - Full Backup Completed Successfully\" \u003e\u003e ${LOG_FILE} else echo \"$(date '+%Y-%m-%d %H:%M:%S') - Full Backup Failed\" \u003e\u003e ${LOG_FILE} fi 增量备份的脚本incr.sh\n#!/bin/bash # 设置 pgBackRest 相关参数 PG_BACKREST_COMMAND=\"/usr/bin/pgbackrest\" STANZA=\"main\" LOG_FILE=\"/var/log/pgbackrest_incr_backup.log\" # 执行增量备份 sudo -u postgres ${PG_BACKREST_COMMAND} --stanza=${STANZA} --log-level-console=info backup --type=incr \u003e\u003e ${LOG_FILE} 2\u003e\u00261 # 检测备份是否成功 if [ $? -eq 0 ]; then echo \"$(date '+%Y-%m-%d %H:%M:%S') - Incremental Backup Completed Successfully\" \u003e\u003e ${LOG_FILE} else echo \"$(date '+%Y-%m-%d %H:%M:%S') - Incremental Backup Failed\" \u003e\u003e ${LOG_FILE} fi 编辑crontab\n# 每周日凌晨2点执行完整备份 (full.sh) 0 2 * * 0 /path/to/full.sh # 从周一到周六凌晨2点执行增量备份 (incr.sh) 0 2 * * 1-6 /path/to/incr.sh 五、新实例postgres安装 # 这是台新的debian 12系统, 要装 postgresql 13 apt update apt upgrade apt install -y curl gpg curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg echo \"deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main\" | tee /etc/apt/sources.list.d/pgdg.list apt update apt-get install postgresql-13 如上就新装了一个posgres 13\n六、新实例安装pgbackrest systemctl stop postgresql apt install pgbackrest vi /etc/pgbackrest.conf [main] pg1-path=/var/lib/postgresql/13/main pg1-port=5432 [global] repo1-path=/var/lib/pgbackrest log-level-console=info log-level-file=info sudo systemctl start postgresq 六、准备恢复环境的数据 要把数pgbackrest的数据同步到新实例上： # 使用 rsync（推荐） sudo rsync -avz /var/lib/pgbackrest/ @:/var/lib/pgbackrest/ # 或者，使用 scp sudo scp -r /var/lib/pgbackrest/ @:/var/lib/pgbackrest/ # 设置正确权限 chown -R postgres:postgres /var/lib/pgbackrest chmod 750 /var/lib/pgbackrest 七、新实例上执行恢复到时间点 sudo -u postgres pgbackrest --stanza=main \\ --target=\"2025-09-15 14:00:00\" \\ --target-action=promote \\ --delta restore --log-level-console=info 参数说明： --stanza=main：指定备份配置的名称。 --target：设置时间点。 --target-action=promote：让恢复完成后实例成为主实例。 --delta：只恢复有变更的数据（提高恢复速度）。 systemctl start postgresql 八、把新实例上的数据dump出来 # 使用 psql 从恢复的数据库导出目标表数据。假设你要恢复的表名是 public.my_table，你可以导出它的数据为 SQL 脚本： pg_dump -U postgres -t public.my_table my_database \u003e my_table_data.sql # 或者选择仅导出某些行数据（比如按时间条件筛选）到 SQL 脚本中： psql -U postgres -d my_database -c \"\\copy (SELECT * FROM public.my_table WHERE created_at BETWEEN '2023-09-30' AND '2023-10-01') TO '/tmp/my_table_data.csv' WITH CSV HEADER\" 然后去旧实例上，灌入数据\n# 建同样的表 CREATE TABLE public.my_table_recovery (LIKE public.my_table INCLUDING ALL); # 修改语句 sed -i 's/old_table/new_table/g' my_table_data.sql # 导sql psql -U postgres -d my_database -f my_table_data.sql # 导数据 # 同样要修改CSV的！！！ \\copy public.my_table_recovery FROM '/tmp/my_table_data.csv' WITH CSV HEADER 这样就ok了。\n","wordCount":"443","inLanguage":"zh","datePublished":"2025-09-15T10:01:11+08:00","dateModified":"2025-09-15T10:01:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20250915-pgbackrest_restore/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">Postgres pgbackrest备份以及指定时间点恢复
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2025-09-15 10:01:11 +0800 CST'>2025年9月15日</span></div></header><div class=post-content><p>最近狠折腾了一通postgres的备份，跟MySQL的阿里RDB恢复一样，如何不停止数据库服务，恢复某个表的数据到某个时间点，然后放到另一个表中呢？</p><p>其实用之前的wal恢复一样的，就是要把当天实例的全备份和wal都复制到另外一台上，然后恢复，再把数据给dump下来，再建一个新表，把数据导回去。</p><p><a href=/posts/20250728-postgres_wal_pitr/>Postgres的wal和PITR时间点恢复</a></p><p>用pgbackrest感觉会好一些，其实都差不多，步骤如下：</p><h5 id=一安装并配置pgbackrest>一、安装并配置pgbackrest<a hidden class=anchor aria-hidden=true href=#一安装并配置pgbackrest>#</a></h5><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>apt install pgbackrest
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 建立备份的大本营</span>
+</span></span><span class=line><span class=cl>mkdir -p /var/lib/pgbackrest
+</span></span><span class=line><span class=cl>chmod <span class=m>750</span> /var/lib/pgbackrest
+</span></span><span class=line><span class=cl>chown postgres:postgres /var/lib/pgbackrest
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 编辑 /etc/pgbackrest.conf</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>global<span class=o>]</span>
+</span></span><span class=line><span class=cl>repo1-path<span class=o>=</span>/var/lib/pgbackrest
+</span></span><span class=line><span class=cl>repo1-retention-full<span class=o>=</span><span class=m>26</span>
+</span></span><span class=line><span class=cl>repo1-retention-archive<span class=o>=</span><span class=m>180</span>
+</span></span><span class=line><span class=cl>log-level-file<span class=o>=</span>info
+</span></span><span class=line><span class=cl>log-level-console<span class=o>=</span>info
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>global:archive-push<span class=o>]</span>
+</span></span><span class=line><span class=cl>compress-level<span class=o>=</span><span class=m>3</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>main<span class=o>]</span>
+</span></span><span class=line><span class=cl>pg1-path<span class=o>=</span>/var/lib/postgresql/13/main
+</span></span><span class=line><span class=cl>pg1-port<span class=o>=</span><span class=m>5432</span>
+</span></span></code></pre></div><p>讲解一下参数</p><ul><li><p>global里面是全局配置</p><ul><li><div class=highlight><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=na>repo1-path</span><span class=o>=</span><span class=s>/var/lib/pgbackrest   # pgBackRest 存储库路径</span>
+</span></span><span class=line><span class=cl><span class=na>repo1-retention-full</span><span class=o>=</span><span class=s>26          # 保留最近的 26 个全量备份，大概6个月，180天</span>
+</span></span><span class=line><span class=cl><span class=na>repo1-retention-archive</span><span class=o>=</span><span class=s>180      # 保留最近 180 天的 WAL 日志</span>
+</span></span><span class=line><span class=cl><span class=na>log-level-file</span><span class=o>=</span><span class=s>info              # 文件日志级别</span>
+</span></span><span class=line><span class=cl><span class=na>log-level-console</span><span class=o>=</span><span class=s>info           # 控制台日志级别</span>
+</span></span></code></pre></div></li></ul></li><li><p>global:archive-push 设置的是wal归档的保存方式是压缩保存</p></li><li><p>main部分设置的是要备份的postgres源的路径和端口，【main】是stanza的名字</p></li></ul><p>上面的备份其实有三种备份，full和incr和wal备份，那如果full和增量都没了，只要wal还在，那么依然能恢复到180天之内的某个时间点。wal很占空间，full也很占空间，一定要算准了。</p><p>那其实pgbackrest是用postgres身份去执行命令的，所以不用认证身份。</p><h5 id=二配置postgres>二、配置postgres<a hidden class=anchor aria-hidden=true href=#二配置postgres>#</a></h5><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>vi /etc/postgresql/13/main/postgresql.conf
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># wal归档方法：</span>
+</span></span><span class=line><span class=cl><span class=c1>#archive_mode = on</span>
+</span></span><span class=line><span class=cl><span class=c1>#archive_command = &#39;cp %p /data/backup/%f&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># pgbackrest归档方法：</span>
+</span></span><span class=line><span class=cl><span class=nv>archive_mode</span> <span class=o>=</span> on                  
+</span></span><span class=line><span class=cl><span class=nv>archive_command</span> <span class=o>=</span> <span class=s1>&#39;pgbackrest --stanza=main archive-push %p&#39;</span>  
+</span></span><span class=line><span class=cl><span class=nv>wal_level</span> <span class=o>=</span> replica   <span class=c1>#备份级别是副本</span>
+</span></span><span class=line><span class=cl><span class=nv>max_wal_senders</span> <span class=o>=</span> <span class=m>3</span>   <span class=c1>#最多wal日志发到3个客户端去</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 需要重启postgres</span>
+</span></span><span class=line><span class=cl>systemctl restart postgresql
+</span></span></code></pre></div><h5 id=三测试pgbackrest的备份功能>三、测试pgbackrest的备份功能<a hidden class=anchor aria-hidden=true href=#三测试pgbackrest的备份功能>#</a></h5><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>  <span class=c1># 建立一个stanza</span>
+</span></span><span class=line><span class=cl>  sudo -u postgres pgbackrest --stanza<span class=o>=</span>main --log-level-console<span class=o>=</span>info stanza-create
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1># 检查</span>
+</span></span><span class=line><span class=cl>  sudo -u postgres pgbackrest --stanza<span class=o>=</span>main --log-level-console<span class=o>=</span>info check
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1># 查看信息</span>
+</span></span><span class=line><span class=cl>  sudo -u postgres pgbackrest info
+</span></span></code></pre></div><p><img alt=image-20250915200557932 loading=lazy src=/posts/20250915-pgbackrest_restore/image-20250915200557932.png></p><p>看到如上信息就ok了。</p><h5 id=四正式的full和incr备份>四、正式的full和incr备份<a hidden class=anchor aria-hidden=true href=#四正式的full和incr备份>#</a></h5><p>全量备份的脚本full.sh：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/bin/bash
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=c1># 设置 pgBackRest 的相关参数和变量</span>
+</span></span><span class=line><span class=cl><span class=nv>PG_BACKREST_COMMAND</span><span class=o>=</span><span class=s2>&#34;/usr/bin/pgbackrest&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>STANZA</span><span class=o>=</span><span class=s2>&#34;main&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>LOG_FILE</span><span class=o>=</span><span class=s2>&#34;/var/log/pgbackrest_full_backup.log&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 执行全量备份</span>
+</span></span><span class=line><span class=cl>sudo -u postgres <span class=si>${</span><span class=nv>PG_BACKREST_COMMAND</span><span class=si>}</span> --stanza<span class=o>=</span><span class=si>${</span><span class=nv>STANZA</span><span class=si>}</span> --log-level-console<span class=o>=</span>info backup --type<span class=o>=</span>full &gt;&gt; <span class=si>${</span><span class=nv>LOG_FILE</span><span class=si>}</span> 2&gt;<span class=p>&amp;</span><span class=m>1</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 检测备份是否成功</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[</span> <span class=nv>$?</span> -eq <span class=m>0</span> <span class=o>]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;</span><span class=k>$(</span>date <span class=s1>&#39;+%Y-%m-%d %H:%M:%S&#39;</span><span class=k>)</span><span class=s2> - Full Backup Completed Successfully&#34;</span> &gt;&gt; <span class=si>${</span><span class=nv>LOG_FILE</span><span class=si>}</span>
+</span></span><span class=line><span class=cl><span class=k>else</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;</span><span class=k>$(</span>date <span class=s1>&#39;+%Y-%m-%d %H:%M:%S&#39;</span><span class=k>)</span><span class=s2> - Full Backup Failed&#34;</span> &gt;&gt; <span class=si>${</span><span class=nv>LOG_FILE</span><span class=si>}</span>
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span></code></pre></div><p>增量备份的脚本incr.sh</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/bin/bash
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=c1># 设置 pgBackRest 相关参数</span>
+</span></span><span class=line><span class=cl><span class=nv>PG_BACKREST_COMMAND</span><span class=o>=</span><span class=s2>&#34;/usr/bin/pgbackrest&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>STANZA</span><span class=o>=</span><span class=s2>&#34;main&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>LOG_FILE</span><span class=o>=</span><span class=s2>&#34;/var/log/pgbackrest_incr_backup.log&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 执行增量备份</span>
+</span></span><span class=line><span class=cl>sudo -u postgres <span class=si>${</span><span class=nv>PG_BACKREST_COMMAND</span><span class=si>}</span> --stanza<span class=o>=</span><span class=si>${</span><span class=nv>STANZA</span><span class=si>}</span> --log-level-console<span class=o>=</span>info backup --type<span class=o>=</span>incr &gt;&gt; <span class=si>${</span><span class=nv>LOG_FILE</span><span class=si>}</span> 2&gt;<span class=p>&amp;</span><span class=m>1</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 检测备份是否成功</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[</span> <span class=nv>$?</span> -eq <span class=m>0</span> <span class=o>]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;</span><span class=k>$(</span>date <span class=s1>&#39;+%Y-%m-%d %H:%M:%S&#39;</span><span class=k>)</span><span class=s2> - Incremental Backup Completed Successfully&#34;</span> &gt;&gt; <span class=si>${</span><span class=nv>LOG_FILE</span><span class=si>}</span>
+</span></span><span class=line><span class=cl><span class=k>else</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;</span><span class=k>$(</span>date <span class=s1>&#39;+%Y-%m-%d %H:%M:%S&#39;</span><span class=k>)</span><span class=s2> - Incremental Backup Failed&#34;</span> &gt;&gt; <span class=si>${</span><span class=nv>LOG_FILE</span><span class=si>}</span>
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span></code></pre></div><p>编辑crontab</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 每周日凌晨2点执行完整备份 (full.sh)</span>
+</span></span><span class=line><span class=cl><span class=m>0</span> <span class=m>2</span> * * <span class=m>0</span> /path/to/full.sh
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 从周一到周六凌晨2点执行增量备份 (incr.sh)</span>
+</span></span><span class=line><span class=cl><span class=m>0</span> <span class=m>2</span> * * 1-6 /path/to/incr.sh
+</span></span></code></pre></div><h5 id=五新实例postgres安装>五、新实例postgres安装<a hidden class=anchor aria-hidden=true href=#五新实例postgres安装>#</a></h5><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 这是台新的debian 12系统, 要装 postgresql 13</span>
+</span></span><span class=line><span class=cl>apt update
+</span></span><span class=line><span class=cl>apt upgrade
+</span></span><span class=line><span class=cl>apt install -y curl gpg
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc <span class=p>|</span>  gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=s2>&#34;deb http://apt.postgresql.org/pub/repos/apt/ </span><span class=k>$(</span>lsb_release -cs<span class=k>)</span><span class=s2>-pgdg main&#34;</span> <span class=p>|</span> tee /etc/apt/sources.list.d/pgdg.list
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>apt update
+</span></span><span class=line><span class=cl>apt-get install postgresql-13
+</span></span></code></pre></div><p>如上就新装了一个posgres 13</p><h5 id=六新实例安装pgbackrest>六、新实例安装pgbackrest<a hidden class=anchor aria-hidden=true href=#六新实例安装pgbackrest>#</a></h5><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>systemctl stop postgresql
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>apt install pgbackrest
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>vi /etc/pgbackrest.conf
+</span></span><span class=line><span class=cl><span class=o>[</span>main<span class=o>]</span>
+</span></span><span class=line><span class=cl>pg1-path<span class=o>=</span>/var/lib/postgresql/13/main
+</span></span><span class=line><span class=cl>pg1-port<span class=o>=</span><span class=m>5432</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>global<span class=o>]</span>
+</span></span><span class=line><span class=cl>repo1-path<span class=o>=</span>/var/lib/pgbackrest
+</span></span><span class=line><span class=cl>log-level-console<span class=o>=</span>info
+</span></span><span class=line><span class=cl>log-level-file<span class=o>=</span>info
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>sudo systemctl start postgresq
+</span></span></code></pre></div><h5 id=六准备恢复环境的数据>六、准备恢复环境的数据<a hidden class=anchor aria-hidden=true href=#六准备恢复环境的数据>#</a></h5><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>要把数pgbackrest的数据同步到新实例上：
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 使用 rsync（推荐）</span>
+</span></span><span class=line><span class=cl>sudo rsync -avz /var/lib/pgbackrest/ &lt;new_instance_user&gt;@&lt;new_instance_ip&gt;:/var/lib/pgbackrest/
+</span></span><span class=line><span class=cl><span class=c1># 或者，使用 scp</span>
+</span></span><span class=line><span class=cl>sudo scp -r /var/lib/pgbackrest/ &lt;new_instance_user&gt;@&lt;new_instance_ip&gt;:/var/lib/pgbackrest/
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 设置正确权限</span>
+</span></span><span class=line><span class=cl>chown -R postgres:postgres /var/lib/pgbackrest
+</span></span><span class=line><span class=cl>chmod <span class=m>750</span> /var/lib/pgbackrest
+</span></span></code></pre></div><h5 id=七新实例上执行恢复到时间点>七、新实例上执行恢复到时间点<a hidden class=anchor aria-hidden=true href=#七新实例上执行恢复到时间点>#</a></h5><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>sudo -u postgres pgbackrest --stanza<span class=o>=</span>main <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --target<span class=o>=</span><span class=s2>&#34;2025-09-15 14:00:00&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --target-action<span class=o>=</span>promote <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --delta restore --log-level-console<span class=o>=</span>info
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>参数说明：
+</span></span><span class=line><span class=cl>    --stanza<span class=o>=</span>main：指定备份配置的名称。
+</span></span><span class=line><span class=cl>    --target：设置时间点。
+</span></span><span class=line><span class=cl>    --target-action<span class=o>=</span>promote：让恢复完成后实例成为主实例。
+</span></span><span class=line><span class=cl>    --delta：只恢复有变更的数据（提高恢复速度）。
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>systemctl start postgresql
+</span></span></code></pre></div><h5 id=八把新实例上的数据dump出来>八、把新实例上的数据dump出来<a hidden class=anchor aria-hidden=true href=#八把新实例上的数据dump出来>#</a></h5><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 使用 psql 从恢复的数据库导出目标表数据。假设你要恢复的表名是 public.my_table，你可以导出它的数据为 SQL 脚本：</span>
+</span></span><span class=line><span class=cl>pg_dump -U postgres -t public.my_table my_database &gt; my_table_data.sql
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 或者选择仅导出某些行数据（比如按时间条件筛选）到 SQL 脚本中：</span>
+</span></span><span class=line><span class=cl>psql -U postgres -d my_database -c <span class=s2>&#34;\copy (SELECT * FROM public.my_table WHERE created_at BETWEEN &#39;2023-09-30&#39; AND &#39;2023-10-01&#39;) TO &#39;/tmp/my_table_data.csv&#39; WITH CSV HEADER&#34;</span>
+</span></span></code></pre></div><p>然后去旧实例上，灌入数据</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 建同样的表</span>
+</span></span><span class=line><span class=cl>CREATE TABLE public.my_table_recovery <span class=o>(</span>LIKE public.my_table INCLUDING ALL<span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 修改语句</span>
+</span></span><span class=line><span class=cl>sed -i <span class=s1>&#39;s/old_table/new_table/g&#39;</span> my_table_data.sql
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 导sql</span>
+</span></span><span class=line><span class=cl>psql -U postgres -d my_database -f my_table_data.sql
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 导数据</span>
+</span></span><span class=line><span class=cl><span class=c1># 同样要修改CSV的！！！</span>
+</span></span><span class=line><span class=cl><span class=se>\c</span>opy public.my_table_recovery FROM <span class=s1>&#39;/tmp/my_table_data.csv&#39;</span> WITH CSV HEADER
+</span></span></code></pre></div><p>这样就ok了。</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

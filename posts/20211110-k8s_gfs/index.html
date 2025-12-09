@@ -1,0 +1,190 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>生产环境kubernetes使用持久化卷GlusterFS | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="在生产环境使用 Kubernetes ，绕不过去的一个问题就是持久化卷。
+如果是使用阿里 ACK 托管平台的话，可以用 OSS 来持久化卷，如果是自搭的 kubernetes，那么存储就需要仔细考虑了。
+ceph比较复杂，容易出故障。nfs 也不可用，毛病多多。minio倒是可以。
+这种情况下使用双副本的 GlusterFS 就是不错的选择。
+生产环境就不能随意了，最好不要使用 Heketi，因为凡是要持久化的东西，都是比较重要的东西，最好都有 yaml 记录。
+GlusterFS 的搭建就不说了。说说实际使用过程：
+一、装GFS，生产新卷
+安装就不说了，我们的GFS有两个节点，172.19.20.18 和 172.19.20.36，我们强制建立一个两副本的卷： kuaijian-vol
+gluster volume create kuaijian-vol replica 2 transport tcp 172.19.20.18:/glusterfs/kuaijian-vol 172.19.20.36:/glusterfs/kuaijian-vol force
+二、为k8s产生GFS的endingpoint和service
+cat << EOF >> ep-svc.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gfs-cluster_svc 
+spec:
+  ports:
+  - port: 1
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: gfs-cluster_svc 
+subsets:
+  - addresses:
+      - ip: 172.19.20.18 
+    ports:
+      - port: 1 
+  - addresses:
+      - ip: 172.19.20.36 
+    ports:
+      - port: 1 
+EOF
+
+kubectl apply -f ep-svc.yaml
+这里要提一个概念，通常情况下 service 是通过 selector 标签来选择对应的 pod 来增加 endingpoint 的。如下："><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20211110-k8s_gfs/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20211110-k8s_gfs/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20211110-k8s_gfs/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="生产环境kubernetes使用持久化卷GlusterFS"><meta property="og:description" content="在生产环境使用 Kubernetes ，绕不过去的一个问题就是持久化卷。
+如果是使用阿里 ACK 托管平台的话，可以用 OSS 来持久化卷，如果是自搭的 kubernetes，那么存储就需要仔细考虑了。
+ceph比较复杂，容易出故障。nfs 也不可用，毛病多多。minio倒是可以。
+这种情况下使用双副本的 GlusterFS 就是不错的选择。
+生产环境就不能随意了，最好不要使用 Heketi，因为凡是要持久化的东西，都是比较重要的东西，最好都有 yaml 记录。
+GlusterFS 的搭建就不说了。说说实际使用过程：
+一、装GFS，生产新卷 安装就不说了，我们的GFS有两个节点，172.19.20.18 和 172.19.20.36，我们强制建立一个两副本的卷： kuaijian-vol
+gluster volume create kuaijian-vol replica 2 transport tcp 172.19.20.18:/glusterfs/kuaijian-vol 172.19.20.36:/glusterfs/kuaijian-vol force 二、为k8s产生GFS的endingpoint和service cat << EOF >> ep-svc.yaml --- apiVersion: v1 kind: Service metadata: name: gfs-cluster_svc spec: ports: - port: 1 --- apiVersion: v1 kind: Endpoints metadata: name: gfs-cluster_svc subsets: - addresses: - ip: 172.19.20.18 ports: - port: 1 - addresses: - ip: 172.19.20.36 ports: - port: 1 EOF kubectl apply -f ep-svc.yaml 这里要提一个概念，通常情况下 service 是通过 selector 标签来选择对应的 pod 来增加 endingpoint 的。如下："><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2021-11-10T12:50:11+08:00"><meta property="article:modified_time" content="2021-11-10T12:50:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="生产环境kubernetes使用持久化卷GlusterFS"><meta name=twitter:description content="在生产环境使用 Kubernetes ，绕不过去的一个问题就是持久化卷。
+如果是使用阿里 ACK 托管平台的话，可以用 OSS 来持久化卷，如果是自搭的 kubernetes，那么存储就需要仔细考虑了。
+ceph比较复杂，容易出故障。nfs 也不可用，毛病多多。minio倒是可以。
+这种情况下使用双副本的 GlusterFS 就是不错的选择。
+生产环境就不能随意了，最好不要使用 Heketi，因为凡是要持久化的东西，都是比较重要的东西，最好都有 yaml 记录。
+GlusterFS 的搭建就不说了。说说实际使用过程：
+一、装GFS，生产新卷
+安装就不说了，我们的GFS有两个节点，172.19.20.18 和 172.19.20.36，我们强制建立一个两副本的卷： kuaijian-vol
+gluster volume create kuaijian-vol replica 2 transport tcp 172.19.20.18:/glusterfs/kuaijian-vol 172.19.20.36:/glusterfs/kuaijian-vol force
+二、为k8s产生GFS的endingpoint和service
+cat << EOF >> ep-svc.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gfs-cluster_svc 
+spec:
+  ports:
+  - port: 1
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: gfs-cluster_svc 
+subsets:
+  - addresses:
+      - ip: 172.19.20.18 
+    ports:
+      - port: 1 
+  - addresses:
+      - ip: 172.19.20.36 
+    ports:
+      - port: 1 
+EOF
+
+kubectl apply -f ep-svc.yaml
+这里要提一个概念，通常情况下 service 是通过 selector 标签来选择对应的 pod 来增加 endingpoint 的。如下："><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"生产环境kubernetes使用持久化卷GlusterFS","item":"https://rendoumi.com/posts/20211110-k8s_gfs/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"生产环境kubernetes使用持久化卷GlusterFS","name":"生产环境kubernetes使用持久化卷GlusterFS","description":"在生产环境使用 Kubernetes ，绕不过去的一个问题就是持久化卷。\n如果是使用阿里 ACK 托管平台的话，可以用 OSS 来持久化卷，如果是自搭的 kubernetes，那么存储就需要仔细考虑了。\nceph比较复杂，容易出故障。nfs 也不可用，毛病多多。minio倒是可以。\n这种情况下使用双副本的 GlusterFS 就是不错的选择。\n生产环境就不能随意了，最好不要使用 Heketi，因为凡是要持久化的东西，都是比较重要的东西，最好都有 yaml 记录。\nGlusterFS 的搭建就不说了。说说实际使用过程：\n一、装GFS，生产新卷 安装就不说了，我们的GFS有两个节点，172.19.20.18 和 172.19.20.36，我们强制建立一个两副本的卷： kuaijian-vol\ngluster volume create kuaijian-vol replica 2 transport tcp 172.19.20.18:/glusterfs/kuaijian-vol 172.19.20.36:/glusterfs/kuaijian-vol force 二、为k8s产生GFS的endingpoint和service cat \u0026lt;\u0026lt; EOF \u0026gt;\u0026gt; ep-svc.yaml --- apiVersion: v1 kind: Service metadata: name: gfs-cluster_svc spec: ports: - port: 1 --- apiVersion: v1 kind: Endpoints metadata: name: gfs-cluster_svc subsets: - addresses: - ip: 172.19.20.18 ports: - port: 1 - addresses: - ip: 172.19.20.36 ports: - port: 1 EOF kubectl apply -f ep-svc.yaml 这里要提一个概念，通常情况下 service 是通过 selector 标签来选择对应的 pod 来增加 endingpoint 的。如下：\n","keywords":[],"articleBody":"在生产环境使用 Kubernetes ，绕不过去的一个问题就是持久化卷。\n如果是使用阿里 ACK 托管平台的话，可以用 OSS 来持久化卷，如果是自搭的 kubernetes，那么存储就需要仔细考虑了。\nceph比较复杂，容易出故障。nfs 也不可用，毛病多多。minio倒是可以。\n这种情况下使用双副本的 GlusterFS 就是不错的选择。\n生产环境就不能随意了，最好不要使用 Heketi，因为凡是要持久化的东西，都是比较重要的东西，最好都有 yaml 记录。\nGlusterFS 的搭建就不说了。说说实际使用过程：\n一、装GFS，生产新卷 安装就不说了，我们的GFS有两个节点，172.19.20.18 和 172.19.20.36，我们强制建立一个两副本的卷： kuaijian-vol\ngluster volume create kuaijian-vol replica 2 transport tcp 172.19.20.18:/glusterfs/kuaijian-vol 172.19.20.36:/glusterfs/kuaijian-vol force 二、为k8s产生GFS的endingpoint和service cat \u003c\u003c EOF \u003e\u003e ep-svc.yaml --- apiVersion: v1 kind: Service metadata: name: gfs-cluster_svc spec: ports: - port: 1 --- apiVersion: v1 kind: Endpoints metadata: name: gfs-cluster_svc subsets: - addresses: - ip: 172.19.20.18 ports: - port: 1 - addresses: - ip: 172.19.20.36 ports: - port: 1 EOF kubectl apply -f ep-svc.yaml 这里要提一个概念，通常情况下 service 是通过 selector 标签来选择对应的 pod 来增加 endingpoint 的。如下：\napiVersion: v1 kind: Service metadata: name: go-api_svc spec: ports: - port: 8080 protocol: TCP targetPort: 8080 selector: app: go-api type: ClusterIP 而上面，我们没有通过标签，而是让 endingpoint 和 svc 同名而手动增加 endingpoint 到 svc 的。\n三、为k8s生产创建 PV和PVC 静态环境不使用 Storageclass 持久化卷的图解如下，pod做pvc声明，pvc连接到pv，pv从GFS中拿到卷。\n首先声明一个 pv：\ncat \u003c\u003c EOF \u003e\u003e kuaijian-pv.yaml apiVersion: v1 kind: PersistentVolume metadata: name: gfs-kuaijian-50G_pv labels: name: gfs-kuaijian-50G_pv spec: capacity: storage: 50Gi accessModes: - ReadWriteMany glusterfs: endpoints: gfs-cluster_svc path: kuaijian-vol readOnly: false persistentVolumeReclaimPolicy: Retain EOF kubectl apply -f kuaijian-pv.yaml 然后声明一个 pvc 通过 matchLabels 来跟之前的 pv 绑定。\ncat \u003c\u003c EOF \u003e\u003e kuaijian-pvc.yaml kind: PersistentVolumeClaim apiVersion: v1 metadata: name: gfs-kuaijian-50G_pvc spec: accessModes: - ReadWriteMany resources: requests: storage: 50Gi selector: matchLabels: name: gfs-kuaijian-50G_pv EOF kubectl apply -f kuaijian-pvc.yaml 注意上面的 pvc，我们一下子申请了50G，把整个 pv 空间全用光了；当然我们也可以只申请个 10Gi，下个 pvc 再 10Gi，这样也是行的通的。\n四、POD使用PVC 声明一个 Nginx 的 Deployment 来使用这个 pvc\napiVersion: apps/v1 kind: Deployment metadata: name: nginx-deployment labels: app: nginx spec: replicas: 2 selector: matchLabels: app: nginx template: metadata: labels: app: nginx spec: containers: - name: nginx image: nginx ports: - containerPort: 80 volumeMounts: - name: data-www mountPath: /data/www volumes: - name: data-www persistentVolumeClaim: claimName: gfs-kuaijian-50G_pvc 这样 kubernetes 的存储部分就搞定了。GFS 用于生产非常稳定，基本跑了 7 年了没有大毛病。\n","wordCount":"272","inLanguage":"zh","datePublished":"2021-11-10T12:50:11+08:00","dateModified":"2021-11-10T12:50:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20211110-k8s_gfs/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">生产环境kubernetes使用持久化卷GlusterFS
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2021-11-10 12:50:11 +0800 CST'>2021年11月10日</span></div></header><div class=post-content><p>在生产环境使用 Kubernetes ，绕不过去的一个问题就是持久化卷。</p><p>如果是使用阿里 ACK 托管平台的话，可以用 OSS 来持久化卷，如果是自搭的 kubernetes，那么存储就需要仔细考虑了。</p><p>ceph比较复杂，容易出故障。nfs 也不可用，毛病多多。minio倒是可以。</p><p>这种情况下使用双副本的 GlusterFS 就是不错的选择。</p><p>生产环境就不能随意了，最好不要使用 Heketi，因为凡是要持久化的东西，都是比较重要的东西，最好都有 yaml 记录。</p><p>GlusterFS 的搭建就不说了。说说实际使用过程：</p><h2 id=一装gfs生产新卷>一、装GFS，生产新卷<a hidden class=anchor aria-hidden=true href=#一装gfs生产新卷>#</a></h2><p>安装就不说了，我们的GFS有两个节点，172.19.20.18 和 172.19.20.36，我们强制建立一个两副本的卷： kuaijian-vol</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>gluster volume create kuaijian-vol replica <span class=m>2</span> transport tcp 172.19.20.18:/glusterfs/kuaijian-vol 172.19.20.36:/glusterfs/kuaijian-vol force
+</span></span></code></pre></div><h2 id=二为k8s产生gfs的endingpoint和service>二、为k8s产生GFS的endingpoint和service<a hidden class=anchor aria-hidden=true href=#二为k8s产生gfs的endingpoint和service>#</a></h2><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat <span class=s>&lt;&lt; EOF &gt;&gt; ep-svc.yaml
+</span></span></span><span class=line><span class=cl><span class=s>---
+</span></span></span><span class=line><span class=cl><span class=s>apiVersion: v1
+</span></span></span><span class=line><span class=cl><span class=s>kind: Service
+</span></span></span><span class=line><span class=cl><span class=s>metadata:
+</span></span></span><span class=line><span class=cl><span class=s>  name: gfs-cluster_svc 
+</span></span></span><span class=line><span class=cl><span class=s>spec:
+</span></span></span><span class=line><span class=cl><span class=s>  ports:
+</span></span></span><span class=line><span class=cl><span class=s>  - port: 1
+</span></span></span><span class=line><span class=cl><span class=s>---
+</span></span></span><span class=line><span class=cl><span class=s>apiVersion: v1
+</span></span></span><span class=line><span class=cl><span class=s>kind: Endpoints
+</span></span></span><span class=line><span class=cl><span class=s>metadata:
+</span></span></span><span class=line><span class=cl><span class=s>  name: gfs-cluster_svc 
+</span></span></span><span class=line><span class=cl><span class=s>subsets:
+</span></span></span><span class=line><span class=cl><span class=s>  - addresses:
+</span></span></span><span class=line><span class=cl><span class=s>      - ip: 172.19.20.18 
+</span></span></span><span class=line><span class=cl><span class=s>    ports:
+</span></span></span><span class=line><span class=cl><span class=s>      - port: 1 
+</span></span></span><span class=line><span class=cl><span class=s>  - addresses:
+</span></span></span><span class=line><span class=cl><span class=s>      - ip: 172.19.20.36 
+</span></span></span><span class=line><span class=cl><span class=s>    ports:
+</span></span></span><span class=line><span class=cl><span class=s>      - port: 1 
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>kubectl apply -f ep-svc.yaml
+</span></span></code></pre></div><p>这里要提一个概念，通常情况下 service 是通过 selector 标签来选择对应的 pod 来增加 endingpoint 的。如下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>apiVersion: v1
+</span></span><span class=line><span class=cl>kind: Service
+</span></span><span class=line><span class=cl>metadata:
+</span></span><span class=line><span class=cl> name: go-api_svc
+</span></span><span class=line><span class=cl>spec:
+</span></span><span class=line><span class=cl> ports:
+</span></span><span class=line><span class=cl> - port: <span class=m>8080</span>
+</span></span><span class=line><span class=cl>   protocol: TCP
+</span></span><span class=line><span class=cl>   targetPort: <span class=m>8080</span>
+</span></span><span class=line><span class=cl> selector:
+</span></span><span class=line><span class=cl>   app: go-api
+</span></span><span class=line><span class=cl> type: ClusterIP
+</span></span></code></pre></div><p>而上面，我们没有通过标签，而是让 endingpoint 和 svc 同名而手动增加 endingpoint 到 svc 的。</p><h2 id=三为k8s生产创建-pv和pvc>三、为k8s生产创建 PV和PVC<a hidden class=anchor aria-hidden=true href=#三为k8s生产创建-pv和pvc>#</a></h2><p>静态环境不使用 Storageclass 持久化卷的图解如下，pod做pvc声明，pvc连接到pv，pv从GFS中拿到卷。</p><p><img alt=image-20211110133300785 loading=lazy src=/posts/20211110-k8s_gfs/image-20211110133300785.png></p><p>首先声明一个 pv：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat <span class=s>&lt;&lt; EOF &gt;&gt; kuaijian-pv.yaml
+</span></span></span><span class=line><span class=cl><span class=s>apiVersion: v1
+</span></span></span><span class=line><span class=cl><span class=s>kind: PersistentVolume
+</span></span></span><span class=line><span class=cl><span class=s>metadata:
+</span></span></span><span class=line><span class=cl><span class=s>  name: gfs-kuaijian-50G_pv
+</span></span></span><span class=line><span class=cl><span class=s>  labels:
+</span></span></span><span class=line><span class=cl><span class=s>    name: gfs-kuaijian-50G_pv 
+</span></span></span><span class=line><span class=cl><span class=s>spec:
+</span></span></span><span class=line><span class=cl><span class=s>  capacity:
+</span></span></span><span class=line><span class=cl><span class=s>    storage: 50Gi
+</span></span></span><span class=line><span class=cl><span class=s>  accessModes:
+</span></span></span><span class=line><span class=cl><span class=s>    - ReadWriteMany
+</span></span></span><span class=line><span class=cl><span class=s>  glusterfs:
+</span></span></span><span class=line><span class=cl><span class=s>    endpoints: gfs-cluster_svc
+</span></span></span><span class=line><span class=cl><span class=s>    path: kuaijian-vol
+</span></span></span><span class=line><span class=cl><span class=s>    readOnly: false
+</span></span></span><span class=line><span class=cl><span class=s>  persistentVolumeReclaimPolicy: Retain 
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>kubectl apply -f kuaijian-pv.yaml
+</span></span></code></pre></div><p>然后声明一个 pvc 通过 matchLabels 来跟之前的 pv 绑定。</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat <span class=s>&lt;&lt; EOF &gt;&gt; kuaijian-pvc.yaml
+</span></span></span><span class=line><span class=cl><span class=s>kind: PersistentVolumeClaim
+</span></span></span><span class=line><span class=cl><span class=s>apiVersion: v1
+</span></span></span><span class=line><span class=cl><span class=s>metadata:
+</span></span></span><span class=line><span class=cl><span class=s>  name: gfs-kuaijian-50G_pvc
+</span></span></span><span class=line><span class=cl><span class=s>spec:
+</span></span></span><span class=line><span class=cl><span class=s>  accessModes:
+</span></span></span><span class=line><span class=cl><span class=s>    - ReadWriteMany
+</span></span></span><span class=line><span class=cl><span class=s>  resources:
+</span></span></span><span class=line><span class=cl><span class=s>    requests:
+</span></span></span><span class=line><span class=cl><span class=s>      storage: 50Gi
+</span></span></span><span class=line><span class=cl><span class=s>  selector:
+</span></span></span><span class=line><span class=cl><span class=s>    matchLabels:
+</span></span></span><span class=line><span class=cl><span class=s>      name: gfs-kuaijian-50G_pv
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>kubectl apply -f kuaijian-pvc.yaml
+</span></span></code></pre></div><p>注意上面的 pvc，我们一下子申请了50G，把整个 pv 空间全用光了；当然我们也可以只申请个 10Gi，下个 pvc 再 10Gi，这样也是行的通的。</p><h2 id=四pod使用pvc>四、POD使用PVC<a hidden class=anchor aria-hidden=true href=#四pod使用pvc>#</a></h2><p>声明一个 Nginx 的 Deployment 来使用这个 pvc</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>apiVersion: apps/v1
+</span></span><span class=line><span class=cl>kind: Deployment
+</span></span><span class=line><span class=cl>metadata:
+</span></span><span class=line><span class=cl>  name: nginx-deployment
+</span></span><span class=line><span class=cl>  labels:
+</span></span><span class=line><span class=cl>    app: nginx
+</span></span><span class=line><span class=cl>spec:
+</span></span><span class=line><span class=cl>  replicas: <span class=m>2</span>
+</span></span><span class=line><span class=cl>  selector:
+</span></span><span class=line><span class=cl>    matchLabels:
+</span></span><span class=line><span class=cl>      app: nginx
+</span></span><span class=line><span class=cl>  template:
+</span></span><span class=line><span class=cl>    metadata:
+</span></span><span class=line><span class=cl>      labels:
+</span></span><span class=line><span class=cl>        app: nginx
+</span></span><span class=line><span class=cl>    spec:
+</span></span><span class=line><span class=cl>      containers:
+</span></span><span class=line><span class=cl>      - name: nginx
+</span></span><span class=line><span class=cl>        image: nginx
+</span></span><span class=line><span class=cl>        ports:
+</span></span><span class=line><span class=cl>        - containerPort: <span class=m>80</span>
+</span></span><span class=line><span class=cl>        volumeMounts:
+</span></span><span class=line><span class=cl>        - name: data-www
+</span></span><span class=line><span class=cl>          mountPath: /data/www
+</span></span><span class=line><span class=cl>      volumes:
+</span></span><span class=line><span class=cl>        - name: data-www
+</span></span><span class=line><span class=cl>          persistentVolumeClaim:
+</span></span><span class=line><span class=cl>            claimName: gfs-kuaijian-50G_pvc
+</span></span></code></pre></div><p>这样 kubernetes 的存储部分就搞定了。GFS 用于生产非常稳定，基本跑了 7 年了没有大毛病。</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

@@ -1,0 +1,190 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Postgres的wal和PITR时间点恢复 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="研究了Postgres的库数据恢复和转移，再来研究一下PITR按时间点恢复
+类比到MySQL，因为我们是运维，不是专业的DBA，所以恢复到正确数据即可
+那跟阿里云以及自建的MySQL恢复一样，首先都要有一个每天的基础备份，然后类比MySQL的Binlog，Postgres这里就相当于wal。
+这么类比就对了，那么恢复过程的思路是一样的：
+
+首先建立一个新的实例
+第二步把每天的基础物理全备给恢复上去
+第三步把之后的wal日志传到新实例，恢复到指定时间点
+第四步最后把表或库Dump下来，灌入到旧实例的新表或新库
+
+那我们一步一步来解释：
+一、每天建立一个基础备份，这样在Base基础上，只需恢复当天的wal，速度够快
+建立每天的Base基础物理备份
+pg_basebackup -Ft -Pv -Xf -z -Z5 -U postgres -h localhost -p 5432 -D /pg_backup
+
+解释一下：
+    -Ft：
+        指定备份格式为 tar。
+        如果使用 tar 格式，备份会输出 tar 文件，并且不需要直接访问 PostgreSQL 数据目录。
+    -Pv：
+        -P：显示备份进度。
+        -v：启用详情模式（verbose），显示更多日志。
+    -Xf：
+        -X：控制 WAL 日志的处理方式，f 表示在备份中包含 WAL 文件（Write Ahead Logs），确保备份可以用于恢复到完整的一致状态。
+    -z：
+        启用压缩功能。
+    -Z5：
+        设置压缩级别为 5（压缩级别从 0 到 9，9 为最高压缩）。
+    -U postgres：
+        使用 postgres 用户来连接数据库。
+    -h localhost：
+        指定数据库主机为当前机器（localhost）。
+    -p 5432：
+        指定 PostgreSQL 监听端口为 5432（默认端口）。
+    -D /pg_backup：
+        将备份文件保存到指定路径 /pg_backup 中。
+这样我们就在 /pg_backup 中有了备份文件，包括一个backup_manifest的文件清单，以及一个压缩包"><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20250728-postgres_wal_pitr/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20250728-postgres_wal_pitr/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20250728-postgres_wal_pitr/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="Postgres的wal和PITR时间点恢复"><meta property="og:description" content="研究了Postgres的库数据恢复和转移，再来研究一下PITR按时间点恢复
+类比到MySQL，因为我们是运维，不是专业的DBA，所以恢复到正确数据即可
+那跟阿里云以及自建的MySQL恢复一样，首先都要有一个每天的基础备份，然后类比MySQL的Binlog，Postgres这里就相当于wal。
+这么类比就对了，那么恢复过程的思路是一样的：
+首先建立一个新的实例 第二步把每天的基础物理全备给恢复上去 第三步把之后的wal日志传到新实例，恢复到指定时间点 第四步最后把表或库Dump下来，灌入到旧实例的新表或新库 那我们一步一步来解释：
+一、每天建立一个基础备份，这样在Base基础上，只需恢复当天的wal，速度够快 建立每天的Base基础物理备份
+pg_basebackup -Ft -Pv -Xf -z -Z5 -U postgres -h localhost -p 5432 -D /pg_backup 解释一下： -Ft： 指定备份格式为 tar。 如果使用 tar 格式，备份会输出 tar 文件，并且不需要直接访问 PostgreSQL 数据目录。 -Pv： -P：显示备份进度。 -v：启用详情模式（verbose），显示更多日志。 -Xf： -X：控制 WAL 日志的处理方式，f 表示在备份中包含 WAL 文件（Write Ahead Logs），确保备份可以用于恢复到完整的一致状态。 -z： 启用压缩功能。 -Z5： 设置压缩级别为 5（压缩级别从 0 到 9，9 为最高压缩）。 -U postgres： 使用 postgres 用户来连接数据库。 -h localhost： 指定数据库主机为当前机器（localhost）。 -p 5432： 指定 PostgreSQL 监听端口为 5432（默认端口）。 -D /pg_backup： 将备份文件保存到指定路径 /pg_backup 中。 这样我们就在 /pg_backup 中有了备份文件，包括一个backup_manifest的文件清单，以及一个压缩包"><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2025-07-28T11:01:11+08:00"><meta property="article:modified_time" content="2025-07-28T11:01:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Postgres的wal和PITR时间点恢复"><meta name=twitter:description content="研究了Postgres的库数据恢复和转移，再来研究一下PITR按时间点恢复
+类比到MySQL，因为我们是运维，不是专业的DBA，所以恢复到正确数据即可
+那跟阿里云以及自建的MySQL恢复一样，首先都要有一个每天的基础备份，然后类比MySQL的Binlog，Postgres这里就相当于wal。
+这么类比就对了，那么恢复过程的思路是一样的：
+
+首先建立一个新的实例
+第二步把每天的基础物理全备给恢复上去
+第三步把之后的wal日志传到新实例，恢复到指定时间点
+第四步最后把表或库Dump下来，灌入到旧实例的新表或新库
+
+那我们一步一步来解释：
+一、每天建立一个基础备份，这样在Base基础上，只需恢复当天的wal，速度够快
+建立每天的Base基础物理备份
+pg_basebackup -Ft -Pv -Xf -z -Z5 -U postgres -h localhost -p 5432 -D /pg_backup
+
+解释一下：
+    -Ft：
+        指定备份格式为 tar。
+        如果使用 tar 格式，备份会输出 tar 文件，并且不需要直接访问 PostgreSQL 数据目录。
+    -Pv：
+        -P：显示备份进度。
+        -v：启用详情模式（verbose），显示更多日志。
+    -Xf：
+        -X：控制 WAL 日志的处理方式，f 表示在备份中包含 WAL 文件（Write Ahead Logs），确保备份可以用于恢复到完整的一致状态。
+    -z：
+        启用压缩功能。
+    -Z5：
+        设置压缩级别为 5（压缩级别从 0 到 9，9 为最高压缩）。
+    -U postgres：
+        使用 postgres 用户来连接数据库。
+    -h localhost：
+        指定数据库主机为当前机器（localhost）。
+    -p 5432：
+        指定 PostgreSQL 监听端口为 5432（默认端口）。
+    -D /pg_backup：
+        将备份文件保存到指定路径 /pg_backup 中。
+这样我们就在 /pg_backup 中有了备份文件，包括一个backup_manifest的文件清单，以及一个压缩包"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"Postgres的wal和PITR时间点恢复","item":"https://rendoumi.com/posts/20250728-postgres_wal_pitr/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Postgres的wal和PITR时间点恢复","name":"Postgres的wal和PITR时间点恢复","description":"研究了Postgres的库数据恢复和转移，再来研究一下PITR按时间点恢复\n类比到MySQL，因为我们是运维，不是专业的DBA，所以恢复到正确数据即可\n那跟阿里云以及自建的MySQL恢复一样，首先都要有一个每天的基础备份，然后类比MySQL的Binlog，Postgres这里就相当于wal。\n这么类比就对了，那么恢复过程的思路是一样的：\n首先建立一个新的实例 第二步把每天的基础物理全备给恢复上去 第三步把之后的wal日志传到新实例，恢复到指定时间点 第四步最后把表或库Dump下来，灌入到旧实例的新表或新库 那我们一步一步来解释：\n一、每天建立一个基础备份，这样在Base基础上，只需恢复当天的wal，速度够快 建立每天的Base基础物理备份\npg_basebackup -Ft -Pv -Xf -z -Z5 -U postgres -h localhost -p 5432 -D /pg_backup 解释一下： -Ft： 指定备份格式为 tar。 如果使用 tar 格式，备份会输出 tar 文件，并且不需要直接访问 PostgreSQL 数据目录。 -Pv： -P：显示备份进度。 -v：启用详情模式（verbose），显示更多日志。 -Xf： -X：控制 WAL 日志的处理方式，f 表示在备份中包含 WAL 文件（Write Ahead Logs），确保备份可以用于恢复到完整的一致状态。 -z： 启用压缩功能。 -Z5： 设置压缩级别为 5（压缩级别从 0 到 9，9 为最高压缩）。 -U postgres： 使用 postgres 用户来连接数据库。 -h localhost： 指定数据库主机为当前机器（localhost）。 -p 5432： 指定 PostgreSQL 监听端口为 5432（默认端口）。 -D /pg_backup： 将备份文件保存到指定路径 /pg_backup 中。 这样我们就在 /pg_backup 中有了备份文件，包括一个backup_manifest的文件清单，以及一个压缩包\n","keywords":[],"articleBody":"研究了Postgres的库数据恢复和转移，再来研究一下PITR按时间点恢复\n类比到MySQL，因为我们是运维，不是专业的DBA，所以恢复到正确数据即可\n那跟阿里云以及自建的MySQL恢复一样，首先都要有一个每天的基础备份，然后类比MySQL的Binlog，Postgres这里就相当于wal。\n这么类比就对了，那么恢复过程的思路是一样的：\n首先建立一个新的实例 第二步把每天的基础物理全备给恢复上去 第三步把之后的wal日志传到新实例，恢复到指定时间点 第四步最后把表或库Dump下来，灌入到旧实例的新表或新库 那我们一步一步来解释：\n一、每天建立一个基础备份，这样在Base基础上，只需恢复当天的wal，速度够快 建立每天的Base基础物理备份\npg_basebackup -Ft -Pv -Xf -z -Z5 -U postgres -h localhost -p 5432 -D /pg_backup 解释一下： -Ft： 指定备份格式为 tar。 如果使用 tar 格式，备份会输出 tar 文件，并且不需要直接访问 PostgreSQL 数据目录。 -Pv： -P：显示备份进度。 -v：启用详情模式（verbose），显示更多日志。 -Xf： -X：控制 WAL 日志的处理方式，f 表示在备份中包含 WAL 文件（Write Ahead Logs），确保备份可以用于恢复到完整的一致状态。 -z： 启用压缩功能。 -Z5： 设置压缩级别为 5（压缩级别从 0 到 9，9 为最高压缩）。 -U postgres： 使用 postgres 用户来连接数据库。 -h localhost： 指定数据库主机为当前机器（localhost）。 -p 5432： 指定 PostgreSQL 监听端口为 5432（默认端口）。 -D /pg_backup： 将备份文件保存到指定路径 /pg_backup 中。 这样我们就在 /pg_backup 中有了备份文件，包括一个backup_manifest的文件清单，以及一个压缩包\nroot@debian:/pg_backup# ls -lha total 1.8G drwxr-xr-x 3 root root 4.0K Jul 28 16:31 . drwxr-xr-x 20 root root 4.0K Jul 28 16:18 .. -rw------- 1 root root 760K Jul 28 16:21 backup_manifest -rw------- 1 root root 1.8G Jul 28 16:21 base.tar.gz 那这个base.tar.gz里面又都有什么呢？\n/ ├── base/ # 每个数据库的文件 ├── global/ # 全局对象（角色、权限） ├── pg_wal/ # WAL 日志 ├── pg_xact/ # 事务状态 ├── pg_clog/ # 事务提交信息 ├── postgresql.auto.conf # 自动配置文件 ├── postgresql.conf # 主配置文件 ├── pg_hba.conf # 访问控制文件 ├── pg_ident.conf # 用户映射文件 └── ... # 其他系统文件 我们先 ps axjf 看一把\n可以看到，-D的数据目录是在/var/lib/postgresql/13/main下，那base.tar.gz里面的内容跟/var/lib/postgresql/13/main下是一样的。\n二、旧实例需要建立wal的归档模式 # ps axjf的结果中，看到配置文件是 /etc/postgresql/13/main/postgresql.conf # 那就修改这个配置文件 # 修改以下2行 # 启用归档 archive_mode = on # WAL 日志归档路径 archive_command = 'cp %p /path_to_archive_directory/%f' # 然后重启服务生效 systemctl restart postgresql 以上做完后我们如果我们做了Base备份，然后wal的日志还在继续跑，那我们就需要手动触发一下wal写盘\nselect pg_switch_wal(); pg_switch_wal --------------- 0/13DAC308 会得到一个序列号：0/13DAC308\n然后新的wal归档日志就放在：/path_to_archive_directory/目录下了，那原始的wal数据文件还在 /var/lib/postgresql/13/main/pg_wal 下\n三、新实例恢复Base库和时间点： # 找到新实例的数据目录，一把删空，然后把base.tar.gz解压进去 # 建恢复目录并清理旧数据 # 将解压后的备份移到数据库实例的实际数据目录（通常位于 /var/lib/postgresql/data）。清理旧目录后执行： mv /pg_restore/ /var/lib/postgresql/data # 设置恢复配置文件 # 在数据目录中创建一个名为 recovery.signal 的空文件，同时在数据目录中新增恢复目标的配置文件 postgresql.auto.conf。 touch recovery.signal #编辑或创建文件 postgresql.auto.conf： vi /var/lib/postgresql/data/postgresql.auto.conf # 添加以下内容： # 旧实例的wal文件需要事先copy到新实例的 /path_to_archive_directory 目录下 primary_conninfo = '' restore_command = 'cp /path_to_archive_directory/%f %p' recovery_target_time = 'YYYY-MM-DD HH:MI:SS' recovery_target_action = 'pause' 说明：\nrestore_command：用于指定如何恢复 WAL 日志。这里的命令是从归档目录 /path_to_archive_directory/ 中拷贝 WAL 日志到 PostgreSQL 数据目录。\nrecovery_target_time：你希望恢复到的时间点精确到秒（UTC 时间）。\nrecovery_target_action：在完成恢复到目标时间后，pause 表示暂停恢复并进入只读模式\n然后开始恢复：\n# 确保 PostgreSQL 数据目录已准备好，删除目录下旧的 postmaster.pid 等文件： rm /var/lib/postgresql/data/postmaster.pid # 启动 PostgreSQL 服务： systemctl start postgresql # 确认恢复进度 # 观察 PostgreSQL 的日志文件（通常位于 /var/log/postgresql/postgresql-X.log，具体路径根据配置文件可能不同）： tail -f /var/log/postgresql/postgresql-X.log # 如果一切正常，你应该能看到以下内容： consistent recovery point reached at 0/16B6F98 recovery stopping at specified recovery target # 退出恢复模式 mv /var/lib/postgresql/data/standby.signal /var/lib/postgresql/data/standby.signal.bak # 退出恢复模式后，确认是只读模式 SELECT pg_is_in_recovery(); # 如果要进入可读可写的模式 select pg_wal_replay_resume(); 四、dump出新实例指定表或库的数据，然后灌回旧实例的新表或新库 这个过程就不多说了。\n多说一句，可以恢复到某个时间点，事务或者wal序列号\n# 恢复到不同时间点 # 假设第一次恢复后，你希望尝试恢复到另一个时间点，修改 postgresql.auto.conf 文件中的 recovery_target_time 然后同样重复以上步骤即可重新恢复。 recovery_target_time = 'YYYY-MM-DD HH:MI:SS' # 以某个事务为目标： recovery_target_xid = '12345' #以某个 WAL 日志序列号为目标： recovery_target_lsn = '0/16B6F98' 总结一下：无论postgres还是mysql，一键恢复的功能，最好都是新起一个实例，然后把基础备份恢复上去，然后用binlog或wal归档日志进行恢复，然后导出数据，最后灌入到旧实例中，这样最稳妥，旧实例也不会停服务！！！\n","wordCount":"344","inLanguage":"zh","datePublished":"2025-07-28T11:01:11+08:00","dateModified":"2025-07-28T11:01:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20250728-postgres_wal_pitr/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">Postgres的wal和PITR时间点恢复
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2025-07-28 11:01:11 +0800 CST'>2025年7月28日</span></div></header><div class=post-content><p>研究了Postgres的库数据恢复和转移，再来研究一下PITR按时间点恢复</p><p>类比到MySQL，因为我们是运维，不是专业的DBA，所以恢复到正确数据即可</p><p>那跟阿里云以及自建的MySQL恢复一样，首先都要有一个每天的基础备份，然后类比MySQL的Binlog，Postgres这里就相当于wal。</p><p>这么类比就对了，那么恢复过程的思路是一样的：</p><ul><li>首先建立一个新的实例</li><li>第二步把每天的基础物理全备给恢复上去</li><li>第三步把之后的wal日志传到新实例，恢复到指定时间点</li><li>第四步最后把表或库Dump下来，灌入到旧实例的新表或新库</li></ul><p>那我们一步一步来解释：</p><h5 id=一每天建立一个基础备份这样在base基础上只需恢复当天的wal速度够快>一、每天建立一个基础备份，这样在Base基础上，只需恢复当天的wal，速度够快<a hidden class=anchor aria-hidden=true href=#一每天建立一个基础备份这样在base基础上只需恢复当天的wal速度够快>#</a></h5><p>建立每天的Base基础物理备份</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>pg_basebackup -Ft -Pv -Xf -z -Z5 -U postgres -h localhost -p <span class=m>5432</span> -D /pg_backup
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>解释一下：
+</span></span><span class=line><span class=cl>    -Ft：
+</span></span><span class=line><span class=cl>        指定备份格式为 tar。
+</span></span><span class=line><span class=cl>        如果使用 tar 格式，备份会输出 tar 文件，并且不需要直接访问 PostgreSQL 数据目录。
+</span></span><span class=line><span class=cl>    -Pv：
+</span></span><span class=line><span class=cl>        -P：显示备份进度。
+</span></span><span class=line><span class=cl>        -v：启用详情模式（verbose），显示更多日志。
+</span></span><span class=line><span class=cl>    -Xf：
+</span></span><span class=line><span class=cl>        -X：控制 WAL 日志的处理方式，f 表示在备份中包含 WAL 文件（Write Ahead Logs），确保备份可以用于恢复到完整的一致状态。
+</span></span><span class=line><span class=cl>    -z：
+</span></span><span class=line><span class=cl>        启用压缩功能。
+</span></span><span class=line><span class=cl>    -Z5：
+</span></span><span class=line><span class=cl>        设置压缩级别为 5（压缩级别从 <span class=m>0</span> 到 9，9 为最高压缩）。
+</span></span><span class=line><span class=cl>    -U postgres：
+</span></span><span class=line><span class=cl>        使用 postgres 用户来连接数据库。
+</span></span><span class=line><span class=cl>    -h localhost：
+</span></span><span class=line><span class=cl>        指定数据库主机为当前机器（localhost）。
+</span></span><span class=line><span class=cl>    -p 5432：
+</span></span><span class=line><span class=cl>        指定 PostgreSQL 监听端口为 5432（默认端口）。
+</span></span><span class=line><span class=cl>    -D /pg_backup：
+</span></span><span class=line><span class=cl>        将备份文件保存到指定路径 /pg_backup 中。
+</span></span></code></pre></div><p>这样我们就在 /pg_backup 中有了备份文件，包括一个backup_manifest的文件清单，以及一个压缩包</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>root@debian:/pg_backup# ls -lha
+</span></span><span class=line><span class=cl>total 1.8G
+</span></span><span class=line><span class=cl>drwxr-xr-x  <span class=m>3</span> root root 4.0K Jul <span class=m>28</span> 16:31 .
+</span></span><span class=line><span class=cl>drwxr-xr-x <span class=m>20</span> root root 4.0K Jul <span class=m>28</span> 16:18 ..
+</span></span><span class=line><span class=cl>-rw-------  <span class=m>1</span> root root 760K Jul <span class=m>28</span> 16:21 backup_manifest
+</span></span><span class=line><span class=cl>-rw-------  <span class=m>1</span> root root 1.8G Jul <span class=m>28</span> 16:21 base.tar.gz
+</span></span></code></pre></div><p>那这个base.tar.gz里面又都有什么呢？</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>/
+</span></span><span class=line><span class=cl>├── base/                   <span class=c1># 每个数据库的文件</span>
+</span></span><span class=line><span class=cl>├── global/                 <span class=c1># 全局对象（角色、权限）</span>
+</span></span><span class=line><span class=cl>├── pg_wal/                 <span class=c1># WAL 日志</span>
+</span></span><span class=line><span class=cl>├── pg_xact/                <span class=c1># 事务状态</span>
+</span></span><span class=line><span class=cl>├── pg_clog/                <span class=c1># 事务提交信息</span>
+</span></span><span class=line><span class=cl>├── postgresql.auto.conf    <span class=c1># 自动配置文件</span>
+</span></span><span class=line><span class=cl>├── postgresql.conf         <span class=c1># 主配置文件</span>
+</span></span><span class=line><span class=cl>├── pg_hba.conf             <span class=c1># 访问控制文件</span>
+</span></span><span class=line><span class=cl>├── pg_ident.conf           <span class=c1># 用户映射文件</span>
+</span></span><span class=line><span class=cl>└── ...                     <span class=c1># 其他系统文件</span>
+</span></span></code></pre></div><p>我们先 ps axjf 看一把</p><p><img alt=image-20250728172232116 loading=lazy src=/posts/20250728-postgres_wal_pitr/image-20250728172232116.png></p><p>可以看到，-D的数据目录是在/var/lib/postgresql/13/main下，那base.tar.gz里面的内容跟/var/lib/postgresql/13/main下是一样的。</p><h5 id=二旧实例需要建立wal的归档模式>二、旧实例需要建立wal的归档模式<a hidden class=anchor aria-hidden=true href=#二旧实例需要建立wal的归档模式>#</a></h5><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># ps axjf的结果中，看到配置文件是 /etc/postgresql/13/main/postgresql.conf</span>
+</span></span><span class=line><span class=cl><span class=c1># 那就修改这个配置文件</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 修改以下2行</span>
+</span></span><span class=line><span class=cl><span class=c1># 启用归档</span>
+</span></span><span class=line><span class=cl><span class=nv>archive_mode</span> <span class=o>=</span> on
+</span></span><span class=line><span class=cl><span class=c1># WAL 日志归档路径</span>
+</span></span><span class=line><span class=cl><span class=nv>archive_command</span> <span class=o>=</span> <span class=s1>&#39;cp %p /path_to_archive_directory/%f&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 然后重启服务生效</span>
+</span></span><span class=line><span class=cl>systemctl restart postgresql
+</span></span></code></pre></div><p>以上做完后我们如果我们做了Base备份，然后wal的日志还在继续跑，那我们就需要手动触发一下wal写盘</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=k>select</span> pg_switch_wal<span class=o>()</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl> pg_switch_wal
+</span></span><span class=line><span class=cl>---------------
+</span></span><span class=line><span class=cl> 0/13DAC308
+</span></span></code></pre></div><p>会得到一个序列号：<code>0/13DAC308</code></p><p>然后新的wal归档日志就放在：/path_to_archive_directory/目录下了，那原始的wal数据文件还在 /var/lib/postgresql/13/main/pg_wal 下</p><h5 id=三新实例恢复base库和时间点>三、新实例恢复Base库和时间点：<a hidden class=anchor aria-hidden=true href=#三新实例恢复base库和时间点>#</a></h5><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 找到新实例的数据目录，一把删空，然后把base.tar.gz解压进去</span>
+</span></span><span class=line><span class=cl><span class=c1># 建恢复目录并清理旧数据</span>
+</span></span><span class=line><span class=cl><span class=c1># 将解压后的备份移到数据库实例的实际数据目录（通常位于 /var/lib/postgresql/data）。清理旧目录后执行：</span>
+</span></span><span class=line><span class=cl>mv /pg_restore/ /var/lib/postgresql/data
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 设置恢复配置文件</span>
+</span></span><span class=line><span class=cl><span class=c1># 在数据目录中创建一个名为 recovery.signal 的空文件，同时在数据目录中新增恢复目标的配置文件 postgresql.auto.conf。</span>
+</span></span><span class=line><span class=cl>touch recovery.signal
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#编辑或创建文件 postgresql.auto.conf：</span>
+</span></span><span class=line><span class=cl>vi /var/lib/postgresql/data/postgresql.auto.conf
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 添加以下内容：</span>
+</span></span><span class=line><span class=cl><span class=c1># 旧实例的wal文件需要事先copy到新实例的 /path_to_archive_directory 目录下</span>
+</span></span><span class=line><span class=cl><span class=nv>primary_conninfo</span> <span class=o>=</span> <span class=s1>&#39;&#39;</span>
+</span></span><span class=line><span class=cl><span class=nv>restore_command</span> <span class=o>=</span> <span class=s1>&#39;cp /path_to_archive_directory/%f %p&#39;</span>
+</span></span><span class=line><span class=cl><span class=nv>recovery_target_time</span> <span class=o>=</span> <span class=s1>&#39;YYYY-MM-DD HH:MI:SS&#39;</span>
+</span></span><span class=line><span class=cl><span class=nv>recovery_target_action</span> <span class=o>=</span> <span class=s1>&#39;pause&#39;</span>
+</span></span></code></pre></div><p>说明：</p><p><strong><code>restore_command</code></strong>：用于指定如何恢复 WAL 日志。这里的命令是从归档目录 <code>/path_to_archive_directory/</code> 中拷贝 WAL 日志到 PostgreSQL 数据目录。</p><p><strong><code>recovery_target_time</code></strong>：你希望恢复到的时间点精确到秒（UTC 时间）。</p><p><strong><code>recovery_target_action</code></strong>：在完成恢复到目标时间后，<code>pause</code> 表示暂停恢复并进入只读模式</p><p>然后开始恢复：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 确保 PostgreSQL 数据目录已准备好，删除目录下旧的 postmaster.pid 等文件：</span>
+</span></span><span class=line><span class=cl>rm /var/lib/postgresql/data/postmaster.pid
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 启动 PostgreSQL 服务：</span>
+</span></span><span class=line><span class=cl>systemctl start postgresql
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 确认恢复进度</span>
+</span></span><span class=line><span class=cl><span class=c1># 观察 PostgreSQL 的日志文件（通常位于 /var/log/postgresql/postgresql-X.log，具体路径根据配置文件可能不同）：</span>
+</span></span><span class=line><span class=cl>tail -f /var/log/postgresql/postgresql-X.log
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 如果一切正常，你应该能看到以下内容：</span>
+</span></span><span class=line><span class=cl>consistent recovery point reached at 0/16B6F98
+</span></span><span class=line><span class=cl>recovery stopping at specified recovery target
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 退出恢复模式</span>
+</span></span><span class=line><span class=cl>mv /var/lib/postgresql/data/standby.signal /var/lib/postgresql/data/standby.signal.bak
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 退出恢复模式后，确认是只读模式</span>
+</span></span><span class=line><span class=cl>SELECT pg_is_in_recovery<span class=o>()</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 如果要进入可读可写的模式</span>
+</span></span><span class=line><span class=cl><span class=k>select</span> pg_wal_replay_resume<span class=o>()</span><span class=p>;</span>
+</span></span></code></pre></div><h5 id=四dump出新实例指定表或库的数据然后灌回旧实例的新表或新库>四、dump出新实例指定表或库的数据，然后灌回旧实例的新表或新库<a hidden class=anchor aria-hidden=true href=#四dump出新实例指定表或库的数据然后灌回旧实例的新表或新库>#</a></h5><p>这个过程就不多说了。</p><p>多说一句，可以恢复到某个时间点，事务或者wal序列号</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 恢复到不同时间点</span>
+</span></span><span class=line><span class=cl><span class=c1># 假设第一次恢复后，你希望尝试恢复到另一个时间点，修改 postgresql.auto.conf 文件中的 recovery_target_time 然后同样重复以上步骤即可重新恢复。</span>
+</span></span><span class=line><span class=cl><span class=nv>recovery_target_time</span> <span class=o>=</span> <span class=s1>&#39;YYYY-MM-DD HH:MI:SS&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 以某个事务为目标：</span>
+</span></span><span class=line><span class=cl><span class=nv>recovery_target_xid</span> <span class=o>=</span> <span class=s1>&#39;12345&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#以某个 WAL 日志序列号为目标：</span>
+</span></span><span class=line><span class=cl><span class=nv>recovery_target_lsn</span> <span class=o>=</span> <span class=s1>&#39;0/16B6F98&#39;</span>
+</span></span></code></pre></div><p>总结一下：无论postgres还是mysql，一键恢复的功能，最好都是新起一个实例，然后把基础备份恢复上去，然后用binlog或wal归档日志进行恢复，然后导出数据，最后灌入到旧实例中，这样最稳妥，旧实例也不会停服务！！！</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

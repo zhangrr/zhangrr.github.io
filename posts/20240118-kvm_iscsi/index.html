@@ -1,0 +1,148 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>kvm使用iscsi作为存储池安装win | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="最近都在研究ipxe和iscsi，那么如何让kvm使用存储在iscsi上面的文件卷呢？
+假设我们已经按之前的文章架好了iscsi：
+造个10G文件:
+dd if=/dev/zero of=/export/iscsi/disk03.img count=0 bs=1 seek=10G  
+服务端增加iscsi target
+vi /etc/tgt/targets.conf
+
+<target iqn.2016-07.com.renhe:renhe-16-8-6.disk03>  
+    backing-store /export/iscsi/disk03.img
+    write-cache off
+</target>
+
+tgt-admin --execute  
+isci准备好了，然后我们去kvm定义池子：myiscsi
+virsh
+
+virsh# pool-define-as myiscsi 172.16.8.6 - iqn.2016-07.com.renhe:renhe-16-8-6.disk03 - /dev/disk/by-path
+
+virsh# pool-start myiscsi  
+Name                 State      Autostart  
+-----------------------------------------
+myiscsi              active     no     
+
+virsh# pool-autostart myiscsi
+
+virsh # pool-list  
+Name                 State      Autostart  
+-----------------------------------------
+myiscsi              active     yes
+
+virsh# vol-list myiscsi  
+Name                 Path  
+-----------------------------------------
+unit:0:0:1           /dev/disk/by-path/ip-172.16.8.6:3260-iscsi-iqn.2016-07.com.renhe:renhe-16-8-6.disk03-lun-1
+ok，记下来这个Name：unit:0:0:1
+然后我们来安装win的kvm吧，直接clone输出到硬盘
+virt-install \  
+--name=iscsi-16-11-9 \
+--vcpu=2 \
+--ram=4096 \
+--cdrom=/export/kvm/iso/Luobo_Ghost_Win7_SP1_x86_2015_0904.iso \
+--boot network,cdrom,hd,menu=on \
+--disk vol=myiscsi/unit:0:0:1 \
+--os-type=windows  \
+--os-variant=win7 \
+--network bridge=br0 \
+--vnc --vnclisten=0.0.0.0 --vncport=5911
+注意上面disk的参数，myiscsi/unit:0:0:1"><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20240118-kvm_iscsi/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20240118-kvm_iscsi/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20240118-kvm_iscsi/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="kvm使用iscsi作为存储池安装win"><meta property="og:description" content="最近都在研究ipxe和iscsi，那么如何让kvm使用存储在iscsi上面的文件卷呢？
+假设我们已经按之前的文章架好了iscsi：
+造个10G文件:
+dd if=/dev/zero of=/export/iscsi/disk03.img count=0 bs=1 seek=10G 服务端增加iscsi target
+vi /etc/tgt/targets.conf <target iqn.2016-07.com.renhe:renhe-16-8-6.disk03> backing-store /export/iscsi/disk03.img write-cache off </target> tgt-admin --execute isci准备好了，然后我们去kvm定义池子：myiscsi
+virsh virsh# pool-define-as myiscsi 172.16.8.6 - iqn.2016-07.com.renhe:renhe-16-8-6.disk03 - /dev/disk/by-path virsh# pool-start myiscsi Name State Autostart ----------------------------------------- myiscsi active no virsh# pool-autostart myiscsi virsh # pool-list Name State Autostart ----------------------------------------- myiscsi active yes virsh# vol-list myiscsi Name Path ----------------------------------------- unit:0:0:1 /dev/disk/by-path/ip-172.16.8.6:3260-iscsi-iqn.2016-07.com.renhe:renhe-16-8-6.disk03-lun-1 ok，记下来这个Name：unit:0:0:1
+然后我们来安装win的kvm吧，直接clone输出到硬盘
+virt-install \ --name=iscsi-16-11-9 \ --vcpu=2 \ --ram=4096 \ --cdrom=/export/kvm/iso/Luobo_Ghost_Win7_SP1_x86_2015_0904.iso \ --boot network,cdrom,hd,menu=on \ --disk vol=myiscsi/unit:0:0:1 \ --os-type=windows \ --os-variant=win7 \ --network bridge=br0 \ --vnc --vnclisten=0.0.0.0 --vncport=5911 注意上面disk的参数，myiscsi/unit:0:0:1"><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2024-01-18T16:00:11+08:00"><meta property="article:modified_time" content="2024-01-18T16:00:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="kvm使用iscsi作为存储池安装win"><meta name=twitter:description content="最近都在研究ipxe和iscsi，那么如何让kvm使用存储在iscsi上面的文件卷呢？
+假设我们已经按之前的文章架好了iscsi：
+造个10G文件:
+dd if=/dev/zero of=/export/iscsi/disk03.img count=0 bs=1 seek=10G  
+服务端增加iscsi target
+vi /etc/tgt/targets.conf
+
+<target iqn.2016-07.com.renhe:renhe-16-8-6.disk03>  
+    backing-store /export/iscsi/disk03.img
+    write-cache off
+</target>
+
+tgt-admin --execute  
+isci准备好了，然后我们去kvm定义池子：myiscsi
+virsh
+
+virsh# pool-define-as myiscsi 172.16.8.6 - iqn.2016-07.com.renhe:renhe-16-8-6.disk03 - /dev/disk/by-path
+
+virsh# pool-start myiscsi  
+Name                 State      Autostart  
+-----------------------------------------
+myiscsi              active     no     
+
+virsh# pool-autostart myiscsi
+
+virsh # pool-list  
+Name                 State      Autostart  
+-----------------------------------------
+myiscsi              active     yes
+
+virsh# vol-list myiscsi  
+Name                 Path  
+-----------------------------------------
+unit:0:0:1           /dev/disk/by-path/ip-172.16.8.6:3260-iscsi-iqn.2016-07.com.renhe:renhe-16-8-6.disk03-lun-1
+ok，记下来这个Name：unit:0:0:1
+然后我们来安装win的kvm吧，直接clone输出到硬盘
+virt-install \  
+--name=iscsi-16-11-9 \
+--vcpu=2 \
+--ram=4096 \
+--cdrom=/export/kvm/iso/Luobo_Ghost_Win7_SP1_x86_2015_0904.iso \
+--boot network,cdrom,hd,menu=on \
+--disk vol=myiscsi/unit:0:0:1 \
+--os-type=windows  \
+--os-variant=win7 \
+--network bridge=br0 \
+--vnc --vnclisten=0.0.0.0 --vncport=5911
+注意上面disk的参数，myiscsi/unit:0:0:1"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"kvm使用iscsi作为存储池安装win","item":"https://rendoumi.com/posts/20240118-kvm_iscsi/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"kvm使用iscsi作为存储池安装win","name":"kvm使用iscsi作为存储池安装win","description":"最近都在研究ipxe和iscsi，那么如何让kvm使用存储在iscsi上面的文件卷呢？\n假设我们已经按之前的文章架好了iscsi：\n造个10G文件:\ndd if=/dev/zero of=/export/iscsi/disk03.img count=0 bs=1 seek=10G 服务端增加iscsi target\nvi /etc/tgt/targets.conf \u0026lt;target iqn.2016-07.com.renhe:renhe-16-8-6.disk03\u0026gt; backing-store /export/iscsi/disk03.img write-cache off \u0026lt;/target\u0026gt; tgt-admin --execute isci准备好了，然后我们去kvm定义池子：myiscsi\nvirsh virsh# pool-define-as myiscsi 172.16.8.6 - iqn.2016-07.com.renhe:renhe-16-8-6.disk03 - /dev/disk/by-path virsh# pool-start myiscsi Name State Autostart ----------------------------------------- myiscsi active no virsh# pool-autostart myiscsi virsh # pool-list Name State Autostart ----------------------------------------- myiscsi active yes virsh# vol-list myiscsi Name Path ----------------------------------------- unit:0:0:1 /dev/disk/by-path/ip-172.16.8.6:3260-iscsi-iqn.2016-07.com.renhe:renhe-16-8-6.disk03-lun-1 ok，记下来这个Name：unit:0:0:1\n然后我们来安装win的kvm吧，直接clone输出到硬盘\nvirt-install \\ --name=iscsi-16-11-9 \\ --vcpu=2 \\ --ram=4096 \\ --cdrom=/export/kvm/iso/Luobo_Ghost_Win7_SP1_x86_2015_0904.iso \\ --boot network,cdrom,hd,menu=on \\ --disk vol=myiscsi/unit:0:0:1 \\ --os-type=windows \\ --os-variant=win7 \\ --network bridge=br0 \\ --vnc --vnclisten=0.0.0.0 --vncport=5911 注意上面disk的参数，myiscsi/unit:0:0:1\n","keywords":[],"articleBody":"最近都在研究ipxe和iscsi，那么如何让kvm使用存储在iscsi上面的文件卷呢？\n假设我们已经按之前的文章架好了iscsi：\n造个10G文件:\ndd if=/dev/zero of=/export/iscsi/disk03.img count=0 bs=1 seek=10G 服务端增加iscsi target\nvi /etc/tgt/targets.conf backing-store /export/iscsi/disk03.img write-cache off tgt-admin --execute isci准备好了，然后我们去kvm定义池子：myiscsi\nvirsh virsh# pool-define-as myiscsi 172.16.8.6 - iqn.2016-07.com.renhe:renhe-16-8-6.disk03 - /dev/disk/by-path virsh# pool-start myiscsi Name State Autostart ----------------------------------------- myiscsi active no virsh# pool-autostart myiscsi virsh # pool-list Name State Autostart ----------------------------------------- myiscsi active yes virsh# vol-list myiscsi Name Path ----------------------------------------- unit:0:0:1 /dev/disk/by-path/ip-172.16.8.6:3260-iscsi-iqn.2016-07.com.renhe:renhe-16-8-6.disk03-lun-1 ok，记下来这个Name：unit:0:0:1\n然后我们来安装win的kvm吧，直接clone输出到硬盘\nvirt-install \\ --name=iscsi-16-11-9 \\ --vcpu=2 \\ --ram=4096 \\ --cdrom=/export/kvm/iso/Luobo_Ghost_Win7_SP1_x86_2015_0904.iso \\ --boot network,cdrom,hd,menu=on \\ --disk vol=myiscsi/unit:0:0:1 \\ --os-type=windows \\ --os-variant=win7 \\ --network bridge=br0 \\ --vnc --vnclisten=0.0.0.0 --vncport=5911 注意上面disk的参数，myiscsi/unit:0:0:1\n启动后就直接开始安装了，选运行Ghost11:\n然后把win7.gho给clone到10G的盘上：\n重启后请停掉虚机，然后把这个clone好的分区文件disk03.img保存一份，下次就可以直接复制到池子里供新建的虚机用了，哈哈。\n","wordCount":"95","inLanguage":"zh","datePublished":"2024-01-18T16:00:11+08:00","dateModified":"2024-01-18T16:00:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20240118-kvm_iscsi/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">kvm使用iscsi作为存储池安装win
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2024-01-18 16:00:11 +0800 CST'>2024年1月18日</span></div></header><div class=post-content><p>最近都在研究ipxe和iscsi，那么如何让kvm使用存储在iscsi上面的文件卷呢？</p><p>假设我们已经按之前的文章架好了iscsi：</p><p>造个10G文件:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>dd <span class=k>if</span><span class=o>=</span>/dev/zero <span class=nv>of</span><span class=o>=</span>/export/iscsi/disk03.img <span class=nv>count</span><span class=o>=</span><span class=m>0</span> <span class=nv>bs</span><span class=o>=</span><span class=m>1</span> <span class=nv>seek</span><span class=o>=</span>10G  
+</span></span></code></pre></div><p>服务端增加iscsi target</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>vi /etc/tgt/targets.conf
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>&lt;target iqn.2016-07.com.renhe:renhe-16-8-6.disk03&gt;  
+</span></span><span class=line><span class=cl>    backing-store /export/iscsi/disk03.img
+</span></span><span class=line><span class=cl>    write-cache off
+</span></span><span class=line><span class=cl>&lt;/target&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>tgt-admin --execute  
+</span></span></code></pre></div><p>isci准备好了，然后我们去kvm定义池子：<strong>myiscsi</strong></p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>virsh
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>virsh# pool-define-as myiscsi 172.16.8.6 - iqn.2016-07.com.renhe:renhe-16-8-6.disk03 - /dev/disk/by-path
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>virsh# pool-start myiscsi  
+</span></span><span class=line><span class=cl>Name                 State      Autostart  
+</span></span><span class=line><span class=cl>-----------------------------------------
+</span></span><span class=line><span class=cl>myiscsi              active     no     
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>virsh# pool-autostart myiscsi
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>virsh <span class=c1># pool-list  </span>
+</span></span><span class=line><span class=cl>Name                 State      Autostart  
+</span></span><span class=line><span class=cl>-----------------------------------------
+</span></span><span class=line><span class=cl>myiscsi              active     yes
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>virsh# vol-list myiscsi  
+</span></span><span class=line><span class=cl>Name                 Path  
+</span></span><span class=line><span class=cl>-----------------------------------------
+</span></span><span class=line><span class=cl>unit:0:0:1           /dev/disk/by-path/ip-172.16.8.6:3260-iscsi-iqn.2016-07.com.renhe:renhe-16-8-6.disk03-lun-1
+</span></span></code></pre></div><p>ok，记下来这个Name：<strong>unit:0:0:1</strong></p><p>然后我们来安装win的kvm吧，直接clone输出到硬盘</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>virt-install <span class=se>\ </span> 
+</span></span><span class=line><span class=cl>--name<span class=o>=</span>iscsi-16-11-9 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>--vcpu<span class=o>=</span><span class=m>2</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>--ram<span class=o>=</span><span class=m>4096</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>--cdrom<span class=o>=</span>/export/kvm/iso/Luobo_Ghost_Win7_SP1_x86_2015_0904.iso <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>--boot network,cdrom,hd,menu<span class=o>=</span>on <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>--disk <span class=nv>vol</span><span class=o>=</span>myiscsi/unit:0:0:1 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>--os-type<span class=o>=</span>windows  <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>--os-variant<span class=o>=</span>win7 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>--network <span class=nv>bridge</span><span class=o>=</span>br0 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>--vnc --vnclisten<span class=o>=</span>0.0.0.0 --vncport<span class=o>=</span><span class=m>5911</span>
+</span></span></code></pre></div><p>注意上面disk的参数，<strong>myiscsi/unit:0:0:1</strong></p><p>启动后就直接开始安装了，选运行Ghost11:</p><p><img alt=image-20240118165505114 loading=lazy src=/posts/20240118-kvm_iscsi/image-20240118165505114.png></p><p>然后把win7.gho给clone到10G的盘上：</p><p><img alt=image-20240118165524798 loading=lazy src=/posts/20240118-kvm_iscsi/image-20240118165524798.png></p><p>重启后请停掉虚机，然后把这个clone好的分区文件disk03.img保存一份，下次就可以直接复制到池子里供新建的虚机用了，哈哈。</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

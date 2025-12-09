@@ -1,0 +1,260 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>群晖(黑群晖)的备份 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="数据很重要、数据很重要、数据很重要！！！
+重要的话说三遍，话说自己买了个黑群晖，6盘位的，就是为了保存照片和数据&mldr;&mldr;
+其实1盘和2盘的nas都是耍流氓，根本无用，必须是4盘位以上的才勉强可靠。所以才买的这个黑群晖，只买了3个盘做了raid5，侥是如此，真的是莫名坏了一块，好在在保修期内，更换一块后故障解除，期间倒腾2块盘的数据依然是噩梦啊。
+那么数据如此重要，那么怎么做到完全的备份呢？
+数据是3盘raid5，已经有保证了，剩下就是系统也必须有备份可恢复才可以
+群晖本质是linux，文件系统是mdadm+lvm，所以备份也必须从这个方向开始。
+首先是备份启动的usb盘，先fdisk -l 看一下：
+Disk /dev/sda: 2000.3 GB, 2000398934016 bytes  
+255 heads, 63 sectors/track, 243201 cylinders  
+Units = cylinders of 16065 * 512 = 8225280 bytes
+
+   Device Boot      Start         End      Blocks  Id System
+/dev/sda1               1         311     2490240  fd Linux raid autodetect
+Partition 1 does not end on cylinder boundary  
+/dev/sda2             311         572     2097152  fd Linux raid autodetect
+Partition 2 does not end on cylinder boundary  
+/dev/sda3             588      243201  1948793440+ fd Linux raid autodetect
+
+Disk /dev/sdb: 2000.3 GB, 2000398934016 bytes  
+255 heads, 63 sectors/track, 243201 cylinders  
+Units = cylinders of 16065 * 512 = 8225280 bytes
+
+   Device Boot      Start         End      Blocks  Id System
+/dev/sdb1               1         311     2490240  fd Linux raid autodetect
+Partition 1 does not end on cylinder boundary  
+/dev/sdb2             311         572     2097152  fd Linux raid autodetect
+Partition 2 does not end on cylinder boundary  
+/dev/sdb3             588      243201  1948793440+ fd Linux raid autodetect
+
+Disk /dev/sdc: 2000.3 GB, 2000398934016 bytes  
+255 heads, 63 sectors/track, 243201 cylinders  
+Units = cylinders of 16065 * 512 = 8225280 bytes
+
+   Device Boot      Start         End      Blocks  Id System
+/dev/sdc1               1         311     2490240  fd Linux raid autodetect
+Partition 1 does not end on cylinder boundary  
+/dev/sdc2             311         572     2097152  fd Linux raid autodetect
+Partition 2 does not end on cylinder boundary  
+/dev/sdc3             588      243201  1948793440+ fd Linux raid autodetect
+
+Disk /dev/sdu: 4227 MB, 4227858432 bytes  
+4 heads, 32 sectors/track, 64512 cylinders  
+Units = cylinders of 128 * 512 = 65536 bytes
+
+   Device Boot      Start         End      Blocks  Id System
+/dev/sdu1   *           1         256       16352+  e Win95 FAT16 (LBA)
+3块2T的盘，每个盘有3个分区，然后最后是USB盘，盘符sdu，备份它"><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20240119-qunhui_backup/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20240119-qunhui_backup/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20240119-qunhui_backup/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="群晖(黑群晖)的备份"><meta property="og:description" content="数据很重要、数据很重要、数据很重要！！！
+重要的话说三遍，话说自己买了个黑群晖，6盘位的，就是为了保存照片和数据……
+其实1盘和2盘的nas都是耍流氓，根本无用，必须是4盘位以上的才勉强可靠。所以才买的这个黑群晖，只买了3个盘做了raid5，侥是如此，真的是莫名坏了一块，好在在保修期内，更换一块后故障解除，期间倒腾2块盘的数据依然是噩梦啊。
+那么数据如此重要，那么怎么做到完全的备份呢？
+数据是3盘raid5，已经有保证了，剩下就是系统也必须有备份可恢复才可以
+群晖本质是linux，文件系统是mdadm+lvm，所以备份也必须从这个方向开始。
+首先是备份启动的usb盘，先fdisk -l 看一下：
+Disk /dev/sda: 2000.3 GB, 2000398934016 bytes 255 heads, 63 sectors/track, 243201 cylinders Units = cylinders of 16065 * 512 = 8225280 bytes Device Boot Start End Blocks Id System /dev/sda1 1 311 2490240 fd Linux raid autodetect Partition 1 does not end on cylinder boundary /dev/sda2 311 572 2097152 fd Linux raid autodetect Partition 2 does not end on cylinder boundary /dev/sda3 588 243201 1948793440+ fd Linux raid autodetect Disk /dev/sdb: 2000.3 GB, 2000398934016 bytes 255 heads, 63 sectors/track, 243201 cylinders Units = cylinders of 16065 * 512 = 8225280 bytes Device Boot Start End Blocks Id System /dev/sdb1 1 311 2490240 fd Linux raid autodetect Partition 1 does not end on cylinder boundary /dev/sdb2 311 572 2097152 fd Linux raid autodetect Partition 2 does not end on cylinder boundary /dev/sdb3 588 243201 1948793440+ fd Linux raid autodetect Disk /dev/sdc: 2000.3 GB, 2000398934016 bytes 255 heads, 63 sectors/track, 243201 cylinders Units = cylinders of 16065 * 512 = 8225280 bytes Device Boot Start End Blocks Id System /dev/sdc1 1 311 2490240 fd Linux raid autodetect Partition 1 does not end on cylinder boundary /dev/sdc2 311 572 2097152 fd Linux raid autodetect Partition 2 does not end on cylinder boundary /dev/sdc3 588 243201 1948793440+ fd Linux raid autodetect Disk /dev/sdu: 4227 MB, 4227858432 bytes 4 heads, 32 sectors/track, 64512 cylinders Units = cylinders of 128 * 512 = 65536 bytes Device Boot Start End Blocks Id System /dev/sdu1 * 1 256 16352+ e Win95 FAT16 (LBA) 3块2T的盘，每个盘有3个分区，然后最后是USB盘，盘符sdu，备份它"><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2024-01-19T10:11:11+08:00"><meta property="article:modified_time" content="2024-01-19T10:11:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="群晖(黑群晖)的备份"><meta name=twitter:description content="数据很重要、数据很重要、数据很重要！！！
+重要的话说三遍，话说自己买了个黑群晖，6盘位的，就是为了保存照片和数据&mldr;&mldr;
+其实1盘和2盘的nas都是耍流氓，根本无用，必须是4盘位以上的才勉强可靠。所以才买的这个黑群晖，只买了3个盘做了raid5，侥是如此，真的是莫名坏了一块，好在在保修期内，更换一块后故障解除，期间倒腾2块盘的数据依然是噩梦啊。
+那么数据如此重要，那么怎么做到完全的备份呢？
+数据是3盘raid5，已经有保证了，剩下就是系统也必须有备份可恢复才可以
+群晖本质是linux，文件系统是mdadm+lvm，所以备份也必须从这个方向开始。
+首先是备份启动的usb盘，先fdisk -l 看一下：
+Disk /dev/sda: 2000.3 GB, 2000398934016 bytes  
+255 heads, 63 sectors/track, 243201 cylinders  
+Units = cylinders of 16065 * 512 = 8225280 bytes
+
+   Device Boot      Start         End      Blocks  Id System
+/dev/sda1               1         311     2490240  fd Linux raid autodetect
+Partition 1 does not end on cylinder boundary  
+/dev/sda2             311         572     2097152  fd Linux raid autodetect
+Partition 2 does not end on cylinder boundary  
+/dev/sda3             588      243201  1948793440+ fd Linux raid autodetect
+
+Disk /dev/sdb: 2000.3 GB, 2000398934016 bytes  
+255 heads, 63 sectors/track, 243201 cylinders  
+Units = cylinders of 16065 * 512 = 8225280 bytes
+
+   Device Boot      Start         End      Blocks  Id System
+/dev/sdb1               1         311     2490240  fd Linux raid autodetect
+Partition 1 does not end on cylinder boundary  
+/dev/sdb2             311         572     2097152  fd Linux raid autodetect
+Partition 2 does not end on cylinder boundary  
+/dev/sdb3             588      243201  1948793440+ fd Linux raid autodetect
+
+Disk /dev/sdc: 2000.3 GB, 2000398934016 bytes  
+255 heads, 63 sectors/track, 243201 cylinders  
+Units = cylinders of 16065 * 512 = 8225280 bytes
+
+   Device Boot      Start         End      Blocks  Id System
+/dev/sdc1               1         311     2490240  fd Linux raid autodetect
+Partition 1 does not end on cylinder boundary  
+/dev/sdc2             311         572     2097152  fd Linux raid autodetect
+Partition 2 does not end on cylinder boundary  
+/dev/sdc3             588      243201  1948793440+ fd Linux raid autodetect
+
+Disk /dev/sdu: 4227 MB, 4227858432 bytes  
+4 heads, 32 sectors/track, 64512 cylinders  
+Units = cylinders of 128 * 512 = 65536 bytes
+
+   Device Boot      Start         End      Blocks  Id System
+/dev/sdu1   *           1         256       16352+  e Win95 FAT16 (LBA)
+3块2T的盘，每个盘有3个分区，然后最后是USB盘，盘符sdu，备份它"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"群晖(黑群晖)的备份","item":"https://rendoumi.com/posts/20240119-qunhui_backup/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"群晖(黑群晖)的备份","name":"群晖(黑群晖)的备份","description":"数据很重要、数据很重要、数据很重要！！！\n重要的话说三遍，话说自己买了个黑群晖，6盘位的，就是为了保存照片和数据\u0026hellip;\u0026hellip;\n其实1盘和2盘的nas都是耍流氓，根本无用，必须是4盘位以上的才勉强可靠。所以才买的这个黑群晖，只买了3个盘做了raid5，侥是如此，真的是莫名坏了一块，好在在保修期内，更换一块后故障解除，期间倒腾2块盘的数据依然是噩梦啊。\n那么数据如此重要，那么怎么做到完全的备份呢？\n数据是3盘raid5，已经有保证了，剩下就是系统也必须有备份可恢复才可以\n群晖本质是linux，文件系统是mdadm+lvm，所以备份也必须从这个方向开始。\n首先是备份启动的usb盘，先fdisk -l 看一下：\nDisk /dev/sda: 2000.3 GB, 2000398934016 bytes 255 heads, 63 sectors/track, 243201 cylinders Units = cylinders of 16065 * 512 = 8225280 bytes Device Boot Start End Blocks Id System /dev/sda1 1 311 2490240 fd Linux raid autodetect Partition 1 does not end on cylinder boundary /dev/sda2 311 572 2097152 fd Linux raid autodetect Partition 2 does not end on cylinder boundary /dev/sda3 588 243201 1948793440+ fd Linux raid autodetect Disk /dev/sdb: 2000.3 GB, 2000398934016 bytes 255 heads, 63 sectors/track, 243201 cylinders Units = cylinders of 16065 * 512 = 8225280 bytes Device Boot Start End Blocks Id System /dev/sdb1 1 311 2490240 fd Linux raid autodetect Partition 1 does not end on cylinder boundary /dev/sdb2 311 572 2097152 fd Linux raid autodetect Partition 2 does not end on cylinder boundary /dev/sdb3 588 243201 1948793440+ fd Linux raid autodetect Disk /dev/sdc: 2000.3 GB, 2000398934016 bytes 255 heads, 63 sectors/track, 243201 cylinders Units = cylinders of 16065 * 512 = 8225280 bytes Device Boot Start End Blocks Id System /dev/sdc1 1 311 2490240 fd Linux raid autodetect Partition 1 does not end on cylinder boundary /dev/sdc2 311 572 2097152 fd Linux raid autodetect Partition 2 does not end on cylinder boundary /dev/sdc3 588 243201 1948793440+ fd Linux raid autodetect Disk /dev/sdu: 4227 MB, 4227858432 bytes 4 heads, 32 sectors/track, 64512 cylinders Units = cylinders of 128 * 512 = 65536 bytes Device Boot Start End Blocks Id System /dev/sdu1 * 1 256 16352+ e Win95 FAT16 (LBA) 3块2T的盘，每个盘有3个分区，然后最后是USB盘，盘符sdu，备份它\n","keywords":[],"articleBody":"数据很重要、数据很重要、数据很重要！！！\n重要的话说三遍，话说自己买了个黑群晖，6盘位的，就是为了保存照片和数据……\n其实1盘和2盘的nas都是耍流氓，根本无用，必须是4盘位以上的才勉强可靠。所以才买的这个黑群晖，只买了3个盘做了raid5，侥是如此，真的是莫名坏了一块，好在在保修期内，更换一块后故障解除，期间倒腾2块盘的数据依然是噩梦啊。\n那么数据如此重要，那么怎么做到完全的备份呢？\n数据是3盘raid5，已经有保证了，剩下就是系统也必须有备份可恢复才可以\n群晖本质是linux，文件系统是mdadm+lvm，所以备份也必须从这个方向开始。\n首先是备份启动的usb盘，先fdisk -l 看一下：\nDisk /dev/sda: 2000.3 GB, 2000398934016 bytes 255 heads, 63 sectors/track, 243201 cylinders Units = cylinders of 16065 * 512 = 8225280 bytes Device Boot Start End Blocks Id System /dev/sda1 1 311 2490240 fd Linux raid autodetect Partition 1 does not end on cylinder boundary /dev/sda2 311 572 2097152 fd Linux raid autodetect Partition 2 does not end on cylinder boundary /dev/sda3 588 243201 1948793440+ fd Linux raid autodetect Disk /dev/sdb: 2000.3 GB, 2000398934016 bytes 255 heads, 63 sectors/track, 243201 cylinders Units = cylinders of 16065 * 512 = 8225280 bytes Device Boot Start End Blocks Id System /dev/sdb1 1 311 2490240 fd Linux raid autodetect Partition 1 does not end on cylinder boundary /dev/sdb2 311 572 2097152 fd Linux raid autodetect Partition 2 does not end on cylinder boundary /dev/sdb3 588 243201 1948793440+ fd Linux raid autodetect Disk /dev/sdc: 2000.3 GB, 2000398934016 bytes 255 heads, 63 sectors/track, 243201 cylinders Units = cylinders of 16065 * 512 = 8225280 bytes Device Boot Start End Blocks Id System /dev/sdc1 1 311 2490240 fd Linux raid autodetect Partition 1 does not end on cylinder boundary /dev/sdc2 311 572 2097152 fd Linux raid autodetect Partition 2 does not end on cylinder boundary /dev/sdc3 588 243201 1948793440+ fd Linux raid autodetect Disk /dev/sdu: 4227 MB, 4227858432 bytes 4 heads, 32 sectors/track, 64512 cylinders Units = cylinders of 128 * 512 = 65536 bytes Device Boot Start End Blocks Id System /dev/sdu1 * 1 256 16352+ e Win95 FAT16 (LBA) 3块2T的盘，每个盘有3个分区，然后最后是USB盘，盘符sdu，备份它\ndd if=/dev/sdu |gzip -c \u003e /root/usb.img USB盘备好了，下面得备份raid了，先查看raid信息：\ncat /proc/mdstat Personalities : [linear] [raid0] [raid1] [raid10] [raid6] [raid5] [raid4] md2 : active raid5 sda3[0] sdc3[2] sdb3[1] 3897584512 blocks super 1.2 level 5, 64k chunk, algorithm 2 [3/3] [UUU] md1 : active raid1 sda2[0] sdb2[1] sdc2[2] 2097088 blocks [12/3] [UUU___] md0 : active raid1 sda1[0] sdb1[1] sdc1[2] 2490176 blocks [12/3] [UUU___] 看来有三个raid组，md0和md1是raid1，md2是raid5\nmd0的组员是sda1、sdb1、sdc1\nmd1的组员是sda2、sdb2、sdc2\nmd2的组员是sda3、sdb3、sdc3\n三个盘的分区应该是一样的，我们看一个即可：\nfdisk -l /dev/sda Disk /dev/sda: 2000.3 GB, 2000398934016 bytes 255 heads, 63 sectors/track, 243201 cylinders Units = cylinders of 16065 * 512 = 8225280 bytes Device Boot Start End Blocks Id System /dev/sda1 1 311 2490240 fd Linux raid autodetect Partition 1 does not end on cylinder boundary /dev/sda2 311 572 2097152 fd Linux raid autodetect Partition 2 does not end on cylinder boundary /dev/sda3 588 243201 1948793440+ fd Linux raid autodetect 我们可以看到是2T的盘，三个分区的起始柱头信息都很清晰，记录下来。\n所以，如果坏了，看看分区，分区没坏直接进行下一步，分区坏了的话，我们先fdisk分好区，然后开始修复：\n查看各个md的uuid：\nmdadm --examine --scan /dev/sda1 /dev/sdb1 /dev/sdc1 ARRAY /dev/md0 UUID=35d393bd:1f4dde6b:3017a5a8:c86610be mdadm --examine --scan /dev/sda2 /dev/sdb2 /dev/sdc2 ARRAY /dev/md1 UUID=8f02f0d4:e249900a:3017a5a8:c86610be mdadm --examine --scan /dev/sda3 /dev/sdb3 /dev/sdc3 ARRAY /dev/md/2 metadata=1.2 UUID=d1411045:24723563:3a19cef5:07732afa name=DiskStation:2 修复的时候，根据上面信息，编辑生成/etc/mdadm.conf，注意顺序是倒的， md0-\u003emd1-\u003emd2，devices中如果一块盘坏了，改成missing……\nDEVICE partitions ARRAY /dev/md0 level=raid1 num-devices=2 ↪UUID=b3cd99e7:d02be486:b0ea429a:e18ccf65 ↪devices=/dev/sda1,missing ARRAY /dev/md1 level=raid1 num-devices=2 ↪UUID=75fa22aa:9a11bcad:b42ed14a:b5f8da3c ↪devices=/dev/sda2,missing ARRAY /dev/md2 level=raid1 num-devices=2 ↪UUID=532502de:90e44fb0:242f485f:f02a2565 ↪devices=/dev/sda3,missing 然后刷新raid并查看raid是否正常\nmdadm -A -s cat /proc/mdstat 如果要全面毁了盘阵，重建md，方法如下：\nmdadm --create --verbose /dev/md0 --level=1 --raid-devices=3 /dev/sda1 /dev/sdb1 /dev/sdc1 mdadm --create --verbose /dev/md1 --level=1 --raid-devices=3 /dev/sda2 /dev/sdb2 /dev/sdc2 mdadm --create --verbose /dev/md0 --level=5 --raid-devices=3 /dev/sda3 /dev/sdb3 /dev/sdc3 上面已经做好了RAID部分MD的备份。LVM是基于MD之上的，下面我们来备份LVM。\n首先查看卷信息：\nDiskStation\u003e pvdisplay --- Physical volume --- PV Name /dev/md2 VG Name vg1 PV Size 3.63 TB / not usable 2.88 MB Allocatable yes (but full) PE Size (KByte) 4096 Total PE 951558 Free PE 0 Allocated PE 951558 PV UUID 5li2xk-tZdQ-c63W-qpM7-jo9F-5xGg-xFP1Wr DiskStation\u003e vgdisplay --- Volume group --- VG Name vg1 System ID Format lvm2 Metadata Areas 1 Metadata Sequence No 3 VG Access read/write VG Status resizable MAX LV 0 Cur LV 2 Open LV 1 Max PV 0 Cur PV 1 Act PV 1 VG Size 3.63 TB PE Size 4.00 MB Total PE 951558 Alloc PE / Size 951558 / 3.63 TB Free PE / Size 0 / 0 VG UUID UUCftW-HIFK-vmL0-0MTG-XzOT-BCTI-okhVf3 DiskStation\u003e lvdisplay --- Logical volume --- LV Name /dev/vg1/syno_vg_reserved_area VG Name vg1 LV UUID BmrrfE-vjMY-rJO8-C7OP-2los-KfeO-1hBrWb LV Write Access read/write LV Status available # open 0 LV Size 12.00 MB Current LE 3 Segments 1 Allocation inherit Read ahead sectors auto - currently set to 384 Block device 253:0 --- Logical volume --- LV Name /dev/vg1/volume_1 VG Name vg1 LV UUID 80vCET-1yH4-KMXS-E0N7-3tiP-m24I-Gzw7ij LV Write Access read/write LV Status available # open 1 LV Size 3.63 TB Current LE 951555 Segments 1 Allocation inherit Read ahead sectors auto - currently set to 4096 Block device 253:1 ok, 备份\nvgcfgbackup 备份文件会放到/etc/lvm/backup/vg1，把这个文件拷走.\n如果要恢复：\nvgcfgrestore -f vg1 vg1 pvscan vgscan lvscan 把u盘文件、fdisk文件、lvm的文件拷出来放到dropbox，一切就妥当了。\n","wordCount":"702","inLanguage":"zh","datePublished":"2024-01-19T10:11:11+08:00","dateModified":"2024-01-19T10:11:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20240119-qunhui_backup/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">群晖(黑群晖)的备份
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2024-01-19 10:11:11 +0800 CST'>2024年1月19日</span></div></header><div class=post-content><p>数据很重要、数据很重要、数据很重要！！！</p><p>重要的话说三遍，话说自己买了个黑群晖，6盘位的，就是为了保存照片和数据&mldr;&mldr;</p><p>其实1盘和2盘的nas都是耍流氓，根本无用，必须是4盘位以上的才勉强可靠。所以才买的这个黑群晖，只买了3个盘做了raid5，侥是如此，真的是莫名坏了一块，好在在保修期内，更换一块后故障解除，期间倒腾2块盘的数据依然是噩梦啊。</p><p>那么数据如此重要，那么怎么做到完全的备份呢？</p><p>数据是3盘raid5，已经有保证了，剩下就是系统也必须有备份可恢复才可以</p><p>群晖本质是linux，文件系统是mdadm+lvm，所以备份也必须从这个方向开始。</p><p>首先是备份启动的usb盘，先fdisk -l 看一下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>Disk /dev/sda: 2000.3 GB, <span class=m>2000398934016</span> bytes  
+</span></span><span class=line><span class=cl><span class=m>255</span> heads, <span class=m>63</span> sectors/track, <span class=m>243201</span> cylinders  
+</span></span><span class=line><span class=cl><span class=nv>Units</span> <span class=o>=</span> cylinders of <span class=m>16065</span> * <span class=nv>512</span> <span class=o>=</span> <span class=m>8225280</span> bytes
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>   Device Boot      Start         End      Blocks  Id System
+</span></span><span class=line><span class=cl>/dev/sda1               <span class=m>1</span>         <span class=m>311</span>     <span class=m>2490240</span>  fd Linux raid autodetect
+</span></span><span class=line><span class=cl>Partition <span class=m>1</span> does not end on cylinder boundary  
+</span></span><span class=line><span class=cl>/dev/sda2             <span class=m>311</span>         <span class=m>572</span>     <span class=m>2097152</span>  fd Linux raid autodetect
+</span></span><span class=line><span class=cl>Partition <span class=m>2</span> does not end on cylinder boundary  
+</span></span><span class=line><span class=cl>/dev/sda3             <span class=m>588</span>      <span class=m>243201</span>  1948793440+ fd Linux raid autodetect
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Disk /dev/sdb: 2000.3 GB, <span class=m>2000398934016</span> bytes  
+</span></span><span class=line><span class=cl><span class=m>255</span> heads, <span class=m>63</span> sectors/track, <span class=m>243201</span> cylinders  
+</span></span><span class=line><span class=cl><span class=nv>Units</span> <span class=o>=</span> cylinders of <span class=m>16065</span> * <span class=nv>512</span> <span class=o>=</span> <span class=m>8225280</span> bytes
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>   Device Boot      Start         End      Blocks  Id System
+</span></span><span class=line><span class=cl>/dev/sdb1               <span class=m>1</span>         <span class=m>311</span>     <span class=m>2490240</span>  fd Linux raid autodetect
+</span></span><span class=line><span class=cl>Partition <span class=m>1</span> does not end on cylinder boundary  
+</span></span><span class=line><span class=cl>/dev/sdb2             <span class=m>311</span>         <span class=m>572</span>     <span class=m>2097152</span>  fd Linux raid autodetect
+</span></span><span class=line><span class=cl>Partition <span class=m>2</span> does not end on cylinder boundary  
+</span></span><span class=line><span class=cl>/dev/sdb3             <span class=m>588</span>      <span class=m>243201</span>  1948793440+ fd Linux raid autodetect
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Disk /dev/sdc: 2000.3 GB, <span class=m>2000398934016</span> bytes  
+</span></span><span class=line><span class=cl><span class=m>255</span> heads, <span class=m>63</span> sectors/track, <span class=m>243201</span> cylinders  
+</span></span><span class=line><span class=cl><span class=nv>Units</span> <span class=o>=</span> cylinders of <span class=m>16065</span> * <span class=nv>512</span> <span class=o>=</span> <span class=m>8225280</span> bytes
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>   Device Boot      Start         End      Blocks  Id System
+</span></span><span class=line><span class=cl>/dev/sdc1               <span class=m>1</span>         <span class=m>311</span>     <span class=m>2490240</span>  fd Linux raid autodetect
+</span></span><span class=line><span class=cl>Partition <span class=m>1</span> does not end on cylinder boundary  
+</span></span><span class=line><span class=cl>/dev/sdc2             <span class=m>311</span>         <span class=m>572</span>     <span class=m>2097152</span>  fd Linux raid autodetect
+</span></span><span class=line><span class=cl>Partition <span class=m>2</span> does not end on cylinder boundary  
+</span></span><span class=line><span class=cl>/dev/sdc3             <span class=m>588</span>      <span class=m>243201</span>  1948793440+ fd Linux raid autodetect
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Disk /dev/sdu: <span class=m>4227</span> MB, <span class=m>4227858432</span> bytes  
+</span></span><span class=line><span class=cl><span class=m>4</span> heads, <span class=m>32</span> sectors/track, <span class=m>64512</span> cylinders  
+</span></span><span class=line><span class=cl><span class=nv>Units</span> <span class=o>=</span> cylinders of <span class=m>128</span> * <span class=nv>512</span> <span class=o>=</span> <span class=m>65536</span> bytes
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>   Device Boot      Start         End      Blocks  Id System
+</span></span><span class=line><span class=cl>/dev/sdu1   *           <span class=m>1</span>         <span class=m>256</span>       16352+  e Win95 FAT16 <span class=o>(</span>LBA<span class=o>)</span>
+</span></span></code></pre></div><p>3块2T的盘，每个盘有3个分区，然后最后是USB盘，盘符sdu，备份它</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>dd <span class=k>if</span><span class=o>=</span>/dev/sdu <span class=p>|</span>gzip -c &gt; /root/usb.img  
+</span></span></code></pre></div><p>USB盘备好了，下面得备份raid了，先查看raid信息：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat /proc/mdstat  
+</span></span><span class=line><span class=cl>Personalities : <span class=o>[</span>linear<span class=o>]</span> <span class=o>[</span>raid0<span class=o>]</span> <span class=o>[</span>raid1<span class=o>]</span> <span class=o>[</span>raid10<span class=o>]</span> <span class=o>[</span>raid6<span class=o>]</span> <span class=o>[</span>raid5<span class=o>]</span> <span class=o>[</span>raid4<span class=o>]</span>  
+</span></span><span class=line><span class=cl>md2 : active raid5 sda3<span class=o>[</span>0<span class=o>]</span> sdc3<span class=o>[</span>2<span class=o>]</span> sdb3<span class=o>[</span>1<span class=o>]</span>  
+</span></span><span class=line><span class=cl>      <span class=m>3897584512</span> blocks super 1.2 level 5, 64k chunk, algorithm <span class=m>2</span> <span class=o>[</span>3/3<span class=o>]</span> <span class=o>[</span>UUU<span class=o>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>md1 : active raid1 sda2<span class=o>[</span>0<span class=o>]</span> sdb2<span class=o>[</span>1<span class=o>]</span> sdc2<span class=o>[</span>2<span class=o>]</span>  
+</span></span><span class=line><span class=cl>      <span class=m>2097088</span> blocks <span class=o>[</span>12/3<span class=o>]</span> <span class=o>[</span>UUU___<span class=o>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>md0 : active raid1 sda1<span class=o>[</span>0<span class=o>]</span> sdb1<span class=o>[</span>1<span class=o>]</span> sdc1<span class=o>[</span>2<span class=o>]</span>  
+</span></span><span class=line><span class=cl>      <span class=m>2490176</span> blocks <span class=o>[</span>12/3<span class=o>]</span> <span class=o>[</span>UUU___<span class=o>]</span>
+</span></span></code></pre></div><p>看来有三个raid组，md0和md1是raid1，md2是raid5</p><p>md0的组员是sda1、sdb1、sdc1</p><p>md1的组员是sda2、sdb2、sdc2</p><p>md2的组员是sda3、sdb3、sdc3</p><p>三个盘的分区应该是一样的，我们看一个即可：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>fdisk -l /dev/sda
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Disk /dev/sda: 2000.3 GB, <span class=m>2000398934016</span> bytes  
+</span></span><span class=line><span class=cl><span class=m>255</span> heads, <span class=m>63</span> sectors/track, <span class=m>243201</span> cylinders  
+</span></span><span class=line><span class=cl><span class=nv>Units</span> <span class=o>=</span> cylinders of <span class=m>16065</span> * <span class=nv>512</span> <span class=o>=</span> <span class=m>8225280</span> bytes
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>   Device Boot      Start         End      Blocks  Id System
+</span></span><span class=line><span class=cl>/dev/sda1               <span class=m>1</span>         <span class=m>311</span>     <span class=m>2490240</span>  fd Linux raid autodetect
+</span></span><span class=line><span class=cl>Partition <span class=m>1</span> does not end on cylinder boundary  
+</span></span><span class=line><span class=cl>/dev/sda2             <span class=m>311</span>         <span class=m>572</span>     <span class=m>2097152</span>  fd Linux raid autodetect
+</span></span><span class=line><span class=cl>Partition <span class=m>2</span> does not end on cylinder boundary  
+</span></span><span class=line><span class=cl>/dev/sda3             <span class=m>588</span>      <span class=m>243201</span>  1948793440+ fd Linux raid autodetect
+</span></span></code></pre></div><p>我们可以看到是2T的盘，三个分区的起始柱头信息都很清晰，记录下来。</p><p>所以，如果坏了，看看分区，分区没坏直接进行下一步，分区坏了的话，我们先fdisk分好区，然后开始修复：</p><p>查看各个md的uuid：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>mdadm --examine --scan  /dev/sda1 /dev/sdb1 /dev/sdc1  
+</span></span><span class=line><span class=cl>ARRAY /dev/md0 <span class=nv>UUID</span><span class=o>=</span>35d393bd:1f4dde6b:3017a5a8:c86610be  
+</span></span><span class=line><span class=cl>mdadm --examine --scan  /dev/sda2 /dev/sdb2 /dev/sdc2  
+</span></span><span class=line><span class=cl>ARRAY /dev/md1 <span class=nv>UUID</span><span class=o>=</span>8f02f0d4:e249900a:3017a5a8:c86610be  
+</span></span><span class=line><span class=cl>mdadm --examine --scan  /dev/sda3 /dev/sdb3 /dev/sdc3  
+</span></span><span class=line><span class=cl>ARRAY /dev/md/2 <span class=nv>metadata</span><span class=o>=</span>1.2 <span class=nv>UUID</span><span class=o>=</span>d1411045:24723563:3a19cef5:07732afa <span class=nv>name</span><span class=o>=</span>DiskStation:2  
+</span></span></code></pre></div><p>修复的时候，根据上面信息，编辑生成/etc/mdadm.conf，注意顺序是倒的， md0->md1->md2，devices中如果一块盘坏了，改成missing&mldr;&mldr;</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>DEVICE partitions  
+</span></span><span class=line><span class=cl>ARRAY /dev/md0 <span class=nv>level</span><span class=o>=</span>raid1 num-devices<span class=o>=</span><span class=m>2</span>  
+</span></span><span class=line><span class=cl> ↪UUID<span class=o>=</span>b3cd99e7:d02be486:b0ea429a:e18ccf65
+</span></span><span class=line><span class=cl> ↪devices<span class=o>=</span>/dev/sda1,missing
+</span></span><span class=line><span class=cl>ARRAY /dev/md1 <span class=nv>level</span><span class=o>=</span>raid1 num-devices<span class=o>=</span><span class=m>2</span>  
+</span></span><span class=line><span class=cl> ↪UUID<span class=o>=</span>75fa22aa:9a11bcad:b42ed14a:b5f8da3c
+</span></span><span class=line><span class=cl> ↪devices<span class=o>=</span>/dev/sda2,missing
+</span></span><span class=line><span class=cl>ARRAY /dev/md2 <span class=nv>level</span><span class=o>=</span>raid1 num-devices<span class=o>=</span><span class=m>2</span>  
+</span></span><span class=line><span class=cl> ↪UUID<span class=o>=</span>532502de:90e44fb0:242f485f:f02a2565
+</span></span><span class=line><span class=cl> ↪devices<span class=o>=</span>/dev/sda3,missing
+</span></span></code></pre></div><p>然后刷新raid并查看raid是否正常</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>mdadm -A -s  
+</span></span><span class=line><span class=cl>cat /proc/mdstat  
+</span></span></code></pre></div><p>如果要全面毁了盘阵，重建md，方法如下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>mdadm --create --verbose /dev/md0 --level<span class=o>=</span><span class=m>1</span> --raid-devices<span class=o>=</span><span class=m>3</span> /dev/sda1 /dev/sdb1 /dev/sdc1
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>mdadm --create --verbose /dev/md1 --level<span class=o>=</span><span class=m>1</span> --raid-devices<span class=o>=</span><span class=m>3</span> /dev/sda2 /dev/sdb2 /dev/sdc2
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>mdadm --create --verbose /dev/md0 --level<span class=o>=</span><span class=m>5</span> --raid-devices<span class=o>=</span><span class=m>3</span> /dev/sda3 /dev/sdb3 /dev/sdc3  
+</span></span></code></pre></div><p>上面已经做好了RAID部分MD的备份。LVM是基于MD之上的，下面我们来备份LVM。</p><p>首先查看卷信息：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>DiskStation&gt; pvdisplay  
+</span></span><span class=line><span class=cl>  --- Physical volume ---
+</span></span><span class=line><span class=cl>  PV Name               /dev/md2
+</span></span><span class=line><span class=cl>  VG Name               vg1
+</span></span><span class=line><span class=cl>  PV Size               3.63 TB / not usable 2.88 MB
+</span></span><span class=line><span class=cl>  Allocatable           yes <span class=o>(</span>but full<span class=o>)</span>
+</span></span><span class=line><span class=cl>  PE Size <span class=o>(</span>KByte<span class=o>)</span>       <span class=m>4096</span>
+</span></span><span class=line><span class=cl>  Total PE              <span class=m>951558</span>
+</span></span><span class=line><span class=cl>  Free PE               <span class=m>0</span>
+</span></span><span class=line><span class=cl>  Allocated PE          <span class=m>951558</span>
+</span></span><span class=line><span class=cl>  PV UUID               5li2xk-tZdQ-c63W-qpM7-jo9F-5xGg-xFP1Wr
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>DiskStation&gt; vgdisplay  
+</span></span><span class=line><span class=cl>  --- Volume group ---
+</span></span><span class=line><span class=cl>  VG Name               vg1
+</span></span><span class=line><span class=cl>  System ID             
+</span></span><span class=line><span class=cl>  Format                lvm2
+</span></span><span class=line><span class=cl>  Metadata Areas        <span class=m>1</span>
+</span></span><span class=line><span class=cl>  Metadata Sequence No  <span class=m>3</span>
+</span></span><span class=line><span class=cl>  VG Access             read/write
+</span></span><span class=line><span class=cl>  VG Status             resizable
+</span></span><span class=line><span class=cl>  MAX LV                <span class=m>0</span>
+</span></span><span class=line><span class=cl>  Cur LV                <span class=m>2</span>
+</span></span><span class=line><span class=cl>  Open LV               <span class=m>1</span>
+</span></span><span class=line><span class=cl>  Max PV                <span class=m>0</span>
+</span></span><span class=line><span class=cl>  Cur PV                <span class=m>1</span>
+</span></span><span class=line><span class=cl>  Act PV                <span class=m>1</span>
+</span></span><span class=line><span class=cl>  VG Size               3.63 TB
+</span></span><span class=line><span class=cl>  PE Size               4.00 MB
+</span></span><span class=line><span class=cl>  Total PE              <span class=m>951558</span>
+</span></span><span class=line><span class=cl>  Alloc PE / Size       <span class=m>951558</span> / 3.63 TB
+</span></span><span class=line><span class=cl>  Free  PE / Size       <span class=m>0</span> / <span class=m>0</span>   
+</span></span><span class=line><span class=cl>  VG UUID               UUCftW-HIFK-vmL0-0MTG-XzOT-BCTI-okhVf3
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>DiskStation&gt; lvdisplay  
+</span></span><span class=line><span class=cl>  --- Logical volume ---
+</span></span><span class=line><span class=cl>  LV Name                /dev/vg1/syno_vg_reserved_area
+</span></span><span class=line><span class=cl>  VG Name                vg1
+</span></span><span class=line><span class=cl>  LV UUID                BmrrfE-vjMY-rJO8-C7OP-2los-KfeO-1hBrWb
+</span></span><span class=line><span class=cl>  LV Write Access        read/write
+</span></span><span class=line><span class=cl>  LV Status              available
+</span></span><span class=line><span class=cl>  <span class=c1># open                 0</span>
+</span></span><span class=line><span class=cl>  LV Size                12.00 MB
+</span></span><span class=line><span class=cl>  Current LE             <span class=m>3</span>
+</span></span><span class=line><span class=cl>  Segments               <span class=m>1</span>
+</span></span><span class=line><span class=cl>  Allocation             inherit
+</span></span><span class=line><span class=cl>  Read ahead sectors     auto
+</span></span><span class=line><span class=cl>  - currently <span class=nb>set</span> to     <span class=m>384</span>
+</span></span><span class=line><span class=cl>  Block device           253:0
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  --- Logical volume ---
+</span></span><span class=line><span class=cl>  LV Name                /dev/vg1/volume_1
+</span></span><span class=line><span class=cl>  VG Name                vg1
+</span></span><span class=line><span class=cl>  LV UUID                80vCET-1yH4-KMXS-E0N7-3tiP-m24I-Gzw7ij
+</span></span><span class=line><span class=cl>  LV Write Access        read/write
+</span></span><span class=line><span class=cl>  LV Status              available
+</span></span><span class=line><span class=cl>  <span class=c1># open                 1</span>
+</span></span><span class=line><span class=cl>  LV Size                3.63 TB
+</span></span><span class=line><span class=cl>  Current LE             <span class=m>951555</span>
+</span></span><span class=line><span class=cl>  Segments               <span class=m>1</span>
+</span></span><span class=line><span class=cl>  Allocation             inherit
+</span></span><span class=line><span class=cl>  Read ahead sectors     auto
+</span></span><span class=line><span class=cl>  - currently <span class=nb>set</span> to     <span class=m>4096</span>
+</span></span><span class=line><span class=cl>  Block device           253:1
+</span></span></code></pre></div><p>ok, 备份</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>vgcfgbackup  
+</span></span></code></pre></div><p>备份文件会放到/etc/lvm/backup/vg1，把这个文件拷走.</p><p>如果要恢复：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>vgcfgrestore -f vg1 vg1  
+</span></span><span class=line><span class=cl>pvscan  
+</span></span><span class=line><span class=cl>vgscan  
+</span></span><span class=line><span class=cl>lvscan  
+</span></span></code></pre></div><p>把u盘文件、fdisk文件、lvm的文件拷出来放到dropbox，一切就妥当了。</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

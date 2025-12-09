@@ -1,0 +1,302 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>flask/python对mongodb的一些操作 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="首先是安装mongodb
+yum install -y mongodb-server mongodb
+
+Installing for dependencies:  
+ boost-filesystem                                      
+ boost-iostreams                                       
+ boost-program-options                                 
+ boost-system                                          
+ boost-thread                                          
+ gperftools-libs                                       
+ libicu                                                
+ libunwind                                             
+ v8
+会装一堆依赖包，boost库，icu库，v8库，gperftools库，都是很厉害的库啊！
+启动：
+service mongod start  
+导入海量数据：
+[root@ovs-16-11-2 ~]# mongoimport -d mydb -c prj01 --type csv --file opendata_projects.csv --headerline
+connected to: 127.0.0.1  
+Thu Jul 28 09:50:47.002         Progress: 39118658/470754183    8%  
+Thu Jul 28 09:50:47.002             74400   24800/second  
+Thu Jul 28 09:50:50.033         Progress: 80042213/470754183    17%  
+Thu Jul 28 09:50:50.033             150700  25116/second  
+Thu Jul 28 09:50:53.145         Progress: 108143323/470754183   22%  
+Thu Jul 28 09:50:53.145             202700  22522/second  
+Thu Jul 28 09:50:56.004         Progress: 149781879/470754183   31%  
+Thu Jul 28 09:50:56.004             280000  23333/second  
+Thu Jul 28 09:50:59.001         Progress: 179705162/470754183   38%  
+Thu Jul 28 09:50:59.001             336200  22413/second  
+Thu Jul 28 09:51:03.385         Progress: 212197023/470754183   45%  
+Thu Jul 28 09:51:03.385             396400  20863/second  
+Thu Jul 28 09:51:06.015         Progress: 236552399/470754183   50%  
+Thu Jul 28 09:51:06.015             441700  20077/second  
+Thu Jul 28 09:51:09.299         Progress: 264365847/470754183   56%  
+Thu Jul 28 09:51:09.299             493300  19732/second  
+Thu Jul 28 09:51:12.001         Progress: 304790148/470754183   64%  
+Thu Jul 28 09:51:12.001             568500  20303/second  
+Thu Jul 28 09:51:15.033         Progress: 323508057/470754183   68%  
+Thu Jul 28 09:51:15.033             603300  19461/second  
+Thu Jul 28 09:51:18.607         Progress: 361610334/470754183   76%  
+Thu Jul 28 09:51:18.607             674200  19829/second  
+Thu Jul 28 09:51:21.000         Progress: 393748962/470754183   83%  
+Thu Jul 28 09:51:21.000             733700  19829/second  
+Thu Jul 28 09:51:24.007         Progress: 427667505/470754183   90%  
+Thu Jul 28 09:51:24.007             796900  19922/second  
+Thu Jul 28 09:51:27.001         Progress: 459658299/470754183   97%  
+Thu Jul 28 09:51:27.001             857300  19937/second  
+Thu Jul 28 09:51:27.793 check 9 878853  
+Thu Jul 28 09:51:27.979 imported 878852 objects  
+进入命令行，看看库的整体情况："><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20240118-flask_mongo/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20240118-flask_mongo/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20240118-flask_mongo/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="flask/python对mongodb的一些操作"><meta property="og:description" content="首先是安装mongodb
+yum install -y mongodb-server mongodb Installing for dependencies: boost-filesystem boost-iostreams boost-program-options boost-system boost-thread gperftools-libs libicu libunwind v8 会装一堆依赖包，boost库，icu库，v8库，gperftools库，都是很厉害的库啊！
+启动：
+service mongod start 导入海量数据：
+[root@ovs-16-11-2 ~]# mongoimport -d mydb -c prj01 --type csv --file opendata_projects.csv --headerline connected to: 127.0.0.1 Thu Jul 28 09:50:47.002 Progress: 39118658/470754183 8% Thu Jul 28 09:50:47.002 74400 24800/second Thu Jul 28 09:50:50.033 Progress: 80042213/470754183 17% Thu Jul 28 09:50:50.033 150700 25116/second Thu Jul 28 09:50:53.145 Progress: 108143323/470754183 22% Thu Jul 28 09:50:53.145 202700 22522/second Thu Jul 28 09:50:56.004 Progress: 149781879/470754183 31% Thu Jul 28 09:50:56.004 280000 23333/second Thu Jul 28 09:50:59.001 Progress: 179705162/470754183 38% Thu Jul 28 09:50:59.001 336200 22413/second Thu Jul 28 09:51:03.385 Progress: 212197023/470754183 45% Thu Jul 28 09:51:03.385 396400 20863/second Thu Jul 28 09:51:06.015 Progress: 236552399/470754183 50% Thu Jul 28 09:51:06.015 441700 20077/second Thu Jul 28 09:51:09.299 Progress: 264365847/470754183 56% Thu Jul 28 09:51:09.299 493300 19732/second Thu Jul 28 09:51:12.001 Progress: 304790148/470754183 64% Thu Jul 28 09:51:12.001 568500 20303/second Thu Jul 28 09:51:15.033 Progress: 323508057/470754183 68% Thu Jul 28 09:51:15.033 603300 19461/second Thu Jul 28 09:51:18.607 Progress: 361610334/470754183 76% Thu Jul 28 09:51:18.607 674200 19829/second Thu Jul 28 09:51:21.000 Progress: 393748962/470754183 83% Thu Jul 28 09:51:21.000 733700 19829/second Thu Jul 28 09:51:24.007 Progress: 427667505/470754183 90% Thu Jul 28 09:51:24.007 796900 19922/second Thu Jul 28 09:51:27.001 Progress: 459658299/470754183 97% Thu Jul 28 09:51:27.001 857300 19937/second Thu Jul 28 09:51:27.793 check 9 878853 Thu Jul 28 09:51:27.979 imported 878852 objects 进入命令行，看看库的整体情况："><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2024-01-18T17:08:11+08:00"><meta property="article:modified_time" content="2024-01-18T17:08:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="flask/python对mongodb的一些操作"><meta name=twitter:description content="首先是安装mongodb
+yum install -y mongodb-server mongodb
+
+Installing for dependencies:  
+ boost-filesystem                                      
+ boost-iostreams                                       
+ boost-program-options                                 
+ boost-system                                          
+ boost-thread                                          
+ gperftools-libs                                       
+ libicu                                                
+ libunwind                                             
+ v8
+会装一堆依赖包，boost库，icu库，v8库，gperftools库，都是很厉害的库啊！
+启动：
+service mongod start  
+导入海量数据：
+[root@ovs-16-11-2 ~]# mongoimport -d mydb -c prj01 --type csv --file opendata_projects.csv --headerline
+connected to: 127.0.0.1  
+Thu Jul 28 09:50:47.002         Progress: 39118658/470754183    8%  
+Thu Jul 28 09:50:47.002             74400   24800/second  
+Thu Jul 28 09:50:50.033         Progress: 80042213/470754183    17%  
+Thu Jul 28 09:50:50.033             150700  25116/second  
+Thu Jul 28 09:50:53.145         Progress: 108143323/470754183   22%  
+Thu Jul 28 09:50:53.145             202700  22522/second  
+Thu Jul 28 09:50:56.004         Progress: 149781879/470754183   31%  
+Thu Jul 28 09:50:56.004             280000  23333/second  
+Thu Jul 28 09:50:59.001         Progress: 179705162/470754183   38%  
+Thu Jul 28 09:50:59.001             336200  22413/second  
+Thu Jul 28 09:51:03.385         Progress: 212197023/470754183   45%  
+Thu Jul 28 09:51:03.385             396400  20863/second  
+Thu Jul 28 09:51:06.015         Progress: 236552399/470754183   50%  
+Thu Jul 28 09:51:06.015             441700  20077/second  
+Thu Jul 28 09:51:09.299         Progress: 264365847/470754183   56%  
+Thu Jul 28 09:51:09.299             493300  19732/second  
+Thu Jul 28 09:51:12.001         Progress: 304790148/470754183   64%  
+Thu Jul 28 09:51:12.001             568500  20303/second  
+Thu Jul 28 09:51:15.033         Progress: 323508057/470754183   68%  
+Thu Jul 28 09:51:15.033             603300  19461/second  
+Thu Jul 28 09:51:18.607         Progress: 361610334/470754183   76%  
+Thu Jul 28 09:51:18.607             674200  19829/second  
+Thu Jul 28 09:51:21.000         Progress: 393748962/470754183   83%  
+Thu Jul 28 09:51:21.000             733700  19829/second  
+Thu Jul 28 09:51:24.007         Progress: 427667505/470754183   90%  
+Thu Jul 28 09:51:24.007             796900  19922/second  
+Thu Jul 28 09:51:27.001         Progress: 459658299/470754183   97%  
+Thu Jul 28 09:51:27.001             857300  19937/second  
+Thu Jul 28 09:51:27.793 check 9 878853  
+Thu Jul 28 09:51:27.979 imported 878852 objects  
+进入命令行，看看库的整体情况："><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"flask/python对mongodb的一些操作","item":"https://rendoumi.com/posts/20240118-flask_mongo/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"flask/python对mongodb的一些操作","name":"flask\/python对mongodb的一些操作","description":"首先是安装mongodb\nyum install -y mongodb-server mongodb Installing for dependencies: boost-filesystem boost-iostreams boost-program-options boost-system boost-thread gperftools-libs libicu libunwind v8 会装一堆依赖包，boost库，icu库，v8库，gperftools库，都是很厉害的库啊！\n启动：\nservice mongod start 导入海量数据：\n[root@ovs-16-11-2 ~]# mongoimport -d mydb -c prj01 --type csv --file opendata_projects.csv --headerline connected to: 127.0.0.1 Thu Jul 28 09:50:47.002 Progress: 39118658/470754183 8% Thu Jul 28 09:50:47.002 74400 24800/second Thu Jul 28 09:50:50.033 Progress: 80042213/470754183 17% Thu Jul 28 09:50:50.033 150700 25116/second Thu Jul 28 09:50:53.145 Progress: 108143323/470754183 22% Thu Jul 28 09:50:53.145 202700 22522/second Thu Jul 28 09:50:56.004 Progress: 149781879/470754183 31% Thu Jul 28 09:50:56.004 280000 23333/second Thu Jul 28 09:50:59.001 Progress: 179705162/470754183 38% Thu Jul 28 09:50:59.001 336200 22413/second Thu Jul 28 09:51:03.385 Progress: 212197023/470754183 45% Thu Jul 28 09:51:03.385 396400 20863/second Thu Jul 28 09:51:06.015 Progress: 236552399/470754183 50% Thu Jul 28 09:51:06.015 441700 20077/second Thu Jul 28 09:51:09.299 Progress: 264365847/470754183 56% Thu Jul 28 09:51:09.299 493300 19732/second Thu Jul 28 09:51:12.001 Progress: 304790148/470754183 64% Thu Jul 28 09:51:12.001 568500 20303/second Thu Jul 28 09:51:15.033 Progress: 323508057/470754183 68% Thu Jul 28 09:51:15.033 603300 19461/second Thu Jul 28 09:51:18.607 Progress: 361610334/470754183 76% Thu Jul 28 09:51:18.607 674200 19829/second Thu Jul 28 09:51:21.000 Progress: 393748962/470754183 83% Thu Jul 28 09:51:21.000 733700 19829/second Thu Jul 28 09:51:24.007 Progress: 427667505/470754183 90% Thu Jul 28 09:51:24.007 796900 19922/second Thu Jul 28 09:51:27.001 Progress: 459658299/470754183 97% Thu Jul 28 09:51:27.001 857300 19937/second Thu Jul 28 09:51:27.793 check 9 878853 Thu Jul 28 09:51:27.979 imported 878852 objects 进入命令行，看看库的整体情况：\n","keywords":[],"articleBody":"首先是安装mongodb\nyum install -y mongodb-server mongodb Installing for dependencies: boost-filesystem boost-iostreams boost-program-options boost-system boost-thread gperftools-libs libicu libunwind v8 会装一堆依赖包，boost库，icu库，v8库，gperftools库，都是很厉害的库啊！\n启动：\nservice mongod start 导入海量数据：\n[root@ovs-16-11-2 ~]# mongoimport -d mydb -c prj01 --type csv --file opendata_projects.csv --headerline connected to: 127.0.0.1 Thu Jul 28 09:50:47.002 Progress: 39118658/470754183 8% Thu Jul 28 09:50:47.002 74400 24800/second Thu Jul 28 09:50:50.033 Progress: 80042213/470754183 17% Thu Jul 28 09:50:50.033 150700 25116/second Thu Jul 28 09:50:53.145 Progress: 108143323/470754183 22% Thu Jul 28 09:50:53.145 202700 22522/second Thu Jul 28 09:50:56.004 Progress: 149781879/470754183 31% Thu Jul 28 09:50:56.004 280000 23333/second Thu Jul 28 09:50:59.001 Progress: 179705162/470754183 38% Thu Jul 28 09:50:59.001 336200 22413/second Thu Jul 28 09:51:03.385 Progress: 212197023/470754183 45% Thu Jul 28 09:51:03.385 396400 20863/second Thu Jul 28 09:51:06.015 Progress: 236552399/470754183 50% Thu Jul 28 09:51:06.015 441700 20077/second Thu Jul 28 09:51:09.299 Progress: 264365847/470754183 56% Thu Jul 28 09:51:09.299 493300 19732/second Thu Jul 28 09:51:12.001 Progress: 304790148/470754183 64% Thu Jul 28 09:51:12.001 568500 20303/second Thu Jul 28 09:51:15.033 Progress: 323508057/470754183 68% Thu Jul 28 09:51:15.033 603300 19461/second Thu Jul 28 09:51:18.607 Progress: 361610334/470754183 76% Thu Jul 28 09:51:18.607 674200 19829/second Thu Jul 28 09:51:21.000 Progress: 393748962/470754183 83% Thu Jul 28 09:51:21.000 733700 19829/second Thu Jul 28 09:51:24.007 Progress: 427667505/470754183 90% Thu Jul 28 09:51:24.007 796900 19922/second Thu Jul 28 09:51:27.001 Progress: 459658299/470754183 97% Thu Jul 28 09:51:27.001 857300 19937/second Thu Jul 28 09:51:27.793 check 9 878853 Thu Jul 28 09:51:27.979 imported 878852 objects 进入命令行，看看库的整体情况：\nmongo use mydb show collections db.prj01.findOne() 完整结果如下：\nmongo MongoDB shell version: 2.4.14 connecting to: test \u003e use mydb switched to db mydb \u003e show collections prj01 system.indexes \u003e db.prj01.findOne() { \"_id\" : ObjectId(\"579964f41d36d69d1752f82b\"), \"_projectid\" : \"7342bd01a2a7725ce033a179d22e382d\", \"_teacher_acctid\" : \"5c43ef5eac0f5857c266baa1ccfa3d3f\", \"_schoolid\" : \"9e72d6f2f1e9367b578b6479aa5852b7\", \"school_ncesid\" : NumberLong(\"360009702803\"), \"school_latitude\" : 40.688454, \"school_longitude\" : -73.910432, \"school_city\" : \"Brooklyn\", \"school_state\" : \"NY\", \"school_zip\" : 11207, \"school_metro\" : \"urban\", \"school_district\" : \"New York City Dept Of Ed\", \"school_county\" : \"Kings (Brooklyn)\", \"school_charter\" : \"f\", \"school_magnet\" : \"t\", \"school_year_round\" : \"f\", \"school_nlns\" : \"f\", \"school_kipp\" : \"f\", \"school_charter_ready_promise\" : \"f\", \"teacher_prefix\" : \"Mr.\", \"teacher_teach_for_america\" : \"f\", \"teacher_ny_teaching_fellow\" : \"f\", \"primary_focus_subject\" : \"Other\", \"primary_focus_area\" : \"Applied Learning\", \"secondary_focus_subject\" : \"\", \"secondary_focus_area\" : \"\", \"resource_type\" : \"Supplies\", \"poverty_level\" : \"highest poverty\", \"grade_level\" : \"Grades 6-8\", \"vendor_shipping_charges\" : \"\", \"sales_tax\" : \"\", \"payment_processing_charges\" : \"\", \"fulfillment_labor_materials\" : \"\", \"total_price_excluding_optional_support\" : 229, \"total_price_including_optional_support\" : 279.27, \"students_reached\" : 0, \"total_donations\" : 251, \"num_donors\" : 1, \"eligible_double_your_impact_match\" : \"f\", \"eligible_almost_home_match\" : \"f\", \"funding_status\" : \"completed\", \"date_posted\" : \"2002-09-13 00:00:00\", \"date_completed\" : \"2002-09-23 00:00:00\", \"date_thank_you_packet_mailed\" : \"2003-01-27 00:00:00\", \"date_expiration\" : \"2003-12-31 00:00:00\" } \u003e 太多字段了，如果我们就想要其中的6个字段：\n\u003e db.prj01.findOne({}, {school_state:1, resource_type:1, poverty_level:1, date_posted:1, total_donations:1, funding_status:1, _id:0}) { \"school_state\" : \"NY\", \"resource_type\" : \"Supplies\", \"poverty_level\" : \"highest poverty\", \"total_donations\" : 251, \"funding_status\" : \"completed\", \"date_posted\" : \"2002-09-13 00:00:00\" } 装个pymongo\npython -m pip install pymongo 测一下，进入python命令行：\npython ... from pymongo import MongoClient MONGODB_HOST = 'localhost' MONGODB_PORT = 27017 DBS_NAME = 'mydb' COLLECTION_NAME = 'prj01' FIELDS = {'school_state': True, 'resource_type': True, 'poverty_level': True, 'date_posted': True, 'total_donations': True, '_id': False} connection = MongoClient(MONGODB_HOST, MONGODB_PORT) collection = connection[DBS_NAME][COLLECTION_NAME] projects = collection.find(projection=FIELDS) for project in projects: print project ... {u'school_state': u'MO', u'date_posted': u'2015-08-18 00:00:00', u'poverty_level': u'highest poverty', u'resource_type': u'Books', u'total_donations': 0} ... 数据会疯狂显示一阵子，其实这就是一个完整的python访问mongodb的程序了。\n下面我们来完成flask的部分\n装个flask\npython -m pip install flask 建立个文件夹flask01，建立目录templates\nflask01 ├── run.py └── templates └── index.html 准备一个首页文件index.html放到目录templates下\ncat index.html Hello World 准备主程序run.py\nfrom flask import Flask from flask import render_template app = Flask(__name__) @app.route(\"/\") def index(): return render_template(\"index.html\") if __name__ == \"__main__\": app.run(host='0.0.0.0',port=5000,debug=True) 分配个url来存取mongodb\nfrom flask import Flask from flask import render_template from pymongo import MongoClient import json from bson import json_util from bson.json_util import dumps app = Flask(__name__) MONGODB_HOST = 'localhost' MONGODB_PORT = 27017 DBS_NAME = 'mydb' COLLECTION_NAME = 'prj01' FIELDS = {'school_state': True, 'resource_type': True, 'poverty_level': True, 'date_posted': True, 'total_donations': True, '_id': False} @app.route(\"/\") def index(): return render_template(\"index.html\") @app.route(\"/mydb/prj01\") def mydb_prj01(): connection = MongoClient(MONGODB_HOST, MONGODB_PORT) collection = connection[DBS_NAME][COLLECTION_NAME] projects = collection.find(projection=FIELDS) json_projects = [] for project in projects: json_projects.append(project) json_projects = json.dumps(json_projects, default=json_util.default) connection.close() return json_projects if __name__ == \"__main__\": app.run(host='0.0.0.0',port=5000,debug=True) 运行一下，在浏览器打开这个url：\npython run.py * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit) * Restarting with stat * Debugger is active! * Debugger pin code: 373-144-494 172.16.8.1 - - [28/Jul/2016 10:13:27] \"GET /mydb/prj01 HTTP/1.1\" 200 - 结果很明显是个json\n[{\"school_state\": \"NY\", \"date_posted\": \"2002-09-13 00:00:00\", \"poverty_level\": \"highest poverty\", \"resource_type\": \"Supplies\", \"total_donations\": 251}, {\"school_state\": \"NY\", \"date_posted\": \"2002-09-16 00:00:00\", \"poverty_level\": \"moderate poverty\", \"resource_type\": \"Supplies\", \"total_donations\": 125}, ... ] ","wordCount":"711","inLanguage":"zh","datePublished":"2024-01-18T17:08:11+08:00","dateModified":"2024-01-18T17:08:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20240118-flask_mongo/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">flask/python对mongodb的一些操作
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2024-01-18 17:08:11 +0800 CST'>2024年1月18日</span></div></header><div class=post-content><p>首先是安装mongodb</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>yum install -y mongodb-server mongodb
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Installing <span class=k>for</span> dependencies:  
+</span></span><span class=line><span class=cl> boost-filesystem                                      
+</span></span><span class=line><span class=cl> boost-iostreams                                       
+</span></span><span class=line><span class=cl> boost-program-options                                 
+</span></span><span class=line><span class=cl> boost-system                                          
+</span></span><span class=line><span class=cl> boost-thread                                          
+</span></span><span class=line><span class=cl> gperftools-libs                                       
+</span></span><span class=line><span class=cl> libicu                                                
+</span></span><span class=line><span class=cl> libunwind                                             
+</span></span><span class=line><span class=cl> v8
+</span></span></code></pre></div><p>会装一堆依赖包，boost库，icu库，v8库，gperftools库，都是很厉害的库啊！</p><p>启动：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>service mongod start  
+</span></span></code></pre></div><p>导入海量数据：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=o>[</span>root@ovs-16-11-2 ~<span class=o>]</span><span class=c1># mongoimport -d mydb -c prj01 --type csv --file opendata_projects.csv --headerline</span>
+</span></span><span class=line><span class=cl>connected to: 127.0.0.1  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:50:47.002         Progress: 39118658/470754183    8%  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:50:47.002             <span class=m>74400</span>   24800/second  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:50:50.033         Progress: 80042213/470754183    17%  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:50:50.033             <span class=m>150700</span>  25116/second  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:50:53.145         Progress: 108143323/470754183   22%  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:50:53.145             <span class=m>202700</span>  22522/second  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:50:56.004         Progress: 149781879/470754183   31%  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:50:56.004             <span class=m>280000</span>  23333/second  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:50:59.001         Progress: 179705162/470754183   38%  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:50:59.001             <span class=m>336200</span>  22413/second  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:51:03.385         Progress: 212197023/470754183   45%  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:51:03.385             <span class=m>396400</span>  20863/second  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:51:06.015         Progress: 236552399/470754183   50%  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:51:06.015             <span class=m>441700</span>  20077/second  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:51:09.299         Progress: 264365847/470754183   56%  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:51:09.299             <span class=m>493300</span>  19732/second  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:51:12.001         Progress: 304790148/470754183   64%  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:51:12.001             <span class=m>568500</span>  20303/second  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:51:15.033         Progress: 323508057/470754183   68%  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:51:15.033             <span class=m>603300</span>  19461/second  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:51:18.607         Progress: 361610334/470754183   76%  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:51:18.607             <span class=m>674200</span>  19829/second  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:51:21.000         Progress: 393748962/470754183   83%  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:51:21.000             <span class=m>733700</span>  19829/second  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:51:24.007         Progress: 427667505/470754183   90%  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:51:24.007             <span class=m>796900</span>  19922/second  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:51:27.001         Progress: 459658299/470754183   97%  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:51:27.001             <span class=m>857300</span>  19937/second  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:51:27.793 check <span class=m>9</span> <span class=m>878853</span>  
+</span></span><span class=line><span class=cl>Thu Jul <span class=m>28</span> 09:51:27.979 imported <span class=m>878852</span> objects  
+</span></span></code></pre></div><p>进入命令行，看看库的整体情况：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>mongo  
+</span></span><span class=line><span class=cl>use mydb  
+</span></span><span class=line><span class=cl>show collections  
+</span></span><span class=line><span class=cl>db.prj01.findOne<span class=o>()</span>  
+</span></span></code></pre></div><p>完整结果如下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>mongo  
+</span></span><span class=line><span class=cl>MongoDB shell version: 2.4.14  
+</span></span><span class=line><span class=cl>connecting to: <span class=nb>test</span>  
+</span></span><span class=line><span class=cl>&gt; use mydb
+</span></span><span class=line><span class=cl>switched to db mydb  
+</span></span><span class=line><span class=cl>&gt; show collections
+</span></span><span class=line><span class=cl>prj01  
+</span></span><span class=line><span class=cl>system.indexes  
+</span></span><span class=line><span class=cl>&gt; db.prj01.findOne<span class=o>()</span>
+</span></span><span class=line><span class=cl><span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;_id&#34;</span> : ObjectId<span class=o>(</span><span class=s2>&#34;579964f41d36d69d1752f82b&#34;</span><span class=o>)</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;_projectid&#34;</span> : <span class=s2>&#34;7342bd01a2a7725ce033a179d22e382d&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;_teacher_acctid&#34;</span> : <span class=s2>&#34;5c43ef5eac0f5857c266baa1ccfa3d3f&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;_schoolid&#34;</span> : <span class=s2>&#34;9e72d6f2f1e9367b578b6479aa5852b7&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;school_ncesid&#34;</span> : NumberLong<span class=o>(</span><span class=s2>&#34;360009702803&#34;</span><span class=o>)</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;school_latitude&#34;</span> : 40.688454,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;school_longitude&#34;</span> : -73.910432,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;school_city&#34;</span> : <span class=s2>&#34;Brooklyn&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;school_state&#34;</span> : <span class=s2>&#34;NY&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;school_zip&#34;</span> : 11207,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;school_metro&#34;</span> : <span class=s2>&#34;urban&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;school_district&#34;</span> : <span class=s2>&#34;New York City Dept Of Ed&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;school_county&#34;</span> : <span class=s2>&#34;Kings (Brooklyn)&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;school_charter&#34;</span> : <span class=s2>&#34;f&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;school_magnet&#34;</span> : <span class=s2>&#34;t&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;school_year_round&#34;</span> : <span class=s2>&#34;f&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;school_nlns&#34;</span> : <span class=s2>&#34;f&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;school_kipp&#34;</span> : <span class=s2>&#34;f&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;school_charter_ready_promise&#34;</span> : <span class=s2>&#34;f&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;teacher_prefix&#34;</span> : <span class=s2>&#34;Mr.&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;teacher_teach_for_america&#34;</span> : <span class=s2>&#34;f&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;teacher_ny_teaching_fellow&#34;</span> : <span class=s2>&#34;f&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;primary_focus_subject&#34;</span> : <span class=s2>&#34;Other&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;primary_focus_area&#34;</span> : <span class=s2>&#34;Applied Learning&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;secondary_focus_subject&#34;</span> : <span class=s2>&#34;&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;secondary_focus_area&#34;</span> : <span class=s2>&#34;&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;resource_type&#34;</span> : <span class=s2>&#34;Supplies&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;poverty_level&#34;</span> : <span class=s2>&#34;highest poverty&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;grade_level&#34;</span> : <span class=s2>&#34;Grades 6-8&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;vendor_shipping_charges&#34;</span> : <span class=s2>&#34;&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;sales_tax&#34;</span> : <span class=s2>&#34;&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;payment_processing_charges&#34;</span> : <span class=s2>&#34;&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;fulfillment_labor_materials&#34;</span> : <span class=s2>&#34;&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;total_price_excluding_optional_support&#34;</span> : 229,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;total_price_including_optional_support&#34;</span> : 279.27,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;students_reached&#34;</span> : 0,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;total_donations&#34;</span> : 251,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;num_donors&#34;</span> : 1,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;eligible_double_your_impact_match&#34;</span> : <span class=s2>&#34;f&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;eligible_almost_home_match&#34;</span> : <span class=s2>&#34;f&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;funding_status&#34;</span> : <span class=s2>&#34;completed&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;date_posted&#34;</span> : <span class=s2>&#34;2002-09-13 00:00:00&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;date_completed&#34;</span> : <span class=s2>&#34;2002-09-23 00:00:00&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;date_thank_you_packet_mailed&#34;</span> : <span class=s2>&#34;2003-01-27 00:00:00&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;date_expiration&#34;</span> : <span class=s2>&#34;2003-12-31 00:00:00&#34;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>&gt;
+</span></span></code></pre></div><p>太多字段了，如果我们就想要其中的6个字段：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>&gt; db.prj01.findOne<span class=o>({}</span>, <span class=o>{</span>school_state:1, resource_type:1, poverty_level:1, date_posted:1, total_donations:1, funding_status:1, _id:0<span class=o>})</span>
+</span></span><span class=line><span class=cl><span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;school_state&#34;</span> : <span class=s2>&#34;NY&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;resource_type&#34;</span> : <span class=s2>&#34;Supplies&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;poverty_level&#34;</span> : <span class=s2>&#34;highest poverty&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;total_donations&#34;</span> : 251,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;funding_status&#34;</span> : <span class=s2>&#34;completed&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;date_posted&#34;</span> : <span class=s2>&#34;2002-09-13 00:00:00&#34;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></div><p>装个pymongo</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>python -m pip install pymongo  
+</span></span></code></pre></div><p>测一下，进入python命令行：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>python  
+</span></span><span class=line><span class=cl>...
+</span></span><span class=line><span class=cl>from pymongo import MongoClient  
+</span></span><span class=line><span class=cl><span class=nv>MONGODB_HOST</span> <span class=o>=</span> <span class=s1>&#39;localhost&#39;</span>  
+</span></span><span class=line><span class=cl><span class=nv>MONGODB_PORT</span> <span class=o>=</span> <span class=m>27017</span>  
+</span></span><span class=line><span class=cl><span class=nv>DBS_NAME</span> <span class=o>=</span> <span class=s1>&#39;mydb&#39;</span>  
+</span></span><span class=line><span class=cl><span class=nv>COLLECTION_NAME</span> <span class=o>=</span> <span class=s1>&#39;prj01&#39;</span>  
+</span></span><span class=line><span class=cl><span class=nv>FIELDS</span> <span class=o>=</span> <span class=o>{</span><span class=s1>&#39;school_state&#39;</span>: True, <span class=s1>&#39;resource_type&#39;</span>: True, <span class=s1>&#39;poverty_level&#39;</span>: True, <span class=s1>&#39;date_posted&#39;</span>: True, <span class=s1>&#39;total_donations&#39;</span>: True, <span class=s1>&#39;_id&#39;</span>: False<span class=o>}</span>  
+</span></span><span class=line><span class=cl><span class=nv>connection</span> <span class=o>=</span> MongoClient<span class=o>(</span>MONGODB_HOST, MONGODB_PORT<span class=o>)</span>  
+</span></span><span class=line><span class=cl><span class=nv>collection</span> <span class=o>=</span> connection<span class=o>[</span>DBS_NAME<span class=o>][</span>COLLECTION_NAME<span class=o>]</span>  
+</span></span><span class=line><span class=cl><span class=nv>projects</span> <span class=o>=</span> collection.find<span class=o>(</span><span class=nv>projection</span><span class=o>=</span>FIELDS<span class=o>)</span>  
+</span></span><span class=line><span class=cl><span class=k>for</span> project in projects:  
+</span></span><span class=line><span class=cl>    print project
+</span></span><span class=line><span class=cl>...
+</span></span><span class=line><span class=cl><span class=o>{</span>u<span class=s1>&#39;school_state&#39;</span>: u<span class=s1>&#39;MO&#39;</span>, u<span class=s1>&#39;date_posted&#39;</span>: u<span class=s1>&#39;2015-08-18 00:00:00&#39;</span>, u<span class=s1>&#39;poverty_level&#39;</span>: u<span class=s1>&#39;highest poverty&#39;</span>, u<span class=s1>&#39;resource_type&#39;</span>: u<span class=s1>&#39;Books&#39;</span>, u<span class=s1>&#39;total_donations&#39;</span>: 0<span class=o>}</span>
+</span></span><span class=line><span class=cl>...
+</span></span></code></pre></div><p>数据会疯狂显示一阵子，其实这就是一个完整的python访问mongodb的程序了。</p><p>下面我们来完成flask的部分</p><p>装个flask</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>python -m pip install flask  
+</span></span></code></pre></div><p>建立个文件夹flask01，建立目录templates</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>flask01  
+</span></span><span class=line><span class=cl>├── run.py
+</span></span><span class=line><span class=cl>└── templates
+</span></span><span class=line><span class=cl>    └── index.html
+</span></span></code></pre></div><p>准备一个首页文件index.html放到目录templates下</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat index.html  
+</span></span><span class=line><span class=cl>&lt;h1&gt;Hello World&lt;/h1&gt;  
+</span></span></code></pre></div><p>准备主程序run.py</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>from flask import Flask  
+</span></span><span class=line><span class=cl>from flask import render_template
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>app</span> <span class=o>=</span> Flask<span class=o>(</span>__name__<span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>@app.route<span class=o>(</span><span class=s2>&#34;/&#34;</span><span class=o>)</span>
+</span></span><span class=line><span class=cl>def index<span class=o>()</span>:  
+</span></span><span class=line><span class=cl>    <span class=k>return</span> render_template<span class=o>(</span><span class=s2>&#34;index.html&#34;</span><span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=nv>__name__</span> <span class=o>==</span> <span class=s2>&#34;__main__&#34;</span>:  
+</span></span><span class=line><span class=cl>    app.run<span class=o>(</span><span class=nv>host</span><span class=o>=</span><span class=s1>&#39;0.0.0.0&#39;</span>,port<span class=o>=</span>5000,debug<span class=o>=</span>True<span class=o>)</span>
+</span></span></code></pre></div><p>分配个url来存取mongodb</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>from flask import Flask  
+</span></span><span class=line><span class=cl>from flask import render_template  
+</span></span><span class=line><span class=cl>from pymongo import MongoClient  
+</span></span><span class=line><span class=cl>import json  
+</span></span><span class=line><span class=cl>from bson import json_util  
+</span></span><span class=line><span class=cl>from bson.json_util import dumps
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>app</span> <span class=o>=</span> Flask<span class=o>(</span>__name__<span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>MONGODB_HOST</span> <span class=o>=</span> <span class=s1>&#39;localhost&#39;</span>  
+</span></span><span class=line><span class=cl><span class=nv>MONGODB_PORT</span> <span class=o>=</span> <span class=m>27017</span>  
+</span></span><span class=line><span class=cl><span class=nv>DBS_NAME</span> <span class=o>=</span> <span class=s1>&#39;mydb&#39;</span>  
+</span></span><span class=line><span class=cl><span class=nv>COLLECTION_NAME</span> <span class=o>=</span> <span class=s1>&#39;prj01&#39;</span>  
+</span></span><span class=line><span class=cl><span class=nv>FIELDS</span> <span class=o>=</span> <span class=o>{</span><span class=s1>&#39;school_state&#39;</span>: True, <span class=s1>&#39;resource_type&#39;</span>: True, <span class=s1>&#39;poverty_level&#39;</span>: True, <span class=s1>&#39;date_posted&#39;</span>: True, <span class=s1>&#39;total_donations&#39;</span>: True, <span class=s1>&#39;_id&#39;</span>: False<span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>@app.route<span class=o>(</span><span class=s2>&#34;/&#34;</span><span class=o>)</span>
+</span></span><span class=line><span class=cl>def index<span class=o>()</span>:  
+</span></span><span class=line><span class=cl>    <span class=k>return</span> render_template<span class=o>(</span><span class=s2>&#34;index.html&#34;</span><span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>@app.route<span class=o>(</span><span class=s2>&#34;/mydb/prj01&#34;</span><span class=o>)</span>
+</span></span><span class=line><span class=cl>def mydb_prj01<span class=o>()</span>:  
+</span></span><span class=line><span class=cl>    <span class=nv>connection</span> <span class=o>=</span> MongoClient<span class=o>(</span>MONGODB_HOST, MONGODB_PORT<span class=o>)</span>
+</span></span><span class=line><span class=cl>    <span class=nv>collection</span> <span class=o>=</span> connection<span class=o>[</span>DBS_NAME<span class=o>][</span>COLLECTION_NAME<span class=o>]</span>
+</span></span><span class=line><span class=cl>    <span class=nv>projects</span> <span class=o>=</span> collection.find<span class=o>(</span><span class=nv>projection</span><span class=o>=</span>FIELDS<span class=o>)</span>
+</span></span><span class=line><span class=cl>    <span class=nv>json_projects</span> <span class=o>=</span> <span class=o>[]</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> project in projects:
+</span></span><span class=line><span class=cl>        json_projects.append<span class=o>(</span>project<span class=o>)</span>
+</span></span><span class=line><span class=cl>    <span class=nv>json_projects</span> <span class=o>=</span> json.dumps<span class=o>(</span>json_projects, <span class=nv>default</span><span class=o>=</span>json_util.default<span class=o>)</span>
+</span></span><span class=line><span class=cl>    connection.close<span class=o>()</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> json_projects
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=nv>__name__</span> <span class=o>==</span> <span class=s2>&#34;__main__&#34;</span>:  
+</span></span><span class=line><span class=cl>    app.run<span class=o>(</span><span class=nv>host</span><span class=o>=</span><span class=s1>&#39;0.0.0.0&#39;</span>,port<span class=o>=</span>5000,debug<span class=o>=</span>True<span class=o>)</span>
+</span></span></code></pre></div><p>运行一下，在浏览器打开这个url：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>python run.py  
+</span></span><span class=line><span class=cl> * Running on http://0.0.0.0:5000/ <span class=o>(</span>Press CTRL+C to quit<span class=o>)</span>
+</span></span><span class=line><span class=cl> * Restarting with stat
+</span></span><span class=line><span class=cl> * Debugger is active!
+</span></span><span class=line><span class=cl> * Debugger pin code: 373-144-494
+</span></span><span class=line><span class=cl>172.16.8.1 - - <span class=o>[</span>28/Jul/2016 10:13:27<span class=o>]</span> <span class=s2>&#34;GET /mydb/prj01 HTTP/1.1&#34;</span> <span class=m>200</span> -  
+</span></span></code></pre></div><p>结果很明显是个json</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=o>[{</span><span class=s2>&#34;school_state&#34;</span>: <span class=s2>&#34;NY&#34;</span>, <span class=s2>&#34;date_posted&#34;</span>: <span class=s2>&#34;2002-09-13 00:00:00&#34;</span>, <span class=s2>&#34;poverty_level&#34;</span>: <span class=s2>&#34;highest poverty&#34;</span>, <span class=s2>&#34;resource_type&#34;</span>: <span class=s2>&#34;Supplies&#34;</span>, <span class=s2>&#34;total_donations&#34;</span>: 251<span class=o>}</span>,
+</span></span><span class=line><span class=cl> <span class=o>{</span><span class=s2>&#34;school_state&#34;</span>: <span class=s2>&#34;NY&#34;</span>, <span class=s2>&#34;date_posted&#34;</span>: <span class=s2>&#34;2002-09-16 00:00:00&#34;</span>, <span class=s2>&#34;poverty_level&#34;</span>: <span class=s2>&#34;moderate poverty&#34;</span>, <span class=s2>&#34;resource_type&#34;</span>: <span class=s2>&#34;Supplies&#34;</span>, <span class=s2>&#34;total_donations&#34;</span>: 125<span class=o>}</span>, 
+</span></span><span class=line><span class=cl>...
+</span></span><span class=line><span class=cl><span class=o>]</span>
+</span></span></code></pre></div><h4></h4></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

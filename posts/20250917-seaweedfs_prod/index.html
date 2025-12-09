@@ -1,0 +1,176 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>seaweedfs的s3进阶试用方法 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="SeaweedFS 已经用docker compose的方式部署在生产环境内中了，对外只开放了一个S3的端口127.0.0.1:8333，然后前面套上Caddy的https代理，这样很安全了。
+那进阶的要求又来了：
+一、S3的pre signed的URL
+由于程序之前是在AWS跑的，所以用了S3的最佳实践，pre sign url来进行上传和下载，那seaweedfs也是完全支持的，基本是无缝修改
+给出验证程序：
+import boto3
+from botocore.client import Config
+
+# Configure the S3 client to point to your SeaweedFS S3 gateway
+s3_client = boto3.client(
+    's3',
+    endpoint_url='https://s3.rendoumi.com',  # Replace with your SeaweedFS S3 gateway address
+    aws_access_key_id='aaaaaaaa',
+    aws_secret_access_key='bbbbbbb',
+    config=Config(signature_version='s3v4')
+)
+
+bucket_name = 'myfiles'
+object_key = 'your-object-key'
+expiration_seconds = 3600  # URL valid for 1 hour
+
+# Generate a pre-signed URL for uploading (PUT)
+try:
+    upload_url = s3_client.generate_presigned_url(
+        'put_object',
+        Params={'Bucket': bucket_name, 'Key': object_key, 'ContentType': 'application/octet-stream'},
+        ExpiresIn=expiration_seconds
+    )
+    print(f&#34;Pre-signed URL for upload: {upload_url}&#34;)
+except Exception as e:
+    print(f&#34;Error generating upload URL: {e}&#34;)
+
+# Generate a pre-signed URL for downloading (GET)
+try:
+    download_url = s3_client.generate_presigned_url(
+        'get_object',
+        Params={'Bucket': bucket_name, 'Key': object_key},
+        ExpiresIn=expiration_seconds
+    )
+    print(f&#34;Pre-signed URL for download: {download_url}&#34;)
+except Exception as e:
+    print(f&#34;Error generating download URL: {e}&#34;)
+能看到临时生成的upload的URL和download的URL，是完美支持的"><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20250917-seaweedfs_prod/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20250917-seaweedfs_prod/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20250917-seaweedfs_prod/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="seaweedfs的s3进阶试用方法"><meta property="og:description" content="SeaweedFS 已经用docker compose的方式部署在生产环境内中了，对外只开放了一个S3的端口127.0.0.1:8333，然后前面套上Caddy的https代理，这样很安全了。
+那进阶的要求又来了：
+一、S3的pre signed的URL 由于程序之前是在AWS跑的，所以用了S3的最佳实践，pre sign url来进行上传和下载，那seaweedfs也是完全支持的，基本是无缝修改
+给出验证程序：
+import boto3 from botocore.client import Config # Configure the S3 client to point to your SeaweedFS S3 gateway s3_client = boto3.client( 's3', endpoint_url='https://s3.rendoumi.com', # Replace with your SeaweedFS S3 gateway address aws_access_key_id='aaaaaaaa', aws_secret_access_key='bbbbbbb', config=Config(signature_version='s3v4') ) bucket_name = 'myfiles' object_key = 'your-object-key' expiration_seconds = 3600 # URL valid for 1 hour # Generate a pre-signed URL for uploading (PUT) try: upload_url = s3_client.generate_presigned_url( 'put_object', Params={'Bucket': bucket_name, 'Key': object_key, 'ContentType': 'application/octet-stream'}, ExpiresIn=expiration_seconds ) print(f&#34;Pre-signed URL for upload: {upload_url}&#34;) except Exception as e: print(f&#34;Error generating upload URL: {e}&#34;) # Generate a pre-signed URL for downloading (GET) try: download_url = s3_client.generate_presigned_url( 'get_object', Params={'Bucket': bucket_name, 'Key': object_key}, ExpiresIn=expiration_seconds ) print(f&#34;Pre-signed URL for download: {download_url}&#34;) except Exception as e: print(f&#34;Error generating download URL: {e}&#34;) 能看到临时生成的upload的URL和download的URL，是完美支持的"><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2025-09-17T09:01:11+08:00"><meta property="article:modified_time" content="2025-09-17T09:01:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="seaweedfs的s3进阶试用方法"><meta name=twitter:description content="SeaweedFS 已经用docker compose的方式部署在生产环境内中了，对外只开放了一个S3的端口127.0.0.1:8333，然后前面套上Caddy的https代理，这样很安全了。
+那进阶的要求又来了：
+一、S3的pre signed的URL
+由于程序之前是在AWS跑的，所以用了S3的最佳实践，pre sign url来进行上传和下载，那seaweedfs也是完全支持的，基本是无缝修改
+给出验证程序：
+import boto3
+from botocore.client import Config
+
+# Configure the S3 client to point to your SeaweedFS S3 gateway
+s3_client = boto3.client(
+    's3',
+    endpoint_url='https://s3.rendoumi.com',  # Replace with your SeaweedFS S3 gateway address
+    aws_access_key_id='aaaaaaaa',
+    aws_secret_access_key='bbbbbbb',
+    config=Config(signature_version='s3v4')
+)
+
+bucket_name = 'myfiles'
+object_key = 'your-object-key'
+expiration_seconds = 3600  # URL valid for 1 hour
+
+# Generate a pre-signed URL for uploading (PUT)
+try:
+    upload_url = s3_client.generate_presigned_url(
+        'put_object',
+        Params={'Bucket': bucket_name, 'Key': object_key, 'ContentType': 'application/octet-stream'},
+        ExpiresIn=expiration_seconds
+    )
+    print(f&#34;Pre-signed URL for upload: {upload_url}&#34;)
+except Exception as e:
+    print(f&#34;Error generating upload URL: {e}&#34;)
+
+# Generate a pre-signed URL for downloading (GET)
+try:
+    download_url = s3_client.generate_presigned_url(
+        'get_object',
+        Params={'Bucket': bucket_name, 'Key': object_key},
+        ExpiresIn=expiration_seconds
+    )
+    print(f&#34;Pre-signed URL for download: {download_url}&#34;)
+except Exception as e:
+    print(f&#34;Error generating download URL: {e}&#34;)
+能看到临时生成的upload的URL和download的URL，是完美支持的"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"seaweedfs的s3进阶试用方法","item":"https://rendoumi.com/posts/20250917-seaweedfs_prod/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"seaweedfs的s3进阶试用方法","name":"seaweedfs的s3进阶试用方法","description":"SeaweedFS 已经用docker compose的方式部署在生产环境内中了，对外只开放了一个S3的端口127.0.0.1:8333，然后前面套上Caddy的https代理，这样很安全了。\n那进阶的要求又来了：\n一、S3的pre signed的URL 由于程序之前是在AWS跑的，所以用了S3的最佳实践，pre sign url来进行上传和下载，那seaweedfs也是完全支持的，基本是无缝修改\n给出验证程序：\nimport boto3 from botocore.client import Config # Configure the S3 client to point to your SeaweedFS S3 gateway s3_client = boto3.client( \u0026#39;s3\u0026#39;, endpoint_url=\u0026#39;https://s3.rendoumi.com\u0026#39;, # Replace with your SeaweedFS S3 gateway address aws_access_key_id=\u0026#39;aaaaaaaa\u0026#39;, aws_secret_access_key=\u0026#39;bbbbbbb\u0026#39;, config=Config(signature_version=\u0026#39;s3v4\u0026#39;) ) bucket_name = \u0026#39;myfiles\u0026#39; object_key = \u0026#39;your-object-key\u0026#39; expiration_seconds = 3600 # URL valid for 1 hour # Generate a pre-signed URL for uploading (PUT) try: upload_url = s3_client.generate_presigned_url( \u0026#39;put_object\u0026#39;, Params={\u0026#39;Bucket\u0026#39;: bucket_name, \u0026#39;Key\u0026#39;: object_key, \u0026#39;ContentType\u0026#39;: \u0026#39;application/octet-stream\u0026#39;}, ExpiresIn=expiration_seconds ) print(f\u0026#34;Pre-signed URL for upload: {upload_url}\u0026#34;) except Exception as e: print(f\u0026#34;Error generating upload URL: {e}\u0026#34;) # Generate a pre-signed URL for downloading (GET) try: download_url = s3_client.generate_presigned_url( \u0026#39;get_object\u0026#39;, Params={\u0026#39;Bucket\u0026#39;: bucket_name, \u0026#39;Key\u0026#39;: object_key}, ExpiresIn=expiration_seconds ) print(f\u0026#34;Pre-signed URL for download: {download_url}\u0026#34;) except Exception as e: print(f\u0026#34;Error generating download URL: {e}\u0026#34;) 能看到临时生成的upload的URL和download的URL，是完美支持的\n","keywords":[],"articleBody":"SeaweedFS 已经用docker compose的方式部署在生产环境内中了，对外只开放了一个S3的端口127.0.0.1:8333，然后前面套上Caddy的https代理，这样很安全了。\n那进阶的要求又来了：\n一、S3的pre signed的URL 由于程序之前是在AWS跑的，所以用了S3的最佳实践，pre sign url来进行上传和下载，那seaweedfs也是完全支持的，基本是无缝修改\n给出验证程序：\nimport boto3 from botocore.client import Config # Configure the S3 client to point to your SeaweedFS S3 gateway s3_client = boto3.client( 's3', endpoint_url='https://s3.rendoumi.com', # Replace with your SeaweedFS S3 gateway address aws_access_key_id='aaaaaaaa', aws_secret_access_key='bbbbbbb', config=Config(signature_version='s3v4') ) bucket_name = 'myfiles' object_key = 'your-object-key' expiration_seconds = 3600 # URL valid for 1 hour # Generate a pre-signed URL for uploading (PUT) try: upload_url = s3_client.generate_presigned_url( 'put_object', Params={'Bucket': bucket_name, 'Key': object_key, 'ContentType': 'application/octet-stream'}, ExpiresIn=expiration_seconds ) print(f\"Pre-signed URL for upload: {upload_url}\") except Exception as e: print(f\"Error generating upload URL: {e}\") # Generate a pre-signed URL for downloading (GET) try: download_url = s3_client.generate_presigned_url( 'get_object', Params={'Bucket': bucket_name, 'Key': object_key}, ExpiresIn=expiration_seconds ) print(f\"Pre-signed URL for download: {download_url}\") except Exception as e: print(f\"Error generating download URL: {e}\") 能看到临时生成的upload的URL和download的URL，是完美支持的\n二、s3的域名代理 那aws的s3桶默认是有个域名的bucket.ap-southease-1……，前面也可以套上Cloudfront把桶做成静态网站的CDN\n那迁移的话，做法也有两种，一是CDN厂家直接支持源端是S3桶，那这种就好办了，直接配置即可\n第二种就是没有这功能，那只能把seaweedfs的filter的暴露出来，然后让CDN厂家http回源\n那做法也很简单，修改docker -compose.yaml放开8888端口\nservices: seaweedfs-s3: image: chrislusf/seaweedfs container_name: seaweedfs-s3 volumes: - ./data:/data - ./config/config.json:/seaweedfs/config.json ports: - \"127.0.0.1:8333:8333\" - \"127.0.0.1:8888:8888\" entrypoint: /bin/sh -c command: | \"echo 'Starting SeaweedFS S3 server' \u0026\u0026 \\ weed server -dir=/data -volume.max=100 -s3 -s3.config /seaweedfs/config.json\" restart: unless-stopped 然后用Caddy进行反代，Caddyfile如下：\ns3.rendoumi.com { reverse_proxy 127.0.0.1:8333 } mybucket.s3.rendoumi { rewrite * /buckets/mybucket{uri} reverse_proxy http://127.0.0.1:8888 } 上面有一点要注意，seaweedfs暴漏出的8888端口可以看到所有桶，都在/buckets下，我们只想暴漏mybucket的话，就需要对url进行改写。\n三、s3的cors 程序里居然还用到了s3的core，那比较麻烦了，万幸的是seaweedfs居然也支持！！！\n链接：https://github.com/seaweedfs/seaweedfs/wiki/S3-CORS\n我们只限制 mybucket 的桶的cors，先准备一个cors.xml文件\nhttps://www.rendoumi.com https://mybucket.rendoumi.com https://*.rendoumi.com https://mybucket.fcdn.net GET POST PUT HEAD DELETE * ETag Access-Control-Allow-Origin 3600 这个是真无语，因为minio的mc只支持这个模式，不支持json（或者是自己没找到json的配法）\n然后用mc推进去即可\nmc cors set mys3/mybucket /data/weedfs/cors.xml mc cors get mys3/mybucket 这样就搞定了。\n","wordCount":"222","inLanguage":"zh","datePublished":"2025-09-17T09:01:11+08:00","dateModified":"2025-09-17T09:01:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20250917-seaweedfs_prod/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">seaweedfs的s3进阶试用方法
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2025-09-17 09:01:11 +0800 CST'>2025年9月17日</span></div></header><div class=post-content><p>SeaweedFS 已经用docker compose的方式部署在生产环境内中了，对外只开放了一个S3的端口127.0.0.1:8333，然后前面套上Caddy的https代理，这样很安全了。</p><p>那进阶的要求又来了：</p><h5 id=一s3的pre-signed的url>一、S3的pre signed的URL<a hidden class=anchor aria-hidden=true href=#一s3的pre-signed的url>#</a></h5><p>由于程序之前是在AWS跑的，所以用了S3的最佳实践，pre sign url来进行上传和下载，那seaweedfs也是完全支持的，基本是无缝修改</p><p>给出验证程序：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>import boto3
+</span></span><span class=line><span class=cl>from botocore.client import Config
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Configure the S3 client to point to your SeaweedFS S3 gateway</span>
+</span></span><span class=line><span class=cl><span class=nv>s3_client</span> <span class=o>=</span> boto3.client<span class=o>(</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;s3&#39;</span>,
+</span></span><span class=line><span class=cl>    <span class=nv>endpoint_url</span><span class=o>=</span><span class=s1>&#39;https://s3.rendoumi.com&#39;</span>,  <span class=c1># Replace with your SeaweedFS S3 gateway address</span>
+</span></span><span class=line><span class=cl>    <span class=nv>aws_access_key_id</span><span class=o>=</span><span class=s1>&#39;aaaaaaaa&#39;</span>,
+</span></span><span class=line><span class=cl>    <span class=nv>aws_secret_access_key</span><span class=o>=</span><span class=s1>&#39;bbbbbbb&#39;</span>,
+</span></span><span class=line><span class=cl>    <span class=nv>config</span><span class=o>=</span>Config<span class=o>(</span><span class=nv>signature_version</span><span class=o>=</span><span class=s1>&#39;s3v4&#39;</span><span class=o>)</span>
+</span></span><span class=line><span class=cl><span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>bucket_name</span> <span class=o>=</span> <span class=s1>&#39;myfiles&#39;</span>
+</span></span><span class=line><span class=cl><span class=nv>object_key</span> <span class=o>=</span> <span class=s1>&#39;your-object-key&#39;</span>
+</span></span><span class=line><span class=cl><span class=nv>expiration_seconds</span> <span class=o>=</span> <span class=m>3600</span>  <span class=c1># URL valid for 1 hour</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Generate a pre-signed URL for uploading (PUT)</span>
+</span></span><span class=line><span class=cl>try:
+</span></span><span class=line><span class=cl>    <span class=nv>upload_url</span> <span class=o>=</span> s3_client.generate_presigned_url<span class=o>(</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;put_object&#39;</span>,
+</span></span><span class=line><span class=cl>        <span class=nv>Params</span><span class=o>={</span><span class=s1>&#39;Bucket&#39;</span>: bucket_name, <span class=s1>&#39;Key&#39;</span>: object_key, <span class=s1>&#39;ContentType&#39;</span>: <span class=s1>&#39;application/octet-stream&#39;</span><span class=o>}</span>,
+</span></span><span class=line><span class=cl>        <span class=nv>ExpiresIn</span><span class=o>=</span>expiration_seconds
+</span></span><span class=line><span class=cl>    <span class=o>)</span>
+</span></span><span class=line><span class=cl>    print<span class=o>(</span>f<span class=s2>&#34;Pre-signed URL for upload: {upload_url}&#34;</span><span class=o>)</span>
+</span></span><span class=line><span class=cl>except Exception as e:
+</span></span><span class=line><span class=cl>    print<span class=o>(</span>f<span class=s2>&#34;Error generating upload URL: {e}&#34;</span><span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Generate a pre-signed URL for downloading (GET)</span>
+</span></span><span class=line><span class=cl>try:
+</span></span><span class=line><span class=cl>    <span class=nv>download_url</span> <span class=o>=</span> s3_client.generate_presigned_url<span class=o>(</span>
+</span></span><span class=line><span class=cl>        <span class=s1>&#39;get_object&#39;</span>,
+</span></span><span class=line><span class=cl>        <span class=nv>Params</span><span class=o>={</span><span class=s1>&#39;Bucket&#39;</span>: bucket_name, <span class=s1>&#39;Key&#39;</span>: object_key<span class=o>}</span>,
+</span></span><span class=line><span class=cl>        <span class=nv>ExpiresIn</span><span class=o>=</span>expiration_seconds
+</span></span><span class=line><span class=cl>    <span class=o>)</span>
+</span></span><span class=line><span class=cl>    print<span class=o>(</span>f<span class=s2>&#34;Pre-signed URL for download: {download_url}&#34;</span><span class=o>)</span>
+</span></span><span class=line><span class=cl>except Exception as e:
+</span></span><span class=line><span class=cl>    print<span class=o>(</span>f<span class=s2>&#34;Error generating download URL: {e}&#34;</span><span class=o>)</span>
+</span></span></code></pre></div><p>能看到临时生成的upload的URL和download的URL，是完美支持的</p><p><img alt=image-20250917095011527 loading=lazy src=/posts/20250917-seaweedfs_prod/image-20250917095011527.png></p><h5 id=二s3的域名代理>二、s3的域名代理<a hidden class=anchor aria-hidden=true href=#二s3的域名代理>#</a></h5><p>那aws的s3桶默认是有个域名的bucket.ap-southease-1&mldr;&mldr;，前面也可以套上Cloudfront把桶做成静态网站的CDN</p><p>那迁移的话，做法也有两种，一是CDN厂家直接支持源端是S3桶，那这种就好办了，直接配置即可</p><p>第二种就是没有这功能，那只能把seaweedfs的filter的暴露出来，然后让CDN厂家http回源</p><p>那做法也很简单，修改docker -compose.yaml放开8888端口</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>services:
+</span></span><span class=line><span class=cl>  seaweedfs-s3:
+</span></span><span class=line><span class=cl>    image: chrislusf/seaweedfs
+</span></span><span class=line><span class=cl>    container_name: seaweedfs-s3
+</span></span><span class=line><span class=cl>    volumes:
+</span></span><span class=line><span class=cl>      - ./data:/data
+</span></span><span class=line><span class=cl>      - ./config/config.json:/seaweedfs/config.json
+</span></span><span class=line><span class=cl>    ports:
+</span></span><span class=line><span class=cl>      - <span class=s2>&#34;127.0.0.1:8333:8333&#34;</span>
+</span></span><span class=line><span class=cl>      - <span class=s2>&#34;127.0.0.1:8888:8888&#34;</span>
+</span></span><span class=line><span class=cl>    entrypoint: /bin/sh -c
+</span></span><span class=line><span class=cl>    command: <span class=p>|</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;echo &#39;Starting SeaweedFS S3 server&#39; &amp;&amp; \
+</span></span></span><span class=line><span class=cl><span class=s2>      weed server -dir=/data -volume.max=100 -s3 -s3.config /seaweedfs/config.json&#34;</span>
+</span></span><span class=line><span class=cl>    restart: unless-stopped
+</span></span></code></pre></div><p>然后用Caddy进行反代，Caddyfile如下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>s3.rendoumi.com <span class=o>{</span>
+</span></span><span class=line><span class=cl>  reverse_proxy 127.0.0.1:8333
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>mybucket.s3.rendoumi <span class=o>{</span>
+</span></span><span class=line><span class=cl>    rewrite * /buckets/mybucket<span class=o>{</span>uri<span class=o>}</span>
+</span></span><span class=line><span class=cl>    reverse_proxy http://127.0.0.1:8888
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></div><p>上面有一点要注意，seaweedfs暴漏出的8888端口可以看到所有桶，都在/buckets下，我们只想暴漏mybucket的话，就需要对url进行改写。</p><h5 id=三s3的cors>三、s3的cors<a hidden class=anchor aria-hidden=true href=#三s3的cors>#</a></h5><p>程序里居然还用到了s3的core，那比较麻烦了，万幸的是seaweedfs居然也支持！！！</p><p>链接：https://github.com/seaweedfs/seaweedfs/wiki/S3-CORS</p><p>我们只限制 mybucket 的桶的cors，先准备一个cors.xml文件</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>&lt;CORSConfiguration&gt;
+</span></span><span class=line><span class=cl>  &lt;CORSRule&gt;
+</span></span><span class=line><span class=cl>    &lt;AllowedOrigin&gt;https://www.rendoumi.com&lt;/AllowedOrigin&gt;
+</span></span><span class=line><span class=cl>    &lt;AllowedOrigin&gt;https://mybucket.rendoumi.com&lt;/AllowedOrigin&gt;
+</span></span><span class=line><span class=cl>    &lt;AllowedOrigin&gt;https://*.rendoumi.com&lt;/AllowedOrigin&gt;
+</span></span><span class=line><span class=cl>    &lt;AllowedOrigin&gt;https://mybucket.fcdn.net&lt;/AllowedOrigin&gt;
+</span></span><span class=line><span class=cl>    &lt;AllowedMethod&gt;GET&lt;/AllowedMethod&gt;
+</span></span><span class=line><span class=cl>    &lt;AllowedMethod&gt;POST&lt;/AllowedMethod&gt;
+</span></span><span class=line><span class=cl>    &lt;AllowedMethod&gt;PUT&lt;/AllowedMethod&gt;
+</span></span><span class=line><span class=cl>    &lt;AllowedMethod&gt;HEAD&lt;/AllowedMethod&gt;
+</span></span><span class=line><span class=cl>    &lt;AllowedMethod&gt;DELETE&lt;/AllowedMethod&gt;
+</span></span><span class=line><span class=cl>    &lt;AllowedHeader&gt;*&lt;/AllowedHeader&gt;
+</span></span><span class=line><span class=cl>    &lt;ExposeHeader&gt;ETag&lt;/ExposeHeader&gt;
+</span></span><span class=line><span class=cl>    &lt;ExposeHeader&gt;Access-Control-Allow-Origin&lt;/ExposeHeader&gt;
+</span></span><span class=line><span class=cl>    &lt;MaxAgeSeconds&gt;3600&lt;/MaxAgeSeconds&gt;
+</span></span><span class=line><span class=cl>  &lt;/CORSRule&gt;
+</span></span><span class=line><span class=cl>&lt;/CORSConfiguration&gt;
+</span></span></code></pre></div><p>这个是真无语，因为minio的mc只支持这个模式，不支持json（或者是自己没找到json的配法）</p><p>然后用mc推进去即可</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>mc cors <span class=nb>set</span> mys3/mybucket /data/weedfs/cors.xml
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>mc cors get mys3/mybucket
+</span></span></code></pre></div><p>这样就搞定了。</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

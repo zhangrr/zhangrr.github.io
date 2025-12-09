@@ -1,0 +1,455 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>kubernetes的hpa和自定义指标hpa | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='kubernetes 的动态伸缩 HPA 是非常有用的特性。
+我们的服务器托管在阿里云的 ACK 上，k8s 根据 cpu 或者 内存的使用情况，会自动伸缩关键 pod 的数量，以应对大流量的情形。而且更妙的是，动态扩展的 pod 并不是使用自己的固定服务器，而是使用阿里动态的 ECI 虚拟节点服务器，这样就真的是即开即用，用完即毁。有多大流量付多少钱，物尽其用。
+我们先明确一下概念：
+k8s 的资源指标获取是通过 api 接口来获得的，有两种 api，一种是核心指标，一种是自定义指标。
+
+
+核心指标：Core metrics，由metrics-server提供API，即 metrics.k8s.io，仅提供Node和Pod的CPU和内存使用情况。api 是 metrics.k8s.io
+
+
+自定义指标：Custom Metrics，由Prometheus Adapter提供API，即 custom.metrics.k8s.io，由此可支持任意Prometheus采集到的自定义指标。api 是 custom.metrics.k8s.io 和 external.metrics.k8s.io
+
+
+一、核心指标metrics-server
+阿里的 ACK 缺省是装了 metrics-server 的，看一下，系统里有一个metrics-server
+kubectl get pods -n kube-system
+
+再看看 api 的核心指标能拿到什么，先看 Node 的指标：
+kubectl get --raw "/apis/metrics.k8s.io" | jq .
+kubectl get --raw "/apis/metrics.k8s.io/v1beta1" | jq .
+kubectl get --raw "/apis/metrics.k8s.io/v1beta1/nodes" | jq . 
+
+可以看到阿里 eci 虚拟节点的 cpu 和 memory 资源。'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20211125-kubernetes_hpa/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20211125-kubernetes_hpa/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20211125-kubernetes_hpa/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="kubernetes的hpa和自定义指标hpa"><meta property="og:description" content='kubernetes 的动态伸缩 HPA 是非常有用的特性。
+我们的服务器托管在阿里云的 ACK 上，k8s 根据 cpu 或者 内存的使用情况，会自动伸缩关键 pod 的数量，以应对大流量的情形。而且更妙的是，动态扩展的 pod 并不是使用自己的固定服务器，而是使用阿里动态的 ECI 虚拟节点服务器，这样就真的是即开即用，用完即毁。有多大流量付多少钱，物尽其用。
+我们先明确一下概念：
+k8s 的资源指标获取是通过 api 接口来获得的，有两种 api，一种是核心指标，一种是自定义指标。
+核心指标：Core metrics，由metrics-server提供API，即 metrics.k8s.io，仅提供Node和Pod的CPU和内存使用情况。api 是 metrics.k8s.io
+自定义指标：Custom Metrics，由Prometheus Adapter提供API，即 custom.metrics.k8s.io，由此可支持任意Prometheus采集到的自定义指标。api 是 custom.metrics.k8s.io 和 external.metrics.k8s.io
+一、核心指标metrics-server 阿里的 ACK 缺省是装了 metrics-server 的，看一下，系统里有一个metrics-server
+kubectl get pods -n kube-system 再看看 api 的核心指标能拿到什么，先看 Node 的指标：
+kubectl get --raw "/apis/metrics.k8s.io" | jq . kubectl get --raw "/apis/metrics.k8s.io/v1beta1" | jq . kubectl get --raw "/apis/metrics.k8s.io/v1beta1/nodes" | jq . 可以看到阿里 eci 虚拟节点的 cpu 和 memory 资源。'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2021-11-25T09:30:11+08:00"><meta property="article:modified_time" content="2021-11-25T09:30:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="kubernetes的hpa和自定义指标hpa"><meta name=twitter:description content='kubernetes 的动态伸缩 HPA 是非常有用的特性。
+我们的服务器托管在阿里云的 ACK 上，k8s 根据 cpu 或者 内存的使用情况，会自动伸缩关键 pod 的数量，以应对大流量的情形。而且更妙的是，动态扩展的 pod 并不是使用自己的固定服务器，而是使用阿里动态的 ECI 虚拟节点服务器，这样就真的是即开即用，用完即毁。有多大流量付多少钱，物尽其用。
+我们先明确一下概念：
+k8s 的资源指标获取是通过 api 接口来获得的，有两种 api，一种是核心指标，一种是自定义指标。
+
+
+核心指标：Core metrics，由metrics-server提供API，即 metrics.k8s.io，仅提供Node和Pod的CPU和内存使用情况。api 是 metrics.k8s.io
+
+
+自定义指标：Custom Metrics，由Prometheus Adapter提供API，即 custom.metrics.k8s.io，由此可支持任意Prometheus采集到的自定义指标。api 是 custom.metrics.k8s.io 和 external.metrics.k8s.io
+
+
+一、核心指标metrics-server
+阿里的 ACK 缺省是装了 metrics-server 的，看一下，系统里有一个metrics-server
+kubectl get pods -n kube-system
+
+再看看 api 的核心指标能拿到什么，先看 Node 的指标：
+kubectl get --raw "/apis/metrics.k8s.io" | jq .
+kubectl get --raw "/apis/metrics.k8s.io/v1beta1" | jq .
+kubectl get --raw "/apis/metrics.k8s.io/v1beta1/nodes" | jq . 
+
+可以看到阿里 eci 虚拟节点的 cpu 和 memory 资源。'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"kubernetes的hpa和自定义指标hpa","item":"https://rendoumi.com/posts/20211125-kubernetes_hpa/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"kubernetes的hpa和自定义指标hpa","name":"kubernetes的hpa和自定义指标hpa","description":"kubernetes 的动态伸缩 HPA 是非常有用的特性。\n我们的服务器托管在阿里云的 ACK 上，k8s 根据 cpu 或者 内存的使用情况，会自动伸缩关键 pod 的数量，以应对大流量的情形。而且更妙的是，动态扩展的 pod 并不是使用自己的固定服务器，而是使用阿里动态的 ECI 虚拟节点服务器，这样就真的是即开即用，用完即毁。有多大流量付多少钱，物尽其用。\n我们先明确一下概念：\nk8s 的资源指标获取是通过 api 接口来获得的，有两种 api，一种是核心指标，一种是自定义指标。\n核心指标：Core metrics，由metrics-server提供API，即 metrics.k8s.io，仅提供Node和Pod的CPU和内存使用情况。api 是 metrics.k8s.io\n自定义指标：Custom Metrics，由Prometheus Adapter提供API，即 custom.metrics.k8s.io，由此可支持任意Prometheus采集到的自定义指标。api 是 custom.metrics.k8s.io 和 external.metrics.k8s.io\n一、核心指标metrics-server 阿里的 ACK 缺省是装了 metrics-server 的，看一下，系统里有一个metrics-server\nkubectl get pods -n kube-system 再看看 api 的核心指标能拿到什么，先看 Node 的指标：\nkubectl get --raw \u0026#34;/apis/metrics.k8s.io\u0026#34; | jq . kubectl get --raw \u0026#34;/apis/metrics.k8s.io/v1beta1\u0026#34; | jq . kubectl get --raw \u0026#34;/apis/metrics.k8s.io/v1beta1/nodes\u0026#34; | jq . 可以看到阿里 eci 虚拟节点的 cpu 和 memory 资源。\n","keywords":[],"articleBody":"kubernetes 的动态伸缩 HPA 是非常有用的特性。\n我们的服务器托管在阿里云的 ACK 上，k8s 根据 cpu 或者 内存的使用情况，会自动伸缩关键 pod 的数量，以应对大流量的情形。而且更妙的是，动态扩展的 pod 并不是使用自己的固定服务器，而是使用阿里动态的 ECI 虚拟节点服务器，这样就真的是即开即用，用完即毁。有多大流量付多少钱，物尽其用。\n我们先明确一下概念：\nk8s 的资源指标获取是通过 api 接口来获得的，有两种 api，一种是核心指标，一种是自定义指标。\n核心指标：Core metrics，由metrics-server提供API，即 metrics.k8s.io，仅提供Node和Pod的CPU和内存使用情况。api 是 metrics.k8s.io\n自定义指标：Custom Metrics，由Prometheus Adapter提供API，即 custom.metrics.k8s.io，由此可支持任意Prometheus采集到的自定义指标。api 是 custom.metrics.k8s.io 和 external.metrics.k8s.io\n一、核心指标metrics-server 阿里的 ACK 缺省是装了 metrics-server 的，看一下，系统里有一个metrics-server\nkubectl get pods -n kube-system 再看看 api 的核心指标能拿到什么，先看 Node 的指标：\nkubectl get --raw \"/apis/metrics.k8s.io\" | jq . kubectl get --raw \"/apis/metrics.k8s.io/v1beta1\" | jq . kubectl get --raw \"/apis/metrics.k8s.io/v1beta1/nodes\" | jq . 可以看到阿里 eci 虚拟节点的 cpu 和 memory 资源。\n再看看 Pod 的指标：\nkubectl get --raw \"/apis/metrics.k8s.io/v1beta1/pods\" | jq . 可以清楚得看到调度到虚拟节点上的 Pod 的 cpu 和 memory 资源使用情况。大家看到只有 cpu 和 memory，这就够了。\n给个全部使用自己 Work Node 实体节点伸缩的例子：\nphp-hpa.yaml (这里定义了平均cpu使用到达80%或者内存平均使用到200M就伸缩）：\nphp-hpa 规范了 php-deploy 如何伸缩，最小2，最大10：\napiVersion: autoscaling/v2beta1 kind: HorizontalPodAutoscaler metadata: name: php-hpa namespace: default spec: scaleTargetRef: apiVersion: extensions/v1beta1 kind: Deployment name: php-deploy minReplicas: 2 maxReplicas: 10 metrics: - type: Resource resource: name: cpu targetAverageUtilization: 80 - type: Resource resource: name: memory targetAverageValue: 200Mi 再给个阿里 ACK 使用 ECI 虚拟节点伸缩的例子：\n我们首先定义一个正常的 deployment ，php-deploy，这个就正常定义跟别的没区别。\n然后再定义扩展到 eci 节点的 ElasticWorload，elastic-php，这个用来控制 php-deploy 拓展到 eci 虚拟节点去\n下面是固定6个，动态24个，合计30个\napiVersion: autoscaling.alibabacloud.com/v1beta1 kind: ElasticWorkload metadata: name: elastic-php spec: sourceTarget: name: php-deploy kind: Deployment apiVersion: apps/v1 min: 0 max: 6 elasticUnit: - name: virtual-kubelet labels: virtual-kubelet: \"true\" alibabacloud.com/eci: \"true\" annotations: virtual-kubelet: \"true\" nodeSelector: type: \"virtual-kubelet\" tolerations: - key: \"virtual-kubelet.io/provider\" operator: \"Exists\" min: 0 max: 24 replicas: 30 然后定义 HPA php-hpa 来控制 elastic-php 的自动伸缩\napiVersion: autoscaling/v2beta2 kind: HorizontalPodAutoscaler metadata: name: php-hpa namespace: default spec: scaleTargetRef: apiVersion: autoscaling.alibabacloud.com/v1beta1 kind: ElasticWorkload name: elastic-php minReplicas: 6 maxReplicas: 30 metrics: - type: Resource resource: name: cpu target: type: Utilization averageUtilization: 90 behavior: scaleUp: policies: #- type: percent # value: 500% - type: Pods value: 5 periodSeconds: 180 scaleDown: policies: - type: Pods value: 1 periodSeconds: 600 上面的 ElasticWorkload 需要仔细解释一下，php-deploy 定义的 pod 副本固定是6个，这6个都是在我们自己节点上不用再付费，然后 ECI 的 pod 副本数是0个到24个，那么总体pod数量就是 6+24 = 30 个，其中 24个是可以在虚拟节点上伸缩的。而 php-hpa 定义了伸缩范围是 6-30，那就意味着平时流量小的时候用的都是自己服务器上那6个固定 pod，如果流量大了，就会扩大到 eci 虚拟节点上，虚拟节点最大量是24个，如果流量降下来了，就会缩回去，缩到自己服务器的6个pod 上去。这样可以精确控制成本。\nphp-hpa 定义的最下面，扩大的时候如果 cpu 到了 90%，那么一次性扩大5个pod，缩小的时候一个一个缩，这样避免带来流量的毛刺。\n二、自定义指标Prometheus 如上其实已经可以满足大多数要求了，但是想更进一步，比如想从 Prometheus 拿到的指标来进行 hpa 伸缩。\n那就比较麻烦了\n看上图，Prometheus Operator 通过 http 拉取 pod 的 metric 指标，Prometheus Adaptor 再拉取 Prometheus Operator 存储的数据并且暴露给 Custom API 使用。为啥要弄这二个东西呢？因为 Prometheus 采集到的 metrics 数据并不能直接给 k8s 用，因为两者数据格式不兼容，还需要另外一个组件(kube-state-metrics)，将prometheus 的 metrics 数据格式转换成 k8s API 接口能识别的格式，转换以后，因为是自定义API，所以还需要用 Kubernetes aggregator 在主 API 服务器中注册，以便其他程序直接通过 /apis/ 来访问。\n我们首先来看看如何安装这二个东西：\n首先装 Prometheus Operator，这家伙会自动装一捆东西， Pormetheus、Grafana、Alert manager等，所以最好给它单独弄一个命名空间\nprometheus-operator prometheus alertmanager node-exporter kube-state-metrics grafana #安装 helm install --name prometheus --namespace monitoring stable/prometheus-operator #开个端口本地访问 prometheus 的面板，curl http://localhost:9090 kubectl port-forward --namespace monitoring svc/prometheus-operator-prometheus 9090:9090 #看看都有什么pod kubectl get pod -n monitoring NAME READY STATUS RESTARTS AGE pod/alertmanager-prometheus-operator-alertmanager-0 2/2 Running 0 98m pod/prometheus-operator-grafana-857dfc5fc8-vdnff 2/2 Running 0 99m pod/prometheus-operator-kube-state-metrics-66b4c95cd9-mz8nt 1/1 Running 0 99m pod/prometheus-operator-operator-56964458-8sspk 2/2 Running 0 99m pod/prometheus-operator-prometheus-node-exporter-dcf5p 1/1 Running 0 99m pod/prometheus-operator-prometheus-node-exporter-nv6ph 1/1 Running 0 99m pod/prometheus-prometheus-operator-prometheus-0 3/3 Running 1 98m #看看都有什么svc kubectl get svc -n monitoring NAME TYPE CLUSTER-IP EXTERNAL-IP PORT(S) AGE alertmanager-operated ClusterIP None 9093/TCP,9094/TCP,9094/UDP 100m prometheus-operated ClusterIP None 9090/TCP 100m prometheus-operator-alertmanager NodePort 10.1.238.78 9093:31765/TCP 102m prometheus-operator-grafana NodePort 10.1.125.228 80:30284/TCP 102m prometheus-operator-kube-state-metrics ClusterIP 10.1.187.129 8080/TCP 102m prometheus-operator-operator ClusterIP 10.1.242.61 8080/TCP,443/TCP 102m prometheus-operator-prometheus NodePort 10.1.156.181 9090:30268/TCP 102m prometheus-operator-prometheus-node-exporter ClusterIP 10.1.226.134 9100/TCP 102m 我们看到有 prometheus-operated 这个ClusterIP svc，注意 k8s 的 coredns 域名解析方式，集群的内部域名是 hbb.local，那么这个 svc 的全 hostname 就是 prometheus-operated.monitoring.svc.hbb.local，集群中可以取舍到 prometheus-operated.monitoring 或者 prometheus-operated.monitoring.svc 来访问。\n然后再装 Prometheus Adaptor，我们要根据上面的具体情况来设置 prometheus.url：\nhelm install --name prometheus-adapter stable/prometheus-adapter --set prometheus.url=\"http://prometheus-operated.monitoring.svc\",prometheus.port=\"9090\" --set image.tag=\"v0.4.1\" --set rbac.create=\"true\" --namespace custom-metrics 访问 external 和 custom 验证一下：\nkubectl get --raw \"/apis/external.metrics.k8s.io/v1beta1\" | jq { \"kind\": \"APIResourceList\", \"apiVersion\": \"v1\", \"groupVersion\": \"external.metrics.k8s.io/v1beta1\", \"resources\": [] } kubectl get --raw \"/apis/custom.metrics.k8s.io/v1beta1\" | jq { \"kind\": \"APIResourceList\", \"apiVersion\": \"v1\", \"groupVersion\": \"custom.metrics.k8s.io/v1beta1\", \"resources\": [ { \"name\": \"*/agent.googleapis.com|agent|api_request_count\", \"singularName\": \"\", \"namespaced\": true, \"kind\": \"MetricValueList\", \"verbs\": [ \"get\" ] }, [...lots more metrics...] { \"name\": \"*/vpn.googleapis.com|tunnel_established\", \"singularName\": \"\", \"namespaced\": true, \"kind\": \"MetricValueList\", \"verbs\": [ \"get\" ] } ] } 重头戏在下面，其实 Prometheus Adaptor 从 Prometheus 拿的指标也是有限的，如果有自定义指标，或者想多拿些，就得继续拓展！！！\n最快的方式是编辑 namespace 是 custom-metrics 下的 configmap ，名字是 Prometheus-adapter，增加seriesQuery\nseriesQuery长这样子，下面是统计了所有 app=shopping-kart 的 pod 5分钟之内的变化速率总和：\napiVersion: v1 kind: ConfigMap metadata: labels: app: prometheus-adapter chart: prometheus-adapter-v1.2.0 heritage: Tiller release: prometheus-adapter name: prometheus-adapter data: config.yaml: | - seriesQuery: '{app=\"shopping-kart\",kubernetes_namespace!=\"\",kubernetes_pod_name!=\"\"}' seriesFilters: [] resources: overrides: kubernetes_namespace: resource: namespace kubernetes_pod_name: resource: pod name: matches: \"\" as: \"\" metricsQuery: sum(rate(\u003c\u003c.Series\u003e\u003e{\u003c\u003c.LabelMatchers\u003e\u003e}[5m])) by (\u003c\u003c.GroupBy\u003e\u003e) Adapter configmap的配置如下：\nseriesQuery tells the Prometheus Metric name to the adapter（要去prometheus拿什么指标）\nresources tells which Kubernetes resources each metric is associated with or which labels does the metric include, e.g., namespace, pod etc.（关联的资源，最常用的就是 pod 和 namespace）\nmetricsQuery is the actual Prometheus query that needs to be performed to calculate the actual values.（叠加 seriesQuery 后发送给prometheus的实际查询，用于得出最终的指标值）\nname with which the metric should be exposed to the custom metrics API（暴露给API的指标名）\n举个例子：如果我们要计算 container_network_receive_packets_total，在Prometheus UI里我们要输入以下行来查询:\nsum(rate(container_network_receive_packets_total{namespace=“default”,pod=~“php-deploy.*”}[10m])) by (pod)*\n转换成 Adapter 的 metricsQuery 就变成这样了，很难懂：\n*metricsQuery: ‘sum(rate(«.series»{«.labelmatchers»}10m])) by («.groupby»)’\u003c/.groupby\u003e\u003c/.labelmatchers\u003e\u003c/.series\u003e*\n再给个例子：\nrate(gorush_total_push_count{instance=\"push.server.com:80\",job=\"push-server\"}[5m]) 变成 adapter 的 configmap\napiVersion: v1 data: config.yaml: | rules: - seriesQuery: '{__name__=~\"gorush_total_push_count\"}' seriesFilters: [] resources: overrides: namespace: resource: namespace pod: resource: pod name: matches: \"\" as: \"gorush_push_per_second\" metricsQuery: rate(\u003c\u003c.Series\u003e\u003e{\u003c\u003c.LabelMatchers\u003e\u003e}[5m]) 修改了configmap，必须重启prometheus-adapter的pod重新加载配置！！！\n在hpa中应用的例子：\napiVersion: autoscaling/v2beta1 kind: HorizontalPodAutoscaler metadata: name: gorush-hpa spec: scaleTargetRef: apiVersion: apps/v1 kind: Deployment name: gorush minReplicas: 1 maxReplicas: 5 metrics: - type: Pods pods: metricName: gorush_push_per_second targetAverageValue: 1m 再来一个，prometheus 函数名是 myapp_client_connected：\napiVersion: v1 data: config.yaml: | rules: - seriesQuery: '{__name__= \"myapp_client_connected\"}' seriesFilters: [] resources: overrides: k8s_namespace: resource: namespace k8s_pod_name: resource: pod name: matches: \"myapp_client_connected\" as: \"\" metricsQuery: \u003c\u003c.Series\u003e\u003e{\u003c\u003c.LabelMatchers\u003e\u003e,container_name!=\"POD\"} hpa的使用\napiVersion: autoscaling/v2beta1 kind: HorizontalPodAutoscaler metadata: name: hpa-sim namespace: default spec: scaleTargetRef: apiVersion: apps/v1 kind: Deployment name: hpa-sim minReplicas: 1 maxReplicas: 10 metrics: - type: Pods pods: metricName: myapp_client_connected targetAverageValue: 20 很复杂吧。我们下面给个详细例子\n三、自定义指标全套例子 我们先定义一个 deployment，运行一个 nginx-vts 的 pod，这个镜像其实已经自己暴露出了 metric 指标\napiVersion: apps/v1 kind: Deployment metadata: name: nginx-deploy annotations: prometheus.io/scrape: \"true\" prometheus.io/port: \"80\" prometheus.io/path: \"/status/format/prometheus\" spec: selector: matchLabels: app: nginx-deploy template: metadata: labels: app: nginx-deploy spec: containers: - name: nginx-deploy image: cnych/nginx-vts:v1.0 resources: limits: cpu: 50m requests: cpu: 50m ports: - containerPort: 80 name: http 然后定义个 svc，把80端口暴露出去\napiVersion: v1 kind: Service metadata: name: nginx-svc spec: ports: - port: 80 targetPort: 80 name: http selector: app: nginx-deploy type: ClusterIP prometheus 是自动发现的，所以 annotations 就会触发 prometheus 自动开始收集这些 nginx metric指标\n集群内起个shell，访问看看\n$ curl nginx-svc.default.svc.hbb.local/status/format/prometheus # HELP nginx_vts_info Nginx info # TYPE nginx_vts_info gauge nginx_vts_info{hostname=\"nginx-deployment-65d8df7488-c578v\",version=\"1.13.12\"} 1 # HELP nginx_vts_start_time_seconds Nginx start time # TYPE nginx_vts_start_time_seconds gauge nginx_vts_start_time_seconds 1574283147.043 # HELP nginx_vts_main_connections Nginx connections # TYPE nginx_vts_main_connections gauge nginx_vts_main_connections{status=\"accepted\"} 215 nginx_vts_main_connections{status=\"active\"} 4 nginx_vts_main_connections{status=\"handled\"} 215 nginx_vts_main_connections{status=\"reading\"} 0 nginx_vts_main_connections{status=\"requests\"} 15577 nginx_vts_main_connections{status=\"waiting\"} 3 nginx_vts_main_connections{status=\"writing\"} 1 # HELP nginx_vts_main_shm_usage_bytes Shared memory [ngx_http_vhost_traffic_status] info # TYPE nginx_vts_main_shm_usage_bytes gauge nginx_vts_main_shm_usage_bytes{shared=\"max_size\"} 1048575 nginx_vts_main_shm_usage_bytes{shared=\"used_size\"} 3510 nginx_vts_main_shm_usage_bytes{shared=\"used_node\"} 1 # HELP nginx_vts_server_bytes_total The request/response bytes # TYPE nginx_vts_server_bytes_total counter # HELP nginx_vts_server_requests_total The requests counter # TYPE nginx_vts_server_requests_total counter # HELP nginx_vts_server_request_seconds_total The request processing time in seconds # TYPE nginx_vts_server_request_seconds_total counter # HELP nginx_vts_server_request_seconds The average of request processing times in seconds # TYPE nginx_vts_server_request_seconds gauge # HELP nginx_vts_server_request_duration_seconds The histogram of request processing time # TYPE nginx_vts_server_request_duration_seconds histogram # HELP nginx_vts_server_cache_total The requests cache counter # TYPE nginx_vts_server_cache_total counter nginx_vts_server_bytes_total{host=\"_\",direction=\"in\"} 3303449 nginx_vts_server_bytes_total{host=\"_\",direction=\"out\"} 61641572 nginx_vts_server_requests_total{host=\"_\",code=\"1xx\"} 0 nginx_vts_server_requests_total{host=\"_\",code=\"2xx\"} 15574 nginx_vts_server_requests_total{host=\"_\",code=\"3xx\"} 0 nginx_vts_server_requests_total{host=\"_\",code=\"4xx\"} 2 nginx_vts_server_requests_total{host=\"_\",code=\"5xx\"} 0 nginx_vts_server_requests_total{host=\"_\",code=\"total\"} 15576 nginx_vts_server_request_seconds_total{host=\"_\"} 0.000 nginx_vts_server_request_seconds{host=\"_\"} 0.000 nginx_vts_server_cache_total{host=\"_\",status=\"miss\"} 0 nginx_vts_server_cache_total{host=\"_\",status=\"bypass\"} 0 nginx_vts_server_cache_total{host=\"_\",status=\"expired\"} 0 nginx_vts_server_cache_total{host=\"_\",status=\"stale\"} 0 nginx_vts_server_cache_total{host=\"_\",status=\"updating\"} 0 nginx_vts_server_cache_total{host=\"_\",status=\"revalidated\"} 0 nginx_vts_server_cache_total{host=\"_\",status=\"hit\"} 0 nginx_vts_server_cache_total{host=\"_\",status=\"scarce\"} 0 nginx_vts_server_bytes_total{host=\"*\",direction=\"in\"} 3303449 nginx_vts_server_bytes_total{host=\"*\",direction=\"out\"} 61641572 nginx_vts_server_requests_total{host=\"*\",code=\"1xx\"} 0 nginx_vts_server_requests_total{host=\"*\",code=\"2xx\"} 15574 nginx_vts_server_requests_total{host=\"*\",code=\"3xx\"} 0 nginx_vts_server_requests_total{host=\"*\",code=\"4xx\"} 2 nginx_vts_server_requests_total{host=\"*\",code=\"5xx\"} 0 nginx_vts_server_requests_total{host=\"*\",code=\"total\"} 15576 nginx_vts_server_request_seconds_total{host=\"*\"} 0.000 nginx_vts_server_request_seconds{host=\"*\"} 0.000 nginx_vts_server_cache_total{host=\"*\",status=\"miss\"} 0 nginx_vts_server_cache_total{host=\"*\",status=\"bypass\"} 0 nginx_vts_server_cache_total{host=\"*\",status=\"expired\"} 0 nginx_vts_server_cache_total{host=\"*\",status=\"stale\"} 0 nginx_vts_server_cache_total{host=\"*\",status=\"updating\"} 0 nginx_vts_server_cache_total{host=\"*\",status=\"revalidated\"} 0 nginx_vts_server_cache_total{host=\"*\",status=\"hit\"} 0 nginx_vts_server_cache_total{host=\"*\",status=\"scarce\"} 0 然后用 wrk 随机发狂发请求压一把，我们去 prometheus 的面板看看指标被收集到没有\n很疯狂啊。我们编辑 Prometheus-Adapter 的 configmap ，加上如下内容\nrules: - seriesQuery: 'nginx_vts_server_requests_total' seriesFilters: [] resources: overrides: kubernetes_namespace: resource: namespace kubernetes_pod_name: resource: pod name: matches: \"^(.*)_total\" as: \"${1}_per_second\" metricsQuery: (sum(rate(\u003c\u003c.Series\u003e\u003e{\u003c\u003c.LabelMatchers\u003e\u003e}[1m])) by (\u003c\u003c.GroupBy\u003e\u003e)) 然后杀了 Prometheus-Adapter 的 Pod 让它重启重新加载配置，过段时间访问一下，看看值，是527m\nkubectl get --raw \"/apis/custom.metrics.k8s.io/v1beta1/namespaces/default/pods/*/nginx_vts_server_requests_per_second\" | jq . { \"kind\": \"MetricValueList\", \"apiVersion\": \"custom.metrics.k8s.io/v1beta1\", \"metadata\": { \"selfLink\": \"/apis/custom.metrics.k8s.io/v1beta1/namespaces/default/pods/%2A/nginx_vts_server_requests_per_second\" }, \"items\": [ { \"describedObject\": { \"kind\": \"Pod\", \"namespace\": \"default\", \"name\": \"hpa-prom-demo-755bb56f85-lvksr\", \"apiVersion\": \"/v1\" }, \"metricName\": \"nginx_vts_server_requests_per_second\", \"timestamp\": \"2020-04-07T09:45:45Z\", \"value\": \"527m\", \"selector\": null } ] } ok，没问题，我们定义个hpa，根据这个指标来伸缩\napiVersion: autoscaling/v2beta1 kind: HorizontalPodAutoscaler metadata: name: nginx-hpa spec: scaleTargetRef: apiVersion: apps/v1 kind: Deployment name: nginx-deploy minReplicas: 2 maxReplicas: 5 metrics: - type: Pods pods: metricName: nginx_vts_server_requests_per_second targetAverageValue: 10 这样就好了。\n如果 pod 本身不能暴露 metric ，我们可以在 sidecar 里安装 exporter 来收集数据并暴露出去就可以了。\n","wordCount":"1263","inLanguage":"zh","datePublished":"2021-11-25T09:30:11+08:00","dateModified":"2021-11-25T09:30:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20211125-kubernetes_hpa/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">kubernetes的hpa和自定义指标hpa
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2021-11-25 09:30:11 +0800 CST'>2021年11月25日</span></div></header><div class=post-content><p>kubernetes 的动态伸缩 HPA 是非常有用的特性。</p><p>我们的服务器托管在阿里云的 ACK 上，k8s 根据 cpu 或者 内存的使用情况，会自动伸缩关键 pod 的数量，以应对大流量的情形。而且更妙的是，动态扩展的 pod 并不是使用自己的固定服务器，而是使用阿里动态的 ECI 虚拟节点服务器，这样就真的是即开即用，用完即毁。有多大流量付多少钱，物尽其用。</p><p>我们先明确一下概念：</p><p>k8s 的资源指标获取是通过 api 接口来获得的，有两种 api，一种是核心指标，一种是自定义指标。</p><ul><li><p>核心指标：Core metrics，由metrics-server提供API，即 metrics.k8s.io，仅提供Node和Pod的CPU和内存使用情况。api 是 <code>metrics.k8s.io</code></p></li><li><p>自定义指标：Custom Metrics，由Prometheus Adapter提供API，即 custom.metrics.k8s.io，由此可支持任意Prometheus采集到的自定义指标。api 是 <code>custom.metrics.k8s.io</code> 和 <code>external.metrics.k8s.io</code></p></li></ul><h2 id=一核心指标metrics-server>一、核心指标metrics-server<a hidden class=anchor aria-hidden=true href=#一核心指标metrics-server>#</a></h2><p>阿里的 ACK 缺省是装了 metrics-server 的，看一下，系统里有一个metrics-server</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>kubectl get pods -n kube-system
+</span></span></code></pre></div><p><img alt=image-20211125092117637 loading=lazy src=/posts/20211125-kubernetes_hpa/image-20211125092117637.png></p><p>再看看 api 的核心指标能拿到什么，先看 Node 的指标：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>kubectl get --raw <span class=s2>&#34;/apis/metrics.k8s.io&#34;</span> <span class=p>|</span> jq .
+</span></span><span class=line><span class=cl>kubectl get --raw <span class=s2>&#34;/apis/metrics.k8s.io/v1beta1&#34;</span> <span class=p>|</span> jq .
+</span></span><span class=line><span class=cl>kubectl get --raw <span class=s2>&#34;/apis/metrics.k8s.io/v1beta1/nodes&#34;</span> <span class=p>|</span> jq . 
+</span></span></code></pre></div><p><img alt=image-20211125092534308 loading=lazy src=/posts/20211125-kubernetes_hpa/image-20211125092534308.png></p><p>可以看到阿里 eci 虚拟节点的 cpu 和 memory 资源。</p><p>再看看 Pod 的指标：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>kubectl get --raw <span class=s2>&#34;/apis/metrics.k8s.io/v1beta1/pods&#34;</span> <span class=p>|</span> jq . 
+</span></span></code></pre></div><p><img alt=image-20211125092730720 loading=lazy src=/posts/20211125-kubernetes_hpa/image-20211125092730720.png></p><p>可以清楚得看到调度到虚拟节点上的 Pod 的 cpu 和 memory 资源使用情况。大家看到只有 cpu 和 memory，这就够了。</p><p>给个全部使用自己 Work Node 实体节点伸缩的例子：</p><p>php-hpa.yaml (这里定义了平均cpu使用到达80%或者内存平均使用到200M就伸缩）：</p><p>php-hpa 规范了 php-deploy 如何伸缩，最小2，最大10：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=na>apiVersion: autoscaling/v2beta1 </span>
+</span></span><span class=line><span class=cl><span class=na>kind: HorizontalPodAutoscaler </span>
+</span></span><span class=line><span class=cl><span class=na>metadata: </span>
+</span></span><span class=line><span class=cl>  <span class=na>name: php-hpa</span>
+</span></span><span class=line><span class=cl>  <span class=na>namespace: default</span>
+</span></span><span class=line><span class=cl><span class=na>spec: </span>
+</span></span><span class=line><span class=cl>  <span class=na>scaleTargetRef: </span>
+</span></span><span class=line><span class=cl>    <span class=na>apiVersion: extensions/v1beta1 </span>
+</span></span><span class=line><span class=cl>    <span class=na>kind: Deployment </span>
+</span></span><span class=line><span class=cl>    <span class=na>name: php-deploy</span>
+</span></span><span class=line><span class=cl>  <span class=na>minReplicas: 2 </span>
+</span></span><span class=line><span class=cl>  <span class=na>maxReplicas: 10 </span>
+</span></span><span class=line><span class=cl>  <span class=na>metrics: </span>
+</span></span><span class=line><span class=cl>  <span class=na>- type: Resource </span>
+</span></span><span class=line><span class=cl>    <span class=na>resource: </span>
+</span></span><span class=line><span class=cl>      <span class=na>name: cpu </span>
+</span></span><span class=line><span class=cl>      <span class=na>targetAverageUtilization: 80 </span>
+</span></span><span class=line><span class=cl>  <span class=na>- type: Resource </span>
+</span></span><span class=line><span class=cl>    <span class=na>resource: </span>
+</span></span><span class=line><span class=cl>      <span class=na>name: memory </span>
+</span></span><span class=line><span class=cl>      <span class=na>targetAverageValue: 200Mi</span>
+</span></span></code></pre></div><p>再给个阿里 ACK 使用 ECI 虚拟节点伸缩的例子：</p><p>我们首先定义一个正常的 deployment ，php-deploy，这个就正常定义跟别的没区别。</p><p>然后再定义扩展到 eci 节点的 ElasticWorload，elastic-php，这个用来控制 php-deploy 拓展到 eci 虚拟节点去</p><p>下面是固定6个，动态24个，合计30个</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=na>apiVersion: autoscaling.alibabacloud.com/v1beta1</span>
+</span></span><span class=line><span class=cl><span class=na>kind: ElasticWorkload</span>
+</span></span><span class=line><span class=cl><span class=na>metadata:</span>
+</span></span><span class=line><span class=cl>  <span class=na>name: elastic-php</span>
+</span></span><span class=line><span class=cl><span class=na>spec:</span>
+</span></span><span class=line><span class=cl>  <span class=na>sourceTarget:</span>
+</span></span><span class=line><span class=cl>    <span class=na>name: php-deploy</span>
+</span></span><span class=line><span class=cl>    <span class=na>kind: Deployment</span>
+</span></span><span class=line><span class=cl>    <span class=na>apiVersion: apps/v1</span>
+</span></span><span class=line><span class=cl>    <span class=na>min: 0</span>
+</span></span><span class=line><span class=cl>    <span class=na>max: 6</span>
+</span></span><span class=line><span class=cl>  <span class=na>elasticUnit:</span>
+</span></span><span class=line><span class=cl>  <span class=na>- name: virtual-kubelet</span>
+</span></span><span class=line><span class=cl>    <span class=na>labels:</span>
+</span></span><span class=line><span class=cl>      <span class=na>virtual-kubelet: &#34;true&#34;</span>
+</span></span><span class=line><span class=cl>      <span class=na>alibabacloud.com/eci: &#34;true&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=na>annotations:</span>
+</span></span><span class=line><span class=cl>      <span class=na>virtual-kubelet: &#34;true&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=na>nodeSelector:</span>
+</span></span><span class=line><span class=cl>      <span class=na>type: &#34;virtual-kubelet&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=na>tolerations:</span>
+</span></span><span class=line><span class=cl>    <span class=na>- key: &#34;virtual-kubelet.io/provider&#34;</span>
+</span></span><span class=line><span class=cl>      <span class=na>operator: &#34;Exists&#34;</span>
+</span></span><span class=line><span class=cl>      <span class=na>min: 0</span>
+</span></span><span class=line><span class=cl>      <span class=na>max: 24</span>
+</span></span><span class=line><span class=cl>  <span class=na>replicas: 30</span>
+</span></span></code></pre></div><p>然后定义 HPA php-hpa 来控制 elastic-php 的自动伸缩</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=na>apiVersion: autoscaling/v2beta2 </span>
+</span></span><span class=line><span class=cl><span class=na>kind: HorizontalPodAutoscaler </span>
+</span></span><span class=line><span class=cl><span class=na>metadata: </span>
+</span></span><span class=line><span class=cl>  <span class=na>name: php-hpa </span>
+</span></span><span class=line><span class=cl>  <span class=na>namespace: default </span>
+</span></span><span class=line><span class=cl><span class=na>spec: </span>
+</span></span><span class=line><span class=cl>  <span class=na>scaleTargetRef: </span>
+</span></span><span class=line><span class=cl>    <span class=na>apiVersion: autoscaling.alibabacloud.com/v1beta1 </span>
+</span></span><span class=line><span class=cl>    <span class=na>kind: ElasticWorkload </span>
+</span></span><span class=line><span class=cl>    <span class=na>name: elastic-php </span>
+</span></span><span class=line><span class=cl>  <span class=na>minReplicas: 6 </span>
+</span></span><span class=line><span class=cl>  <span class=na>maxReplicas: 30 </span>
+</span></span><span class=line><span class=cl>  <span class=na>metrics: </span>
+</span></span><span class=line><span class=cl>  <span class=na>- type: Resource </span>
+</span></span><span class=line><span class=cl>    <span class=na>resource: </span>
+</span></span><span class=line><span class=cl>      <span class=na>name: cpu </span>
+</span></span><span class=line><span class=cl>      <span class=na>target: </span>
+</span></span><span class=line><span class=cl>        <span class=na>type: Utilization </span>
+</span></span><span class=line><span class=cl>        <span class=na>averageUtilization: 90 </span>
+</span></span><span class=line><span class=cl>  <span class=na>behavior: </span>
+</span></span><span class=line><span class=cl>    <span class=na>scaleUp: </span>
+</span></span><span class=line><span class=cl>      <span class=na>policies: </span>
+</span></span><span class=line><span class=cl>      <span class=c1>#- type: percent </span>
+</span></span><span class=line><span class=cl>      <span class=c1>#  value: 500% </span>
+</span></span><span class=line><span class=cl>      <span class=na>- type: Pods </span>
+</span></span><span class=line><span class=cl>        <span class=na>value: 5 </span>
+</span></span><span class=line><span class=cl>        <span class=na>periodSeconds: 180 </span>
+</span></span><span class=line><span class=cl>    <span class=na>scaleDown: </span>
+</span></span><span class=line><span class=cl>      <span class=na>policies: </span>
+</span></span><span class=line><span class=cl>      <span class=na>- type: Pods </span>
+</span></span><span class=line><span class=cl>        <span class=na>value: 1 </span>
+</span></span><span class=line><span class=cl>        <span class=na>periodSeconds: 600 </span>
+</span></span></code></pre></div><p>上面的 <code>ElasticWorkload</code> 需要仔细解释一下，php-deploy 定义的 pod 副本固定是6个，这6个都是在我们自己节点上不用再付费，然后 ECI 的 pod 副本数是0个到24个，那么总体pod数量就是 6+24 = 30 个，其中 24个是可以在虚拟节点上伸缩的。而 php-hpa 定义了伸缩范围是 6-30，那就意味着平时流量小的时候用的都是自己服务器上那6个固定 pod，如果流量大了，就会扩大到 eci 虚拟节点上，虚拟节点最大量是24个，如果流量降下来了，就会缩回去，缩到自己服务器的6个pod 上去。这样可以精确控制成本。</p><p>php-hpa 定义的最下面，扩大的时候如果 cpu 到了 90%，那么一次性扩大5个pod，缩小的时候一个一个缩，这样避免带来流量的毛刺。</p><h2 id=二自定义指标prometheus>二、自定义指标Prometheus<a hidden class=anchor aria-hidden=true href=#二自定义指标prometheus>#</a></h2><p>如上其实已经可以满足大多数要求了，但是想更进一步，比如想从 Prometheus 拿到的指标来进行 hpa 伸缩。</p><p>那就比较麻烦了</p><p><img alt=image-20211125103113631 loading=lazy src=/posts/20211125-kubernetes_hpa/image-20211125103113631.png></p><p>看上图，Prometheus Operator 通过 http 拉取 pod 的 metric 指标，Prometheus Adaptor 再拉取 Prometheus Operator 存储的数据并且暴露给 Custom API 使用。为啥要弄这二个东西呢？因为 Prometheus 采集到的 metrics 数据并不能直接给 k8s 用，因为两者数据格式不兼容，还需要另外一个组件(kube-state-metrics)，将prometheus 的 metrics 数据格式转换成 k8s API 接口能识别的格式，转换以后，因为是自定义API，所以还需要用 Kubernetes aggregator 在主 API 服务器中注册，以便其他程序直接通过 <code>/apis/</code> 来访问。</p><p>我们首先来看看如何安装这二个东西：</p><p>首先装 Prometheus Operator，这家伙会自动装一捆东西， Pormetheus、Grafana、Alert manager等，所以最好给它单独弄一个命名空间</p><ul><li><a href=https://github.com/coreos/prometheus-operator>prometheus-operator</a></li><li><a href=https://prometheus.io/>prometheus</a></li><li><a href=https://prometheus.io/>alertmanager</a></li><li><a href=https://github.com/helm/charts/tree/master/stable/prometheus-node-exporter>node-exporter</a></li><li><a href=https://github.com/helm/charts/tree/master/stable/kube-state-metrics>kube-state-metrics</a></li><li><a href=https://github.com/helm/charts/tree/master/stable/grafana>grafana</a></li></ul><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1>#安装</span>
+</span></span><span class=line><span class=cl>helm install --name prometheus --namespace monitoring  stable/prometheus-operator
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#开个端口本地访问 prometheus 的面板，curl http://localhost:9090</span>
+</span></span><span class=line><span class=cl>kubectl port-forward --namespace monitoring svc/prometheus-operator-prometheus 9090:9090
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#看看都有什么pod</span>
+</span></span><span class=line><span class=cl>kubectl get pod -n monitoring
+</span></span><span class=line><span class=cl>NAME                                                          READY   STATUS    RESTARTS   AGE
+</span></span><span class=line><span class=cl>pod/alertmanager-prometheus-operator-alertmanager-0           2/2     Running   <span class=m>0</span>          98m
+</span></span><span class=line><span class=cl>pod/prometheus-operator-grafana-857dfc5fc8-vdnff              2/2     Running   <span class=m>0</span>          99m
+</span></span><span class=line><span class=cl>pod/prometheus-operator-kube-state-metrics-66b4c95cd9-mz8nt   1/1     Running   <span class=m>0</span>          99m
+</span></span><span class=line><span class=cl>pod/prometheus-operator-operator-56964458-8sspk               2/2     Running   <span class=m>0</span>          99m
+</span></span><span class=line><span class=cl>pod/prometheus-operator-prometheus-node-exporter-dcf5p        1/1     Running   <span class=m>0</span>          99m
+</span></span><span class=line><span class=cl>pod/prometheus-operator-prometheus-node-exporter-nv6ph        1/1     Running   <span class=m>0</span>          99m
+</span></span><span class=line><span class=cl>pod/prometheus-prometheus-operator-prometheus-0               3/3     Running   <span class=m>1</span>          98m
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#看看都有什么svc</span>
+</span></span><span class=line><span class=cl>kubectl get svc -n monitoring
+</span></span><span class=line><span class=cl>NAME                                           TYPE        CLUSTER-IP     EXTERNAL-IP   PORT<span class=o>(</span>S<span class=o>)</span>                      AGE
+</span></span><span class=line><span class=cl>alertmanager-operated                          ClusterIP   None           &lt;none&gt;        9093/TCP,9094/TCP,9094/UDP   100m
+</span></span><span class=line><span class=cl>prometheus-operated                            ClusterIP   None           &lt;none&gt;        9090/TCP                     100m
+</span></span><span class=line><span class=cl>prometheus-operator-alertmanager               NodePort    10.1.238.78    &lt;none&gt;        9093:31765/TCP               102m
+</span></span><span class=line><span class=cl>prometheus-operator-grafana                    NodePort    10.1.125.228   &lt;none&gt;        80:30284/TCP                 102m
+</span></span><span class=line><span class=cl>prometheus-operator-kube-state-metrics         ClusterIP   10.1.187.129   &lt;none&gt;        8080/TCP                     102m
+</span></span><span class=line><span class=cl>prometheus-operator-operator                   ClusterIP   10.1.242.61    &lt;none&gt;        8080/TCP,443/TCP             102m
+</span></span><span class=line><span class=cl>prometheus-operator-prometheus                 NodePort    10.1.156.181   &lt;none&gt;        9090:30268/TCP               102m
+</span></span><span class=line><span class=cl>prometheus-operator-prometheus-node-exporter   ClusterIP   10.1.226.134   &lt;none&gt;        9100/TCP                     102m
+</span></span></code></pre></div><p>我们看到有 prometheus-operated 这个ClusterIP svc，注意 k8s 的 coredns 域名解析方式，集群的内部域名是 hbb.local，那么这个 svc 的全 hostname 就是 prometheus-operated.monitoring.svc.hbb.local，集群中可以取舍到 prometheus-operated.monitoring 或者 prometheus-operated.monitoring.svc 来访问。</p><p>然后再装 Prometheus Adaptor，我们要根据上面的具体情况来设置 prometheus.url：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>helm install --name prometheus-adapter stable/prometheus-adapter --set prometheus.url<span class=o>=</span><span class=s2>&#34;http://prometheus-operated.monitoring.svc&#34;</span>,prometheus.port<span class=o>=</span><span class=s2>&#34;9090&#34;</span> --set image.tag<span class=o>=</span><span class=s2>&#34;v0.4.1&#34;</span> --set rbac.create<span class=o>=</span><span class=s2>&#34;true&#34;</span> --namespace custom-metrics
+</span></span></code></pre></div><p>访问 external 和 custom 验证一下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>kubectl get --raw <span class=s2>&#34;/apis/external.metrics.k8s.io/v1beta1&#34;</span> <span class=p>|</span> jq
+</span></span><span class=line><span class=cl><span class=o>{</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;kind&#34;</span>: <span class=s2>&#34;APIResourceList&#34;</span>,
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;apiVersion&#34;</span>: <span class=s2>&#34;v1&#34;</span>,
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;groupVersion&#34;</span>: <span class=s2>&#34;external.metrics.k8s.io/v1beta1&#34;</span>,
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;resources&#34;</span>: <span class=o>[]</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>kubectl get --raw <span class=s2>&#34;/apis/custom.metrics.k8s.io/v1beta1&#34;</span> <span class=p>|</span> jq
+</span></span><span class=line><span class=cl><span class=o>{</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;kind&#34;</span>: <span class=s2>&#34;APIResourceList&#34;</span>,
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;apiVersion&#34;</span>: <span class=s2>&#34;v1&#34;</span>,
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;groupVersion&#34;</span>: <span class=s2>&#34;custom.metrics.k8s.io/v1beta1&#34;</span>,
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;resources&#34;</span>: <span class=o>[</span>
+</span></span><span class=line><span class=cl>    <span class=o>{</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;name&#34;</span>: <span class=s2>&#34;*/agent.googleapis.com|agent|api_request_count&#34;</span>,
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;singularName&#34;</span>: <span class=s2>&#34;&#34;</span>,
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;namespaced&#34;</span>: true,
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;kind&#34;</span>: <span class=s2>&#34;MetricValueList&#34;</span>,
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;verbs&#34;</span>: <span class=o>[</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;get&#34;</span>
+</span></span><span class=line><span class=cl>      <span class=o>]</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>,
+</span></span><span class=line><span class=cl><span class=o>[</span>...lots more metrics...<span class=o>]</span>
+</span></span><span class=line><span class=cl>    <span class=o>{</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;name&#34;</span>: <span class=s2>&#34;*/vpn.googleapis.com|tunnel_established&#34;</span>,
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;singularName&#34;</span>: <span class=s2>&#34;&#34;</span>,
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;namespaced&#34;</span>: true,
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;kind&#34;</span>: <span class=s2>&#34;MetricValueList&#34;</span>,
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;verbs&#34;</span>: <span class=o>[</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;get&#34;</span>
+</span></span><span class=line><span class=cl>      <span class=o>]</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>  <span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></div><p>重头戏在下面，其实 Prometheus Adaptor 从 Prometheus 拿的指标也是有限的，如果有自定义指标，或者想多拿些，就得继续拓展！！！</p><p>最快的方式是编辑 namespace 是 custom-metrics 下的 configmap ，名字是 Prometheus-adapter，增加<strong>seriesQuery</strong></p><p>seriesQuery长这样子，下面是统计了所有 app=shopping-kart 的 pod 5分钟之内的变化速率总和：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=na>apiVersion: v1</span>
+</span></span><span class=line><span class=cl><span class=na>kind: ConfigMap</span>
+</span></span><span class=line><span class=cl><span class=na>metadata:</span>
+</span></span><span class=line><span class=cl>  <span class=na>labels:</span>
+</span></span><span class=line><span class=cl>    <span class=na>app: prometheus-adapter</span>
+</span></span><span class=line><span class=cl>    <span class=na>chart: prometheus-adapter-v1.2.0</span>
+</span></span><span class=line><span class=cl>    <span class=na>heritage: Tiller</span>
+</span></span><span class=line><span class=cl>    <span class=na>release: prometheus-adapter</span>
+</span></span><span class=line><span class=cl>  <span class=na>name: prometheus-adapter</span>
+</span></span><span class=line><span class=cl><span class=na>data:</span>
+</span></span><span class=line><span class=cl>  <span class=na>config.yaml: |</span>
+</span></span><span class=line><span class=cl><span class=na>- seriesQuery: &#39;{app</span><span class=o>=</span><span class=s>&#34;shopping-kart&#34;,kubernetes_namespace!=&#34;&#34;,kubernetes_pod_name!=&#34;&#34;}&#39;
+</span></span></span><span class=line><span class=cl><span class=s>        seriesFilters: []
+</span></span></span><span class=line><span class=cl><span class=s>        resources:
+</span></span></span><span class=line><span class=cl><span class=s>          overrides:
+</span></span></span><span class=line><span class=cl><span class=s>            kubernetes_namespace:
+</span></span></span><span class=line><span class=cl><span class=s>              resource: namespace
+</span></span></span><span class=line><span class=cl><span class=s>            kubernetes_pod_name:
+</span></span></span><span class=line><span class=cl><span class=s>              resource: pod
+</span></span></span><span class=line><span class=cl><span class=s>        name:
+</span></span></span><span class=line><span class=cl><span class=s>          matches: &#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s>          as: &#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s>        metricsQuery: sum(rate(&lt;&lt;.Series&gt;&gt;{&lt;&lt;.LabelMatchers&gt;&gt;}[5m])) by (&lt;&lt;.GroupBy&gt;&gt;)</span>
+</span></span></code></pre></div><p>Adapter configmap的配置如下：</p><ol><li><p><strong>seriesQuery</strong> tells the Prometheus Metric name to the adapter（要去prometheus拿什么指标）</p></li><li><p><strong>resources</strong> tells which Kubernetes resources each metric is associated with or which labels does the metric include, e.g., namespace, pod etc.（关联的资源，最常用的就是 pod 和 namespace）</p></li><li><p><strong>metricsQuery</strong> is the actual Prometheus query that needs to be performed to calculate the actual values.（叠加 seriesQuery 后发送给prometheus的实际查询，用于得出最终的指标值）</p></li><li><p><strong>name</strong> with which the metric should be exposed to the custom metrics API（暴露给API的指标名）</p></li></ol><p>举个例子：如果我们要计算 container_network_receive_packets_total，在Prometheus UI里我们要输入以下行来查询:</p><p><strong>sum(rate(container_network_receive_packets_total{namespace=&ldquo;default&rdquo;,pod=~&ldquo;php-deploy.*&rdquo;}[10m])) by (pod)*</strong></p><p>转换成 Adapter 的 metricsQuery 就变成这样了，很难懂：</p><p>*<strong>metricsQuery: &lsquo;sum(rate(&#171;.series&#187;{&#171;.labelmatchers&#187;}10m])) by (&#171;.groupby&#187;)&rsquo;&lt;/.groupby>&lt;/.labelmatchers>&lt;/.series>*</strong></p><p>再给个例子：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=na>rate(gorush_total_push_count{instance</span><span class=o>=</span><span class=s>&#34;push.server.com:80&#34;,job=&#34;push-server&#34;}[5m])</span>
+</span></span></code></pre></div><p><img alt=image-20211125135531725 loading=lazy src=/posts/20211125-kubernetes_hpa/image-20211125135531725.png></p><p>变成 adapter 的 configmap</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=na>apiVersion: v1</span>
+</span></span><span class=line><span class=cl><span class=na>data:</span>
+</span></span><span class=line><span class=cl>  <span class=na>config.yaml: |</span>
+</span></span><span class=line><span class=cl>    <span class=na>rules:</span>
+</span></span><span class=line><span class=cl>    <span class=na>- seriesQuery: &#39;{__name__</span><span class=o>=</span><span class=s>~&#34;gorush_total_push_count&#34;}&#39;
+</span></span></span><span class=line><span class=cl><span class=s>      seriesFilters: []
+</span></span></span><span class=line><span class=cl><span class=s>      resources:
+</span></span></span><span class=line><span class=cl><span class=s>        overrides:
+</span></span></span><span class=line><span class=cl><span class=s>          namespace:
+</span></span></span><span class=line><span class=cl><span class=s>            resource: namespace
+</span></span></span><span class=line><span class=cl><span class=s>          pod:
+</span></span></span><span class=line><span class=cl><span class=s>            resource: pod
+</span></span></span><span class=line><span class=cl><span class=s>      name:
+</span></span></span><span class=line><span class=cl><span class=s>        matches: &#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s>        as: &#34;gorush_push_per_second&#34;
+</span></span></span><span class=line><span class=cl><span class=s>      metricsQuery: rate(&lt;&lt;.Series&gt;&gt;{&lt;&lt;.LabelMatchers&gt;&gt;}[5m])</span>
+</span></span></code></pre></div><p>修改了configmap，必须重启prometheus-adapter的pod重新加载配置！！！</p><p>在hpa中应用的例子：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=na>apiVersion: autoscaling/v2beta1</span>
+</span></span><span class=line><span class=cl><span class=na>kind: HorizontalPodAutoscaler</span>
+</span></span><span class=line><span class=cl><span class=na>metadata:</span>
+</span></span><span class=line><span class=cl>  <span class=na>name: gorush-hpa</span>
+</span></span><span class=line><span class=cl><span class=na>spec:</span>
+</span></span><span class=line><span class=cl>  <span class=na>scaleTargetRef:</span>
+</span></span><span class=line><span class=cl>    <span class=na>apiVersion: apps/v1</span>
+</span></span><span class=line><span class=cl>    <span class=na>kind: Deployment</span>
+</span></span><span class=line><span class=cl>    <span class=na>name: gorush</span>
+</span></span><span class=line><span class=cl>  <span class=na>minReplicas: 1</span>
+</span></span><span class=line><span class=cl>  <span class=na>maxReplicas: 5</span>
+</span></span><span class=line><span class=cl>  <span class=na>metrics:</span>
+</span></span><span class=line><span class=cl>  <span class=na>- type: Pods</span>
+</span></span><span class=line><span class=cl>    <span class=na>pods:</span>
+</span></span><span class=line><span class=cl>      <span class=na>metricName: gorush_push_per_second</span>
+</span></span><span class=line><span class=cl>      <span class=na>targetAverageValue: 1m</span>
+</span></span></code></pre></div><p>再来一个，prometheus 函数名是 myapp_client_connected：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=na>apiVersion: v1</span>
+</span></span><span class=line><span class=cl><span class=na>data:</span>
+</span></span><span class=line><span class=cl>  <span class=na>config.yaml: |</span>
+</span></span><span class=line><span class=cl>    <span class=na>rules:</span>
+</span></span><span class=line><span class=cl>    <span class=na>- seriesQuery: &#39;{__name__</span><span class=o>=</span> <span class=s>&#34;myapp_client_connected&#34;}&#39;
+</span></span></span><span class=line><span class=cl><span class=s>      seriesFilters: []
+</span></span></span><span class=line><span class=cl><span class=s>      resources:
+</span></span></span><span class=line><span class=cl><span class=s>        overrides:
+</span></span></span><span class=line><span class=cl><span class=s>          k8s_namespace:
+</span></span></span><span class=line><span class=cl><span class=s>            resource: namespace
+</span></span></span><span class=line><span class=cl><span class=s>          k8s_pod_name:
+</span></span></span><span class=line><span class=cl><span class=s>            resource: pod
+</span></span></span><span class=line><span class=cl><span class=s>      name:
+</span></span></span><span class=line><span class=cl><span class=s>        matches: &#34;myapp_client_connected&#34;
+</span></span></span><span class=line><span class=cl><span class=s>        as: &#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s>      metricsQuery: &lt;&lt;.Series&gt;&gt;{&lt;&lt;.LabelMatchers&gt;&gt;,container_name!=&#34;POD&#34;}</span>
+</span></span></code></pre></div><p>hpa的使用</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=na>apiVersion: autoscaling/v2beta1</span>
+</span></span><span class=line><span class=cl><span class=na>kind: HorizontalPodAutoscaler</span>
+</span></span><span class=line><span class=cl><span class=na>metadata:</span>
+</span></span><span class=line><span class=cl>  <span class=na>name: hpa-sim</span>
+</span></span><span class=line><span class=cl>  <span class=na>namespace: default</span>
+</span></span><span class=line><span class=cl><span class=na>spec:</span>
+</span></span><span class=line><span class=cl>  <span class=na>scaleTargetRef:</span>
+</span></span><span class=line><span class=cl>    <span class=na>apiVersion: apps/v1</span>
+</span></span><span class=line><span class=cl>    <span class=na>kind: Deployment</span>
+</span></span><span class=line><span class=cl>    <span class=na>name: hpa-sim</span>
+</span></span><span class=line><span class=cl>  <span class=na>minReplicas: 1</span>
+</span></span><span class=line><span class=cl>  <span class=na>maxReplicas: 10</span>
+</span></span><span class=line><span class=cl>  <span class=na>metrics:</span>
+</span></span><span class=line><span class=cl>  <span class=na>- type: Pods</span>
+</span></span><span class=line><span class=cl>    <span class=na>pods:</span>
+</span></span><span class=line><span class=cl>      <span class=na>metricName: myapp_client_connected</span>
+</span></span><span class=line><span class=cl>      <span class=na>targetAverageValue: 20</span>
+</span></span></code></pre></div><p>很复杂吧。我们下面给个详细例子</p><h2 id=三自定义指标全套例子>三、自定义指标全套例子<a hidden class=anchor aria-hidden=true href=#三自定义指标全套例子>#</a></h2><p>我们先定义一个 deployment，运行一个 nginx-vts 的 pod，这个镜像其实已经自己暴露出了 metric 指标</p><pre tabindex=0><code>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deploy
+  annotations:
+    prometheus.io/scrape: &#34;true&#34;
+    prometheus.io/port: &#34;80&#34;
+    prometheus.io/path: &#34;/status/format/prometheus&#34;
+spec:
+  selector:
+    matchLabels:
+      app: nginx-deploy
+  template:
+    metadata:
+      labels:
+        app: nginx-deploy
+    spec:
+      containers:
+      - name: nginx-deploy
+        image: cnych/nginx-vts:v1.0
+        resources:
+          limits:
+            cpu: 50m
+          requests:
+            cpu: 50m
+        ports:
+        - containerPort: 80
+          name: http
+</code></pre><p>然后定义个 svc，把80端口暴露出去</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=na>apiVersion: v1</span>
+</span></span><span class=line><span class=cl><span class=na>kind: Service</span>
+</span></span><span class=line><span class=cl><span class=na>metadata:</span>
+</span></span><span class=line><span class=cl>  <span class=na>name: nginx-svc</span>
+</span></span><span class=line><span class=cl><span class=na>spec:</span>
+</span></span><span class=line><span class=cl>  <span class=na>ports:</span>
+</span></span><span class=line><span class=cl>  <span class=na>- port: 80</span>
+</span></span><span class=line><span class=cl>    <span class=na>targetPort: 80</span>
+</span></span><span class=line><span class=cl>    <span class=na>name: http</span>
+</span></span><span class=line><span class=cl>  <span class=na>selector:</span>
+</span></span><span class=line><span class=cl>    <span class=na>app: nginx-deploy</span>
+</span></span><span class=line><span class=cl>  <span class=na>type: ClusterIP</span>
+</span></span></code></pre></div><p>prometheus 是自动发现的，所以 annotations 就会触发 prometheus 自动开始收集这些 nginx metric指标</p><p>集群内起个shell，访问看看</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>$ curl nginx-svc.default.svc.hbb.local/status/format/prometheus
+</span></span><span class=line><span class=cl><span class=c1># HELP nginx_vts_info Nginx info</span>
+</span></span><span class=line><span class=cl><span class=c1># TYPE nginx_vts_info gauge</span>
+</span></span><span class=line><span class=cl>nginx_vts_info<span class=o>{</span><span class=nv>hostname</span><span class=o>=</span><span class=s2>&#34;nginx-deployment-65d8df7488-c578v&#34;</span>,version<span class=o>=</span><span class=s2>&#34;1.13.12&#34;</span><span class=o>}</span> <span class=m>1</span>
+</span></span><span class=line><span class=cl><span class=c1># HELP nginx_vts_start_time_seconds Nginx start time</span>
+</span></span><span class=line><span class=cl><span class=c1># TYPE nginx_vts_start_time_seconds gauge</span>
+</span></span><span class=line><span class=cl>nginx_vts_start_time_seconds 1574283147.043
+</span></span><span class=line><span class=cl><span class=c1># HELP nginx_vts_main_connections Nginx connections</span>
+</span></span><span class=line><span class=cl><span class=c1># TYPE nginx_vts_main_connections gauge</span>
+</span></span><span class=line><span class=cl>nginx_vts_main_connections<span class=o>{</span><span class=nv>status</span><span class=o>=</span><span class=s2>&#34;accepted&#34;</span><span class=o>}</span> <span class=m>215</span>
+</span></span><span class=line><span class=cl>nginx_vts_main_connections<span class=o>{</span><span class=nv>status</span><span class=o>=</span><span class=s2>&#34;active&#34;</span><span class=o>}</span> <span class=m>4</span>
+</span></span><span class=line><span class=cl>nginx_vts_main_connections<span class=o>{</span><span class=nv>status</span><span class=o>=</span><span class=s2>&#34;handled&#34;</span><span class=o>}</span> <span class=m>215</span>
+</span></span><span class=line><span class=cl>nginx_vts_main_connections<span class=o>{</span><span class=nv>status</span><span class=o>=</span><span class=s2>&#34;reading&#34;</span><span class=o>}</span> <span class=m>0</span>
+</span></span><span class=line><span class=cl>nginx_vts_main_connections<span class=o>{</span><span class=nv>status</span><span class=o>=</span><span class=s2>&#34;requests&#34;</span><span class=o>}</span> <span class=m>15577</span>
+</span></span><span class=line><span class=cl>nginx_vts_main_connections<span class=o>{</span><span class=nv>status</span><span class=o>=</span><span class=s2>&#34;waiting&#34;</span><span class=o>}</span> <span class=m>3</span>
+</span></span><span class=line><span class=cl>nginx_vts_main_connections<span class=o>{</span><span class=nv>status</span><span class=o>=</span><span class=s2>&#34;writing&#34;</span><span class=o>}</span> <span class=m>1</span>
+</span></span><span class=line><span class=cl><span class=c1># HELP nginx_vts_main_shm_usage_bytes Shared memory [ngx_http_vhost_traffic_status] info</span>
+</span></span><span class=line><span class=cl><span class=c1># TYPE nginx_vts_main_shm_usage_bytes gauge</span>
+</span></span><span class=line><span class=cl>nginx_vts_main_shm_usage_bytes<span class=o>{</span><span class=nv>shared</span><span class=o>=</span><span class=s2>&#34;max_size&#34;</span><span class=o>}</span> <span class=m>1048575</span>
+</span></span><span class=line><span class=cl>nginx_vts_main_shm_usage_bytes<span class=o>{</span><span class=nv>shared</span><span class=o>=</span><span class=s2>&#34;used_size&#34;</span><span class=o>}</span> <span class=m>3510</span>
+</span></span><span class=line><span class=cl>nginx_vts_main_shm_usage_bytes<span class=o>{</span><span class=nv>shared</span><span class=o>=</span><span class=s2>&#34;used_node&#34;</span><span class=o>}</span> <span class=m>1</span>
+</span></span><span class=line><span class=cl><span class=c1># HELP nginx_vts_server_bytes_total The request/response bytes</span>
+</span></span><span class=line><span class=cl><span class=c1># TYPE nginx_vts_server_bytes_total counter</span>
+</span></span><span class=line><span class=cl><span class=c1># HELP nginx_vts_server_requests_total The requests counter</span>
+</span></span><span class=line><span class=cl><span class=c1># TYPE nginx_vts_server_requests_total counter</span>
+</span></span><span class=line><span class=cl><span class=c1># HELP nginx_vts_server_request_seconds_total The request processing time in seconds</span>
+</span></span><span class=line><span class=cl><span class=c1># TYPE nginx_vts_server_request_seconds_total counter</span>
+</span></span><span class=line><span class=cl><span class=c1># HELP nginx_vts_server_request_seconds The average of request processing times in seconds</span>
+</span></span><span class=line><span class=cl><span class=c1># TYPE nginx_vts_server_request_seconds gauge</span>
+</span></span><span class=line><span class=cl><span class=c1># HELP nginx_vts_server_request_duration_seconds The histogram of request processing time</span>
+</span></span><span class=line><span class=cl><span class=c1># TYPE nginx_vts_server_request_duration_seconds histogram</span>
+</span></span><span class=line><span class=cl><span class=c1># HELP nginx_vts_server_cache_total The requests cache counter</span>
+</span></span><span class=line><span class=cl><span class=c1># TYPE nginx_vts_server_cache_total counter</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_bytes_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;_&#34;</span>,direction<span class=o>=</span><span class=s2>&#34;in&#34;</span><span class=o>}</span> <span class=m>3303449</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_bytes_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;_&#34;</span>,direction<span class=o>=</span><span class=s2>&#34;out&#34;</span><span class=o>}</span> <span class=m>61641572</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_requests_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;_&#34;</span>,code<span class=o>=</span><span class=s2>&#34;1xx&#34;</span><span class=o>}</span> <span class=m>0</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_requests_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;_&#34;</span>,code<span class=o>=</span><span class=s2>&#34;2xx&#34;</span><span class=o>}</span> <span class=m>15574</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_requests_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;_&#34;</span>,code<span class=o>=</span><span class=s2>&#34;3xx&#34;</span><span class=o>}</span> <span class=m>0</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_requests_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;_&#34;</span>,code<span class=o>=</span><span class=s2>&#34;4xx&#34;</span><span class=o>}</span> <span class=m>2</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_requests_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;_&#34;</span>,code<span class=o>=</span><span class=s2>&#34;5xx&#34;</span><span class=o>}</span> <span class=m>0</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_requests_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;_&#34;</span>,code<span class=o>=</span><span class=s2>&#34;total&#34;</span><span class=o>}</span> <span class=m>15576</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_request_seconds_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;_&#34;</span><span class=o>}</span> 0.000
+</span></span><span class=line><span class=cl>nginx_vts_server_request_seconds<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;_&#34;</span><span class=o>}</span> 0.000
+</span></span><span class=line><span class=cl>nginx_vts_server_cache_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;_&#34;</span>,status<span class=o>=</span><span class=s2>&#34;miss&#34;</span><span class=o>}</span> <span class=m>0</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_cache_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;_&#34;</span>,status<span class=o>=</span><span class=s2>&#34;bypass&#34;</span><span class=o>}</span> <span class=m>0</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_cache_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;_&#34;</span>,status<span class=o>=</span><span class=s2>&#34;expired&#34;</span><span class=o>}</span> <span class=m>0</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_cache_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;_&#34;</span>,status<span class=o>=</span><span class=s2>&#34;stale&#34;</span><span class=o>}</span> <span class=m>0</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_cache_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;_&#34;</span>,status<span class=o>=</span><span class=s2>&#34;updating&#34;</span><span class=o>}</span> <span class=m>0</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_cache_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;_&#34;</span>,status<span class=o>=</span><span class=s2>&#34;revalidated&#34;</span><span class=o>}</span> <span class=m>0</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_cache_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;_&#34;</span>,status<span class=o>=</span><span class=s2>&#34;hit&#34;</span><span class=o>}</span> <span class=m>0</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_cache_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;_&#34;</span>,status<span class=o>=</span><span class=s2>&#34;scarce&#34;</span><span class=o>}</span> <span class=m>0</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_bytes_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;*&#34;</span>,direction<span class=o>=</span><span class=s2>&#34;in&#34;</span><span class=o>}</span> <span class=m>3303449</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_bytes_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;*&#34;</span>,direction<span class=o>=</span><span class=s2>&#34;out&#34;</span><span class=o>}</span> <span class=m>61641572</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_requests_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;*&#34;</span>,code<span class=o>=</span><span class=s2>&#34;1xx&#34;</span><span class=o>}</span> <span class=m>0</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_requests_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;*&#34;</span>,code<span class=o>=</span><span class=s2>&#34;2xx&#34;</span><span class=o>}</span> <span class=m>15574</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_requests_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;*&#34;</span>,code<span class=o>=</span><span class=s2>&#34;3xx&#34;</span><span class=o>}</span> <span class=m>0</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_requests_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;*&#34;</span>,code<span class=o>=</span><span class=s2>&#34;4xx&#34;</span><span class=o>}</span> <span class=m>2</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_requests_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;*&#34;</span>,code<span class=o>=</span><span class=s2>&#34;5xx&#34;</span><span class=o>}</span> <span class=m>0</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_requests_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;*&#34;</span>,code<span class=o>=</span><span class=s2>&#34;total&#34;</span><span class=o>}</span> <span class=m>15576</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_request_seconds_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;*&#34;</span><span class=o>}</span> 0.000
+</span></span><span class=line><span class=cl>nginx_vts_server_request_seconds<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;*&#34;</span><span class=o>}</span> 0.000
+</span></span><span class=line><span class=cl>nginx_vts_server_cache_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;*&#34;</span>,status<span class=o>=</span><span class=s2>&#34;miss&#34;</span><span class=o>}</span> <span class=m>0</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_cache_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;*&#34;</span>,status<span class=o>=</span><span class=s2>&#34;bypass&#34;</span><span class=o>}</span> <span class=m>0</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_cache_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;*&#34;</span>,status<span class=o>=</span><span class=s2>&#34;expired&#34;</span><span class=o>}</span> <span class=m>0</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_cache_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;*&#34;</span>,status<span class=o>=</span><span class=s2>&#34;stale&#34;</span><span class=o>}</span> <span class=m>0</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_cache_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;*&#34;</span>,status<span class=o>=</span><span class=s2>&#34;updating&#34;</span><span class=o>}</span> <span class=m>0</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_cache_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;*&#34;</span>,status<span class=o>=</span><span class=s2>&#34;revalidated&#34;</span><span class=o>}</span> <span class=m>0</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_cache_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;*&#34;</span>,status<span class=o>=</span><span class=s2>&#34;hit&#34;</span><span class=o>}</span> <span class=m>0</span>
+</span></span><span class=line><span class=cl>nginx_vts_server_cache_total<span class=o>{</span><span class=nv>host</span><span class=o>=</span><span class=s2>&#34;*&#34;</span>,status<span class=o>=</span><span class=s2>&#34;scarce&#34;</span><span class=o>}</span> <span class=m>0</span>
+</span></span></code></pre></div><p>然后用 wrk 随机发狂发请求压一把，我们去 prometheus 的面板看看指标被收集到没有</p><p><img alt=image-20211125152110040 loading=lazy src=/posts/20211125-kubernetes_hpa/image-20211125152110040.png></p><p>很疯狂啊。我们编辑 Prometheus-Adapter 的 configmap ，加上如下内容</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=na>rules:</span>
+</span></span><span class=line><span class=cl><span class=na>- seriesQuery: &#39;nginx_vts_server_requests_total&#39;</span>
+</span></span><span class=line><span class=cl>  <span class=na>seriesFilters: []</span>
+</span></span><span class=line><span class=cl>  <span class=na>resources:</span>
+</span></span><span class=line><span class=cl>    <span class=na>overrides:</span>
+</span></span><span class=line><span class=cl>      <span class=na>kubernetes_namespace:</span>
+</span></span><span class=line><span class=cl>        <span class=na>resource: namespace</span>
+</span></span><span class=line><span class=cl>      <span class=na>kubernetes_pod_name:</span>
+</span></span><span class=line><span class=cl>        <span class=na>resource: pod</span>
+</span></span><span class=line><span class=cl>  <span class=na>name:</span>
+</span></span><span class=line><span class=cl>    <span class=na>matches: &#34;^(.*)_total&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=na>as: &#34;${1}_per_second&#34;</span>
+</span></span><span class=line><span class=cl>  <span class=na>metricsQuery: (sum(rate(&lt;&lt;.Series&gt;&gt;{&lt;&lt;.LabelMatchers&gt;&gt;}[1m])) by (&lt;&lt;.GroupBy&gt;&gt;))</span>
+</span></span></code></pre></div><p>然后杀了 Prometheus-Adapter 的 Pod 让它重启重新加载配置，过段时间访问一下，看看值，是527m</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>kubectl get --raw <span class=s2>&#34;/apis/custom.metrics.k8s.io/v1beta1/namespaces/default/pods/*/nginx_vts_server_requests_per_second&#34;</span> <span class=p>|</span> jq .
+</span></span><span class=line><span class=cl><span class=o>{</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;kind&#34;</span>: <span class=s2>&#34;MetricValueList&#34;</span>,
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;apiVersion&#34;</span>: <span class=s2>&#34;custom.metrics.k8s.io/v1beta1&#34;</span>,
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;metadata&#34;</span>: <span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;selfLink&#34;</span>: <span class=s2>&#34;/apis/custom.metrics.k8s.io/v1beta1/namespaces/default/pods/%2A/nginx_vts_server_requests_per_second&#34;</span>
+</span></span><span class=line><span class=cl>  <span class=o>}</span>,
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;items&#34;</span>: <span class=o>[</span>
+</span></span><span class=line><span class=cl>    <span class=o>{</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;describedObject&#34;</span>: <span class=o>{</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;kind&#34;</span>: <span class=s2>&#34;Pod&#34;</span>,
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;namespace&#34;</span>: <span class=s2>&#34;default&#34;</span>,
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;name&#34;</span>: <span class=s2>&#34;hpa-prom-demo-755bb56f85-lvksr&#34;</span>,
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;apiVersion&#34;</span>: <span class=s2>&#34;/v1&#34;</span>
+</span></span><span class=line><span class=cl>      <span class=o>}</span>,
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;metricName&#34;</span>: <span class=s2>&#34;nginx_vts_server_requests_per_second&#34;</span>,
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;timestamp&#34;</span>: <span class=s2>&#34;2020-04-07T09:45:45Z&#34;</span>,
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;value&#34;</span>: <span class=s2>&#34;527m&#34;</span>,
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;selector&#34;</span>: null
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>  <span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></div><p>ok，没问题，我们定义个hpa，根据这个指标来伸缩</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>autoscaling/v2beta1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>HorizontalPodAutoscaler</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>nginx-hpa</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>scaleTargetRef</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>apps/v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Deployment</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>nginx-deploy</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>minReplicas</span><span class=p>:</span><span class=w> </span><span class=m>2</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>maxReplicas</span><span class=p>:</span><span class=w> </span><span class=m>5</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>metrics</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>type</span><span class=p>:</span><span class=w> </span><span class=l>Pods</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>pods</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>metricName</span><span class=p>:</span><span class=w> </span><span class=l>nginx_vts_server_requests_per_second</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>targetAverageValue</span><span class=p>:</span><span class=w> </span><span class=m>10</span><span class=w>
+</span></span></span></code></pre></div><p>这样就好了。</p><p>如果 pod 本身不能暴露 metric ，我们可以在 sidecar 里安装 exporter 来收集数据并暴露出去就可以了。</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

@@ -1,0 +1,206 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>mbox文件中的=3D是什么鬼(quoted-printable编码) | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='最近在搞邮局。有个很奇怪的问题，就是打开mbox的文件，比如说：
+/var/spool/mail/root
+里面信件的部分有奇怪的3D字符：
+<table cellpadding=3D"0" cellspacing=3D"0" style=3D"text-align:le=  
+ft;color:#454545;background-color:#fff;font-size:14px;border-radius:10px;pa=  
+注意，中间多了若干个3D，最后也多了=号
+这是什么鬼呢？
+搜了一圈，原来这是quoted-printable编解码，跟Base64类似，base64和quoted-printable这两种编码都是在电子邮件中常见的编码方式。
+基本知识：
+
+如果=号出现在一行最后，表示换行，那么：
+he=
+llo
+意思就是连起来的hello
+如果中间出现=3D，那就是一个=号的意思
+所以style=3D"text"意思就是style=&ldquo;text&rdquo;
+英文字符除了=以外不做处理，其他字符的编码为=加这个字符的两个字节的16进制数。
+
+弄明白了吧。
+给一段处理mbox的python程序，可以用来读邮件：
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import mailbox  
+import base64  
+import os  
+import sys  
+import email
+
+import quopri
+
+
+filename = "/var/spool/mail/zrr"
+
+mb = mailbox.mbox(filename)  
+nmes = len(mb)
+
+for i in range(len(mb)):  
+        print "\n\n\n\n\n"
+        print "-------------------------------------------------------------------------------------------------"
+    print "Email", i
+        print "-------------------------------------------------------------------------------------------------"
+
+    mes = mb.get_message(i)
+    em = email.message_from_string(mes.as_string())
+
+    subject = em.get(&#39;Subject&#39;)
+    if subject.find(&#39;=?&#39;) != -1:
+        ll = email.header.decode_header(subject)
+        subject = ""
+        for l in ll:
+            subject = subject + l[0]
+
+    em_from = em.get(&#39;From&#39;)
+    if em_from.find(&#39;=?&#39;) != -1:
+        ll = email.header.decode_header(em_from)
+        em_from = ""
+        for l in ll:
+            em_from = em_from + l[0]
+
+    print "From: %s - Subject: %s" %(em_from, subject)
+        print "-------------------------------------------------------------------------------------------------"
+
+        if mes.is_multipart():
+            for part in mes.get_payload():
+                print  quopri.decodestring(part.get_payload())
+        else:
+            print quopri.decodestring(mes.get_payload())
+'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20240118-mbox_3d/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20240118-mbox_3d/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20240118-mbox_3d/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="mbox文件中的=3D是什么鬼(quoted-printable编码)"><meta property="og:description" content='最近在搞邮局。有个很奇怪的问题，就是打开mbox的文件，比如说：
+/var/spool/mail/root
+里面信件的部分有奇怪的3D字符：
+<table cellpadding=3D"0" cellspacing=3D"0" style=3D"text-align:le= ft;color:#454545;background-color:#fff;font-size:14px;border-radius:10px;pa= 注意，中间多了若干个3D，最后也多了=号
+这是什么鬼呢？
+搜了一圈，原来这是quoted-printable编解码，跟Base64类似，base64和quoted-printable这两种编码都是在电子邮件中常见的编码方式。
+基本知识：
+如果=号出现在一行最后，表示换行，那么： he= llo 意思就是连起来的hello 如果中间出现=3D，那就是一个=号的意思 所以style=3D"text"意思就是style=“text” 英文字符除了=以外不做处理，其他字符的编码为=加这个字符的两个字节的16进制数。 弄明白了吧。
+给一段处理mbox的python程序，可以用来读邮件：
+#!/usr/bin/env python # -*- coding: utf-8 -*- import mailbox import base64 import os import sys import email import quopri filename = "/var/spool/mail/zrr" mb = mailbox.mbox(filename) nmes = len(mb) for i in range(len(mb)): print "\n\n\n\n\n" print "-------------------------------------------------------------------------------------------------" print "Email", i print "-------------------------------------------------------------------------------------------------" mes = mb.get_message(i) em = email.message_from_string(mes.as_string()) subject = em.get(&#39;Subject&#39;) if subject.find(&#39;=?&#39;) != -1: ll = email.header.decode_header(subject) subject = "" for l in ll: subject = subject + l[0] em_from = em.get(&#39;From&#39;) if em_from.find(&#39;=?&#39;) != -1: ll = email.header.decode_header(em_from) em_from = "" for l in ll: em_from = em_from + l[0] print "From: %s - Subject: %s" %(em_from, subject) print "-------------------------------------------------------------------------------------------------" if mes.is_multipart(): for part in mes.get_payload(): print quopri.decodestring(part.get_payload()) else: print quopri.decodestring(mes.get_payload()) '><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2024-01-18T17:06:11+08:00"><meta property="article:modified_time" content="2024-01-18T17:06:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="mbox文件中的=3D是什么鬼(quoted-printable编码)"><meta name=twitter:description content='最近在搞邮局。有个很奇怪的问题，就是打开mbox的文件，比如说：
+/var/spool/mail/root
+里面信件的部分有奇怪的3D字符：
+<table cellpadding=3D"0" cellspacing=3D"0" style=3D"text-align:le=  
+ft;color:#454545;background-color:#fff;font-size:14px;border-radius:10px;pa=  
+注意，中间多了若干个3D，最后也多了=号
+这是什么鬼呢？
+搜了一圈，原来这是quoted-printable编解码，跟Base64类似，base64和quoted-printable这两种编码都是在电子邮件中常见的编码方式。
+基本知识：
+
+如果=号出现在一行最后，表示换行，那么：
+he=
+llo
+意思就是连起来的hello
+如果中间出现=3D，那就是一个=号的意思
+所以style=3D"text"意思就是style=&ldquo;text&rdquo;
+英文字符除了=以外不做处理，其他字符的编码为=加这个字符的两个字节的16进制数。
+
+弄明白了吧。
+给一段处理mbox的python程序，可以用来读邮件：
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import mailbox  
+import base64  
+import os  
+import sys  
+import email
+
+import quopri
+
+
+filename = "/var/spool/mail/zrr"
+
+mb = mailbox.mbox(filename)  
+nmes = len(mb)
+
+for i in range(len(mb)):  
+        print "\n\n\n\n\n"
+        print "-------------------------------------------------------------------------------------------------"
+    print "Email", i
+        print "-------------------------------------------------------------------------------------------------"
+
+    mes = mb.get_message(i)
+    em = email.message_from_string(mes.as_string())
+
+    subject = em.get(&#39;Subject&#39;)
+    if subject.find(&#39;=?&#39;) != -1:
+        ll = email.header.decode_header(subject)
+        subject = ""
+        for l in ll:
+            subject = subject + l[0]
+
+    em_from = em.get(&#39;From&#39;)
+    if em_from.find(&#39;=?&#39;) != -1:
+        ll = email.header.decode_header(em_from)
+        em_from = ""
+        for l in ll:
+            em_from = em_from + l[0]
+
+    print "From: %s - Subject: %s" %(em_from, subject)
+        print "-------------------------------------------------------------------------------------------------"
+
+        if mes.is_multipart():
+            for part in mes.get_payload():
+                print  quopri.decodestring(part.get_payload())
+        else:
+            print quopri.decodestring(mes.get_payload())
+'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"mbox文件中的=3D是什么鬼(quoted-printable编码)","item":"https://rendoumi.com/posts/20240118-mbox_3d/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"mbox文件中的=3D是什么鬼(quoted-printable编码)","name":"mbox文件中的=3D是什么鬼(quoted-printable编码)","description":"最近在搞邮局。有个很奇怪的问题，就是打开mbox的文件，比如说：\n/var/spool/mail/root\n里面信件的部分有奇怪的3D字符：\n\u0026lt;table cellpadding=3D\u0026#34;0\u0026#34; cellspacing=3D\u0026#34;0\u0026#34; style=3D\u0026#34;text-align:le= ft;color:#454545;background-color:#fff;font-size:14px;border-radius:10px;pa= 注意，中间多了若干个3D，最后也多了=号\n这是什么鬼呢？\n搜了一圈，原来这是quoted-printable编解码，跟Base64类似，base64和quoted-printable这两种编码都是在电子邮件中常见的编码方式。\n基本知识：\n如果=号出现在一行最后，表示换行，那么： he= llo 意思就是连起来的hello 如果中间出现=3D，那就是一个=号的意思 所以style=3D\u0026quot;text\u0026quot;意思就是style=\u0026ldquo;text\u0026rdquo; 英文字符除了=以外不做处理，其他字符的编码为=加这个字符的两个字节的16进制数。 弄明白了吧。\n给一段处理mbox的python程序，可以用来读邮件：\n#!/usr/bin/env python # -*- coding: utf-8 -*- import mailbox import base64 import os import sys import email import quopri filename = \u0026#34;/var/spool/mail/zrr\u0026#34; mb = mailbox.mbox(filename) nmes = len(mb) for i in range(len(mb)): print \u0026#34;\\n\\n\\n\\n\\n\u0026#34; print \u0026#34;-------------------------------------------------------------------------------------------------\u0026#34; print \u0026#34;Email\u0026#34;, i print \u0026#34;-------------------------------------------------------------------------------------------------\u0026#34; mes = mb.get_message(i) em = email.message_from_string(mes.as_string()) subject = em.get(\u0026#39;Subject\u0026#39;) if subject.find(\u0026#39;=?\u0026#39;) != -1: ll = email.header.decode_header(subject) subject = \u0026#34;\u0026#34; for l in ll: subject = subject + l[0] em_from = em.get(\u0026#39;From\u0026#39;) if em_from.find(\u0026#39;=?\u0026#39;) != -1: ll = email.header.decode_header(em_from) em_from = \u0026#34;\u0026#34; for l in ll: em_from = em_from + l[0] print \u0026#34;From: %s - Subject: %s\u0026#34; %(em_from, subject) print \u0026#34;-------------------------------------------------------------------------------------------------\u0026#34; if mes.is_multipart(): for part in mes.get_payload(): print quopri.decodestring(part.get_payload()) else: print quopri.decodestring(mes.get_payload()) ","keywords":[],"articleBody":"最近在搞邮局。有个很奇怪的问题，就是打开mbox的文件，比如说：\n/var/spool/mail/root\n里面信件的部分有奇怪的3D字符：\n","wordCount":"133","inLanguage":"zh","datePublished":"2024-01-18T17:06:11+08:00","dateModified":"2024-01-18T17:06:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20240118-mbox_3d/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">mbox文件中的=3D是什么鬼(quoted-printable编码)
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2024-01-18 17:06:11 +0800 CST'>2024年1月18日</span></div></header><div class=post-content><p>最近在搞邮局。有个很奇怪的问题，就是打开mbox的文件，比如说：</p><p>/var/spool/mail/root</p><p>里面信件的部分有奇怪的3D字符：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>&lt;table <span class=nv>cellpadding</span><span class=o>=</span>3D<span class=s2>&#34;0&#34;</span> <span class=nv>cellspacing</span><span class=o>=</span>3D<span class=s2>&#34;0&#34;</span> <span class=nv>style</span><span class=o>=</span>3D<span class=s2>&#34;text-align:le=  
+</span></span></span><span class=line><span class=cl><span class=s2>ft;color:#454545;background-color:#fff;font-size:14px;border-radius:10px;pa=  
+</span></span></span></code></pre></div><p>注意，中间多了若干个3D，最后也多了=号</p><p>这是什么鬼呢？</p><p>搜了一圈，原来这是quoted-printable编解码，跟Base64类似，base64和quoted-printable这两种编码都是在电子邮件中常见的编码方式。</p><p>基本知识：</p><ol><li>如果=号出现在一行最后，表示换行，那么：
+he=
+llo
+意思就是连起来的hello</li><li>如果中间出现=3D，那就是一个=号的意思
+所以style=3D"text"意思就是style=&ldquo;text&rdquo;</li><li>英文字符除了=以外不做处理，其他字符的编码为=加这个字符的两个字节的16进制数。</li></ol><p>弄明白了吧。</p><p>给一段处理mbox的python程序，可以用来读邮件：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/usr/bin/env python
+</span></span></span><span class=line><span class=cl><span class=cp></span><span class=c1># -*- coding: utf-8 -*-</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>import mailbox  
+</span></span><span class=line><span class=cl>import base64  
+</span></span><span class=line><span class=cl>import os  
+</span></span><span class=line><span class=cl>import sys  
+</span></span><span class=line><span class=cl>import email
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>import quopri
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>filename</span> <span class=o>=</span> <span class=s2>&#34;/var/spool/mail/zrr&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>mb</span> <span class=o>=</span> mailbox.mbox<span class=o>(</span>filename<span class=o>)</span>  
+</span></span><span class=line><span class=cl><span class=nv>nmes</span> <span class=o>=</span> len<span class=o>(</span>mb<span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>for</span> i in range<span class=o>(</span>len<span class=o>(</span>mb<span class=o>))</span>:  
+</span></span><span class=line><span class=cl>        print <span class=s2>&#34;\n\n\n\n\n&#34;</span>
+</span></span><span class=line><span class=cl>        print <span class=s2>&#34;-------------------------------------------------------------------------------------------------&#34;</span>
+</span></span><span class=line><span class=cl>    print <span class=s2>&#34;Email&#34;</span>, i
+</span></span><span class=line><span class=cl>        print <span class=s2>&#34;-------------------------------------------------------------------------------------------------&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nv>mes</span> <span class=o>=</span> mb.get_message<span class=o>(</span>i<span class=o>)</span>
+</span></span><span class=line><span class=cl>    <span class=nv>em</span> <span class=o>=</span> email.message_from_string<span class=o>(</span>mes.as_string<span class=o>())</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nv>subject</span> <span class=o>=</span> em.get<span class=o>(</span><span class=s1>&#39;Subject&#39;</span><span class=o>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> subject.find<span class=o>(</span><span class=s1>&#39;=?&#39;</span><span class=o>)</span> !<span class=o>=</span> -1:
+</span></span><span class=line><span class=cl>        <span class=nv>ll</span> <span class=o>=</span> email.header.decode_header<span class=o>(</span>subject<span class=o>)</span>
+</span></span><span class=line><span class=cl>        <span class=nv>subject</span> <span class=o>=</span> <span class=s2>&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> l in ll:
+</span></span><span class=line><span class=cl>            <span class=nv>subject</span> <span class=o>=</span> subject + l<span class=o>[</span>0<span class=o>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nv>em_from</span> <span class=o>=</span> em.get<span class=o>(</span><span class=s1>&#39;From&#39;</span><span class=o>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> em_from.find<span class=o>(</span><span class=s1>&#39;=?&#39;</span><span class=o>)</span> !<span class=o>=</span> -1:
+</span></span><span class=line><span class=cl>        <span class=nv>ll</span> <span class=o>=</span> email.header.decode_header<span class=o>(</span>em_from<span class=o>)</span>
+</span></span><span class=line><span class=cl>        <span class=nv>em_from</span> <span class=o>=</span> <span class=s2>&#34;&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> l in ll:
+</span></span><span class=line><span class=cl>            <span class=nv>em_from</span> <span class=o>=</span> em_from + l<span class=o>[</span>0<span class=o>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    print <span class=s2>&#34;From: %s - Subject: %s&#34;</span> %<span class=o>(</span>em_from, subject<span class=o>)</span>
+</span></span><span class=line><span class=cl>        print <span class=s2>&#34;-------------------------------------------------------------------------------------------------&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> mes.is_multipart<span class=o>()</span>:
+</span></span><span class=line><span class=cl>            <span class=k>for</span> part in mes.get_payload<span class=o>()</span>:
+</span></span><span class=line><span class=cl>                print  quopri.decodestring<span class=o>(</span>part.get_payload<span class=o>())</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span>:
+</span></span><span class=line><span class=cl>            print quopri.decodestring<span class=o>(</span>mes.get_payload<span class=o>())</span>
+</span></span></code></pre></div></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

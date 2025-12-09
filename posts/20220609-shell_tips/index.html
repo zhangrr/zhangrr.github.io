@@ -1,0 +1,126 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Shell进阶技巧 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='Shell脚本的进阶技巧：
+一、String 类的技巧
+String类当作数组来使用，注意范围的下标，0:4，4最后要被踢掉，实际是0-3，共4个字符：
+string="Bash is great!"
+
+echo ${string:8} # great!
+echo ${string:0:4} # Bash
+echo ${string:8:-1} # great (-1: upto 1st element from right)
+数组的长度：
+string="Bash is great!";
+len=${#string}
+echo "len = $len"
+字符串的替换：
+string="Bash is great!!"
+echo ${string/Bash/GNU Bash} # GNU Bash is great!!
+echo ${string//!/.} # Bash is great..
+大小写替换:
+string="Bash"
+echo ${string^^} # BASH
+echo ${string,,} # bash
+按index存取数组中字符在shell中不可用，但是可以用function变相实现：
+function charAt() {
+    string=$1
+    i=$2
+    echo ${string:i:1}
+}
+echo $(charAt "Hello" 2) # l
+echo $(charAt "Hello" 1) # e
+二、数组和字典
+定义一个数组并且遍历它：'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20220609-shell_tips/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20220609-shell_tips/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20220609-shell_tips/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="Shell进阶技巧"><meta property="og:description" content='Shell脚本的进阶技巧：
+一、String 类的技巧 String类当作数组来使用，注意范围的下标，0:4，4最后要被踢掉，实际是0-3，共4个字符：
+string="Bash is great!" echo ${string:8} # great! echo ${string:0:4} # Bash echo ${string:8:-1} # great (-1: upto 1st element from right) 数组的长度：
+string="Bash is great!"; len=${#string} echo "len = $len" 字符串的替换：
+string="Bash is great!!" echo ${string/Bash/GNU Bash} # GNU Bash is great!! echo ${string//!/.} # Bash is great.. 大小写替换:
+string="Bash" echo ${string^^} # BASH echo ${string,,} # bash 按index存取数组中字符在shell中不可用，但是可以用function变相实现：
+function charAt() { string=$1 i=$2 echo ${string:i:1} } echo $(charAt "Hello" 2) # l echo $(charAt "Hello" 1) # e 二、数组和字典 定义一个数组并且遍历它：'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-06-09T09:30:11+08:00"><meta property="article:modified_time" content="2022-06-09T09:30:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Shell进阶技巧"><meta name=twitter:description content='Shell脚本的进阶技巧：
+一、String 类的技巧
+String类当作数组来使用，注意范围的下标，0:4，4最后要被踢掉，实际是0-3，共4个字符：
+string="Bash is great!"
+
+echo ${string:8} # great!
+echo ${string:0:4} # Bash
+echo ${string:8:-1} # great (-1: upto 1st element from right)
+数组的长度：
+string="Bash is great!";
+len=${#string}
+echo "len = $len"
+字符串的替换：
+string="Bash is great!!"
+echo ${string/Bash/GNU Bash} # GNU Bash is great!!
+echo ${string//!/.} # Bash is great..
+大小写替换:
+string="Bash"
+echo ${string^^} # BASH
+echo ${string,,} # bash
+按index存取数组中字符在shell中不可用，但是可以用function变相实现：
+function charAt() {
+    string=$1
+    i=$2
+    echo ${string:i:1}
+}
+echo $(charAt "Hello" 2) # l
+echo $(charAt "Hello" 1) # e
+二、数组和字典
+定义一个数组并且遍历它：'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"Shell进阶技巧","item":"https://rendoumi.com/posts/20220609-shell_tips/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Shell进阶技巧","name":"Shell进阶技巧","description":"Shell脚本的进阶技巧：\n一、String 类的技巧 String类当作数组来使用，注意范围的下标，0:4，4最后要被踢掉，实际是0-3，共4个字符：\nstring=\u0026#34;Bash is great!\u0026#34; echo ${string:8} # great! echo ${string:0:4} # Bash echo ${string:8:-1} # great (-1: upto 1st element from right) 数组的长度：\nstring=\u0026#34;Bash is great!\u0026#34;; len=${#string} echo \u0026#34;len = $len\u0026#34; 字符串的替换：\nstring=\u0026#34;Bash is great!!\u0026#34; echo ${string/Bash/GNU Bash} # GNU Bash is great!! echo ${string//!/.} # Bash is great.. 大小写替换:\nstring=\u0026#34;Bash\u0026#34; echo ${string^^} # BASH echo ${string,,} # bash 按index存取数组中字符在shell中不可用，但是可以用function变相实现：\nfunction charAt() { string=$1 i=$2 echo ${string:i:1} } echo $(charAt \u0026#34;Hello\u0026#34; 2) # l echo $(charAt \u0026#34;Hello\u0026#34; 1) # e 二、数组和字典 定义一个数组并且遍历它：\n","keywords":[],"articleBody":"Shell脚本的进阶技巧：\n一、String 类的技巧 String类当作数组来使用，注意范围的下标，0:4，4最后要被踢掉，实际是0-3，共4个字符：\nstring=\"Bash is great!\" echo ${string:8} # great! echo ${string:0:4} # Bash echo ${string:8:-1} # great (-1: upto 1st element from right) 数组的长度：\nstring=\"Bash is great!\"; len=${#string} echo \"len = $len\" 字符串的替换：\nstring=\"Bash is great!!\" echo ${string/Bash/GNU Bash} # GNU Bash is great!! echo ${string//!/.} # Bash is great.. 大小写替换:\nstring=\"Bash\" echo ${string^^} # BASH echo ${string,,} # bash 按index存取数组中字符在shell中不可用，但是可以用function变相实现：\nfunction charAt() { string=$1 i=$2 echo ${string:i:1} } echo $(charAt \"Hello\" 2) # l echo $(charAt \"Hello\" 1) # e 二、数组和字典 定义一个数组并且遍历它：\nA=(2 4 5 6 4) for i in ${A[@]}; do echo -n \"${i} \" # 2 4 5 6 4 done 同样对数组进行切割：\nA=(2 4 5 6 4) echo ${A[@]:2:3} # 5 6 4 echo ${A[@]:0:1} # 2 Bash 中的数组需要使用 [@] 符号来引用整个数组，可以用简洁的语法对数组增加元素\nA=(1 2 3) A+=(4) echo ${A[@]} # 1 2 3 4 A+=(5 6) echo ${A[@]} # 1 2 3 4 5 6 字典也一样\ndeclare -A D D=([\"one\"]=1 [\"two\"]=2 [\"three\"]=3) for i in ${!D[@]}; do echo \"$i -\u003e ${D[$i]}\" # one -\u003e 1 .... done 三、数学计算 简单的数学计算可以用 $((...)) 来完成：\na=10 b=5 echo \"$a + $b = $((a + b))\" # 10 + 5 = 15 echo \"$a - $b = $((a - b))\" # 10 - 5 = 5 echo \"$a x $b = $((a * b))\" # 10 x 5 = 50 echo \"$a / $b = $((a / b))\" # 10 / 5 = 2 echo \"$a % $b = $((a % b))\" # 10 % 5 = 0 或者借助复杂一点的 bc 来完成：\na=10 b=5.7 echo \"$a / $b = $(echo \"scale = 2; $a / $b\" | bc)\" # 10 / 5.7 = 1.75 随机数的产生：\necho $(($RANDOM % 10)) # Random number between 0 and 10 四、输入 控制输入变量：\nread -p \"Enter your name: \" name echo \"Hello, $name\" 如果要输入数组：\nread -p \"Enter numbers: \" -a A echo ${A[@]} 借助上面的技巧，我们可以写出一些复杂的 shell 脚本了\n","wordCount":"308","inLanguage":"zh","datePublished":"2022-06-09T09:30:11+08:00","dateModified":"2022-06-09T09:30:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20220609-shell_tips/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">Shell进阶技巧
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2022-06-09 09:30:11 +0800 CST'>2022年6月9日</span></div></header><div class=post-content><p>Shell脚本的进阶技巧：</p><h4 id=一string-类的技巧>一、String 类的技巧<a hidden class=anchor aria-hidden=true href=#一string-类的技巧>#</a></h4><p>String类当作数组来使用，注意范围的下标，0:4，4最后要被踢掉，实际是0-3，共4个字符：</p><pre tabindex=0><code>string=&#34;Bash is great!&#34;
+
+echo ${string:8} # great!
+echo ${string:0:4} # Bash
+echo ${string:8:-1} # great (-1: upto 1st element from right)
+</code></pre><p>数组的长度：</p><pre tabindex=0><code>string=&#34;Bash is great!&#34;;
+len=${#string}
+echo &#34;len = $len&#34;
+</code></pre><p>字符串的替换：</p><pre tabindex=0><code>string=&#34;Bash is great!!&#34;
+echo ${string/Bash/GNU Bash} # GNU Bash is great!!
+echo ${string//!/.} # Bash is great..
+</code></pre><p>大小写替换:</p><pre tabindex=0><code>string=&#34;Bash&#34;
+echo ${string^^} # BASH
+echo ${string,,} # bash
+</code></pre><p>按index存取数组中字符在shell中不可用，但是可以用function变相实现：</p><pre tabindex=0><code>function charAt() {
+    string=$1
+    i=$2
+    echo ${string:i:1}
+}
+echo $(charAt &#34;Hello&#34; 2) # l
+echo $(charAt &#34;Hello&#34; 1) # e
+</code></pre><h4 id=二数组和字典>二、数组和字典<a hidden class=anchor aria-hidden=true href=#二数组和字典>#</a></h4><p>定义一个数组并且遍历它：</p><pre tabindex=0><code>A=(2 4 5 6 4)
+for i in ${A[@]}; do
+    echo -n &#34;${i} &#34; # 2 4 5 6 4
+done
+</code></pre><p>同样对数组进行切割：</p><pre tabindex=0><code>A=(2 4 5 6 4)
+echo ${A[@]:2:3} # 5 6 4
+echo ${A[@]:0:1} # 2
+</code></pre><p>Bash 中的数组需要使用 <code>[@]</code> 符号来引用整个数组，可以用简洁的语法对数组增加元素</p><pre tabindex=0><code>A=(1 2 3)
+A+=(4)
+echo ${A[@]} # 1 2 3 4
+A+=(5 6)
+echo ${A[@]} # 1 2 3 4 5 6
+</code></pre><p>字典也一样</p><pre tabindex=0><code>declare -A D
+D=([&#34;one&#34;]=1 [&#34;two&#34;]=2 [&#34;three&#34;]=3)
+for i in ${!D[@]}; do
+    echo &#34;$i -&gt; ${D[$i]}&#34; # one -&gt; 1 ....
+done
+</code></pre><h4 id=三数学计算>三、数学计算<a hidden class=anchor aria-hidden=true href=#三数学计算>#</a></h4><p>简单的数学计算可以用 <code>$((...))</code> 来完成：</p><pre tabindex=0><code>a=10
+b=5
+
+echo &#34;$a + $b = $((a + b))&#34; # 10 + 5 = 15
+echo &#34;$a - $b = $((a - b))&#34; # 10 - 5 = 5
+echo &#34;$a x $b = $((a * b))&#34; # 10 x 5 = 50
+echo &#34;$a / $b = $((a / b))&#34; # 10 / 5 = 2
+echo &#34;$a % $b = $((a % b))&#34; # 10 % 5 = 0
+</code></pre><p>或者借助复杂一点的 bc 来完成：</p><pre tabindex=0><code>a=10
+b=5.7
+
+echo &#34;$a / $b = $(echo &#34;scale = 2; $a / $b&#34; | bc)&#34; # 10 / 5.7 = 1.75
+</code></pre><p>随机数的产生：</p><pre tabindex=0><code>echo $(($RANDOM % 10)) # Random number between 0 and 10
+</code></pre><h4 id=四输入>四、输入<a hidden class=anchor aria-hidden=true href=#四输入>#</a></h4><p>控制输入变量：</p><pre tabindex=0><code>read -p &#34;Enter your name: &#34; name
+echo &#34;Hello, $name&#34;
+</code></pre><p>如果要输入数组：</p><pre tabindex=0><code>read -p &#34;Enter numbers: &#34; -a A
+echo ${A[@]}
+</code></pre><p>借助上面的技巧，我们可以写出一些复杂的 shell 脚本了</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

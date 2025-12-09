@@ -1,0 +1,311 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>IPXE kickstart安装CentOS的方法 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='这些年IDC物理机装机的大法也在不断衍进，从最早的手动装一堆tftp/dhcp/syslinux/httpd，到cobbler的一统江湖，到现在的dnsmasq轻量级安装，nocps安装，一直在不断进化着。
+因为cobbler实在太重，不得不专门起一个kvm虚机来运行，完全不喜欢啊。所以一直也在研究终极安装服务器的大法。
+折腾服务器无数回，找出了个自己比较喜欢的方式。
+首先介绍一下背景知识：
+
+
+PXE
+可以通过网络给计算机安装操作系统。 PXE协议大致上结合了DHCP和TFTP。
+
+
+gPXE
+gPXE是PXE的一个开源实现（更早的实现是Etherboot）。通过gPXE能让网卡直接支持网络启动，而不依赖于网卡自带的PXE固件。同时相比PXE，gPXE支持更多的协议。 传统的PXE只能通过TFTP进行传输，而gPXE支持HTTP，iSCSI和ATA over Ethernet（AoE），甚至支持wifi链接。
+
+
+iPXE
+iPXE表示 it doesn&rsquo;t PXE。iPXE是gPXE的原班人马写的（他们从Etherboot开始），作为官方的gPXE的替代品。  gPXE扩展的功能在iPXE中都得到支持。 之所以不再使用gPXE是由于存在版权纠纷，iPXE从2010年4月开始，基于同一个代码库开始开发。
+
+
+PXELINUX
+Syslinux是一个优秀的系统启动加载器(bootloader)，可引导自硬盘、光盘、和通过PXE的网络启动。  PXELINUX派生自Syslinux，用来使支持PXE的网卡从网络引导启动Linux。PXELINUX程序不是烧在网卡里，而是存储在TFTP服务器上。
+
+
+Chainloading iPXE
+可以把iPXE当作固件刷进计算机网卡的ROM里替换掉自带的PXE，但更为常见的是通过chainloading的方式进入iPXE。
+
+
+有点晕是吧，总结一下，pxe包含了gpxe/ipxe/pxelinux，ipxe是最新的，gpxe/ipxe/pxelinux可以通过chain的方式顶替网卡原生的pxe。
+推荐的装机方式：
+客户机启动网卡自带的固件pxe，然后去服务器拉一个gpxe/ipxe，然后启动这个gpxe/ipxe，再去服务器拉具体的启动文件，这种就是chain方式了。我们就可以用到http/iscsi/wifi等各种先进方式启动了。
+我们第一步先要准备一个gpxe的boot文件。
+解释一下，文件后缀有.pxe/.kpxe/.kkpxe，这是个递进关系，.pxe是最原生的网卡驱动，.kpxe包含了调用原生网卡的UNDI驱动(无网卡驱动），.kkpxe更进一步，包含了UNDI+PXE原生网卡的驱动。
+当然选择.kpxe了，我们的目的就是通过这个ipxe调用原生网卡上的驱动即可，如果是你自己要烧网卡的bootroom片子，就得选择所有驱动了。
+这样我们会得到一个 gpxe-1.0.1-undionly.kpxe 的文件，保存备用。
+然后我们来设置Dnsmasq:
+log-dhcp
+
+dhcp-no-override
+
+enable-tftp  
+tftp-root = /tftpboot
+
+dhcp-range=tftp,172.16.36.100,172.16.36.105
+
+dhcp-match=gpxe,175  
+dhcp-boot=net:#gpxe,gpxe-1.0.1-undionly.kpxe,gxe/bootserver,172.16.36.1  
+dhcp-boot=http://172.16.8.1/ks/boot.txt  
+注意：gpxe-1.0.1-undionly.kpxe是放在/tftpboot/gpxe/之下的
+上面有很多玄机，dhcp-range是随便设一个地址池，因为最终实际是gpxe来决定地址，所以第一次dhcp得到的地址反而不重要了。dhcp-no-override一定要有，否则gpxe有bug，无法启动。
+其次匹配gpxe，凡是175的都是gpxe，为什么要匹配呢？看下面，有两个dhcp-boot启动选项，#pxe，#表示不是，这行意思是:不是gpxe启动的话用/tftp/gpxe/gpxe-1.0.1-undionly.kpxe来启动，dhcp的server是172.16.36.1。第二行如果是gpxe启动的话，就chain到[http://172.16.8.1/ks/boot.txt]去启动
+呵呵，如果不这么设置，就用一行的话：
+dhcp-boot=gpxe-1.0.1-undionly.kpxe,gxe/bootserver,172.16.36.1  
+就会陷入死循环，首先pxe启动，抓了个gpxe，gpxe又启动抓了个gpxe，又抓gpxe，循环往复没玩没了。所以必须标记gpxe，并跳出这个循环。
+我们在172.16.8.1上面建立/centos7的yum安装源，同时建立/ks目录。准备boot.txt，boot2.php，boot3.php，centos7.ks四个文件，下面一个一个解释：
+首先是boot.txt
+cat boot.txt  
+#!gpxe
+
+chain http://172.16.8.1/ks/boot2.php?uuid=\${uuid}&amp;mac=\${mac}&amp;busid=\${busid}&amp;ip=\${ip}&amp;hostname=\${hostname:uristring}&amp;serial=\${serial:uristring}&amp;asset=\${asset:uristring}&amp;manufacturer=\${manufacturer:uristring}&amp;product=\${product:uristring}
+大家看上面，boot.txt是个gpxe脚本，实际是让gpxe向boot2.php传输了一些数据过来，有机器的uuid/mac/busid/hostname/serial/product等等。给个具体的例子，从access.log看到实际发过来的请求如下：
+"GET /ks/boot2.php?uuid=%5C44454c4c-5600-1054-8042-b1c04f433532&amp;mac=%5Cec%3Af4%3Abb%3Ad9%3A96%3A40&amp;busid=%5C01%3A80%3A86%3A15%3A21&amp;ip=%5C172.16.36.100&amp;hostname=%5C&amp;serial=%5C1VTBC52&amp;asset=%5C&amp;manufacturer=%5CDell%20Inc.&amp;product=%5CPowerEdge%20R730 HTTP/1.0" 200 46 "-" "gPXE/1.0.1" "-"
+看上面，有很多信息，网卡的物理地址，还有serial，对应dell就是svc tag号，还有机器类别PowerEdge R730，这是个好东西啊。
+我们购买机器的时候肯定有序列号，上架到机房的时候，可以让idc抄下来机柜和序列号，然后我们让网管规划好ip，再这里就可以利用serial来确定机器应该按哪个模板安装。'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20240118-ipxe_install/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20240118-ipxe_install/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20240118-ipxe_install/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="IPXE kickstart安装CentOS的方法"><meta property="og:description" content='这些年IDC物理机装机的大法也在不断衍进，从最早的手动装一堆tftp/dhcp/syslinux/httpd，到cobbler的一统江湖，到现在的dnsmasq轻量级安装，nocps安装，一直在不断进化着。
+因为cobbler实在太重，不得不专门起一个kvm虚机来运行，完全不喜欢啊。所以一直也在研究终极安装服务器的大法。
+折腾服务器无数回，找出了个自己比较喜欢的方式。
+首先介绍一下背景知识：
+PXE 可以通过网络给计算机安装操作系统。 PXE协议大致上结合了DHCP和TFTP。
+gPXE gPXE是PXE的一个开源实现（更早的实现是Etherboot）。通过gPXE能让网卡直接支持网络启动，而不依赖于网卡自带的PXE固件。同时相比PXE，gPXE支持更多的协议。 传统的PXE只能通过TFTP进行传输，而gPXE支持HTTP，iSCSI和ATA over Ethernet（AoE），甚至支持wifi链接。
+iPXE iPXE表示 it doesn’t PXE。iPXE是gPXE的原班人马写的（他们从Etherboot开始），作为官方的gPXE的替代品。 gPXE扩展的功能在iPXE中都得到支持。 之所以不再使用gPXE是由于存在版权纠纷，iPXE从2010年4月开始，基于同一个代码库开始开发。
+PXELINUX Syslinux是一个优秀的系统启动加载器(bootloader)，可引导自硬盘、光盘、和通过PXE的网络启动。 PXELINUX派生自Syslinux，用来使支持PXE的网卡从网络引导启动Linux。PXELINUX程序不是烧在网卡里，而是存储在TFTP服务器上。
+Chainloading iPXE 可以把iPXE当作固件刷进计算机网卡的ROM里替换掉自带的PXE，但更为常见的是通过chainloading的方式进入iPXE。
+有点晕是吧，总结一下，pxe包含了gpxe/ipxe/pxelinux，ipxe是最新的，gpxe/ipxe/pxelinux可以通过chain的方式顶替网卡原生的pxe。
+推荐的装机方式：
+客户机启动网卡自带的固件pxe，然后去服务器拉一个gpxe/ipxe，然后启动这个gpxe/ipxe，再去服务器拉具体的启动文件，这种就是chain方式了。我们就可以用到http/iscsi/wifi等各种先进方式启动了。
+我们第一步先要准备一个gpxe的boot文件。
+解释一下，文件后缀有.pxe/.kpxe/.kkpxe，这是个递进关系，.pxe是最原生的网卡驱动，.kpxe包含了调用原生网卡的UNDI驱动(无网卡驱动），.kkpxe更进一步，包含了UNDI+PXE原生网卡的驱动。
+当然选择.kpxe了，我们的目的就是通过这个ipxe调用原生网卡上的驱动即可，如果是你自己要烧网卡的bootroom片子，就得选择所有驱动了。
+这样我们会得到一个 gpxe-1.0.1-undionly.kpxe 的文件，保存备用。
+然后我们来设置Dnsmasq:
+log-dhcp dhcp-no-override enable-tftp tftp-root = /tftpboot dhcp-range=tftp,172.16.36.100,172.16.36.105 dhcp-match=gpxe,175 dhcp-boot=net:#gpxe,gpxe-1.0.1-undionly.kpxe,gxe/bootserver,172.16.36.1 dhcp-boot=http://172.16.8.1/ks/boot.txt 注意：gpxe-1.0.1-undionly.kpxe是放在/tftpboot/gpxe/之下的
+上面有很多玄机，dhcp-range是随便设一个地址池，因为最终实际是gpxe来决定地址，所以第一次dhcp得到的地址反而不重要了。dhcp-no-override一定要有，否则gpxe有bug，无法启动。
+其次匹配gpxe，凡是175的都是gpxe，为什么要匹配呢？看下面，有两个dhcp-boot启动选项，#pxe，#表示不是，这行意思是:不是gpxe启动的话用/tftp/gpxe/gpxe-1.0.1-undionly.kpxe来启动，dhcp的server是172.16.36.1。第二行如果是gpxe启动的话，就chain到[http://172.16.8.1/ks/boot.txt]去启动
+呵呵，如果不这么设置，就用一行的话：
+dhcp-boot=gpxe-1.0.1-undionly.kpxe,gxe/bootserver,172.16.36.1 就会陷入死循环，首先pxe启动，抓了个gpxe，gpxe又启动抓了个gpxe，又抓gpxe，循环往复没玩没了。所以必须标记gpxe，并跳出这个循环。
+我们在172.16.8.1上面建立/centos7的yum安装源，同时建立/ks目录。准备boot.txt，boot2.php，boot3.php，centos7.ks四个文件，下面一个一个解释：
+首先是boot.txt
+cat boot.txt #!gpxe chain http://172.16.8.1/ks/boot2.php?uuid=\${uuid}&amp;mac=\${mac}&amp;busid=\${busid}&amp;ip=\${ip}&amp;hostname=\${hostname:uristring}&amp;serial=\${serial:uristring}&amp;asset=\${asset:uristring}&amp;manufacturer=\${manufacturer:uristring}&amp;product=\${product:uristring} 大家看上面，boot.txt是个gpxe脚本，实际是让gpxe向boot2.php传输了一些数据过来，有机器的uuid/mac/busid/hostname/serial/product等等。给个具体的例子，从access.log看到实际发过来的请求如下：
+"GET /ks/boot2.php?uuid=%5C44454c4c-5600-1054-8042-b1c04f433532&amp;mac=%5Cec%3Af4%3Abb%3Ad9%3A96%3A40&amp;busid=%5C01%3A80%3A86%3A15%3A21&amp;ip=%5C172.16.36.100&amp;hostname=%5C&amp;serial=%5C1VTBC52&amp;asset=%5C&amp;manufacturer=%5CDell%20Inc.&amp;product=%5CPowerEdge%20R730 HTTP/1.0" 200 46 "-" "gPXE/1.0.1" "-" 看上面，有很多信息，网卡的物理地址，还有serial，对应dell就是svc tag号，还有机器类别PowerEdge R730，这是个好东西啊。
+我们购买机器的时候肯定有序列号，上架到机房的时候，可以让idc抄下来机柜和序列号，然后我们让网管规划好ip，再这里就可以利用serial来确定机器应该按哪个模板安装。'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2024-01-18T13:00:11+08:00"><meta property="article:modified_time" content="2024-01-18T13:00:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="IPXE kickstart安装CentOS的方法"><meta name=twitter:description content='这些年IDC物理机装机的大法也在不断衍进，从最早的手动装一堆tftp/dhcp/syslinux/httpd，到cobbler的一统江湖，到现在的dnsmasq轻量级安装，nocps安装，一直在不断进化着。
+因为cobbler实在太重，不得不专门起一个kvm虚机来运行，完全不喜欢啊。所以一直也在研究终极安装服务器的大法。
+折腾服务器无数回，找出了个自己比较喜欢的方式。
+首先介绍一下背景知识：
+
+
+PXE
+可以通过网络给计算机安装操作系统。 PXE协议大致上结合了DHCP和TFTP。
+
+
+gPXE
+gPXE是PXE的一个开源实现（更早的实现是Etherboot）。通过gPXE能让网卡直接支持网络启动，而不依赖于网卡自带的PXE固件。同时相比PXE，gPXE支持更多的协议。 传统的PXE只能通过TFTP进行传输，而gPXE支持HTTP，iSCSI和ATA over Ethernet（AoE），甚至支持wifi链接。
+
+
+iPXE
+iPXE表示 it doesn&rsquo;t PXE。iPXE是gPXE的原班人马写的（他们从Etherboot开始），作为官方的gPXE的替代品。  gPXE扩展的功能在iPXE中都得到支持。 之所以不再使用gPXE是由于存在版权纠纷，iPXE从2010年4月开始，基于同一个代码库开始开发。
+
+
+PXELINUX
+Syslinux是一个优秀的系统启动加载器(bootloader)，可引导自硬盘、光盘、和通过PXE的网络启动。  PXELINUX派生自Syslinux，用来使支持PXE的网卡从网络引导启动Linux。PXELINUX程序不是烧在网卡里，而是存储在TFTP服务器上。
+
+
+Chainloading iPXE
+可以把iPXE当作固件刷进计算机网卡的ROM里替换掉自带的PXE，但更为常见的是通过chainloading的方式进入iPXE。
+
+
+有点晕是吧，总结一下，pxe包含了gpxe/ipxe/pxelinux，ipxe是最新的，gpxe/ipxe/pxelinux可以通过chain的方式顶替网卡原生的pxe。
+推荐的装机方式：
+客户机启动网卡自带的固件pxe，然后去服务器拉一个gpxe/ipxe，然后启动这个gpxe/ipxe，再去服务器拉具体的启动文件，这种就是chain方式了。我们就可以用到http/iscsi/wifi等各种先进方式启动了。
+我们第一步先要准备一个gpxe的boot文件。
+解释一下，文件后缀有.pxe/.kpxe/.kkpxe，这是个递进关系，.pxe是最原生的网卡驱动，.kpxe包含了调用原生网卡的UNDI驱动(无网卡驱动），.kkpxe更进一步，包含了UNDI+PXE原生网卡的驱动。
+当然选择.kpxe了，我们的目的就是通过这个ipxe调用原生网卡上的驱动即可，如果是你自己要烧网卡的bootroom片子，就得选择所有驱动了。
+这样我们会得到一个 gpxe-1.0.1-undionly.kpxe 的文件，保存备用。
+然后我们来设置Dnsmasq:
+log-dhcp
+
+dhcp-no-override
+
+enable-tftp  
+tftp-root = /tftpboot
+
+dhcp-range=tftp,172.16.36.100,172.16.36.105
+
+dhcp-match=gpxe,175  
+dhcp-boot=net:#gpxe,gpxe-1.0.1-undionly.kpxe,gxe/bootserver,172.16.36.1  
+dhcp-boot=http://172.16.8.1/ks/boot.txt  
+注意：gpxe-1.0.1-undionly.kpxe是放在/tftpboot/gpxe/之下的
+上面有很多玄机，dhcp-range是随便设一个地址池，因为最终实际是gpxe来决定地址，所以第一次dhcp得到的地址反而不重要了。dhcp-no-override一定要有，否则gpxe有bug，无法启动。
+其次匹配gpxe，凡是175的都是gpxe，为什么要匹配呢？看下面，有两个dhcp-boot启动选项，#pxe，#表示不是，这行意思是:不是gpxe启动的话用/tftp/gpxe/gpxe-1.0.1-undionly.kpxe来启动，dhcp的server是172.16.36.1。第二行如果是gpxe启动的话，就chain到[http://172.16.8.1/ks/boot.txt]去启动
+呵呵，如果不这么设置，就用一行的话：
+dhcp-boot=gpxe-1.0.1-undionly.kpxe,gxe/bootserver,172.16.36.1  
+就会陷入死循环，首先pxe启动，抓了个gpxe，gpxe又启动抓了个gpxe，又抓gpxe，循环往复没玩没了。所以必须标记gpxe，并跳出这个循环。
+我们在172.16.8.1上面建立/centos7的yum安装源，同时建立/ks目录。准备boot.txt，boot2.php，boot3.php，centos7.ks四个文件，下面一个一个解释：
+首先是boot.txt
+cat boot.txt  
+#!gpxe
+
+chain http://172.16.8.1/ks/boot2.php?uuid=\${uuid}&amp;mac=\${mac}&amp;busid=\${busid}&amp;ip=\${ip}&amp;hostname=\${hostname:uristring}&amp;serial=\${serial:uristring}&amp;asset=\${asset:uristring}&amp;manufacturer=\${manufacturer:uristring}&amp;product=\${product:uristring}
+大家看上面，boot.txt是个gpxe脚本，实际是让gpxe向boot2.php传输了一些数据过来，有机器的uuid/mac/busid/hostname/serial/product等等。给个具体的例子，从access.log看到实际发过来的请求如下：
+"GET /ks/boot2.php?uuid=%5C44454c4c-5600-1054-8042-b1c04f433532&amp;mac=%5Cec%3Af4%3Abb%3Ad9%3A96%3A40&amp;busid=%5C01%3A80%3A86%3A15%3A21&amp;ip=%5C172.16.36.100&amp;hostname=%5C&amp;serial=%5C1VTBC52&amp;asset=%5C&amp;manufacturer=%5CDell%20Inc.&amp;product=%5CPowerEdge%20R730 HTTP/1.0" 200 46 "-" "gPXE/1.0.1" "-"
+看上面，有很多信息，网卡的物理地址，还有serial，对应dell就是svc tag号，还有机器类别PowerEdge R730，这是个好东西啊。
+我们购买机器的时候肯定有序列号，上架到机房的时候，可以让idc抄下来机柜和序列号，然后我们让网管规划好ip，再这里就可以利用serial来确定机器应该按哪个模板安装。'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"IPXE kickstart安装CentOS的方法","item":"https://rendoumi.com/posts/20240118-ipxe_install/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"IPXE kickstart安装CentOS的方法","name":"IPXE kickstart安装CentOS的方法","description":"这些年IDC物理机装机的大法也在不断衍进，从最早的手动装一堆tftp/dhcp/syslinux/httpd，到cobbler的一统江湖，到现在的dnsmasq轻量级安装，nocps安装，一直在不断进化着。\n因为cobbler实在太重，不得不专门起一个kvm虚机来运行，完全不喜欢啊。所以一直也在研究终极安装服务器的大法。\n折腾服务器无数回，找出了个自己比较喜欢的方式。\n首先介绍一下背景知识：\nPXE 可以通过网络给计算机安装操作系统。 PXE协议大致上结合了DHCP和TFTP。\ngPXE gPXE是PXE的一个开源实现（更早的实现是Etherboot）。通过gPXE能让网卡直接支持网络启动，而不依赖于网卡自带的PXE固件。同时相比PXE，gPXE支持更多的协议。 传统的PXE只能通过TFTP进行传输，而gPXE支持HTTP，iSCSI和ATA over Ethernet（AoE），甚至支持wifi链接。\niPXE iPXE表示 it doesn\u0026rsquo;t PXE。iPXE是gPXE的原班人马写的（他们从Etherboot开始），作为官方的gPXE的替代品。 gPXE扩展的功能在iPXE中都得到支持。 之所以不再使用gPXE是由于存在版权纠纷，iPXE从2010年4月开始，基于同一个代码库开始开发。\nPXELINUX Syslinux是一个优秀的系统启动加载器(bootloader)，可引导自硬盘、光盘、和通过PXE的网络启动。 PXELINUX派生自Syslinux，用来使支持PXE的网卡从网络引导启动Linux。PXELINUX程序不是烧在网卡里，而是存储在TFTP服务器上。\nChainloading iPXE 可以把iPXE当作固件刷进计算机网卡的ROM里替换掉自带的PXE，但更为常见的是通过chainloading的方式进入iPXE。\n有点晕是吧，总结一下，pxe包含了gpxe/ipxe/pxelinux，ipxe是最新的，gpxe/ipxe/pxelinux可以通过chain的方式顶替网卡原生的pxe。\n推荐的装机方式：\n客户机启动网卡自带的固件pxe，然后去服务器拉一个gpxe/ipxe，然后启动这个gpxe/ipxe，再去服务器拉具体的启动文件，这种就是chain方式了。我们就可以用到http/iscsi/wifi等各种先进方式启动了。\n我们第一步先要准备一个gpxe的boot文件。\n解释一下，文件后缀有.pxe/.kpxe/.kkpxe，这是个递进关系，.pxe是最原生的网卡驱动，.kpxe包含了调用原生网卡的UNDI驱动(无网卡驱动），.kkpxe更进一步，包含了UNDI+PXE原生网卡的驱动。\n当然选择.kpxe了，我们的目的就是通过这个ipxe调用原生网卡上的驱动即可，如果是你自己要烧网卡的bootroom片子，就得选择所有驱动了。\n这样我们会得到一个 gpxe-1.0.1-undionly.kpxe 的文件，保存备用。\n然后我们来设置Dnsmasq:\nlog-dhcp dhcp-no-override enable-tftp tftp-root = /tftpboot dhcp-range=tftp,172.16.36.100,172.16.36.105 dhcp-match=gpxe,175 dhcp-boot=net:#gpxe,gpxe-1.0.1-undionly.kpxe,gxe/bootserver,172.16.36.1 dhcp-boot=http://172.16.8.1/ks/boot.txt 注意：gpxe-1.0.1-undionly.kpxe是放在/tftpboot/gpxe/之下的\n上面有很多玄机，dhcp-range是随便设一个地址池，因为最终实际是gpxe来决定地址，所以第一次dhcp得到的地址反而不重要了。dhcp-no-override一定要有，否则gpxe有bug，无法启动。\n其次匹配gpxe，凡是175的都是gpxe，为什么要匹配呢？看下面，有两个dhcp-boot启动选项，#pxe，#表示不是，这行意思是:不是gpxe启动的话用/tftp/gpxe/gpxe-1.0.1-undionly.kpxe来启动，dhcp的server是172.16.36.1。第二行如果是gpxe启动的话，就chain到[http://172.16.8.1/ks/boot.txt]去启动\n呵呵，如果不这么设置，就用一行的话：\ndhcp-boot=gpxe-1.0.1-undionly.kpxe,gxe/bootserver,172.16.36.1 就会陷入死循环，首先pxe启动，抓了个gpxe，gpxe又启动抓了个gpxe，又抓gpxe，循环往复没玩没了。所以必须标记gpxe，并跳出这个循环。\n我们在172.16.8.1上面建立/centos7的yum安装源，同时建立/ks目录。准备boot.txt，boot2.php，boot3.php，centos7.ks四个文件，下面一个一个解释：\n首先是boot.txt\ncat boot.txt #!gpxe chain http://172.16.8.1/ks/boot2.php?uuid=\\${uuid}\u0026amp;mac=\\${mac}\u0026amp;busid=\\${busid}\u0026amp;ip=\\${ip}\u0026amp;hostname=\\${hostname:uristring}\u0026amp;serial=\\${serial:uristring}\u0026amp;asset=\\${asset:uristring}\u0026amp;manufacturer=\\${manufacturer:uristring}\u0026amp;product=\\${product:uristring} 大家看上面，boot.txt是个gpxe脚本，实际是让gpxe向boot2.php传输了一些数据过来，有机器的uuid/mac/busid/hostname/serial/product等等。给个具体的例子，从access.log看到实际发过来的请求如下：\n\u0026#34;GET /ks/boot2.php?uuid=%5C44454c4c-5600-1054-8042-b1c04f433532\u0026amp;mac=%5Cec%3Af4%3Abb%3Ad9%3A96%3A40\u0026amp;busid=%5C01%3A80%3A86%3A15%3A21\u0026amp;ip=%5C172.16.36.100\u0026amp;hostname=%5C\u0026amp;serial=%5C1VTBC52\u0026amp;asset=%5C\u0026amp;manufacturer=%5CDell%20Inc.\u0026amp;product=%5CPowerEdge%20R730 HTTP/1.0\u0026#34; 200 46 \u0026#34;-\u0026#34; \u0026#34;gPXE/1.0.1\u0026#34; \u0026#34;-\u0026#34; 看上面，有很多信息，网卡的物理地址，还有serial，对应dell就是svc tag号，还有机器类别PowerEdge R730，这是个好东西啊。\n我们购买机器的时候肯定有序列号，上架到机房的时候，可以让idc抄下来机柜和序列号，然后我们让网管规划好ip，再这里就可以利用serial来确定机器应该按哪个模板安装。\n","keywords":[],"articleBody":"这些年IDC物理机装机的大法也在不断衍进，从最早的手动装一堆tftp/dhcp/syslinux/httpd，到cobbler的一统江湖，到现在的dnsmasq轻量级安装，nocps安装，一直在不断进化着。\n因为cobbler实在太重，不得不专门起一个kvm虚机来运行，完全不喜欢啊。所以一直也在研究终极安装服务器的大法。\n折腾服务器无数回，找出了个自己比较喜欢的方式。\n首先介绍一下背景知识：\nPXE 可以通过网络给计算机安装操作系统。 PXE协议大致上结合了DHCP和TFTP。\ngPXE gPXE是PXE的一个开源实现（更早的实现是Etherboot）。通过gPXE能让网卡直接支持网络启动，而不依赖于网卡自带的PXE固件。同时相比PXE，gPXE支持更多的协议。 传统的PXE只能通过TFTP进行传输，而gPXE支持HTTP，iSCSI和ATA over Ethernet（AoE），甚至支持wifi链接。\niPXE iPXE表示 it doesn’t PXE。iPXE是gPXE的原班人马写的（他们从Etherboot开始），作为官方的gPXE的替代品。 gPXE扩展的功能在iPXE中都得到支持。 之所以不再使用gPXE是由于存在版权纠纷，iPXE从2010年4月开始，基于同一个代码库开始开发。\nPXELINUX Syslinux是一个优秀的系统启动加载器(bootloader)，可引导自硬盘、光盘、和通过PXE的网络启动。 PXELINUX派生自Syslinux，用来使支持PXE的网卡从网络引导启动Linux。PXELINUX程序不是烧在网卡里，而是存储在TFTP服务器上。\nChainloading iPXE 可以把iPXE当作固件刷进计算机网卡的ROM里替换掉自带的PXE，但更为常见的是通过chainloading的方式进入iPXE。\n有点晕是吧，总结一下，pxe包含了gpxe/ipxe/pxelinux，ipxe是最新的，gpxe/ipxe/pxelinux可以通过chain的方式顶替网卡原生的pxe。\n推荐的装机方式：\n客户机启动网卡自带的固件pxe，然后去服务器拉一个gpxe/ipxe，然后启动这个gpxe/ipxe，再去服务器拉具体的启动文件，这种就是chain方式了。我们就可以用到http/iscsi/wifi等各种先进方式启动了。\n我们第一步先要准备一个gpxe的boot文件。\n解释一下，文件后缀有.pxe/.kpxe/.kkpxe，这是个递进关系，.pxe是最原生的网卡驱动，.kpxe包含了调用原生网卡的UNDI驱动(无网卡驱动），.kkpxe更进一步，包含了UNDI+PXE原生网卡的驱动。\n当然选择.kpxe了，我们的目的就是通过这个ipxe调用原生网卡上的驱动即可，如果是你自己要烧网卡的bootroom片子，就得选择所有驱动了。\n这样我们会得到一个 gpxe-1.0.1-undionly.kpxe 的文件，保存备用。\n然后我们来设置Dnsmasq:\nlog-dhcp dhcp-no-override enable-tftp tftp-root = /tftpboot dhcp-range=tftp,172.16.36.100,172.16.36.105 dhcp-match=gpxe,175 dhcp-boot=net:#gpxe,gpxe-1.0.1-undionly.kpxe,gxe/bootserver,172.16.36.1 dhcp-boot=http://172.16.8.1/ks/boot.txt 注意：gpxe-1.0.1-undionly.kpxe是放在/tftpboot/gpxe/之下的\n上面有很多玄机，dhcp-range是随便设一个地址池，因为最终实际是gpxe来决定地址，所以第一次dhcp得到的地址反而不重要了。dhcp-no-override一定要有，否则gpxe有bug，无法启动。\n其次匹配gpxe，凡是175的都是gpxe，为什么要匹配呢？看下面，有两个dhcp-boot启动选项，#pxe，#表示不是，这行意思是:不是gpxe启动的话用/tftp/gpxe/gpxe-1.0.1-undionly.kpxe来启动，dhcp的server是172.16.36.1。第二行如果是gpxe启动的话，就chain到[http://172.16.8.1/ks/boot.txt]去启动\n呵呵，如果不这么设置，就用一行的话：\ndhcp-boot=gpxe-1.0.1-undionly.kpxe,gxe/bootserver,172.16.36.1 就会陷入死循环，首先pxe启动，抓了个gpxe，gpxe又启动抓了个gpxe，又抓gpxe，循环往复没玩没了。所以必须标记gpxe，并跳出这个循环。\n我们在172.16.8.1上面建立/centos7的yum安装源，同时建立/ks目录。准备boot.txt，boot2.php，boot3.php，centos7.ks四个文件，下面一个一个解释：\n首先是boot.txt\ncat boot.txt #!gpxe chain http://172.16.8.1/ks/boot2.php?uuid=\\${uuid}\u0026mac=\\${mac}\u0026busid=\\${busid}\u0026ip=\\${ip}\u0026hostname=\\${hostname:uristring}\u0026serial=\\${serial:uristring}\u0026asset=\\${asset:uristring}\u0026manufacturer=\\${manufacturer:uristring}\u0026product=\\${product:uristring} 大家看上面，boot.txt是个gpxe脚本，实际是让gpxe向boot2.php传输了一些数据过来，有机器的uuid/mac/busid/hostname/serial/product等等。给个具体的例子，从access.log看到实际发过来的请求如下：\n\"GET /ks/boot2.php?uuid=%5C44454c4c-5600-1054-8042-b1c04f433532\u0026mac=%5Cec%3Af4%3Abb%3Ad9%3A96%3A40\u0026busid=%5C01%3A80%3A86%3A15%3A21\u0026ip=%5C172.16.36.100\u0026hostname=%5C\u0026serial=%5C1VTBC52\u0026asset=%5C\u0026manufacturer=%5CDell%20Inc.\u0026product=%5CPowerEdge%20R730 HTTP/1.0\" 200 46 \"-\" \"gPXE/1.0.1\" \"-\" 看上面，有很多信息，网卡的物理地址，还有serial，对应dell就是svc tag号，还有机器类别PowerEdge R730，这是个好东西啊。\n我们购买机器的时候肯定有序列号，上架到机房的时候，可以让idc抄下来机柜和序列号，然后我们让网管规划好ip，再这里就可以利用serial来确定机器应该按哪个模板安装。\n再看模板文件，centos7.ks\n#version=DEVEL auth --enableshadow --passalgo=sha512 url --url=http://172.16.8.1/centos7 text firstboot --enable ignoredisk --only-use=sda keyboard --vckeymap=us --xlayouts='us' lang en_US.UTF-8 selinux --disabled services --enabled=\"chronyd\" network --bootproto=static --device=em1 --noipv6 --nodns --onboot=yes --gateway={gateway} --ip={ip} --nameserver=172.16.8.1 --netmask={netmask} network --bootproto=dhcp --device=em2 --noipv6 --nodns --onboot=no network --bootproto=dhcp --device=em3 --noipv6 --nodns --onboot=no network --bootproto=dhcp --device=em4 --noipv6 --nodns --onboot=no network --hostname={hostname} #grub-crypt --sha-512 rootpw --iscrypted $6$0Y.SH935/jvt0X.D$lCte9H/KiFeGbTGrrcuXGZXmnq3Rk4Crz8nAvCgH.Pf2SNmoUdh.g5WGWJqtVO4QTyqvnXc/6FyVjptWIaM4w1 timezone Asia/Shanghai --isUtc bootloader --append=\" crashkernel=auto\" --location=mbr --boot-drive=sda clearpart --all --drives=sda part /boot --fstype ext4 --size=500 --ondisk=/dev/sda part swap --size=8192 --ondisk=/dev/sda part / --fstype ext4 --size=1024 --grow --ondisk=/dev/sda %packages @compat-libraries @core wget net-tools chrony bridge-utils %end %post yum -y erase NetworkManager cat \u003c/etc/sysconfig/network-scripts/ifcfg-br0 DEVICE=br0 TYPE=Bridge BOOTPROTO=static ONBOOT=yes IPADDR={ip} NETMASK={netmask} GATEWAY={gateway} EOF cat \u003c /etc/modprobe.d/bonding.conf alias bond0 bonding BONDING_OPTS=\"miimon=100 mode=1 primary=em1\" EOF cat \u003c /etc/sysconfig/network-scripts/ifcfg-bond0 DEVICE=bond0 ONBOOT=yes USERCTL=no BRIDGE=br0 EOF cat \u003c /etc/sysconfig/network-scripts/ifcfg-em1 DEVICE=em1 USERCTL=no ONBOOT=yes MASTER=bond0 SLAVE=yes BRIDGE=\"br0\" EOF cat \u003c /etc/sysconfig/network-scripts/ifcfg-em2 DEVICE=em2 USERCTL=no ONBOOT=yes MASTER=bond0 SLAVE=yes BRIDGE=\"br0\" EOF %end reboot 注意上面，{ip}、{netmask}、{gateway}、{hostname}是待定的。\n然后看看boot2.php:\n\u003c?php $dns='172.16.8.1'; $base7='http://172.16.8.1/centos7'; $ks7='http://172.16.8.1/ks/boot3.php'; echo \"#!gpxe\\n\"; switch ($_REQUEST['mac']) { case '\\ec:f4:bb:d9:96:40': $ip=\"172.16.36.2:172.16.37.254:255.255.254.0:myhost-16-36-2\"; $ipa=explode(':',$ip); echo \"ifopen net0\\n\"; echo \"set net0/ip $ipa[0]\\n\"; echo \"set net0/netmask $ipa[2]\\n\"; echo \"set net0/gateway $ipa[1]\\n\"; echo \"set net0/dns $dns\\n\"; echo \"set base-url $base7\\n\"; echo \"kernel \\${base-url}/images/pxeboot/vmlinuz\\n\"; echo \"imgargs vmlinuz inst.ks=$ks7?file=centos7.ks\u0026ip=$ipa[0]\u0026mask=$ipa[2]\u0026gateway=$ipa[1]\u0026hostname=$ipa[3] ksdevice=bootif inst.vnc inst.vncpassword=xxxxxxxx inst.sshd\\n\"; echo \"initrd \\${base-url}/images/pxeboot/initrd.img\\n\"; echo \"boot\\n\"; break; case '00:11:22:33:44:55': # boot from iSCSI echo \"set initiator-iqn iqn.2007-08.com.example.initiator:initiator\\n\"; # see http://ipxe.org/sanuri for the syntax echo \"sanboot iscsi:san.example.com:6:3260:0:iqn.2007-08.com.example.san:sometarget\\n\"; break; case '\\00:77:21:ab:cd:ee': # boot boot.salstar.sk's super cool boot menu echo \"chain http://boot.salstar.sk\\n\"; break; default: # exit iPXE and let machine go on with BIOS boot sequence echo \"exit\\n\"; break; } ?\u003e 注意上面，我们是通过网卡的物理地址来判断模板的，用svc tag号更好。\n第四个文件：boot3.php\n\u003c?php $origin_str = file_get_contents($_REQUEST['file']); $update_str = str_replace(\"{ip}\", $_REQUEST['ip'], $origin_str); $update_str = str_replace('{netmask}', $_REQUEST['mask'], $update_str); $update_str = str_replace('{gateway}', $_REQUEST['gateway'], $update_str); $update_str = str_replace('{hostname}', $_REQUEST['hostname'], $update_str); echo $update_str; ?\u003e boot3.php的功能就是替换掉模板文件里的ip等，然后返回一个正确的ks文件。\n这下就完美了，我们基本就需要修改ks下的boot2.php和centos7.ks，就可以控制远程安装了。\ndhcp和tftp，就用dnsmasq和那一个gxpe就够了，省了大事了。\n还有更好玩的: 网卡原生pxe–\u003egpxe–\u003epxelinux.0\n大家尽情想象吧。\n","wordCount":"365","inLanguage":"zh","datePublished":"2024-01-18T13:00:11+08:00","dateModified":"2024-01-18T13:00:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20240118-ipxe_install/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">IPXE kickstart安装CentOS的方法
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2024-01-18 13:00:11 +0800 CST'>2024年1月18日</span></div></header><div class=post-content><p>这些年IDC物理机装机的大法也在不断衍进，从最早的手动装一堆tftp/dhcp/syslinux/httpd，到cobbler的一统江湖，到现在的dnsmasq轻量级安装，nocps安装，一直在不断进化着。</p><p>因为cobbler实在太重，不得不专门起一个kvm虚机来运行，完全不喜欢啊。所以一直也在研究终极安装服务器的大法。</p><p>折腾服务器无数回，找出了个自己比较喜欢的方式。</p><p>首先介绍一下背景知识：</p><ul><li><p>PXE
+可以通过网络给计算机安装操作系统。 PXE协议大致上结合了DHCP和TFTP。</p></li><li><p>gPXE
+gPXE是PXE的一个开源实现（更早的实现是Etherboot）。通过gPXE能让网卡直接支持网络启动，而不依赖于网卡自带的PXE固件。同时相比PXE，gPXE支持更多的协议。 传统的PXE只能通过TFTP进行传输，而gPXE支持HTTP，iSCSI和ATA over Ethernet（AoE），甚至支持wifi链接。</p></li><li><p>iPXE
+iPXE表示 it doesn&rsquo;t PXE。iPXE是gPXE的原班人马写的（他们从Etherboot开始），作为官方的gPXE的替代品。 gPXE扩展的功能在iPXE中都得到支持。 之所以不再使用gPXE是由于存在版权纠纷，iPXE从2010年4月开始，基于同一个代码库开始开发。</p></li><li><p>PXELINUX
+Syslinux是一个优秀的系统启动加载器(bootloader)，可引导自硬盘、光盘、和通过PXE的网络启动。 PXELINUX派生自Syslinux，用来使支持PXE的网卡从网络引导启动Linux。PXELINUX程序不是烧在网卡里，而是存储在TFTP服务器上。</p></li><li><p>Chainloading iPXE
+可以把iPXE当作固件刷进计算机网卡的ROM里替换掉自带的PXE，但更为常见的是通过chainloading的方式进入iPXE。</p></li></ul><p>有点晕是吧，总结一下，pxe包含了gpxe/ipxe/pxelinux，ipxe是最新的，gpxe/ipxe/pxelinux可以通过chain的方式顶替网卡原生的pxe。</p><p>推荐的装机方式：</p><p>客户机启动网卡自带的固件pxe，然后去服务器拉一个gpxe/ipxe，然后启动这个gpxe/ipxe，再去服务器拉具体的启动文件，这种就是chain方式了。我们就可以用到http/iscsi/wifi等各种先进方式启动了。</p><p>我们第一步先要准备一个gpxe的boot文件。</p><p>解释一下，文件后缀有.pxe/.kpxe/.kkpxe，这是个递进关系，.pxe是最原生的网卡驱动，.kpxe包含了调用原生网卡的UNDI驱动(无网卡驱动），.kkpxe更进一步，包含了UNDI+PXE原生网卡的驱动。</p><p>当然选择.kpxe了，我们的目的就是通过这个ipxe调用原生网卡上的驱动即可，如果是你自己要烧网卡的bootroom片子，就得选择所有驱动了。</p><p>这样我们会得到一个 gpxe-1.0.1-undionly.kpxe 的文件，保存备用。</p><p>然后我们来设置Dnsmasq:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>log-dhcp
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>dhcp-no-override
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>enable-tftp  
+</span></span><span class=line><span class=cl>tftp-root <span class=o>=</span> /tftpboot
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>dhcp-range<span class=o>=</span>tftp,172.16.36.100,172.16.36.105
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>dhcp-match<span class=o>=</span>gpxe,175  
+</span></span><span class=line><span class=cl>dhcp-boot<span class=o>=</span>net:#gpxe,gpxe-1.0.1-undionly.kpxe,gxe/bootserver,172.16.36.1  
+</span></span><span class=line><span class=cl>dhcp-boot<span class=o>=</span>http://172.16.8.1/ks/boot.txt  
+</span></span></code></pre></div><p>注意：gpxe-1.0.1-undionly.kpxe是放在/tftpboot/gpxe/之下的</p><p>上面有很多玄机，dhcp-range是随便设一个地址池，因为最终实际是gpxe来决定地址，所以第一次dhcp得到的地址反而不重要了。dhcp-no-override一定要有，否则gpxe有bug，无法启动。</p><p>其次匹配gpxe，凡是175的都是gpxe，为什么要匹配呢？看下面，有两个dhcp-boot启动选项，#pxe，#表示不是，这行意思是:不是gpxe启动的话用/tftp/gpxe/gpxe-1.0.1-undionly.kpxe来启动，dhcp的server是172.16.36.1。第二行如果是gpxe启动的话，就chain到[http://172.16.8.1/ks/boot.txt]去启动</p><p>呵呵，如果不这么设置，就用一行的话：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>dhcp-boot<span class=o>=</span>gpxe-1.0.1-undionly.kpxe,gxe/bootserver,172.16.36.1  
+</span></span></code></pre></div><p>就会陷入死循环，首先pxe启动，抓了个gpxe，gpxe又启动抓了个gpxe，又抓gpxe，循环往复没玩没了。所以必须标记gpxe，并跳出这个循环。</p><p>我们在172.16.8.1上面建立/centos7的yum安装源，同时建立/ks目录。准备boot.txt，boot2.php，boot3.php，centos7.ks四个文件，下面一个一个解释：</p><p>首先是boot.txt</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat boot.txt  
+</span></span><span class=line><span class=cl><span class=c1>#!gpxe</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>chain http://172.16.8.1/ks/boot2.php?uuid<span class=o>=</span><span class=se>\$</span><span class=o>{</span>uuid<span class=o>}</span><span class=p>&amp;</span><span class=nv>mac</span><span class=o>=</span><span class=se>\$</span><span class=o>{</span>mac<span class=o>}</span><span class=p>&amp;</span><span class=nv>busid</span><span class=o>=</span><span class=se>\$</span><span class=o>{</span>busid<span class=o>}</span><span class=p>&amp;</span><span class=nv>ip</span><span class=o>=</span><span class=se>\$</span><span class=o>{</span>ip<span class=o>}</span><span class=p>&amp;</span><span class=nv>hostname</span><span class=o>=</span><span class=se>\$</span><span class=o>{</span>hostname:uristring<span class=o>}</span><span class=p>&amp;</span><span class=nv>serial</span><span class=o>=</span><span class=se>\$</span><span class=o>{</span>serial:uristring<span class=o>}</span><span class=p>&amp;</span><span class=nv>asset</span><span class=o>=</span><span class=se>\$</span><span class=o>{</span>asset:uristring<span class=o>}</span><span class=p>&amp;</span><span class=nv>manufacturer</span><span class=o>=</span><span class=se>\$</span><span class=o>{</span>manufacturer:uristring<span class=o>}</span><span class=p>&amp;</span><span class=nv>product</span><span class=o>=</span><span class=se>\$</span><span class=o>{</span>product:uristring<span class=o>}</span>
+</span></span></code></pre></div><p>大家看上面，boot.txt是个gpxe脚本，实际是让gpxe向boot2.php传输了一些数据过来，有机器的uuid/mac/busid/hostname/serial/product等等。给个具体的例子，从access.log看到实际发过来的请求如下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=s2>&#34;GET /ks/boot2.php?uuid=%5C44454c4c-5600-1054-8042-b1c04f433532&amp;mac=%5Cec%3Af4%3Abb%3Ad9%3A96%3A40&amp;busid=%5C01%3A80%3A86%3A15%3A21&amp;ip=%5C172.16.36.100&amp;hostname=%5C&amp;serial=%5C1VTBC52&amp;asset=%5C&amp;manufacturer=%5CDell%20Inc.&amp;product=%5CPowerEdge%20R730 HTTP/1.0&#34;</span> <span class=m>200</span> <span class=m>46</span> <span class=s2>&#34;-&#34;</span> <span class=s2>&#34;gPXE/1.0.1&#34;</span> <span class=s2>&#34;-&#34;</span>
+</span></span></code></pre></div><p>看上面，有很多信息，网卡的物理地址，还有serial，对应dell就是svc tag号，还有机器类别PowerEdge R730，这是个好东西啊。</p><p>我们购买机器的时候肯定有序列号，上架到机房的时候，可以让idc抄下来机柜和序列号，然后我们让网管规划好ip，再这里就可以利用serial来确定机器应该按哪个模板安装。</p><p>再看模板文件，centos7.ks</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1>#version=DEVEL</span>
+</span></span><span class=line><span class=cl>auth --enableshadow --passalgo<span class=o>=</span>sha512  
+</span></span><span class=line><span class=cl>url --url<span class=o>=</span>http://172.16.8.1/centos7  
+</span></span><span class=line><span class=cl>text  
+</span></span><span class=line><span class=cl>firstboot --enable  
+</span></span><span class=line><span class=cl>ignoredisk --only-use<span class=o>=</span>sda  
+</span></span><span class=line><span class=cl>keyboard --vckeymap<span class=o>=</span>us --xlayouts<span class=o>=</span><span class=s1>&#39;us&#39;</span>  
+</span></span><span class=line><span class=cl>lang en_US.UTF-8  
+</span></span><span class=line><span class=cl>selinux --disabled
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>services --enabled<span class=o>=</span><span class=s2>&#34;chronyd&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>network  --bootproto<span class=o>=</span>static --device<span class=o>=</span>em1 --noipv6 --nodns --onboot<span class=o>=</span>yes --gateway<span class=o>={</span>gateway<span class=o>}</span> --ip<span class=o>={</span>ip<span class=o>}</span> --nameserver<span class=o>=</span>172.16.8.1 --netmask<span class=o>={</span>netmask<span class=o>}</span>  
+</span></span><span class=line><span class=cl>network  --bootproto<span class=o>=</span>dhcp --device<span class=o>=</span>em2 --noipv6 --nodns --onboot<span class=o>=</span>no  
+</span></span><span class=line><span class=cl>network  --bootproto<span class=o>=</span>dhcp --device<span class=o>=</span>em3 --noipv6 --nodns --onboot<span class=o>=</span>no  
+</span></span><span class=line><span class=cl>network  --bootproto<span class=o>=</span>dhcp --device<span class=o>=</span>em4 --noipv6 --nodns --onboot<span class=o>=</span>no  
+</span></span><span class=line><span class=cl>network  --hostname<span class=o>={</span>hostname<span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#grub-crypt --sha-512</span>
+</span></span><span class=line><span class=cl>rootpw --iscrypted <span class=nv>$6$0</span>Y.SH935/jvt0X.D<span class=nv>$lCte9H</span>/KiFeGbTGrrcuXGZXmnq3Rk4Crz8nAvCgH.Pf2SNmoUdh.g5WGWJqtVO4QTyqvnXc/6FyVjptWIaM4w1  
+</span></span><span class=line><span class=cl>timezone Asia/Shanghai --isUtc
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>bootloader --append<span class=o>=</span><span class=s2>&#34; crashkernel=auto&#34;</span> --location<span class=o>=</span>mbr --boot-drive<span class=o>=</span>sda  
+</span></span><span class=line><span class=cl>clearpart --all --drives<span class=o>=</span>sda
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>part /boot --fstype ext4 --size<span class=o>=</span><span class=m>500</span> --ondisk<span class=o>=</span>/dev/sda  
+</span></span><span class=line><span class=cl>part swap --size<span class=o>=</span><span class=m>8192</span> --ondisk<span class=o>=</span>/dev/sda  
+</span></span><span class=line><span class=cl>part / --fstype ext4 --size<span class=o>=</span><span class=m>1024</span> --grow --ondisk<span class=o>=</span>/dev/sda
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>%packages
+</span></span><span class=line><span class=cl>@compat-libraries
+</span></span><span class=line><span class=cl>@core
+</span></span><span class=line><span class=cl>wget  
+</span></span><span class=line><span class=cl>net-tools  
+</span></span><span class=line><span class=cl>chrony  
+</span></span><span class=line><span class=cl>bridge-utils  
+</span></span><span class=line><span class=cl>%end
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>%post
+</span></span><span class=line><span class=cl>yum -y erase NetworkManager  
+</span></span><span class=line><span class=cl>cat <span class=s>&lt;&lt;EOF &gt;/etc/sysconfig/network-scripts/ifcfg-br0  
+</span></span></span><span class=line><span class=cl><span class=s>DEVICE=br0  
+</span></span></span><span class=line><span class=cl><span class=s>TYPE=Bridge  
+</span></span></span><span class=line><span class=cl><span class=s>BOOTPROTO=static  
+</span></span></span><span class=line><span class=cl><span class=s>ONBOOT=yes  
+</span></span></span><span class=line><span class=cl><span class=s>IPADDR={ip}  
+</span></span></span><span class=line><span class=cl><span class=s>NETMASK={netmask}  
+</span></span></span><span class=line><span class=cl><span class=s>GATEWAY={gateway}  
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>  
+</span></span><span class=line><span class=cl>cat <span class=s>&lt;&lt;EOF &gt; /etc/modprobe.d/bonding.conf  
+</span></span></span><span class=line><span class=cl><span class=s>alias bond0 bonding  
+</span></span></span><span class=line><span class=cl><span class=s>BONDING_OPTS=&#34;miimon=100 mode=1 primary=em1&#34;  
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>  
+</span></span><span class=line><span class=cl>cat <span class=s>&lt;&lt;EOF &gt; /etc/sysconfig/network-scripts/ifcfg-bond0  
+</span></span></span><span class=line><span class=cl><span class=s>DEVICE=bond0  
+</span></span></span><span class=line><span class=cl><span class=s>ONBOOT=yes  
+</span></span></span><span class=line><span class=cl><span class=s>USERCTL=no  
+</span></span></span><span class=line><span class=cl><span class=s>BRIDGE=br0  
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>  
+</span></span><span class=line><span class=cl>cat <span class=s>&lt;&lt;EOF &gt; /etc/sysconfig/network-scripts/ifcfg-em1  
+</span></span></span><span class=line><span class=cl><span class=s>DEVICE=em1  
+</span></span></span><span class=line><span class=cl><span class=s>USERCTL=no  
+</span></span></span><span class=line><span class=cl><span class=s>ONBOOT=yes  
+</span></span></span><span class=line><span class=cl><span class=s>MASTER=bond0  
+</span></span></span><span class=line><span class=cl><span class=s>SLAVE=yes  
+</span></span></span><span class=line><span class=cl><span class=s>BRIDGE=&#34;br0&#34;  
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>  
+</span></span><span class=line><span class=cl>cat <span class=s>&lt;&lt;EOF &gt; /etc/sysconfig/network-scripts/ifcfg-em2  
+</span></span></span><span class=line><span class=cl><span class=s>DEVICE=em2  
+</span></span></span><span class=line><span class=cl><span class=s>USERCTL=no  
+</span></span></span><span class=line><span class=cl><span class=s>ONBOOT=yes  
+</span></span></span><span class=line><span class=cl><span class=s>MASTER=bond0  
+</span></span></span><span class=line><span class=cl><span class=s>SLAVE=yes  
+</span></span></span><span class=line><span class=cl><span class=s>BRIDGE=&#34;br0&#34;  
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>  
+</span></span><span class=line><span class=cl>%end
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>reboot  
+</span></span></code></pre></div><p>注意上面，{ip}、{netmask}、{gateway}、{hostname}是待定的。</p><p>然后看看boot2.php:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>&lt;?php  
+</span></span><span class=line><span class=cl><span class=nv>$dns</span><span class=o>=</span><span class=s1>&#39;172.16.8.1&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=nv>$base7</span><span class=o>=</span><span class=s1>&#39;http://172.16.8.1/centos7&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=nv>$ks7</span><span class=o>=</span><span class=s1>&#39;http://172.16.8.1/ks/boot3.php&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=s2>&#34;#!gpxe\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>switch <span class=o>(</span><span class=nv>$_REQUEST</span><span class=o>[</span><span class=s1>&#39;mac&#39;</span><span class=o>])</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=k>case</span> <span class=s1>&#39;\ec:f4:bb:d9:96:40&#39;</span>:
+</span></span><span class=line><span class=cl>    <span class=nv>$ip</span><span class=o>=</span><span class=s2>&#34;172.16.36.2:172.16.37.254:255.255.254.0:myhost-16-36-2&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nv>$ipa</span><span class=o>=</span>explode<span class=o>(</span><span class=s1>&#39;:&#39;</span>,<span class=nv>$ip</span><span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;ifopen net0\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;set net0/ip </span><span class=nv>$ipa</span><span class=s2>[0]\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;set net0/netmask </span><span class=nv>$ipa</span><span class=s2>[2]\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;set net0/gateway </span><span class=nv>$ipa</span><span class=s2>[1]\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;set net0/dns </span><span class=nv>$dns</span><span class=s2>\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;set base-url </span><span class=nv>$base7</span><span class=s2>\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;kernel \${base-url}/images/pxeboot/vmlinuz\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;imgargs vmlinuz inst.ks=</span><span class=nv>$ks7</span><span class=s2>?file=centos7.ks&amp;ip=</span><span class=nv>$ipa</span><span class=s2>[0]&amp;mask=</span><span class=nv>$ipa</span><span class=s2>[2]&amp;gateway=</span><span class=nv>$ipa</span><span class=s2>[1]&amp;hostname=</span><span class=nv>$ipa</span><span class=s2>[3] ksdevice=bootif inst.vnc inst.vncpassword=xxxxxxxx inst.sshd\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;initrd \${base-url}/images/pxeboot/initrd.img\n&#34;</span><span class=p>;</span> 
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;boot\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    break<span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=k>case</span> <span class=s1>&#39;00:11:22:33:44:55&#39;</span>:
+</span></span><span class=line><span class=cl>    <span class=c1># boot from iSCSI</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;set initiator-iqn iqn.2007-08.com.example.initiator:initiator\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=c1># see http://ipxe.org/sanuri for the syntax</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;sanboot iscsi:san.example.com:6:3260:0:iqn.2007-08.com.example.san:sometarget\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    break<span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=k>case</span> <span class=s1>&#39;\00:77:21:ab:cd:ee&#39;</span>:
+</span></span><span class=line><span class=cl>    <span class=c1># boot boot.salstar.sk&#39;s super cool boot menu      </span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;chain http://boot.salstar.sk\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    break<span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  default:
+</span></span><span class=line><span class=cl>    <span class=c1># exit iPXE and let machine go on with BIOS boot sequence</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;exit\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    break<span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>?&gt; 
+</span></span></code></pre></div><p>注意上面，我们是通过网卡的物理地址来判断模板的，用svc tag号更好。</p><p>第四个文件：boot3.php</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>&lt;?php
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>$origin_str</span> <span class=o>=</span> file_get_contents<span class=o>(</span><span class=nv>$_REQUEST</span><span class=o>[</span><span class=s1>&#39;file&#39;</span><span class=o>])</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>$update_str</span> <span class=o>=</span> str_replace<span class=o>(</span><span class=s2>&#34;{ip}&#34;</span>, <span class=nv>$_REQUEST</span><span class=o>[</span><span class=s1>&#39;ip&#39;</span><span class=o>]</span>, <span class=nv>$origin_str</span><span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=nv>$update_str</span> <span class=o>=</span> str_replace<span class=o>(</span><span class=s1>&#39;{netmask}&#39;</span>, <span class=nv>$_REQUEST</span><span class=o>[</span><span class=s1>&#39;mask&#39;</span><span class=o>]</span>, <span class=nv>$update_str</span><span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=nv>$update_str</span> <span class=o>=</span> str_replace<span class=o>(</span><span class=s1>&#39;{gateway}&#39;</span>, <span class=nv>$_REQUEST</span><span class=o>[</span><span class=s1>&#39;gateway&#39;</span><span class=o>]</span>, <span class=nv>$update_str</span><span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=nv>$update_str</span> <span class=o>=</span> str_replace<span class=o>(</span><span class=s1>&#39;{hostname}&#39;</span>, <span class=nv>$_REQUEST</span><span class=o>[</span><span class=s1>&#39;hostname&#39;</span><span class=o>]</span>, <span class=nv>$update_str</span><span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=nv>$update_str</span><span class=p>;</span>  
+</span></span><span class=line><span class=cl>?&gt;
+</span></span></code></pre></div><p>boot3.php的功能就是替换掉模板文件里的ip等，然后返回一个正确的ks文件。</p><p>这下就完美了，我们基本就需要修改ks下的boot2.php和centos7.ks，就可以控制远程安装了。</p><p>dhcp和tftp，就用dnsmasq和那一个gxpe就够了，省了大事了。</p><p>还有更好玩的: 网卡原生pxe&ndash;>gpxe&ndash;>pxelinux.0</p><p>大家尽情想象吧。</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

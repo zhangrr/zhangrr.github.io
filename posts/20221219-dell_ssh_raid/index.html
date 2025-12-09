@@ -1,0 +1,129 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Dell服务器用ssh方式划分磁盘Raid的方法 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="首先ssh到idrac去，直接会进入racadm的界面
+我们以2022年最新的dell机器为例，老的机器显示的东西不一致
+ssh 10.18.30.104
+Password: 
+racadm>>
+注意，shell命令有自动补全功能，按两下tab键会自动补
+做raid的全部命令都在storage的子命令下
+一、首先拿到raid卡的名称：
+racadm>>storage get controllers
+RAID.Slot.1-1
+AHCI.Embedded.2-1
+AHCI.Embedded.1-1
+RAID.Slot.1-1 是Raid卡控制器名称，下面两个是主板内置的，忽略。
+二、然后拿到所有物理盘的名称：
+racadm>>storage get pdisks
+Disk.Bay.0:Enclosure.Internal.0-1:RAID.Slot.1-1
+Disk.Bay.1:Enclosure.Internal.0-1:RAID.Slot.1-1
+Disk.Bay.2:Enclosure.Internal.0-1:RAID.Slot.1-1
+Disk.Bay.3:Enclosure.Internal.0-1:RAID.Slot.1-1
+三、看看有没有已经做好的虚拟磁盘
+racadm>>storage get vdisks
+显示为空，那我们就可以放心大胆的去做了
+四、划分RAID
+根据级别不同，精简过的名令如下：
+racadm storage createvd:<控制器> -rl {r0|r1|r5|r6|r10|r50|r60} -pdkey:<磁盘组，用逗号分割> 
+
+-rl — Sets the storage level.
+    r0 — storage 0-Striping
+    r1 — storage 1-Mirroring
+    r5 — storage 5-Striping with Parity
+    r6 — storage 6-Striping with Extra Parity
+    r10 — storage 10-Spanned Striping with Mirroring
+    r50 — storage 50-Spanned Striping with Parity
+    r60 — storage 60-Spanned Striping with Extra Parity
+给出例子："><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20221219-dell_ssh_raid/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20221219-dell_ssh_raid/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20221219-dell_ssh_raid/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="Dell服务器用ssh方式划分磁盘Raid的方法"><meta property="og:description" content="首先ssh到idrac去，直接会进入racadm的界面
+我们以2022年最新的dell机器为例，老的机器显示的东西不一致
+ssh 10.18.30.104 Password: racadm>> 注意，shell命令有自动补全功能，按两下tab键会自动补
+做raid的全部命令都在storage的子命令下
+一、首先拿到raid卡的名称：
+racadm>>storage get controllers RAID.Slot.1-1 AHCI.Embedded.2-1 AHCI.Embedded.1-1 RAID.Slot.1-1 是Raid卡控制器名称，下面两个是主板内置的，忽略。
+二、然后拿到所有物理盘的名称：
+racadm>>storage get pdisks Disk.Bay.0:Enclosure.Internal.0-1:RAID.Slot.1-1 Disk.Bay.1:Enclosure.Internal.0-1:RAID.Slot.1-1 Disk.Bay.2:Enclosure.Internal.0-1:RAID.Slot.1-1 Disk.Bay.3:Enclosure.Internal.0-1:RAID.Slot.1-1 三、看看有没有已经做好的虚拟磁盘
+racadm>>storage get vdisks 显示为空，那我们就可以放心大胆的去做了
+四、划分RAID 根据级别不同，精简过的名令如下：
+racadm storage createvd:<控制器> -rl {r0|r1|r5|r6|r10|r50|r60} -pdkey:<磁盘组，用逗号分割> -rl — Sets the storage level. r0 — storage 0-Striping r1 — storage 1-Mirroring r5 — storage 5-Striping with Parity r6 — storage 6-Striping with Extra Parity r10 — storage 10-Spanned Striping with Mirroring r50 — storage 50-Spanned Striping with Parity r60 — storage 60-Spanned Striping with Extra Parity 给出例子："><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-12-18T09:01:11+08:00"><meta property="article:modified_time" content="2022-12-18T09:01:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Dell服务器用ssh方式划分磁盘Raid的方法"><meta name=twitter:description content="首先ssh到idrac去，直接会进入racadm的界面
+我们以2022年最新的dell机器为例，老的机器显示的东西不一致
+ssh 10.18.30.104
+Password: 
+racadm>>
+注意，shell命令有自动补全功能，按两下tab键会自动补
+做raid的全部命令都在storage的子命令下
+一、首先拿到raid卡的名称：
+racadm>>storage get controllers
+RAID.Slot.1-1
+AHCI.Embedded.2-1
+AHCI.Embedded.1-1
+RAID.Slot.1-1 是Raid卡控制器名称，下面两个是主板内置的，忽略。
+二、然后拿到所有物理盘的名称：
+racadm>>storage get pdisks
+Disk.Bay.0:Enclosure.Internal.0-1:RAID.Slot.1-1
+Disk.Bay.1:Enclosure.Internal.0-1:RAID.Slot.1-1
+Disk.Bay.2:Enclosure.Internal.0-1:RAID.Slot.1-1
+Disk.Bay.3:Enclosure.Internal.0-1:RAID.Slot.1-1
+三、看看有没有已经做好的虚拟磁盘
+racadm>>storage get vdisks
+显示为空，那我们就可以放心大胆的去做了
+四、划分RAID
+根据级别不同，精简过的名令如下：
+racadm storage createvd:<控制器> -rl {r0|r1|r5|r6|r10|r50|r60} -pdkey:<磁盘组，用逗号分割> 
+
+-rl — Sets the storage level.
+    r0 — storage 0-Striping
+    r1 — storage 1-Mirroring
+    r5 — storage 5-Striping with Parity
+    r6 — storage 6-Striping with Extra Parity
+    r10 — storage 10-Spanned Striping with Mirroring
+    r50 — storage 50-Spanned Striping with Parity
+    r60 — storage 60-Spanned Striping with Extra Parity
+给出例子："><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"Dell服务器用ssh方式划分磁盘Raid的方法","item":"https://rendoumi.com/posts/20221219-dell_ssh_raid/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Dell服务器用ssh方式划分磁盘Raid的方法","name":"Dell服务器用ssh方式划分磁盘Raid的方法","description":"首先ssh到idrac去，直接会进入racadm的界面\n我们以2022年最新的dell机器为例，老的机器显示的东西不一致\nssh 10.18.30.104 Password: racadm\u0026gt;\u0026gt; 注意，shell命令有自动补全功能，按两下tab键会自动补\n做raid的全部命令都在storage的子命令下\n一、首先拿到raid卡的名称：\nracadm\u0026gt;\u0026gt;storage get controllers RAID.Slot.1-1 AHCI.Embedded.2-1 AHCI.Embedded.1-1 RAID.Slot.1-1 是Raid卡控制器名称，下面两个是主板内置的，忽略。\n二、然后拿到所有物理盘的名称：\nracadm\u0026gt;\u0026gt;storage get pdisks Disk.Bay.0:Enclosure.Internal.0-1:RAID.Slot.1-1 Disk.Bay.1:Enclosure.Internal.0-1:RAID.Slot.1-1 Disk.Bay.2:Enclosure.Internal.0-1:RAID.Slot.1-1 Disk.Bay.3:Enclosure.Internal.0-1:RAID.Slot.1-1 三、看看有没有已经做好的虚拟磁盘\nracadm\u0026gt;\u0026gt;storage get vdisks 显示为空，那我们就可以放心大胆的去做了\n四、划分RAID 根据级别不同，精简过的名令如下：\nracadm storage createvd:\u0026lt;控制器\u0026gt; -rl {r0|r1|r5|r6|r10|r50|r60} -pdkey:\u0026lt;磁盘组，用逗号分割\u0026gt; -rl — Sets the storage level. r0 — storage 0-Striping r1 — storage 1-Mirroring r5 — storage 5-Striping with Parity r6 — storage 6-Striping with Extra Parity r10 — storage 10-Spanned Striping with Mirroring r50 — storage 50-Spanned Striping with Parity r60 — storage 60-Spanned Striping with Extra Parity 给出例子：\n","keywords":[],"articleBody":"首先ssh到idrac去，直接会进入racadm的界面\n我们以2022年最新的dell机器为例，老的机器显示的东西不一致\nssh 10.18.30.104 Password: racadm\u003e\u003e 注意，shell命令有自动补全功能，按两下tab键会自动补\n做raid的全部命令都在storage的子命令下\n一、首先拿到raid卡的名称：\nracadm\u003e\u003estorage get controllers RAID.Slot.1-1 AHCI.Embedded.2-1 AHCI.Embedded.1-1 RAID.Slot.1-1 是Raid卡控制器名称，下面两个是主板内置的，忽略。\n二、然后拿到所有物理盘的名称：\nracadm\u003e\u003estorage get pdisks Disk.Bay.0:Enclosure.Internal.0-1:RAID.Slot.1-1 Disk.Bay.1:Enclosure.Internal.0-1:RAID.Slot.1-1 Disk.Bay.2:Enclosure.Internal.0-1:RAID.Slot.1-1 Disk.Bay.3:Enclosure.Internal.0-1:RAID.Slot.1-1 三、看看有没有已经做好的虚拟磁盘\nracadm\u003e\u003estorage get vdisks 显示为空，那我们就可以放心大胆的去做了\n四、划分RAID 根据级别不同，精简过的名令如下：\nracadm storage createvd:\u003c控制器\u003e -rl {r0|r1|r5|r6|r10|r50|r60} -pdkey:\u003c磁盘组，用逗号分割\u003e -rl — Sets the storage level. r0 — storage 0-Striping r1 — storage 1-Mirroring r5 — storage 5-Striping with Parity r6 — storage 6-Striping with Extra Parity r10 — storage 10-Spanned Striping with Mirroring r50 — storage 50-Spanned Striping with Parity r60 — storage 60-Spanned Striping with Extra Parity 给出例子：\n#raid0 racadm storage createvd:RAID.Slot.1-1 -rl r0 -pdkey:Disk.Bay.0:Enclosure.Internal.0-1:RAID.Slot.1-1 #raid1 racadm storage createvd:RAID.Slot.1-1 -rl r0 -pdkey:Disk.Bay.0:Enclosure.Internal.0-1:RAID.Slot.1-1,Disk.Bay.1:Enclosure.Internal.0-1:RAID.Slot.1-1 #raid10 racadm storage createvd:RAID.Slot.1-1 -rl r0 -pdkey:Disk.Bay.0:Enclosure.Internal.0-1:RAID.Slot.1-1,Disk.Bay.1:Enclosure.Internal.0-1:RAID.Slot.1-1,Disk.Bay.2:Enclosure.Internal.0-1:RAID.Slot.1-1,Disk.Bay.3:Enclosure.Internal.0-1:RAID.Slot.1-1 五、建立job 首先尝试不重启在线建Raid：\nracadm\u003e\u003ejobqueue create RAID.Slot.1-1 --realtime 如果不行，就建立重启的\nracadm\u003e\u003ejobqueue create RAID.Slot.1-1 racadm jobqueue create RAID.Slot.1-1 RAC1024: Successfully scheduled a job. Verify the job status using \"racadm jobqueue view -i JID_xxxxx\" command. Commit JID = JID_222873363294 六、如果要重启，就重启。能在线建的就不需要重启\nracadm\u003e\u003eserveraction powercycle racadm serveraction powercycle Server power operation successful 补充：\n如果要清理掉Raid卡之前的配置完全重建，命令如下：\nstorage resetconfig:RAID.Slot.1-1 jobqueue create RAID.Slot.1-1 -r pwrcycle -s TIME_NOW -e TIME_NA ","wordCount":"166","inLanguage":"zh","datePublished":"2022-12-18T09:01:11+08:00","dateModified":"2022-12-18T09:01:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20221219-dell_ssh_raid/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">Dell服务器用ssh方式划分磁盘Raid的方法
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2022-12-18 09:01:11 +0800 CST'>2022年12月18日</span></div></header><div class=post-content><p>首先ssh到idrac去，直接会进入racadm的界面</p><p>我们以2022年最新的dell机器为例，老的机器显示的东西不一致</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>ssh 10.18.30.104
+</span></span><span class=line><span class=cl>Password: 
+</span></span><span class=line><span class=cl>racadm&gt;&gt;
+</span></span></code></pre></div><p>注意，shell命令有自动补全功能，按两下tab键会自动补</p><p>做raid的全部命令都在storage的子命令下</p><p>一、首先拿到raid卡的名称：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>racadm&gt;&gt;storage get controllers
+</span></span><span class=line><span class=cl>RAID.Slot.1-1
+</span></span><span class=line><span class=cl>AHCI.Embedded.2-1
+</span></span><span class=line><span class=cl>AHCI.Embedded.1-1
+</span></span></code></pre></div><p>RAID.Slot.1-1 是Raid卡控制器名称，下面两个是主板内置的，忽略。</p><p>二、然后拿到所有物理盘的名称：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>racadm&gt;&gt;storage get pdisks
+</span></span><span class=line><span class=cl>Disk.Bay.0:Enclosure.Internal.0-1:RAID.Slot.1-1
+</span></span><span class=line><span class=cl>Disk.Bay.1:Enclosure.Internal.0-1:RAID.Slot.1-1
+</span></span><span class=line><span class=cl>Disk.Bay.2:Enclosure.Internal.0-1:RAID.Slot.1-1
+</span></span><span class=line><span class=cl>Disk.Bay.3:Enclosure.Internal.0-1:RAID.Slot.1-1
+</span></span></code></pre></div><p>三、看看有没有已经做好的虚拟磁盘</p><pre tabindex=0><code>racadm&gt;&gt;storage get vdisks
+</code></pre><p>显示为空，那我们就可以放心大胆的去做了</p><p>四、划分RAID
+根据级别不同，精简过的名令如下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>racadm storage createvd:&lt;控制器&gt; -rl <span class=o>{</span>r0<span class=p>|</span>r1<span class=p>|</span>r5<span class=p>|</span>r6<span class=p>|</span>r10<span class=p>|</span>r50<span class=p>|</span>r60<span class=o>}</span> -pdkey:&lt;磁盘组，用逗号分割&gt; 
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>-rl — Sets the storage level.
+</span></span><span class=line><span class=cl>    r0 — storage 0-Striping
+</span></span><span class=line><span class=cl>    r1 — storage 1-Mirroring
+</span></span><span class=line><span class=cl>    r5 — storage 5-Striping with Parity
+</span></span><span class=line><span class=cl>    r6 — storage 6-Striping with Extra Parity
+</span></span><span class=line><span class=cl>    r10 — storage 10-Spanned Striping with Mirroring
+</span></span><span class=line><span class=cl>    r50 — storage 50-Spanned Striping with Parity
+</span></span><span class=line><span class=cl>    r60 — storage 60-Spanned Striping with Extra Parity
+</span></span></code></pre></div><p>给出例子：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1>#raid0</span>
+</span></span><span class=line><span class=cl>racadm storage createvd:RAID.Slot.1-1 -rl r0 -pdkey:Disk.Bay.0:Enclosure.Internal.0-1:RAID.Slot.1-1
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#raid1</span>
+</span></span><span class=line><span class=cl>racadm storage createvd:RAID.Slot.1-1 -rl r0 -pdkey:Disk.Bay.0:Enclosure.Internal.0-1:RAID.Slot.1-1,Disk.Bay.1:Enclosure.Internal.0-1:RAID.Slot.1-1
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#raid10</span>
+</span></span><span class=line><span class=cl>racadm storage createvd:RAID.Slot.1-1 -rl r0 -pdkey:Disk.Bay.0:Enclosure.Internal.0-1:RAID.Slot.1-1,Disk.Bay.1:Enclosure.Internal.0-1:RAID.Slot.1-1,Disk.Bay.2:Enclosure.Internal.0-1:RAID.Slot.1-1,Disk.Bay.3:Enclosure.Internal.0-1:RAID.Slot.1-1
+</span></span></code></pre></div><p>五、建立job
+首先尝试不重启在线建Raid：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>racadm&gt;&gt;jobqueue create RAID.Slot.1-1 --realtime
+</span></span></code></pre></div><p>如果不行，就建立重启的</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>racadm&gt;&gt;jobqueue create RAID.Slot.1-1
+</span></span><span class=line><span class=cl>racadm jobqueue create RAID.Slot.1-1
+</span></span><span class=line><span class=cl>RAC1024: Successfully scheduled a job.
+</span></span><span class=line><span class=cl>Verify the job status using <span class=s2>&#34;racadm jobqueue view -i JID_xxxxx&#34;</span> command.
+</span></span><span class=line><span class=cl>Commit <span class=nv>JID</span> <span class=o>=</span> JID_222873363294
+</span></span></code></pre></div><p>六、如果要重启，就重启。能在线建的就不需要重启</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>racadm&gt;&gt;serveraction powercycle
+</span></span><span class=line><span class=cl>racadm serveraction powercycle
+</span></span><span class=line><span class=cl>Server power operation successful
+</span></span></code></pre></div><p>补充：</p><p>如果要清理掉Raid卡之前的配置完全重建，命令如下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>storage resetconfig:RAID.Slot.1-1
+</span></span><span class=line><span class=cl>jobqueue create RAID.Slot.1-1 -r pwrcycle -s TIME_NOW -e TIME_NA
+</span></span></code></pre></div></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

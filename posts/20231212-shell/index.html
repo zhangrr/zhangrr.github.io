@@ -1,0 +1,144 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Shell中变量、字符串、数组、参数的技巧 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='变量子串
+${var} 返回变量var的内容，单独使用时有没有{}一样，混合多个变量和常量时，用{}界定变量名
+${#var} 返回变量var内容的长度
+${var:offset} 从变量var中的偏移量offset开始截取到字符串结尾的子字符串，offset从0开始
+${var:offset:length} 从变量var中的偏移量offset开始截取长度为length的子字符串
+${var#*.} 从变量var中删除第一个匹配的点（.）及其左边的所有字符
+${var##*.} 从变量var中删除最后一个匹配的点（.）及其左边的所有字符
+${var%.*} 从变量var中删除最后一个匹配的点（.）及其右边的所有字符
+${var%%.*} 从变量var中删除第一个匹配的点（.）及其右边的所有字符
+示例：
+var=file.txt.tar.gz
+${var#*.}  #内容为"txt.tar.gz"
+${var##*.} #内容为"gz"
+${var%.*}  #内容为"file.txt.tar"
+${var%%.*} #内容为"file"
+也可以使用其它Pattern和表达式，示例：
+var=/home/xxx/aaa/file.txt #假设xxx为当前用户
+
+# 从路径中获取文件名
+${var##*/}  #内容为"file.txt"
+
+# 将绝对路径转为相对路径
+# whoami是获取当前用户名，使用$()执行子shell，$(whoami)将得到xxx
+~${var#*$(whoami)}  #内容为"~/aaa/file.txt"
+${var/pattern/string} 使用string代替第一个匹配的pattern
+${var//pattern/string} 使用string代替所有匹配的pattern
+${var,} 首字母转小写
+${var,,} 全部转小写
+${var^} 首字母转大写
+${var^^} 全部转大写
+特殊扩展变量
+${var-word} 如果变量var未赋值，则返回字符串word
+${var:-word} 如果变量var未赋值或者值为空，则返回字符串word
+${var+word} 如果变量var有值（包括空串""），则返回字符串word
+var1=foo
+var2=
+${var1-word}        # 内容为"foo"
+echo ${var2-word}   # 内容为""
+echo ${var2:-word}  # 内容为"word"
+${var:+word} 如果变量var有值且不为空，则返回字符串word
+${var=word} 如果变量var未赋值，则返回字符串word，并为var赋值为字符串word
+${var:=word} 如果变量var未赋值或者值为空串，则返回字符串word，并为var赋值为字符串word
+${var?word} 如果变量var未赋值，将字符串word作为标准错误输出，否则返回变量var的值'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20231212-shell/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20231212-shell/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20231212-shell/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="Shell中变量、字符串、数组、参数的技巧"><meta property="og:description" content='变量子串
+${var} 返回变量var的内容，单独使用时有没有{}一样，混合多个变量和常量时，用{}界定变量名
+${#var} 返回变量var内容的长度
+${var:offset} 从变量var中的偏移量offset开始截取到字符串结尾的子字符串，offset从0开始
+${var:offset:length} 从变量var中的偏移量offset开始截取长度为length的子字符串
+${var#*.} 从变量var中删除第一个匹配的点（.）及其左边的所有字符
+${var##*.} 从变量var中删除最后一个匹配的点（.）及其左边的所有字符
+${var%.*} 从变量var中删除最后一个匹配的点（.）及其右边的所有字符
+${var%%.*} 从变量var中删除第一个匹配的点（.）及其右边的所有字符
+示例：
+var=file.txt.tar.gz ${var#*.} #内容为"txt.tar.gz" ${var##*.} #内容为"gz" ${var%.*} #内容为"file.txt.tar" ${var%%.*} #内容为"file" 也可以使用其它Pattern和表达式，示例：
+var=/home/xxx/aaa/file.txt #假设xxx为当前用户 # 从路径中获取文件名 ${var##*/} #内容为"file.txt" # 将绝对路径转为相对路径 # whoami是获取当前用户名，使用$()执行子shell，$(whoami)将得到xxx ~${var#*$(whoami)} #内容为"~/aaa/file.txt" ${var/pattern/string} 使用string代替第一个匹配的pattern
+${var//pattern/string} 使用string代替所有匹配的pattern
+${var,} 首字母转小写
+${var,,} 全部转小写
+${var^} 首字母转大写
+${var^^} 全部转大写
+特殊扩展变量
+${var-word} 如果变量var未赋值，则返回字符串word
+${var:-word} 如果变量var未赋值或者值为空，则返回字符串word
+${var+word} 如果变量var有值（包括空串""），则返回字符串word
+var1=foo var2= ${var1-word} # 内容为"foo" echo ${var2-word} # 内容为"" echo ${var2:-word} # 内容为"word" ${var:+word} 如果变量var有值且不为空，则返回字符串word
+${var=word} 如果变量var未赋值，则返回字符串word，并为var赋值为字符串word
+${var:=word} 如果变量var未赋值或者值为空串，则返回字符串word，并为var赋值为字符串word
+${var?word} 如果变量var未赋值，将字符串word作为标准错误输出，否则返回变量var的值'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2023-12-13T15:05:11+08:00"><meta property="article:modified_time" content="2023-12-13T15:05:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Shell中变量、字符串、数组、参数的技巧"><meta name=twitter:description content='变量子串
+${var} 返回变量var的内容，单独使用时有没有{}一样，混合多个变量和常量时，用{}界定变量名
+${#var} 返回变量var内容的长度
+${var:offset} 从变量var中的偏移量offset开始截取到字符串结尾的子字符串，offset从0开始
+${var:offset:length} 从变量var中的偏移量offset开始截取长度为length的子字符串
+${var#*.} 从变量var中删除第一个匹配的点（.）及其左边的所有字符
+${var##*.} 从变量var中删除最后一个匹配的点（.）及其左边的所有字符
+${var%.*} 从变量var中删除最后一个匹配的点（.）及其右边的所有字符
+${var%%.*} 从变量var中删除第一个匹配的点（.）及其右边的所有字符
+示例：
+var=file.txt.tar.gz
+${var#*.}  #内容为"txt.tar.gz"
+${var##*.} #内容为"gz"
+${var%.*}  #内容为"file.txt.tar"
+${var%%.*} #内容为"file"
+也可以使用其它Pattern和表达式，示例：
+var=/home/xxx/aaa/file.txt #假设xxx为当前用户
+
+# 从路径中获取文件名
+${var##*/}  #内容为"file.txt"
+
+# 将绝对路径转为相对路径
+# whoami是获取当前用户名，使用$()执行子shell，$(whoami)将得到xxx
+~${var#*$(whoami)}  #内容为"~/aaa/file.txt"
+${var/pattern/string} 使用string代替第一个匹配的pattern
+${var//pattern/string} 使用string代替所有匹配的pattern
+${var,} 首字母转小写
+${var,,} 全部转小写
+${var^} 首字母转大写
+${var^^} 全部转大写
+特殊扩展变量
+${var-word} 如果变量var未赋值，则返回字符串word
+${var:-word} 如果变量var未赋值或者值为空，则返回字符串word
+${var+word} 如果变量var有值（包括空串""），则返回字符串word
+var1=foo
+var2=
+${var1-word}        # 内容为"foo"
+echo ${var2-word}   # 内容为""
+echo ${var2:-word}  # 内容为"word"
+${var:+word} 如果变量var有值且不为空，则返回字符串word
+${var=word} 如果变量var未赋值，则返回字符串word，并为var赋值为字符串word
+${var:=word} 如果变量var未赋值或者值为空串，则返回字符串word，并为var赋值为字符串word
+${var?word} 如果变量var未赋值，将字符串word作为标准错误输出，否则返回变量var的值'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"Shell中变量、字符串、数组、参数的技巧","item":"https://rendoumi.com/posts/20231212-shell/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Shell中变量、字符串、数组、参数的技巧","name":"Shell中变量、字符串、数组、参数的技巧","description":"变量子串\n${var} 返回变量var的内容，单独使用时有没有{}一样，混合多个变量和常量时，用{}界定变量名\n${#var} 返回变量var内容的长度\n${var:offset} 从变量var中的偏移量offset开始截取到字符串结尾的子字符串，offset从0开始\n${var:offset:length} 从变量var中的偏移量offset开始截取长度为length的子字符串\n${var#*.} 从变量var中删除第一个匹配的点（.）及其左边的所有字符\n${var##*.} 从变量var中删除最后一个匹配的点（.）及其左边的所有字符\n${var%.*} 从变量var中删除最后一个匹配的点（.）及其右边的所有字符\n${var%%.*} 从变量var中删除第一个匹配的点（.）及其右边的所有字符\n示例：\nvar=file.txt.tar.gz ${var#*.} #内容为\u0026#34;txt.tar.gz\u0026#34; ${var##*.} #内容为\u0026#34;gz\u0026#34; ${var%.*} #内容为\u0026#34;file.txt.tar\u0026#34; ${var%%.*} #内容为\u0026#34;file\u0026#34; 也可以使用其它Pattern和表达式，示例：\nvar=/home/xxx/aaa/file.txt #假设xxx为当前用户 # 从路径中获取文件名 ${var##*/} #内容为\u0026#34;file.txt\u0026#34; # 将绝对路径转为相对路径 # whoami是获取当前用户名，使用$()执行子shell，$(whoami)将得到xxx ~${var#*$(whoami)} #内容为\u0026#34;~/aaa/file.txt\u0026#34; ${var/pattern/string} 使用string代替第一个匹配的pattern\n${var//pattern/string} 使用string代替所有匹配的pattern\n${var,} 首字母转小写\n${var,,} 全部转小写\n${var^} 首字母转大写\n${var^^} 全部转大写\n特殊扩展变量\n${var-word} 如果变量var未赋值，则返回字符串word\n${var:-word} 如果变量var未赋值或者值为空，则返回字符串word\n${var+word} 如果变量var有值（包括空串\u0026quot;\u0026quot;），则返回字符串word\nvar1=foo var2= ${var1-word} # 内容为\u0026#34;foo\u0026#34; echo ${var2-word} # 内容为\u0026#34;\u0026#34; echo ${var2:-word} # 内容为\u0026#34;word\u0026#34; ${var:+word} 如果变量var有值且不为空，则返回字符串word\n${var=word} 如果变量var未赋值，则返回字符串word，并为var赋值为字符串word\n${var:=word} 如果变量var未赋值或者值为空串，则返回字符串word，并为var赋值为字符串word\n${var?word} 如果变量var未赋值，将字符串word作为标准错误输出，否则返回变量var的值\n","keywords":[],"articleBody":"变量子串\n${var} 返回变量var的内容，单独使用时有没有{}一样，混合多个变量和常量时，用{}界定变量名\n${#var} 返回变量var内容的长度\n${var:offset} 从变量var中的偏移量offset开始截取到字符串结尾的子字符串，offset从0开始\n${var:offset:length} 从变量var中的偏移量offset开始截取长度为length的子字符串\n${var#*.} 从变量var中删除第一个匹配的点（.）及其左边的所有字符\n${var##*.} 从变量var中删除最后一个匹配的点（.）及其左边的所有字符\n${var%.*} 从变量var中删除最后一个匹配的点（.）及其右边的所有字符\n${var%%.*} 从变量var中删除第一个匹配的点（.）及其右边的所有字符\n示例：\nvar=file.txt.tar.gz ${var#*.} #内容为\"txt.tar.gz\" ${var##*.} #内容为\"gz\" ${var%.*} #内容为\"file.txt.tar\" ${var%%.*} #内容为\"file\" 也可以使用其它Pattern和表达式，示例：\nvar=/home/xxx/aaa/file.txt #假设xxx为当前用户 # 从路径中获取文件名 ${var##*/} #内容为\"file.txt\" # 将绝对路径转为相对路径 # whoami是获取当前用户名，使用$()执行子shell，$(whoami)将得到xxx ~${var#*$(whoami)} #内容为\"~/aaa/file.txt\" ${var/pattern/string} 使用string代替第一个匹配的pattern\n${var//pattern/string} 使用string代替所有匹配的pattern\n${var,} 首字母转小写\n${var,,} 全部转小写\n${var^} 首字母转大写\n${var^^} 全部转大写\n特殊扩展变量\n${var-word} 如果变量var未赋值，则返回字符串word\n${var:-word} 如果变量var未赋值或者值为空，则返回字符串word\n${var+word} 如果变量var有值（包括空串\"\"），则返回字符串word\nvar1=foo var2= ${var1-word} # 内容为\"foo\" echo ${var2-word} # 内容为\"\" echo ${var2:-word} # 内容为\"word\" ${var:+word} 如果变量var有值且不为空，则返回字符串word\n${var=word} 如果变量var未赋值，则返回字符串word，并为var赋值为字符串word\n${var:=word} 如果变量var未赋值或者值为空串，则返回字符串word，并为var赋值为字符串word\n${var?word} 如果变量var未赋值，将字符串word作为标准错误输出，否则返回变量var的值\n${var:?word} 如果变量var未赋值或者值为空串，将字符串word作为标准错误输出，否则返回变量var的值\n数组\narray=(1 2 3 a b c) 定义一个名为array的数组，包含了6个元素，元素字段类型不需要统一\n${array[index]} 访问数组中的元素，index从0开始，如果为负表示从数组的末尾开始的偏移量\n${array[*]} 获取数组中所有元素\n${array[@]} 获取数组中所有元素\n${#array[*]} 获取数组的长度\n${#array[@]} 获取数组的长度\n${!array[@]} 获取数组索引列表，返回 0 1 2 3 4 5\narray+=(4 d) 向数组中添加元素，数组内容为 1 2 3 a b c 4 d\nunset array[6] 删除第 7 个元素，数组内容为 1 2 3 a b c d\nunset array[-1] 删除倒数第 1 个元素，数组内容为 1 2 3 a b c\n多行字符串变量\nvar=$(cat \u003c\u003c- 'EOF' line1 line2 ... EOF) 或者使用单引号或者双引号（单引号中${}和$()等都不会取表达式的值，双引号中才会）：\nvar='line1 line2 ...' 注意上述两种写法的差别，避免为变量内容带来不必要的空行。通过循环可依次得到变量中的每一行：\nwhile read -r line; do echo $line done \u003c\u003c\u003c $var Shell系统变量\n$1 表示第一个参数，$2 表示第二个参数 …\n$# 命令行参数的个数\n$0 当前Shell脚本程序的名称\n$? 前一个命令或函数的返回码\n$* 以 “参数1 参数2 … \" 形式获取所有参数\n$@ 以 “参数1” “参数2” … 形式获取所有参数\n$$ 本程序的进程ID，即PID\n$! 上一个命令的PID\n$PPID 父进程的PID\n$UID 执行这个脚本的当前用户ID\n变量输出\n变量内容的输出使用 echo 命令。\n如果未使用 echo，则会将变量内容当成 Shell 命令来执行，常用于调用某个程序并传递参数，如：应用程序启动脚本。\n","wordCount":"205","inLanguage":"zh","datePublished":"2023-12-13T15:05:11+08:00","dateModified":"2023-12-13T15:05:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20231212-shell/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">Shell中变量、字符串、数组、参数的技巧
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2023-12-13 15:05:11 +0800 CST'>2023年12月13日</span></div></header><div class=post-content><p><strong>变量子串</strong></p><p>${var} 返回变量var的内容，单独使用时有没有{}一样，混合多个变量和常量时，用{}界定变量名</p><p>${#var} 返回变量var内容的长度</p><p>${var:offset} 从变量var中的偏移量offset开始截取到字符串结尾的子字符串，offset从0开始</p><p>${var:offset:length} 从变量var中的偏移量offset开始截取长度为length的子字符串</p><p>${var#*.} 从变量var中删除第一个匹配的点（.）及其左边的所有字符</p><p>${var##*.} 从变量var中删除最后一个匹配的点（.）及其左边的所有字符</p><p>${var%.*} 从变量var中删除最后一个匹配的点（.）及其右边的所有字符</p><p>${var%%.*} 从变量var中删除第一个匹配的点（.）及其右边的所有字符</p><p>示例：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nv>var</span><span class=o>=</span>file.txt.tar.gz
+</span></span><span class=line><span class=cl><span class=si>${</span><span class=nv>var</span><span class=p>#*.</span><span class=si>}</span>  <span class=c1>#内容为&#34;txt.tar.gz&#34;</span>
+</span></span><span class=line><span class=cl><span class=si>${</span><span class=nv>var</span><span class=p>##*.</span><span class=si>}</span> <span class=c1>#内容为&#34;gz&#34;</span>
+</span></span><span class=line><span class=cl><span class=si>${</span><span class=nv>var</span><span class=p>%.*</span><span class=si>}</span>  <span class=c1>#内容为&#34;file.txt.tar&#34;</span>
+</span></span><span class=line><span class=cl><span class=si>${</span><span class=nv>var</span><span class=p>%%.*</span><span class=si>}</span> <span class=c1>#内容为&#34;file&#34;</span>
+</span></span></code></pre></div><p>也可以使用其它Pattern和表达式，示例：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nv>var</span><span class=o>=</span>/home/xxx/aaa/file.txt <span class=c1>#假设xxx为当前用户</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 从路径中获取文件名</span>
+</span></span><span class=line><span class=cl><span class=si>${</span><span class=nv>var</span><span class=p>##*/</span><span class=si>}</span>  <span class=c1>#内容为&#34;file.txt&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 将绝对路径转为相对路径</span>
+</span></span><span class=line><span class=cl><span class=c1># whoami是获取当前用户名，使用$()执行子shell，$(whoami)将得到xxx</span>
+</span></span><span class=line><span class=cl>~<span class=si>${</span><span class=nv>var</span><span class=p>#*</span><span class=k>$(</span>whoami<span class=k>)</span><span class=si>}</span>  <span class=c1>#内容为&#34;~/aaa/file.txt&#34;</span>
+</span></span></code></pre></div><p>${var/pattern/string} 使用string代替第一个匹配的pattern</p><p>${var//pattern/string} 使用string代替所有匹配的pattern</p><p>${var,} 首字母转小写</p><p>${var,,} 全部转小写</p><p>${var^} 首字母转大写</p><p>${var^^} 全部转大写</p><p><strong>特殊扩展变量</strong></p><p>${var-word} 如果变量var未赋值，则返回字符串word</p><p>${var:-word} 如果变量var未赋值或者值为空，则返回字符串word</p><p>${var+word} 如果变量var有值（包括空串""），则返回字符串word</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nv>var1</span><span class=o>=</span>foo
+</span></span><span class=line><span class=cl><span class=nv>var2</span><span class=o>=</span>
+</span></span><span class=line><span class=cl><span class=si>${</span><span class=nv>var1</span><span class=p>-word</span><span class=si>}</span>        <span class=c1># 内容为&#34;foo&#34;</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=si>${</span><span class=nv>var2</span><span class=p>-word</span><span class=si>}</span>   <span class=c1># 内容为&#34;&#34;</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=si>${</span><span class=nv>var2</span><span class=k>:-</span><span class=nv>word</span><span class=si>}</span>  <span class=c1># 内容为&#34;word&#34;</span>
+</span></span></code></pre></div><p>${var:+word} 如果变量var有值且不为空，则返回字符串word</p><p>${var=word} 如果变量var未赋值，则返回字符串word，并为var赋值为字符串word</p><p>${var:=word} 如果变量var未赋值或者值为空串，则返回字符串word，并为var赋值为字符串word</p><p>${var?word} 如果变量var未赋值，将字符串word作为标准错误输出，否则返回变量var的值</p><p>${var:?word} 如果变量var未赋值或者值为空串，将字符串word作为标准错误输出，否则返回变量var的值</p><p><strong>数组</strong></p><p>array=(1 2 3 a b c) 定义一个名为array的数组，包含了6个元素，元素字段类型不需要统一</p><p>${array[index]} 访问数组中的元素，index从0开始，如果为负表示从数组的末尾开始的偏移量</p><p>${array[*]} 获取数组中所有元素</p><p>${array[@]} 获取数组中所有元素</p><p>${#array[*]} 获取数组的长度</p><p>${#array[@]} 获取数组的长度</p><p>${!array[@]} 获取数组索引列表，返回 0 1 2 3 4 5</p><p>array+=(4 d) 向数组中添加元素，数组内容为 1 2 3 a b c 4 d</p><p>unset array[6] 删除第 7 个元素，数组内容为 1 2 3 a b c d</p><p>unset array[-1] 删除倒数第 1 个元素，数组内容为 1 2 3 a b c</p><p><strong>多行字符串变量</strong></p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nv>var</span><span class=o>=</span><span class=k>$(</span>cat <span class=s>&lt;&lt;- &#39;EOF&#39;
+</span></span></span><span class=line><span class=cl><span class=s>line1
+</span></span></span><span class=line><span class=cl><span class=s>line2
+</span></span></span><span class=line><span class=cl><span class=s>...
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span><span class=k>)</span>
+</span></span></code></pre></div><p>或者使用单引号或者双引号（单引号中${}和$()等都不会取表达式的值，双引号中才会）：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nv>var</span><span class=o>=</span><span class=s1>&#39;line1
+</span></span></span><span class=line><span class=cl><span class=s1>line2
+</span></span></span><span class=line><span class=cl><span class=s1>...&#39;</span>
+</span></span></code></pre></div><p>注意上述两种写法的差别，避免为变量内容带来不必要的空行。通过循环可依次得到变量中的每一行：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=k>while</span> <span class=nb>read</span> -r line<span class=p>;</span> <span class=k>do</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=nv>$line</span>
+</span></span><span class=line><span class=cl><span class=k>done</span> <span class=o>&lt;&lt;&lt;</span> <span class=nv>$var</span>
+</span></span></code></pre></div><p><strong>Shell系统变量</strong></p><p>$1 表示第一个参数，$2 表示第二个参数 &mldr;</p><p>$# 命令行参数的个数</p><p>$0 当前Shell脚本程序的名称</p><p>$? 前一个命令或函数的返回码</p><p>$* 以 &ldquo;参数1 参数2 &mldr; " 形式获取所有参数</p><p>$@ 以 &ldquo;参数1&rdquo; &ldquo;参数2&rdquo; &mldr; 形式获取所有参数</p><p>$$ 本程序的进程ID，即PID</p><p>$! 上一个命令的PID</p><p>$PPID 父进程的PID</p><p>$UID 执行这个脚本的当前用户ID</p><p><strong>变量输出</strong></p><p>变量内容的输出使用 echo 命令。</p><p>如果未使用 echo，则会将变量内容当成 Shell 命令来执行，常用于调用某个程序并传递参数，如：应用程序启动脚本。</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

@@ -1,0 +1,173 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>CoreDNS替代dnsmasq | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="CoreDNS是k8s的御用DNS解析软件
+支持很多插件，各种DoH、DoT、gRPC ，各种特性，安装配置也十分简单
+替代dnsmasq后，基本dnsmasq的功能都支持，修改劫持域名后也不用重启，会自动刷文件更新
+下面说一下装法：
+安装：
+wget https://github.com/coredns/coredns/releases/download/v1.7.0/coredns_1.7.0_linux_amd64.tgz
+
+解压后就一个文件，直接放到/usr/local/bin
+做个systemd启动文件
+cat /etc/systemd/system/coredns.service 
+[Unit]
+Description=CoreDNS DNS server
+After=network.target
+
+[Service]
+PermissionsStartOnly=true
+LimitNOFILE=1048576
+LimitNPROC=512
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+ExecStart=/usr/local/bin/coredns -conf=/usr/local/bin/coredns.conf
+ExecReload=/bin/kill -SIGUSR1 $MAINPID
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+东西全都在/usr/local/bin/coredns.conf配置文件里：
+.:5353 https://.:443 {
+  any
+  log
+  debug
+  bind 172.18.30.1
+  tls /usr/local/bin/full.pem /usr/local/bin/key.pem
+  hosts /etc/hosts {
+    ttl 60
+    reload 1m
+    no_reverse
+    fallthrough
+  }
+  cache 120
+  reload 6s
+  loadbalance
+  forward . 114.114.114.114:53 223.5.5.5:53 223.6.6.6:53 {
+      policy sequential
+  }
+  prometheus 172.18.30.1:9253
+
+}
+解释一下："><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20221207-cordns_dnsmasq/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20221207-cordns_dnsmasq/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20221207-cordns_dnsmasq/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="CoreDNS替代dnsmasq"><meta property="og:description" content="CoreDNS是k8s的御用DNS解析软件
+支持很多插件，各种DoH、DoT、gRPC ，各种特性，安装配置也十分简单
+替代dnsmasq后，基本dnsmasq的功能都支持，修改劫持域名后也不用重启，会自动刷文件更新
+下面说一下装法：
+安装：
+wget https://github.com/coredns/coredns/releases/download/v1.7.0/coredns_1.7.0_linux_amd64.tgz解压后就一个文件，直接放到/usr/local/bin
+做个systemd启动文件
+cat /etc/systemd/system/coredns.service [Unit] Description=CoreDNS DNS server After=network.target [Service] PermissionsStartOnly=true LimitNOFILE=1048576 LimitNPROC=512 CapabilityBoundingSet=CAP_NET_BIND_SERVICE AmbientCapabilities=CAP_NET_BIND_SERVICE NoNewPrivileges=true ExecStart=/usr/local/bin/coredns -conf=/usr/local/bin/coredns.conf ExecReload=/bin/kill -SIGUSR1 $MAINPID Restart=on-failure [Install] WantedBy=multi-user.target 东西全都在/usr/local/bin/coredns.conf配置文件里：
+.:5353 https://.:443 { any log debug bind 172.18.30.1 tls /usr/local/bin/full.pem /usr/local/bin/key.pem hosts /etc/hosts { ttl 60 reload 1m no_reverse fallthrough } cache 120 reload 6s loadbalance forward . 114.114.114.114:53 223.5.5.5:53 223.6.6.6:53 { policy sequential } prometheus 172.18.30.1:9253 } 解释一下："><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-12-07T10:30:11+08:00"><meta property="article:modified_time" content="2022-12-07T10:30:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="CoreDNS替代dnsmasq"><meta name=twitter:description content="CoreDNS是k8s的御用DNS解析软件
+支持很多插件，各种DoH、DoT、gRPC ，各种特性，安装配置也十分简单
+替代dnsmasq后，基本dnsmasq的功能都支持，修改劫持域名后也不用重启，会自动刷文件更新
+下面说一下装法：
+安装：
+wget https://github.com/coredns/coredns/releases/download/v1.7.0/coredns_1.7.0_linux_amd64.tgz
+
+解压后就一个文件，直接放到/usr/local/bin
+做个systemd启动文件
+cat /etc/systemd/system/coredns.service 
+[Unit]
+Description=CoreDNS DNS server
+After=network.target
+
+[Service]
+PermissionsStartOnly=true
+LimitNOFILE=1048576
+LimitNPROC=512
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+ExecStart=/usr/local/bin/coredns -conf=/usr/local/bin/coredns.conf
+ExecReload=/bin/kill -SIGUSR1 $MAINPID
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+东西全都在/usr/local/bin/coredns.conf配置文件里：
+.:5353 https://.:443 {
+  any
+  log
+  debug
+  bind 172.18.30.1
+  tls /usr/local/bin/full.pem /usr/local/bin/key.pem
+  hosts /etc/hosts {
+    ttl 60
+    reload 1m
+    no_reverse
+    fallthrough
+  }
+  cache 120
+  reload 6s
+  loadbalance
+  forward . 114.114.114.114:53 223.5.5.5:53 223.6.6.6:53 {
+      policy sequential
+  }
+  prometheus 172.18.30.1:9253
+
+}
+解释一下："><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"CoreDNS替代dnsmasq","item":"https://rendoumi.com/posts/20221207-cordns_dnsmasq/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"CoreDNS替代dnsmasq","name":"CoreDNS替代dnsmasq","description":"CoreDNS是k8s的御用DNS解析软件\n支持很多插件，各种DoH、DoT、gRPC ，各种特性，安装配置也十分简单\n替代dnsmasq后，基本dnsmasq的功能都支持，修改劫持域名后也不用重启，会自动刷文件更新\n下面说一下装法：\n安装：\nwget https://github.com/coredns/coredns/releases/download/v1.7.0/coredns_1.7.0_linux_amd64.tgz\r解压后就一个文件，直接放到/usr/local/bin\n做个systemd启动文件\ncat /etc/systemd/system/coredns.service [Unit] Description=CoreDNS DNS server After=network.target [Service] PermissionsStartOnly=true LimitNOFILE=1048576 LimitNPROC=512 CapabilityBoundingSet=CAP_NET_BIND_SERVICE AmbientCapabilities=CAP_NET_BIND_SERVICE NoNewPrivileges=true ExecStart=/usr/local/bin/coredns -conf=/usr/local/bin/coredns.conf ExecReload=/bin/kill -SIGUSR1 $MAINPID Restart=on-failure [Install] WantedBy=multi-user.target 东西全都在/usr/local/bin/coredns.conf配置文件里：\n.:5353 https://.:443 { any log debug bind 172.18.30.1 tls /usr/local/bin/full.pem /usr/local/bin/key.pem hosts /etc/hosts { ttl 60 reload 1m no_reverse fallthrough } cache 120 reload 6s loadbalance forward . 114.114.114.114:53 223.5.5.5:53 223.6.6.6:53 { policy sequential } prometheus 172.18.30.1:9253 } 解释一下：\n","keywords":[],"articleBody":"CoreDNS是k8s的御用DNS解析软件\n支持很多插件，各种DoH、DoT、gRPC ，各种特性，安装配置也十分简单\n替代dnsmasq后，基本dnsmasq的功能都支持，修改劫持域名后也不用重启，会自动刷文件更新\n下面说一下装法：\n安装：\nwget https://github.com/coredns/coredns/releases/download/v1.7.0/coredns_1.7.0_linux_amd64.tgz\r解压后就一个文件，直接放到/usr/local/bin\n做个systemd启动文件\ncat /etc/systemd/system/coredns.service [Unit] Description=CoreDNS DNS server After=network.target [Service] PermissionsStartOnly=true LimitNOFILE=1048576 LimitNPROC=512 CapabilityBoundingSet=CAP_NET_BIND_SERVICE AmbientCapabilities=CAP_NET_BIND_SERVICE NoNewPrivileges=true ExecStart=/usr/local/bin/coredns -conf=/usr/local/bin/coredns.conf ExecReload=/bin/kill -SIGUSR1 $MAINPID Restart=on-failure [Install] WantedBy=multi-user.target 东西全都在/usr/local/bin/coredns.conf配置文件里：\n.:5353 https://.:443 { any log debug bind 172.18.30.1 tls /usr/local/bin/full.pem /usr/local/bin/key.pem hosts /etc/hosts { ttl 60 reload 1m no_reverse fallthrough } cache 120 reload 6s loadbalance forward . 114.114.114.114:53 223.5.5.5:53 223.6.6.6:53 { policy sequential } prometheus 172.18.30.1:9253 } 解释一下：\n. 表示所有域名，.:5353 和 https://.:443 表示开了5353和443端口来服务所有域名的查询 bind 172.18.30.1 绑定指定ip tls full.pem和key.pem是lego生成的*.rendoumi.com的证书链和私钥 hosts 表示从文件解析，reload 1m会自动扫描文件变动并加载 最有用的是fallthrough ，如果在/etc/hosts 找不到记录，那就继续，去下面的配置里找 loadbalance 表示如果查到的记录有多条，那就按round-robin轮询返回结果 forward 这里指定上游服务器，最多可以有15个上游 policy是严格按顺序来，首先114，114坏了5.5.5，5.5.5坏了6.6.6，如果不指定会从upstream里随机 挑一个 prometheus 露出端口，供prometheus刮数据用 然后启动，就可以了，这里为了避免跟dnsmasq冲突，用了5353，实际应该是53端口\nsystemctl start coredns\r测一下标准的dns查询\ndig -t a m.ddky.com @172.18.30.1 -p5353\r下面来解释DoH，DNS-Over-HTTPS，这个特性非常鬼畜 注意，准确的说https提交的是dns-message\n先测一下CF\ncurl -H 'accept: application/dns-json' 'https://cloudflare-dns.com/dns-query?name=m.ddky.com\u0026type=A' | jq .\rjson的结果很华丽，但是请注意，上面实际发的是dns-json，coredns不支持，鬼畜吧！\nDoH实际提交的是dns-message：\ncurl -H 'accept: application/dns-message' -v 'https://dns.ddky.com/dns-query?dns=q80BAAABAAAAAAAAA3d3dwdleGFtcGxlA2NvbQAAAQAB' | hexdump\rcurl -H 'accept: application/dns-message' -v 'https://cloudflare-dns.com/dns-query?dns=q80BAAABAAAAAAAAA3d3dwdleGFtcGxlA2NvbQAAAQAB' | hexdump\r注意那串dns=的字符串，那是个实际的查询，被Base64加码了，但绝不是对 name=www.example.com\u0026type=A 这样简单的base64，这个东西完全无法造出来，有二进制的东西在里面。\n所以我们必须用程序来了，必须下载一个土造的DoH的客户端\nwget https://github.com/ameshkov/dnslookup/releases/download/v1.3.0/dnslookup-linux-amd64-v1.3.0.tar.gz\r解压出来一个dnslookup，用这个来查才行\n./dnslookup www.ddky.com https://dns.ddky.com/dns-query\r./dnslookup www.ddky.com https://dns.alidns.com/dns-query\r这样就ok了，最后补充一下，如果你非要用curl做DoH，也行，得下载最新版本的curl\ncurl -v --doh-url https://cloudflare-dns.com/dns-query https://m.ddky.com\r看过程，是先去CF查了DNS，然后又发了个请求到m.ddky.com\n","wordCount":"156","inLanguage":"zh","datePublished":"2022-12-07T10:30:11+08:00","dateModified":"2022-12-07T10:30:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20221207-cordns_dnsmasq/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">CoreDNS替代dnsmasq
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2022-12-07 10:30:11 +0800 CST'>2022年12月7日</span></div></header><div class=post-content><p>CoreDNS是k8s的御用DNS解析软件</p><p>支持很多插件，各种DoH、DoT、gRPC ，各种特性，安装配置也十分简单</p><p>替代dnsmasq后，基本dnsmasq的功能都支持，修改劫持域名后也不用重启，会自动刷文件更新</p><p>下面说一下装法：</p><p>安装：</p><pre><code>wget https://github.com/coredns/coredns/releases/download/v1.7.0/coredns_1.7.0_linux_amd64.tgz
+</code></pre><p>解压后就一个文件，直接放到/usr/local/bin</p><p>做个systemd启动文件</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>cat /etc/systemd/system/coredns.service 
+</span></span><span class=line><span class=cl><span class=o>[</span>Unit<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>Description</span><span class=o>=</span>CoreDNS DNS server
+</span></span><span class=line><span class=cl><span class=nv>After</span><span class=o>=</span>network.target
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>Service<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>PermissionsStartOnly</span><span class=o>=</span><span class=nb>true</span>
+</span></span><span class=line><span class=cl><span class=nv>LimitNOFILE</span><span class=o>=</span><span class=m>1048576</span>
+</span></span><span class=line><span class=cl><span class=nv>LimitNPROC</span><span class=o>=</span><span class=m>512</span>
+</span></span><span class=line><span class=cl><span class=nv>CapabilityBoundingSet</span><span class=o>=</span>CAP_NET_BIND_SERVICE
+</span></span><span class=line><span class=cl><span class=nv>AmbientCapabilities</span><span class=o>=</span>CAP_NET_BIND_SERVICE
+</span></span><span class=line><span class=cl><span class=nv>NoNewPrivileges</span><span class=o>=</span><span class=nb>true</span>
+</span></span><span class=line><span class=cl><span class=nv>ExecStart</span><span class=o>=</span>/usr/local/bin/coredns -conf<span class=o>=</span>/usr/local/bin/coredns.conf
+</span></span><span class=line><span class=cl><span class=nv>ExecReload</span><span class=o>=</span>/bin/kill -SIGUSR1 <span class=nv>$MAINPID</span>
+</span></span><span class=line><span class=cl><span class=nv>Restart</span><span class=o>=</span>on-failure
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>Install<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>WantedBy</span><span class=o>=</span>multi-user.target
+</span></span></code></pre></div><p>东西全都在/usr/local/bin/coredns.conf配置文件里：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>.:5353 https://.:443 <span class=o>{</span>
+</span></span><span class=line><span class=cl>  any
+</span></span><span class=line><span class=cl>  log
+</span></span><span class=line><span class=cl>  debug
+</span></span><span class=line><span class=cl>  <span class=nb>bind</span> 172.18.30.1
+</span></span><span class=line><span class=cl>  tls /usr/local/bin/full.pem /usr/local/bin/key.pem
+</span></span><span class=line><span class=cl>  hosts /etc/hosts <span class=o>{</span>
+</span></span><span class=line><span class=cl>    ttl <span class=m>60</span>
+</span></span><span class=line><span class=cl>    reload 1m
+</span></span><span class=line><span class=cl>    no_reverse
+</span></span><span class=line><span class=cl>    fallthrough
+</span></span><span class=line><span class=cl>  <span class=o>}</span>
+</span></span><span class=line><span class=cl>  cache <span class=m>120</span>
+</span></span><span class=line><span class=cl>  reload 6s
+</span></span><span class=line><span class=cl>  loadbalance
+</span></span><span class=line><span class=cl>  forward . 114.114.114.114:53 223.5.5.5:53 223.6.6.6:53 <span class=o>{</span>
+</span></span><span class=line><span class=cl>      policy sequential
+</span></span><span class=line><span class=cl>  <span class=o>}</span>
+</span></span><span class=line><span class=cl>  prometheus 172.18.30.1:9253
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></div><p>解释一下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>. 表示所有域名，.:5353 和 https://.:443 表示开了5353和443端口来服务所有域名的查询
+</span></span><span class=line><span class=cl><span class=nb>bind</span> 172.18.30.1 绑定指定ip
+</span></span><span class=line><span class=cl>tls full.pem和key.pem是lego生成的*.rendoumi.com的证书链和私钥
+</span></span><span class=line><span class=cl>hosts 表示从文件解析，reload 1m会自动扫描文件变动并加载
+</span></span><span class=line><span class=cl>    最有用的是fallthrough ，如果在/etc/hosts 找不到记录，那就继续，去下面的配置里找
+</span></span><span class=line><span class=cl>loadbalance 表示如果查到的记录有多条，那就按round-robin轮询返回结果
+</span></span><span class=line><span class=cl>forward 这里指定上游服务器，最多可以有15个上游
+</span></span><span class=line><span class=cl>    policy是严格按顺序来，首先114，114坏了5.5.5，5.5.5坏了6.6.6，如果不指定会从upstream里随机
+</span></span><span class=line><span class=cl>	挑一个
+</span></span><span class=line><span class=cl>prometheus 露出端口，供prometheus刮数据用
+</span></span></code></pre></div><p>然后启动，就可以了，这里为了避免跟dnsmasq冲突，用了5353，实际应该是53端口</p><pre><code>systemctl start coredns
+</code></pre><p>测一下标准的dns查询</p><pre><code>dig -t a m.ddky.com @172.18.30.1 -p5353
+</code></pre><p><img loading=lazy src=/posts/20221207-cordns_dnsmasq/2020-07-08_152514.png></p><p>下面来解释DoH，DNS-Over-HTTPS，这个特性非常鬼畜
+注意，准确的说https提交的是dns-message</p><p>先测一下CF</p><pre><code>curl -H 'accept: application/dns-json' 'https://cloudflare-dns.com/dns-query?name=m.ddky.com&amp;type=A' | jq .
+</code></pre><p><img loading=lazy src=/posts/20221207-cordns_dnsmasq/2020-07-08_154446.png></p><p>json的结果很华丽，但是请注意，上面实际发的是dns-json，coredns不支持，鬼畜吧！</p><p>DoH实际提交的是dns-message：</p><pre><code>curl -H 'accept: application/dns-message' -v 'https://dns.ddky.com/dns-query?dns=q80BAAABAAAAAAAAA3d3dwdleGFtcGxlA2NvbQAAAQAB' | hexdump
+curl -H 'accept: application/dns-message' -v 'https://cloudflare-dns.com/dns-query?dns=q80BAAABAAAAAAAAA3d3dwdleGFtcGxlA2NvbQAAAQAB' | hexdump
+</code></pre><p>注意那串dns=的字符串，那是个实际的查询，被Base64加码了，但绝不是对 name=www.example.com&amp;type=A 这样简单的base64，这个东西完全无法造出来，有二进制的东西在里面。</p><p>所以我们必须用程序来了，必须下载一个土造的DoH的客户端</p><pre><code>wget https://github.com/ameshkov/dnslookup/releases/download/v1.3.0/dnslookup-linux-amd64-v1.3.0.tar.gz
+</code></pre><p>解压出来一个dnslookup，用这个来查才行</p><pre><code>./dnslookup www.ddky.com https://dns.ddky.com/dns-query
+./dnslookup www.ddky.com https://dns.alidns.com/dns-query
+</code></pre><p><img loading=lazy src=/posts/20221207-cordns_dnsmasq/2020-07-08_153733.png></p><p>这样就ok了，最后补充一下，如果你非要用curl做DoH，也行，得下载最新版本的curl</p><pre><code>curl -v --doh-url https://cloudflare-dns.com/dns-query https://m.ddky.com
+</code></pre><p>看过程，是先去CF查了DNS，然后又发了个请求到m.ddky.com</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

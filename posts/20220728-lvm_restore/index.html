@@ -1,0 +1,227 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>LVM系统的Restore | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='在生产系统中使用LVM务必要注意lvm metadata的备份，曾经在京东的时候发生过虚机用了lvm的磁盘系统，然后虚机文件qcow2突然坏掉了，想尽了办法也无法恢复，这给我们拉响了警钟啊，使用lvm的时候务必要备份分区信息，否则坏的时候就欲哭无泪了。
+缺省在 /etc/lvm/backup/ 目录下是最新的备份，同样历史版本都在 /etc/lvm/archive/ 目录下。
+一、先备份
+在开始恢复之前，一定先做个备份
+cp -pr /etc/lvm /etc/lvm_bkp
+然后去看看archive下的备份信息
+ls -l /etc/lvm/archive/vg_storage_00*
+-rw-------. 1 root root 13722 Oct 28 23:45 /etc/lvm/archive/vg_storage_00419-1760023262.vg
+-rw-------. 1 root root 14571 Oct 28 23:52 /etc/lvm/archive/vg_storage_00420-94024216.vg
+...
+-rw-------. 1 root root 14749 Nov 23 15:11 /etc/lvm/archive/vg_storage_00676-394223172.vg
+-rw-------. 1 root root 14733 Nov 23 15:29 /etc/lvm/archive/vg_storage_00677-187019982.vg
+#
+二、最坏的情形恢复pv
+警告：这一步只能在VG无法正常运行的时候再运行！！！
+先说最坏的情形，LVM的建立路径是 pv &mdash;> vg &mdash;> lv，假设连 pv（物理卷都没了）
+我们选择最近的备份，/etc/lvm/archive/vg_storage_00677-187019982.vg
+less /etc/lvm/archive/vg_storage_00677-187019982.vg
+...
+   physical_volumes {
+      pv0 {
+         id = "BgR0KJ-JClh-T2gS-k6yK-9RGn-B8Ls-LYPQP0"
+...
+从里面拿到 pv 的 id ，重建 pv
+pvcreate --uuid "BgR0KJ-JClh-T2gS-k6yK-9RGn-B8Ls-LYPQP0" \
+  --restorefile /etc/lvm/archive/vg_storage_00677-187019982.vg
+三、恢复VG
+如果 vg 是正常的，那么就不用做第二步了，直接从备份中恢复即可，先查看一下'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20220728-lvm_restore/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20220728-lvm_restore/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20220728-lvm_restore/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="LVM系统的Restore"><meta property="og:description" content='在生产系统中使用LVM务必要注意lvm metadata的备份，曾经在京东的时候发生过虚机用了lvm的磁盘系统，然后虚机文件qcow2突然坏掉了，想尽了办法也无法恢复，这给我们拉响了警钟啊，使用lvm的时候务必要备份分区信息，否则坏的时候就欲哭无泪了。
+缺省在 /etc/lvm/backup/ 目录下是最新的备份，同样历史版本都在 /etc/lvm/archive/ 目录下。
+一、先备份 在开始恢复之前，一定先做个备份
+cp -pr /etc/lvm /etc/lvm_bkp 然后去看看archive下的备份信息
+ls -l /etc/lvm/archive/vg_storage_00* -rw-------. 1 root root 13722 Oct 28 23:45 /etc/lvm/archive/vg_storage_00419-1760023262.vg -rw-------. 1 root root 14571 Oct 28 23:52 /etc/lvm/archive/vg_storage_00420-94024216.vg ... -rw-------. 1 root root 14749 Nov 23 15:11 /etc/lvm/archive/vg_storage_00676-394223172.vg -rw-------. 1 root root 14733 Nov 23 15:29 /etc/lvm/archive/vg_storage_00677-187019982.vg # 二、最坏的情形恢复pv 警告：这一步只能在VG无法正常运行的时候再运行！！！
+先说最坏的情形，LVM的建立路径是 pv —> vg —> lv，假设连 pv（物理卷都没了）
+我们选择最近的备份，/etc/lvm/archive/vg_storage_00677-187019982.vg
+less /etc/lvm/archive/vg_storage_00677-187019982.vg ... physical_volumes { pv0 { id = "BgR0KJ-JClh-T2gS-k6yK-9RGn-B8Ls-LYPQP0" ... 从里面拿到 pv 的 id ，重建 pv
+pvcreate --uuid "BgR0KJ-JClh-T2gS-k6yK-9RGn-B8Ls-LYPQP0" \ --restorefile /etc/lvm/archive/vg_storage_00677-187019982.vg 三、恢复VG 如果 vg 是正常的，那么就不用做第二步了，直接从备份中恢复即可，先查看一下'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-07-28T09:30:11+08:00"><meta property="article:modified_time" content="2022-07-28T09:30:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="LVM系统的Restore"><meta name=twitter:description content='在生产系统中使用LVM务必要注意lvm metadata的备份，曾经在京东的时候发生过虚机用了lvm的磁盘系统，然后虚机文件qcow2突然坏掉了，想尽了办法也无法恢复，这给我们拉响了警钟啊，使用lvm的时候务必要备份分区信息，否则坏的时候就欲哭无泪了。
+缺省在 /etc/lvm/backup/ 目录下是最新的备份，同样历史版本都在 /etc/lvm/archive/ 目录下。
+一、先备份
+在开始恢复之前，一定先做个备份
+cp -pr /etc/lvm /etc/lvm_bkp
+然后去看看archive下的备份信息
+ls -l /etc/lvm/archive/vg_storage_00*
+-rw-------. 1 root root 13722 Oct 28 23:45 /etc/lvm/archive/vg_storage_00419-1760023262.vg
+-rw-------. 1 root root 14571 Oct 28 23:52 /etc/lvm/archive/vg_storage_00420-94024216.vg
+...
+-rw-------. 1 root root 14749 Nov 23 15:11 /etc/lvm/archive/vg_storage_00676-394223172.vg
+-rw-------. 1 root root 14733 Nov 23 15:29 /etc/lvm/archive/vg_storage_00677-187019982.vg
+#
+二、最坏的情形恢复pv
+警告：这一步只能在VG无法正常运行的时候再运行！！！
+先说最坏的情形，LVM的建立路径是 pv &mdash;> vg &mdash;> lv，假设连 pv（物理卷都没了）
+我们选择最近的备份，/etc/lvm/archive/vg_storage_00677-187019982.vg
+less /etc/lvm/archive/vg_storage_00677-187019982.vg
+...
+   physical_volumes {
+      pv0 {
+         id = "BgR0KJ-JClh-T2gS-k6yK-9RGn-B8Ls-LYPQP0"
+...
+从里面拿到 pv 的 id ，重建 pv
+pvcreate --uuid "BgR0KJ-JClh-T2gS-k6yK-9RGn-B8Ls-LYPQP0" \
+  --restorefile /etc/lvm/archive/vg_storage_00677-187019982.vg
+三、恢复VG
+如果 vg 是正常的，那么就不用做第二步了，直接从备份中恢复即可，先查看一下'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"LVM系统的Restore","item":"https://rendoumi.com/posts/20220728-lvm_restore/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"LVM系统的Restore","name":"LVM系统的Restore","description":"在生产系统中使用LVM务必要注意lvm metadata的备份，曾经在京东的时候发生过虚机用了lvm的磁盘系统，然后虚机文件qcow2突然坏掉了，想尽了办法也无法恢复，这给我们拉响了警钟啊，使用lvm的时候务必要备份分区信息，否则坏的时候就欲哭无泪了。\n缺省在 /etc/lvm/backup/ 目录下是最新的备份，同样历史版本都在 /etc/lvm/archive/ 目录下。\n一、先备份 在开始恢复之前，一定先做个备份\ncp -pr /etc/lvm /etc/lvm_bkp 然后去看看archive下的备份信息\nls -l /etc/lvm/archive/vg_storage_00* -rw-------. 1 root root 13722 Oct 28 23:45 /etc/lvm/archive/vg_storage_00419-1760023262.vg -rw-------. 1 root root 14571 Oct 28 23:52 /etc/lvm/archive/vg_storage_00420-94024216.vg ... -rw-------. 1 root root 14749 Nov 23 15:11 /etc/lvm/archive/vg_storage_00676-394223172.vg -rw-------. 1 root root 14733 Nov 23 15:29 /etc/lvm/archive/vg_storage_00677-187019982.vg # 二、最坏的情形恢复pv 警告：这一步只能在VG无法正常运行的时候再运行！！！\n先说最坏的情形，LVM的建立路径是 pv \u0026mdash;\u0026gt; vg \u0026mdash;\u0026gt; lv，假设连 pv（物理卷都没了）\n我们选择最近的备份，/etc/lvm/archive/vg_storage_00677-187019982.vg\nless /etc/lvm/archive/vg_storage_00677-187019982.vg ... physical_volumes { pv0 { id = \u0026#34;BgR0KJ-JClh-T2gS-k6yK-9RGn-B8Ls-LYPQP0\u0026#34; ... 从里面拿到 pv 的 id ，重建 pv\npvcreate --uuid \u0026#34;BgR0KJ-JClh-T2gS-k6yK-9RGn-B8Ls-LYPQP0\u0026#34; \\ --restorefile /etc/lvm/archive/vg_storage_00677-187019982.vg 三、恢复VG 如果 vg 是正常的，那么就不用做第二步了，直接从备份中恢复即可，先查看一下\n","keywords":[],"articleBody":"在生产系统中使用LVM务必要注意lvm metadata的备份，曾经在京东的时候发生过虚机用了lvm的磁盘系统，然后虚机文件qcow2突然坏掉了，想尽了办法也无法恢复，这给我们拉响了警钟啊，使用lvm的时候务必要备份分区信息，否则坏的时候就欲哭无泪了。\n缺省在 /etc/lvm/backup/ 目录下是最新的备份，同样历史版本都在 /etc/lvm/archive/ 目录下。\n一、先备份 在开始恢复之前，一定先做个备份\ncp -pr /etc/lvm /etc/lvm_bkp 然后去看看archive下的备份信息\nls -l /etc/lvm/archive/vg_storage_00* -rw-------. 1 root root 13722 Oct 28 23:45 /etc/lvm/archive/vg_storage_00419-1760023262.vg -rw-------. 1 root root 14571 Oct 28 23:52 /etc/lvm/archive/vg_storage_00420-94024216.vg ... -rw-------. 1 root root 14749 Nov 23 15:11 /etc/lvm/archive/vg_storage_00676-394223172.vg -rw-------. 1 root root 14733 Nov 23 15:29 /etc/lvm/archive/vg_storage_00677-187019982.vg # 二、最坏的情形恢复pv 警告：这一步只能在VG无法正常运行的时候再运行！！！\n先说最坏的情形，LVM的建立路径是 pv —\u003e vg —\u003e lv，假设连 pv（物理卷都没了）\n我们选择最近的备份，/etc/lvm/archive/vg_storage_00677-187019982.vg\nless /etc/lvm/archive/vg_storage_00677-187019982.vg ... physical_volumes { pv0 { id = \"BgR0KJ-JClh-T2gS-k6yK-9RGn-B8Ls-LYPQP0\" ... 从里面拿到 pv 的 id ，重建 pv\npvcreate --uuid \"BgR0KJ-JClh-T2gS-k6yK-9RGn-B8Ls-LYPQP0\" \\ --restorefile /etc/lvm/archive/vg_storage_00677-187019982.vg 三、恢复VG 如果 vg 是正常的，那么就不用做第二步了，直接从备份中恢复即可，先查看一下\nvgcfgrestore --list vg1 File: /etc/lvm/archive/vg1_00000-1238318622.vg VG name: vg1 Description: Created *before* executing 'vgcreate vg1 /dev/sda6' Backup Time: Mon Feb 29 10:58:51 2016 File: /etc/lvm/archive/vg1_00001-285796155.vg VG name: vg1 Description: Created *before* executing 'lvcreate -L 1G -n lv2 vg1' Backup Time: Mon Feb 29 10:59:23 2016 File: /etc/lvm/archive/vg1_00002-1661997476.vg ---\u003e just before removal of volume (this is the archive we need) VG name: vg1 Description: Created *before* executing 'lvremove /dev/vg1/lv2' Backup Time: Mon Feb 29 13:55:08 2016 File: /etc/lvm/backup/vg1 VG name: vg1 Description: Created *after* executing 'lvremove /dev/vg1/lv2' Backup Time: Mon Feb 29 13:55:08 2016 有信息，我们先加 –test 测试一下\nvgcfgrestore vg01 --test -f /etc/lvm/archive/vg_data_00003-586203914.vg TEST MODE: Metadata will NOT be updated and volumes will not be (de)activated. Volume group vg01 has active volume: lv001. WARNING: Found 1 active volume(s) in volume group \"vg01\". Restoring VG with active LVs, may cause mismatch with its metadata. Do you really want to proceed with restore of volume group \"vg01\", while 1 volume(s) are active? [y/n]: y Restored volume group vg01. 没问题，那就继续，真的操作了\nvgcfgrestore vg01 -f /etc/lvm/archive/vg_data_00003-586203914.vg Volume group vg01 has active volume: lv001. WARNING: Found 1 active volume(s) in volume group \"vg01\". Restoring VG with active LVs, may cause mismatch with its metadata. Do you really want to proceed with restore of volume group \"vg01\", while 1 volume(s) are active? [y/n]: y Restored volume group vg01. 四、恢复后进行校验 # 显示信息 vgdisplay VG1 # 激活 vgchange -ay VG1 # 显示逻辑卷 lvs -a -o +devices # 重新扫描 lvscan inactive '/dev/vg1/lv2' [1.00 GiB] inherit ### its in inactive state and make it active to use. ACTIVE '/dev/vg0/lv1' [1.00 GiB] inherit # 上面如果有inactive的，重新激活 lvchange -a y /dev/vg1/lv2 # 再显示一次 lvs -a -o +devices # 再扫描 lvscan ACTIVE '/dev/vg1/lv2' [1.00 GiB] inherit ACTIVE '/dev/vg0/lv1' [1.00 GiB] inherit # mount上测试 mount /dev/vg1/lv2 /lv2 # 看看东西都在不在 ls -lh /lv2 五、备份和恢复的脚本 备份一个 VG 下所有卷，每个卷一个 snapshot 快照备份文件，backup_snapshot_lvm.pl\n#!/usr/bin/perl -w # # Run through a particular LVM volume group and perform a snapshot # and compressed file backup of each volume. # # This script is intended for use with backing up complete system # images of VMs, in addition to data level backups. # my $source_lvm_volgroup = 'vg_storage'; my $source_lvm_snapsize = '5G'; my @source_lvm_excludes = ('lv_unwanted', 'lv_tmpfiles'); my $dest_dir='/mnt/backup/snapshots'; foreach $volume (glob(\"/dev/$source_lvm_volgroup/*\")) { $volume =~ /\\/dev\\/$source_lvm_volgroup\\/(\\S*)$/; my $volume_short = $1; if (\"$volume_short\" ~~ @source_lvm_excludes) { # Excluded volume, we skip it print \"[info] Skipping excluded volume $volume_short ($volume)\\n\"; next; } print \"[info] Processing volume $volume_short ($volume)\\n\"; # Snapshot volume print \"[info] Creating snapshot...\\n\"; system(\"lvcreate -n ${volume_short}_snapshot --snapshot $volume -L $source_lvm_snapsize\"); # Write compressed backup file from snapshot, but only replace existing one once finished print \"[info] Creating compressed snapshot file...\\n\"; system(\"dd if=${volume}_snapshot | gzip --fast \u003e $dest_dir/$volume_short.temp.gz\"); system(\"mv $dest_dir/$volume_short.temp.gz $dest_dir/$volume_short.gz\"); # Delete snapshot print \"[info] Removing snapshot...\\n\"; system(\"lvremove --force ${volume}_snapshot\"); print \"[info] Volume $volume_short backup completed.\\n\"; } print \"[info] FINISHED! VolumeGroup backup completed\\n\"; exit 0; 恢复的脚本，restore_snapshot_lvm.pl：\n#!/usr/bin/perl -w # # Runs through LVM snapshots taken by backup_snapshot_lvm.pl and # restores them to the LVM volume in question. # my $dest_lvm_volgroup = 'vg_storage'; my $source_dir = '/mnt/backup/snapshots'; print \"[WARNING] Beginning restore process in 5 SECONDS!!\\n\"; sleep(5); foreach $volume (glob(\"$source_dir/*\")) { $volume =~ /$source_dir\\/(\\S*).gz$/; my $volume_short = $1; print \"[info] Processing volume $volume_short ($volume)\\n\"; # Just need to decompress \u0026 write into LVM volume system(\"zcat $source_dir/$volume_short.gz \u003e /dev/$dest_lvm_volgroup/$volume_short\"); print \"[info] Volume $volume_short restore completed.\\n\"; } print \"[info] FINISHED! VolumeGroup restore completed\\n\"; exit 0; 当然要谨记，这个是块设备级别的备份，最好还是要有另外的数据的备份。\n","wordCount":"646","inLanguage":"zh","datePublished":"2022-07-28T09:30:11+08:00","dateModified":"2022-07-28T09:30:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20220728-lvm_restore/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">LVM系统的Restore
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2022-07-28 09:30:11 +0800 CST'>2022年7月28日</span></div></header><div class=post-content><p>在生产系统中使用LVM务必要注意lvm metadata的备份，曾经在京东的时候发生过虚机用了lvm的磁盘系统，然后虚机文件qcow2突然坏掉了，想尽了办法也无法恢复，这给我们拉响了警钟啊，使用lvm的时候务必要备份分区信息，否则坏的时候就欲哭无泪了。</p><p>缺省在 /etc/lvm/backup/ 目录下是最新的备份，同样历史版本都在 /etc/lvm/archive/ 目录下。</p><h4 id=一先备份>一、先备份<a hidden class=anchor aria-hidden=true href=#一先备份>#</a></h4><p>在开始恢复之前，一定先做个备份</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cp -pr /etc/lvm /etc/lvm_bkp
+</span></span></code></pre></div><p>然后去看看archive下的备份信息</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>ls -l /etc/lvm/archive/vg_storage_00*
+</span></span><span class=line><span class=cl>-rw-------. <span class=m>1</span> root root <span class=m>13722</span> Oct <span class=m>28</span> 23:45 /etc/lvm/archive/vg_storage_00419-1760023262.vg
+</span></span><span class=line><span class=cl>-rw-------. <span class=m>1</span> root root <span class=m>14571</span> Oct <span class=m>28</span> 23:52 /etc/lvm/archive/vg_storage_00420-94024216.vg
+</span></span><span class=line><span class=cl>...
+</span></span><span class=line><span class=cl>-rw-------. <span class=m>1</span> root root <span class=m>14749</span> Nov <span class=m>23</span> 15:11 /etc/lvm/archive/vg_storage_00676-394223172.vg
+</span></span><span class=line><span class=cl>-rw-------. <span class=m>1</span> root root <span class=m>14733</span> Nov <span class=m>23</span> 15:29 /etc/lvm/archive/vg_storage_00677-187019982.vg
+</span></span><span class=line><span class=cl><span class=c1>#</span>
+</span></span></code></pre></div><h4 id=二最坏的情形恢复pv>二、最坏的情形恢复pv<a hidden class=anchor aria-hidden=true href=#二最坏的情形恢复pv>#</a></h4><p>警告：这一步只能在VG无法正常运行的时候再运行！！！</p><p>先说最坏的情形，LVM的建立路径是 pv &mdash;> vg &mdash;> lv，假设连 pv（物理卷都没了）</p><p>我们选择最近的备份，/etc/lvm/archive/vg_storage_00677-187019982.vg</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>less /etc/lvm/archive/vg_storage_00677-187019982.vg
+</span></span><span class=line><span class=cl>...
+</span></span><span class=line><span class=cl>   physical_volumes <span class=o>{</span>
+</span></span><span class=line><span class=cl>      pv0 <span class=o>{</span>
+</span></span><span class=line><span class=cl>         <span class=nv>id</span> <span class=o>=</span> <span class=s2>&#34;BgR0KJ-JClh-T2gS-k6yK-9RGn-B8Ls-LYPQP0&#34;</span>
+</span></span><span class=line><span class=cl>...
+</span></span></code></pre></div><p>从里面拿到 pv 的 id ，重建 pv</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>pvcreate --uuid <span class=s2>&#34;BgR0KJ-JClh-T2gS-k6yK-9RGn-B8Ls-LYPQP0&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --restorefile /etc/lvm/archive/vg_storage_00677-187019982.vg
+</span></span></code></pre></div><h4 id=三恢复vg>三、恢复VG<a hidden class=anchor aria-hidden=true href=#三恢复vg>#</a></h4><p>如果 vg 是正常的，那么就不用做第二步了，直接从备份中恢复即可，先查看一下</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>vgcfgrestore --list vg1
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>File: /etc/lvm/archive/vg1_00000-1238318622.vg
+</span></span><span class=line><span class=cl>VG name: vg1
+</span></span><span class=line><span class=cl>Description: Created *before* executing <span class=s1>&#39;vgcreate vg1 /dev/sda6&#39;</span>
+</span></span><span class=line><span class=cl>Backup Time: Mon Feb <span class=m>29</span> 10:58:51 <span class=m>2016</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>File: /etc/lvm/archive/vg1_00001-285796155.vg
+</span></span><span class=line><span class=cl>VG name: vg1
+</span></span><span class=line><span class=cl>Description: Created *before* executing <span class=s1>&#39;lvcreate -L 1G -n lv2 vg1&#39;</span>
+</span></span><span class=line><span class=cl>Backup Time: Mon Feb <span class=m>29</span> 10:59:23 <span class=m>2016</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>File: /etc/lvm/archive/vg1_00002-1661997476.vg     ---&gt; just before removal of volume <span class=o>(</span>this is the archive we need<span class=o>)</span>
+</span></span><span class=line><span class=cl>VG name: vg1
+</span></span><span class=line><span class=cl>Description: Created *before* executing <span class=s1>&#39;lvremove /dev/vg1/lv2&#39;</span>
+</span></span><span class=line><span class=cl>Backup Time: Mon Feb <span class=m>29</span> 13:55:08 <span class=m>2016</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>File: /etc/lvm/backup/vg1
+</span></span><span class=line><span class=cl>VG name: vg1
+</span></span><span class=line><span class=cl>Description: Created *after* executing <span class=s1>&#39;lvremove /dev/vg1/lv2&#39;</span> 
+</span></span><span class=line><span class=cl>Backup Time: Mon Feb <span class=m>29</span> 13:55:08 <span class=m>2016</span>
+</span></span></code></pre></div><p>有信息，我们先加 &ndash;test 测试一下</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>vgcfgrestore vg01 --test -f /etc/lvm/archive/vg_data_00003-586203914.vg
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>   TEST MODE: Metadata will NOT be updated and volumes will not be <span class=o>(</span>de<span class=o>)</span>activated.
+</span></span><span class=line><span class=cl>   Volume group vg01 has active volume: lv001.
+</span></span><span class=line><span class=cl>   WARNING: Found <span class=m>1</span> active volume<span class=o>(</span>s<span class=o>)</span> in volume group <span class=s2>&#34;vg01&#34;</span>.
+</span></span><span class=line><span class=cl>   Restoring VG with active LVs, may cause mismatch with its metadata.
+</span></span><span class=line><span class=cl> Do you really want to proceed with restore of volume group <span class=s2>&#34;vg01&#34;</span>, <span class=k>while</span> <span class=m>1</span> volume<span class=o>(</span>s<span class=o>)</span> are active? <span class=o>[</span>y/n<span class=o>]</span>: y
+</span></span><span class=line><span class=cl>   Restored volume group vg01.
+</span></span></code></pre></div><p>没问题，那就继续，真的操作了</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>vgcfgrestore vg01 -f /etc/lvm/archive/vg_data_00003-586203914.vg
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>   Volume group vg01 has active volume: lv001.
+</span></span><span class=line><span class=cl>   WARNING: Found <span class=m>1</span> active volume<span class=o>(</span>s<span class=o>)</span> in volume group <span class=s2>&#34;vg01&#34;</span>.
+</span></span><span class=line><span class=cl>   Restoring VG with active LVs, may cause mismatch with its metadata.
+</span></span><span class=line><span class=cl> Do you really want to proceed with restore of volume group <span class=s2>&#34;vg01&#34;</span>, <span class=k>while</span> <span class=m>1</span> volume<span class=o>(</span>s<span class=o>)</span> are active? <span class=o>[</span>y/n<span class=o>]</span>: y
+</span></span><span class=line><span class=cl>   Restored volume group vg01.
+</span></span></code></pre></div><h4 id=四恢复后进行校验>四、恢复后进行校验<a hidden class=anchor aria-hidden=true href=#四恢复后进行校验>#</a></h4><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 显示信息</span>
+</span></span><span class=line><span class=cl>vgdisplay VG1
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 激活</span>
+</span></span><span class=line><span class=cl>vgchange -ay VG1
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 显示逻辑卷</span>
+</span></span><span class=line><span class=cl>lvs -a -o +devices
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 重新扫描</span>
+</span></span><span class=line><span class=cl>lvscan
+</span></span><span class=line><span class=cl>inactive <span class=s1>&#39;/dev/vg1/lv2&#39;</span> <span class=o>[</span>1.00 GiB<span class=o>]</span> inherit      <span class=c1>### its in inactive state and make it active to use.</span>
+</span></span><span class=line><span class=cl>ACTIVE <span class=s1>&#39;/dev/vg0/lv1&#39;</span> <span class=o>[</span>1.00 GiB<span class=o>]</span> inherit
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 上面如果有inactive的，重新激活</span>
+</span></span><span class=line><span class=cl>lvchange -a y /dev/vg1/lv2
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 再显示一次</span>
+</span></span><span class=line><span class=cl>lvs -a -o +devices
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 再扫描</span>
+</span></span><span class=line><span class=cl>lvscan
+</span></span><span class=line><span class=cl>ACTIVE <span class=s1>&#39;/dev/vg1/lv2&#39;</span> <span class=o>[</span>1.00 GiB<span class=o>]</span> inherit
+</span></span><span class=line><span class=cl>ACTIVE <span class=s1>&#39;/dev/vg0/lv1&#39;</span> <span class=o>[</span>1.00 GiB<span class=o>]</span> inherit
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># mount上测试</span>
+</span></span><span class=line><span class=cl>mount /dev/vg1/lv2 /lv2
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 看看东西都在不在</span>
+</span></span><span class=line><span class=cl>ls -lh /lv2
+</span></span></code></pre></div><h4 id=五备份和恢复的脚本>五、备份和恢复的脚本<a hidden class=anchor aria-hidden=true href=#五备份和恢复的脚本>#</a></h4><p>备份一个 VG 下所有卷，每个卷一个 snapshot 快照备份文件，backup_snapshot_lvm.pl</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/usr/bin/perl -w
+</span></span></span><span class=line><span class=cl><span class=cp></span><span class=c1>#</span>
+</span></span><span class=line><span class=cl><span class=c1># Run through a particular LVM volume group and perform a snapshot</span>
+</span></span><span class=line><span class=cl><span class=c1># and compressed file backup of each volume.</span>
+</span></span><span class=line><span class=cl><span class=c1>#</span>
+</span></span><span class=line><span class=cl><span class=c1># This script is intended for use with backing up complete system</span>
+</span></span><span class=line><span class=cl><span class=c1># images of VMs, in addition to data level backups.</span>
+</span></span><span class=line><span class=cl><span class=c1>#</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>my <span class=nv>$source_lvm_volgroup</span> <span class=o>=</span> <span class=s1>&#39;vg_storage&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>my <span class=nv>$source_lvm_snapsize</span> <span class=o>=</span> <span class=s1>&#39;5G&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>my @source_lvm_excludes <span class=o>=</span> <span class=o>(</span><span class=s1>&#39;lv_unwanted&#39;</span>, <span class=s1>&#39;lv_tmpfiles&#39;</span><span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>my <span class=nv>$dest_dir</span><span class=o>=</span><span class=s1>&#39;/mnt/backup/snapshots&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>foreach <span class=nv>$volume</span> <span class=o>(</span>glob<span class=o>(</span><span class=s2>&#34;/dev/</span><span class=nv>$source_lvm_volgroup</span><span class=s2>/*&#34;</span><span class=o>))</span>
+</span></span><span class=line><span class=cl><span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=nv>$volume</span>            <span class=o>=</span>~ /<span class=se>\/</span>dev<span class=se>\/</span><span class=nv>$source_lvm_volgroup</span><span class=se>\/</span><span class=o>(</span><span class=se>\S</span>*<span class=o>)</span>$/<span class=p>;</span>
+</span></span><span class=line><span class=cl>    my <span class=nv>$volume_short</span>    <span class=o>=</span> <span class=nv>$1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=o>(</span><span class=s2>&#34;</span><span class=nv>$volume_short</span><span class=s2>&#34;</span> ~~ @source_lvm_excludes<span class=o>)</span>
+</span></span><span class=line><span class=cl>    <span class=o>{</span>
+</span></span><span class=line><span class=cl>        <span class=c1># Excluded volume, we skip it</span>
+</span></span><span class=line><span class=cl>        print <span class=s2>&#34;[info] Skipping excluded volume </span><span class=nv>$volume_short</span><span class=s2> (</span><span class=nv>$volume</span><span class=s2>)\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        next<span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    print <span class=s2>&#34;[info] Processing volume </span><span class=nv>$volume_short</span><span class=s2> (</span><span class=nv>$volume</span><span class=s2>)\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Snapshot volume</span>
+</span></span><span class=line><span class=cl>    print <span class=s2>&#34;[info] Creating snapshot...\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    system<span class=o>(</span><span class=s2>&#34;lvcreate -n </span><span class=si>${</span><span class=nv>volume_short</span><span class=si>}</span><span class=s2>_snapshot --snapshot </span><span class=nv>$volume</span><span class=s2> -L </span><span class=nv>$source_lvm_snapsize</span><span class=s2>&#34;</span><span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Write compressed backup file from snapshot, but only replace existing one once finished</span>
+</span></span><span class=line><span class=cl>    print <span class=s2>&#34;[info] Creating compressed snapshot file...\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    system<span class=o>(</span><span class=s2>&#34;dd if=</span><span class=si>${</span><span class=nv>volume</span><span class=si>}</span><span class=s2>_snapshot | gzip --fast &gt; </span><span class=nv>$dest_dir</span><span class=s2>/</span><span class=nv>$volume_short</span><span class=s2>.temp.gz&#34;</span><span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    system<span class=o>(</span><span class=s2>&#34;mv </span><span class=nv>$dest_dir</span><span class=s2>/</span><span class=nv>$volume_short</span><span class=s2>.temp.gz </span><span class=nv>$dest_dir</span><span class=s2>/</span><span class=nv>$volume_short</span><span class=s2>.gz&#34;</span><span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Delete snapshot</span>
+</span></span><span class=line><span class=cl>    print <span class=s2>&#34;[info] Removing snapshot...\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    system<span class=o>(</span><span class=s2>&#34;lvremove --force </span><span class=si>${</span><span class=nv>volume</span><span class=si>}</span><span class=s2>_snapshot&#34;</span><span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    print <span class=s2>&#34;[info] Volume </span><span class=nv>$volume_short</span><span class=s2> backup completed.\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>print <span class=s2>&#34;[info] FINISHED! VolumeGroup backup completed\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>exit</span> 0<span class=p>;</span>
+</span></span></code></pre></div><p>恢复的脚本，restore_snapshot_lvm.pl：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/usr/bin/perl -w
+</span></span></span><span class=line><span class=cl><span class=cp></span><span class=c1>#</span>
+</span></span><span class=line><span class=cl><span class=c1># Runs through LVM snapshots taken by backup_snapshot_lvm.pl and</span>
+</span></span><span class=line><span class=cl><span class=c1># restores them to the LVM volume in question.</span>
+</span></span><span class=line><span class=cl><span class=c1>#</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>my <span class=nv>$dest_lvm_volgroup</span> <span class=o>=</span> <span class=s1>&#39;vg_storage&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>my <span class=nv>$source_dir</span> <span class=o>=</span> <span class=s1>&#39;/mnt/backup/snapshots&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>print <span class=s2>&#34;[WARNING] Beginning restore process in 5 SECONDS!!\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>sleep<span class=o>(</span>5<span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>foreach <span class=nv>$volume</span> <span class=o>(</span>glob<span class=o>(</span><span class=s2>&#34;</span><span class=nv>$source_dir</span><span class=s2>/*&#34;</span><span class=o>))</span>
+</span></span><span class=line><span class=cl><span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=nv>$volume</span>            <span class=o>=</span>~ /<span class=nv>$source_dir</span><span class=se>\/</span><span class=o>(</span><span class=se>\S</span>*<span class=o>)</span>.gz$/<span class=p>;</span>
+</span></span><span class=line><span class=cl>    my <span class=nv>$volume_short</span>    <span class=o>=</span> <span class=nv>$1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    print <span class=s2>&#34;[info] Processing volume </span><span class=nv>$volume_short</span><span class=s2> (</span><span class=nv>$volume</span><span class=s2>)\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Just need to decompress &amp; write into LVM volume</span>
+</span></span><span class=line><span class=cl>    system<span class=o>(</span><span class=s2>&#34;zcat </span><span class=nv>$source_dir</span><span class=s2>/</span><span class=nv>$volume_short</span><span class=s2>.gz &gt; /dev/</span><span class=nv>$dest_lvm_volgroup</span><span class=s2>/</span><span class=nv>$volume_short</span><span class=s2>&#34;</span><span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    print <span class=s2>&#34;[info] Volume </span><span class=nv>$volume_short</span><span class=s2> restore completed.\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>print <span class=s2>&#34;[info] FINISHED! VolumeGroup restore completed\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>exit</span> 0<span class=p>;</span>
+</span></span></code></pre></div><p>当然要谨记，这个是块设备级别的备份，最好还是要有另外的数据的备份。</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

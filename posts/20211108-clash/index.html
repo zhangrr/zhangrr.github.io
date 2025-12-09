@@ -1,0 +1,224 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>clash的搭建教程 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="没啊办法，翻墙翻墙还是翻墙。
+上游有若干 trojian 、v2ray 、sock5 、http各种各样的代理，这样多种的选择，那么就装一个 clash 客户端就可以全接管了。
+说下我们的做法：找个小Linux做旁路由，DNS和网关都设置在这台机器上，局域网内的机器都通过这台上网。
+我们用到的是 clash 的 Tproxy redir-host 和 udp-proxy 模式，这种模式比较强大。用就用最强大的。
+安装很简单，操作系统 centos 或者 ubuntu 都行，项目地址：
+https://github.com/Dreamacro/clash
+说明书：
+https://lancellc.gitbook.io/clash/clash-config-file/proxy-groups/load-balance
+首先下载二进制文件，现在版本是 v1.7.1，解压后放到 /usr/local/bin 目录下
+wget https://github.com/Dreamacro/clash/releases/download/v1.7.1/clash-linux-amd64-v1.7.1.gz
+gzip -d clash-linux-amd64-v1.7.1.gz
+chmod 755 clash-linux-amd64-v1.7.1
+mv clash-linux-amd64-v1.7.1 /usr/local/bin
+然后生成 clash.service
+cat << EOF >> /etc/systemd/system/clash.service 
+[Unit]
+Description=clash service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/local/bin/clash-linux-amd64-v1.7.1
+Restart=on-failure # or always, on-abort, etc
+
+[Install]
+WantedBy=multi-user.target
+EOF
+然后最重要的，就是配置文件了
+我这里这个旁路由的设备 IP 地址是 192.168.2.2，网卡设备是 enp2s0"><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20211108-clash/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20211108-clash/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20211108-clash/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="clash的搭建教程"><meta property="og:description" content="没啊办法，翻墙翻墙还是翻墙。
+上游有若干 trojian 、v2ray 、sock5 、http各种各样的代理，这样多种的选择，那么就装一个 clash 客户端就可以全接管了。
+说下我们的做法：找个小Linux做旁路由，DNS和网关都设置在这台机器上，局域网内的机器都通过这台上网。
+我们用到的是 clash 的 Tproxy redir-host 和 udp-proxy 模式，这种模式比较强大。用就用最强大的。
+安装很简单，操作系统 centos 或者 ubuntu 都行，项目地址：
+https://github.com/Dreamacro/clash
+说明书：
+https://lancellc.gitbook.io/clash/clash-config-file/proxy-groups/load-balance
+首先下载二进制文件，现在版本是 v1.7.1，解压后放到 /usr/local/bin 目录下
+wget https://github.com/Dreamacro/clash/releases/download/v1.7.1/clash-linux-amd64-v1.7.1.gz gzip -d clash-linux-amd64-v1.7.1.gz chmod 755 clash-linux-amd64-v1.7.1 mv clash-linux-amd64-v1.7.1 /usr/local/bin 然后生成 clash.service
+cat << EOF >> /etc/systemd/system/clash.service [Unit] Description=clash service After=network.target [Service] Type=simple User=root ExecStart=/usr/local/bin/clash-linux-amd64-v1.7.1 Restart=on-failure # or always, on-abort, etc [Install] WantedBy=multi-user.target EOF 然后最重要的，就是配置文件了
+我这里这个旁路由的设备 IP 地址是 192.168.2.2，网卡设备是 enp2s0"><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2021-11-08T10:30:11+08:00"><meta property="article:modified_time" content="2021-11-08T10:30:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="clash的搭建教程"><meta name=twitter:description content="没啊办法，翻墙翻墙还是翻墙。
+上游有若干 trojian 、v2ray 、sock5 、http各种各样的代理，这样多种的选择，那么就装一个 clash 客户端就可以全接管了。
+说下我们的做法：找个小Linux做旁路由，DNS和网关都设置在这台机器上，局域网内的机器都通过这台上网。
+我们用到的是 clash 的 Tproxy redir-host 和 udp-proxy 模式，这种模式比较强大。用就用最强大的。
+安装很简单，操作系统 centos 或者 ubuntu 都行，项目地址：
+https://github.com/Dreamacro/clash
+说明书：
+https://lancellc.gitbook.io/clash/clash-config-file/proxy-groups/load-balance
+首先下载二进制文件，现在版本是 v1.7.1，解压后放到 /usr/local/bin 目录下
+wget https://github.com/Dreamacro/clash/releases/download/v1.7.1/clash-linux-amd64-v1.7.1.gz
+gzip -d clash-linux-amd64-v1.7.1.gz
+chmod 755 clash-linux-amd64-v1.7.1
+mv clash-linux-amd64-v1.7.1 /usr/local/bin
+然后生成 clash.service
+cat << EOF >> /etc/systemd/system/clash.service 
+[Unit]
+Description=clash service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/local/bin/clash-linux-amd64-v1.7.1
+Restart=on-failure # or always, on-abort, etc
+
+[Install]
+WantedBy=multi-user.target
+EOF
+然后最重要的，就是配置文件了
+我这里这个旁路由的设备 IP 地址是 192.168.2.2，网卡设备是 enp2s0"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"clash的搭建教程","item":"https://rendoumi.com/posts/20211108-clash/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"clash的搭建教程","name":"clash的搭建教程","description":"没啊办法，翻墙翻墙还是翻墙。\n上游有若干 trojian 、v2ray 、sock5 、http各种各样的代理，这样多种的选择，那么就装一个 clash 客户端就可以全接管了。\n说下我们的做法：找个小Linux做旁路由，DNS和网关都设置在这台机器上，局域网内的机器都通过这台上网。\n我们用到的是 clash 的 Tproxy redir-host 和 udp-proxy 模式，这种模式比较强大。用就用最强大的。\n安装很简单，操作系统 centos 或者 ubuntu 都行，项目地址：\nhttps://github.com/Dreamacro/clash\n说明书：\nhttps://lancellc.gitbook.io/clash/clash-config-file/proxy-groups/load-balance\n首先下载二进制文件，现在版本是 v1.7.1，解压后放到 /usr/local/bin 目录下\nwget https://github.com/Dreamacro/clash/releases/download/v1.7.1/clash-linux-amd64-v1.7.1.gz gzip -d clash-linux-amd64-v1.7.1.gz chmod 755 clash-linux-amd64-v1.7.1 mv clash-linux-amd64-v1.7.1 /usr/local/bin 然后生成 clash.service\ncat \u0026lt;\u0026lt; EOF \u0026gt;\u0026gt; /etc/systemd/system/clash.service [Unit] Description=clash service After=network.target [Service] Type=simple User=root ExecStart=/usr/local/bin/clash-linux-amd64-v1.7.1 Restart=on-failure # or always, on-abort, etc [Install] WantedBy=multi-user.target EOF 然后最重要的，就是配置文件了\n我这里这个旁路由的设备 IP 地址是 192.168.2.2，网卡设备是 enp2s0\n","keywords":[],"articleBody":"没啊办法，翻墙翻墙还是翻墙。\n上游有若干 trojian 、v2ray 、sock5 、http各种各样的代理，这样多种的选择，那么就装一个 clash 客户端就可以全接管了。\n说下我们的做法：找个小Linux做旁路由，DNS和网关都设置在这台机器上，局域网内的机器都通过这台上网。\n我们用到的是 clash 的 Tproxy redir-host 和 udp-proxy 模式，这种模式比较强大。用就用最强大的。\n安装很简单，操作系统 centos 或者 ubuntu 都行，项目地址：\nhttps://github.com/Dreamacro/clash\n说明书：\nhttps://lancellc.gitbook.io/clash/clash-config-file/proxy-groups/load-balance\n首先下载二进制文件，现在版本是 v1.7.1，解压后放到 /usr/local/bin 目录下\nwget https://github.com/Dreamacro/clash/releases/download/v1.7.1/clash-linux-amd64-v1.7.1.gz gzip -d clash-linux-amd64-v1.7.1.gz chmod 755 clash-linux-amd64-v1.7.1 mv clash-linux-amd64-v1.7.1 /usr/local/bin 然后生成 clash.service\ncat \u003c\u003c EOF \u003e\u003e /etc/systemd/system/clash.service [Unit] Description=clash service After=network.target [Service] Type=simple User=root ExecStart=/usr/local/bin/clash-linux-amd64-v1.7.1 Restart=on-failure # or always, on-abort, etc [Install] WantedBy=multi-user.target EOF 然后最重要的，就是配置文件了\n我这里这个旁路由的设备 IP 地址是 192.168.2.2，网卡设备是 enp2s0\n下卖弄\n# http的代理端口 port: 7890 #mixed-port: 7890 socks-port: 7891 redir-port: 7892 tproxy-port: 7893 ipv6: false allow-lan: true bind-address: '192.168.2.2' interface-name: enp2s0 mode: rule log-level: info external-controller: 0.0.0.0:9090 secret: \"Fuck2021\" external-ui: dashboard profile: store-selected: false tracing: true hosts: # 把cantv的域名解析屏蔽掉，禁止它自动升级 'tms.can.cibntv.net': 0.0.0.0 dns: enable: true listen: 0.0.0.0:1053 enhanced-mode: redir-host # or fake-ip nameserver: - '114.114.114.114' - '223.5.5.5' fallback: - 208.67.220.220:5353 - 208.67.222.222:5353 - 101.6.6.6:5353 proxies: - name: \"trojan1\" type: trojan server: www.linuxboy.net port: 443 password: Fuck2021 sni: www.linuxboy.net skip-cert-verify: true - name: \"vmess1\" type: vmess server: 101.59.201.93 port: 41555 uuid: 7a17ae5e-fb86-42e2-abd4-b8c33cfabcd alterId: 64 cipher: auto proxy-groups: - name: Proxy type: select proxies: - trojan - name: \"auto\" type: url-test proxies: - vmess1 - trojan1 url: 'http://www.gstatic.com/generate_204' interval: 300 rules: - DOMAIN-SUFFIX,v2ex.com,Proxy - DOMAIN-SUFFIX,t66y.com,Proxy - DOMAIN-SUFFIX,ycombinator.com,Proxy - DOMAIN-SUFFIX,reddit.com,Proxy - DOMAIN-KEYWORD,amazon,Proxy - DOMAIN-KEYWORD,google,Proxy - DOMAIN-KEYWORD,gmail,Proxy - DOMAIN-KEYWORD,youtube,Proxy - DOMAIN-KEYWORD,facebook,Proxy - DOMAIN-SUFFIX,fb.me,Proxy - DOMAIN-SUFFIX,fbcdn.net,Proxy - DOMAIN-KEYWORD,twitter,Proxy - DOMAIN-KEYWORD,instagram,Proxy - DOMAIN-KEYWORD,dropbox,Proxy - DOMAIN-SUFFIX,twimg.com,Proxy - DOMAIN-KEYWORD,blogspot,Proxy - DOMAIN-SUFFIX,youtu.be,Proxy - DOMAIN-KEYWORD,whatsapp,Proxy - SRC-IP-CIDR,192.168.1.0/32,DIRECT - SRC-IP-CIDR,192.168.2.0/32,DIRECT - IP-CIDR,127.0.0.0/8,DIRECT - GEOIP,CN,DIRECT - MATCH,Proxy 解释一下：proxy 定义了两个代理，一个是 trojan，一个是 v2ray。然后再集合成组，一个组叫 Proxy， 显式指定用 trojan；另一个组叫 auto，根据 vmess1 和 trojan1 访问 http://www.gstatic.com/generate_204 的页面速度，谁快就用谁，缺省300秒会访问一次这个页面来决定哪个代理快。\n剩下的 rules 就很简单，把自己知道要访问的域名放到代理中去，然后把局域网的 IP 段放进 DIRECT 直接访问，最后 GEO IP 不是中国的由 Proxy 兜底。\n网上有一大堆规则，八戒的建议是不要去学，规则越多越慢，你自己知道要访问什么网站需要翻墙，加进去就好了。弄一堆，自己看着都头蒙\n最后我们在 rc.local 放入以下 iptable 内容，就可以了\n### #clash ip rule add fwmark 1 table 100 ip route add local 0.0.0.0/0 dev lo table 100 # CREATE TABLE iptables -t mangle -N clash # RETURN LOCAL AND LANS iptables -t mangle -A clash -d 0.0.0.0/8 -j RETURN iptables -t mangle -A clash -d 10.0.0.0/8 -j RETURN iptables -t mangle -A clash -d 100.64.0.0/10 -j RETURN iptables -t mangle -A clash -d 127.0.0.0/8 -j RETURN iptables -t mangle -A clash -d 169.254.0.0/16 -j RETURN iptables -t mangle -A clash -d 172.16.0.0/12 -j RETURN iptables -t mangle -A clash -d 192.168.0.0/16 -j RETURN iptables -t mangle -A clash -d 224.0.0.0/4 -j RETURN iptables -t mangle -A clash -d 240.0.0.0/4 -j RETURN # whitelist China ip. # iptables -t mangle -A clash -m set --match-set china dst -j RETURN # FORWARD ALL iptables -t mangle -A clash -p udp -j TPROXY --on-port 7893 --tproxy-mark 1 iptables -t mangle -A clash -p tcp -j TPROXY --on-port 7893 --tproxy-mark 1 # REDIRECT iptables -t mangle -A PREROUTING -j clash # hijack DNS to Clash iptables -t nat -N CLASH_DNS iptables -t nat -F CLASH_DNS iptables -t nat -A CLASH_DNS -p udp -j REDIRECT --to-port 1053 iptables -t nat -I PREROUTING -p udp --dport 53 -j CLASH_DNS 最后启动clash\nsystemctl start clash ","wordCount":"474","inLanguage":"zh","datePublished":"2021-11-08T10:30:11+08:00","dateModified":"2021-11-08T10:30:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20211108-clash/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">clash的搭建教程
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2021-11-08 10:30:11 +0800 CST'>2021年11月8日</span></div></header><div class=post-content><p>没啊办法，翻墙翻墙还是翻墙。</p><p>上游有若干 trojian 、v2ray 、sock5 、http各种各样的代理，这样多种的选择，那么就装一个 clash 客户端就可以全接管了。</p><p><strong>说下我们的做法：找个小Linux做旁路由，DNS和网关都设置在这台机器上，局域网内的机器都通过这台上网。</strong></p><p><strong>我们用到的是 clash 的 Tproxy redir-host 和 udp-proxy 模式，这种模式比较强大。用就用最强大的。</strong></p><p>安装很简单，操作系统 centos 或者 ubuntu 都行，项目地址：</p><p><a href=https://github.com/Dreamacro/clash>https://github.com/Dreamacro/clash</a></p><p>说明书：</p><p><a href=https://lancellc.gitbook.io/clash/clash-config-file/proxy-groups/load-balance>https://lancellc.gitbook.io/clash/clash-config-file/proxy-groups/load-balance</a></p><p>首先下载二进制文件，现在版本是 v1.7.1，解压后放到 /usr/local/bin 目录下</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>wget https://github.com/Dreamacro/clash/releases/download/v1.7.1/clash-linux-amd64-v1.7.1.gz
+</span></span><span class=line><span class=cl>gzip -d clash-linux-amd64-v1.7.1.gz
+</span></span><span class=line><span class=cl>chmod <span class=m>755</span> clash-linux-amd64-v1.7.1
+</span></span><span class=line><span class=cl>mv clash-linux-amd64-v1.7.1 /usr/local/bin
+</span></span></code></pre></div><p>然后生成 clash.service</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat <span class=s>&lt;&lt; EOF &gt;&gt; /etc/systemd/system/clash.service 
+</span></span></span><span class=line><span class=cl><span class=s>[Unit]
+</span></span></span><span class=line><span class=cl><span class=s>Description=clash service
+</span></span></span><span class=line><span class=cl><span class=s>After=network.target
+</span></span></span><span class=line><span class=cl><span class=s>
+</span></span></span><span class=line><span class=cl><span class=s>[Service]
+</span></span></span><span class=line><span class=cl><span class=s>Type=simple
+</span></span></span><span class=line><span class=cl><span class=s>User=root
+</span></span></span><span class=line><span class=cl><span class=s>ExecStart=/usr/local/bin/clash-linux-amd64-v1.7.1
+</span></span></span><span class=line><span class=cl><span class=s>Restart=on-failure # or always, on-abort, etc
+</span></span></span><span class=line><span class=cl><span class=s>
+</span></span></span><span class=line><span class=cl><span class=s>[Install]
+</span></span></span><span class=line><span class=cl><span class=s>WantedBy=multi-user.target
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span></code></pre></div><p>然后最重要的，就是配置文件了</p><p>我这里这个旁路由的设备 IP 地址是 192.168.2.2，网卡设备是 enp2s0</p><p>下卖弄</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># http的代理端口</span>
+</span></span><span class=line><span class=cl>port: <span class=m>7890</span>
+</span></span><span class=line><span class=cl><span class=c1>#mixed-port: 7890</span>
+</span></span><span class=line><span class=cl>socks-port: <span class=m>7891</span>
+</span></span><span class=line><span class=cl>redir-port: <span class=m>7892</span>
+</span></span><span class=line><span class=cl>tproxy-port: <span class=m>7893</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>ipv6: <span class=nb>false</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>allow-lan: <span class=nb>true</span>
+</span></span><span class=line><span class=cl>bind-address: <span class=s1>&#39;192.168.2.2&#39;</span>
+</span></span><span class=line><span class=cl>interface-name: enp2s0
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>mode: rule
+</span></span><span class=line><span class=cl>log-level: info
+</span></span><span class=line><span class=cl>external-controller: 0.0.0.0:9090
+</span></span><span class=line><span class=cl>secret: <span class=s2>&#34;Fuck2021&#34;</span>
+</span></span><span class=line><span class=cl>external-ui: dashboard
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>profile:
+</span></span><span class=line><span class=cl>  store-selected: <span class=nb>false</span>
+</span></span><span class=line><span class=cl>  tracing: <span class=nb>true</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>hosts:
+</span></span><span class=line><span class=cl>  <span class=c1># 把cantv的域名解析屏蔽掉，禁止它自动升级</span>
+</span></span><span class=line><span class=cl>  <span class=s1>&#39;tms.can.cibntv.net&#39;</span>: 0.0.0.0
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>dns:
+</span></span><span class=line><span class=cl>  enable: <span class=nb>true</span>
+</span></span><span class=line><span class=cl>  listen: 0.0.0.0:1053
+</span></span><span class=line><span class=cl>  enhanced-mode: redir-host <span class=c1># or fake-ip</span>
+</span></span><span class=line><span class=cl>  nameserver:
+</span></span><span class=line><span class=cl>    - <span class=s1>&#39;114.114.114.114&#39;</span>
+</span></span><span class=line><span class=cl>    - <span class=s1>&#39;223.5.5.5&#39;</span>
+</span></span><span class=line><span class=cl>  fallback:
+</span></span><span class=line><span class=cl>    - 208.67.220.220:5353
+</span></span><span class=line><span class=cl>    - 208.67.222.222:5353
+</span></span><span class=line><span class=cl>    - 101.6.6.6:5353
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>proxies:
+</span></span><span class=line><span class=cl>  - name: <span class=s2>&#34;trojan1&#34;</span>
+</span></span><span class=line><span class=cl>    type: trojan
+</span></span><span class=line><span class=cl>    server: www.linuxboy.net
+</span></span><span class=line><span class=cl>    port: <span class=m>443</span>
+</span></span><span class=line><span class=cl>    password: Fuck2021
+</span></span><span class=line><span class=cl>    sni: www.linuxboy.net
+</span></span><span class=line><span class=cl>    skip-cert-verify: <span class=nb>true</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl> - name: <span class=s2>&#34;vmess1&#34;</span>
+</span></span><span class=line><span class=cl>    type: vmess
+</span></span><span class=line><span class=cl>    server: 101.59.201.93
+</span></span><span class=line><span class=cl>    port: <span class=m>41555</span> 
+</span></span><span class=line><span class=cl>    uuid: 7a17ae5e-fb86-42e2-abd4-b8c33cfabcd
+</span></span><span class=line><span class=cl>    alterId: <span class=m>64</span>
+</span></span><span class=line><span class=cl>    cipher: auto
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>proxy-groups:
+</span></span><span class=line><span class=cl>  - name: Proxy
+</span></span><span class=line><span class=cl>    type: <span class=k>select</span>
+</span></span><span class=line><span class=cl>    proxies:
+</span></span><span class=line><span class=cl>      - trojan
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  - name: <span class=s2>&#34;auto&#34;</span>
+</span></span><span class=line><span class=cl>    type: url-test
+</span></span><span class=line><span class=cl>    proxies:
+</span></span><span class=line><span class=cl>      - vmess1
+</span></span><span class=line><span class=cl>      - trojan1
+</span></span><span class=line><span class=cl>    url: <span class=s1>&#39;http://www.gstatic.com/generate_204&#39;</span>
+</span></span><span class=line><span class=cl>    interval: <span class=m>300</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>rules:
+</span></span><span class=line><span class=cl>  - DOMAIN-SUFFIX,v2ex.com,Proxy
+</span></span><span class=line><span class=cl>  - DOMAIN-SUFFIX,t66y.com,Proxy
+</span></span><span class=line><span class=cl>  - DOMAIN-SUFFIX,ycombinator.com,Proxy
+</span></span><span class=line><span class=cl>  - DOMAIN-SUFFIX,reddit.com,Proxy
+</span></span><span class=line><span class=cl>  - DOMAIN-KEYWORD,amazon,Proxy
+</span></span><span class=line><span class=cl>  - DOMAIN-KEYWORD,google,Proxy
+</span></span><span class=line><span class=cl>  - DOMAIN-KEYWORD,gmail,Proxy
+</span></span><span class=line><span class=cl>  - DOMAIN-KEYWORD,youtube,Proxy
+</span></span><span class=line><span class=cl>  - DOMAIN-KEYWORD,facebook,Proxy
+</span></span><span class=line><span class=cl>  - DOMAIN-SUFFIX,fb.me,Proxy
+</span></span><span class=line><span class=cl>  - DOMAIN-SUFFIX,fbcdn.net,Proxy
+</span></span><span class=line><span class=cl>  - DOMAIN-KEYWORD,twitter,Proxy
+</span></span><span class=line><span class=cl>  - DOMAIN-KEYWORD,instagram,Proxy
+</span></span><span class=line><span class=cl>  - DOMAIN-KEYWORD,dropbox,Proxy
+</span></span><span class=line><span class=cl>  - DOMAIN-SUFFIX,twimg.com,Proxy
+</span></span><span class=line><span class=cl>  - DOMAIN-KEYWORD,blogspot,Proxy
+</span></span><span class=line><span class=cl>  - DOMAIN-SUFFIX,youtu.be,Proxy
+</span></span><span class=line><span class=cl>  - DOMAIN-KEYWORD,whatsapp,Proxy
+</span></span><span class=line><span class=cl>  - SRC-IP-CIDR,192.168.1.0/32,DIRECT
+</span></span><span class=line><span class=cl>  - SRC-IP-CIDR,192.168.2.0/32,DIRECT
+</span></span><span class=line><span class=cl>  - IP-CIDR,127.0.0.0/8,DIRECT
+</span></span><span class=line><span class=cl>  - GEOIP,CN,DIRECT
+</span></span><span class=line><span class=cl>  - MATCH,Proxy
+</span></span></code></pre></div><p>解释一下：proxy 定义了两个代理，一个是 trojan，一个是 v2ray。然后再集合成组，一个组叫 Proxy， 显式指定用 trojan；另一个组叫 auto，根据 vmess1 和 trojan1 访问 <a href=http://www.gstatic.com/generate_204>http://www.gstatic.com/generate_204</a> 的页面速度，谁快就用谁，缺省300秒会访问一次这个页面来决定哪个代理快。</p><p>剩下的 rules 就很简单，把自己知道要访问的域名放到代理中去，然后把局域网的 IP 段放进 DIRECT 直接访问，最后 GEO IP 不是中国的由 Proxy 兜底。</p><p>网上有一大堆规则，八戒的建议是不要去学，规则越多越慢，你自己知道要访问什么网站需要翻墙，加进去就好了。弄一堆，自己看着都头蒙</p><p>最后我们在 rc.local 放入以下 iptable 内容，就可以了</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1>###</span>
+</span></span><span class=line><span class=cl><span class=c1>#clash</span>
+</span></span><span class=line><span class=cl>ip rule add fwmark <span class=m>1</span> table <span class=m>100</span>
+</span></span><span class=line><span class=cl>ip route add <span class=nb>local</span> 0.0.0.0/0 dev lo table <span class=m>100</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># CREATE TABLE</span>
+</span></span><span class=line><span class=cl>iptables -t mangle -N clash
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># RETURN LOCAL AND LANS</span>
+</span></span><span class=line><span class=cl>iptables -t mangle -A clash -d 0.0.0.0/8 -j RETURN
+</span></span><span class=line><span class=cl>iptables -t mangle -A clash -d 10.0.0.0/8 -j RETURN
+</span></span><span class=line><span class=cl>iptables -t mangle -A clash -d 100.64.0.0/10 -j RETURN
+</span></span><span class=line><span class=cl>iptables -t mangle -A clash -d 127.0.0.0/8 -j RETURN
+</span></span><span class=line><span class=cl>iptables -t mangle -A clash -d 169.254.0.0/16 -j RETURN
+</span></span><span class=line><span class=cl>iptables -t mangle -A clash -d 172.16.0.0/12 -j RETURN
+</span></span><span class=line><span class=cl>iptables -t mangle -A clash -d 192.168.0.0/16 -j RETURN
+</span></span><span class=line><span class=cl>iptables -t mangle -A clash -d 224.0.0.0/4 -j RETURN
+</span></span><span class=line><span class=cl>iptables -t mangle -A clash -d 240.0.0.0/4 -j RETURN
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># whitelist China ip.</span>
+</span></span><span class=line><span class=cl><span class=c1># iptables -t mangle -A clash -m set --match-set china dst -j RETURN</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># FORWARD ALL</span>
+</span></span><span class=line><span class=cl>iptables -t mangle -A clash -p udp -j TPROXY --on-port <span class=m>7893</span> --tproxy-mark <span class=m>1</span>
+</span></span><span class=line><span class=cl>iptables -t mangle -A clash -p tcp -j TPROXY --on-port <span class=m>7893</span> --tproxy-mark <span class=m>1</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># REDIRECT</span>
+</span></span><span class=line><span class=cl>iptables -t mangle -A PREROUTING -j clash
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># hijack DNS to Clash</span>
+</span></span><span class=line><span class=cl>iptables -t nat -N CLASH_DNS
+</span></span><span class=line><span class=cl>iptables -t nat -F CLASH_DNS 
+</span></span><span class=line><span class=cl>iptables -t nat -A CLASH_DNS -p udp -j REDIRECT --to-port <span class=m>1053</span>
+</span></span><span class=line><span class=cl>iptables -t nat -I PREROUTING -p udp --dport <span class=m>53</span> -j CLASH_DNS
+</span></span></code></pre></div><p>最后启动clash</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>systemctl start clash
+</span></span></code></pre></div></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

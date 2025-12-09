@@ -1,0 +1,166 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>cert-manager的不同clusterissuer验证方式 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="cert-manager普通签发证书的时候，通常是DNS的A记录已经解析到相关的Ingress前置的LB 公网IP了。
+第一种情况，有公网IP的证书签发，验证方式是http
+那准备好cluster-issuer.yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod1
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: zhangranrui@rendoumi.com
+    privateKeySecretRef:
+      name: letsencrypt-prod1
+    solvers:
+    - http01:
+        ingress:
+          class: nginx
+第二种情况，如果集群是部署在内网，根本没有公网ip，就不能通过80和443的验证来签发了，只能用DNS校验的方式来签发证书
+那以cloudflare托管的DNS为例，我们需要拿到CF的dns-api的token，然后声明，再定义ClusterIssuer
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cloudflare-api-token-secret
+type: Opaque
+stringData:
+  api-token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  
+---  
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod2
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: zhangranrui@rendoumi.com
+    privateKeySecretRef:
+      name: letsencrypt-prod2
+    solvers:
+    - dns01:
+        cloudflare:
+          email: zhangranrui@rendoumi.com
+          apiTokenSecretRef:
+            name: cloudflare-api-token-secret
+            key: api-token
+那第一种和第二种的区别就是solvers是不同的。"><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20251024-certmanager_issuer/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20251024-certmanager_issuer/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20251024-certmanager_issuer/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="cert-manager的不同clusterissuer验证方式"><meta property="og:description" content="cert-manager普通签发证书的时候，通常是DNS的A记录已经解析到相关的Ingress前置的LB 公网IP了。
+第一种情况，有公网IP的证书签发，验证方式是http 那准备好cluster-issuer.yaml
+apiVersion: cert-manager.io/v1 kind: ClusterIssuer metadata: name: letsencrypt-prod1 spec: acme: server: https://acme-v02.api.letsencrypt.org/directory email: zhangranrui@rendoumi.com privateKeySecretRef: name: letsencrypt-prod1 solvers: - http01: ingress: class: nginx 第二种情况，如果集群是部署在内网，根本没有公网ip，就不能通过80和443的验证来签发了，只能用DNS校验的方式来签发证书 那以cloudflare托管的DNS为例，我们需要拿到CF的dns-api的token，然后声明，再定义ClusterIssuer
+--- apiVersion: v1 kind: Secret metadata: name: cloudflare-api-token-secret type: Opaque stringData: api-token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx --- apiVersion: cert-manager.io/v1 kind: ClusterIssuer metadata: name: letsencrypt-prod2 spec: acme: server: https://acme-v02.api.letsencrypt.org/directory email: zhangranrui@rendoumi.com privateKeySecretRef: name: letsencrypt-prod2 solvers: - dns01: cloudflare: email: zhangranrui@rendoumi.com apiTokenSecretRef: name: cloudflare-api-token-secret key: api-token 那第一种和第二种的区别就是solvers是不同的。"><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2025-10-24T09:01:11+08:00"><meta property="article:modified_time" content="2025-10-24T09:01:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="cert-manager的不同clusterissuer验证方式"><meta name=twitter:description content="cert-manager普通签发证书的时候，通常是DNS的A记录已经解析到相关的Ingress前置的LB 公网IP了。
+第一种情况，有公网IP的证书签发，验证方式是http
+那准备好cluster-issuer.yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod1
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: zhangranrui@rendoumi.com
+    privateKeySecretRef:
+      name: letsencrypt-prod1
+    solvers:
+    - http01:
+        ingress:
+          class: nginx
+第二种情况，如果集群是部署在内网，根本没有公网ip，就不能通过80和443的验证来签发了，只能用DNS校验的方式来签发证书
+那以cloudflare托管的DNS为例，我们需要拿到CF的dns-api的token，然后声明，再定义ClusterIssuer
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cloudflare-api-token-secret
+type: Opaque
+stringData:
+  api-token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  
+---  
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod2
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: zhangranrui@rendoumi.com
+    privateKeySecretRef:
+      name: letsencrypt-prod2
+    solvers:
+    - dns01:
+        cloudflare:
+          email: zhangranrui@rendoumi.com
+          apiTokenSecretRef:
+            name: cloudflare-api-token-secret
+            key: api-token
+那第一种和第二种的区别就是solvers是不同的。"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"cert-manager的不同clusterissuer验证方式","item":"https://rendoumi.com/posts/20251024-certmanager_issuer/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"cert-manager的不同clusterissuer验证方式","name":"cert-manager的不同clusterissuer验证方式","description":"cert-manager普通签发证书的时候，通常是DNS的A记录已经解析到相关的Ingress前置的LB 公网IP了。\n第一种情况，有公网IP的证书签发，验证方式是http 那准备好cluster-issuer.yaml\napiVersion: cert-manager.io/v1 kind: ClusterIssuer metadata: name: letsencrypt-prod1 spec: acme: server: https://acme-v02.api.letsencrypt.org/directory email: zhangranrui@rendoumi.com privateKeySecretRef: name: letsencrypt-prod1 solvers: - http01: ingress: class: nginx 第二种情况，如果集群是部署在内网，根本没有公网ip，就不能通过80和443的验证来签发了，只能用DNS校验的方式来签发证书 那以cloudflare托管的DNS为例，我们需要拿到CF的dns-api的token，然后声明，再定义ClusterIssuer\n--- apiVersion: v1 kind: Secret metadata: name: cloudflare-api-token-secret type: Opaque stringData: api-token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx --- apiVersion: cert-manager.io/v1 kind: ClusterIssuer metadata: name: letsencrypt-prod2 spec: acme: server: https://acme-v02.api.letsencrypt.org/directory email: zhangranrui@rendoumi.com privateKeySecretRef: name: letsencrypt-prod2 solvers: - dns01: cloudflare: email: zhangranrui@rendoumi.com apiTokenSecretRef: name: cloudflare-api-token-secret key: api-token 那第一种和第二种的区别就是solvers是不同的。\n","keywords":[],"articleBody":"cert-manager普通签发证书的时候，通常是DNS的A记录已经解析到相关的Ingress前置的LB 公网IP了。\n第一种情况，有公网IP的证书签发，验证方式是http 那准备好cluster-issuer.yaml\napiVersion: cert-manager.io/v1 kind: ClusterIssuer metadata: name: letsencrypt-prod1 spec: acme: server: https://acme-v02.api.letsencrypt.org/directory email: zhangranrui@rendoumi.com privateKeySecretRef: name: letsencrypt-prod1 solvers: - http01: ingress: class: nginx 第二种情况，如果集群是部署在内网，根本没有公网ip，就不能通过80和443的验证来签发了，只能用DNS校验的方式来签发证书 那以cloudflare托管的DNS为例，我们需要拿到CF的dns-api的token，然后声明，再定义ClusterIssuer\n--- apiVersion: v1 kind: Secret metadata: name: cloudflare-api-token-secret type: Opaque stringData: api-token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx --- apiVersion: cert-manager.io/v1 kind: ClusterIssuer metadata: name: letsencrypt-prod2 spec: acme: server: https://acme-v02.api.letsencrypt.org/directory email: zhangranrui@rendoumi.com privateKeySecretRef: name: letsencrypt-prod2 solvers: - dns01: cloudflare: email: zhangranrui@rendoumi.com apiTokenSecretRef: name: cloudflare-api-token-secret key: api-token 那第一种和第二种的区别就是solvers是不同的。\n那最后annouce ingress即可自动签发证书，选择不同cert-manager.io/cluster-issuer就可以选择不同的签发方式。\napiVersion: networking.k8s.io/v1 kind: Ingress metadata: name: test-rednoumi-com-ingress annotations: cert-manager.io/cluster-issuer: \"letsencrypt-prod1\" spec: ingressClassName: nginx tls: - hosts: - test.rendoumi.com secretName: test-rendoumi-com-tls rules: - host: test.rendoumi.com http: paths: - path: / pathType: Prefix backend: service: name: nginx port: number: 80 ","wordCount":"110","inLanguage":"zh","datePublished":"2025-10-24T09:01:11+08:00","dateModified":"2025-10-24T09:01:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20251024-certmanager_issuer/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">cert-manager的不同clusterissuer验证方式
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2025-10-24 09:01:11 +0800 CST'>2025年10月24日</span></div></header><div class=post-content><p>cert-manager普通签发证书的时候，通常是DNS的A记录已经解析到相关的Ingress前置的LB 公网IP了。</p><h5 id=第一种情况有公网ip的证书签发验证方式是http>第一种情况，有公网IP的证书签发，验证方式是http<a hidden class=anchor aria-hidden=true href=#第一种情况有公网ip的证书签发验证方式是http>#</a></h5><p>那准备好cluster-issuer.yaml</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>apiVersion: cert-manager.io/v1
+</span></span><span class=line><span class=cl>kind: ClusterIssuer
+</span></span><span class=line><span class=cl>metadata:
+</span></span><span class=line><span class=cl>  name: letsencrypt-prod1
+</span></span><span class=line><span class=cl>spec:
+</span></span><span class=line><span class=cl>  acme:
+</span></span><span class=line><span class=cl>    server: https://acme-v02.api.letsencrypt.org/directory
+</span></span><span class=line><span class=cl>    email: zhangranrui@rendoumi.com
+</span></span><span class=line><span class=cl>    privateKeySecretRef:
+</span></span><span class=line><span class=cl>      name: letsencrypt-prod1
+</span></span><span class=line><span class=cl>    solvers:
+</span></span><span class=line><span class=cl>    - http01:
+</span></span><span class=line><span class=cl>        ingress:
+</span></span><span class=line><span class=cl>          class: nginx
+</span></span></code></pre></div><h5 id=第二种情况如果集群是部署在内网根本没有公网ip就不能通过80和443的验证来签发了只能用dns校验的方式来签发证书>第二种情况，如果集群是部署在内网，根本没有公网ip，就不能通过80和443的验证来签发了，只能用DNS校验的方式来签发证书<a hidden class=anchor aria-hidden=true href=#第二种情况如果集群是部署在内网根本没有公网ip就不能通过80和443的验证来签发了只能用dns校验的方式来签发证书>#</a></h5><p>那以cloudflare托管的DNS为例，我们需要拿到CF的dns-api的token，然后声明，再定义ClusterIssuer</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>---
+</span></span><span class=line><span class=cl>apiVersion: v1
+</span></span><span class=line><span class=cl>kind: Secret
+</span></span><span class=line><span class=cl>metadata:
+</span></span><span class=line><span class=cl>  name: cloudflare-api-token-secret
+</span></span><span class=line><span class=cl>type: Opaque
+</span></span><span class=line><span class=cl>stringData:
+</span></span><span class=line><span class=cl>  api-token: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>---  
+</span></span><span class=line><span class=cl>apiVersion: cert-manager.io/v1
+</span></span><span class=line><span class=cl>kind: ClusterIssuer
+</span></span><span class=line><span class=cl>metadata:
+</span></span><span class=line><span class=cl>  name: letsencrypt-prod2
+</span></span><span class=line><span class=cl>spec:
+</span></span><span class=line><span class=cl>  acme:
+</span></span><span class=line><span class=cl>    server: https://acme-v02.api.letsencrypt.org/directory
+</span></span><span class=line><span class=cl>    email: zhangranrui@rendoumi.com
+</span></span><span class=line><span class=cl>    privateKeySecretRef:
+</span></span><span class=line><span class=cl>      name: letsencrypt-prod2
+</span></span><span class=line><span class=cl>    solvers:
+</span></span><span class=line><span class=cl>    - dns01:
+</span></span><span class=line><span class=cl>        cloudflare:
+</span></span><span class=line><span class=cl>          email: zhangranrui@rendoumi.com
+</span></span><span class=line><span class=cl>          apiTokenSecretRef:
+</span></span><span class=line><span class=cl>            name: cloudflare-api-token-secret
+</span></span><span class=line><span class=cl>            key: api-token
+</span></span></code></pre></div><p>那第一种和第二种的区别就是solvers是不同的。</p><p>那最后annouce ingress即可自动签发证书，选择不同cert-manager.io/cluster-issuer就可以选择不同的签发方式。</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>apiVersion: networking.k8s.io/v1
+</span></span><span class=line><span class=cl>kind: Ingress
+</span></span><span class=line><span class=cl>metadata:
+</span></span><span class=line><span class=cl>  name: test-rednoumi-com-ingress
+</span></span><span class=line><span class=cl>  annotations:
+</span></span><span class=line><span class=cl>    cert-manager.io/cluster-issuer: <span class=s2>&#34;letsencrypt-prod1&#34;</span>
+</span></span><span class=line><span class=cl>spec:
+</span></span><span class=line><span class=cl>  ingressClassName: nginx
+</span></span><span class=line><span class=cl>  tls:
+</span></span><span class=line><span class=cl>  - hosts:
+</span></span><span class=line><span class=cl>    - test.rendoumi.com
+</span></span><span class=line><span class=cl>    secretName: test-rendoumi-com-tls
+</span></span><span class=line><span class=cl>  rules:
+</span></span><span class=line><span class=cl>  - host: test.rendoumi.com
+</span></span><span class=line><span class=cl>    http:
+</span></span><span class=line><span class=cl>      paths:
+</span></span><span class=line><span class=cl>      - path: /
+</span></span><span class=line><span class=cl>        pathType: Prefix 
+</span></span><span class=line><span class=cl>        backend:
+</span></span><span class=line><span class=cl>          service:
+</span></span><span class=line><span class=cl>            name: nginx
+</span></span><span class=line><span class=cl>            port:
+</span></span><span class=line><span class=cl>              number: <span class=m>80</span>
+</span></span></code></pre></div><h5></h5></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

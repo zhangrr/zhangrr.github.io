@@ -1,0 +1,114 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>JavaScript 到底是如何执行的呢 -- JS的作原理 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="JavaScript 到底是如何工作的？
+一、工作原理
+
+JavaScript到底是：
+
+同步还是异步？
+单线程还是多线程？
+
+
+
+JavaScript 中的一切都发生在
+Execution Context （执行上下文）中
+
+您可以假设这个执行上下文 是一个大盒子或一个容器，在其中执行整个 JavaScript 代码。
+这个大盒子里有两个组件：
+
+Memory（内存组件）：这是所有变量和函数存储为键值对的地方。这个**“内存组件”也称为变量环境**。因此，它是一种环境，其中所有这些变量和函数都存储为键值对。
+Code（代码组件）：这是代码逐行执行的地方。这个“代码组件”也称为执行线程。所以，这个执行线程是一个单线程，整个代码一次只执行一行。
+
+
+
+
+
+结论：JavaScript 是一种同步单线程语言。
+
+单线程 意味着 JavaScript 一次只能执行一个命令。
+同步单线程 意味着 JavaScript 一次只能以特定顺序每次执行一个命令。这意味着它只能在当前行完成执行后转到下一行。这就是同步单线程的意思。
+
+
+
+很惊诧吧，实际 javascripts 有单线程 event loop 大循环来完成很多不可思议的事情。
+二、实际工作过程分析
+JavaScript 代码是如何执行的？
+当你运行 JavaScript 代码时会发生什么？
+
+会创建一个Execution Context（执行上下文）。
+让我们使用实际的代码来举个例子：
+var n = 2;
+function square(num) {
+  var ans = num * num;
+  return ans;
+}
+var square2 = square(n);
+var square4 = square(4);
+
+
+执行上述代码时，会创建 一个执行上下文"><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20220621-javascripts_how_to_run/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20220621-javascripts_how_to_run/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20220621-javascripts_how_to_run/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="JavaScript 到底是如何执行的呢 -- JS的作原理"><meta property="og:description" content="JavaScript 到底是如何工作的？ 一、工作原理 JavaScript到底是：
+同步还是异步？ 单线程还是多线程？ JavaScript 中的一切都发生在
+Execution Context （执行上下文）中
+您可以假设这个执行上下文 是一个大盒子或一个容器，在其中执行整个 JavaScript 代码。 这个大盒子里有两个组件： Memory（内存组件）：这是所有变量和函数存储为键值对的地方。这个**“内存组件”也称为变量环境**。因此，它是一种环境，其中所有这些变量和函数都存储为键值对。 Code（代码组件）：这是代码逐行执行的地方。这个“代码组件”也称为执行线程。所以，这个执行线程是一个单线程，整个代码一次只执行一行。 结论：JavaScript 是一种同步单线程语言。
+单线程 意味着 JavaScript 一次只能执行一个命令。 同步单线程 意味着 JavaScript 一次只能以特定顺序每次执行一个命令。这意味着它只能在当前行完成执行后转到下一行。这就是同步单线程的意思。 很惊诧吧，实际 javascripts 有单线程 event loop 大循环来完成很多不可思议的事情。
+二、实际工作过程分析 JavaScript 代码是如何执行的？ 当你运行 JavaScript 代码时会发生什么？
+会创建一个Execution Context（执行上下文）。
+让我们使用实际的代码来举个例子：
+var n = 2; function square(num) { var ans = num * num; return ans; } var square2 = square(n); var square4 = square(4); 执行上述代码时，会创建 一个执行上下文"><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-06-21T09:30:11+08:00"><meta property="article:modified_time" content="2022-06-21T09:30:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="JavaScript 到底是如何执行的呢 -- JS的作原理"><meta name=twitter:description content="JavaScript 到底是如何工作的？
+一、工作原理
+
+JavaScript到底是：
+
+同步还是异步？
+单线程还是多线程？
+
+
+
+JavaScript 中的一切都发生在
+Execution Context （执行上下文）中
+
+您可以假设这个执行上下文 是一个大盒子或一个容器，在其中执行整个 JavaScript 代码。
+这个大盒子里有两个组件：
+
+Memory（内存组件）：这是所有变量和函数存储为键值对的地方。这个**“内存组件”也称为变量环境**。因此，它是一种环境，其中所有这些变量和函数都存储为键值对。
+Code（代码组件）：这是代码逐行执行的地方。这个“代码组件”也称为执行线程。所以，这个执行线程是一个单线程，整个代码一次只执行一行。
+
+
+
+
+
+结论：JavaScript 是一种同步单线程语言。
+
+单线程 意味着 JavaScript 一次只能执行一个命令。
+同步单线程 意味着 JavaScript 一次只能以特定顺序每次执行一个命令。这意味着它只能在当前行完成执行后转到下一行。这就是同步单线程的意思。
+
+
+
+很惊诧吧，实际 javascripts 有单线程 event loop 大循环来完成很多不可思议的事情。
+二、实际工作过程分析
+JavaScript 代码是如何执行的？
+当你运行 JavaScript 代码时会发生什么？
+
+会创建一个Execution Context（执行上下文）。
+让我们使用实际的代码来举个例子：
+var n = 2;
+function square(num) {
+  var ans = num * num;
+  return ans;
+}
+var square2 = square(n);
+var square4 = square(4);
+
+
+执行上述代码时，会创建 一个执行上下文"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"JavaScript 到底是如何执行的呢 -- JS的作原理","item":"https://rendoumi.com/posts/20220621-javascripts_how_to_run/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"JavaScript 到底是如何执行的呢 -- JS的作原理","name":"JavaScript 到底是如何执行的呢 -- JS的作原理","description":"JavaScript 到底是如何工作的？ 一、工作原理 JavaScript到底是：\n同步还是异步？ 单线程还是多线程？ JavaScript 中的一切都发生在\nExecution Context （执行上下文）中\n您可以假设这个执行上下文 是一个大盒子或一个容器，在其中执行整个 JavaScript 代码。 这个大盒子里有两个组件： Memory（内存组件）：这是所有变量和函数存储为键值对的地方。这个**“内存组件”也称为变量环境**。因此，它是一种环境，其中所有这些变量和函数都存储为键值对。 Code（代码组件）：这是代码逐行执行的地方。这个“代码组件”也称为执行线程。所以，这个执行线程是一个单线程，整个代码一次只执行一行。 结论：JavaScript 是一种同步单线程语言。\n单线程 意味着 JavaScript 一次只能执行一个命令。 同步单线程 意味着 JavaScript 一次只能以特定顺序每次执行一个命令。这意味着它只能在当前行完成执行后转到下一行。这就是同步单线程的意思。 很惊诧吧，实际 javascripts 有单线程 event loop 大循环来完成很多不可思议的事情。\n二、实际工作过程分析 JavaScript 代码是如何执行的？ 当你运行 JavaScript 代码时会发生什么？\n会创建一个Execution Context（执行上下文）。\n让我们使用实际的代码来举个例子：\nvar n = 2; function square(num) { var ans = num * num; return ans; } var square2 = square(n); var square4 = square(4); 执行上述代码时，会创建 一个执行上下文\n","keywords":[],"articleBody":"JavaScript 到底是如何工作的？ 一、工作原理 JavaScript到底是：\n同步还是异步？ 单线程还是多线程？ JavaScript 中的一切都发生在\nExecution Context （执行上下文）中\n您可以假设这个执行上下文 是一个大盒子或一个容器，在其中执行整个 JavaScript 代码。 这个大盒子里有两个组件： Memory（内存组件）：这是所有变量和函数存储为键值对的地方。这个**“内存组件”也称为变量环境**。因此，它是一种环境，其中所有这些变量和函数都存储为键值对。 Code（代码组件）：这是代码逐行执行的地方。这个“代码组件”也称为执行线程。所以，这个执行线程是一个单线程，整个代码一次只执行一行。 结论：JavaScript 是一种同步单线程语言。\n单线程 意味着 JavaScript 一次只能执行一个命令。 同步单线程 意味着 JavaScript 一次只能以特定顺序每次执行一个命令。这意味着它只能在当前行完成执行后转到下一行。这就是同步单线程的意思。 很惊诧吧，实际 javascripts 有单线程 event loop 大循环来完成很多不可思议的事情。\n二、实际工作过程分析 JavaScript 代码是如何执行的？ 当你运行 JavaScript 代码时会发生什么？\n会创建一个Execution Context（执行上下文）。\n让我们使用实际的代码来举个例子：\nvar n = 2; function square(num) { var ans = num * num; return ans; } var square2 = square(n); var square4 = square(4); 执行上述代码时，会创建 一个执行上下文\n此执行上下文分两个阶段创建：\n一、创建：\n创建阶段也称为内存创建阶段\n。这是一个非常关键的阶段。\n在内存创建的第一阶段，JavaScript 会为所有的变量和函数分配内存。\n首先 JavaScript 遇到var n = 2;，它就会分配内存给n.\n当为n分配内存时，它会先存储一个特殊值undefined。undefined在 JavaScript 中被视为特殊的占位符。\n在遇到 functionsquare(num)时，它也会为这个 function () 分配内存。\n在为 function() 分配内存的情况下，它将该函数的整个代码存储在内存空间中。\n后面为两个变量square2和square4分配了内存，存储的同样是undefined。\n为了完成这个创建阶段，JavaScript 会逐行从上到下遍历扫描代码。\n二、代码执行：\n扫描完毕，现在 JavaScript 再次逐行运行整个程序。 当它遇到时var n = 2;，它实际上将2作为值n放入内存组件中。 当它遇到 的函数定义时square(num)，它没有什么可执行的，所以 JavaScript 简单地跳过了。 当它遇到 时var square2 = square(n);，我们现在正在调用一个函数。 函数是 JavaScript 的核心。它们在 JavaScript 中的行为与在任何其他语言中的行为非常不同。 每当调用一个函数时，都会创建一个全新的Execution Context（执行上下文）。 因此，从技术上讲，在整个**Execution Context 的代码组件中又创建了一个全新的Execution Context ** 。 这个新的内部 Exection Context 执行上下文也有它自己的内存组件和代码组件。 现在在内部发生的事情是： 在这种情况下，有 2 个变量，即num（参数）和ans。 所以内存将分配给num和ans。 在第 1 阶段，与外部执行上下文一样，undefined将分配给num和ans。 现在进入阶段 2（代码执行阶段），参数的值被分配给参数。因此，在我们调用函数的语句var square2 = square(n);时，我们将参数n的值 2 传递给函数square(num)，并且该参数的值替换了内部执行上下文中num的内存组件中的占位符undefined。 计算后num * num，将值存储在 中ans。 在遇到 时return ans;，将存储的值ans返回到调用的位置，并且此内部执行上下文结束。当它结束时，内部执行上下文实际上被删除了。 现在，遇到下一行时遵循相同的过程var square4 = square(4);。 最后一行成功执行后，整个执行上下文也被删除。这种*“整体”*执行上下文也称为全局执行上下文。 那么，JavaScript 是如何管理这种链条式的 ** 执行上下文 ** 的呢？\n它实际上在后台管理一个堆栈。 此堆栈也称为Call Stack（调用堆栈）。 GEC（Global Execution Context 全局执行上下文）始终位于此堆栈的底部。 每当创建一个新的执行上下文时，它就会被压入这个堆栈，并在完成其目的时被弹出。 控件与此调用堆栈的最顶部元素保持一致。 此调用堆栈仅用于管理执行上下文。 在成功执行最后一条语句时，调用堆栈被清空。 调用堆栈维护执行上下文的*执行顺序。*\n给个图更好理解：\n调用堆栈具有以下花哨的名称，也可以通过这些名称来引用它：\nExecution Context Stack（执行上下文堆栈） Program Stack（程序栈） Control Stack（控制堆栈） Runtime Stack（运行时堆栈） Machine Stack（机器堆栈） 这样大家就理解了吧，这样后面的变量提升 Hoisting 就很好理解了。\n","wordCount":"190","inLanguage":"zh","datePublished":"2022-06-21T09:30:11+08:00","dateModified":"2022-06-21T09:30:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20220621-javascripts_how_to_run/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">JavaScript 到底是如何执行的呢 -- JS的作原理
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2022-06-21 09:30:11 +0800 CST'>2022年6月21日</span></div></header><div class=post-content><h3 id=javascript-到底是如何工作的>JavaScript 到底是如何工作的？<a hidden class=anchor aria-hidden=true href=#javascript-到底是如何工作的>#</a></h3><h4 id=一工作原理>一、工作原理<a hidden class=anchor aria-hidden=true href=#一工作原理>#</a></h4><blockquote><p>JavaScript到底是：</p><ul><li><em><strong>同步</strong>还是异步？</em></li><li><em><strong>单线程</strong>还是多线程？</em></li></ul></blockquote><ul><li><p>JavaScript 中的一切都发生在</p><p><strong>Execution Context</strong> （执行上下文）中</p><ul><li>您可以假设这个<em>执行上下文</em> 是一个大盒子或一个容器，在其中执行整个 JavaScript 代码。</li><li>这个大盒子里有两个组件：<ul><li><strong>Memory（内存组件）：<strong>这是所有变量和函数存储为</strong>键值对</strong>的地方。这个**“内存组件”<strong>也称为</strong>变量环境**。因此，它是一种环境，其中所有这些变量和函数都存储为键值对。</li><li><strong>Code（代码组件）：<strong>这是代码逐行执行的地方。这个</strong>“代码组件”<strong>也称为</strong>执行线程</strong>。所以，这个<strong>执行线程</strong>是一个单线程，整个代码一次只执行一行。</li></ul></li></ul></li><li><p>结论：JavaScript 是一种<em>同步单线程</em>语言。</p><ul><li><strong>单线程</strong> 意味着 JavaScript 一次只能执行一个命令。</li><li><strong>同步单线程</strong> 意味着 JavaScript 一次只能以特定顺序每次执行一个命令。这意味着它只能在当前行完成执行后转到下一行。这就是<strong>同步单线程</strong>的意思。</li></ul></li></ul><p>很惊诧吧，实际 javascripts 有单线程 event loop 大循环来完成很多不可思议的事情。</p><h4 id=二实际工作过程分析>二、实际工作过程分析<a hidden class=anchor aria-hidden=true href=#二实际工作过程分析>#</a></h4><h4 id=javascript-代码是如何执行的>JavaScript 代码是如何执行的？<a hidden class=anchor aria-hidden=true href=#javascript-代码是如何执行的>#</a></h4><p><strong>当你运行 JavaScript 代码时会发生什么？</strong></p><blockquote><p>会创建一个<strong>Execution Context（执行上下文）</strong>。</p></blockquote><p>让我们使用实际的代码来举个例子：</p><pre tabindex=0><code>var n = 2;
+function square(num) {
+  var ans = num * num;
+  return ans;
+}
+var square2 = square(n);
+var square4 = square(4);
+</code></pre><ul><li><p>执行上述代码时，会创建 一个执行上下文</p><ul><li><p>此执行上下文分两个阶段创建：</p><ul><li><p>一、创建：</p><p>创建阶段也称为内存创建阶段</p><p>。这是一个非常关键的阶段。</p><ul><li><p>在<em>内存创建</em>的第一阶段，JavaScript 会为所有的变量和函数分配内存。</p></li><li><p>首先 JavaScript 遇到<code>var n = 2;</code>，它就会分配内存给<code>n</code>.</p><p>当为<code>n</code>分配内存时，它会先存储一个特殊值<code>undefined</code>。<code>undefined</code>在 JavaScript 中被视为特殊的占位符。</p></li><li><p>在遇到 function<code>square(num)</code>时，它也会为这个 function () 分配内存。</p></li><li><p>在为 function() 分配内存的情况下，它将该函数的整个代码存储在内存空间中。</p></li><li><p>后面为两个变量<code>square2</code>和<code>square4</code>分配了内存，存储的同样是<code>undefined</code>。</p></li><li><p>为了完成这个<strong>创建</strong>阶段，JavaScript 会逐行从上到下遍历扫描代码。</p></li></ul></li><li><p>二、代码执行：</p><ul><li>扫描完毕，现在 JavaScript 再次逐行运行整个程序。</li><li>当它遇到时<code>var n = 2;</code>，它实际上将<code>2</code>作为值<code>n</code>放入<strong>内存组件</strong>中。</li><li>当它遇到 的函数定义时<code>square(num)</code>，它没有什么可执行的，所以 JavaScript 简单地跳过了。</li><li>当它遇到 时<code>var square2 = square(n);</code>，我们现在正在调用一个函数。</li><li>函数是 JavaScript 的核心。它们在 JavaScript 中的行为与在任何其他语言中的行为非常不同。</li><li>每当调用一个函数时，都会创建一个全新的<strong>Execution Context（执行上下文）</strong>。</li><li>因此，从技术上讲，在整个**Execution Context <strong>的代码组件中又创建了一个全新的</strong>Execution Context ** 。</li><li>这个新的<strong>内部 Exection Context 执行上下文</strong>也有它自己的<strong>内存组件</strong>和<strong>代码组件</strong>。</li><li>现在在内部发生的事情是：<ul><li>在这种情况下，有 2 个变量，即<code>num</code>（参数）和<code>ans</code>。</li><li>所以内存将分配给<code>num</code>和<code>ans</code>。</li><li>在第 1 阶段，与外部执行上下文一样，<code>undefined</code>将分配给<code>num</code>和<code>ans</code>。</li><li>现在进入阶段 2（代码执行阶段），参数的值被分配给参数。因此，在我们调用函数的语句<code>var square2 = square(n);</code>时，我们将参数<code>n</code>的值 2 传递给函数<code>square(num)</code>，并且该参数的值替换了<strong>内部执行上下文</strong>中<code>num</code>的<strong>内存组件</strong>中的占位符<code>undefined</code>。</li><li>计算后<code>num * num</code>，将值存储在 中<code>ans</code>。</li><li>在遇到 时<code>return ans;</code>，将存储的值<code>ans</code>返回到调用的位置，并且此<strong>内部执行上下文</strong>结束。当它结束时，<strong>内部执行上下文</strong>实际上被删除了。</li></ul></li><li>现在，遇到下一行时遵循相同的过程<code>var square4 = square(4);</code>。</li><li>最后一行成功执行后，<strong>整个执行上下文</strong>也被删除。这种*“整体”*执行上下文也称为<strong>全局执行上下文</strong>。</li></ul></li></ul></li></ul></li></ul><blockquote><p>那么，JavaScript 是如何管理这种链条式的 ** 执行上下文 ** 的呢？</p></blockquote><ul><li>它实际上在后台管理一个堆栈。</li><li>此堆栈也称为<strong>Call Stack（调用堆栈）</strong>。</li><li><strong>GEC</strong>（Global Execution Context 全局执行上下文）始终位于此堆栈的底部。</li><li>每当创建一个新的执行上下文时，它就会被压入这个堆栈，并在完成其目的时被弹出。</li><li><em>控件与此调用堆栈</em>的最顶部元素保持一致。</li><li>此<em>调用堆栈</em>仅用于管理<strong>执行上下文</strong>。</li><li>在成功执行最后一条语句时，<strong>调用堆栈</strong>被清空。</li></ul><blockquote><p><strong>调用堆栈</strong>维护执行上下文的*<strong>执行顺序。*</strong></p></blockquote><p>给个图更好理解：</p><p><img alt=image-20220621105516197 loading=lazy src=/posts/20220621-javascripts_how_to_run/image-20220621105516197.png></p><p><strong>调用堆栈</strong>具有以下花哨的名称，也可以通过这些名称来引用它：</p><ul><li>Execution Context Stack（执行上下文堆栈）</li><li>Program Stack（程序栈）</li><li>Control Stack（控制堆栈）</li><li>Runtime Stack（运行时堆栈）</li><li>Machine Stack（机器堆栈）</li></ul><p>这样大家就理解了吧，这样后面的变量提升 Hoisting 就很好理解了。</p><hr></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

@@ -1,0 +1,232 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>AWS 放错在Private子网的机器如何用公网IP连进去 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="今天面试了一下，面试官问到AWS的子网问题，来说说AWS的最佳实践：
+首先是VPC的划定，然后就是三个public子网，三个private子网，都是一个zone分布在a、b、c三个不同机房
+来保证最大冗余性，然后pub子网通过IGW来出公网，那Private子网就通过NAT出公网。
+但是，但是，但是：
+如果你把一台EC2服务器一开始就放错了子网，放到了private子网里，然后上面又跑了重要的服务，无法迁移，无法重启，而且整个vpc里只有这一台ec2，其它东西都是aws的服务或者市场的服务又或者fargate、lambda之类的无服务器，这时候你想进去调试，那就麻烦大了
+那能不能给这台private的机器加上公网ip来当作跳板机直接访问呢？
+答案是肯定的，可以。
+但是又来了，如果这么配置了，你要对路由非常的熟悉，因为随后发生错乱的情况可能需要你手动添加路由，最麻烦的不是配置网卡，而是配置路由！
+做法如下：
+一、动态添加弹性ip到这个ec2的第二个网卡
+二、配置网络
+# vi /etc/netplan/50-cloud-init.yaml
+
+# This file is generated from information provided by the datasource.  Changes
+# to it will not persist across an instance reboot.  To disable cloud-init's
+# network configuration capabilities, write a file
+# /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg with the following:
+# network: {config: disabled}
+network:
+    ethernets:
+        enX0:
+            addresses:
+              - 10.0.132.169/20 #The private IP address of primary ENI
+            nameservers:
+              addresses:
+                - 10.0.0.2
+            routes:
+             - to: 0.0.0.0/0
+               via: 10.0.128.1 # Default gateway, you can find it using** ip r** command
+               table: 1001 
+             - to: 10.0.132.169
+               via: 0.0.0.0
+               scope: link
+               table: 1001
+            routing-policy:
+             - from: 10.0.132.169
+               table: 1001
+            dhcp4: no
+            dhcp6: false
+            match:
+                macaddress: 06:36:82:ef:39:39
+            set-name: enX0
+        enX1:
+            addresses:
+              - 10.0.3.176/20 #The private IP address of primary ENI
+            gateway4: 10.0.0.1
+            nameservers:
+              addresses:
+                - 8.8.8.8
+                - 1.1.1.1
+            routes:
+             - to: 0.0.0.0/0
+               via: 10.0.0.1 # Default gateway, you can find it using** ip r** command
+               table: 1002 
+             - to: 10.0.3.176
+               via: 0.0.0.0
+               scope: link
+               table: 1002
+            routing-policy:
+             - from: 10.0.3.176
+               table: 1002
+             - from: 120.116.111.99
+               table: 1002             
+            dhcp4: no
+            dhcp6: false
+            match:
+                macaddress: 06:29:c3:b2:c5:f9
+            set-name: enX1
+    version: 2
+    
+    
+netplan apply
+详细解释一下，enX0是private子网的网卡，enX1是弹性IP的网卡，注意，即使是弹性IP，也是个内网地址，这两个IP呢，都有各自独立的网关，第二个网卡还有自己的DNS。这就容易发生错乱了，因为缺省路由走第一个网卡，那如果从第二个网卡的公网IP入，出的时候走第一张网卡，那就有意思了。"><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20251116-aws_private_public_ip/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20251116-aws_private_public_ip/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20251116-aws_private_public_ip/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="AWS 放错在Private子网的机器如何用公网IP连进去"><meta property="og:description" content="今天面试了一下，面试官问到AWS的子网问题，来说说AWS的最佳实践：
+首先是VPC的划定，然后就是三个public子网，三个private子网，都是一个zone分布在a、b、c三个不同机房
+来保证最大冗余性，然后pub子网通过IGW来出公网，那Private子网就通过NAT出公网。
+但是，但是，但是：
+如果你把一台EC2服务器一开始就放错了子网，放到了private子网里，然后上面又跑了重要的服务，无法迁移，无法重启，而且整个vpc里只有这一台ec2，其它东西都是aws的服务或者市场的服务又或者fargate、lambda之类的无服务器，这时候你想进去调试，那就麻烦大了
+那能不能给这台private的机器加上公网ip来当作跳板机直接访问呢？
+答案是肯定的，可以。
+但是又来了，如果这么配置了，你要对路由非常的熟悉，因为随后发生错乱的情况可能需要你手动添加路由，最麻烦的不是配置网卡，而是配置路由！
+做法如下：
+一、动态添加弹性ip到这个ec2的第二个网卡
+二、配置网络
+# vi /etc/netplan/50-cloud-init.yaml # This file is generated from information provided by the datasource. Changes # to it will not persist across an instance reboot. To disable cloud-init's # network configuration capabilities, write a file # /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg with the following: # network: {config: disabled} network: ethernets: enX0: addresses: - 10.0.132.169/20 #The private IP address of primary ENI nameservers: addresses: - 10.0.0.2 routes: - to: 0.0.0.0/0 via: 10.0.128.1 # Default gateway, you can find it using** ip r** command table: 1001 - to: 10.0.132.169 via: 0.0.0.0 scope: link table: 1001 routing-policy: - from: 10.0.132.169 table: 1001 dhcp4: no dhcp6: false match: macaddress: 06:36:82:ef:39:39 set-name: enX0 enX1: addresses: - 10.0.3.176/20 #The private IP address of primary ENI gateway4: 10.0.0.1 nameservers: addresses: - 8.8.8.8 - 1.1.1.1 routes: - to: 0.0.0.0/0 via: 10.0.0.1 # Default gateway, you can find it using** ip r** command table: 1002 - to: 10.0.3.176 via: 0.0.0.0 scope: link table: 1002 routing-policy: - from: 10.0.3.176 table: 1002 - from: 120.116.111.99 table: 1002 dhcp4: no dhcp6: false match: macaddress: 06:29:c3:b2:c5:f9 set-name: enX1 version: 2 netplan apply 详细解释一下，enX0是private子网的网卡，enX1是弹性IP的网卡，注意，即使是弹性IP，也是个内网地址，这两个IP呢，都有各自独立的网关，第二个网卡还有自己的DNS。这就容易发生错乱了，因为缺省路由走第一个网卡，那如果从第二个网卡的公网IP入，出的时候走第一张网卡，那就有意思了。"><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2025-11-16T09:01:11+08:00"><meta property="article:modified_time" content="2025-11-16T09:01:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="AWS 放错在Private子网的机器如何用公网IP连进去"><meta name=twitter:description content="今天面试了一下，面试官问到AWS的子网问题，来说说AWS的最佳实践：
+首先是VPC的划定，然后就是三个public子网，三个private子网，都是一个zone分布在a、b、c三个不同机房
+来保证最大冗余性，然后pub子网通过IGW来出公网，那Private子网就通过NAT出公网。
+但是，但是，但是：
+如果你把一台EC2服务器一开始就放错了子网，放到了private子网里，然后上面又跑了重要的服务，无法迁移，无法重启，而且整个vpc里只有这一台ec2，其它东西都是aws的服务或者市场的服务又或者fargate、lambda之类的无服务器，这时候你想进去调试，那就麻烦大了
+那能不能给这台private的机器加上公网ip来当作跳板机直接访问呢？
+答案是肯定的，可以。
+但是又来了，如果这么配置了，你要对路由非常的熟悉，因为随后发生错乱的情况可能需要你手动添加路由，最麻烦的不是配置网卡，而是配置路由！
+做法如下：
+一、动态添加弹性ip到这个ec2的第二个网卡
+二、配置网络
+# vi /etc/netplan/50-cloud-init.yaml
+
+# This file is generated from information provided by the datasource.  Changes
+# to it will not persist across an instance reboot.  To disable cloud-init's
+# network configuration capabilities, write a file
+# /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg with the following:
+# network: {config: disabled}
+network:
+    ethernets:
+        enX0:
+            addresses:
+              - 10.0.132.169/20 #The private IP address of primary ENI
+            nameservers:
+              addresses:
+                - 10.0.0.2
+            routes:
+             - to: 0.0.0.0/0
+               via: 10.0.128.1 # Default gateway, you can find it using** ip r** command
+               table: 1001 
+             - to: 10.0.132.169
+               via: 0.0.0.0
+               scope: link
+               table: 1001
+            routing-policy:
+             - from: 10.0.132.169
+               table: 1001
+            dhcp4: no
+            dhcp6: false
+            match:
+                macaddress: 06:36:82:ef:39:39
+            set-name: enX0
+        enX1:
+            addresses:
+              - 10.0.3.176/20 #The private IP address of primary ENI
+            gateway4: 10.0.0.1
+            nameservers:
+              addresses:
+                - 8.8.8.8
+                - 1.1.1.1
+            routes:
+             - to: 0.0.0.0/0
+               via: 10.0.0.1 # Default gateway, you can find it using** ip r** command
+               table: 1002 
+             - to: 10.0.3.176
+               via: 0.0.0.0
+               scope: link
+               table: 1002
+            routing-policy:
+             - from: 10.0.3.176
+               table: 1002
+             - from: 120.116.111.99
+               table: 1002             
+            dhcp4: no
+            dhcp6: false
+            match:
+                macaddress: 06:29:c3:b2:c5:f9
+            set-name: enX1
+    version: 2
+    
+    
+netplan apply
+详细解释一下，enX0是private子网的网卡，enX1是弹性IP的网卡，注意，即使是弹性IP，也是个内网地址，这两个IP呢，都有各自独立的网关，第二个网卡还有自己的DNS。这就容易发生错乱了，因为缺省路由走第一个网卡，那如果从第二个网卡的公网IP入，出的时候走第一张网卡，那就有意思了。"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"AWS 放错在Private子网的机器如何用公网IP连进去","item":"https://rendoumi.com/posts/20251116-aws_private_public_ip/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"AWS 放错在Private子网的机器如何用公网IP连进去","name":"AWS 放错在Private子网的机器如何用公网IP连进去","description":"今天面试了一下，面试官问到AWS的子网问题，来说说AWS的最佳实践：\n首先是VPC的划定，然后就是三个public子网，三个private子网，都是一个zone分布在a、b、c三个不同机房\n来保证最大冗余性，然后pub子网通过IGW来出公网，那Private子网就通过NAT出公网。\n但是，但是，但是：\n如果你把一台EC2服务器一开始就放错了子网，放到了private子网里，然后上面又跑了重要的服务，无法迁移，无法重启，而且整个vpc里只有这一台ec2，其它东西都是aws的服务或者市场的服务又或者fargate、lambda之类的无服务器，这时候你想进去调试，那就麻烦大了\n那能不能给这台private的机器加上公网ip来当作跳板机直接访问呢？\n答案是肯定的，可以。\n但是又来了，如果这么配置了，你要对路由非常的熟悉，因为随后发生错乱的情况可能需要你手动添加路由，最麻烦的不是配置网卡，而是配置路由！\n做法如下：\n一、动态添加弹性ip到这个ec2的第二个网卡\n二、配置网络\n# vi /etc/netplan/50-cloud-init.yaml # This file is generated from information provided by the datasource. Changes # to it will not persist across an instance reboot. To disable cloud-init\u0026#39;s # network configuration capabilities, write a file # /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg with the following: # network: {config: disabled} network: ethernets: enX0: addresses: - 10.0.132.169/20 #The private IP address of primary ENI nameservers: addresses: - 10.0.0.2 routes: - to: 0.0.0.0/0 via: 10.0.128.1 # Default gateway, you can find it using** ip r** command table: 1001 - to: 10.0.132.169 via: 0.0.0.0 scope: link table: 1001 routing-policy: - from: 10.0.132.169 table: 1001 dhcp4: no dhcp6: false match: macaddress: 06:36:82:ef:39:39 set-name: enX0 enX1: addresses: - 10.0.3.176/20 #The private IP address of primary ENI gateway4: 10.0.0.1 nameservers: addresses: - 8.8.8.8 - 1.1.1.1 routes: - to: 0.0.0.0/0 via: 10.0.0.1 # Default gateway, you can find it using** ip r** command table: 1002 - to: 10.0.3.176 via: 0.0.0.0 scope: link table: 1002 routing-policy: - from: 10.0.3.176 table: 1002 - from: 120.116.111.99 table: 1002 dhcp4: no dhcp6: false match: macaddress: 06:29:c3:b2:c5:f9 set-name: enX1 version: 2 netplan apply 详细解释一下，enX0是private子网的网卡，enX1是弹性IP的网卡，注意，即使是弹性IP，也是个内网地址，这两个IP呢，都有各自独立的网关，第二个网卡还有自己的DNS。这就容易发生错乱了，因为缺省路由走第一个网卡，那如果从第二个网卡的公网IP入，出的时候走第一张网卡，那就有意思了。\n","keywords":[],"articleBody":"今天面试了一下，面试官问到AWS的子网问题，来说说AWS的最佳实践：\n首先是VPC的划定，然后就是三个public子网，三个private子网，都是一个zone分布在a、b、c三个不同机房\n来保证最大冗余性，然后pub子网通过IGW来出公网，那Private子网就通过NAT出公网。\n但是，但是，但是：\n如果你把一台EC2服务器一开始就放错了子网，放到了private子网里，然后上面又跑了重要的服务，无法迁移，无法重启，而且整个vpc里只有这一台ec2，其它东西都是aws的服务或者市场的服务又或者fargate、lambda之类的无服务器，这时候你想进去调试，那就麻烦大了\n那能不能给这台private的机器加上公网ip来当作跳板机直接访问呢？\n答案是肯定的，可以。\n但是又来了，如果这么配置了，你要对路由非常的熟悉，因为随后发生错乱的情况可能需要你手动添加路由，最麻烦的不是配置网卡，而是配置路由！\n做法如下：\n一、动态添加弹性ip到这个ec2的第二个网卡\n二、配置网络\n# vi /etc/netplan/50-cloud-init.yaml # This file is generated from information provided by the datasource. Changes # to it will not persist across an instance reboot. To disable cloud-init's # network configuration capabilities, write a file # /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg with the following: # network: {config: disabled} network: ethernets: enX0: addresses: - 10.0.132.169/20 #The private IP address of primary ENI nameservers: addresses: - 10.0.0.2 routes: - to: 0.0.0.0/0 via: 10.0.128.1 # Default gateway, you can find it using** ip r** command table: 1001 - to: 10.0.132.169 via: 0.0.0.0 scope: link table: 1001 routing-policy: - from: 10.0.132.169 table: 1001 dhcp4: no dhcp6: false match: macaddress: 06:36:82:ef:39:39 set-name: enX0 enX1: addresses: - 10.0.3.176/20 #The private IP address of primary ENI gateway4: 10.0.0.1 nameservers: addresses: - 8.8.8.8 - 1.1.1.1 routes: - to: 0.0.0.0/0 via: 10.0.0.1 # Default gateway, you can find it using** ip r** command table: 1002 - to: 10.0.3.176 via: 0.0.0.0 scope: link table: 1002 routing-policy: - from: 10.0.3.176 table: 1002 - from: 120.116.111.99 table: 1002 dhcp4: no dhcp6: false match: macaddress: 06:29:c3:b2:c5:f9 set-name: enX1 version: 2 netplan apply 详细解释一下，enX0是private子网的网卡，enX1是弹性IP的网卡，注意，即使是弹性IP，也是个内网地址，这两个IP呢，都有各自独立的网关，第二个网卡还有自己的DNS。这就容易发生错乱了，因为缺省路由走第一个网卡，那如果从第二个网卡的公网IP入，出的时候走第一张网卡，那就有意思了。\n所以哪来回哪，每个网卡的第二个路由，都是自己走自，策略路由的第一跳，也是自己走自己。\n然后第二个网卡的第二条策略路由，是指定的，本质意思其实是从120.116.111.99访问弹性公网IP的wireguard数据包，回程的时候强制指定走第二个网卡。\n痛苦吧！\n而且这台EC2作为跳板机，需要代理访问AWS中各种服务，这样就麻烦了，那数据包究竟要从哪个网卡出去，你必须非常清楚，如果走错了，你就必须手动增加路由表\n从第一张网卡是aws的dns服务器，是可以访问到各种aws的内网endpoint的解析地址的，第二张网卡由于是公网dns服务器，所以不行；另外第一张网卡是缺省路由；务必谨记这两点。\nip route show table all ip rule show ip rule show table 1001 ip rule show table 1002 # 手动新增路由 ip rule add from 120.116.111.99 table 1002 ip rule add to 120.116.111.99 table 1002 存在即合理，AWS本质也是魔改了LInux的各种软件和服务。\n","wordCount":"227","inLanguage":"zh","datePublished":"2025-11-16T09:01:11+08:00","dateModified":"2025-11-16T09:01:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20251116-aws_private_public_ip/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">AWS 放错在Private子网的机器如何用公网IP连进去
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2025-11-16 09:01:11 +0800 CST'>2025年11月16日</span></div></header><div class=post-content><p>今天面试了一下，面试官问到AWS的子网问题，来说说AWS的最佳实践：</p><p>首先是VPC的划定，然后就是三个public子网，三个private子网，都是一个zone分布在a、b、c三个不同机房</p><p>来保证最大冗余性，然后pub子网通过IGW来出公网，那Private子网就通过NAT出公网。</p><p>但是，但是，但是：</p><p>如果你把一台EC2服务器一开始就放错了子网，放到了private子网里，然后上面又跑了重要的服务，无法迁移，无法重启，而且整个vpc里只有这一台ec2，其它东西都是aws的服务或者市场的服务又或者fargate、lambda之类的无服务器，这时候你想进去调试，那就麻烦大了</p><p>那能不能给这台private的机器加上公网ip来当作跳板机直接访问呢？</p><p>答案是肯定的，可以。</p><p>但是又来了，如果这么配置了，你要对路由非常的熟悉，因为随后发生错乱的情况可能需要你手动添加路由，最麻烦的不是配置网卡，而是配置路由！</p><p>做法如下：</p><p>一、动态添加弹性ip到这个ec2的第二个网卡</p><p>二、配置网络</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># vi /etc/netplan/50-cloud-init.yaml</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># This file is generated from information provided by the datasource.  Changes</span>
+</span></span><span class=line><span class=cl><span class=c1># to it will not persist across an instance reboot.  To disable cloud-init&#39;s</span>
+</span></span><span class=line><span class=cl><span class=c1># network configuration capabilities, write a file</span>
+</span></span><span class=line><span class=cl><span class=c1># /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg with the following:</span>
+</span></span><span class=line><span class=cl><span class=c1># network: {config: disabled}</span>
+</span></span><span class=line><span class=cl>network:
+</span></span><span class=line><span class=cl>    ethernets:
+</span></span><span class=line><span class=cl>        enX0:
+</span></span><span class=line><span class=cl>            addresses:
+</span></span><span class=line><span class=cl>              - 10.0.132.169/20 <span class=c1>#The private IP address of primary ENI</span>
+</span></span><span class=line><span class=cl>            nameservers:
+</span></span><span class=line><span class=cl>              addresses:
+</span></span><span class=line><span class=cl>                - 10.0.0.2
+</span></span><span class=line><span class=cl>            routes:
+</span></span><span class=line><span class=cl>             - to: 0.0.0.0/0
+</span></span><span class=line><span class=cl>               via: 10.0.128.1 <span class=c1># Default gateway, you can find it using** ip r** command</span>
+</span></span><span class=line><span class=cl>               table: <span class=m>1001</span> 
+</span></span><span class=line><span class=cl>             - to: 10.0.132.169
+</span></span><span class=line><span class=cl>               via: 0.0.0.0
+</span></span><span class=line><span class=cl>               scope: link
+</span></span><span class=line><span class=cl>               table: <span class=m>1001</span>
+</span></span><span class=line><span class=cl>            routing-policy:
+</span></span><span class=line><span class=cl>             - from: 10.0.132.169
+</span></span><span class=line><span class=cl>               table: <span class=m>1001</span>
+</span></span><span class=line><span class=cl>            dhcp4: no
+</span></span><span class=line><span class=cl>            dhcp6: <span class=nb>false</span>
+</span></span><span class=line><span class=cl>            match:
+</span></span><span class=line><span class=cl>                macaddress: 06:36:82:ef:39:39
+</span></span><span class=line><span class=cl>            set-name: enX0
+</span></span><span class=line><span class=cl>        enX1:
+</span></span><span class=line><span class=cl>            addresses:
+</span></span><span class=line><span class=cl>              - 10.0.3.176/20 <span class=c1>#The private IP address of primary ENI</span>
+</span></span><span class=line><span class=cl>            gateway4: 10.0.0.1
+</span></span><span class=line><span class=cl>            nameservers:
+</span></span><span class=line><span class=cl>              addresses:
+</span></span><span class=line><span class=cl>                - 8.8.8.8
+</span></span><span class=line><span class=cl>                - 1.1.1.1
+</span></span><span class=line><span class=cl>            routes:
+</span></span><span class=line><span class=cl>             - to: 0.0.0.0/0
+</span></span><span class=line><span class=cl>               via: 10.0.0.1 <span class=c1># Default gateway, you can find it using** ip r** command</span>
+</span></span><span class=line><span class=cl>               table: <span class=m>1002</span> 
+</span></span><span class=line><span class=cl>             - to: 10.0.3.176
+</span></span><span class=line><span class=cl>               via: 0.0.0.0
+</span></span><span class=line><span class=cl>               scope: link
+</span></span><span class=line><span class=cl>               table: <span class=m>1002</span>
+</span></span><span class=line><span class=cl>            routing-policy:
+</span></span><span class=line><span class=cl>             - from: 10.0.3.176
+</span></span><span class=line><span class=cl>               table: <span class=m>1002</span>
+</span></span><span class=line><span class=cl>             - from: 120.116.111.99
+</span></span><span class=line><span class=cl>               table: <span class=m>1002</span>             
+</span></span><span class=line><span class=cl>            dhcp4: no
+</span></span><span class=line><span class=cl>            dhcp6: <span class=nb>false</span>
+</span></span><span class=line><span class=cl>            match:
+</span></span><span class=line><span class=cl>                macaddress: 06:29:c3:b2:c5:f9
+</span></span><span class=line><span class=cl>            set-name: enX1
+</span></span><span class=line><span class=cl>    version: <span class=m>2</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>netplan apply
+</span></span></code></pre></div><p>详细解释一下，enX0是private子网的网卡，enX1是弹性IP的网卡，注意，即使是弹性IP，也是个内网地址，这两个IP呢，都有各自独立的网关，第二个网卡还有自己的DNS。这就容易发生错乱了，因为缺省路由走第一个网卡，那如果从第二个网卡的公网IP入，出的时候走第一张网卡，那就有意思了。</p><p>所以哪来回哪，每个网卡的第二个路由，都是自己走自，策略路由的第一跳，也是自己走自己。</p><p>然后第二个网卡的第二条策略路由，是指定的，本质意思其实是从120.116.111.99访问弹性公网IP的wireguard数据包，回程的时候强制指定走第二个网卡。</p><p>痛苦吧！</p><p>而且这台EC2作为跳板机，需要代理访问AWS中各种服务，这样就麻烦了，那数据包究竟要从哪个网卡出去，你必须非常清楚，如果走错了，你就必须手动增加路由表</p><p>从第一张网卡是aws的dns服务器，是可以访问到各种aws的内网endpoint的解析地址的，第二张网卡由于是公网dns服务器，所以不行；另外第一张网卡是缺省路由；务必谨记这两点。</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>ip route show table all
+</span></span><span class=line><span class=cl>ip rule show
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>ip rule show table <span class=m>1001</span>
+</span></span><span class=line><span class=cl>ip rule show table <span class=m>1002</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 手动新增路由</span>
+</span></span><span class=line><span class=cl>ip rule add from 120.116.111.99 table <span class=m>1002</span>
+</span></span><span class=line><span class=cl>ip rule add to   120.116.111.99 table <span class=m>1002</span>
+</span></span></code></pre></div><p>存在即合理，AWS本质也是魔改了LInux的各种软件和服务。</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

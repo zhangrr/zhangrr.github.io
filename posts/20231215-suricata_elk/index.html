@@ -1,0 +1,182 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>suricata加上elk分析机房入口全流量 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="suricata 是跟snort差不多的一个入侵检测工具，加上elk的图形界面，非常的好看。
+原理是suricata的log发到elk里，这样就能通过kibana进行分析了
+环境：
+1、物理机需要开16G内存，16CPU，都不太够
+2、物理机172.18.30.2的br3是交换机的Mirror口，进入的全部流量都被镜像了一份
+3、suricata-18-31-31是虚机，需要将30.2的br3挂进来
+virsh attach-interface  --domain suricata-18-31-31 --type bridge --source br3 --model e1000 --config --live
+同时在31.31里，ifconfig up eth1把网卡起起来
+tcpdump -i eth1有数据即可
+4、首先安装java
+rpm -ivh jdk-8u201-linux-x64.rpm
+安装：
+一、编译安装suricata
+yum -y install epel-release
+
+yum -y install jq cargo openssl-devel PyYAML lz4-devel gcc libpcap-devel pcre-devel libyaml-devel file-devel zlib-devel jansson-devel nss-devel libcap-ng-devel libnet-devel tar make libnetfilter_queue-devel lua-devel GeoIP-devel
+
+wget https://www.openinfosecfoundation.org/download/suricata-4.1.8.tar.gz
+tar zxvf suricata-4.1.8.tar.gz
+cd suricata
+./configure --libdir=/usr/lib64 --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-nfqueue --enable-lua --enable-geoip --enable-profiling
+make
+make install-full
+
+验证一下
+suricata -V
+This is Suricata version 4.1.8 RELEASE
+
+查看build参数
+suricata --build-info
+suricata就装好了，还需要配一下suricata-update，规则才是最主要的，装好后最好每天更新一下规则"><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20231215-suricata_elk/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20231215-suricata_elk/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20231215-suricata_elk/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="suricata加上elk分析机房入口全流量"><meta property="og:description" content="suricata 是跟snort差不多的一个入侵检测工具，加上elk的图形界面，非常的好看。
+原理是suricata的log发到elk里，这样就能通过kibana进行分析了
+环境：
+1、物理机需要开16G内存，16CPU，都不太够 2、物理机172.18.30.2的br3是交换机的Mirror口，进入的全部流量都被镜像了一份 3、suricata-18-31-31是虚机，需要将30.2的br3挂进来
+virsh attach-interface --domain suricata-18-31-31 --type bridge --source br3 --model e1000 --config --live 同时在31.31里，ifconfig up eth1把网卡起起来 tcpdump -i eth1有数据即可 4、首先安装java
+rpm -ivh jdk-8u201-linux-x64.rpm 安装： 一、编译安装suricata
+yum -y install epel-release yum -y install jq cargo openssl-devel PyYAML lz4-devel gcc libpcap-devel pcre-devel libyaml-devel file-devel zlib-devel jansson-devel nss-devel libcap-ng-devel libnet-devel tar make libnetfilter_queue-devel lua-devel GeoIP-devel wget https://www.openinfosecfoundation.org/download/suricata-4.1.8.tar.gz tar zxvf suricata-4.1.8.tar.gz cd suricata ./configure --libdir=/usr/lib64 --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-nfqueue --enable-lua --enable-geoip --enable-profiling make make install-full 验证一下 suricata -V This is Suricata version 4.1.8 RELEASE 查看build参数 suricata --build-info suricata就装好了，还需要配一下suricata-update，规则才是最主要的，装好后最好每天更新一下规则"><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2023-12-15T16:05:11+08:00"><meta property="article:modified_time" content="2023-12-15T16:05:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="suricata加上elk分析机房入口全流量"><meta name=twitter:description content="suricata 是跟snort差不多的一个入侵检测工具，加上elk的图形界面，非常的好看。
+原理是suricata的log发到elk里，这样就能通过kibana进行分析了
+环境：
+1、物理机需要开16G内存，16CPU，都不太够
+2、物理机172.18.30.2的br3是交换机的Mirror口，进入的全部流量都被镜像了一份
+3、suricata-18-31-31是虚机，需要将30.2的br3挂进来
+virsh attach-interface  --domain suricata-18-31-31 --type bridge --source br3 --model e1000 --config --live
+同时在31.31里，ifconfig up eth1把网卡起起来
+tcpdump -i eth1有数据即可
+4、首先安装java
+rpm -ivh jdk-8u201-linux-x64.rpm
+安装：
+一、编译安装suricata
+yum -y install epel-release
+
+yum -y install jq cargo openssl-devel PyYAML lz4-devel gcc libpcap-devel pcre-devel libyaml-devel file-devel zlib-devel jansson-devel nss-devel libcap-ng-devel libnet-devel tar make libnetfilter_queue-devel lua-devel GeoIP-devel
+
+wget https://www.openinfosecfoundation.org/download/suricata-4.1.8.tar.gz
+tar zxvf suricata-4.1.8.tar.gz
+cd suricata
+./configure --libdir=/usr/lib64 --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-nfqueue --enable-lua --enable-geoip --enable-profiling
+make
+make install-full
+
+验证一下
+suricata -V
+This is Suricata version 4.1.8 RELEASE
+
+查看build参数
+suricata --build-info
+suricata就装好了，还需要配一下suricata-update，规则才是最主要的，装好后最好每天更新一下规则"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"suricata加上elk分析机房入口全流量","item":"https://rendoumi.com/posts/20231215-suricata_elk/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"suricata加上elk分析机房入口全流量","name":"suricata加上elk分析机房入口全流量","description":"suricata 是跟snort差不多的一个入侵检测工具，加上elk的图形界面，非常的好看。\n原理是suricata的log发到elk里，这样就能通过kibana进行分析了\n环境：\n1、物理机需要开16G内存，16CPU，都不太够 2、物理机172.18.30.2的br3是交换机的Mirror口，进入的全部流量都被镜像了一份 3、suricata-18-31-31是虚机，需要将30.2的br3挂进来\nvirsh attach-interface --domain suricata-18-31-31 --type bridge --source br3 --model e1000 --config --live 同时在31.31里，ifconfig up eth1把网卡起起来 tcpdump -i eth1有数据即可 4、首先安装java\nrpm -ivh jdk-8u201-linux-x64.rpm 安装： 一、编译安装suricata\nyum -y install epel-release yum -y install jq cargo openssl-devel PyYAML lz4-devel gcc libpcap-devel pcre-devel libyaml-devel file-devel zlib-devel jansson-devel nss-devel libcap-ng-devel libnet-devel tar make libnetfilter_queue-devel lua-devel GeoIP-devel wget https://www.openinfosecfoundation.org/download/suricata-4.1.8.tar.gz tar zxvf suricata-4.1.8.tar.gz cd suricata ./configure --libdir=/usr/lib64 --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-nfqueue --enable-lua --enable-geoip --enable-profiling make make install-full 验证一下 suricata -V This is Suricata version 4.1.8 RELEASE 查看build参数 suricata --build-info suricata就装好了，还需要配一下suricata-update，规则才是最主要的，装好后最好每天更新一下规则\n","keywords":[],"articleBody":"suricata 是跟snort差不多的一个入侵检测工具，加上elk的图形界面，非常的好看。\n原理是suricata的log发到elk里，这样就能通过kibana进行分析了\n环境：\n1、物理机需要开16G内存，16CPU，都不太够 2、物理机172.18.30.2的br3是交换机的Mirror口，进入的全部流量都被镜像了一份 3、suricata-18-31-31是虚机，需要将30.2的br3挂进来\nvirsh attach-interface --domain suricata-18-31-31 --type bridge --source br3 --model e1000 --config --live 同时在31.31里，ifconfig up eth1把网卡起起来 tcpdump -i eth1有数据即可 4、首先安装java\nrpm -ivh jdk-8u201-linux-x64.rpm 安装： 一、编译安装suricata\nyum -y install epel-release yum -y install jq cargo openssl-devel PyYAML lz4-devel gcc libpcap-devel pcre-devel libyaml-devel file-devel zlib-devel jansson-devel nss-devel libcap-ng-devel libnet-devel tar make libnetfilter_queue-devel lua-devel GeoIP-devel wget https://www.openinfosecfoundation.org/download/suricata-4.1.8.tar.gz tar zxvf suricata-4.1.8.tar.gz cd suricata ./configure --libdir=/usr/lib64 --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-nfqueue --enable-lua --enable-geoip --enable-profiling make make install-full 验证一下 suricata -V This is Suricata version 4.1.8 RELEASE 查看build参数 suricata --build-info suricata就装好了，还需要配一下suricata-update，规则才是最主要的，装好后最好每天更新一下规则\nsuricata-update update-sources suricata-update list-sources suricata-update enable-source ptresearch/attackdetection suricata-update enable-source oisf/trafficid suricata-update enable-source sslbl/ssl-fp-blacklist suricata-update suricata-update的用法\nsuricata-update list-enabled-sources suricata-update disable-source et/pro suricata-update remove-source et/pro 测试规则：\nsuricata -T /etc/suricata/suricata.yaml的修改部分\nHOME_NET: \"[43.231.149.0/25]\" outputs被改过 outputs: app-layer被改过 app-layer: 具体看附件中的suricata.yaml\n启动：\n/usr/bin/suricata -c /etc/suricata/suricata.yaml -i eth1 -D 二、编译安装ELK\nrpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch cat \u003c","wordCount":"249","inLanguage":"zh","datePublished":"2023-12-15T16:05:11+08:00","dateModified":"2023-12-15T16:05:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20231215-suricata_elk/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">suricata加上elk分析机房入口全流量
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2023-12-15 16:05:11 +0800 CST'>2023年12月15日</span></div></header><div class=post-content><p>suricata 是跟snort差不多的一个入侵检测工具，加上elk的图形界面，非常的好看。</p><p>原理是suricata的log发到elk里，这样就能通过kibana进行分析了</p><p>环境：</p><p>1、物理机需要开16G内存，16CPU，都不太够
+2、物理机172.18.30.2的br3是交换机的Mirror口，进入的全部流量都被镜像了一份
+3、suricata-18-31-31是虚机，需要将30.2的br3挂进来</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>virsh attach-interface  --domain suricata-18-31-31 --type bridge --source br3 --model e1000 --config --live
+</span></span><span class=line><span class=cl>同时在31.31里，ifconfig up eth1把网卡起起来
+</span></span><span class=line><span class=cl>tcpdump -i eth1有数据即可
+</span></span></code></pre></div><p>4、首先安装java</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>rpm -ivh jdk-8u201-linux-x64.rpm
+</span></span></code></pre></div><p>安装：
+一、编译安装suricata</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>yum -y install epel-release
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>yum -y install jq cargo openssl-devel PyYAML lz4-devel gcc libpcap-devel pcre-devel libyaml-devel file-devel zlib-devel jansson-devel nss-devel libcap-ng-devel libnet-devel tar make libnetfilter_queue-devel lua-devel GeoIP-devel
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>wget https://www.openinfosecfoundation.org/download/suricata-4.1.8.tar.gz
+</span></span><span class=line><span class=cl>tar zxvf suricata-4.1.8.tar.gz
+</span></span><span class=line><span class=cl><span class=nb>cd</span> suricata
+</span></span><span class=line><span class=cl>./configure --libdir<span class=o>=</span>/usr/lib64 --prefix<span class=o>=</span>/usr --sysconfdir<span class=o>=</span>/etc --localstatedir<span class=o>=</span>/var --enable-nfqueue --enable-lua --enable-geoip --enable-profiling
+</span></span><span class=line><span class=cl>make
+</span></span><span class=line><span class=cl>make install-full
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>验证一下
+</span></span><span class=line><span class=cl>suricata -V
+</span></span><span class=line><span class=cl>This is Suricata version 4.1.8 RELEASE
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>查看build参数
+</span></span><span class=line><span class=cl>suricata --build-info
+</span></span></code></pre></div><p>suricata就装好了，还需要配一下suricata-update，规则才是最主要的，装好后最好每天更新一下规则</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>suricata-update update-sources
+</span></span><span class=line><span class=cl>suricata-update list-sources
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>suricata-update enable-source ptresearch/attackdetection
+</span></span><span class=line><span class=cl>suricata-update enable-source oisf/trafficid
+</span></span><span class=line><span class=cl>suricata-update enable-source sslbl/ssl-fp-blacklist
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>suricata-update
+</span></span></code></pre></div><p>suricata-update的用法</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>suricata-update list-enabled-sources
+</span></span><span class=line><span class=cl>suricata-update disable-source et/pro
+</span></span><span class=line><span class=cl>suricata-update remove-source et/pro
+</span></span></code></pre></div><p>测试规则：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>suricata -T
+</span></span></code></pre></div><p>/etc/suricata/suricata.yaml的修改部分</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>HOME_NET: <span class=s2>&#34;[43.231.149.0/25]&#34;</span>
+</span></span><span class=line><span class=cl>outputs被改过
+</span></span><span class=line><span class=cl>outputs:
+</span></span><span class=line><span class=cl>app-layer被改过
+</span></span><span class=line><span class=cl>app-layer:
+</span></span></code></pre></div><p>具体看附件中的suricata.yaml</p><p>启动：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>/usr/bin/suricata -c /etc/suricata/suricata.yaml -i eth1 -D
+</span></span></code></pre></div><p>二、编译安装ELK</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>cat <span class=s>&lt;&lt;EOF | sudo tee /etc/yum.repos.d/elasticsearch.repo
+</span></span></span><span class=line><span class=cl><span class=s>[elasticsearch-7.x]
+</span></span></span><span class=line><span class=cl><span class=s>name=Elasticsearch repository for 7.x packages
+</span></span></span><span class=line><span class=cl><span class=s>baseurl=https://artifacts.elastic.co/packages/7.x/yum
+</span></span></span><span class=line><span class=cl><span class=s>gpgcheck=1
+</span></span></span><span class=line><span class=cl><span class=s>gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
+</span></span></span><span class=line><span class=cl><span class=s>enabled=1
+</span></span></span><span class=line><span class=cl><span class=s>autorefresh=1
+</span></span></span><span class=line><span class=cl><span class=s>type=rpm-md
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>yum clean all
+</span></span><span class=line><span class=cl>yum makecache
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>yum install -y elasticsearch logstash kibana filebeat
+</span></span></code></pre></div><p>安装的时候最好设一下翻墙，否则下这几个包非常慢！！！</p><p>然后一个一个来设置</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>1、设置elasticsearch
+</span></span><span class=line><span class=cl>vi /etc/elasticsearch/jvm.options
+</span></span><span class=line><span class=cl>-Xms4g
+</span></span><span class=line><span class=cl>-Xmx4g
+</span></span><span class=line><span class=cl>vi /etc/elasticsearch/elasticsearch.yml
+</span></span><span class=line><span class=cl>indices.query.bool.max_clause_count: <span class=m>8192</span>
+</span></span><span class=line><span class=cl>search.max_buckets: <span class=m>250000</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>systemctl <span class=nb>enable</span> --now elasticsearch
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>2、设置logstash
+</span></span><span class=line><span class=cl>将附件中logstash目录下的synlite_suricata/目录完整挪到/etc/logstash下
+</span></span><span class=line><span class=cl>/etc/logstash/synlite_suricata/
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>将附件中logstash目录下的pipelines.yml拷贝到/etc/logstash下
+</span></span><span class=line><span class=cl>/etc/logstash/pipelines.yml
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>将附件中logstash目录下的logstash.service拷贝覆盖掉/etc/systemd/system/logstast.service
+</span></span><span class=line><span class=cl>/etc/systemd/system/logstash.service
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>vi /etc/logstash/jvm.options
+</span></span><span class=line><span class=cl>-Xms4g
+</span></span><span class=line><span class=cl>-Xmx4g
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>systemctl daemon-reload
+</span></span><span class=line><span class=cl>systemctl <span class=nb>enable</span> --now logstash
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>3、设置filebeat
+</span></span><span class=line><span class=cl>vi /etc/filebeat/filebeat.yml
+</span></span><span class=line><span class=cl>filebeat.inputs:
+</span></span><span class=line><span class=cl>- type: log
+</span></span><span class=line><span class=cl>  enabled: <span class=nb>true</span>
+</span></span><span class=line><span class=cl>  paths:
+</span></span><span class=line><span class=cl>    - /var/log/suricata/eve.json
+</span></span><span class=line><span class=cl>  fields:
+</span></span><span class=line><span class=cl>    event.type: suricata
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>output.logstash:
+</span></span><span class=line><span class=cl>  hosts: <span class=o>[</span><span class=s2>&#34;127.0.0.1:5044&#34;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>  <span class=c1>#ssl.certificate_authorities: [&#34;/etc/pki/root/ca.pem&#34;]</span>
+</span></span><span class=line><span class=cl>  <span class=c1>#ssl.certificate: &#34;/etc/pki/client/cert.pem&#34;</span>
+</span></span><span class=line><span class=cl>  <span class=c1>#ssl.key: &#34;/etc/pki/client/cert.key&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>systemctl <span class=nb>enable</span> --now logstash
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>4、设置kibana
+</span></span><span class=line><span class=cl>vi /etc/kibana/kibana.yml
+</span></span><span class=line><span class=cl>server.host: <span class=s2>&#34;172.18.31.31&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>systemctl <span class=nb>enable</span> --new kibana
+</span></span></code></pre></div><p>跑起来以后打开 http://172.18.31.31:5601 就可以看到了</p><p>如果不出意外，应该有数据了。需要建立一个suricata*的索引。</p><p>去kibana的home &ndash;> Stack Management</p><p><img loading=lazy src=/posts/20231215-suricata_elk/2020-08-06_142305.png></p><p>导入的synlite_suricata.kibana.7.1.x.json</p><p><a href=https://github.com/robcowart/synesis_lite_suricata/blob/master/kibana/synlite_suricata.kibana.7.1.x.json>https://github.com/robcowart/synesis_lite_suricata/blob/master/kibana/synlite_suricata.kibana.7.1.x.json</a></p><p><img loading=lazy src=/posts/20231215-suricata_elk/2020-08-06_143340.png></p><p>然后在dashboard里就可以看到了</p><p><img loading=lazy src=/posts/20231215-suricata_elk/2020-08-06_143501.png></p><p><img loading=lazy src=/posts/20231215-suricata_elk/2020-08-06_143530.png></p><p>可以清楚的看到各种ipflow，流量分布。</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

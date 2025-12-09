@@ -1,0 +1,172 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Kafka的安装和验证 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="生产环境要用到kafka，记录一下安装过程，其实最重要的不是安装，而是使用。
+时间节点是2022年7月10日，zookeeper的版本是3.4.14：
+wget https://mirrors.cnnic.cn/apache/zookeeper/stable/zookeeper-3.4.14.tar.gz
+kafka的版本是3.2，注意前面的2.13是scala的版本
+wget http://archive.apache.org/dist/kafka/3.2.0/kafka_2.13-3.2.0.tgz
+软件都下载好以后，找三台服务器，软件都放到 /usr/local 路径下：
+服务器的ip是：
+172.18.31.50
+172.18.31.51
+172.18.31.52
+移动软件：
+tar zxvf zookeeper-3.4.14.tar.gz
+mv apache-zookeeper-3.6.3-bin /usr/local
+
+tar zxvf kafka_2.13-3.2.0.tgz
+mv kafka_2.13-3.2.0 /usr/local
+然后得装 java 了，centos 版本
+yum -y install epel-release
+yum -y install java-11-openjdk-devel
+首先去编辑zookeeper的配置文件，然后启动
+cp /usr/local/apache-zookeeper-3.6.3-bin/conf/zoo_sample.cfg /usr/local/apache-zookeeper-3.6.3-bin/conf/zoo.cfg
+编辑zoo.cfg，增加几行
+dataDir=/data/zookeeper
+
+metricsProvider.className=org.apache.zookeeper.metrics.prometheus.PrometheusMetricsProvider
+metricsProvider.httpPort=7000
+metricsProvider.exportJvmInfo=true
+
+server.0=172.18.31.50:20881:30881
+server.1=172.18.31.51:20881:30881
+server.2=172.18.31.52:20881:30881
+注意上面，我们的数据目录是在/data/zookeeper，所以要先建立好目录结构
+然后有三台服务器么，把各自的id放到文件中，然后20881是三台服务器之间的通讯端口，30881是选举端口
+mkdir /data/zookeeper -p
+echo 0 >/data/zookeeper/myid
+三台服务器分别启动
+/usr/local/apache-zookeeper-3.6.3-bin/bin/zkServer.sh start
+验证一下
+/usr/local/apache-zookeeper-3.6.3-bin/bin/zkCli.sh
+
+[zk: localhost:2181(CONNECTED) 1] ls /
+[admin, brokers, cluster, config, consumers, controller, controller_epoch, feature, isr_change_notification, latest_producer_id_block, log_dir_event_notification, zookeeper]
+看看 / 下有东西就行了，上面是已经装好了 kafka 和 cruisecontrol的情形，东西就比较多了"><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20221113-kafka/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20221113-kafka/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20221113-kafka/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="Kafka的安装和验证"><meta property="og:description" content="生产环境要用到kafka，记录一下安装过程，其实最重要的不是安装，而是使用。
+时间节点是2022年7月10日，zookeeper的版本是3.4.14：
+wget https://mirrors.cnnic.cn/apache/zookeeper/stable/zookeeper-3.4.14.tar.gz kafka的版本是3.2，注意前面的2.13是scala的版本
+wget http://archive.apache.org/dist/kafka/3.2.0/kafka_2.13-3.2.0.tgz 软件都下载好以后，找三台服务器，软件都放到 /usr/local 路径下：
+服务器的ip是：
+172.18.31.50 172.18.31.51 172.18.31.52 移动软件：
+tar zxvf zookeeper-3.4.14.tar.gz mv apache-zookeeper-3.6.3-bin /usr/local tar zxvf kafka_2.13-3.2.0.tgz mv kafka_2.13-3.2.0 /usr/local 然后得装 java 了，centos 版本
+yum -y install epel-release yum -y install java-11-openjdk-devel 首先去编辑zookeeper的配置文件，然后启动
+cp /usr/local/apache-zookeeper-3.6.3-bin/conf/zoo_sample.cfg /usr/local/apache-zookeeper-3.6.3-bin/conf/zoo.cfg 编辑zoo.cfg，增加几行
+dataDir=/data/zookeeper metricsProvider.className=org.apache.zookeeper.metrics.prometheus.PrometheusMetricsProvider metricsProvider.httpPort=7000 metricsProvider.exportJvmInfo=true server.0=172.18.31.50:20881:30881 server.1=172.18.31.51:20881:30881 server.2=172.18.31.52:20881:30881 注意上面，我们的数据目录是在/data/zookeeper，所以要先建立好目录结构
+然后有三台服务器么，把各自的id放到文件中，然后20881是三台服务器之间的通讯端口，30881是选举端口
+mkdir /data/zookeeper -p echo 0 >/data/zookeeper/myid 三台服务器分别启动
+/usr/local/apache-zookeeper-3.6.3-bin/bin/zkServer.sh start 验证一下
+/usr/local/apache-zookeeper-3.6.3-bin/bin/zkCli.sh [zk: localhost:2181(CONNECTED) 1] ls / [admin, brokers, cluster, config, consumers, controller, controller_epoch, feature, isr_change_notification, latest_producer_id_block, log_dir_event_notification, zookeeper] 看看 / 下有东西就行了，上面是已经装好了 kafka 和 cruisecontrol的情形，东西就比较多了"><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-11-13T09:30:11+08:00"><meta property="article:modified_time" content="2022-11-13T09:30:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Kafka的安装和验证"><meta name=twitter:description content="生产环境要用到kafka，记录一下安装过程，其实最重要的不是安装，而是使用。
+时间节点是2022年7月10日，zookeeper的版本是3.4.14：
+wget https://mirrors.cnnic.cn/apache/zookeeper/stable/zookeeper-3.4.14.tar.gz
+kafka的版本是3.2，注意前面的2.13是scala的版本
+wget http://archive.apache.org/dist/kafka/3.2.0/kafka_2.13-3.2.0.tgz
+软件都下载好以后，找三台服务器，软件都放到 /usr/local 路径下：
+服务器的ip是：
+172.18.31.50
+172.18.31.51
+172.18.31.52
+移动软件：
+tar zxvf zookeeper-3.4.14.tar.gz
+mv apache-zookeeper-3.6.3-bin /usr/local
+
+tar zxvf kafka_2.13-3.2.0.tgz
+mv kafka_2.13-3.2.0 /usr/local
+然后得装 java 了，centos 版本
+yum -y install epel-release
+yum -y install java-11-openjdk-devel
+首先去编辑zookeeper的配置文件，然后启动
+cp /usr/local/apache-zookeeper-3.6.3-bin/conf/zoo_sample.cfg /usr/local/apache-zookeeper-3.6.3-bin/conf/zoo.cfg
+编辑zoo.cfg，增加几行
+dataDir=/data/zookeeper
+
+metricsProvider.className=org.apache.zookeeper.metrics.prometheus.PrometheusMetricsProvider
+metricsProvider.httpPort=7000
+metricsProvider.exportJvmInfo=true
+
+server.0=172.18.31.50:20881:30881
+server.1=172.18.31.51:20881:30881
+server.2=172.18.31.52:20881:30881
+注意上面，我们的数据目录是在/data/zookeeper，所以要先建立好目录结构
+然后有三台服务器么，把各自的id放到文件中，然后20881是三台服务器之间的通讯端口，30881是选举端口
+mkdir /data/zookeeper -p
+echo 0 >/data/zookeeper/myid
+三台服务器分别启动
+/usr/local/apache-zookeeper-3.6.3-bin/bin/zkServer.sh start
+验证一下
+/usr/local/apache-zookeeper-3.6.3-bin/bin/zkCli.sh
+
+[zk: localhost:2181(CONNECTED) 1] ls /
+[admin, brokers, cluster, config, consumers, controller, controller_epoch, feature, isr_change_notification, latest_producer_id_block, log_dir_event_notification, zookeeper]
+看看 / 下有东西就行了，上面是已经装好了 kafka 和 cruisecontrol的情形，东西就比较多了"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"Kafka的安装和验证","item":"https://rendoumi.com/posts/20221113-kafka/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Kafka的安装和验证","name":"Kafka的安装和验证","description":"生产环境要用到kafka，记录一下安装过程，其实最重要的不是安装，而是使用。\n时间节点是2022年7月10日，zookeeper的版本是3.4.14：\nwget https://mirrors.cnnic.cn/apache/zookeeper/stable/zookeeper-3.4.14.tar.gz kafka的版本是3.2，注意前面的2.13是scala的版本\nwget http://archive.apache.org/dist/kafka/3.2.0/kafka_2.13-3.2.0.tgz 软件都下载好以后，找三台服务器，软件都放到 /usr/local 路径下：\n服务器的ip是：\n172.18.31.50 172.18.31.51 172.18.31.52 移动软件：\ntar zxvf zookeeper-3.4.14.tar.gz mv apache-zookeeper-3.6.3-bin /usr/local tar zxvf kafka_2.13-3.2.0.tgz mv kafka_2.13-3.2.0 /usr/local 然后得装 java 了，centos 版本\nyum -y install epel-release yum -y install java-11-openjdk-devel 首先去编辑zookeeper的配置文件，然后启动\ncp /usr/local/apache-zookeeper-3.6.3-bin/conf/zoo_sample.cfg /usr/local/apache-zookeeper-3.6.3-bin/conf/zoo.cfg 编辑zoo.cfg，增加几行\ndataDir=/data/zookeeper metricsProvider.className=org.apache.zookeeper.metrics.prometheus.PrometheusMetricsProvider metricsProvider.httpPort=7000 metricsProvider.exportJvmInfo=true server.0=172.18.31.50:20881:30881 server.1=172.18.31.51:20881:30881 server.2=172.18.31.52:20881:30881 注意上面，我们的数据目录是在/data/zookeeper，所以要先建立好目录结构\n然后有三台服务器么，把各自的id放到文件中，然后20881是三台服务器之间的通讯端口，30881是选举端口\nmkdir /data/zookeeper -p echo 0 \u0026gt;/data/zookeeper/myid 三台服务器分别启动\n/usr/local/apache-zookeeper-3.6.3-bin/bin/zkServer.sh start 验证一下\n/usr/local/apache-zookeeper-3.6.3-bin/bin/zkCli.sh [zk: localhost:2181(CONNECTED) 1] ls / [admin, brokers, cluster, config, consumers, controller, controller_epoch, feature, isr_change_notification, latest_producer_id_block, log_dir_event_notification, zookeeper] 看看 / 下有东西就行了，上面是已经装好了 kafka 和 cruisecontrol的情形，东西就比较多了\n","keywords":[],"articleBody":"生产环境要用到kafka，记录一下安装过程，其实最重要的不是安装，而是使用。\n时间节点是2022年7月10日，zookeeper的版本是3.4.14：\nwget https://mirrors.cnnic.cn/apache/zookeeper/stable/zookeeper-3.4.14.tar.gz kafka的版本是3.2，注意前面的2.13是scala的版本\nwget http://archive.apache.org/dist/kafka/3.2.0/kafka_2.13-3.2.0.tgz 软件都下载好以后，找三台服务器，软件都放到 /usr/local 路径下：\n服务器的ip是：\n172.18.31.50 172.18.31.51 172.18.31.52 移动软件：\ntar zxvf zookeeper-3.4.14.tar.gz mv apache-zookeeper-3.6.3-bin /usr/local tar zxvf kafka_2.13-3.2.0.tgz mv kafka_2.13-3.2.0 /usr/local 然后得装 java 了，centos 版本\nyum -y install epel-release yum -y install java-11-openjdk-devel 首先去编辑zookeeper的配置文件，然后启动\ncp /usr/local/apache-zookeeper-3.6.3-bin/conf/zoo_sample.cfg /usr/local/apache-zookeeper-3.6.3-bin/conf/zoo.cfg 编辑zoo.cfg，增加几行\ndataDir=/data/zookeeper metricsProvider.className=org.apache.zookeeper.metrics.prometheus.PrometheusMetricsProvider metricsProvider.httpPort=7000 metricsProvider.exportJvmInfo=true server.0=172.18.31.50:20881:30881 server.1=172.18.31.51:20881:30881 server.2=172.18.31.52:20881:30881 注意上面，我们的数据目录是在/data/zookeeper，所以要先建立好目录结构\n然后有三台服务器么，把各自的id放到文件中，然后20881是三台服务器之间的通讯端口，30881是选举端口\nmkdir /data/zookeeper -p echo 0 \u003e/data/zookeeper/myid 三台服务器分别启动\n/usr/local/apache-zookeeper-3.6.3-bin/bin/zkServer.sh start 验证一下\n/usr/local/apache-zookeeper-3.6.3-bin/bin/zkCli.sh [zk: localhost:2181(CONNECTED) 1] ls / [admin, brokers, cluster, config, consumers, controller, controller_epoch, feature, isr_change_notification, latest_producer_id_block, log_dir_event_notification, zookeeper] 看看 / 下有东西就行了，上面是已经装好了 kafka 和 cruisecontrol的情形，东西就比较多了\n然后装 kafka，先修改配置文件\nvi /usr/local/kafka_2.13-3.2.0/config/server.properties #需要修改的地方 broker.id=0 log.dirs=/data/kafka zookeeper.connect=172.18.31.50:2181,172.18.31.51:2181,172.18.31.52:2181 然后启动就可以了\n/usr/local/kafka_2.13-3.2.0/bin/kafka-server-start.sh -daemon /usr/local/kafka_2.13-3.2.0/config/server.properties 验证一下：\n# 新版的 kafka-topics.sh 命令已经变了 cd /usr/local/kafka_2.13-3.2.0/bin # bootstrap-server 写一个就好，我们建立了一个 topic ，叫做 swimmingpool ./kafka-topics.sh --create --bootstrap-server 172.18.31.50:9092 --replication-factor 3 --partitions 3 --topic swimmingpool # 看看细节 ./kafka-topics.sh --describe --bootstrap-server 172.18.31.50:9092 --topic swimmingpool Topic: swimmingpool TopicId: gOLXSh5NQPKMAwEroi_HcQ PartitionCount: 3 ReplicationFactor: 3 Configs: segment.bytes=1073741824 Topic: swimmingpool Partition: 0 Leader: 2 Replicas: 0,2,1 Isr: 2,1,0 Topic: swimmingpool Partition: 1 Leader: 2 Replicas: 2,1,0 Isr: 2,0,1 Topic: swimmingpool Partition: 2 Leader: 2 Replicas: 1,0,2 Isr: 2,0,1 # 生产一些消息，ctrl+c 断出 ./kafka-console-producer.sh --bootstrap-server 172.18.31.50:9092 --topic swimmingpool \u003ei am ok \u003ei am fine \u003ei am good # 消费这些消息，同样用 ctrl+c 断出，注意看，消息是倒序的 ./kafka-consoconsumer.sh --bootstrap-server 172.18.31.50:9092 --topic swimmingpool --from-beginning i am good i am fine i am ok 这样就装好了，但是安装只是第一步，重要的是 topic 的 reblance 以及 partion 的重新分布\n","wordCount":"213","inLanguage":"zh","datePublished":"2022-11-13T09:30:11+08:00","dateModified":"2022-11-13T09:30:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20221113-kafka/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">Kafka的安装和验证
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2022-11-13 09:30:11 +0800 CST'>2022年11月13日</span></div></header><div class=post-content><p>生产环境要用到kafka，记录一下安装过程，其实最重要的不是安装，而是使用。</p><p>时间节点是2022年7月10日，zookeeper的版本是3.4.14：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>wget https://mirrors.cnnic.cn/apache/zookeeper/stable/zookeeper-3.4.14.tar.gz
+</span></span></code></pre></div><p>kafka的版本是3.2，注意前面的2.13是scala的版本</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>wget http://archive.apache.org/dist/kafka/3.2.0/kafka_2.13-3.2.0.tgz
+</span></span></code></pre></div><p>软件都下载好以后，找三台服务器，软件都放到 /usr/local 路径下：</p><p>服务器的ip是：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>172.18.31.50
+</span></span><span class=line><span class=cl>172.18.31.51
+</span></span><span class=line><span class=cl>172.18.31.52
+</span></span></code></pre></div><p>移动软件：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>tar zxvf zookeeper-3.4.14.tar.gz
+</span></span><span class=line><span class=cl>mv apache-zookeeper-3.6.3-bin /usr/local
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>tar zxvf kafka_2.13-3.2.0.tgz
+</span></span><span class=line><span class=cl>mv kafka_2.13-3.2.0 /usr/local
+</span></span></code></pre></div><p>然后得装 java 了，centos 版本</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>yum -y install epel-release
+</span></span><span class=line><span class=cl>yum -y install java-11-openjdk-devel
+</span></span></code></pre></div><p>首先去编辑zookeeper的配置文件，然后启动</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>cp /usr/local/apache-zookeeper-3.6.3-bin/conf/zoo_sample.cfg /usr/local/apache-zookeeper-3.6.3-bin/conf/zoo.cfg
+</span></span></code></pre></div><p>编辑zoo.cfg，增加几行</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=nv>dataDir</span><span class=o>=</span>/data/zookeeper
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>metricsProvider.className<span class=o>=</span>org.apache.zookeeper.metrics.prometheus.PrometheusMetricsProvider
+</span></span><span class=line><span class=cl>metricsProvider.httpPort<span class=o>=</span><span class=m>7000</span>
+</span></span><span class=line><span class=cl>metricsProvider.exportJvmInfo<span class=o>=</span><span class=nb>true</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>server.0<span class=o>=</span>172.18.31.50:20881:30881
+</span></span><span class=line><span class=cl>server.1<span class=o>=</span>172.18.31.51:20881:30881
+</span></span><span class=line><span class=cl>server.2<span class=o>=</span>172.18.31.52:20881:30881
+</span></span></code></pre></div><p>注意上面，我们的数据目录是在/data/zookeeper，所以要先建立好目录结构</p><p>然后有三台服务器么，把各自的id放到文件中，然后20881是三台服务器之间的通讯端口，30881是选举端口</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>mkdir /data/zookeeper -p
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=m>0</span> &gt;/data/zookeeper/myid
+</span></span></code></pre></div><p>三台服务器分别启动</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>/usr/local/apache-zookeeper-3.6.3-bin/bin/zkServer.sh start
+</span></span></code></pre></div><p>验证一下</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>/usr/local/apache-zookeeper-3.6.3-bin/bin/zkCli.sh
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>zk: localhost:2181<span class=o>(</span>CONNECTED<span class=o>)</span> 1<span class=o>]</span> ls /
+</span></span><span class=line><span class=cl><span class=o>[</span>admin, brokers, cluster, config, consumers, controller, controller_epoch, feature, isr_change_notification, latest_producer_id_block, log_dir_event_notification, zookeeper<span class=o>]</span>
+</span></span></code></pre></div><p>看看 / 下有东西就行了，上面是已经装好了 kafka 和 cruisecontrol的情形，东西就比较多了</p><p>然后装 kafka，先修改配置文件</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>vi /usr/local/kafka_2.13-3.2.0/config/server.properties
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#需要修改的地方</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>broker.id<span class=o>=</span><span class=m>0</span>
+</span></span><span class=line><span class=cl>log.dirs<span class=o>=</span>/data/kafka
+</span></span><span class=line><span class=cl>zookeeper.connect<span class=o>=</span>172.18.31.50:2181,172.18.31.51:2181,172.18.31.52:2181
+</span></span></code></pre></div><p>然后启动就可以了</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>/usr/local/kafka_2.13-3.2.0/bin/kafka-server-start.sh -daemon /usr/local/kafka_2.13-3.2.0/config/server.properties
+</span></span></code></pre></div><p>验证一下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=c1># 新版的 kafka-topics.sh 命令已经变了</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>cd</span> /usr/local/kafka_2.13-3.2.0/bin
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># bootstrap-server 写一个就好，我们建立了一个 topic ，叫做 swimmingpool</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>./kafka-topics.sh --create --bootstrap-server 172.18.31.50:9092 --replication-factor <span class=m>3</span> --partitions <span class=m>3</span> --topic swimmingpool
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 看看细节</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>./kafka-topics.sh --describe --bootstrap-server 172.18.31.50:9092 --topic swimmingpool 
+</span></span><span class=line><span class=cl>Topic: swimmingpool     TopicId: gOLXSh5NQPKMAwEroi_HcQ PartitionCount: <span class=m>3</span>       ReplicationFactor: <span class=m>3</span>    Configs: segment.bytes<span class=o>=</span><span class=m>1073741824</span>
+</span></span><span class=line><span class=cl>        Topic: swimmingpool     Partition: <span class=m>0</span>    Leader: <span class=m>2</span>       Replicas: 0,2,1 Isr: 2,1,0
+</span></span><span class=line><span class=cl>        Topic: swimmingpool     Partition: <span class=m>1</span>    Leader: <span class=m>2</span>       Replicas: 2,1,0 Isr: 2,0,1
+</span></span><span class=line><span class=cl>        Topic: swimmingpool     Partition: <span class=m>2</span>    Leader: <span class=m>2</span>       Replicas: 1,0,2 Isr: 2,0,1
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 生产一些消息，ctrl+c 断出</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>./kafka-console-producer.sh --bootstrap-server 172.18.31.50:9092 --topic swimmingpool
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>&gt;i am ok
+</span></span><span class=line><span class=cl>&gt;i am fine
+</span></span><span class=line><span class=cl>&gt;i am good
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 消费这些消息，同样用 ctrl+c 断出，注意看，消息是倒序的</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>./kafka-consoconsumer.sh --bootstrap-server 172.18.31.50:9092 --topic swimmingpool --from-beginning
+</span></span><span class=line><span class=cl>i am good
+</span></span><span class=line><span class=cl>i am fine
+</span></span><span class=line><span class=cl>i am ok
+</span></span></code></pre></div><p>这样就装好了，但是安装只是第一步，重要的是 topic 的 reblance 以及 partion 的重新分布</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

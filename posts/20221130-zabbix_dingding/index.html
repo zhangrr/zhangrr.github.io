@@ -1,0 +1,199 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Zabbix下发往钉钉告警 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='zabbix 是很熟悉的东西，但是实际上博主已经跳过了这个东西，直接蹦到 Prometheus 去了
+但是，存在即合理，当下公司用的是这个，那么用就用吧，zabbix发到钉钉告警。
+那么我们也研究一下如何发到钉钉告警，而且好看一些
+原理：
+
+原理就是用 post 向钉钉机器人的 webhook 地址提交 Markdown 的 json 信息
+首先我们要建立个钉钉群，然后在群中添加一个群机器人，这里就会有两个选择，一个是这个机器人只接受特定的词语，二是向机器人发送消息的机器的ip是固定的。
+阿里云建议的是关键词：云监控、云服务、监控、Monitor、ECS、报警
+
+当然，这里更加建议IP，IP是死的，报警里带关键词意味着发送内容被部分固定了。
+如上，我们会得到一个钉钉机器人的Webhook地址：
+https://oapi.dingtalk.com/robot/send?access_token=xxxxxxxxxx
+然后我们要准备一个发送的脚本，python很合适
+#!/usr/bin/env python
+#coding:utf-8
+ 
+#zabbix钉钉报警
+import requests,json,sys,os,datetime
+#说明：这里改为自己创建的机器人的webhook
+webhook="https://oapi.dingtalk.com/robot/send?access_token=xxxxxx"     
+
+def log(info):
+    if os.path.isfile("/tmp/dingding.log") == False:
+        f = open(log_file, &#39;a+&#39;)
+    else:
+        f = open(log_file,&#39;w+&#39;)
+    f.write(info)
+    f.close()
+
+def msg(text,user):
+    json_text= {
+      "msgtype": "markdown",
+      "markdown": {
+         "title": "zabbix monitor",
+         "text": text
+      },
+      "at": {
+         "atMobiles": [
+             user
+             ],
+         "isAtAll": False
+      }
+    }
+    
+    headers = {&#39;Content-Type&#39;: &#39;application/json&#39;}
+    r=requests.post(url=webhook,data=json.dumps(json_text),headers=headers).json()
+    code = r["errcode"]
+    time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    if code == 0:
+        log(time + ":消息发送成功 返回码:" + str(code) + "\n")
+    else:
+        log(time + ":消息发送失败 返回码:" + str(code) + "\n")
+        exit(3)
+
+if __name__ == &#39;__main__&#39;:
+    user = sys.argv[1] #用户
+    subject = sys.argv[2] #标题
+    text = sys.argv[3] #消息
+    msg(text,user)
+我们把上面的文件内容放到 /usr/lib/zabbix/alertscripts 目录下，名字就叫做 dingding.py ，只能是这个目录，因为这是 zabbix 缺省外挂脚本文件的目录。'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20221130-zabbix_dingding/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20221130-zabbix_dingding/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20221130-zabbix_dingding/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="Zabbix下发往钉钉告警"><meta property="og:description" content='zabbix 是很熟悉的东西，但是实际上博主已经跳过了这个东西，直接蹦到 Prometheus 去了
+但是，存在即合理，当下公司用的是这个，那么用就用吧，zabbix发到钉钉告警。
+那么我们也研究一下如何发到钉钉告警，而且好看一些
+原理：
+原理就是用 post 向钉钉机器人的 webhook 地址提交 Markdown 的 json 信息
+首先我们要建立个钉钉群，然后在群中添加一个群机器人，这里就会有两个选择，一个是这个机器人只接受特定的词语，二是向机器人发送消息的机器的ip是固定的。
+阿里云建议的是关键词：云监控、云服务、监控、Monitor、ECS、报警
+当然，这里更加建议IP，IP是死的，报警里带关键词意味着发送内容被部分固定了。
+如上，我们会得到一个钉钉机器人的Webhook地址：
+https://oapi.dingtalk.com/robot/send?access_token=xxxxxxxxxx 然后我们要准备一个发送的脚本，python很合适
+#!/usr/bin/env python #coding:utf-8 #zabbix钉钉报警 import requests,json,sys,os,datetime #说明：这里改为自己创建的机器人的webhook webhook="https://oapi.dingtalk.com/robot/send?access_token=xxxxxx" def log(info): if os.path.isfile("/tmp/dingding.log") == False: f = open(log_file, &#39;a+&#39;) else: f = open(log_file,&#39;w+&#39;) f.write(info) f.close() def msg(text,user): json_text= { "msgtype": "markdown", "markdown": { "title": "zabbix monitor", "text": text }, "at": { "atMobiles": [ user ], "isAtAll": False } } headers = {&#39;Content-Type&#39;: &#39;application/json&#39;} r=requests.post(url=webhook,data=json.dumps(json_text),headers=headers).json() code = r["errcode"] time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) if code == 0: log(time + ":消息发送成功 返回码:" + str(code) + "\n") else: log(time + ":消息发送失败 返回码:" + str(code) + "\n") exit(3) if __name__ == &#39;__main__&#39;: user = sys.argv[1] #用户 subject = sys.argv[2] #标题 text = sys.argv[3] #消息 msg(text,user) 我们把上面的文件内容放到 /usr/lib/zabbix/alertscripts 目录下，名字就叫做 dingding.py ，只能是这个目录，因为这是 zabbix 缺省外挂脚本文件的目录。'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-11-30T09:30:11+08:00"><meta property="article:modified_time" content="2022-11-30T09:30:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Zabbix下发往钉钉告警"><meta name=twitter:description content='zabbix 是很熟悉的东西，但是实际上博主已经跳过了这个东西，直接蹦到 Prometheus 去了
+但是，存在即合理，当下公司用的是这个，那么用就用吧，zabbix发到钉钉告警。
+那么我们也研究一下如何发到钉钉告警，而且好看一些
+原理：
+
+原理就是用 post 向钉钉机器人的 webhook 地址提交 Markdown 的 json 信息
+首先我们要建立个钉钉群，然后在群中添加一个群机器人，这里就会有两个选择，一个是这个机器人只接受特定的词语，二是向机器人发送消息的机器的ip是固定的。
+阿里云建议的是关键词：云监控、云服务、监控、Monitor、ECS、报警
+
+当然，这里更加建议IP，IP是死的，报警里带关键词意味着发送内容被部分固定了。
+如上，我们会得到一个钉钉机器人的Webhook地址：
+https://oapi.dingtalk.com/robot/send?access_token=xxxxxxxxxx
+然后我们要准备一个发送的脚本，python很合适
+#!/usr/bin/env python
+#coding:utf-8
+ 
+#zabbix钉钉报警
+import requests,json,sys,os,datetime
+#说明：这里改为自己创建的机器人的webhook
+webhook="https://oapi.dingtalk.com/robot/send?access_token=xxxxxx"     
+
+def log(info):
+    if os.path.isfile("/tmp/dingding.log") == False:
+        f = open(log_file, &#39;a+&#39;)
+    else:
+        f = open(log_file,&#39;w+&#39;)
+    f.write(info)
+    f.close()
+
+def msg(text,user):
+    json_text= {
+      "msgtype": "markdown",
+      "markdown": {
+         "title": "zabbix monitor",
+         "text": text
+      },
+      "at": {
+         "atMobiles": [
+             user
+             ],
+         "isAtAll": False
+      }
+    }
+    
+    headers = {&#39;Content-Type&#39;: &#39;application/json&#39;}
+    r=requests.post(url=webhook,data=json.dumps(json_text),headers=headers).json()
+    code = r["errcode"]
+    time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    if code == 0:
+        log(time + ":消息发送成功 返回码:" + str(code) + "\n")
+    else:
+        log(time + ":消息发送失败 返回码:" + str(code) + "\n")
+        exit(3)
+
+if __name__ == &#39;__main__&#39;:
+    user = sys.argv[1] #用户
+    subject = sys.argv[2] #标题
+    text = sys.argv[3] #消息
+    msg(text,user)
+我们把上面的文件内容放到 /usr/lib/zabbix/alertscripts 目录下，名字就叫做 dingding.py ，只能是这个目录，因为这是 zabbix 缺省外挂脚本文件的目录。'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"Zabbix下发往钉钉告警","item":"https://rendoumi.com/posts/20221130-zabbix_dingding/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Zabbix下发往钉钉告警","name":"Zabbix下发往钉钉告警","description":"zabbix 是很熟悉的东西，但是实际上博主已经跳过了这个东西，直接蹦到 Prometheus 去了\n但是，存在即合理，当下公司用的是这个，那么用就用吧，zabbix发到钉钉告警。\n那么我们也研究一下如何发到钉钉告警，而且好看一些\n原理：\n原理就是用 post 向钉钉机器人的 webhook 地址提交 Markdown 的 json 信息\n首先我们要建立个钉钉群，然后在群中添加一个群机器人，这里就会有两个选择，一个是这个机器人只接受特定的词语，二是向机器人发送消息的机器的ip是固定的。\n阿里云建议的是关键词：云监控、云服务、监控、Monitor、ECS、报警\n当然，这里更加建议IP，IP是死的，报警里带关键词意味着发送内容被部分固定了。\n如上，我们会得到一个钉钉机器人的Webhook地址：\nhttps://oapi.dingtalk.com/robot/send?access_token=xxxxxxxxxx 然后我们要准备一个发送的脚本，python很合适\n#!/usr/bin/env python #coding:utf-8 #zabbix钉钉报警 import requests,json,sys,os,datetime #说明：这里改为自己创建的机器人的webhook webhook=\u0026#34;https://oapi.dingtalk.com/robot/send?access_token=xxxxxx\u0026#34; def log(info): if os.path.isfile(\u0026#34;/tmp/dingding.log\u0026#34;) == False: f = open(log_file, \u0026#39;a+\u0026#39;) else: f = open(log_file,\u0026#39;w+\u0026#39;) f.write(info) f.close() def msg(text,user): json_text= { \u0026#34;msgtype\u0026#34;: \u0026#34;markdown\u0026#34;, \u0026#34;markdown\u0026#34;: { \u0026#34;title\u0026#34;: \u0026#34;zabbix monitor\u0026#34;, \u0026#34;text\u0026#34;: text }, \u0026#34;at\u0026#34;: { \u0026#34;atMobiles\u0026#34;: [ user ], \u0026#34;isAtAll\u0026#34;: False } } headers = {\u0026#39;Content-Type\u0026#39;: \u0026#39;application/json\u0026#39;} r=requests.post(url=webhook,data=json.dumps(json_text),headers=headers).json() code = r[\u0026#34;errcode\u0026#34;] time=time.strftime(\u0026#34;%Y-%m-%d %H:%M:%S\u0026#34;, time.localtime()) if code == 0: log(time + \u0026#34;:消息发送成功 返回码:\u0026#34; + str(code) + \u0026#34;\\n\u0026#34;) else: log(time + \u0026#34;:消息发送失败 返回码:\u0026#34; + str(code) + \u0026#34;\\n\u0026#34;) exit(3) if __name__ == \u0026#39;__main__\u0026#39;: user = sys.argv[1] #用户 subject = sys.argv[2] #标题 text = sys.argv[3] #消息 msg(text,user) 我们把上面的文件内容放到 /usr/lib/zabbix/alertscripts 目录下，名字就叫做 dingding.py ，只能是这个目录，因为这是 zabbix 缺省外挂脚本文件的目录。\n","keywords":[],"articleBody":"zabbix 是很熟悉的东西，但是实际上博主已经跳过了这个东西，直接蹦到 Prometheus 去了\n但是，存在即合理，当下公司用的是这个，那么用就用吧，zabbix发到钉钉告警。\n那么我们也研究一下如何发到钉钉告警，而且好看一些\n原理：\n原理就是用 post 向钉钉机器人的 webhook 地址提交 Markdown 的 json 信息\n首先我们要建立个钉钉群，然后在群中添加一个群机器人，这里就会有两个选择，一个是这个机器人只接受特定的词语，二是向机器人发送消息的机器的ip是固定的。\n阿里云建议的是关键词：云监控、云服务、监控、Monitor、ECS、报警\n当然，这里更加建议IP，IP是死的，报警里带关键词意味着发送内容被部分固定了。\n如上，我们会得到一个钉钉机器人的Webhook地址：\nhttps://oapi.dingtalk.com/robot/send?access_token=xxxxxxxxxx 然后我们要准备一个发送的脚本，python很合适\n#!/usr/bin/env python #coding:utf-8 #zabbix钉钉报警 import requests,json,sys,os,datetime #说明：这里改为自己创建的机器人的webhook webhook=\"https://oapi.dingtalk.com/robot/send?access_token=xxxxxx\" def log(info): if os.path.isfile(\"/tmp/dingding.log\") == False: f = open(log_file, 'a+') else: f = open(log_file,'w+') f.write(info) f.close() def msg(text,user): json_text= { \"msgtype\": \"markdown\", \"markdown\": { \"title\": \"zabbix monitor\", \"text\": text }, \"at\": { \"atMobiles\": [ user ], \"isAtAll\": False } } headers = {'Content-Type': 'application/json'} r=requests.post(url=webhook,data=json.dumps(json_text),headers=headers).json() code = r[\"errcode\"] time=time.strftime(\"%Y-%m-%d %H:%M:%S\", time.localtime()) if code == 0: log(time + \":消息发送成功 返回码:\" + str(code) + \"\\n\") else: log(time + \":消息发送失败 返回码:\" + str(code) + \"\\n\") exit(3) if __name__ == '__main__': user = sys.argv[1] #用户 subject = sys.argv[2] #标题 text = sys.argv[3] #消息 msg(text,user) 我们把上面的文件内容放到 /usr/lib/zabbix/alertscripts 目录下，名字就叫做 dingding.py ，只能是这个目录，因为这是 zabbix 缺省外挂脚本文件的目录。\n从上面代码里我们可以看到，实际是发送了一个 markdown 的文本，那么自然，各种markdown的语法就可以用起来了，仔细看一下钉钉markdown参数的详解：\n可以根据自己需求来修改。\n接下来我们配置Zabbix的告警配置\n创建新的告警媒介：媒介类型选择脚本，提前将上方的脚本放置于/usr/lib/zabbix/alertscripts中并在脚本名称处填写你命名的文件名。 添加告警参数：这里用到了3个参数，第一个是{ALERT.SENDTO}告警对象，第二个是{ALERT.SUBJECT}告警对象，第三个是{ALERT.MESSAGE}告警正文，按照填写即可。\nALERT.SENDTO}\n#对应Python脚本中的，user=sys.argv1。\n{ALERT.SUBJECT}\n#发送的信息的标题\n{ALERT.MESSAGE}\n#对应Python脚本中的，text=sys.argv3。\n增加Message type：一般增加3个就足够了，发现问题、问题恢复、问题更新，详细的设置在下方说明。\n这里就是关键了：\n发现问题的模板：\n![告警平台信息](http://www.rendoumi.com/fire.png)\r\u003e * ##### 告警主机: {HOSTNAME1}\r\u003e * ##### 告警时间: {EVENT.DATE} {EVENT.TIME}\r\u003e * ##### 告警等级: {TRIGGER.SEVERITY}\r\u003e * ##### 告警信息: {TRIGGER.NAME}\r\u003e * ##### 告警项目: {TRIGGER.KEY1}\r\u003e * ##### 问题详情: {ITEM.NAME}:{ITEM.VALUE}\r\u003e * ##### 当前状态: {TRIGGER.STATUS}:{ITEM.VALUE1}\r\u003e * ##### 事件ID: {EVENT.ID} Problem recovery(问题恢复)的模板：\n![告警平台信息](http://www.rendoumi.com/recover.png)\r\u003e * #### 警告解除：{EVENT.RECOVERY.DATE} {EVENT.RECOVERY.TIME}\r\u003e * ##### 告警持续时长: {EVENT.DURATION}\r\u003e * ##### 告警主机: {HOST.NAME}\r\u003e * ##### 告警信息: {EVENT.NAME}\r\u003e * ##### 告警等级: {EVENT.SEVERITY}\r\u003e * ##### 事件ID: {EVENT.ID}\r\u003e * ##### {TRIGGER.URL} 有这两个就够了\n创建动作（点击左边菜单的配置—\u003e动作）\n添加告警条件\n添加 触发器示警度 大于等于 警告\n操作，选择发送给Admin组，或者其他组。\n在操作细节里，我们发送告警到Admin组，然后方式选dingding，这样就跟报警媒介联系起来了。\n这样一轮轮的更新以后，就可以使用了。注意要研究Markdown的语法。另外提前准备好图片。\n我们就得到一个跟阿里云告警一摸一样的东西了，说实话，好看，没有鸟用。\n","wordCount":"234","inLanguage":"zh","datePublished":"2022-11-30T09:30:11+08:00","dateModified":"2022-11-30T09:30:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20221130-zabbix_dingding/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">Zabbix下发往钉钉告警
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2022-11-30 09:30:11 +0800 CST'>2022年11月30日</span></div></header><div class=post-content><p>zabbix 是很熟悉的东西，但是实际上博主已经跳过了这个东西，直接蹦到 Prometheus 去了</p><p>但是，存在即合理，当下公司用的是这个，那么用就用吧，zabbix发到钉钉告警。</p><p>那么我们也研究一下如何发到钉钉告警，而且好看一些</p><p>原理：</p><blockquote><p>原理就是用 post 向钉钉机器人的 webhook 地址提交 Markdown 的 json 信息</p></blockquote><p>首先我们要建立个钉钉群，然后在群中添加一个群机器人，这里就会有两个选择，一个是这个机器人只接受特定的词语，二是向机器人发送消息的机器的ip是固定的。</p><p>阿里云建议的是关键词：<strong>云监控、云服务、监控、Monitor、ECS、报警</strong></p><p><img alt=image-20221130195533865 loading=lazy src=/posts/20221130-zabbix_dingding/image-20221130195533865.png></p><p>当然，这里更加建议IP，IP是死的，报警里带关键词意味着发送内容被部分固定了。</p><p>如上，我们会得到一个钉钉机器人的Webhook地址：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>https://oapi.dingtalk.com/robot/send?access_token<span class=o>=</span>xxxxxxxxxx
+</span></span></code></pre></div><p>然后我们要准备一个发送的脚本，python很合适</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=ch>#!/usr/bin/env python</span>
+</span></span><span class=line><span class=cl><span class=c1>#coding:utf-8</span>
+</span></span><span class=line><span class=cl> 
+</span></span><span class=line><span class=cl><span class=c1>#zabbix钉钉报警</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>requests</span><span class=o>,</span><span class=nn>json</span><span class=o>,</span><span class=nn>sys</span><span class=o>,</span><span class=nn>os</span><span class=o>,</span><span class=nn>datetime</span>
+</span></span><span class=line><span class=cl><span class=c1>#说明：这里改为自己创建的机器人的webhook</span>
+</span></span><span class=line><span class=cl><span class=n>webhook</span><span class=o>=</span><span class=s2>&#34;https://oapi.dingtalk.com/robot/send?access_token=xxxxxx&#34;</span>     
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>log</span><span class=p>(</span><span class=n>info</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>isfile</span><span class=p>(</span><span class=s2>&#34;/tmp/dingding.log&#34;</span><span class=p>)</span> <span class=o>==</span> <span class=kc>False</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>f</span> <span class=o>=</span> <span class=nb>open</span><span class=p>(</span><span class=n>log_file</span><span class=p>,</span> <span class=s1>&#39;a+&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>f</span> <span class=o>=</span> <span class=nb>open</span><span class=p>(</span><span class=n>log_file</span><span class=p>,</span><span class=s1>&#39;w+&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>f</span><span class=o>.</span><span class=n>write</span><span class=p>(</span><span class=n>info</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>f</span><span class=o>.</span><span class=n>close</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>msg</span><span class=p>(</span><span class=n>text</span><span class=p>,</span><span class=n>user</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>json_text</span><span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;msgtype&#34;</span><span class=p>:</span> <span class=s2>&#34;markdown&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;markdown&#34;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>         <span class=s2>&#34;title&#34;</span><span class=p>:</span> <span class=s2>&#34;zabbix monitor&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>         <span class=s2>&#34;text&#34;</span><span class=p>:</span> <span class=n>text</span>
+</span></span><span class=line><span class=cl>      <span class=p>},</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;at&#34;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>         <span class=s2>&#34;atMobiles&#34;</span><span class=p>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>             <span class=n>user</span>
+</span></span><span class=line><span class=cl>             <span class=p>],</span>
+</span></span><span class=line><span class=cl>         <span class=s2>&#34;isAtAll&#34;</span><span class=p>:</span> <span class=kc>False</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=n>headers</span> <span class=o>=</span> <span class=p>{</span><span class=s1>&#39;Content-Type&#39;</span><span class=p>:</span> <span class=s1>&#39;application/json&#39;</span><span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=n>r</span><span class=o>=</span><span class=n>requests</span><span class=o>.</span><span class=n>post</span><span class=p>(</span><span class=n>url</span><span class=o>=</span><span class=n>webhook</span><span class=p>,</span><span class=n>data</span><span class=o>=</span><span class=n>json</span><span class=o>.</span><span class=n>dumps</span><span class=p>(</span><span class=n>json_text</span><span class=p>),</span><span class=n>headers</span><span class=o>=</span><span class=n>headers</span><span class=p>)</span><span class=o>.</span><span class=n>json</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>code</span> <span class=o>=</span> <span class=n>r</span><span class=p>[</span><span class=s2>&#34;errcode&#34;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=n>time</span><span class=o>=</span><span class=n>time</span><span class=o>.</span><span class=n>strftime</span><span class=p>(</span><span class=s2>&#34;%Y-%m-</span><span class=si>%d</span><span class=s2> %H:%M:%S&#34;</span><span class=p>,</span> <span class=n>time</span><span class=o>.</span><span class=n>localtime</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>code</span> <span class=o>==</span> <span class=mi>0</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>log</span><span class=p>(</span><span class=n>time</span> <span class=o>+</span> <span class=s2>&#34;:消息发送成功 返回码:&#34;</span> <span class=o>+</span> <span class=nb>str</span><span class=p>(</span><span class=n>code</span><span class=p>)</span> <span class=o>+</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>log</span><span class=p>(</span><span class=n>time</span> <span class=o>+</span> <span class=s2>&#34;:消息发送失败 返回码:&#34;</span> <span class=o>+</span> <span class=nb>str</span><span class=p>(</span><span class=n>code</span><span class=p>)</span> <span class=o>+</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>exit</span><span class=p>(</span><span class=mi>3</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=vm>__name__</span> <span class=o>==</span> <span class=s1>&#39;__main__&#39;</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>user</span> <span class=o>=</span> <span class=n>sys</span><span class=o>.</span><span class=n>argv</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span> <span class=c1>#用户</span>
+</span></span><span class=line><span class=cl>    <span class=n>subject</span> <span class=o>=</span> <span class=n>sys</span><span class=o>.</span><span class=n>argv</span><span class=p>[</span><span class=mi>2</span><span class=p>]</span> <span class=c1>#标题</span>
+</span></span><span class=line><span class=cl>    <span class=n>text</span> <span class=o>=</span> <span class=n>sys</span><span class=o>.</span><span class=n>argv</span><span class=p>[</span><span class=mi>3</span><span class=p>]</span> <span class=c1>#消息</span>
+</span></span><span class=line><span class=cl>    <span class=n>msg</span><span class=p>(</span><span class=n>text</span><span class=p>,</span><span class=n>user</span><span class=p>)</span>
+</span></span></code></pre></div><p>我们把上面的文件内容放到 /usr/lib/zabbix/alertscripts 目录下，名字就叫做 dingding.py ，只能是这个目录，因为这是 zabbix 缺省外挂脚本文件的目录。</p><p>从上面代码里我们可以看到，实际是发送了一个 markdown 的文本，那么自然，各种markdown的语法就可以用起来了，仔细看一下钉钉markdown参数的详解：</p><p><img alt=img loading=lazy src=/posts/20221130-zabbix_dingding/16f3de4a8bb34288901488f49715def1.png></p><p>可以根据自己需求来修改。</p><p>接下来我们配置Zabbix的告警配置</p><ul><li>创建新的告警媒介：媒介类型选择脚本，提前将上方的脚本放置于<code>/usr/lib/zabbix/alertscripts</code>中并在脚本名称处填写你命名的文件名。</li></ul><p><img alt=image-20221130202403729 loading=lazy src=/posts/20221130-zabbix_dingding/image-20221130202403729.png></p><ul><li><p>添加告警参数：这里用到了3个参数，第一个是<code>{ALERT.SENDTO}</code>告警对象，第二个是<code>{ALERT.SUBJECT}</code>告警对象，第三个是<code>{ALERT.MESSAGE}</code>告警正文，按照填写即可。</p><p><code>ALERT.SENDTO}</code></p><p>#对应Python脚本中的，user=sys.argv<a href=%E5%8F%91%E7%BB%99%E9%92%89%E9%92%89%E7%BE%A4%E4%B8%AD%E5%93%AA%E4%B8%AA%E7%94%A8%E6%88%B7>1</a>。</p><p><code>{ALERT.SUBJECT}</code></p><p>#发送的信息的标题</p><p><code>{ALERT.MESSAGE}</code></p><p>#对应Python脚本中的，text=sys.argv<a href=%E5%8F%91%E9%80%81%E7%9A%84%E6%8A%A5%E8%AD%A6%E5%86%85%E5%AE%B9>3</a>。</p></li></ul><p><img alt=image-20221130202515847 loading=lazy src=/posts/20221130-zabbix_dingding/image-20221130202515847.png></p><ul><li><p>增加Message type：一般增加3个就足够了，发现问题、问题恢复、问题更新，详细的设置在下方说明。</p><p><img alt=image-20221130203406737 loading=lazy src=/posts/20221130-zabbix_dingding/image-20221130203406737.png></p><p>这里就是<strong>关键</strong>了：</p><p>发现问题的模板：</p><pre tabindex=0><code>![告警平台信息](http://www.rendoumi.com/fire.png)
+&gt; * ##### 告警主机: {HOSTNAME1}
+&gt; * ##### 告警时间: {EVENT.DATE} {EVENT.TIME}
+&gt; * ##### 告警等级: {TRIGGER.SEVERITY}
+&gt; * ##### 告警信息: {TRIGGER.NAME}
+&gt; * ##### 告警项目: {TRIGGER.KEY1}
+&gt; * ##### 问题详情: {ITEM.NAME}:{ITEM.VALUE}
+&gt; * ##### 当前状态: {TRIGGER.STATUS}:{ITEM.VALUE1}
+&gt; * ##### 事件ID: {EVENT.ID}
+</code></pre><p>Problem recovery(问题恢复)的模板：</p><pre tabindex=0><code>![告警平台信息](http://www.rendoumi.com/recover.png)
+&gt; * #### 警告解除：{EVENT.RECOVERY.DATE} {EVENT.RECOVERY.TIME}
+&gt; * ##### 告警持续时长: {EVENT.DURATION}
+&gt; * ##### 告警主机: {HOST.NAME}
+&gt; * ##### 告警信息: {EVENT.NAME}
+&gt; * ##### 告警等级: {EVENT.SEVERITY}
+&gt; * ##### 事件ID: {EVENT.ID}
+&gt; * ##### {TRIGGER.URL}
+</code></pre><p>有这两个就够了</p></li><li><p>创建动作（点击左边菜单的配置&mdash;>动作）</p><p><img alt=image-20221130204220981 loading=lazy src=/posts/20221130-zabbix_dingding/image-20221130204220981.png></p><p>添加告警条件</p><p><img alt=image-20221130204324423 loading=lazy src=/posts/20221130-zabbix_dingding/image-20221130204324423.png></p><p>添加 <strong>触发器示警度 大于等于 警告</strong></p></li></ul><p><img alt=image-20221130204451489 loading=lazy src=/posts/20221130-zabbix_dingding/image-20221130204451489.png></p><p>操作，选择发送给Admin组，或者其他组。</p><p><img alt=image-20221130204704354 loading=lazy src=/posts/20221130-zabbix_dingding/image-20221130204704354.png></p><p>在操作细节里，我们发送告警到Admin组，然后方式选dingding，这样就跟报警媒介联系起来了。</p><p><img alt=image-20221130205304248 loading=lazy src=/posts/20221130-zabbix_dingding/image-20221130205304248.png></p><p>这样一轮轮的更新以后，就可以使用了。注意要研究Markdown的语法。另外提前准备好图片。</p><p>我们就得到一个跟阿里云告警一摸一样的东西了，说实话，好看，没有鸟用。</p><p><img alt=image-20221130204921458 loading=lazy src=/posts/20221130-zabbix_dingding/image-20221130204921458.png></p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

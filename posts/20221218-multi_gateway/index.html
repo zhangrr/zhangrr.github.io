@@ -1,0 +1,99 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>线上服务器出现多网关问题的处理 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="线上服务器172.18.30.67 有4个网口
+其中eno1和eno2是两个光纤万兆口，enp26s0f0和enp26s0f1是两个以太千兆网口。
+eno2网卡在没做bonding的时候，通过NetworkManager的dhcp获得了地址。然后eno1和eno2做了bonding，但是eno2实际还在单独起作用，bonding后地址没去掉，导致有两个网关。路由表如下：
+[root@renhe-18-30-67 ~]# ip r
+default via 172.18.29.254 dev eno2 
+default via 172.18.31.254 dev br0.199 proto static metric 426 
+172.18.28.0/23 dev eno2 proto kernel scope link src 172.18.28.67 
+172.18.30.0/23 dev br0.199 proto kernel scope link src 172.18.30.67 metric 426 
+192.168.122.0/24 dev virbr0 proto kernel scope link src 192.168.122.1
+eno2是从dhcp获得了172.18.28.67的地址
+ip a
+eno2: flags=6211<UP,BROADCAST,RUNNING,SLAVE,MULTICAST>  mtu 1500
+        inet 172.18.28.67  netmask 255.255.254.0  broadcast 172.18.29.255
+        ether b4:05:5d:08:e0:d8  txqueuelen 1000  (Ethernet)
+        RX packets 81768780  bytes 5398659503 (5.0 GiB)
+        RX errors 0  dropped 7  overruns 0  frame 0
+        TX packets 10044620  bytes 467566304 (445.9 MiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+这种情况下，处理方法如下："><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20221218-multi_gateway/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20221218-multi_gateway/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20221218-multi_gateway/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="线上服务器出现多网关问题的处理"><meta property="og:description" content="线上服务器172.18.30.67 有4个网口
+其中eno1和eno2是两个光纤万兆口，enp26s0f0和enp26s0f1是两个以太千兆网口。
+eno2网卡在没做bonding的时候，通过NetworkManager的dhcp获得了地址。然后eno1和eno2做了bonding，但是eno2实际还在单独起作用，bonding后地址没去掉，导致有两个网关。路由表如下：
+[root@renhe-18-30-67 ~]# ip rdefault via 172.18.29.254 dev eno2 default via 172.18.31.254 dev br0.199 proto static metric 426 172.18.28.0/23 dev eno2 proto kernel scope link src 172.18.28.67 172.18.30.0/23 dev br0.199 proto kernel scope link src 172.18.30.67 metric 426 192.168.122.0/24 dev virbr0 proto kernel scope link src 192.168.122.1 eno2是从dhcp获得了172.18.28.67的地址
+ip aeno2: flags=6211<UP,BROADCAST,RUNNING,SLAVE,MULTICAST> mtu 1500inet 172.18.28.67 netmask 255.255.254.0 broadcast 172.18.29.255ether b4:05:5d:08:e0:d8 txqueuelen 1000 (Ethernet)RX packets 81768780 bytes 5398659503 (5.0 GiB)RX errors 0 dropped 7 overruns 0 frame 0TX packets 10044620 bytes 467566304 (445.9 MiB)TX errors 0 dropped 0 overruns 0 carrier 0 collisions 0 这种情况下，处理方法如下："><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-12-18T09:02:11+08:00"><meta property="article:modified_time" content="2022-12-18T09:02:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="线上服务器出现多网关问题的处理"><meta name=twitter:description content="线上服务器172.18.30.67 有4个网口
+其中eno1和eno2是两个光纤万兆口，enp26s0f0和enp26s0f1是两个以太千兆网口。
+eno2网卡在没做bonding的时候，通过NetworkManager的dhcp获得了地址。然后eno1和eno2做了bonding，但是eno2实际还在单独起作用，bonding后地址没去掉，导致有两个网关。路由表如下：
+[root@renhe-18-30-67 ~]# ip r
+default via 172.18.29.254 dev eno2 
+default via 172.18.31.254 dev br0.199 proto static metric 426 
+172.18.28.0/23 dev eno2 proto kernel scope link src 172.18.28.67 
+172.18.30.0/23 dev br0.199 proto kernel scope link src 172.18.30.67 metric 426 
+192.168.122.0/24 dev virbr0 proto kernel scope link src 192.168.122.1
+eno2是从dhcp获得了172.18.28.67的地址
+ip a
+eno2: flags=6211<UP,BROADCAST,RUNNING,SLAVE,MULTICAST>  mtu 1500
+        inet 172.18.28.67  netmask 255.255.254.0  broadcast 172.18.29.255
+        ether b4:05:5d:08:e0:d8  txqueuelen 1000  (Ethernet)
+        RX packets 81768780  bytes 5398659503 (5.0 GiB)
+        RX errors 0  dropped 7  overruns 0  frame 0
+        TX packets 10044620  bytes 467566304 (445.9 MiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+这种情况下，处理方法如下："><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"线上服务器出现多网关问题的处理","item":"https://rendoumi.com/posts/20221218-multi_gateway/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"线上服务器出现多网关问题的处理","name":"线上服务器出现多网关问题的处理","description":"线上服务器172.18.30.67 有4个网口\n其中eno1和eno2是两个光纤万兆口，enp26s0f0和enp26s0f1是两个以太千兆网口。\neno2网卡在没做bonding的时候，通过NetworkManager的dhcp获得了地址。然后eno1和eno2做了bonding，但是eno2实际还在单独起作用，bonding后地址没去掉，导致有两个网关。路由表如下：\n[root@renhe-18-30-67 ~]# ip r\rdefault via 172.18.29.254 dev eno2 default via 172.18.31.254 dev br0.199 proto static metric 426 172.18.28.0/23 dev eno2 proto kernel scope link src 172.18.28.67 172.18.30.0/23 dev br0.199 proto kernel scope link src 172.18.30.67 metric 426 192.168.122.0/24 dev virbr0 proto kernel scope link src 192.168.122.1 eno2是从dhcp获得了172.18.28.67的地址\nip a\reno2: flags=6211\u0026lt;UP,BROADCAST,RUNNING,SLAVE,MULTICAST\u0026gt; mtu 1500\rinet 172.18.28.67 netmask 255.255.254.0 broadcast 172.18.29.255\rether b4:05:5d:08:e0:d8 txqueuelen 1000 (Ethernet)\rRX packets 81768780 bytes 5398659503 (5.0 GiB)\rRX errors 0 dropped 7 overruns 0 frame 0\rTX packets 10044620 bytes 467566304 (445.9 MiB)\rTX errors 0 dropped 0 overruns 0 carrier 0 collisions 0 这种情况下，处理方法如下：\n","keywords":[],"articleBody":"线上服务器172.18.30.67 有4个网口\n其中eno1和eno2是两个光纤万兆口，enp26s0f0和enp26s0f1是两个以太千兆网口。\neno2网卡在没做bonding的时候，通过NetworkManager的dhcp获得了地址。然后eno1和eno2做了bonding，但是eno2实际还在单独起作用，bonding后地址没去掉，导致有两个网关。路由表如下：\n[root@renhe-18-30-67 ~]# ip r\rdefault via 172.18.29.254 dev eno2 default via 172.18.31.254 dev br0.199 proto static metric 426 172.18.28.0/23 dev eno2 proto kernel scope link src 172.18.28.67 172.18.30.0/23 dev br0.199 proto kernel scope link src 172.18.30.67 metric 426 192.168.122.0/24 dev virbr0 proto kernel scope link src 192.168.122.1 eno2是从dhcp获得了172.18.28.67的地址\nip a\reno2: flags=6211 mtu 1500\rinet 172.18.28.67 netmask 255.255.254.0 broadcast 172.18.29.255\rether b4:05:5d:08:e0:d8 txqueuelen 1000 (Ethernet)\rRX packets 81768780 bytes 5398659503 (5.0 GiB)\rRX errors 0 dropped 7 overruns 0 frame 0\rTX packets 10044620 bytes 467566304 (445.9 MiB)\rTX errors 0 dropped 0 overruns 0 carrier 0 collisions 0 这种情况下，处理方法如下：\nbonding的模式是 物理网卡 –\u003e bond –\u003e bond.xxx –\u003ebr.xxx\n先查bonding模式:\ncat /sys/class/net/bond0/bonding/mode\ractive-backup 1 再看bonding网卡状态：\ncat /proc/net/bonding/bond0\rEthernet Channel Bonding Driver: v3.7.1 (April 27, 2011)\rBonding Mode: fault-tolerance (active-backup)\rPrimary Slave: eno1 (primary_reselect always)\rCurrently Active Slave: eno1\rMII Status: up\rMII Polling Interval (ms): 100\rUp Delay (ms): 0\rDown Delay (ms): 0\rSlave Interface: eno1\rMII Status: up\rSpeed: 10000 Mbps\rDuplex: full\rLink Failure Count: 1\rPermanent HW addr: b4:05:5d:08:e0:d8\rSlave queue ID: 0\rSlave Interface: eno2\rMII Status: up\rSpeed: 10000 Mbps\rDuplex: full\rLink Failure Count: 1\rPermanent HW addr: b4:05:5d:08:e0:d9\rSlave queue ID: 0 再次确认active\ncat /sys/class/net/bond0/bonding/active_slave\reno1 再确认第二个default网关有效\nping -I br0.199 172.18.31.254 从以上可以确定主网卡是eno1，shutdown了eno2不会影响任何东西。\n接下来的步骤：\n先查出来dhclient的进程号，是2252\n1 2252 2252 2252 ? -1 Ss 0 8:50 /sbin/dhclient -1 -q -lf /var/lib/dhclient/dhclient--eno2.lease -pf /var/run/dhclient-eno2.pid -H renhe-18-30-67 eno2 然后处理：\nsystemctl stop NetworkManager\rsystemctl disable NetworkManager\r# 杀掉dhclient\rkill -9 2252 这样eno2的ip地址在过一段时间后会消失掉。\n如果不消失：\nip link set eno2 down 然后等等\nip link set eno2 up 就可以了。\n由于是线上服务器，无法停机，所以操作才搞得这么小心谨慎。\n","wordCount":"260","inLanguage":"zh","datePublished":"2022-12-18T09:02:11+08:00","dateModified":"2022-12-18T09:02:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20221218-multi_gateway/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">线上服务器出现多网关问题的处理
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2022-12-18 09:02:11 +0800 CST'>2022年12月18日</span></div></header><div class=post-content><p>线上服务器172.18.30.67 有4个网口</p><p>其中eno1和eno2是两个光纤万兆口，enp26s0f0和enp26s0f1是两个以太千兆网口。</p><p>eno2网卡在没做bonding的时候，通过NetworkManager的dhcp获得了地址。然后eno1和eno2做了bonding，但是eno2实际还在单独起作用，bonding后地址没去掉，导致有两个网关。路由表如下：</p><pre tabindex=0><code>[root@renhe-18-30-67 ~]# ip r
+default via 172.18.29.254 dev eno2 
+default via 172.18.31.254 dev br0.199 proto static metric 426 
+172.18.28.0/23 dev eno2 proto kernel scope link src 172.18.28.67 
+172.18.30.0/23 dev br0.199 proto kernel scope link src 172.18.30.67 metric 426 
+192.168.122.0/24 dev virbr0 proto kernel scope link src 192.168.122.1
+</code></pre><p>eno2是从dhcp获得了172.18.28.67的地址</p><pre tabindex=0><code>ip a
+eno2: flags=6211&lt;UP,BROADCAST,RUNNING,SLAVE,MULTICAST&gt;  mtu 1500
+        inet 172.18.28.67  netmask 255.255.254.0  broadcast 172.18.29.255
+        ether b4:05:5d:08:e0:d8  txqueuelen 1000  (Ethernet)
+        RX packets 81768780  bytes 5398659503 (5.0 GiB)
+        RX errors 0  dropped 7  overruns 0  frame 0
+        TX packets 10044620  bytes 467566304 (445.9 MiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+</code></pre><p>这种情况下，处理方法如下：</p><p>bonding的模式是 <strong>物理网卡 &ndash;> bond &ndash;> bond.xxx &ndash;>br.xxx</strong></p><p>先查bonding模式:</p><pre tabindex=0><code>cat /sys/class/net/bond0/bonding/mode
+active-backup 1
+</code></pre><p>再看bonding网卡状态：</p><pre tabindex=0><code>cat /proc/net/bonding/bond0
+Ethernet Channel Bonding Driver: v3.7.1 (April 27, 2011)
+
+Bonding Mode: fault-tolerance (active-backup)
+Primary Slave: eno1 (primary_reselect always)
+Currently Active Slave: eno1
+MII Status: up
+MII Polling Interval (ms): 100
+Up Delay (ms): 0
+Down Delay (ms): 0
+
+Slave Interface: eno1
+MII Status: up
+Speed: 10000 Mbps
+Duplex: full
+Link Failure Count: 1
+Permanent HW addr: b4:05:5d:08:e0:d8
+Slave queue ID: 0
+
+Slave Interface: eno2
+MII Status: up
+Speed: 10000 Mbps
+Duplex: full
+Link Failure Count: 1
+Permanent HW addr: b4:05:5d:08:e0:d9
+Slave queue ID: 0
+</code></pre><p>再次确认active</p><pre tabindex=0><code>cat /sys/class/net/bond0/bonding/active_slave
+eno1
+</code></pre><p>再确认第二个default网关有效</p><pre tabindex=0><code>ping -I br0.199 172.18.31.254
+</code></pre><p>从以上可以确定主网卡是eno1，shutdown了eno2不会影响任何东西。</p><p>接下来的步骤：</p><p>先查出来dhclient的进程号，是2252</p><pre tabindex=0><code>    1   2252   2252   2252 ?            -1 Ss       0   8:50 /sbin/dhclient -1 -q -lf /var/lib/dhclient/dhclient--eno2.lease -pf /var/run/dhclient-eno2.pid -H renhe-18-30-67 eno2
+</code></pre><p>然后处理：</p><pre tabindex=0><code>systemctl stop NetworkManager
+systemctl disable NetworkManager
+# 杀掉dhclient
+kill -9 2252
+</code></pre><p>这样eno2的ip地址在过一段时间后会消失掉。</p><p>如果不消失：</p><pre tabindex=0><code>ip link set eno2 down
+</code></pre><p>然后等等</p><pre tabindex=0><code>ip link set eno2 up
+</code></pre><p>就可以了。</p><p>由于是线上服务器，无法停机，所以操作才搞得这么小心谨慎。</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

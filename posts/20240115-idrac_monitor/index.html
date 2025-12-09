@@ -1,0 +1,125 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>idrac远程登录服务器 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="Linux的环境了，windows的不行。
+Dell的idrac其实提供了远程的ssh界面，我们通常用idrac来设置bios什么的，当然如果能通过idrac直接登录服务器那就更好了。
+首先普及以下几个概念：
+
+tty: Video console terminal (abbreviation for “Teletype”)
+ttyS: Serial console terminal
+pts: Virtual console terminal (pseudo-tty or pty but stands for Pseudo-Terminal Slave (PTS))
+
+简单说，tty是带显示器的终端，ttyS是串口终端，pts是虚拟终端。tty接显示器、键盘，ttyS接串口，pst就是远程ssh/telnet过来的虚拟终端。
+第一步：修改Dell Bios
+dell的bios中关于serial的配置如下图：
+ 我们只改前两个就可以了：
+
+Serial Communication: “On with serial redirection via com2”
+Serial Port Address: “Serial Device1 = COM1, Serial Device2=COM2
+External Serial Connector: “Serial Device1”
+Failsafe Baud Rate: “115200”
+Remote Terminal Type: “VT100/VT220”
+Redirection After Boot: “Enabled”
+
+解释一下：
+
+Serial Communication 缺省是 On without Console Redirection，我们需要把所有console的显示都转发到com2上，所以需要改。
+Serial Port Address 缺省是 Serial Device 1=COM2, Serial Device  2=COM1，如果不改，那么接上物理机上的串口就可以看到登录画面了，这样等于串口1废掉了，万一我们要把物理机上的com1口给留出来备用，插个串口的wavecom modem做报警用，那就傻眼了，所以必须改掉留出com1备用。
+External Serial Connector 缺省是 Serial Device1，不用改，那么物理机上的com口就是com1了，对应ttyS0。
+Failsafe Baud Rate: “115200”，不用改，就用这个高的好了。
+Remote Terminal Type: “VT100/VT220”，不用改，黑白的vt100就很好
+Redirection After Boot: “Enabled”，也不用改，需要重定向。
+
+当然，用脚本一次搞定更好："><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20240115-idrac_monitor/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20240115-idrac_monitor/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20240115-idrac_monitor/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="idrac远程登录服务器"><meta property="og:description" content="Linux的环境了，windows的不行。
+Dell的idrac其实提供了远程的ssh界面，我们通常用idrac来设置bios什么的，当然如果能通过idrac直接登录服务器那就更好了。
+首先普及以下几个概念：
+tty: Video console terminal (abbreviation for “Teletype”) ttyS: Serial console terminal pts: Virtual console terminal (pseudo-tty or pty but stands for Pseudo-Terminal Slave (PTS)) 简单说，tty是带显示器的终端，ttyS是串口终端，pts是虚拟终端。tty接显示器、键盘，ttyS接串口，pst就是远程ssh/telnet过来的虚拟终端。
+第一步：修改Dell Bios
+dell的bios中关于serial的配置如下图： 我们只改前两个就可以了：
+Serial Communication: “On with serial redirection via com2” Serial Port Address: “Serial Device1 = COM1, Serial Device2=COM2 External Serial Connector: “Serial Device1” Failsafe Baud Rate: “115200” Remote Terminal Type: “VT100/VT220” Redirection After Boot: “Enabled” 解释一下：
+Serial Communication 缺省是 On without Console Redirection，我们需要把所有console的显示都转发到com2上，所以需要改。 Serial Port Address 缺省是 Serial Device 1=COM2, Serial Device 2=COM1，如果不改，那么接上物理机上的串口就可以看到登录画面了，这样等于串口1废掉了，万一我们要把物理机上的com1口给留出来备用，插个串口的wavecom modem做报警用，那就傻眼了，所以必须改掉留出com1备用。 External Serial Connector 缺省是 Serial Device1，不用改，那么物理机上的com口就是com1了，对应ttyS0。 Failsafe Baud Rate: “115200”，不用改，就用这个高的好了。 Remote Terminal Type: “VT100/VT220”，不用改，黑白的vt100就很好 Redirection After Boot: “Enabled”，也不用改，需要重定向。 当然，用脚本一次搞定更好："><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2024-01-15T10:30:11+08:00"><meta property="article:modified_time" content="2024-01-15T10:30:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="idrac远程登录服务器"><meta name=twitter:description content="Linux的环境了，windows的不行。
+Dell的idrac其实提供了远程的ssh界面，我们通常用idrac来设置bios什么的，当然如果能通过idrac直接登录服务器那就更好了。
+首先普及以下几个概念：
+
+tty: Video console terminal (abbreviation for “Teletype”)
+ttyS: Serial console terminal
+pts: Virtual console terminal (pseudo-tty or pty but stands for Pseudo-Terminal Slave (PTS))
+
+简单说，tty是带显示器的终端，ttyS是串口终端，pts是虚拟终端。tty接显示器、键盘，ttyS接串口，pst就是远程ssh/telnet过来的虚拟终端。
+第一步：修改Dell Bios
+dell的bios中关于serial的配置如下图：
+ 我们只改前两个就可以了：
+
+Serial Communication: “On with serial redirection via com2”
+Serial Port Address: “Serial Device1 = COM1, Serial Device2=COM2
+External Serial Connector: “Serial Device1”
+Failsafe Baud Rate: “115200”
+Remote Terminal Type: “VT100/VT220”
+Redirection After Boot: “Enabled”
+
+解释一下：
+
+Serial Communication 缺省是 On without Console Redirection，我们需要把所有console的显示都转发到com2上，所以需要改。
+Serial Port Address 缺省是 Serial Device 1=COM2, Serial Device  2=COM1，如果不改，那么接上物理机上的串口就可以看到登录画面了，这样等于串口1废掉了，万一我们要把物理机上的com1口给留出来备用，插个串口的wavecom modem做报警用，那就傻眼了，所以必须改掉留出com1备用。
+External Serial Connector 缺省是 Serial Device1，不用改，那么物理机上的com口就是com1了，对应ttyS0。
+Failsafe Baud Rate: “115200”，不用改，就用这个高的好了。
+Remote Terminal Type: “VT100/VT220”，不用改，黑白的vt100就很好
+Redirection After Boot: “Enabled”，也不用改，需要重定向。
+
+当然，用脚本一次搞定更好："><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"idrac远程登录服务器","item":"https://rendoumi.com/posts/20240115-idrac_monitor/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"idrac远程登录服务器","name":"idrac远程登录服务器","description":"Linux的环境了，windows的不行。\nDell的idrac其实提供了远程的ssh界面，我们通常用idrac来设置bios什么的，当然如果能通过idrac直接登录服务器那就更好了。\n首先普及以下几个概念：\ntty: Video console terminal (abbreviation for “Teletype”) ttyS: Serial console terminal pts: Virtual console terminal (pseudo-tty or pty but stands for Pseudo-Terminal Slave (PTS)) 简单说，tty是带显示器的终端，ttyS是串口终端，pts是虚拟终端。tty接显示器、键盘，ttyS接串口，pst就是远程ssh/telnet过来的虚拟终端。\n第一步：修改Dell Bios\ndell的bios中关于serial的配置如下图： 我们只改前两个就可以了：\nSerial Communication: “On with serial redirection via com2” Serial Port Address: “Serial Device1 = COM1, Serial Device2=COM2 External Serial Connector: “Serial Device1” Failsafe Baud Rate: “115200” Remote Terminal Type: “VT100/VT220” Redirection After Boot: “Enabled” 解释一下：\nSerial Communication 缺省是 On without Console Redirection，我们需要把所有console的显示都转发到com2上，所以需要改。 Serial Port Address 缺省是 Serial Device 1=COM2, Serial Device 2=COM1，如果不改，那么接上物理机上的串口就可以看到登录画面了，这样等于串口1废掉了，万一我们要把物理机上的com1口给留出来备用，插个串口的wavecom modem做报警用，那就傻眼了，所以必须改掉留出com1备用。 External Serial Connector 缺省是 Serial Device1，不用改，那么物理机上的com口就是com1了，对应ttyS0。 Failsafe Baud Rate: “115200”，不用改，就用这个高的好了。 Remote Terminal Type: “VT100/VT220”，不用改，黑白的vt100就很好 Redirection After Boot: “Enabled”，也不用改，需要重定向。 当然，用脚本一次搞定更好：\n","keywords":[],"articleBody":"Linux的环境了，windows的不行。\nDell的idrac其实提供了远程的ssh界面，我们通常用idrac来设置bios什么的，当然如果能通过idrac直接登录服务器那就更好了。\n首先普及以下几个概念：\ntty: Video console terminal (abbreviation for “Teletype”) ttyS: Serial console terminal pts: Virtual console terminal (pseudo-tty or pty but stands for Pseudo-Terminal Slave (PTS)) 简单说，tty是带显示器的终端，ttyS是串口终端，pts是虚拟终端。tty接显示器、键盘，ttyS接串口，pst就是远程ssh/telnet过来的虚拟终端。\n第一步：修改Dell Bios\ndell的bios中关于serial的配置如下图： 我们只改前两个就可以了：\nSerial Communication: “On with serial redirection via com2” Serial Port Address: “Serial Device1 = COM1, Serial Device2=COM2 External Serial Connector: “Serial Device1” Failsafe Baud Rate: “115200” Remote Terminal Type: “VT100/VT220” Redirection After Boot: “Enabled” 解释一下：\nSerial Communication 缺省是 On without Console Redirection，我们需要把所有console的显示都转发到com2上，所以需要改。 Serial Port Address 缺省是 Serial Device 1=COM2, Serial Device 2=COM1，如果不改，那么接上物理机上的串口就可以看到登录画面了，这样等于串口1废掉了，万一我们要把物理机上的com1口给留出来备用，插个串口的wavecom modem做报警用，那就傻眼了，所以必须改掉留出com1备用。 External Serial Connector 缺省是 Serial Device1，不用改，那么物理机上的com口就是com1了，对应ttyS0。 Failsafe Baud Rate: “115200”，不用改，就用这个高的好了。 Remote Terminal Type: “VT100/VT220”，不用改，黑白的vt100就很好 Redirection After Boot: “Enabled”，也不用改，需要重定向。 当然，用脚本一次搞定更好：\n#!/bin/sh sshpass -p \"xxxxxx\" ssh -oStrictHostKeyChecking=no root@10.8.$1 racadm set BIOS.SerialCommSettings.SerialPortAddress \"Serial1Com1Serial2Com2\" sshpass -p \"xxxxxx\" ssh -oStrictHostKeyChecking=no root@10.8.$1 racadm set BIOS.SerialCommSettings.SerialComm \"OnConRedirCom2\" sshpass -p \"xxxxxx\" ssh -oStrictHostKeyChecking=no root@10.8.$1 racadm jobqueue create BIOS.Setup.1-1 -r pwrcycle -s TIME_NOW -e TIME_NA 第二步：编辑linux\n编辑/etc/grub.conf 加上以下两行，并且注释掉splashimage，注意speed是57600，不是115200\nserial –unit=1 –speed=57600 terminal –timeout=10 serial #splashimage=(hd0,0)/grub/splash.xpm.gz 在kenel一行最后加上\nconsole=tty1 console=ttyS1,115200n8r 给个完成版本：\ndefault=0 timeout=5 #splashimage=(hd0,0)/grub/splash.xpm.gz serial -unit=1 -speed=57600 terminal -timeout=10 serial hiddenmenu title CentOS 6 (2.6.32-504.el6.x86_64) root (hd0,0) kernel /vmlinuz-2.6.32-504.el6.x86_64 ro root=UUID=16154774-dbaf-4fcb-aedb-0513cb65a0eb rd_NO_LUKS rd_NO_LVM LANG=en_US.UTF-8 rd_NO_MD SYSFONT=latarcyrheb-sun16 crashkernel=auto KEYBOARDTYPE=pc KEYTABLE=us rd_NO_DM rhgb quiet intel_iommu=on console=tty1 console=ttyS1,115200n8r initrd /initramfs-2.6.32-504.el6.x86_64.img 修改/etc/securetty，加上ttyS1\ncat /etc/securetty console vc/1 vc/2 vc/3 vc/4 vc/5 vc/6 vc/7 vc/8 vc/9 vc/10 vc/11 tty1 tty2 tty3 tty4 tty5 tty6 tty7 tty8 tty9 tty10 tty11 ttyS1 编辑 vi /etc/inittab，加一行\nco:2345:respawn:/sbin/agetty ttyS1 115200 vt100-nav\ncat /etc/inittab id:3:initdefault: co:2345:respawn:/sbin/agetty ttyS1 115200 vt100-nav 然后重启服务器，登录idrac , console com2就可以直接登录服务器了：\nssh 10.8.1.2 root@10.16.1.2's password: /admin1-\u003e console com2 Connected to Serial Device 2. To end type: ^\\ ","wordCount":"252","inLanguage":"zh","datePublished":"2024-01-15T10:30:11+08:00","dateModified":"2024-01-15T10:30:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20240115-idrac_monitor/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">idrac远程登录服务器
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2024-01-15 10:30:11 +0800 CST'>2024年1月15日</span></div></header><div class=post-content><p>Linux的环境了，windows的不行。</p><p>Dell的idrac其实提供了远程的ssh界面，我们通常用idrac来设置bios什么的，当然如果能通过idrac直接登录服务器那就更好了。</p><p>首先普及以下几个概念：</p><ul><li>tty: Video console terminal (abbreviation for “Teletype”)</li><li>ttyS: Serial console terminal</li><li>pts: Virtual console terminal (pseudo-tty or pty but stands for Pseudo-Terminal Slave (PTS))</li></ul><p>简单说，tty是带显示器的终端，ttyS是串口终端，pts是虚拟终端。tty接显示器、键盘，ttyS接串口，pst就是远程ssh/telnet过来的虚拟终端。</p><p>第一步：修改Dell Bios</p><p>dell的bios中关于serial的配置如下图：
+<img alt=image-20240115164915483 loading=lazy src=/posts/20240115-idrac_monitor/image-20240115164915483.png> 我们只改前两个就可以了：</p><ul><li>Serial Communication: “On with serial redirection via com2”</li><li>Serial Port Address: “Serial Device1 = COM1, Serial Device2=COM2</li><li>External Serial Connector: “Serial Device1”</li><li>Failsafe Baud Rate: “115200”</li><li>Remote Terminal Type: “VT100/VT220”</li><li>Redirection After Boot: “Enabled”</li></ul><p>解释一下：</p><ul><li>Serial Communication 缺省是 On without Console Redirection，我们需要把所有console的显示都转发到com2上，所以需要改。</li><li>Serial Port Address 缺省是 Serial Device 1=COM2, Serial Device 2=COM1，如果不改，那么接上物理机上的串口就可以看到登录画面了，这样等于串口1废掉了，万一我们要把物理机上的com1口给留出来备用，插个串口的wavecom modem做报警用，那就傻眼了，所以必须改掉留出com1备用。</li><li>External Serial Connector 缺省是 Serial Device1，不用改，那么物理机上的com口就是com1了，对应ttyS0。</li><li>Failsafe Baud Rate: “115200”，不用改，就用这个高的好了。</li><li>Remote Terminal Type: “VT100/VT220”，不用改，黑白的vt100就很好</li><li>Redirection After Boot: “Enabled”，也不用改，需要重定向。</li></ul><p>当然，用脚本一次搞定更好：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/bin/sh
+</span></span></span><span class=line><span class=cl><span class=cp></span>sshpass -p <span class=s2>&#34;xxxxxx&#34;</span> ssh -oStrictHostKeyChecking<span class=o>=</span>no root@10.8.<span class=nv>$1</span> racadm <span class=nb>set</span> BIOS.SerialCommSettings.SerialPortAddress <span class=s2>&#34;Serial1Com1Serial2Com2&#34;</span>  
+</span></span><span class=line><span class=cl>sshpass -p <span class=s2>&#34;xxxxxx&#34;</span> ssh -oStrictHostKeyChecking<span class=o>=</span>no root@10.8.<span class=nv>$1</span> racadm <span class=nb>set</span> BIOS.SerialCommSettings.SerialComm <span class=s2>&#34;OnConRedirCom2&#34;</span>  
+</span></span><span class=line><span class=cl>sshpass -p <span class=s2>&#34;xxxxxx&#34;</span> ssh -oStrictHostKeyChecking<span class=o>=</span>no root@10.8.<span class=nv>$1</span> racadm jobqueue create BIOS.Setup.1-1 -r pwrcycle -s TIME_NOW -e TIME_NA  
+</span></span></code></pre></div><p>第二步：编辑linux</p><p>编辑/etc/grub.conf 加上以下两行，并且注释掉splashimage，注意speed是57600，不是115200</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>serial –unit<span class=o>=</span><span class=m>1</span> –speed<span class=o>=</span><span class=m>57600</span>  
+</span></span><span class=line><span class=cl>terminal –timeout<span class=o>=</span><span class=m>10</span> serial  
+</span></span><span class=line><span class=cl><span class=c1>#splashimage=(hd0,0)/grub/splash.xpm.gz</span>
+</span></span></code></pre></div><p>在kenel一行最后加上</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nv>console</span><span class=o>=</span>tty1 <span class=nv>console</span><span class=o>=</span>ttyS1,115200n8r  
+</span></span></code></pre></div><p>给个完成版本：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nv>default</span><span class=o>=</span><span class=m>0</span>  
+</span></span><span class=line><span class=cl><span class=nv>timeout</span><span class=o>=</span><span class=m>5</span>  
+</span></span><span class=line><span class=cl><span class=c1>#splashimage=(hd0,0)/grub/splash.xpm.gz</span>
+</span></span><span class=line><span class=cl>serial -unit<span class=o>=</span><span class=m>1</span> -speed<span class=o>=</span><span class=m>57600</span>  
+</span></span><span class=line><span class=cl>terminal -timeout<span class=o>=</span><span class=m>10</span> serial  
+</span></span><span class=line><span class=cl>hiddenmenu  
+</span></span><span class=line><span class=cl>title CentOS <span class=m>6</span> <span class=o>(</span>2.6.32-504.el6.x86_64<span class=o>)</span>  
+</span></span><span class=line><span class=cl>    root <span class=o>(</span>hd0,0<span class=o>)</span>
+</span></span><span class=line><span class=cl>    kernel /vmlinuz-2.6.32-504.el6.x86_64 ro <span class=nv>root</span><span class=o>=</span><span class=nv>UUID</span><span class=o>=</span>16154774-dbaf-4fcb-aedb-0513cb65a0eb rd_NO_LUKS rd_NO_LVM <span class=nv>LANG</span><span class=o>=</span>en_US.UTF-8 rd_NO_MD <span class=nv>SYSFONT</span><span class=o>=</span>latarcyrheb-sun16 <span class=nv>crashkernel</span><span class=o>=</span>auto  <span class=nv>KEYBOARDTYPE</span><span class=o>=</span>pc <span class=nv>KEYTABLE</span><span class=o>=</span>us rd_NO_DM rhgb quiet <span class=nv>intel_iommu</span><span class=o>=</span>on  <span class=nv>console</span><span class=o>=</span>tty1 <span class=nv>console</span><span class=o>=</span>ttyS1,115200n8r
+</span></span><span class=line><span class=cl>    initrd /initramfs-2.6.32-504.el6.x86_64.img
+</span></span></code></pre></div><p>修改/etc/securetty，加上ttyS1</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat /etc/securetty
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>console  
+</span></span><span class=line><span class=cl>vc/1  
+</span></span><span class=line><span class=cl>vc/2  
+</span></span><span class=line><span class=cl>vc/3  
+</span></span><span class=line><span class=cl>vc/4  
+</span></span><span class=line><span class=cl>vc/5  
+</span></span><span class=line><span class=cl>vc/6  
+</span></span><span class=line><span class=cl>vc/7  
+</span></span><span class=line><span class=cl>vc/8  
+</span></span><span class=line><span class=cl>vc/9  
+</span></span><span class=line><span class=cl>vc/10  
+</span></span><span class=line><span class=cl>vc/11  
+</span></span><span class=line><span class=cl>tty1  
+</span></span><span class=line><span class=cl>tty2  
+</span></span><span class=line><span class=cl>tty3  
+</span></span><span class=line><span class=cl>tty4  
+</span></span><span class=line><span class=cl>tty5  
+</span></span><span class=line><span class=cl>tty6  
+</span></span><span class=line><span class=cl>tty7  
+</span></span><span class=line><span class=cl>tty8  
+</span></span><span class=line><span class=cl>tty9  
+</span></span><span class=line><span class=cl>tty10  
+</span></span><span class=line><span class=cl>tty11  
+</span></span><span class=line><span class=cl>ttyS1  
+</span></span></code></pre></div><p>编辑 vi /etc/inittab，加一行</p><p>co:2345:respawn:/sbin/agetty ttyS1 115200 vt100-nav</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat /etc/inittab  
+</span></span><span class=line><span class=cl>id:3:initdefault:  
+</span></span><span class=line><span class=cl>co:2345:respawn:/sbin/agetty ttyS1 <span class=m>115200</span> vt100-nav  
+</span></span></code></pre></div><p>然后重启服务器，登录idrac , console com2就可以直接登录服务器了：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>ssh 10.8.1.2  
+</span></span><span class=line><span class=cl>root@10.16.1.2<span class=err>&#39;</span>s password:  
+</span></span><span class=line><span class=cl>/admin1-&gt; console com2
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Connected to Serial Device 2. To end type: ^<span class=se>\ </span> 
+</span></span></code></pre></div></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

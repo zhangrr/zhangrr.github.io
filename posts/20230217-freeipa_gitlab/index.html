@@ -1,0 +1,139 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Gitlab集成进freeIPA进行统一认证 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="接上一篇，Freeipa接完confluence，接下来是接入Gitlab.
+先下结论：同样道理，也是存在先有 Gitlab 账户、然后才有的 FreeIPA LDAP 目录，这也不要紧，因为 Gitlab 同样支持 LDAP 认证方式的用户与现有用户进行合并。
+举个例子，如果我已经在 Gitlab 中创建了用户名为 zhangranrui、邮箱为 zhangranrui@rendoumi.com 的用户，那么我在 LDAP 目录中只需要把 mail 字段也写成 zhangranrui@rendoumi.com 即可被 Gitlab 识别成同一用户。或者说，我们可以在 Gitlab 中增加 LDAP 目录中的 mail 字段的邮箱（Gitlab 支持同一用户绑定多个邮箱），这样在 Gitlab 中使用 LDAP 认证的时候也会被视为同一用户。跟 Confluence 是一模一样的。
+注意：这样改了之后，无论登录或是拉取代码，就只能使用LDAP的账号密码，不能使用旧的 GitLab Standard 的账号。
+我们的 Gitlab 版本比价老11.1.0，所以改的是 gitlab.yml
+  ldap:
+    enabled: true
+    servers:
+      main: # 'main' is the GitLab 'provider ID' of this LDAP server
+        label: 'LDAP'
+
+        host: 'freeipa.bybon.cn'
+        port: 389
+        uid: 'uid'
+
+        encryption: 'plain' # &#34;start_tls&#34; or &#34;simple_tls&#34; or &#34;plain&#34;
+        verify_certificates: false
+        ca_file: ''
+        ssl_version: ''
+
+        bind_dn: 'uid=admin,cn=users,cn=accounts,dc=bybon,dc=cn'
+        password: 'xxxxxx'
+
+        timeout: 10
+
+        active_directory: false
+        allow_username_or_email_login: false
+
+        block_auto_created_users: false
+
+        base: 'dc=bybon,dc=cn'
+
+        user_filter: '(&(objectclass=inetorgperson)(memberOf=cn=gitlab-users,cn=groups,cn=accounts,dc=bybon,dc=cn))'
+        
+        attributes:
+          username: ['uid']
+          email:    ['mail']
+
+          name:       'displayName'
+          first_name: 'givenName'
+          last_name:  'sn'
+
+          lowercase_usernames: false
+        
+新版本的话，按字段比较即可。注意上面，我是提前建立了一个 gitlab-users 的组，把用户先都放进组里，这样方便管理。"><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20230217-freeipa_gitlab/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20230217-freeipa_gitlab/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20230217-freeipa_gitlab/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="Gitlab集成进freeIPA进行统一认证"><meta property="og:description" content="接上一篇，Freeipa接完confluence，接下来是接入Gitlab.
+先下结论：同样道理，也是存在先有 Gitlab 账户、然后才有的 FreeIPA LDAP 目录，这也不要紧，因为 Gitlab 同样支持 LDAP 认证方式的用户与现有用户进行合并。
+举个例子，如果我已经在 Gitlab 中创建了用户名为 zhangranrui、邮箱为 zhangranrui@rendoumi.com 的用户，那么我在 LDAP 目录中只需要把 mail 字段也写成 zhangranrui@rendoumi.com 即可被 Gitlab 识别成同一用户。或者说，我们可以在 Gitlab 中增加 LDAP 目录中的 mail 字段的邮箱（Gitlab 支持同一用户绑定多个邮箱），这样在 Gitlab 中使用 LDAP 认证的时候也会被视为同一用户。跟 Confluence 是一模一样的。
+注意：这样改了之后，无论登录或是拉取代码，就只能使用LDAP的账号密码，不能使用旧的 GitLab Standard 的账号。
+我们的 Gitlab 版本比价老11.1.0，所以改的是 gitlab.yml
+ldap: enabled: true servers: main: # 'main' is the GitLab 'provider ID' of this LDAP server label: 'LDAP' host: 'freeipa.bybon.cn' port: 389 uid: 'uid' encryption: 'plain' # &#34;start_tls&#34; or &#34;simple_tls&#34; or &#34;plain&#34; verify_certificates: false ca_file: '' ssl_version: '' bind_dn: 'uid=admin,cn=users,cn=accounts,dc=bybon,dc=cn' password: 'xxxxxx' timeout: 10 active_directory: false allow_username_or_email_login: false block_auto_created_users: false base: 'dc=bybon,dc=cn' user_filter: '(&(objectclass=inetorgperson)(memberOf=cn=gitlab-users,cn=groups,cn=accounts,dc=bybon,dc=cn))' attributes: username: ['uid'] email: ['mail'] name: 'displayName' first_name: 'givenName' last_name: 'sn' lowercase_usernames: false 新版本的话，按字段比较即可。注意上面，我是提前建立了一个 gitlab-users 的组，把用户先都放进组里，这样方便管理。"><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2023-02-17T09:05:11+08:00"><meta property="article:modified_time" content="2023-02-17T09:05:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Gitlab集成进freeIPA进行统一认证"><meta name=twitter:description content="接上一篇，Freeipa接完confluence，接下来是接入Gitlab.
+先下结论：同样道理，也是存在先有 Gitlab 账户、然后才有的 FreeIPA LDAP 目录，这也不要紧，因为 Gitlab 同样支持 LDAP 认证方式的用户与现有用户进行合并。
+举个例子，如果我已经在 Gitlab 中创建了用户名为 zhangranrui、邮箱为 zhangranrui@rendoumi.com 的用户，那么我在 LDAP 目录中只需要把 mail 字段也写成 zhangranrui@rendoumi.com 即可被 Gitlab 识别成同一用户。或者说，我们可以在 Gitlab 中增加 LDAP 目录中的 mail 字段的邮箱（Gitlab 支持同一用户绑定多个邮箱），这样在 Gitlab 中使用 LDAP 认证的时候也会被视为同一用户。跟 Confluence 是一模一样的。
+注意：这样改了之后，无论登录或是拉取代码，就只能使用LDAP的账号密码，不能使用旧的 GitLab Standard 的账号。
+我们的 Gitlab 版本比价老11.1.0，所以改的是 gitlab.yml
+  ldap:
+    enabled: true
+    servers:
+      main: # 'main' is the GitLab 'provider ID' of this LDAP server
+        label: 'LDAP'
+
+        host: 'freeipa.bybon.cn'
+        port: 389
+        uid: 'uid'
+
+        encryption: 'plain' # &#34;start_tls&#34; or &#34;simple_tls&#34; or &#34;plain&#34;
+        verify_certificates: false
+        ca_file: ''
+        ssl_version: ''
+
+        bind_dn: 'uid=admin,cn=users,cn=accounts,dc=bybon,dc=cn'
+        password: 'xxxxxx'
+
+        timeout: 10
+
+        active_directory: false
+        allow_username_or_email_login: false
+
+        block_auto_created_users: false
+
+        base: 'dc=bybon,dc=cn'
+
+        user_filter: '(&(objectclass=inetorgperson)(memberOf=cn=gitlab-users,cn=groups,cn=accounts,dc=bybon,dc=cn))'
+        
+        attributes:
+          username: ['uid']
+          email:    ['mail']
+
+          name:       'displayName'
+          first_name: 'givenName'
+          last_name:  'sn'
+
+          lowercase_usernames: false
+        
+新版本的话，按字段比较即可。注意上面，我是提前建立了一个 gitlab-users 的组，把用户先都放进组里，这样方便管理。"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"Gitlab集成进freeIPA进行统一认证","item":"https://rendoumi.com/posts/20230217-freeipa_gitlab/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Gitlab集成进freeIPA进行统一认证","name":"Gitlab集成进freeIPA进行统一认证","description":"接上一篇，Freeipa接完confluence，接下来是接入Gitlab.\n先下结论：同样道理，也是存在先有 Gitlab 账户、然后才有的 FreeIPA LDAP 目录，这也不要紧，因为 Gitlab 同样支持 LDAP 认证方式的用户与现有用户进行合并。\n举个例子，如果我已经在 Gitlab 中创建了用户名为 zhangranrui、邮箱为 zhangranrui@rendoumi.com 的用户，那么我在 LDAP 目录中只需要把 mail 字段也写成 zhangranrui@rendoumi.com 即可被 Gitlab 识别成同一用户。或者说，我们可以在 Gitlab 中增加 LDAP 目录中的 mail 字段的邮箱（Gitlab 支持同一用户绑定多个邮箱），这样在 Gitlab 中使用 LDAP 认证的时候也会被视为同一用户。跟 Confluence 是一模一样的。\n注意：这样改了之后，无论登录或是拉取代码，就只能使用LDAP的账号密码，不能使用旧的 GitLab Standard 的账号。\n我们的 Gitlab 版本比价老11.1.0，所以改的是 gitlab.yml\nldap: enabled: true servers: main: # \u0026#39;main\u0026#39; is the GitLab \u0026#39;provider ID\u0026#39; of this LDAP server label: \u0026#39;LDAP\u0026#39; host: \u0026#39;freeipa.bybon.cn\u0026#39; port: 389 uid: \u0026#39;uid\u0026#39; encryption: \u0026#39;plain\u0026#39; # \u0026#34;start_tls\u0026#34; or \u0026#34;simple_tls\u0026#34; or \u0026#34;plain\u0026#34; verify_certificates: false ca_file: \u0026#39;\u0026#39; ssl_version: \u0026#39;\u0026#39; bind_dn: \u0026#39;uid=admin,cn=users,cn=accounts,dc=bybon,dc=cn\u0026#39; password: \u0026#39;xxxxxx\u0026#39; timeout: 10 active_directory: false allow_username_or_email_login: false block_auto_created_users: false base: \u0026#39;dc=bybon,dc=cn\u0026#39; user_filter: \u0026#39;(\u0026amp;(objectclass=inetorgperson)(memberOf=cn=gitlab-users,cn=groups,cn=accounts,dc=bybon,dc=cn))\u0026#39; attributes: username: [\u0026#39;uid\u0026#39;] email: [\u0026#39;mail\u0026#39;] name: \u0026#39;displayName\u0026#39; first_name: \u0026#39;givenName\u0026#39; last_name: \u0026#39;sn\u0026#39; lowercase_usernames: false 新版本的话，按字段比较即可。注意上面，我是提前建立了一个 gitlab-users 的组，把用户先都放进组里，这样方便管理。\n","keywords":[],"articleBody":"接上一篇，Freeipa接完confluence，接下来是接入Gitlab.\n先下结论：同样道理，也是存在先有 Gitlab 账户、然后才有的 FreeIPA LDAP 目录，这也不要紧，因为 Gitlab 同样支持 LDAP 认证方式的用户与现有用户进行合并。\n举个例子，如果我已经在 Gitlab 中创建了用户名为 zhangranrui、邮箱为 zhangranrui@rendoumi.com 的用户，那么我在 LDAP 目录中只需要把 mail 字段也写成 zhangranrui@rendoumi.com 即可被 Gitlab 识别成同一用户。或者说，我们可以在 Gitlab 中增加 LDAP 目录中的 mail 字段的邮箱（Gitlab 支持同一用户绑定多个邮箱），这样在 Gitlab 中使用 LDAP 认证的时候也会被视为同一用户。跟 Confluence 是一模一样的。\n注意：这样改了之后，无论登录或是拉取代码，就只能使用LDAP的账号密码，不能使用旧的 GitLab Standard 的账号。\n我们的 Gitlab 版本比价老11.1.0，所以改的是 gitlab.yml\nldap: enabled: true servers: main: # 'main' is the GitLab 'provider ID' of this LDAP server label: 'LDAP' host: 'freeipa.bybon.cn' port: 389 uid: 'uid' encryption: 'plain' # \"start_tls\" or \"simple_tls\" or \"plain\" verify_certificates: false ca_file: '' ssl_version: '' bind_dn: 'uid=admin,cn=users,cn=accounts,dc=bybon,dc=cn' password: 'xxxxxx' timeout: 10 active_directory: false allow_username_or_email_login: false block_auto_created_users: false base: 'dc=bybon,dc=cn' user_filter: '(\u0026(objectclass=inetorgperson)(memberOf=cn=gitlab-users,cn=groups,cn=accounts,dc=bybon,dc=cn))' attributes: username: ['uid'] email: ['mail'] name: 'displayName' first_name: 'givenName' last_name: 'sn' lowercase_usernames: false 新版本的话，按字段比较即可。注意上面，我是提前建立了一个 gitlab-users 的组，把用户先都放进组里，这样方便管理。\n","wordCount":"116","inLanguage":"zh","datePublished":"2023-02-17T09:05:11+08:00","dateModified":"2023-02-17T09:05:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20230217-freeipa_gitlab/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">Gitlab集成进freeIPA进行统一认证
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2023-02-17 09:05:11 +0800 CST'>2023年2月17日</span></div></header><div class=post-content><p>接上一篇，Freeipa接完confluence，接下来是接入Gitlab.</p><p>先下结论：同样道理，也是存在先有 Gitlab 账户、然后才有的 FreeIPA LDAP 目录，这也不要紧，因为 Gitlab 同样支持 LDAP 认证方式的用户与现有用户进行合并。</p><p>举个例子，如果我已经在 Gitlab 中创建了用户名为 zhangranrui、邮箱为 <a href=mailto:zhangranrui@rendoumi.com>zhangranrui@rendoumi.com</a> 的用户，那么我在 LDAP 目录中只需要把 mail 字段也写成 <a href=mailto:zhangranrui@rendoumi.com>zhangranrui@rendoumi.com</a> 即可被 Gitlab 识别成同一用户。或者说，我们可以在 Gitlab 中增加 LDAP 目录中的 mail 字段的邮箱（Gitlab 支持同一用户绑定多个邮箱），这样在 Gitlab 中使用 LDAP 认证的时候也会被视为同一用户。跟 Confluence 是一模一样的。</p><p>注意：这样改了之后，无论登录或是拉取代码，就只能使用LDAP的账号密码，不能使用旧的 GitLab Standard 的账号。</p><p>我们的 Gitlab 版本比价老11.1.0，所以改的是 gitlab.yml</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>  ldap:
+</span></span><span class=line><span class=cl>    enabled: <span class=nb>true</span>
+</span></span><span class=line><span class=cl>    servers:
+</span></span><span class=line><span class=cl>      main: <span class=c1># &#39;main&#39; is the GitLab &#39;provider ID&#39; of this LDAP server</span>
+</span></span><span class=line><span class=cl>        label: <span class=s1>&#39;LDAP&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        host: <span class=s1>&#39;freeipa.bybon.cn&#39;</span>
+</span></span><span class=line><span class=cl>        port: <span class=m>389</span>
+</span></span><span class=line><span class=cl>        uid: <span class=s1>&#39;uid&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        encryption: <span class=s1>&#39;plain&#39;</span> <span class=c1># &#34;start_tls&#34; or &#34;simple_tls&#34; or &#34;plain&#34;</span>
+</span></span><span class=line><span class=cl>        verify_certificates: <span class=nb>false</span>
+</span></span><span class=line><span class=cl>        ca_file: <span class=s1>&#39;&#39;</span>
+</span></span><span class=line><span class=cl>        ssl_version: <span class=s1>&#39;&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        bind_dn: <span class=s1>&#39;uid=admin,cn=users,cn=accounts,dc=bybon,dc=cn&#39;</span>
+</span></span><span class=line><span class=cl>        password: <span class=s1>&#39;xxxxxx&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        timeout: <span class=m>10</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        active_directory: <span class=nb>false</span>
+</span></span><span class=line><span class=cl>        allow_username_or_email_login: <span class=nb>false</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        block_auto_created_users: <span class=nb>false</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        base: <span class=s1>&#39;dc=bybon,dc=cn&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        user_filter: <span class=s1>&#39;(&amp;(objectclass=inetorgperson)(memberOf=cn=gitlab-users,cn=groups,cn=accounts,dc=bybon,dc=cn))&#39;</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>        attributes:
+</span></span><span class=line><span class=cl>          username: <span class=o>[</span><span class=s1>&#39;uid&#39;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>          email:    <span class=o>[</span><span class=s1>&#39;mail&#39;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>          name:       <span class=s1>&#39;displayName&#39;</span>
+</span></span><span class=line><span class=cl>          first_name: <span class=s1>&#39;givenName&#39;</span>
+</span></span><span class=line><span class=cl>          last_name:  <span class=s1>&#39;sn&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>          lowercase_usernames: <span class=nb>false</span>
+</span></span><span class=line><span class=cl>        
+</span></span></code></pre></div><p>新版本的话，按字段比较即可。注意上面，我是提前建立了一个 gitlab-users 的组，把用户先都放进组里，这样方便管理。</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

@@ -1,0 +1,158 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>docker镜像仓库harbor的搭建与使用 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='一：我们在公司内部建立了Docker内部镜像仓库：
+harbor是vmware出的一个docker镜像仓库，本质是一组容器的集合体，算是一个多容器的pod.
+数据卷缺省是宿主机的/data，所以我们把iscsiu挂在/data
+主机：172.18.31.28
+首先安装docker-ce
+添加docker-ce源：
+yum install epel-release
+
+yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+
+yum install docker-ce -y
+
+yum install ntp -y
+
+启动自动同步时间:
+timedatectl set-ntp yes  #此处可用yes,no,1或0
+
+配置时区:
+timedatectl set-timezone Asia/Shanghai
+
+配置Docker启动参数：
+mkdir -p /etc/docker
+cat << EOF >> /etc/docker/daemon.json
+{
+    "registry-mirrors": ["https://docker.mirrors.ustc.edu.cn/"]
+}
+EOF
+
+之后装的所有Docker的宿主机，如果要用到这个私有仓库的话：
+cat << EOF >> /etc/docker/daemon.json
+{
+     "insecure-registries":["172.18.31.28"],
+     "registry-mirrors": ["https://docker.mirrors.ustc.edu.cn/"]
+}
+EOF
+
+启动docker
+systemctl enable docker && systemctl start docker
+
+​
+安装Docker-compose'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20221219-docker_harbor/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20221219-docker_harbor/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20221219-docker_harbor/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="docker镜像仓库harbor的搭建与使用"><meta property="og:description" content='一：我们在公司内部建立了Docker内部镜像仓库：
+harbor是vmware出的一个docker镜像仓库，本质是一组容器的集合体，算是一个多容器的pod.
+数据卷缺省是宿主机的/data，所以我们把iscsiu挂在/data
+主机：172.18.31.28
+首先安装docker-ce
+添加docker-ce源：
+yum install epel-releaseyum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repoyum install docker-ce -yyum install ntp -y启动自动同步时间:
+timedatectl set-ntp yes #此处可用yes,no,1或0配置时区:
+timedatectl set-timezone Asia/Shanghai配置Docker启动参数：
+mkdir -p /etc/dockercat << EOF >> /etc/docker/daemon.json{"registry-mirrors": ["https://docker.mirrors.ustc.edu.cn/"]}EOF之后装的所有Docker的宿主机，如果要用到这个私有仓库的话：
+cat << EOF >> /etc/docker/daemon.json{"insecure-registries":["172.18.31.28"],"registry-mirrors": ["https://docker.mirrors.ustc.edu.cn/"]}EOF启动docker
+systemctl enable docker && systemctl start docker​ 安装Docker-compose'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-12-19T09:04:11+08:00"><meta property="article:modified_time" content="2022-12-19T09:04:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="docker镜像仓库harbor的搭建与使用"><meta name=twitter:description content='一：我们在公司内部建立了Docker内部镜像仓库：
+harbor是vmware出的一个docker镜像仓库，本质是一组容器的集合体，算是一个多容器的pod.
+数据卷缺省是宿主机的/data，所以我们把iscsiu挂在/data
+主机：172.18.31.28
+首先安装docker-ce
+添加docker-ce源：
+yum install epel-release
+
+yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+
+yum install docker-ce -y
+
+yum install ntp -y
+
+启动自动同步时间:
+timedatectl set-ntp yes  #此处可用yes,no,1或0
+
+配置时区:
+timedatectl set-timezone Asia/Shanghai
+
+配置Docker启动参数：
+mkdir -p /etc/docker
+cat << EOF >> /etc/docker/daemon.json
+{
+    "registry-mirrors": ["https://docker.mirrors.ustc.edu.cn/"]
+}
+EOF
+
+之后装的所有Docker的宿主机，如果要用到这个私有仓库的话：
+cat << EOF >> /etc/docker/daemon.json
+{
+     "insecure-registries":["172.18.31.28"],
+     "registry-mirrors": ["https://docker.mirrors.ustc.edu.cn/"]
+}
+EOF
+
+启动docker
+systemctl enable docker && systemctl start docker
+
+​
+安装Docker-compose'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"docker镜像仓库harbor的搭建与使用","item":"https://rendoumi.com/posts/20221219-docker_harbor/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"docker镜像仓库harbor的搭建与使用","name":"docker镜像仓库harbor的搭建与使用","description":"一：我们在公司内部建立了Docker内部镜像仓库：\nharbor是vmware出的一个docker镜像仓库，本质是一组容器的集合体，算是一个多容器的pod.\n数据卷缺省是宿主机的/data，所以我们把iscsiu挂在/data\n主机：172.18.31.28\n首先安装docker-ce\n添加docker-ce源：\nyum install epel-release\ryum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo\ryum install docker-ce -y\ryum install ntp -y\r启动自动同步时间:\ntimedatectl set-ntp yes #此处可用yes,no,1或0\r配置时区:\ntimedatectl set-timezone Asia/Shanghai\r配置Docker启动参数：\nmkdir -p /etc/docker\rcat \u0026lt;\u0026lt; EOF \u0026gt;\u0026gt; /etc/docker/daemon.json\r{\r\u0026quot;registry-mirrors\u0026quot;: [\u0026quot;https://docker.mirrors.ustc.edu.cn/\u0026quot;]\r}\rEOF\r之后装的所有Docker的宿主机，如果要用到这个私有仓库的话：\ncat \u0026lt;\u0026lt; EOF \u0026gt;\u0026gt; /etc/docker/daemon.json\r{\r\u0026quot;insecure-registries\u0026quot;:[\u0026quot;172.18.31.28\u0026quot;],\r\u0026quot;registry-mirrors\u0026quot;: [\u0026quot;https://docker.mirrors.ustc.edu.cn/\u0026quot;]\r}\rEOF\r启动docker\nsystemctl enable docker \u0026amp;\u0026amp; systemctl start docker\r​ 安装Docker-compose\n","keywords":[],"articleBody":"一：我们在公司内部建立了Docker内部镜像仓库：\nharbor是vmware出的一个docker镜像仓库，本质是一组容器的集合体，算是一个多容器的pod.\n数据卷缺省是宿主机的/data，所以我们把iscsiu挂在/data\n主机：172.18.31.28\n首先安装docker-ce\n添加docker-ce源：\nyum install epel-release\ryum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo\ryum install docker-ce -y\ryum install ntp -y\r启动自动同步时间:\ntimedatectl set-ntp yes #此处可用yes,no,1或0\r配置时区:\ntimedatectl set-timezone Asia/Shanghai\r配置Docker启动参数：\nmkdir -p /etc/docker\rcat \u003c\u003c EOF \u003e\u003e /etc/docker/daemon.json\r{\r\"registry-mirrors\": [\"https://docker.mirrors.ustc.edu.cn/\"]\r}\rEOF\r之后装的所有Docker的宿主机，如果要用到这个私有仓库的话：\ncat \u003c\u003c EOF \u003e\u003e /etc/docker/daemon.json\r{\r\"insecure-registries\":[\"172.18.31.28\"],\r\"registry-mirrors\": [\"https://docker.mirrors.ustc.edu.cn/\"]\r}\rEOF\r启动docker\nsystemctl enable docker \u0026\u0026 systemctl start docker\r​ 安装Docker-compose\nyum install docker-compose\rpip3 install -I requests==2.9 来强制修正\r下载harbor的离线安装包\ncd /root\rhttps://github.com/goharbor/harbor/releases/download/v2.0.1/harbor-offline-installer-v2.0.1.tgz\rtar zxvf harbor-offline-installer-v2.0.1-rc1.tgz\rcd harbor\r编辑配置文件：\ncp harbor.yml.tmpl harbor.yml\rvi harbor.yml\rhostname: 172.18.31.28\rharbor_admin_password: Fuckxxxbbaasskk\r隐掉443，因为我们是内网用，配个证书也是假的，所以关了443\r#https:\r# https port for harbor, default is 443\r# port: 443\r# The path of cert and key files for nginx\r# certificate: /your/certificate/path\r换掉DB的pass\rdatabase:\r# The password for the root user of Harbor DB. Change this before any production use.\rpassword: xxxxxxx\r# private_key: /your/private/key/path\r然后直接安装：\n./install.sh\r安装完成了就，看一眼：\ndocker-compose ps\r然后直接登录 http://172.18.31.28 就好\n缺省有一个library的开放项目，我们推一个busybox过去测试一下：\n首先拉一个busybox到本地\rdocker pull busybox\r打个tag\rdocker tag busybox:latest 172.18.31.28/library/busybox\r推上去\rdocker push 172.18.31.28/library/busybox\r这时候再去31.28的library项目里看，就能看到新推上去的busybox镜像了\n在其他的机器上，首先登录，然后就可以拉镜像了。 再举个实际例子，我们把metallb给推上去备用：\n打tag\rdocker tag docker.io/metallb/controller:v0.9.3 172.18.31.28/library/docker.io/metallb/controller:v0.9.3\r推上去\rdocker push 172.18.31.28/library/docker.io/metallb/controller:v0.9.3\r","wordCount":"175","inLanguage":"zh","datePublished":"2022-12-19T09:04:11+08:00","dateModified":"2022-12-19T09:04:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20221219-docker_harbor/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">docker镜像仓库harbor的搭建与使用
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2022-12-19 09:04:11 +0800 CST'>2022年12月19日</span></div></header><div class=post-content><p>一：我们在公司内部建立了Docker内部镜像仓库：</p><p>harbor是vmware出的一个docker镜像仓库，本质是一组容器的集合体，算是一个多容器的pod.</p><p>数据卷缺省是宿主机的/data，所以我们把iscsiu挂在/data</p><p>主机：172.18.31.28</p><p>首先安装docker-ce</p><p>添加docker-ce源：</p><pre><code>yum install epel-release
+
+yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+
+yum install docker-ce -y
+
+yum install ntp -y
+</code></pre><p>启动自动同步时间:</p><pre><code>timedatectl set-ntp yes  #此处可用yes,no,1或0
+</code></pre><p>配置时区:</p><pre><code>timedatectl set-timezone Asia/Shanghai
+</code></pre><p>配置Docker启动参数：</p><pre><code>mkdir -p /etc/docker
+cat &lt;&lt; EOF &gt;&gt; /etc/docker/daemon.json
+{
+    &quot;registry-mirrors&quot;: [&quot;https://docker.mirrors.ustc.edu.cn/&quot;]
+}
+EOF
+</code></pre><p>之后装的所有Docker的宿主机，如果要用到这个私有仓库的话：</p><pre><code>cat &lt;&lt; EOF &gt;&gt; /etc/docker/daemon.json
+{
+     &quot;insecure-registries&quot;:[&quot;172.18.31.28&quot;],
+     &quot;registry-mirrors&quot;: [&quot;https://docker.mirrors.ustc.edu.cn/&quot;]
+}
+EOF
+</code></pre><p>启动docker</p><pre><code>systemctl enable docker &amp;&amp; systemctl start docker
+</code></pre><p>​
+安装Docker-compose</p><pre><code>yum install docker-compose
+pip3 install -I requests==2.9 来强制修正
+</code></pre><p>下载harbor的离线安装包</p><pre><code>cd /root
+https://github.com/goharbor/harbor/releases/download/v2.0.1/harbor-offline-installer-v2.0.1.tgz
+tar zxvf harbor-offline-installer-v2.0.1-rc1.tgz
+cd harbor
+</code></pre><p>编辑配置文件：</p><pre><code>cp harbor.yml.tmpl harbor.yml
+vi harbor.yml
+    hostname: 172.18.31.28
+	harbor_admin_password: Fuckxxxbbaasskk
+	隐掉443，因为我们是内网用，配个证书也是假的，所以关了443
+	#https:
+    # https port for harbor, default is 443
+    #  port: 443
+    # The path of cert and key files for nginx
+    #  certificate: /your/certificate/path
+	换掉DB的pass
+	database:
+    # The password for the root user of Harbor DB. Change this before any production use.
+      password: xxxxxxx
+    #  private_key: /your/private/key/path
+</code></pre><p>然后直接安装：</p><pre><code>./install.sh
+</code></pre><p>安装完成了就，看一眼：</p><pre><code>docker-compose ps
+</code></pre><p><img loading=lazy src=/posts/20221219-docker_harbor/2020-07-08_092524.png></p><p>然后直接登录 http://172.18.31.28 就好</p><p><img loading=lazy src=/posts/20221219-docker_harbor/2020-07-08_092910.png></p><p>缺省有一个library的开放项目，我们推一个busybox过去测试一下：</p><pre><code>首先拉一个busybox到本地
+docker pull busybox
+
+打个tag
+docker tag busybox:latest 172.18.31.28/library/busybox
+
+推上去
+docker push 172.18.31.28/library/busybox
+</code></pre><p>这时候再去31.28的library项目里看，就能看到新推上去的busybox镜像了</p><p>在其他的机器上，首先登录，然后就可以拉镜像了。
+<img loading=lazy src=/posts/20221219-docker_harbor/2020-08-17_113331.png></p><p>再举个实际例子，我们把metallb给推上去备用：</p><pre><code>打tag
+docker tag docker.io/metallb/controller:v0.9.3 172.18.31.28/library/docker.io/metallb/controller:v0.9.3
+
+推上去
+docker push 172.18.31.28/library/docker.io/metallb/controller:v0.9.3
+</code></pre></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

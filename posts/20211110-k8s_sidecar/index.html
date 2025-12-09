@@ -1,0 +1,201 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>kubernetes生产环境使用filebeat sidecar收集日志 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='在生产环境中，ES 通常是不会在 k8s 集群中存在的，一般 MySQL 和 Elasticsearch 都是独立在 k8s 之外。
+那么无论哪种 pod，要甩日志到 ES，最轻量的方案肯定是用 filebeat 甩过去了。
+当然，如果是阿里的 ACK，logtail 和 logstore 配搭已经非常不错了，根本用不到 filebeat 和 ES。
+可但是，我们不想为阿里 sls、logstore 出钱买单，就只能用 filebeat + ES 了
+说一下 filebeat 的 sidecar 边车（僚机）用法：
+
+如上图所示，简单说就是起一个 filebeat 的 logging-agent 边车（僚机），边车和主应用之间共享某个文件夹（mountPath），达到收集主应用日志并发送到 ES，而不用动 app-container 分毫。
+我们以部署一个 Tomcat 应用为例来说明：
+一、打造 filebeat 边车镜像
+首先准备 Dockerfile
+FROM alpine:3.12  
+
+ARG VERSION=7.15.1  
+
+COPY docker-entrypoint.sh /  
+
+RUN set -x \  
+    && cd /tmp \  
+    && wget https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-${VERSION}-linux-x86_64.tar.gz \  
+    && tar xzvf filebeat-${VERSION}-linux-x86_64.tar.gz \  
+    && mv filebeat-${VERSION}-linux-x86_64 /opt \  
+    && rm /tmp/* \  
+    && chmod +x /docker-entrypoint.sh  
+
+
+ENV PATH $PATH:/opt/filebeat-${VERSION}-linux-x86_64  
+
+WORKDIR /opt/filebeat-${VERSION}-linux-x86_64  
+
+ENTRYPOINT ["/docker-entrypoint.sh"]  
+我们以 alphine:3.12 为底版，然后下载 filebeat  7.15.1的二进制包并释放到 /opt 下，最后指定入口文件 /docker-entrypoint.sh'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20211110-k8s_sidecar/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20211110-k8s_sidecar/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20211110-k8s_sidecar/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="kubernetes生产环境使用filebeat sidecar收集日志"><meta property="og:description" content='在生产环境中，ES 通常是不会在 k8s 集群中存在的，一般 MySQL 和 Elasticsearch 都是独立在 k8s 之外。
+那么无论哪种 pod，要甩日志到 ES，最轻量的方案肯定是用 filebeat 甩过去了。
+当然，如果是阿里的 ACK，logtail 和 logstore 配搭已经非常不错了，根本用不到 filebeat 和 ES。
+可但是，我们不想为阿里 sls、logstore 出钱买单，就只能用 filebeat + ES 了
+说一下 filebeat 的 sidecar 边车（僚机）用法：
+如上图所示，简单说就是起一个 filebeat 的 logging-agent 边车（僚机），边车和主应用之间共享某个文件夹（mountPath），达到收集主应用日志并发送到 ES，而不用动 app-container 分毫。
+我们以部署一个 Tomcat 应用为例来说明：
+一、打造 filebeat 边车镜像 首先准备 Dockerfile
+FROM alpine:3.12 ARG VERSION=7.15.1 COPY docker-entrypoint.sh / RUN set -x \ && cd /tmp \ && wget https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-${VERSION}-linux-x86_64.tar.gz \ && tar xzvf filebeat-${VERSION}-linux-x86_64.tar.gz \ && mv filebeat-${VERSION}-linux-x86_64 /opt \ && rm /tmp/* \ && chmod +x /docker-entrypoint.sh ENV PATH $PATH:/opt/filebeat-${VERSION}-linux-x86_64 WORKDIR /opt/filebeat-${VERSION}-linux-x86_64 ENTRYPOINT ["/docker-entrypoint.sh"] 我们以 alphine:3.12 为底版，然后下载 filebeat 7.15.1的二进制包并释放到 /opt 下，最后指定入口文件 /docker-entrypoint.sh'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2021-11-10T12:30:11+08:00"><meta property="article:modified_time" content="2021-11-10T12:30:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="kubernetes生产环境使用filebeat sidecar收集日志"><meta name=twitter:description content='在生产环境中，ES 通常是不会在 k8s 集群中存在的，一般 MySQL 和 Elasticsearch 都是独立在 k8s 之外。
+那么无论哪种 pod，要甩日志到 ES，最轻量的方案肯定是用 filebeat 甩过去了。
+当然，如果是阿里的 ACK，logtail 和 logstore 配搭已经非常不错了，根本用不到 filebeat 和 ES。
+可但是，我们不想为阿里 sls、logstore 出钱买单，就只能用 filebeat + ES 了
+说一下 filebeat 的 sidecar 边车（僚机）用法：
+
+如上图所示，简单说就是起一个 filebeat 的 logging-agent 边车（僚机），边车和主应用之间共享某个文件夹（mountPath），达到收集主应用日志并发送到 ES，而不用动 app-container 分毫。
+我们以部署一个 Tomcat 应用为例来说明：
+一、打造 filebeat 边车镜像
+首先准备 Dockerfile
+FROM alpine:3.12  
+
+ARG VERSION=7.15.1  
+
+COPY docker-entrypoint.sh /  
+
+RUN set -x \  
+    && cd /tmp \  
+    && wget https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-${VERSION}-linux-x86_64.tar.gz \  
+    && tar xzvf filebeat-${VERSION}-linux-x86_64.tar.gz \  
+    && mv filebeat-${VERSION}-linux-x86_64 /opt \  
+    && rm /tmp/* \  
+    && chmod +x /docker-entrypoint.sh  
+
+
+ENV PATH $PATH:/opt/filebeat-${VERSION}-linux-x86_64  
+
+WORKDIR /opt/filebeat-${VERSION}-linux-x86_64  
+
+ENTRYPOINT ["/docker-entrypoint.sh"]  
+我们以 alphine:3.12 为底版，然后下载 filebeat  7.15.1的二进制包并释放到 /opt 下，最后指定入口文件 /docker-entrypoint.sh'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"kubernetes生产环境使用filebeat sidecar收集日志","item":"https://rendoumi.com/posts/20211110-k8s_sidecar/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"kubernetes生产环境使用filebeat sidecar收集日志","name":"kubernetes生产环境使用filebeat sidecar收集日志","description":"在生产环境中，ES 通常是不会在 k8s 集群中存在的，一般 MySQL 和 Elasticsearch 都是独立在 k8s 之外。\n那么无论哪种 pod，要甩日志到 ES，最轻量的方案肯定是用 filebeat 甩过去了。\n当然，如果是阿里的 ACK，logtail 和 logstore 配搭已经非常不错了，根本用不到 filebeat 和 ES。\n可但是，我们不想为阿里 sls、logstore 出钱买单，就只能用 filebeat + ES 了\n说一下 filebeat 的 sidecar 边车（僚机）用法：\n如上图所示，简单说就是起一个 filebeat 的 logging-agent 边车（僚机），边车和主应用之间共享某个文件夹（mountPath），达到收集主应用日志并发送到 ES，而不用动 app-container 分毫。\n我们以部署一个 Tomcat 应用为例来说明：\n一、打造 filebeat 边车镜像 首先准备 Dockerfile\nFROM alpine:3.12 ARG VERSION=7.15.1 COPY docker-entrypoint.sh / RUN set -x \\ \u0026amp;\u0026amp; cd /tmp \\ \u0026amp;\u0026amp; wget https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-${VERSION}-linux-x86_64.tar.gz \\ \u0026amp;\u0026amp; tar xzvf filebeat-${VERSION}-linux-x86_64.tar.gz \\ \u0026amp;\u0026amp; mv filebeat-${VERSION}-linux-x86_64 /opt \\ \u0026amp;\u0026amp; rm /tmp/* \\ \u0026amp;\u0026amp; chmod +x /docker-entrypoint.sh ENV PATH $PATH:/opt/filebeat-${VERSION}-linux-x86_64 WORKDIR /opt/filebeat-${VERSION}-linux-x86_64 ENTRYPOINT [\u0026#34;/docker-entrypoint.sh\u0026#34;] 我们以 alphine:3.12 为底版，然后下载 filebeat 7.15.1的二进制包并释放到 /opt 下，最后指定入口文件 /docker-entrypoint.sh\n","keywords":[],"articleBody":"在生产环境中，ES 通常是不会在 k8s 集群中存在的，一般 MySQL 和 Elasticsearch 都是独立在 k8s 之外。\n那么无论哪种 pod，要甩日志到 ES，最轻量的方案肯定是用 filebeat 甩过去了。\n当然，如果是阿里的 ACK，logtail 和 logstore 配搭已经非常不错了，根本用不到 filebeat 和 ES。\n可但是，我们不想为阿里 sls、logstore 出钱买单，就只能用 filebeat + ES 了\n说一下 filebeat 的 sidecar 边车（僚机）用法：\n如上图所示，简单说就是起一个 filebeat 的 logging-agent 边车（僚机），边车和主应用之间共享某个文件夹（mountPath），达到收集主应用日志并发送到 ES，而不用动 app-container 分毫。\n我们以部署一个 Tomcat 应用为例来说明：\n一、打造 filebeat 边车镜像 首先准备 Dockerfile\nFROM alpine:3.12 ARG VERSION=7.15.1 COPY docker-entrypoint.sh / RUN set -x \\ \u0026\u0026 cd /tmp \\ \u0026\u0026 wget https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-${VERSION}-linux-x86_64.tar.gz \\ \u0026\u0026 tar xzvf filebeat-${VERSION}-linux-x86_64.tar.gz \\ \u0026\u0026 mv filebeat-${VERSION}-linux-x86_64 /opt \\ \u0026\u0026 rm /tmp/* \\ \u0026\u0026 chmod +x /docker-entrypoint.sh ENV PATH $PATH:/opt/filebeat-${VERSION}-linux-x86_64 WORKDIR /opt/filebeat-${VERSION}-linux-x86_64 ENTRYPOINT [\"/docker-entrypoint.sh\"] 我们以 alphine:3.12 为底版，然后下载 filebeat 7.15.1的二进制包并释放到 /opt 下，最后指定入口文件 /docker-entrypoint.sh\n奥妙全在这个 docker-entrypoint.sh 中了\n#!/bin/bash cat \u003e /etc/filebeat.yaml \u003c\u003c EOF filebeat.config.modules: path: /opt/filebeat-7.15.1-linux-x86_64/modules.d/*.yml reload.enabled: true # 加入自定义的字段 fields_under_root: true fields: project: kuaijian-tomcat pod_ip: ${POD_IP} pod_name: ${POD_NAME} node_name: ${NODE_NAME} pod_namespace: ${POD_NAMESPACE} # 收集云厂商的数据和docker的变量 processors: - add_cloud_metadata: ~ - add_docker_metadata: ~ filebeat.modules: - module: apache access: enabled: true var.paths: - \"/usr/local/tomcat/logs/localhost_access_log.*.txt\" error: enabled: true var.paths: - \"/usr/local/tomcat/logs/application.log*\" - \"/usr/local/tomcat/logs/catalina.*.log\" - \"/usr/local/tomcat/logs/host-manager.*.log\" - \"/usr/local/tomcat/logs/localhost.*.log\" - \"/usr/local/tomcat/logs/manager.*.log\" setup.template.name: \"tomcat-logs\" setup.template.pattern: \"tomcat-logs-*\" output.elasticsearch: hosts: [\"172.19.20.xxx:9200\",\"172.19.20.xxx:9200\"] index: \"tomcat-logs-%{+yyyy.MM}\" EOF set -xe # If user don't provide any command # Run filebeat if [[ \"$1\" == \"\" ]]; then exec /opt/filebeat-7.15.1-linux-x86_64/filebeat -c /etc/filebeat.yaml else # Else allow the user to run arbitrarily commands like bash exec \"$@\" fi 我们为什么不在 k8s 里用 configmap 来配置 filebeat.yml 呢？\n理由是收集日志文件多且路径、类型各不相同，这么一堆的配置都放在 configmap 里会让人癫狂的。所以干脆放到镜像里，便于调试也便于修改。\n上面我们也充分利用了 filebeat 的 module，有 module 可用就必须用 module，而不是手动指定 filebeat.inputs ，可用的 mudole 实在太多了，一定要善用！！！另外 tomcat 和 apache 的日志格式是一样的。\n我们在最后执行的时候，也加了 exec $@ 便于调试，如果没有指定 CMD，就启动 filebeat，如果指定了比如 /bin/bash，就进入调试状态。\n我们打好镜像就 push 到 harbor 里待用\n附录：https://www.elastic.co/guide/en/beats/filebeat/current/configuration-general-options.html filebeat的配置列表\n二、sidecar部署 我们写一个 k8s 的 tomcat deployment文件：\napiVersion: apps/v1 kind: Deployment metadata: name: tomcat labels: app: tomcat spec: replicas: 1 selector: matchLabels: app: tomcat template: metadata: labels: app: tomcat spec: containers: - name: filebeat-sidecar image: xxxx.xxxx.xxx/filebeat:xxx env: - name: POD_NAMESPACE valueFrom: fieldRef: apiVersion: v1 fieldPath: metadata.namespace - name: NODE_NAME valueFrom: fieldRef: apiVersion: v1 fieldPath: spec.nodeName - name: POD_IP valueFrom: fieldRef: apiVersion: v1 fieldPath: status.podIP - name: POD_NAME valueFrom: fieldRef: apiVersion: v1 fieldPath: metadata.name volumeMounts: - name: logs-volume mountPath: /usr/local/tomcat/logs - name: tomcat image: tomcat ports: - containerPort: 8080 volumeMounts: - name: logs-volume mountPath: /usr/local/tomcat/logs volumes: - name: logs-volume emptyDir: {} 可以看到我们在这个 deployment 里定义了 pod 是单副本，里面跑了两个 container，一个是 filebeat，一个是 tocmat，两者通过同一个 volume 连接在一起，这样就可以做到不修改 tomcat container 而拿到里面的日志了。\n这样就把 tomcat 应用的日志收到 ES 去了。\n","wordCount":"369","inLanguage":"zh","datePublished":"2021-11-10T12:30:11+08:00","dateModified":"2021-11-10T12:30:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20211110-k8s_sidecar/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">kubernetes生产环境使用filebeat sidecar收集日志
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2021-11-10 12:30:11 +0800 CST'>2021年11月10日</span></div></header><div class=post-content><p>在生产环境中，ES 通常是不会在 k8s 集群中存在的，一般 MySQL 和 Elasticsearch 都是独立在 k8s 之外。</p><p>那么无论哪种 pod，要甩日志到 ES，最轻量的方案肯定是用 filebeat 甩过去了。</p><p>当然，如果是阿里的 ACK，logtail 和 logstore 配搭已经非常不错了，根本用不到 filebeat 和 ES。</p><p>可但是，我们不想为阿里 sls、logstore 出钱买单，就只能用 filebeat + ES 了</p><p>说一下 filebeat 的 sidecar 边车（僚机）用法：</p><p><img alt=image-20211110192939845 loading=lazy src=/posts/20211110-k8s_sidecar/image-20211110192939845.png></p><p>如上图所示，简单说就是起一个 filebeat 的 logging-agent 边车（僚机），边车和主应用之间共享某个文件夹（mountPath），达到收集主应用日志并发送到 ES，而不用动 app-container 分毫。</p><p>我们以部署一个 Tomcat 应用为例来说明：</p><h2 id=一打造-filebeat-边车镜像>一、打造 filebeat 边车镜像<a hidden class=anchor aria-hidden=true href=#一打造-filebeat-边车镜像>#</a></h2><p>首先准备 Dockerfile</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=na>FROM alpine:3.12  </span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=na>ARG VERSION</span><span class=o>=</span><span class=s>7.15.1  </span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=na>COPY docker-entrypoint.sh /  </span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=na>RUN set -x \  </span>
+</span></span><span class=line><span class=cl>    <span class=na>&amp;&amp; cd /tmp \  </span>
+</span></span><span class=line><span class=cl>    <span class=na>&amp;&amp; wget https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-${VERSION}-linux-x86_64.tar.gz \  </span>
+</span></span><span class=line><span class=cl>    <span class=na>&amp;&amp; tar xzvf filebeat-${VERSION}-linux-x86_64.tar.gz \  </span>
+</span></span><span class=line><span class=cl>    <span class=na>&amp;&amp; mv filebeat-${VERSION}-linux-x86_64 /opt \  </span>
+</span></span><span class=line><span class=cl>    <span class=na>&amp;&amp; rm /tmp/* \  </span>
+</span></span><span class=line><span class=cl>    <span class=na>&amp;&amp; chmod +x /docker-entrypoint.sh  </span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=na>ENV PATH $PATH:/opt/filebeat-${VERSION}-linux-x86_64  </span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=na>WORKDIR /opt/filebeat-${VERSION}-linux-x86_64  </span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=na>ENTRYPOINT [&#34;/docker-entrypoint.sh&#34;]  </span>
+</span></span></code></pre></div><p>我们以 alphine:3.12 为底版，然后下载 filebeat 7.15.1的二进制包并释放到 /opt 下，最后指定入口文件 /docker-entrypoint.sh</p><p>奥妙全在这个 docker-entrypoint.sh 中了</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/bin/bash 
+</span></span></span><span class=line><span class=cl><span class=cp></span>  
+</span></span><span class=line><span class=cl>cat &gt; /etc/filebeat.yaml <span class=s>&lt;&lt; EOF 
+</span></span></span><span class=line><span class=cl><span class=s>filebeat.config.modules:
+</span></span></span><span class=line><span class=cl><span class=s>  path: /opt/filebeat-7.15.1-linux-x86_64/modules.d/*.yml
+</span></span></span><span class=line><span class=cl><span class=s>  reload.enabled: true
+</span></span></span><span class=line><span class=cl><span class=s>
+</span></span></span><span class=line><span class=cl><span class=s># 加入自定义的字段
+</span></span></span><span class=line><span class=cl><span class=s>fields_under_root: true
+</span></span></span><span class=line><span class=cl><span class=s>fields:
+</span></span></span><span class=line><span class=cl><span class=s>  project: kuaijian-tomcat
+</span></span></span><span class=line><span class=cl><span class=s>  pod_ip: ${POD_IP}
+</span></span></span><span class=line><span class=cl><span class=s>  pod_name: ${POD_NAME}
+</span></span></span><span class=line><span class=cl><span class=s>  node_name: ${NODE_NAME}
+</span></span></span><span class=line><span class=cl><span class=s>  pod_namespace: ${POD_NAMESPACE}
+</span></span></span><span class=line><span class=cl><span class=s>  
+</span></span></span><span class=line><span class=cl><span class=s># 收集云厂商的数据和docker的变量
+</span></span></span><span class=line><span class=cl><span class=s>processors:
+</span></span></span><span class=line><span class=cl><span class=s>  - add_cloud_metadata: ~
+</span></span></span><span class=line><span class=cl><span class=s>  - add_docker_metadata: ~
+</span></span></span><span class=line><span class=cl><span class=s>
+</span></span></span><span class=line><span class=cl><span class=s>filebeat.modules:
+</span></span></span><span class=line><span class=cl><span class=s>  - module: apache
+</span></span></span><span class=line><span class=cl><span class=s>    access:
+</span></span></span><span class=line><span class=cl><span class=s>      enabled: true
+</span></span></span><span class=line><span class=cl><span class=s>      var.paths:
+</span></span></span><span class=line><span class=cl><span class=s>      - &#34;/usr/local/tomcat/logs/localhost_access_log.*.txt&#34;
+</span></span></span><span class=line><span class=cl><span class=s>    error:
+</span></span></span><span class=line><span class=cl><span class=s>      enabled: true
+</span></span></span><span class=line><span class=cl><span class=s>      var.paths:
+</span></span></span><span class=line><span class=cl><span class=s>      - &#34;/usr/local/tomcat/logs/application.log*&#34;
+</span></span></span><span class=line><span class=cl><span class=s>      - &#34;/usr/local/tomcat/logs/catalina.*.log&#34;
+</span></span></span><span class=line><span class=cl><span class=s>      - &#34;/usr/local/tomcat/logs/host-manager.*.log&#34;
+</span></span></span><span class=line><span class=cl><span class=s>      - &#34;/usr/local/tomcat/logs/localhost.*.log&#34;
+</span></span></span><span class=line><span class=cl><span class=s>      - &#34;/usr/local/tomcat/logs/manager.*.log&#34;
+</span></span></span><span class=line><span class=cl><span class=s>      
+</span></span></span><span class=line><span class=cl><span class=s>setup.template.name: &#34;tomcat-logs&#34;
+</span></span></span><span class=line><span class=cl><span class=s>setup.template.pattern: &#34;tomcat-logs-*&#34;
+</span></span></span><span class=line><span class=cl><span class=s>output.elasticsearch:
+</span></span></span><span class=line><span class=cl><span class=s>  hosts: [&#34;172.19.20.xxx:9200&#34;,&#34;172.19.20.xxx:9200&#34;]
+</span></span></span><span class=line><span class=cl><span class=s>  index: &#34;tomcat-logs-%{+yyyy.MM}&#34;
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span> 
+</span></span><span class=line><span class=cl> 
+</span></span><span class=line><span class=cl><span class=nb>set</span> -xe 
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># If user don&#39;t provide any command </span>
+</span></span><span class=line><span class=cl><span class=c1># Run filebeat </span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[[</span> <span class=s2>&#34;</span><span class=nv>$1</span><span class=s2>&#34;</span> <span class=o>==</span> <span class=s2>&#34;&#34;</span> <span class=o>]]</span><span class=p>;</span> <span class=k>then</span> 
+</span></span><span class=line><span class=cl>     <span class=nb>exec</span> /opt/filebeat-7.15.1-linux-x86_64/filebeat -c /etc/filebeat.yaml  
+</span></span><span class=line><span class=cl><span class=k>else</span> 
+</span></span><span class=line><span class=cl>    <span class=c1># Else allow the user to run arbitrarily commands like bash </span>
+</span></span><span class=line><span class=cl>    <span class=nb>exec</span> <span class=s2>&#34;</span><span class=nv>$@</span><span class=s2>&#34;</span> 
+</span></span><span class=line><span class=cl><span class=k>fi</span> 
+</span></span></code></pre></div><p>我们为什么不在 k8s 里用 configmap 来配置 filebeat.yml 呢？</p><p>理由是收集日志文件多且路径、类型各不相同，这么一堆的配置都放在 configmap 里会让人癫狂的。所以干脆放到镜像里，便于调试也便于修改。</p><p>上面我们也充分利用了 filebeat 的 module，有 module 可用就必须用 module，而不是手动指定 filebeat.inputs ，可用的 mudole 实在太多了，一定要善用！！！另外 tomcat 和 apache 的日志格式是一样的。</p><p>我们在最后执行的时候，也加了 <code>exec $@</code> 便于调试，如果没有指定 CMD，就启动 filebeat，如果指定了比如 /bin/bash，就进入调试状态。</p><p>我们打好镜像就 push 到 harbor 里待用</p><p>附录：https://www.elastic.co/guide/en/beats/filebeat/current/configuration-general-options.html filebeat的配置列表</p><h2 id=二sidecar部署>二、sidecar部署<a hidden class=anchor aria-hidden=true href=#二sidecar部署>#</a></h2><p>我们写一个 k8s 的 tomcat deployment文件：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=na>apiVersion: apps/v1</span>
+</span></span><span class=line><span class=cl><span class=na>kind: Deployment</span>
+</span></span><span class=line><span class=cl><span class=na>metadata:</span>
+</span></span><span class=line><span class=cl>  <span class=na>name: tomcat</span>
+</span></span><span class=line><span class=cl>  <span class=na>labels:</span>
+</span></span><span class=line><span class=cl>    <span class=na>app: tomcat</span>
+</span></span><span class=line><span class=cl><span class=na>spec:</span>
+</span></span><span class=line><span class=cl>  <span class=na>replicas: 1</span>
+</span></span><span class=line><span class=cl>  <span class=na>selector:</span>
+</span></span><span class=line><span class=cl>    <span class=na>matchLabels:</span>
+</span></span><span class=line><span class=cl>      <span class=na>app: tomcat</span>
+</span></span><span class=line><span class=cl>  <span class=na>template:</span>
+</span></span><span class=line><span class=cl>    <span class=na>metadata:</span>
+</span></span><span class=line><span class=cl>      <span class=na>labels:</span>
+</span></span><span class=line><span class=cl>        <span class=na>app: tomcat</span>
+</span></span><span class=line><span class=cl>    <span class=na>spec:</span>
+</span></span><span class=line><span class=cl>      <span class=na>containers:</span>
+</span></span><span class=line><span class=cl>      <span class=na>- name: filebeat-sidecar</span>
+</span></span><span class=line><span class=cl>        <span class=na>image: xxxx.xxxx.xxx/filebeat:xxx</span>
+</span></span><span class=line><span class=cl>        <span class=na>env:</span>
+</span></span><span class=line><span class=cl>        <span class=na>- name: POD_NAMESPACE</span>
+</span></span><span class=line><span class=cl>          <span class=na>valueFrom:</span>
+</span></span><span class=line><span class=cl>            <span class=na>fieldRef:</span>
+</span></span><span class=line><span class=cl>              <span class=na>apiVersion: v1</span>
+</span></span><span class=line><span class=cl>              <span class=na>fieldPath: metadata.namespace</span>
+</span></span><span class=line><span class=cl>        <span class=na>- name: NODE_NAME</span>
+</span></span><span class=line><span class=cl>          <span class=na>valueFrom:</span>
+</span></span><span class=line><span class=cl>            <span class=na>fieldRef:</span>
+</span></span><span class=line><span class=cl>              <span class=na>apiVersion: v1</span>
+</span></span><span class=line><span class=cl>              <span class=na>fieldPath: spec.nodeName</span>
+</span></span><span class=line><span class=cl>        <span class=na>- name: POD_IP</span>
+</span></span><span class=line><span class=cl>          <span class=na>valueFrom:</span>
+</span></span><span class=line><span class=cl>            <span class=na>fieldRef:</span>
+</span></span><span class=line><span class=cl>              <span class=na>apiVersion: v1</span>
+</span></span><span class=line><span class=cl>              <span class=na>fieldPath: status.podIP</span>
+</span></span><span class=line><span class=cl>        <span class=na>- name: POD_NAME</span>
+</span></span><span class=line><span class=cl>          <span class=na>valueFrom:</span>
+</span></span><span class=line><span class=cl>            <span class=na>fieldRef:</span>
+</span></span><span class=line><span class=cl>              <span class=na>apiVersion: v1</span>
+</span></span><span class=line><span class=cl>              <span class=na>fieldPath: metadata.name            </span>
+</span></span><span class=line><span class=cl>        <span class=na>volumeMounts:</span>
+</span></span><span class=line><span class=cl>        <span class=na>- name: logs-volume</span>
+</span></span><span class=line><span class=cl>          <span class=na>mountPath: /usr/local/tomcat/logs</span>
+</span></span><span class=line><span class=cl>      <span class=na>- name: tomcat</span>
+</span></span><span class=line><span class=cl>        <span class=na>image: tomcat</span>
+</span></span><span class=line><span class=cl>        <span class=na>ports:</span>
+</span></span><span class=line><span class=cl>        <span class=na>- containerPort: 8080</span>
+</span></span><span class=line><span class=cl>        <span class=na>volumeMounts:</span>
+</span></span><span class=line><span class=cl>        <span class=na>- name: logs-volume</span>
+</span></span><span class=line><span class=cl>          <span class=na>mountPath: /usr/local/tomcat/logs</span>
+</span></span><span class=line><span class=cl>      <span class=na>volumes:</span>
+</span></span><span class=line><span class=cl>      <span class=na>- name: logs-volume</span>
+</span></span><span class=line><span class=cl>        <span class=na>emptyDir: {}</span>
+</span></span></code></pre></div><p>可以看到我们在这个 deployment 里定义了 pod 是单副本，里面跑了两个 container，一个是 filebeat，一个是 tocmat，两者通过同一个 volume 连接在一起，这样就可以做到不修改 tomcat container 而拿到里面的日志了。</p><p>这样就把 tomcat 应用的日志收到 ES 去了。</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

@@ -1,0 +1,258 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Javascript的项目与babel和eslint | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="最近开始弄hubot，顺带也开始学习 javascript ，首先从单独一个 nodejs 项目开始：
+nvm 和 node 的安装使用在前面已经说过了：  Nodejs多版本的安装与管理
+新建一个项目目录，build01
+然后在其下建立如下目录结构：
+mkdir build01
+
+cd build01
+mkdir es6 dist
+
+mkdir public
+cd public
+mkdir es6 dist 
+
+解释一下，es6 下放的是服务器端的源代码，dist 下放的是服务器端处理过的源代码。
+public/es6 放的是浏览器端的源代码，public/dist 放的是浏览器端处理过的源代码。
+一、安装gulp和babel
+babel 是用来做 js 格式转换的，注意，原有的 babel-preset-es2015 已经不适用了。
+npm install --save-dev gulp gulp-babel babel-preset-env@next
+生成一个.babelrc 文件，内容就一行
+{ &#34;presets&#34;: [&#34;env&#34;] }
+在 es6 目录下，建立一个测试的 test.js 文件，内容如下：
+'use strict';
+
+const sentences = [
+  { subject: 'JavaScript', verb: 'is',  object: 'great' },
+  { subject: 'Elephants',  verb: 'are', object: 'large' },
+];
+
+function say({ subject, verb, object }) {
+  console.log(`${subject} ${verb} ${object}`);
+}
+
+for ( let s of sentences) {
+  say(s);
+}
+仔细看，上面这个文件用到了 es6 的语法，对象的解构，of语法。"><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20220104-javascript_babel_eslint/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20220104-javascript_babel_eslint/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20220104-javascript_babel_eslint/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="Javascript的项目与babel和eslint"><meta property="og:description" content="最近开始弄hubot，顺带也开始学习 javascript ，首先从单独一个 nodejs 项目开始：
+nvm 和 node 的安装使用在前面已经说过了： Nodejs多版本的安装与管理
+新建一个项目目录，build01
+然后在其下建立如下目录结构：
+mkdir build01 cd build01 mkdir es6 dist mkdir public cd public mkdir es6 dist 解释一下，es6 下放的是服务器端的源代码，dist 下放的是服务器端处理过的源代码。
+public/es6 放的是浏览器端的源代码，public/dist 放的是浏览器端处理过的源代码。
+一、安装gulp和babel babel 是用来做 js 格式转换的，注意，原有的 babel-preset-es2015 已经不适用了。
+npm install --save-dev gulp gulp-babel babel-preset-env@next 生成一个.babelrc 文件，内容就一行
+{ &#34;presets&#34;: [&#34;env&#34;] } 在 es6 目录下，建立一个测试的 test.js 文件，内容如下：
+'use strict'; const sentences = [ { subject: 'JavaScript', verb: 'is', object: 'great' }, { subject: 'Elephants', verb: 'are', object: 'large' }, ]; function say({ subject, verb, object }) { console.log(`${subject} ${verb} ${object}`); } for ( let s of sentences) { say(s); } 仔细看，上面这个文件用到了 es6 的语法，对象的解构，of语法。"><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-01-04T09:30:11+08:00"><meta property="article:modified_time" content="2022-01-04T09:30:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Javascript的项目与babel和eslint"><meta name=twitter:description content="最近开始弄hubot，顺带也开始学习 javascript ，首先从单独一个 nodejs 项目开始：
+nvm 和 node 的安装使用在前面已经说过了：  Nodejs多版本的安装与管理
+新建一个项目目录，build01
+然后在其下建立如下目录结构：
+mkdir build01
+
+cd build01
+mkdir es6 dist
+
+mkdir public
+cd public
+mkdir es6 dist 
+
+解释一下，es6 下放的是服务器端的源代码，dist 下放的是服务器端处理过的源代码。
+public/es6 放的是浏览器端的源代码，public/dist 放的是浏览器端处理过的源代码。
+一、安装gulp和babel
+babel 是用来做 js 格式转换的，注意，原有的 babel-preset-es2015 已经不适用了。
+npm install --save-dev gulp gulp-babel babel-preset-env@next
+生成一个.babelrc 文件，内容就一行
+{ &#34;presets&#34;: [&#34;env&#34;] }
+在 es6 目录下，建立一个测试的 test.js 文件，内容如下：
+'use strict';
+
+const sentences = [
+  { subject: 'JavaScript', verb: 'is',  object: 'great' },
+  { subject: 'Elephants',  verb: 'are', object: 'large' },
+];
+
+function say({ subject, verb, object }) {
+  console.log(`${subject} ${verb} ${object}`);
+}
+
+for ( let s of sentences) {
+  say(s);
+}
+仔细看，上面这个文件用到了 es6 的语法，对象的解构，of语法。"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"Javascript的项目与babel和eslint","item":"https://rendoumi.com/posts/20220104-javascript_babel_eslint/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Javascript的项目与babel和eslint","name":"Javascript的项目与babel和eslint","description":"最近开始弄hubot，顺带也开始学习 javascript ，首先从单独一个 nodejs 项目开始：\nnvm 和 node 的安装使用在前面已经说过了： Nodejs多版本的安装与管理\n新建一个项目目录，build01\n然后在其下建立如下目录结构：\nmkdir build01 cd build01 mkdir es6 dist mkdir public cd public mkdir es6 dist 解释一下，es6 下放的是服务器端的源代码，dist 下放的是服务器端处理过的源代码。\npublic/es6 放的是浏览器端的源代码，public/dist 放的是浏览器端处理过的源代码。\n一、安装gulp和babel babel 是用来做 js 格式转换的，注意，原有的 babel-preset-es2015 已经不适用了。\nnpm install --save-dev gulp gulp-babel babel-preset-env@next 生成一个.babelrc 文件，内容就一行\n{ \u0026#34;presets\u0026#34;: [\u0026#34;env\u0026#34;] } 在 es6 目录下，建立一个测试的 test.js 文件，内容如下：\n\u0026#39;use strict\u0026#39;; const sentences = [ { subject: \u0026#39;JavaScript\u0026#39;, verb: \u0026#39;is\u0026#39;, object: \u0026#39;great\u0026#39; }, { subject: \u0026#39;Elephants\u0026#39;, verb: \u0026#39;are\u0026#39;, object: \u0026#39;large\u0026#39; }, ]; function say({ subject, verb, object }) { console.log(`${subject} ${verb} ${object}`); } for ( let s of sentences) { say(s); } 仔细看，上面这个文件用到了 es6 的语法，对象的解构，of语法。\n","keywords":[],"articleBody":"最近开始弄hubot，顺带也开始学习 javascript ，首先从单独一个 nodejs 项目开始：\nnvm 和 node 的安装使用在前面已经说过了： Nodejs多版本的安装与管理\n新建一个项目目录，build01\n然后在其下建立如下目录结构：\nmkdir build01 cd build01 mkdir es6 dist mkdir public cd public mkdir es6 dist 解释一下，es6 下放的是服务器端的源代码，dist 下放的是服务器端处理过的源代码。\npublic/es6 放的是浏览器端的源代码，public/dist 放的是浏览器端处理过的源代码。\n一、安装gulp和babel babel 是用来做 js 格式转换的，注意，原有的 babel-preset-es2015 已经不适用了。\nnpm install --save-dev gulp gulp-babel babel-preset-env@next 生成一个.babelrc 文件，内容就一行\n{ \"presets\": [\"env\"] } 在 es6 目录下，建立一个测试的 test.js 文件，内容如下：\n'use strict'; const sentences = [ { subject: 'JavaScript', verb: 'is', object: 'great' }, { subject: 'Elephants', verb: 'are', object: 'large' }, ]; function say({ subject, verb, object }) { console.log(`${subject} ${verb} ${object}`); } for ( let s of sentences) { say(s); } 仔细看，上面这个文件用到了 es6 的语法，对象的解构，of语法。\n我们来用 babel 把它转换一下，变成 es5 的语法\n在build01目录下，生成gulpfile.js，内容如下：\nconst gulp = require('gulp'); const babel = require('gulp-babel'); gulp.task('default', done =\u003e{ gulp.src(\"es6/**/*.js\") .pipe(babel()) .pipe(gulp.dest(\"dist\")); gulp.src(\"public/es6/**/*.js\") .pipe(babel()) .pipe(gulp.dest(\"public/dist\")); done(); }); 注意上面，**表示洞穿所有子目录。运行 gulp ，就会在 dist 目录下生成新的 test.js ，内容如下：\n'use strict'; var sentences = [{ subject: 'JavaScript', verb: 'is', object: 'great' }, { subject: 'Elephants', verb: 'are', object: 'large' }]; function say(_ref) { var subject = _ref.subject, verb = _ref.verb, object = _ref.object; console.log(\"\".concat(subject, \" \").concat(verb, \" \").concat(object)); } for (var _i = 0; _i \u003c sentences.length; _i++) { var s = sentences[_i]; say(s); } 仔细看，es6 的语法 变成 es5 的语法了。\n二、安装eslint babel 是对语法进行转换，那么 eslint 就是对语法作出规范，很多人吃 airbnb 那一套规则。\nnpm install --save-dev eslint gulp-eslint gulp-if 安装完成后执行命令进行初始化：\neslint --init 会提问一堆问题：\nHow would you like to use ESLint? … ▸ To check syntax, find problems, and enforce code style What type of modules does your project use? … ▸ JavaScript modules (import/export) Which framework does your project use? … React Vue.js ▸ None of these Does your project use TypeScript? ‣ No / Yes #两个都选哦 Where does your code run? … (Press to select, to toggle all, to invert selection) ✔ Browser ✔ Node How would you like to define a style for your project? … ▸ Answer questions about your style ✔ What format do you want your config file to be in? · JSON ✔ What style of indentation do you use? · 4 ✔ What quotes do you use for strings? · single ✔ What line endings do you use? · unix ✔ Do you require semicolons? · Yes 最后得到文件 .eslintrc.json\n{ \"env\": { \"browser\": true, \"es2021\": true, \"node\": true }, \"extends\": \"eslint:recommended\", \"parserOptions\": { \"ecmaVersion\": 13, \"sourceType\": \"module\" }, \"rules\": { \"indent\": [ \"error\", 4 ], \"linebreak-style\": [ \"error\", \"unix\" ], \"quotes\": [ \"error\", \"single\" ], \"semi\": [ \"error\", \"always\" ] } } 这里注意，要改两个地方：\n\"es2021\": true, 改成 \"es6\": true, \"ecmaVersion\": 13, 改成 \"ecmaVersion\": 10, 然后我们改写一下 gulpfile.js，增加 eslint 的部分\nconst gulp = require('gulp'); const babel = require('gulp-babel'); const eslint = require('gulp-eslint'); const gulpIf = require('gulp-if'); function isFixed(file) { return file.eslint !== null \u0026\u0026 file.eslint.fixed; } gulp.task('default', done =\u003e{ gulp.src([\"es6/**/*.js\", \"public/**/*.js\"]) .pipe(eslint({fix: true})) .pipe(eslint.format()) .pipe(gulpIf(isFixed, gulp.dest(file =\u003e file.base))) .pipe(eslint.failAfterError()); gulp.src(\"es6/**/*.js\") .pipe(babel()) .pipe(gulp.dest(\"dist\")); gulp.src(\"public/es6/**/*.js\") .pipe(babel()) .pipe(gulp.dest(\"public/dist\")); done(); }); 再运行 gulp ，会把 es6/test.js 给格式化好，对比一下原文件就知道了，ident 被调整成4个空格了：\n'use strict'; const sentences = [ { subject: 'JavaScript', verb: 'is', object: 'great' }, { subject: 'Elephants', verb: 'are', object: 'large' }, ]; function say({ subject, verb, object }) { console.log(`${subject} ${verb} ${object}`); } for ( let s of sentences) { say(s); } ","wordCount":"512","inLanguage":"zh","datePublished":"2022-01-04T09:30:11+08:00","dateModified":"2022-01-04T09:30:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20220104-javascript_babel_eslint/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">Javascript的项目与babel和eslint
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2022-01-04 09:30:11 +0800 CST'>2022年1月4日</span></div></header><div class=post-content><p>最近开始弄hubot，顺带也开始学习 javascript ，首先从单独一个 nodejs 项目开始：</p><p>nvm 和 node 的安装使用在前面已经说过了： <a href=/posts/20211217-nodejs_nvm/>Nodejs多版本的安装与管理</a></p><p>新建一个项目目录，build01</p><p>然后在其下建立如下目录结构：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>mkdir build01
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>cd</span> build01
+</span></span><span class=line><span class=cl>mkdir es6 dist
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>mkdir public
+</span></span><span class=line><span class=cl><span class=nb>cd</span> public
+</span></span><span class=line><span class=cl>mkdir es6 dist 
+</span></span></code></pre></div><p><img alt=image-20220104160358593 loading=lazy src=/posts/20220104-javascript_babel_eslint/image-20220104160358593.png></p><p>解释一下，es6 下放的是服务器端的源代码，dist 下放的是服务器端处理过的源代码。</p><p>public/es6 放的是浏览器端的源代码，public/dist 放的是浏览器端处理过的源代码。</p><h2 id=一安装gulp和babel>一、安装gulp和babel<a hidden class=anchor aria-hidden=true href=#一安装gulp和babel>#</a></h2><p>babel 是用来做 js 格式转换的，注意，原有的 babel-preset-es2015 已经不适用了。</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>npm install --save-dev gulp gulp-babel babel-preset-env@next
+</span></span></code></pre></div><p>生成一个<code>.babelrc</code> 文件，内容就一行</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=na>{ &#34;presets&#34;: [&#34;env&#34;] }</span>
+</span></span></code></pre></div><p>在 es6 目录下，建立一个测试的 <code>test.js</code> 文件，内容如下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=na>&#39;use strict&#39;;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=na>const sentences</span> <span class=o>=</span> <span class=s>[
+</span></span></span><span class=line><span class=cl><span class=s>  { subject: &#39;JavaScript&#39;, verb: &#39;is&#39;,  object: &#39;great&#39; },
+</span></span></span><span class=line><span class=cl><span class=s>  { subject: &#39;Elephants&#39;,  verb: &#39;are&#39;, object: &#39;large&#39; },</span>
+</span></span><span class=line><span class=cl><span class=na>];</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=na>function say({ subject, verb, object }) {</span>
+</span></span><span class=line><span class=cl>  <span class=na>console.log(`${subject} ${verb} ${object}`);</span>
+</span></span><span class=line><span class=cl><span class=na>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=na>for ( let s of sentences) {</span>
+</span></span><span class=line><span class=cl>  <span class=na>say(s);</span>
+</span></span><span class=line><span class=cl><span class=na>}</span>
+</span></span></code></pre></div><p>仔细看，上面这个文件用到了 es6 的语法，对象的解构，of语法。</p><p>我们来用 babel 把它转换一下，变成 es5 的语法</p><p>在build01目录下，生成<code>gulpfile.js</code>，内容如下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=na>const gulp</span> <span class=o>=</span> <span class=s>require(&#39;gulp&#39;);</span>
+</span></span><span class=line><span class=cl><span class=na>const babel</span> <span class=o>=</span> <span class=s>require(&#39;gulp-babel&#39;);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=na>gulp.task(&#39;default&#39;, done</span> <span class=o>=</span><span class=s>&gt;{</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=na>gulp.src(&#34;es6/**/*.js&#34;)</span>
+</span></span><span class=line><span class=cl>  <span class=na>.pipe(babel())</span>
+</span></span><span class=line><span class=cl>  <span class=na>.pipe(gulp.dest(&#34;dist&#34;));</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=na>gulp.src(&#34;public/es6/**/*.js&#34;)</span>
+</span></span><span class=line><span class=cl>  <span class=na>.pipe(babel())</span>
+</span></span><span class=line><span class=cl>  <span class=na>.pipe(gulp.dest(&#34;public/dist&#34;));</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=na>done();</span>
+</span></span><span class=line><span class=cl>   
+</span></span><span class=line><span class=cl><span class=na>});</span>
+</span></span></code></pre></div><p>注意上面，**表示洞穿所有子目录。运行 gulp ，就会在 dist 目录下生成新的 test.js ，内容如下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=na>&#39;use strict&#39;;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=na>var sentences</span> <span class=o>=</span> <span class=s>[{
+</span></span></span><span class=line><span class=cl><span class=s>  subject: &#39;JavaScript&#39;,
+</span></span></span><span class=line><span class=cl><span class=s>  verb: &#39;is&#39;,
+</span></span></span><span class=line><span class=cl><span class=s>  object: &#39;great&#39;</span>
+</span></span><span class=line><span class=cl><span class=na>}, {</span>
+</span></span><span class=line><span class=cl>  <span class=na>subject: &#39;Elephants&#39;,</span>
+</span></span><span class=line><span class=cl>  <span class=na>verb: &#39;are&#39;,</span>
+</span></span><span class=line><span class=cl>  <span class=na>object: &#39;large&#39;</span>
+</span></span><span class=line><span class=cl><span class=na>}];</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=na>function say(_ref) {</span>
+</span></span><span class=line><span class=cl>  <span class=na>var subject</span> <span class=o>=</span> <span class=s>_ref.subject,
+</span></span></span><span class=line><span class=cl><span class=s>      verb = _ref.verb,
+</span></span></span><span class=line><span class=cl><span class=s>      object = _ref.object;
+</span></span></span><span class=line><span class=cl><span class=s>  console.log(&#34;&#34;.concat(subject, &#34; &#34;).concat(verb, &#34; &#34;).concat(object));</span>
+</span></span><span class=line><span class=cl><span class=na>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=na>for (var _i</span> <span class=o>=</span> <span class=s>0; _i &lt; sentences.length; _i++) {
+</span></span></span><span class=line><span class=cl><span class=s>  var s = sentences[_i];
+</span></span></span><span class=line><span class=cl><span class=s>  say(s);</span>
+</span></span><span class=line><span class=cl><span class=na>}</span>
+</span></span></code></pre></div><p>仔细看，es6 的语法 变成 es5 的语法了。</p><h2 id=二安装eslint>二、安装eslint<a hidden class=anchor aria-hidden=true href=#二安装eslint>#</a></h2><p>babel 是对语法进行转换，那么 eslint 就是对语法作出规范，很多人吃 airbnb 那一套规则。</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>npm install --save-dev eslint gulp-eslint gulp-if
+</span></span></code></pre></div><p>安装完成后执行命令进行初始化：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>eslint --init
+</span></span></code></pre></div><p>会提问一堆问题：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>How would you like to use ESLint? … 
+</span></span><span class=line><span class=cl>▸ To check syntax, find problems, and enforce code style
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>What <span class=nb>type</span> of modules does your project use? … 
+</span></span><span class=line><span class=cl>▸ JavaScript modules <span class=o>(</span>import/export<span class=o>)</span>  
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Which framework does your project use? … 
+</span></span><span class=line><span class=cl>  React
+</span></span><span class=line><span class=cl>  Vue.js
+</span></span><span class=line><span class=cl>▸ None of these
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Does your project use TypeScript? ‣ No / Yes
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#两个都选哦</span>
+</span></span><span class=line><span class=cl>Where does your code run? …  <span class=o>(</span>Press &lt;space&gt; to <span class=k>select</span>, &lt;a&gt; to toggle all, &lt;i&gt; to invert selection<span class=o>)</span>
+</span></span><span class=line><span class=cl>✔ Browser
+</span></span><span class=line><span class=cl>✔ Node
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>How would you like to define a style <span class=k>for</span> your project? … 
+</span></span><span class=line><span class=cl>▸ Answer questions about your style
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>✔ What format <span class=k>do</span> you want your config file to be in? · JSON
+</span></span><span class=line><span class=cl>✔ What style of indentation <span class=k>do</span> you use? · <span class=m>4</span>
+</span></span><span class=line><span class=cl>✔ What quotes <span class=k>do</span> you use <span class=k>for</span> strings? · single
+</span></span><span class=line><span class=cl>✔ What line endings <span class=k>do</span> you use? · unix
+</span></span><span class=line><span class=cl>✔ Do you require semicolons? · Yes
+</span></span></code></pre></div><p>最后得到文件 <code>.eslintrc.json</code></p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=na>{</span>
+</span></span><span class=line><span class=cl>    <span class=na>&#34;env&#34;: {</span>
+</span></span><span class=line><span class=cl>        <span class=na>&#34;browser&#34;: true,</span>
+</span></span><span class=line><span class=cl>        <span class=na>&#34;es2021&#34;: true,</span>
+</span></span><span class=line><span class=cl>        <span class=na>&#34;node&#34;: true</span>
+</span></span><span class=line><span class=cl>    <span class=na>},</span>
+</span></span><span class=line><span class=cl>    <span class=na>&#34;extends&#34;: &#34;eslint:recommended&#34;,</span>
+</span></span><span class=line><span class=cl>    <span class=na>&#34;parserOptions&#34;: {</span>
+</span></span><span class=line><span class=cl>        <span class=na>&#34;ecmaVersion&#34;: 13,</span>
+</span></span><span class=line><span class=cl>        <span class=na>&#34;sourceType&#34;: &#34;module&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=na>},</span>
+</span></span><span class=line><span class=cl>    <span class=na>&#34;rules&#34;: {</span>
+</span></span><span class=line><span class=cl>        <span class=na>&#34;indent&#34;: [</span>
+</span></span><span class=line><span class=cl>            <span class=na>&#34;error&#34;,</span>
+</span></span><span class=line><span class=cl>            <span class=na>4</span>
+</span></span><span class=line><span class=cl>        <span class=na>],</span>
+</span></span><span class=line><span class=cl>        <span class=na>&#34;linebreak-style&#34;: [</span>
+</span></span><span class=line><span class=cl>            <span class=na>&#34;error&#34;,</span>
+</span></span><span class=line><span class=cl>            <span class=na>&#34;unix&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=na>],</span>
+</span></span><span class=line><span class=cl>        <span class=na>&#34;quotes&#34;: [</span>
+</span></span><span class=line><span class=cl>            <span class=na>&#34;error&#34;,</span>
+</span></span><span class=line><span class=cl>            <span class=na>&#34;single&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=na>],</span>
+</span></span><span class=line><span class=cl>        <span class=na>&#34;semi&#34;: [</span>
+</span></span><span class=line><span class=cl>            <span class=na>&#34;error&#34;,</span>
+</span></span><span class=line><span class=cl>            <span class=na>&#34;always&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=na>]</span>
+</span></span><span class=line><span class=cl>    <span class=na>}</span>
+</span></span><span class=line><span class=cl><span class=na>}</span>
+</span></span></code></pre></div><p>这里注意，要改两个地方：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=na>&#34;es2021&#34;: true,</span>
+</span></span><span class=line><span class=cl><span class=na>改成</span>
+</span></span><span class=line><span class=cl><span class=na>&#34;es6&#34;: true,</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=na>&#34;ecmaVersion&#34;: 13,</span>
+</span></span><span class=line><span class=cl><span class=na>改成</span>
+</span></span><span class=line><span class=cl><span class=na>&#34;ecmaVersion&#34;: 10,</span>
+</span></span></code></pre></div><p>然后我们改写一下 <code>gulpfile.js</code>，增加 eslint 的部分</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>const <span class=nv>gulp</span> <span class=o>=</span> require<span class=o>(</span><span class=s1>&#39;gulp&#39;</span><span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>const <span class=nv>babel</span> <span class=o>=</span> require<span class=o>(</span><span class=s1>&#39;gulp-babel&#39;</span><span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>const <span class=nv>eslint</span> <span class=o>=</span> require<span class=o>(</span><span class=s1>&#39;gulp-eslint&#39;</span><span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>const <span class=nv>gulpIf</span> <span class=o>=</span> require<span class=o>(</span><span class=s1>&#39;gulp-if&#39;</span><span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>function</span> isFixed<span class=o>(</span>file<span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>  <span class=k>return</span> file.eslint !<span class=o>==</span> null <span class=o>&amp;&amp;</span> file.eslint.fixed<span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>gulp.task<span class=o>(</span><span class=s1>&#39;default&#39;</span>, <span class=k>done</span> <span class=o>=</span>&gt;<span class=o>{</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  gulp.src<span class=o>([</span><span class=s2>&#34;es6/**/*.js&#34;</span>, <span class=s2>&#34;public/**/*.js&#34;</span><span class=o>])</span>
+</span></span><span class=line><span class=cl>  .pipe<span class=o>(</span>eslint<span class=o>({</span>fix: true<span class=o>}))</span>
+</span></span><span class=line><span class=cl>  .pipe<span class=o>(</span>eslint.format<span class=o>())</span>
+</span></span><span class=line><span class=cl>  .pipe<span class=o>(</span>gulpIf<span class=o>(</span>isFixed, gulp.dest<span class=o>(</span><span class=nv>file</span> <span class=o>=</span>&gt; file.base<span class=o>)))</span>
+</span></span><span class=line><span class=cl>  .pipe<span class=o>(</span>eslint.failAfterError<span class=o>())</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  gulp.src<span class=o>(</span><span class=s2>&#34;es6/**/*.js&#34;</span><span class=o>)</span>
+</span></span><span class=line><span class=cl>  .pipe<span class=o>(</span>babel<span class=o>())</span>
+</span></span><span class=line><span class=cl>  .pipe<span class=o>(</span>gulp.dest<span class=o>(</span><span class=s2>&#34;dist&#34;</span><span class=o>))</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  gulp.src<span class=o>(</span><span class=s2>&#34;public/es6/**/*.js&#34;</span><span class=o>)</span>
+</span></span><span class=line><span class=cl>  .pipe<span class=o>(</span>babel<span class=o>())</span>
+</span></span><span class=line><span class=cl>  .pipe<span class=o>(</span>gulp.dest<span class=o>(</span><span class=s2>&#34;public/dist&#34;</span><span class=o>))</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=k>done</span><span class=o>()</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>   
+</span></span><span class=line><span class=cl><span class=o>})</span><span class=p>;</span>
+</span></span></code></pre></div><p>再运行 gulp ，会把 es6/test.js 给格式化好，对比一下原文件就知道了，ident 被调整成4个空格了：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=s1>&#39;use strict&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>const <span class=nv>sentences</span> <span class=o>=</span> <span class=o>[</span>
+</span></span><span class=line><span class=cl>    <span class=o>{</span> subject: <span class=s1>&#39;JavaScript&#39;</span>, verb: <span class=s1>&#39;is&#39;</span>,  object: <span class=s1>&#39;great&#39;</span> <span class=o>}</span>,
+</span></span><span class=line><span class=cl>    <span class=o>{</span> subject: <span class=s1>&#39;Elephants&#39;</span>,  verb: <span class=s1>&#39;are&#39;</span>, object: <span class=s1>&#39;large&#39;</span> <span class=o>}</span>,
+</span></span><span class=line><span class=cl><span class=o>]</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>function</span> say<span class=o>({</span> subject, verb, object <span class=o>})</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>    console.log<span class=o>(</span><span class=sb>`</span><span class=si>${</span><span class=nv>subject</span><span class=si>}</span> <span class=si>${</span><span class=nv>verb</span><span class=si>}</span> <span class=si>${</span><span class=nv>object</span><span class=si>}</span><span class=sb>`</span><span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=o>(</span> <span class=nb>let</span> s of sentences<span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>    say<span class=o>(</span>s<span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></div></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

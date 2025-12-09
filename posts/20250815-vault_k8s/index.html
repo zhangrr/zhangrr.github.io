@@ -1,0 +1,419 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>vault使用external secret管理kubernetes secret | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='今天是2025年8月15日，大噩耗啊：
+external-secrets / external-secrets
+Link
+⭐ 5416 | 🔀 1032 | Go 97.6%
+External Secrets Operator 项目暂停发布
+由于维护团队规模过小，External Secrets Operator 决定暂停所有官方版本发布，直到重建足够的维护团队。
+Key Takeaways
+
+项目暂停所有官方版本发布，包括新功能、补丁和容器镜像。
+将继续审核和合并社区的 PR，但不会提供 GitHub Discussions、Slack 或问题评论的支持。
+需要至少五名长期维护者来确保项目的可持续发展。
+鼓励依赖该项目的公司或团队积极参与贡献。
+贡献者可通过填写表单或查看治理文档加入项目。
+
+居然暂停发布了，那就抓紧时间把Vault跟它的集成记录下来：
+一、首先必须在集群里安装Vault，然后安装external -secrets，都用helm装即可
+helm repo add hashicorp https://helm.releases.hashicorp.com
+helm repo update
+helm install vault hashicorp/vault --set "server.dev.enabled=true" --set "injector.enabled=true" --namespace default
+
+
+helm repo add external-secrets https://charts.external-secrets.io
+helm repo update
+helm install external-secrets external-secrets/external-secrets --namespace external-secrets --create-namespace --set installCRDs=true
+二、k8s授权，k8的授权体系就是 sa -> role -> rolebinding
+那kubernetes会把pod中sa的Token注入到文件：/var/run/secrets/kubernetes.io/serviceaccount/token'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20250815-vault_k8s/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20250815-vault_k8s/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20250815-vault_k8s/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="vault使用external secret管理kubernetes secret"><meta property="og:description" content='今天是2025年8月15日，大噩耗啊： external-secrets / external-secrets Link
+⭐ 5416 | 🔀 1032 | Go 97.6%
+External Secrets Operator 项目暂停发布 由于维护团队规模过小，External Secrets Operator 决定暂停所有官方版本发布，直到重建足够的维护团队。
+Key Takeaways 项目暂停所有官方版本发布，包括新功能、补丁和容器镜像。 将继续审核和合并社区的 PR，但不会提供 GitHub Discussions、Slack 或问题评论的支持。 需要至少五名长期维护者来确保项目的可持续发展。 鼓励依赖该项目的公司或团队积极参与贡献。 贡献者可通过填写表单或查看治理文档加入项目。 居然暂停发布了，那就抓紧时间把Vault跟它的集成记录下来：
+一、首先必须在集群里安装Vault，然后安装external -secrets，都用helm装即可 helm repo add hashicorp https://helm.releases.hashicorp.com helm repo update helm install vault hashicorp/vault --set "server.dev.enabled=true" --set "injector.enabled=true" --namespace default helm repo add external-secrets https://charts.external-secrets.io helm repo update helm install external-secrets external-secrets/external-secrets --namespace external-secrets --create-namespace --set installCRDs=true 二、k8s授权，k8的授权体系就是 sa -> role -> rolebinding 那kubernetes会把pod中sa的Token注入到文件：/var/run/secrets/kubernetes.io/serviceaccount/token'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2025-08-15T09:01:11+08:00"><meta property="article:modified_time" content="2025-08-15T09:01:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="vault使用external secret管理kubernetes secret"><meta name=twitter:description content='今天是2025年8月15日，大噩耗啊：
+external-secrets / external-secrets
+Link
+⭐ 5416 | 🔀 1032 | Go 97.6%
+External Secrets Operator 项目暂停发布
+由于维护团队规模过小，External Secrets Operator 决定暂停所有官方版本发布，直到重建足够的维护团队。
+Key Takeaways
+
+项目暂停所有官方版本发布，包括新功能、补丁和容器镜像。
+将继续审核和合并社区的 PR，但不会提供 GitHub Discussions、Slack 或问题评论的支持。
+需要至少五名长期维护者来确保项目的可持续发展。
+鼓励依赖该项目的公司或团队积极参与贡献。
+贡献者可通过填写表单或查看治理文档加入项目。
+
+居然暂停发布了，那就抓紧时间把Vault跟它的集成记录下来：
+一、首先必须在集群里安装Vault，然后安装external -secrets，都用helm装即可
+helm repo add hashicorp https://helm.releases.hashicorp.com
+helm repo update
+helm install vault hashicorp/vault --set "server.dev.enabled=true" --set "injector.enabled=true" --namespace default
+
+
+helm repo add external-secrets https://charts.external-secrets.io
+helm repo update
+helm install external-secrets external-secrets/external-secrets --namespace external-secrets --create-namespace --set installCRDs=true
+二、k8s授权，k8的授权体系就是 sa -> role -> rolebinding
+那kubernetes会把pod中sa的Token注入到文件：/var/run/secrets/kubernetes.io/serviceaccount/token'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"vault使用external secret管理kubernetes secret","item":"https://rendoumi.com/posts/20250815-vault_k8s/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"vault使用external secret管理kubernetes secret","name":"vault使用external secret管理kubernetes secret","description":"今天是2025年8月15日，大噩耗啊： external-secrets / external-secrets Link\n⭐ 5416 | 🔀 1032 | Go 97.6%\nExternal Secrets Operator 项目暂停发布 由于维护团队规模过小，External Secrets Operator 决定暂停所有官方版本发布，直到重建足够的维护团队。\nKey Takeaways 项目暂停所有官方版本发布，包括新功能、补丁和容器镜像。 将继续审核和合并社区的 PR，但不会提供 GitHub Discussions、Slack 或问题评论的支持。 需要至少五名长期维护者来确保项目的可持续发展。 鼓励依赖该项目的公司或团队积极参与贡献。 贡献者可通过填写表单或查看治理文档加入项目。 居然暂停发布了，那就抓紧时间把Vault跟它的集成记录下来：\n一、首先必须在集群里安装Vault，然后安装external -secrets，都用helm装即可 helm repo add hashicorp https://helm.releases.hashicorp.com helm repo update helm install vault hashicorp/vault --set \u0026#34;server.dev.enabled=true\u0026#34; --set \u0026#34;injector.enabled=true\u0026#34; --namespace default helm repo add external-secrets https://charts.external-secrets.io helm repo update helm install external-secrets external-secrets/external-secrets --namespace external-secrets --create-namespace --set installCRDs=true 二、k8s授权，k8的授权体系就是 sa -\u0026gt; role -\u0026gt; rolebinding 那kubernetes会把pod中sa的Token注入到文件：/var/run/secrets/kubernetes.io/serviceaccount/token\n","keywords":[],"articleBody":"今天是2025年8月15日，大噩耗啊： external-secrets / external-secrets Link\n⭐ 5416 | 🔀 1032 | Go 97.6%\nExternal Secrets Operator 项目暂停发布 由于维护团队规模过小，External Secrets Operator 决定暂停所有官方版本发布，直到重建足够的维护团队。\nKey Takeaways 项目暂停所有官方版本发布，包括新功能、补丁和容器镜像。 将继续审核和合并社区的 PR，但不会提供 GitHub Discussions、Slack 或问题评论的支持。 需要至少五名长期维护者来确保项目的可持续发展。 鼓励依赖该项目的公司或团队积极参与贡献。 贡献者可通过填写表单或查看治理文档加入项目。 居然暂停发布了，那就抓紧时间把Vault跟它的集成记录下来：\n一、首先必须在集群里安装Vault，然后安装external -secrets，都用helm装即可 helm repo add hashicorp https://helm.releases.hashicorp.com helm repo update helm install vault hashicorp/vault --set \"server.dev.enabled=true\" --set \"injector.enabled=true\" --namespace default helm repo add external-secrets https://charts.external-secrets.io helm repo update helm install external-secrets external-secrets/external-secrets --namespace external-secrets --create-namespace --set installCRDs=true 二、k8s授权，k8的授权体系就是 sa -\u003e role -\u003e rolebinding 那kubernetes会把pod中sa的Token注入到文件：/var/run/secrets/kubernetes.io/serviceaccount/token\n那调用k8s api中的token reviewer是可以对Token令牌进行验证的，我们先建立一系列k82资源\n--- apiVersion: v1 kind: ServiceAccount metadata: name: external-secrets-sa namespace: external-secrets --- apiVersion: rbac.authorization.k8s.io/v1 kind: ClusterRole metadata: name: external-secrets-clusterrole rules: - apiGroups: [\"\"] resources: [\"secrets\"] verbs: [\"get\", \"list\", \"watch\", \"create\", \"update\", \"patch\", \"delete\"] - apiGroups: [\"authorization.k8s.io\"] resources: [\"selfsubjectrulesreviews\"] verbs: [\"create\"] --- apiVersion: rbac.authorization.k8s.io/v1 kind: ClusterRoleBinding metadata: name: external-secrets-clusterrolebinding subjects: - kind: ServiceAccount name: external-secrets-sa namespace: external-secrets roleRef: kind: ClusterRole name: external-secrets-clusterrole apiGroup: rbac.authorization.k8s.io 如上，我们建立了一个sa，然后有api group的权限，同时授予了整个集群级别的权限\n三、登录vault，配置vault使用k8s的认证方式进行身份认证 那 enable kubernetes 其实设置了 vault 可以使用kubernetes的认证方式来进行vault-role角色的身份认证\n# 进入容器 kubectl exec -it vault-0 -- /bin/sh # 登录，要输入的token可以从日志里看到 vault login root # 开启kubernetes认证方式 vault auth enable kubernetes # 每个pod里面都有sa，k8s会将这个sa的token注入到文件/var/run/secrets/kubernetes.io/serviceaccount/token # 那就用这个sa的token，调用k8s token_reviewer进行身份认证 # 认证通过vault就会颁发一个对应vault-role的vault-token令牌出来 # 用vault-token就可以去vault里读取到vault-secret的内容了 vault write auth/kubernetes/config \\ token_reviewer_jwt=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)\" \\ kubernetes_host=\"https://kubernetes.default.svc:443\" \\ kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt # 拿token的另一种方法： # kubectl get secret $(kubectl get serviceaccount external-secrets-sa -o jsonpath=\"{.secrets[0].name}\") -o jsonpath=\"{.data.token}\" | base64 --decode # vault的认证体系跟AWS一样 # 先建policy，后建role # 所以先建一个读secret的策略 vault policy write external-secrets-policy - \u003c","wordCount":"842","inLanguage":"zh","datePublished":"2025-08-15T09:01:11+08:00","dateModified":"2025-08-15T09:01:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20250815-vault_k8s/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">vault使用external secret管理kubernetes secret
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2025-08-15 09:01:11 +0800 CST'>2025年8月15日</span></div></header><div class=post-content><h3 id=今天是2025年8月15日大噩耗啊>今天是2025年8月15日，大噩耗啊：<a hidden class=anchor aria-hidden=true href=#今天是2025年8月15日大噩耗啊>#</a></h3><h2 id=external-secrets--external-secrets>external-secrets / external-secrets<a hidden class=anchor aria-hidden=true href=#external-secrets--external-secrets>#</a></h2><p><a href=https://github.com/external-secrets/external-secrets>Link</a></p><p>⭐ 5416 | 🔀 1032 | Go 97.6%</p><h3 id=external-secrets-operator-项目暂停发布>External Secrets Operator 项目暂停发布<a hidden class=anchor aria-hidden=true href=#external-secrets-operator-项目暂停发布>#</a></h3><p>由于维护团队规模过小，External Secrets Operator 决定暂停所有官方版本发布，直到重建足够的维护团队。</p><h4 id=key-takeaways>Key Takeaways<a hidden class=anchor aria-hidden=true href=#key-takeaways>#</a></h4><ul><li>项目暂停所有官方版本发布，包括新功能、补丁和容器镜像。</li><li>将继续审核和合并社区的 PR，但不会提供 GitHub Discussions、Slack 或问题评论的支持。</li><li>需要至少五名长期维护者来确保项目的可持续发展。</li><li>鼓励依赖该项目的公司或团队积极参与贡献。</li><li>贡献者可通过填写表单或查看治理文档加入项目。</li></ul><p>居然暂停发布了，那就抓紧时间把Vault跟它的集成记录下来：</p><h3 id=一首先必须在集群里安装vault然后安装external--secrets都用helm装即可>一、首先必须在集群里安装Vault，然后安装external -secrets，都用helm装即可<a hidden class=anchor aria-hidden=true href=#一首先必须在集群里安装vault然后安装external--secrets都用helm装即可>#</a></h3><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>helm repo add hashicorp https://helm.releases.hashicorp.com
+</span></span><span class=line><span class=cl>helm repo update
+</span></span><span class=line><span class=cl>helm install vault hashicorp/vault --set <span class=s2>&#34;server.dev.enabled=true&#34;</span> --set <span class=s2>&#34;injector.enabled=true&#34;</span> --namespace default
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>helm repo add external-secrets https://charts.external-secrets.io
+</span></span><span class=line><span class=cl>helm repo update
+</span></span><span class=line><span class=cl>helm install external-secrets external-secrets/external-secrets --namespace external-secrets --create-namespace --set <span class=nv>installCRDs</span><span class=o>=</span><span class=nb>true</span>
+</span></span></code></pre></div><h3 id=二k8s授权k8的授权体系就是-sa---role---rolebinding>二、k8s授权，k8的授权体系就是 sa -> role -> rolebinding<a hidden class=anchor aria-hidden=true href=#二k8s授权k8的授权体系就是-sa---role---rolebinding>#</a></h3><p>那kubernetes会把pod中sa的Token注入到文件：<code>/var/run/secrets/kubernetes.io/serviceaccount/token</code></p><p>那调用k8s api中的token reviewer是可以对Token令牌进行验证的，我们先建立一系列k82资源</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>---
+</span></span><span class=line><span class=cl>apiVersion: v1
+</span></span><span class=line><span class=cl>kind: ServiceAccount
+</span></span><span class=line><span class=cl>metadata:
+</span></span><span class=line><span class=cl>  name: external-secrets-sa
+</span></span><span class=line><span class=cl>  namespace: external-secrets
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>---
+</span></span><span class=line><span class=cl>apiVersion: rbac.authorization.k8s.io/v1
+</span></span><span class=line><span class=cl>kind: ClusterRole
+</span></span><span class=line><span class=cl>metadata:
+</span></span><span class=line><span class=cl>  name: external-secrets-clusterrole
+</span></span><span class=line><span class=cl>rules:
+</span></span><span class=line><span class=cl>  - apiGroups: <span class=o>[</span><span class=s2>&#34;&#34;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>    resources: <span class=o>[</span><span class=s2>&#34;secrets&#34;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>    verbs: <span class=o>[</span><span class=s2>&#34;get&#34;</span>, <span class=s2>&#34;list&#34;</span>, <span class=s2>&#34;watch&#34;</span>, <span class=s2>&#34;create&#34;</span>, <span class=s2>&#34;update&#34;</span>, <span class=s2>&#34;patch&#34;</span>, <span class=s2>&#34;delete&#34;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>  - apiGroups: <span class=o>[</span><span class=s2>&#34;authorization.k8s.io&#34;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>    resources: <span class=o>[</span><span class=s2>&#34;selfsubjectrulesreviews&#34;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>    verbs: <span class=o>[</span><span class=s2>&#34;create&#34;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>---
+</span></span><span class=line><span class=cl>apiVersion: rbac.authorization.k8s.io/v1
+</span></span><span class=line><span class=cl>kind: ClusterRoleBinding
+</span></span><span class=line><span class=cl>metadata:
+</span></span><span class=line><span class=cl>  name: external-secrets-clusterrolebinding
+</span></span><span class=line><span class=cl>subjects:
+</span></span><span class=line><span class=cl>  - kind: ServiceAccount
+</span></span><span class=line><span class=cl>    name: external-secrets-sa
+</span></span><span class=line><span class=cl>    namespace: external-secrets
+</span></span><span class=line><span class=cl>roleRef:
+</span></span><span class=line><span class=cl>  kind: ClusterRole
+</span></span><span class=line><span class=cl>  name: external-secrets-clusterrole
+</span></span><span class=line><span class=cl>  apiGroup: rbac.authorization.k8s.io
+</span></span></code></pre></div><p>如上，我们建立了一个sa，然后有api group的权限，同时授予了整个集群级别的权限</p><h3 id=三登录vault配置vault使用k8s的认证方式进行身份认证>三、登录vault，配置vault使用k8s的认证方式进行身份认证<a hidden class=anchor aria-hidden=true href=#三登录vault配置vault使用k8s的认证方式进行身份认证>#</a></h3><p>那 enable kubernetes 其实设置了 vault 可以使用kubernetes的认证方式来进行vault-role角色的身份认证</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 进入容器</span>
+</span></span><span class=line><span class=cl>kubectl <span class=nb>exec</span> -it vault-0 -- /bin/sh
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 登录，要输入的token可以从日志里看到</span>
+</span></span><span class=line><span class=cl>vault login root
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 开启kubernetes认证方式</span>
+</span></span><span class=line><span class=cl>vault auth <span class=nb>enable</span> kubernetes
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 每个pod里面都有sa，k8s会将这个sa的token注入到文件/var/run/secrets/kubernetes.io/serviceaccount/token</span>
+</span></span><span class=line><span class=cl><span class=c1># 那就用这个sa的token，调用k8s token_reviewer进行身份认证</span>
+</span></span><span class=line><span class=cl><span class=c1># 认证通过vault就会颁发一个对应vault-role的vault-token令牌出来</span>
+</span></span><span class=line><span class=cl><span class=c1># 用vault-token就可以去vault里读取到vault-secret的内容了</span>
+</span></span><span class=line><span class=cl>vault write auth/kubernetes/config <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    <span class=nv>token_reviewer_jwt</span><span class=o>=</span><span class=k>$(</span>cat /var/run/secrets/kubernetes.io/serviceaccount/token<span class=k>)</span><span class=s2>&#34; \
+</span></span></span><span class=line><span class=cl><span class=s2>    kubernetes_host=&#34;</span>https://kubernetes.default.svc:443<span class=s2>&#34; \
+</span></span></span><span class=line><span class=cl><span class=s2>    kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+</span></span></span><span class=line><span class=cl><span class=s2>    
+</span></span></span><span class=line><span class=cl><span class=s2># 拿token的另一种方法：
+</span></span></span><span class=line><span class=cl><span class=s2># kubectl get secret </span><span class=k>$(</span>kubectl get serviceaccount external-secrets-sa -o <span class=nv>jsonpath</span><span class=o>=</span><span class=s2>&#34;{.secrets[0].name}&#34;</span><span class=k>)</span><span class=s2> -o jsonpath=&#34;</span><span class=o>{</span>.data.token<span class=o>}</span><span class=s2>&#34; | base64 --decode
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2># vault的认证体系跟AWS一样
+</span></span></span><span class=line><span class=cl><span class=s2># 先建policy，后建role
+</span></span></span><span class=line><span class=cl><span class=s2># 所以先建一个读secret的策略
+</span></span></span><span class=line><span class=cl><span class=s2>vault policy write external-secrets-policy - &lt;&lt;EOF
+</span></span></span><span class=line><span class=cl><span class=s2>path &#34;</span>secret/data/*<span class=s2>&#34; {
+</span></span></span><span class=line><span class=cl><span class=s2>  capabilities = [&#34;</span>read<span class=s2>&#34;, &#34;</span>list<span class=s2>&#34;]  
+</span></span></span><span class=line><span class=cl><span class=s2>}
+</span></span></span><span class=line><span class=cl><span class=s2>EOF   
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2># 然后建立一个vault的role，将这个vault-role绑定到k8s的sa账号上
+</span></span></span><span class=line><span class=cl><span class=s2># 那k8s token review认证通过就可以获得相应vault-role的权限
+</span></span></span><span class=line><span class=cl><span class=s2>vault write auth/kubernetes/role/external-secrets-operator \
+</span></span></span><span class=line><span class=cl><span class=s2>  bound_service_account_names=external-secrets-sa \
+</span></span></span><span class=line><span class=cl><span class=s2>  bound_service_account_namespaces=external-secrets \
+</span></span></span><span class=line><span class=cl><span class=s2>  policies=external-secrets-policy \
+</span></span></span><span class=line><span class=cl><span class=s2>  ttl=24h
+</span></span></span><span class=line><span class=cl><span class=s2>  
+</span></span></span><span class=line><span class=cl><span class=s2># 放数据进去vault
+</span></span></span><span class=line><span class=cl><span class=s2>vault kv put secret/my-app MY_SECRET_NAME=&#34;</span>Fuck Dingdang<span class=s2>&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>vault kv get secret/my-app
+</span></span></span></code></pre></div><h3 id=四external-secret同步的设定>四、external-secret同步的设定<a hidden class=anchor aria-hidden=true href=#四external-secret同步的设定>#</a></h3><p>external-secret相当于中间人，他有很多自定义的资源，来自动进行vault-secret和k8s-secret之间的同步</p><p>ClusterSecretStore指定了vault server、vault-role、k8s sa的关系</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>---
+</span></span><span class=line><span class=cl>apiVersion: external-secrets.io/v1
+</span></span><span class=line><span class=cl>kind: ClusterSecretStore
+</span></span><span class=line><span class=cl>metadata:
+</span></span><span class=line><span class=cl>  name: vault-cluster-secretstore
+</span></span><span class=line><span class=cl>spec:
+</span></span><span class=line><span class=cl>  provider:
+</span></span><span class=line><span class=cl>    vault:
+</span></span><span class=line><span class=cl>      server: <span class=s2>&#34;http://vault.default.svc.cluster.local:8200&#34;</span>  <span class=c1># 请根据你的vault服务地址调整</span>
+</span></span><span class=line><span class=cl>      path: <span class=s2>&#34;secret&#34;</span>       <span class=c1># KV引擎挂载路径，与你vault kv put命令中路径对应</span>
+</span></span><span class=line><span class=cl>      version: <span class=s2>&#34;v2&#34;</span>        <span class=c1># KV版本为v2</span>
+</span></span><span class=line><span class=cl>      auth:
+</span></span><span class=line><span class=cl>        kubernetes:
+</span></span><span class=line><span class=cl>          mountPath: <span class=s2>&#34;kubernetes&#34;</span>   <span class=c1># 你启用的k8s auth路径</span>
+</span></span><span class=line><span class=cl>          role: <span class=s2>&#34;external-secrets-operator&#34;</span>  <span class=c1># 你在vault中创建的role名称</span>
+</span></span><span class=line><span class=cl>          serviceAccountRef:
+</span></span><span class=line><span class=cl>            name: external-secrets-sa       <span class=c1># 你为ESO创建的ServiceAccount名称</span>
+</span></span><span class=line><span class=cl>            namespace: external-secrets      <span class=c1># ServiceAccount所在命名空间</span>
+</span></span></code></pre></div><p>ExternalSecret 指定了利用vault-role获得了vault-secret，放置到最终要用到的k8s-secret中</p><p>注意有刷新，每小时会刷新一次的</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>---
+</span></span><span class=line><span class=cl>apiVersion: external-secrets.io/v1
+</span></span><span class=line><span class=cl>kind: ExternalSecret
+</span></span><span class=line><span class=cl>metadata:
+</span></span><span class=line><span class=cl>  name: demo-external-secret
+</span></span><span class=line><span class=cl>  namespace: default
+</span></span><span class=line><span class=cl>spec:
+</span></span><span class=line><span class=cl>  refreshInterval: 1h
+</span></span><span class=line><span class=cl>  secretStoreRef:
+</span></span><span class=line><span class=cl>    name: vault-cluster-secretstore
+</span></span><span class=line><span class=cl>    kind: ClusterSecretStore
+</span></span><span class=line><span class=cl>  target:
+</span></span><span class=line><span class=cl>    name: demo-secret
+</span></span><span class=line><span class=cl>    creationPolicy: Owner
+</span></span><span class=line><span class=cl>  data:
+</span></span><span class=line><span class=cl>    - secretKey: MY_SECRET_NAME
+</span></span><span class=line><span class=cl>      remoteRef:
+</span></span><span class=line><span class=cl>        key: my-app
+</span></span><span class=line><span class=cl>        property: MY_SECRET_NAME       <span class=c1># Vault中具体的键名</span>
+</span></span></code></pre></div><p>通过以上两个资源，那vault里存放的secret就被同步到k8s的secret中了</p><h3 id=五实际部署一个应用看看>五、实际部署一个应用看看<a hidden class=anchor aria-hidden=true href=#五实际部署一个应用看看>#</a></h3><p>那我们随便起个deployment</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>---
+</span></span><span class=line><span class=cl>apiVersion: apps/v1
+</span></span><span class=line><span class=cl>kind: Deployment
+</span></span><span class=line><span class=cl>metadata:
+</span></span><span class=line><span class=cl>  name: demo-deployment
+</span></span><span class=line><span class=cl>  namespace: default <span class=c1># 使用目标命名空间，可以修改为你的实际命名空间</span>
+</span></span><span class=line><span class=cl>  labels:
+</span></span><span class=line><span class=cl>    app: demo
+</span></span><span class=line><span class=cl>spec:
+</span></span><span class=line><span class=cl>  replicas: <span class=m>1</span> <span class=c1># 副本数量，可以根据需要调整</span>
+</span></span><span class=line><span class=cl>  selector:
+</span></span><span class=line><span class=cl>    matchLabels:
+</span></span><span class=line><span class=cl>      app: my-app
+</span></span><span class=line><span class=cl>  template:
+</span></span><span class=line><span class=cl>    metadata:
+</span></span><span class=line><span class=cl>      labels:
+</span></span><span class=line><span class=cl>        app: my-app
+</span></span><span class=line><span class=cl>    spec:
+</span></span><span class=line><span class=cl>      containers:
+</span></span><span class=line><span class=cl>      - name: demo-container
+</span></span><span class=line><span class=cl>        image: nginx:latest
+</span></span><span class=line><span class=cl>        imagePullPolicy: IfNotPresent <span class=c1># 如果本地已经存在镜像则不拉取</span>
+</span></span><span class=line><span class=cl>        ports:
+</span></span><span class=line><span class=cl>        - containerPort: <span class=m>8080</span> <span class=c1># 容器暴露的端口</span>
+</span></span><span class=line><span class=cl>        env:
+</span></span><span class=line><span class=cl>        - name: MY_SECRET_NAME
+</span></span><span class=line><span class=cl>          valueFrom:
+</span></span><span class=line><span class=cl>            secretKeyRef:
+</span></span><span class=line><span class=cl>              name: demo-secret <span class=c1># 引用的 Secret 名称</span>
+</span></span><span class=line><span class=cl>              key: MY_SECRET_NAME <span class=c1># Secret 中的键名</span>
+</span></span><span class=line><span class=cl>              
+</span></span><span class=line><span class=cl>---
+</span></span><span class=line><span class=cl>apiVersion: v1
+</span></span><span class=line><span class=cl>kind: Secret
+</span></span><span class=line><span class=cl>metadata:
+</span></span><span class=line><span class=cl>  name: demo-secret
+</span></span><span class=line><span class=cl>  namespace: default <span class=c1># 使用目标命名空间，可以修改为你的实际命名空间</span>
+</span></span><span class=line><span class=cl>type: Opaque
+</span></span><span class=line><span class=cl>data:
+</span></span><span class=line><span class=cl>  MY_SECRET_NAME: AABBCC
+</span></span></code></pre></div><p>实在太复杂痛苦了，最终的环境变量应该如下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nv>MY_SECRET_NAME</span><span class=o>=</span><span class=s2>&#34;Fuck Dingdang&#34;</span>
+</span></span></code></pre></div><p>但这没有结束呢。</p><h3 id=六安装配置reloader自动轮换>六、安装配置reloader自动轮换<a hidden class=anchor aria-hidden=true href=#六安装配置reloader自动轮换>#</a></h3><p>如果secret被改了，如AK的Secret自动轮换了，那pod也必须跟着自动重启以加载新的变量</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 安装reloader</span>
+</span></span><span class=line><span class=cl>kubectl apply -f https://raw.githubusercontent.com/stakater/Reloader/master/deployments/kubernetes/reloader.yaml
+</span></span></code></pre></div><p>在deploy中container的部分新增<code>annotations</code>:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>metadata:
+</span></span><span class=line><span class=cl>  annotations:
+</span></span><span class=line><span class=cl>    reloader.stakater.com/auto: <span class=s2>&#34;true&#34;</span>
+</span></span></code></pre></div><p>如下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>---
+</span></span><span class=line><span class=cl>apiVersion: apps/v1
+</span></span><span class=line><span class=cl>kind: Deployment
+</span></span><span class=line><span class=cl>metadata:
+</span></span><span class=line><span class=cl>  name: demo-deployment
+</span></span><span class=line><span class=cl>  namespace: default 
+</span></span><span class=line><span class=cl>  annotations:
+</span></span><span class=line><span class=cl>    reloader.stakater.com/auto: <span class=s2>&#34;true&#34;</span>  
+</span></span><span class=line><span class=cl>  labels:
+</span></span><span class=line><span class=cl>    app: demo
+</span></span><span class=line><span class=cl>spec:
+</span></span><span class=line><span class=cl>  replicas: <span class=m>1</span> <span class=c1># 副本数量，可以根据需要调整</span>
+</span></span><span class=line><span class=cl>  selector:
+</span></span><span class=line><span class=cl>    matchLabels:
+</span></span><span class=line><span class=cl>      app: my-app
+</span></span><span class=line><span class=cl>  template:
+</span></span><span class=line><span class=cl>    metadata:
+</span></span><span class=line><span class=cl>      labels:
+</span></span><span class=line><span class=cl>        app: my-app
+</span></span><span class=line><span class=cl>    spec:
+</span></span><span class=line><span class=cl>      containers:
+</span></span><span class=line><span class=cl>      - name: demo-container
+</span></span><span class=line><span class=cl>        image: nginx:latest
+</span></span><span class=line><span class=cl>        imagePullPolicy: IfNotPresent <span class=c1># 如果本地已经存在镜像则不拉取</span>
+</span></span><span class=line><span class=cl>        ports:
+</span></span><span class=line><span class=cl>        - containerPort: <span class=m>80</span>
+</span></span><span class=line><span class=cl>        env:
+</span></span><span class=line><span class=cl>        - name: MY_SECRET_NAME
+</span></span><span class=line><span class=cl>          valueFrom:
+</span></span><span class=line><span class=cl>            secretKeyRef:
+</span></span><span class=line><span class=cl>              name: demo-secret <span class=c1># 引用的 Secret 名称</span>
+</span></span><span class=line><span class=cl>              key: MY_SECRET_NAME <span class=c1># Secret 中的键名</span>
+</span></span></code></pre></div><p>这样ENV环境变量改变的时候就可以自动重起pod</p><h3 id=七另一种注入式的做法vault-injector>七、另一种注入式的做法vault injector<a hidden class=anchor aria-hidden=true href=#七另一种注入式的做法vault-injector>#</a></h3><p>Deployment新增annotations:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>metadata:
+</span></span><span class=line><span class=cl>  annotations:
+</span></span><span class=line><span class=cl>    vault.hashicorp.com/agent-inject: <span class=s2>&#34;true&#34;</span>
+</span></span><span class=line><span class=cl>    vault.hashicorp.com/role: <span class=s2>&#34;demo-role&#34;</span>
+</span></span><span class=line><span class=cl>    vault.hashicorp.com/agent-inject-secret-MY_SECRET_NAME: <span class=s2>&#34;secret/data/demo&#34;</span>
+</span></span><span class=line><span class=cl>    vault.hashicorp.com/agent-inject-template-MY_SECRET_NAME: <span class=p>|</span>
+</span></span><span class=line><span class=cl>      <span class=o>{{</span>- with secret <span class=s2>&#34;secret/data/demo&#34;</span> -<span class=o>}}</span>
+</span></span><span class=line><span class=cl>      <span class=nb>export</span> <span class=nv>MY_SECRET_NAME</span><span class=o>=</span><span class=s2>&#34;{{ .Data.data.MY_SECRET_NAME }}&#34;</span>
+</span></span><span class=line><span class=cl>      <span class=o>{{</span>- end -<span class=o>}}</span>
+</span></span></code></pre></div><p>完整如下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>---
+</span></span><span class=line><span class=cl>apiVersion: apps/v1
+</span></span><span class=line><span class=cl>kind: Deployment
+</span></span><span class=line><span class=cl>metadata:
+</span></span><span class=line><span class=cl>  name: demo-deployment
+</span></span><span class=line><span class=cl>  namespace: default
+</span></span><span class=line><span class=cl>  annotations:
+</span></span><span class=line><span class=cl>    vault.hashicorp.com/agent-inject: <span class=s2>&#34;true&#34;</span>
+</span></span><span class=line><span class=cl>    vault.hashicorp.com/role: <span class=s2>&#34;demo-role&#34;</span>
+</span></span><span class=line><span class=cl>    vault.hashicorp.com/agent-inject-secret-MY_SECRET_NAME: <span class=s2>&#34;secret/data/demo&#34;</span>
+</span></span><span class=line><span class=cl>    vault.hashicorp.com/agent-inject-template-MY_SECRET_NAME: <span class=p>|</span>
+</span></span><span class=line><span class=cl>      <span class=o>{{</span>- with secret <span class=s2>&#34;secret/data/demo&#34;</span> -<span class=o>}}</span>
+</span></span><span class=line><span class=cl>      <span class=nb>export</span> <span class=nv>MY_SECRET_NAME</span><span class=o>=</span><span class=s2>&#34;{{ .Data.data.MY_SECRET_NAME }}&#34;</span>
+</span></span><span class=line><span class=cl>      <span class=o>{{</span>- end <span class=o>}}</span>
+</span></span><span class=line><span class=cl>spec:
+</span></span><span class=line><span class=cl>  replicas: <span class=m>1</span>
+</span></span><span class=line><span class=cl>  selector:
+</span></span><span class=line><span class=cl>    matchLabels:
+</span></span><span class=line><span class=cl>      app: my-app
+</span></span><span class=line><span class=cl>  template:
+</span></span><span class=line><span class=cl>    metadata:
+</span></span><span class=line><span class=cl>      labels:
+</span></span><span class=line><span class=cl>        app: my-app
+</span></span><span class=line><span class=cl>      annotations:
+</span></span><span class=line><span class=cl>        vault.hashicorp.com/agent-inject: <span class=s2>&#34;true&#34;</span>
+</span></span><span class=line><span class=cl>        vault.hashicorp.com/role: <span class=s2>&#34;demo-role&#34;</span>
+</span></span><span class=line><span class=cl>        vault.hashicorp.com/agent-inject-secret-MY_SECRET_NAME: <span class=s2>&#34;secret/data/demo&#34;</span>
+</span></span><span class=line><span class=cl>        vault.hashicorp.com/agent-inject-template-MY_SECRET_NAME: <span class=p>|</span>
+</span></span><span class=line><span class=cl>          <span class=o>{{</span>- with secret <span class=s2>&#34;secret/data/demo&#34;</span> -<span class=o>}}</span>
+</span></span><span class=line><span class=cl>          <span class=nb>export</span> <span class=nv>MY_SECRET_NAME</span><span class=o>=</span><span class=s2>&#34;{{ .Data.data.MY_SECRET_NAME }}&#34;</span>
+</span></span><span class=line><span class=cl>          <span class=o>{{</span>- end <span class=o>}}</span>
+</span></span><span class=line><span class=cl>    spec:
+</span></span><span class=line><span class=cl>      serviceAccountName: demo-sa
+</span></span><span class=line><span class=cl>      containers:
+</span></span><span class=line><span class=cl>      - name: demo-container
+</span></span><span class=line><span class=cl>        image: nginx:latest
+</span></span><span class=line><span class=cl>        imagePullPolicy: IfNotPresent
+</span></span><span class=line><span class=cl>        ports:
+</span></span><span class=line><span class=cl>        - containerPort: <span class=m>80</span>
+</span></span></code></pre></div><p>如上也可以做到secret有改动，就自动重启</p><h3 id=八补全一下用k8s-token凭据验证vault角色的过程>八、补全一下用k8s Token凭据验证vault角色的过程<a hidden class=anchor aria-hidden=true href=#八补全一下用k8s-token凭据验证vault角色的过程>#</a></h3><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 先建立一个SA</span>
+</span></span><span class=line><span class=cl>apiVersion: v1
+</span></span><span class=line><span class=cl>kind: ServiceAccount
+</span></span><span class=line><span class=cl>metadata:
+</span></span><span class=line><span class=cl>  name: demo-sa
+</span></span><span class=line><span class=cl>  namespace: default 
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl><span class=c1># 然后定义一个Deployment，在spec附上这个SA</span>
+</span></span><span class=line><span class=cl>---
+</span></span><span class=line><span class=cl>apiVersion: apps/v1
+</span></span><span class=line><span class=cl>kind: Deployment
+</span></span><span class=line><span class=cl>metadata:
+</span></span><span class=line><span class=cl>  labels:
+</span></span><span class=line><span class=cl>    app: nginx
+</span></span><span class=line><span class=cl>  name: nginx
+</span></span><span class=line><span class=cl>  namespace: default
+</span></span><span class=line><span class=cl>spec:
+</span></span><span class=line><span class=cl>  serviceAccountName: demo-sa
+</span></span><span class=line><span class=cl>  replicas: <span class=m>1</span>
+</span></span><span class=line><span class=cl>  selector:
+</span></span><span class=line><span class=cl>    matchLabels:
+</span></span><span class=line><span class=cl>      app: nginx
+</span></span><span class=line><span class=cl>  template:
+</span></span><span class=line><span class=cl>    metadata:
+</span></span><span class=line><span class=cl>      labels:
+</span></span><span class=line><span class=cl>        app: nginx
+</span></span><span class=line><span class=cl>    spec:
+</span></span><span class=line><span class=cl>      containers:
+</span></span><span class=line><span class=cl>        - env:
+</span></span><span class=line><span class=cl>            - name: VAULT_ADDR
+</span></span><span class=line><span class=cl>              value: <span class=s2>&#34;http://vault.default.svc.cluster.local:8200&#34;</span>  <span class=c1># 替换为 Vault 的服务地址</span>
+</span></span><span class=line><span class=cl>          image: nginx:latest
+</span></span><span class=line><span class=cl>          imagePullPolicy: IfNotPresent
+</span></span><span class=line><span class=cl>          name: nginx
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 登录vault服务（开发模式，登录用户是root）</span>
+</span></span><span class=line><span class=cl>vault login root
+</span></span><span class=line><span class=cl> 
+</span></span><span class=line><span class=cl><span class=c1># 启用 Kubernetes Auth 模式</span>
+</span></span><span class=line><span class=cl>vault auth <span class=nb>enable</span> kubernetes
+</span></span><span class=line><span class=cl> 
+</span></span><span class=line><span class=cl><span class=c1># vault 使用 sa Token进行身份识别</span>
+</span></span><span class=line><span class=cl>vault write auth/kubernetes/config <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    <span class=nv>token_reviewer_jwt</span><span class=o>=</span><span class=s2>&#34;</span><span class=k>$(</span>cat /var/run/secrets/kubernetes.io/serviceaccount/token<span class=k>)</span><span class=s2>&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    <span class=nv>kubernetes_host</span><span class=o>=</span><span class=s2>&#34;https://kubernetes.default.svc:443&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    <span class=nv>kubernetes_ca_cert</span><span class=o>=</span>@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl><span class=c1># 创建一个policy</span>
+</span></span><span class=line><span class=cl>vault policy write demo-policy - <span class=s>&lt;&lt;EOF
+</span></span></span><span class=line><span class=cl><span class=s>path &#34;secret/data/*&#34; {
+</span></span></span><span class=line><span class=cl><span class=s>  capabilities = [&#34;read&#34;, &#34;list&#34;]
+</span></span></span><span class=line><span class=cl><span class=s>}
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl> 
+</span></span><span class=line><span class=cl><span class=c1># 创建一个vault-role，绑定到sa</span>
+</span></span><span class=line><span class=cl>vault write auth/kubernetes/role/demo-role <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    <span class=nv>bound_service_account_names</span><span class=o>=</span>demo-sa <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    <span class=nv>bound_service_account_namespaces</span><span class=o>=</span>default <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    <span class=nv>policies</span><span class=o>=</span>demo-policy <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>
+</span></span><span class=line><span class=cl><span class=c1># 存放测试kv数据  </span>
+</span></span><span class=line><span class=cl>vault kv put secret/demo <span class=nv>MY_SECRET_NAME</span><span class=o>=</span><span class=s2>&#34;BBCCDDEE&#34;</span>
+</span></span><span class=line><span class=cl>vault kv get secret/demo
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 启动一个deployment</span>
+</span></span><span class=line><span class=cl>---
+</span></span><span class=line><span class=cl>apiVersion: apps/v1
+</span></span><span class=line><span class=cl>kind: Deployment
+</span></span><span class=line><span class=cl>metadata:
+</span></span><span class=line><span class=cl>  labels:
+</span></span><span class=line><span class=cl>    app: nginx
+</span></span><span class=line><span class=cl>  name: nginx
+</span></span><span class=line><span class=cl>  namespace: default
+</span></span><span class=line><span class=cl>spec:
+</span></span><span class=line><span class=cl>  serviceAccountName: demo-sa
+</span></span><span class=line><span class=cl>  replicas: <span class=m>1</span>
+</span></span><span class=line><span class=cl>  selector:
+</span></span><span class=line><span class=cl>    matchLabels:
+</span></span><span class=line><span class=cl>      app: nginx
+</span></span><span class=line><span class=cl>  template:
+</span></span><span class=line><span class=cl>    metadata:
+</span></span><span class=line><span class=cl>      labels:
+</span></span><span class=line><span class=cl>        app: nginx
+</span></span><span class=line><span class=cl>    spec:
+</span></span><span class=line><span class=cl>      containers:
+</span></span><span class=line><span class=cl>        - env:
+</span></span><span class=line><span class=cl>            - name: VAULT_ADDR
+</span></span><span class=line><span class=cl>              value: <span class=s2>&#34;http://vault.default.svc.cluster.local:8200&#34;</span>  <span class=c1># 替换为 Vault 的服务地址</span>
+</span></span><span class=line><span class=cl>          image: nginx:latest
+</span></span><span class=line><span class=cl>          imagePullPolicy: IfNotPresent
+</span></span><span class=line><span class=cl>          name: nginx
+</span></span><span class=line><span class=cl>      
+</span></span><span class=line><span class=cl><span class=c1># 进入deployment的pod中</span>
+</span></span><span class=line><span class=cl>kubectl <span class=nb>exec</span> -it nginx -- /bin/sh
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 拿到本地sa的Token</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>TOKEN</span><span class=o>=</span><span class=k>$(</span>cat /var/run/secrets/kubernetes.io/serviceaccount/token<span class=k>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 注意pod里有环境变量VAULT_ADDR，如果没有要定义一下</span>
+</span></span><span class=line><span class=cl><span class=c1># 然后用curl拿vault-token</span>
+</span></span><span class=line><span class=cl>curl -X POST <span class=s2>&#34;</span><span class=si>${</span><span class=nv>VAULT_ADDR</span><span class=si>}</span><span class=s2>/v1/auth/kubernetes/login&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    -H <span class=s2>&#34;Content-Type: application/json&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    -d <span class=s1>&#39;{
+</span></span></span><span class=line><span class=cl><span class=s1>      &#34;role&#34;: &#34;demo-role&#34;,
+</span></span></span><span class=line><span class=cl><span class=s1>      &#34;jwt&#34;: &#34;&#39;</span><span class=nv>$TOKEN</span><span class=s1>&#39;&#34;
+</span></span></span><span class=line><span class=cl><span class=s1>    }&#39;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl><span class=c1># curl 返回字符串中的 client_token 字段    </span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>VAULT_TOKEN</span><span class=o>=</span><span class=s2>&#34;hvs.CAESaaaBBBcccDDDEEEfffGGG&#34;</span>   
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 用vault_token获得kv的数据</span>
+</span></span><span class=line><span class=cl>curl -X GET <span class=s2>&#34;</span><span class=si>${</span><span class=nv>VAULT_ADDR</span><span class=si>}</span><span class=s2>/v1/secret/data/demo&#34;</span> -H <span class=s2>&#34;X-Vault-Token: </span><span class=nv>$VAULT_TOKEN</span><span class=s2>&#34;</span>
+</span></span></code></pre></div><p>所以，其实vault有api接口，可以直接调用curl来认证并获取数据，这就极大的扩展了vault的接口范围。</p><p>好了，就到这里吧！</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

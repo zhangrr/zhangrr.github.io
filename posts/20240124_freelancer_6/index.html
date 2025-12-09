@@ -1,0 +1,546 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Freelancer任务之六Compile an ipk file on Lede (OpenWRT) | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="这是一次失败的任务，即使再来一次，依然会失败，因为无法验证，真够shit的，扣了我10$的手续费。
+记录一下，以儆效尤。
+任务如下：
+Job would be to compile an ipk file of SHC that would work with LEDE OS (openwrt) and the processor used in our system - will provide details
+
+SHC can be downloaded here: http://www.datsi.fi.upm.es/~frosal/
+
+I think you must have a 64 bit system to use the SDK to compile the file  
+翻译一下：在OpenWRT平台下编译一个SHC，并且能工作。
+完全步骤如下：
+How to compile SHC on LEDE:
+
+Tested build environment:
+
+OS: Ubuntu 14.04.5 LTS  
+CPU: ARMv7 Processor rev 5 (v7l)
+
+
+Before you begin, check your system is updated, i.e.
+
+sudo apt-get update  
+sudo apt-get upgrade  
+sudo apt-get autoremove
+
+
+Step-by-step manual:  
+Note: perform all steps as regular (non-root) user. User must be in sudo group.
+
+1. Update your sources
+
+sudo apt-get update
+
+2. Install nesessary packages:
+
+sudo apt-get install g++ libncurses5-dev zlib1g-dev bison flex unzip autoconf gawk make gettext gcc binutils patch bzip2 libz-dev asciidoc subversion sphinxsearch libtool sphinx-common libssl-dev libssl0.9.8
+
+3. Get latest LEDE source from git repository  
+   We know our CPU is armv7, it belongs to arm64, so go to http://downloads.lede-project.org/releases , just download sdk.
+
+wget http://downloads.lede-project.org/releases/17.01.4/targets/arm64/generic/lede-sdk-17.01.4-arm64_gcc-5.4.0_musl-1.1.16.Linux-x86_64.tar.xz
+
+
+4. No Need to Update and install all LEDE packages  
+   We just want to compile shc, not other packages , so don't update.
+
+
+5. Run 'make menuconfig' (Just Save and Exit)
+
+
+6. Get SHC sources to LEDE package tree  
+ (we are and shc-3.8.9b.tgz is in source directory)
+
+wget http://www.datsi.fi.upm.es/~frosal/sources/shc-3.8.9b.tgz  
+mkdir -p package/shc/src  
+tar xvf shc-3.8.9b.tgz -C package/shc/src --strip-components 1
+
+7. Make ipk Makefile
+
+vi package/shc/Makefile  
+##############################################
+# OpenWrt Makefile for shc program
+#
+#
+# Most of the variables used here are defined in
+# the include directives below. We just need to 
+# specify a basic description of the package, 
+# where to build our program, where to find 
+# the source files, and where to install the 
+# compiled program on the router. 
+# 
+# Be very careful of spacing in this file.
+# Indents should be tabs, not spaces, and 
+# there should be no trailing whitespace in
+# lines that are not commented.
+# 
+##############################################
+
+include $(TOPDIR)/rules.mk
+
+# Name and release number of this package
+
+PKG_NAME:=shc  
+PKG_VERSION:=3.8.9b  
+PKG_MAINTAINER:=Francisco, Rosales, <frosal@fi.upm.es>
+
+
+# This specifies the directory where we're going to build the program.  
+# The root build directory, $(BUILD_DIR), is by default the build_mipsel 
+# directory in your OpenWrt SDK directory
+PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
+
+
+include $(INCLUDE_DIR)/package.mk
+
+
+
+# Specify package information for this program. 
+# The variables defined here should be self explanatory.
+# If you are running Kamikaze, delete the DESCRIPTION 
+# variable below and uncomment the Kamikaze define
+# directive for the description below
+define Package/$(PKG_NAME)  
+    SECTION:=utils
+    CATEGORY:=Utilities
+    TITLE:= shc ---- This tool generates a stripped binary executable version of the script specified at command line.
+    URL:=http://www.datsi.fi.upm.es/~frosal
+endef
+
+
+# Uncomment portion below for Kamikaze and delete DESCRIPTION variable above
+define Package/$(PKG_NAME)/description  
+    shc ---- This tool generates a stripped binary executable version
+        of the script specified at command line.&#34;
+endef
+
+# Specify what needs to be done to prepare for building the package.
+# In our case, we need to copy the source files to the build directory.
+# This is NOT the default.  The default uses the PKG_SOURCE_URL and the
+# PKG_SOURCE which is not defined here to download the source from the web.
+# In order to just build a simple program that we have just written, it is
+# much easier to do it this way.
+define Build/Prepare  
+    mkdir -p $(PKG_BUILD_DIR)
+    $(CP) ./src/* $(PKG_BUILD_DIR)/
+endef
+
+
+# We do not need to define Build/Configure or Build/Compile directives
+# The defaults are appropriate for compiling a simple program such as this one
+
+# Specify where and how to install the program. Since we only have one file, 
+# the helloworld executable, install it by copying it to the /bin directory on
+# the router. The $(1) variable represents the root directory on the router running 
+# OpenWrt. The $(INSTALL_DIR) variable contains a command to prepare the install 
+# directory if it does not already exist.  Likewise $(INSTALL_BIN) contains the 
+# command to copy the binary file from its current location (in our case the build
+# directory) to the install directory.
+define Package/$(PKG_NAME)/install  
+    $(INSTALL_DIR) $(1)/bin
+    $(INSTALL_BIN) $(PKG_BUILD_DIR)/shc $(1)/bin/
+endef
+
+
+# This line executes the necessary commands to compile our program.
+# The above define directives specify all the information needed, but this
+# line calls BuildPackage which in turn actually uses this information to
+# build a package.
+$(eval $(call BuildPackage,$(PKG_NAME)))
+
+
+8. Compile shc ipk without errors.
+
+make package/shc/compile V=99
+
+9. Building process complete witout errors.  
+Now we have :  
+binary packages directory: source/bin/packages/aarch64_armv8-a/  
+[SHC_BIN] = ./bin/packages/aarch64_armv8-a/base/shc_3.8.9b_aarch64_armv8-a.ipk
+
+10. Copy and install SHC .ipk to LEDE device.
+
+scp shc_3.8.9b_aarch64_armv8-a.ipk root@<LEDE device IP address or name>:/tmp/  
+ssh root@<LEDE device IP address or name> #IP usually 192.168.1.1  
+opkg install shc_3.8.9b_aarch64_armv8-a.ipk
+
+11. Create test script and compile it to execute. (in LEDE shell)  
+ssh root@<LEDE device IP address or name> #IP usually 192.168.1.1
+
+vi /tmp/1.sh  
+#!/bin/sh
+echo &#34;hahahaha&#34;
+
+shc -v -f /tmp/1.sh  
+/tmp/1.sh.x
+这里面有几个注意点，一个是网上有很多教程，上去就是"><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20240124_freelancer_6/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20240124_freelancer_6/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20240124_freelancer_6/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="Freelancer任务之六Compile an ipk file on Lede (OpenWRT)"><meta property="og:description" content="这是一次失败的任务，即使再来一次，依然会失败，因为无法验证，真够shit的，扣了我10$的手续费。
+记录一下，以儆效尤。
+任务如下：
+Job would be to compile an ipk file of SHC that would work with LEDE OS (openwrt) and the processor used in our system - will provide details SHC can be downloaded here: http://www.datsi.fi.upm.es/~frosal/ I think you must have a 64 bit system to use the SDK to compile the file 翻译一下：在OpenWRT平台下编译一个SHC，并且能工作。
+完全步骤如下：
+How to compile SHC on LEDE: Tested build environment: OS: Ubuntu 14.04.5 LTS CPU: ARMv7 Processor rev 5 (v7l) Before you begin, check your system is updated, i.e. sudo apt-get update sudo apt-get upgrade sudo apt-get autoremove Step-by-step manual: Note: perform all steps as regular (non-root) user. User must be in sudo group. 1. Update your sources sudo apt-get update 2. Install nesessary packages: sudo apt-get install g++ libncurses5-dev zlib1g-dev bison flex unzip autoconf gawk make gettext gcc binutils patch bzip2 libz-dev asciidoc subversion sphinxsearch libtool sphinx-common libssl-dev libssl0.9.8 3. Get latest LEDE source from git repository We know our CPU is armv7, it belongs to arm64, so go to http://downloads.lede-project.org/releases , just download sdk. wget http://downloads.lede-project.org/releases/17.01.4/targets/arm64/generic/lede-sdk-17.01.4-arm64_gcc-5.4.0_musl-1.1.16.Linux-x86_64.tar.xz 4. No Need to Update and install all LEDE packages We just want to compile shc, not other packages , so don't update. 5. Run 'make menuconfig' (Just Save and Exit) 6. Get SHC sources to LEDE package tree (we are and shc-3.8.9b.tgz is in source directory) wget http://www.datsi.fi.upm.es/~frosal/sources/shc-3.8.9b.tgz mkdir -p package/shc/src tar xvf shc-3.8.9b.tgz -C package/shc/src --strip-components 1 7. Make ipk Makefile vi package/shc/Makefile ############################################## # OpenWrt Makefile for shc program # # # Most of the variables used here are defined in # the include directives below. We just need to # specify a basic description of the package, # where to build our program, where to find # the source files, and where to install the # compiled program on the router. # # Be very careful of spacing in this file. # Indents should be tabs, not spaces, and # there should be no trailing whitespace in # lines that are not commented. # ############################################## include $(TOPDIR)/rules.mk # Name and release number of this package PKG_NAME:=shc PKG_VERSION:=3.8.9b PKG_MAINTAINER:=Francisco, Rosales, <frosal@fi.upm.es> # This specifies the directory where we're going to build the program. # The root build directory, $(BUILD_DIR), is by default the build_mipsel # directory in your OpenWrt SDK directory PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME) include $(INCLUDE_DIR)/package.mk # Specify package information for this program. # The variables defined here should be self explanatory. # If you are running Kamikaze, delete the DESCRIPTION # variable below and uncomment the Kamikaze define # directive for the description below define Package/$(PKG_NAME) SECTION:=utils CATEGORY:=Utilities TITLE:= shc ---- This tool generates a stripped binary executable version of the script specified at command line. URL:=http://www.datsi.fi.upm.es/~frosal endef # Uncomment portion below for Kamikaze and delete DESCRIPTION variable above define Package/$(PKG_NAME)/description shc ---- This tool generates a stripped binary executable version of the script specified at command line.&#34; endef # Specify what needs to be done to prepare for building the package. # In our case, we need to copy the source files to the build directory. # This is NOT the default. The default uses the PKG_SOURCE_URL and the # PKG_SOURCE which is not defined here to download the source from the web. # In order to just build a simple program that we have just written, it is # much easier to do it this way. define Build/Prepare mkdir -p $(PKG_BUILD_DIR) $(CP) ./src/* $(PKG_BUILD_DIR)/ endef # We do not need to define Build/Configure or Build/Compile directives # The defaults are appropriate for compiling a simple program such as this one # Specify where and how to install the program. Since we only have one file, # the helloworld executable, install it by copying it to the /bin directory on # the router. The $(1) variable represents the root directory on the router running # OpenWrt. The $(INSTALL_DIR) variable contains a command to prepare the install # directory if it does not already exist. Likewise $(INSTALL_BIN) contains the # command to copy the binary file from its current location (in our case the build # directory) to the install directory. define Package/$(PKG_NAME)/install $(INSTALL_DIR) $(1)/bin $(INSTALL_BIN) $(PKG_BUILD_DIR)/shc $(1)/bin/ endef # This line executes the necessary commands to compile our program. # The above define directives specify all the information needed, but this # line calls BuildPackage which in turn actually uses this information to # build a package. $(eval $(call BuildPackage,$(PKG_NAME))) 8. Compile shc ipk without errors. make package/shc/compile V=99 9. Building process complete witout errors. Now we have : binary packages directory: source/bin/packages/aarch64_armv8-a/ [SHC_BIN] = ./bin/packages/aarch64_armv8-a/base/shc_3.8.9b_aarch64_armv8-a.ipk 10. Copy and install SHC .ipk to LEDE device. scp shc_3.8.9b_aarch64_armv8-a.ipk root@<LEDE device IP address or name>:/tmp/ ssh root@<LEDE device IP address or name> #IP usually 192.168.1.1 opkg install shc_3.8.9b_aarch64_armv8-a.ipk 11. Create test script and compile it to execute. (in LEDE shell) ssh root@<LEDE device IP address or name> #IP usually 192.168.1.1 vi /tmp/1.sh #!/bin/sh echo &#34;hahahaha&#34; shc -v -f /tmp/1.sh /tmp/1.sh.x 这里面有几个注意点，一个是网上有很多教程，上去就是"><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2024-01-24T10:02:11+08:00"><meta property="article:modified_time" content="2024-01-24T10:02:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Freelancer任务之六Compile an ipk file on Lede (OpenWRT)"><meta name=twitter:description content="这是一次失败的任务，即使再来一次，依然会失败，因为无法验证，真够shit的，扣了我10$的手续费。
+记录一下，以儆效尤。
+任务如下：
+Job would be to compile an ipk file of SHC that would work with LEDE OS (openwrt) and the processor used in our system - will provide details
+
+SHC can be downloaded here: http://www.datsi.fi.upm.es/~frosal/
+
+I think you must have a 64 bit system to use the SDK to compile the file  
+翻译一下：在OpenWRT平台下编译一个SHC，并且能工作。
+完全步骤如下：
+How to compile SHC on LEDE:
+
+Tested build environment:
+
+OS: Ubuntu 14.04.5 LTS  
+CPU: ARMv7 Processor rev 5 (v7l)
+
+
+Before you begin, check your system is updated, i.e.
+
+sudo apt-get update  
+sudo apt-get upgrade  
+sudo apt-get autoremove
+
+
+Step-by-step manual:  
+Note: perform all steps as regular (non-root) user. User must be in sudo group.
+
+1. Update your sources
+
+sudo apt-get update
+
+2. Install nesessary packages:
+
+sudo apt-get install g++ libncurses5-dev zlib1g-dev bison flex unzip autoconf gawk make gettext gcc binutils patch bzip2 libz-dev asciidoc subversion sphinxsearch libtool sphinx-common libssl-dev libssl0.9.8
+
+3. Get latest LEDE source from git repository  
+   We know our CPU is armv7, it belongs to arm64, so go to http://downloads.lede-project.org/releases , just download sdk.
+
+wget http://downloads.lede-project.org/releases/17.01.4/targets/arm64/generic/lede-sdk-17.01.4-arm64_gcc-5.4.0_musl-1.1.16.Linux-x86_64.tar.xz
+
+
+4. No Need to Update and install all LEDE packages  
+   We just want to compile shc, not other packages , so don't update.
+
+
+5. Run 'make menuconfig' (Just Save and Exit)
+
+
+6. Get SHC sources to LEDE package tree  
+ (we are and shc-3.8.9b.tgz is in source directory)
+
+wget http://www.datsi.fi.upm.es/~frosal/sources/shc-3.8.9b.tgz  
+mkdir -p package/shc/src  
+tar xvf shc-3.8.9b.tgz -C package/shc/src --strip-components 1
+
+7. Make ipk Makefile
+
+vi package/shc/Makefile  
+##############################################
+# OpenWrt Makefile for shc program
+#
+#
+# Most of the variables used here are defined in
+# the include directives below. We just need to 
+# specify a basic description of the package, 
+# where to build our program, where to find 
+# the source files, and where to install the 
+# compiled program on the router. 
+# 
+# Be very careful of spacing in this file.
+# Indents should be tabs, not spaces, and 
+# there should be no trailing whitespace in
+# lines that are not commented.
+# 
+##############################################
+
+include $(TOPDIR)/rules.mk
+
+# Name and release number of this package
+
+PKG_NAME:=shc  
+PKG_VERSION:=3.8.9b  
+PKG_MAINTAINER:=Francisco, Rosales, <frosal@fi.upm.es>
+
+
+# This specifies the directory where we're going to build the program.  
+# The root build directory, $(BUILD_DIR), is by default the build_mipsel 
+# directory in your OpenWrt SDK directory
+PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
+
+
+include $(INCLUDE_DIR)/package.mk
+
+
+
+# Specify package information for this program. 
+# The variables defined here should be self explanatory.
+# If you are running Kamikaze, delete the DESCRIPTION 
+# variable below and uncomment the Kamikaze define
+# directive for the description below
+define Package/$(PKG_NAME)  
+    SECTION:=utils
+    CATEGORY:=Utilities
+    TITLE:= shc ---- This tool generates a stripped binary executable version of the script specified at command line.
+    URL:=http://www.datsi.fi.upm.es/~frosal
+endef
+
+
+# Uncomment portion below for Kamikaze and delete DESCRIPTION variable above
+define Package/$(PKG_NAME)/description  
+    shc ---- This tool generates a stripped binary executable version
+        of the script specified at command line.&#34;
+endef
+
+# Specify what needs to be done to prepare for building the package.
+# In our case, we need to copy the source files to the build directory.
+# This is NOT the default.  The default uses the PKG_SOURCE_URL and the
+# PKG_SOURCE which is not defined here to download the source from the web.
+# In order to just build a simple program that we have just written, it is
+# much easier to do it this way.
+define Build/Prepare  
+    mkdir -p $(PKG_BUILD_DIR)
+    $(CP) ./src/* $(PKG_BUILD_DIR)/
+endef
+
+
+# We do not need to define Build/Configure or Build/Compile directives
+# The defaults are appropriate for compiling a simple program such as this one
+
+# Specify where and how to install the program. Since we only have one file, 
+# the helloworld executable, install it by copying it to the /bin directory on
+# the router. The $(1) variable represents the root directory on the router running 
+# OpenWrt. The $(INSTALL_DIR) variable contains a command to prepare the install 
+# directory if it does not already exist.  Likewise $(INSTALL_BIN) contains the 
+# command to copy the binary file from its current location (in our case the build
+# directory) to the install directory.
+define Package/$(PKG_NAME)/install  
+    $(INSTALL_DIR) $(1)/bin
+    $(INSTALL_BIN) $(PKG_BUILD_DIR)/shc $(1)/bin/
+endef
+
+
+# This line executes the necessary commands to compile our program.
+# The above define directives specify all the information needed, but this
+# line calls BuildPackage which in turn actually uses this information to
+# build a package.
+$(eval $(call BuildPackage,$(PKG_NAME)))
+
+
+8. Compile shc ipk without errors.
+
+make package/shc/compile V=99
+
+9. Building process complete witout errors.  
+Now we have :  
+binary packages directory: source/bin/packages/aarch64_armv8-a/  
+[SHC_BIN] = ./bin/packages/aarch64_armv8-a/base/shc_3.8.9b_aarch64_armv8-a.ipk
+
+10. Copy and install SHC .ipk to LEDE device.
+
+scp shc_3.8.9b_aarch64_armv8-a.ipk root@<LEDE device IP address or name>:/tmp/  
+ssh root@<LEDE device IP address or name> #IP usually 192.168.1.1  
+opkg install shc_3.8.9b_aarch64_armv8-a.ipk
+
+11. Create test script and compile it to execute. (in LEDE shell)  
+ssh root@<LEDE device IP address or name> #IP usually 192.168.1.1
+
+vi /tmp/1.sh  
+#!/bin/sh
+echo &#34;hahahaha&#34;
+
+shc -v -f /tmp/1.sh  
+/tmp/1.sh.x
+这里面有几个注意点，一个是网上有很多教程，上去就是"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"Freelancer任务之六Compile an ipk file on Lede (OpenWRT)","item":"https://rendoumi.com/posts/20240124_freelancer_6/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Freelancer任务之六Compile an ipk file on Lede (OpenWRT)","name":"Freelancer任务之六Compile an ipk file on Lede (OpenWRT)","description":"这是一次失败的任务，即使再来一次，依然会失败，因为无法验证，真够shit的，扣了我10$的手续费。\n记录一下，以儆效尤。\n任务如下：\nJob would be to compile an ipk file of SHC that would work with LEDE OS (openwrt) and the processor used in our system - will provide details SHC can be downloaded here: http://www.datsi.fi.upm.es/~frosal/ I think you must have a 64 bit system to use the SDK to compile the file 翻译一下：在OpenWRT平台下编译一个SHC，并且能工作。\n完全步骤如下：\nHow to compile SHC on LEDE: Tested build environment: OS: Ubuntu 14.04.5 LTS CPU: ARMv7 Processor rev 5 (v7l) Before you begin, check your system is updated, i.e. sudo apt-get update sudo apt-get upgrade sudo apt-get autoremove Step-by-step manual: Note: perform all steps as regular (non-root) user. User must be in sudo group. 1. Update your sources sudo apt-get update 2. Install nesessary packages: sudo apt-get install g++ libncurses5-dev zlib1g-dev bison flex unzip autoconf gawk make gettext gcc binutils patch bzip2 libz-dev asciidoc subversion sphinxsearch libtool sphinx-common libssl-dev libssl0.9.8 3. Get latest LEDE source from git repository We know our CPU is armv7, it belongs to arm64, so go to http://downloads.lede-project.org/releases , just download sdk. wget http://downloads.lede-project.org/releases/17.01.4/targets/arm64/generic/lede-sdk-17.01.4-arm64_gcc-5.4.0_musl-1.1.16.Linux-x86_64.tar.xz 4. No Need to Update and install all LEDE packages We just want to compile shc, not other packages , so don\u0026#39;t update. 5. Run \u0026#39;make menuconfig\u0026#39; (Just Save and Exit) 6. Get SHC sources to LEDE package tree (we are and shc-3.8.9b.tgz is in source directory) wget http://www.datsi.fi.upm.es/~frosal/sources/shc-3.8.9b.tgz mkdir -p package/shc/src tar xvf shc-3.8.9b.tgz -C package/shc/src --strip-components 1 7. Make ipk Makefile vi package/shc/Makefile ############################################## # OpenWrt Makefile for shc program # # # Most of the variables used here are defined in # the include directives below. We just need to # specify a basic description of the package, # where to build our program, where to find # the source files, and where to install the # compiled program on the router. # # Be very careful of spacing in this file. # Indents should be tabs, not spaces, and # there should be no trailing whitespace in # lines that are not commented. # ############################################## include $(TOPDIR)/rules.mk # Name and release number of this package PKG_NAME:=shc PKG_VERSION:=3.8.9b PKG_MAINTAINER:=Francisco, Rosales, \u0026lt;frosal@fi.upm.es\u0026gt; # This specifies the directory where we\u0026#39;re going to build the program. # The root build directory, $(BUILD_DIR), is by default the build_mipsel # directory in your OpenWrt SDK directory PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME) include $(INCLUDE_DIR)/package.mk # Specify package information for this program. # The variables defined here should be self explanatory. # If you are running Kamikaze, delete the DESCRIPTION # variable below and uncomment the Kamikaze define # directive for the description below define Package/$(PKG_NAME) SECTION:=utils CATEGORY:=Utilities TITLE:= shc ---- This tool generates a stripped binary executable version of the script specified at command line. URL:=http://www.datsi.fi.upm.es/~frosal endef # Uncomment portion below for Kamikaze and delete DESCRIPTION variable above define Package/$(PKG_NAME)/description shc ---- This tool generates a stripped binary executable version of the script specified at command line.\u0026#34; endef # Specify what needs to be done to prepare for building the package. # In our case, we need to copy the source files to the build directory. # This is NOT the default. The default uses the PKG_SOURCE_URL and the # PKG_SOURCE which is not defined here to download the source from the web. # In order to just build a simple program that we have just written, it is # much easier to do it this way. define Build/Prepare mkdir -p $(PKG_BUILD_DIR) $(CP) ./src/* $(PKG_BUILD_DIR)/ endef # We do not need to define Build/Configure or Build/Compile directives # The defaults are appropriate for compiling a simple program such as this one # Specify where and how to install the program. Since we only have one file, # the helloworld executable, install it by copying it to the /bin directory on # the router. The $(1) variable represents the root directory on the router running # OpenWrt. The $(INSTALL_DIR) variable contains a command to prepare the install # directory if it does not already exist. Likewise $(INSTALL_BIN) contains the # command to copy the binary file from its current location (in our case the build # directory) to the install directory. define Package/$(PKG_NAME)/install $(INSTALL_DIR) $(1)/bin $(INSTALL_BIN) $(PKG_BUILD_DIR)/shc $(1)/bin/ endef # This line executes the necessary commands to compile our program. # The above define directives specify all the information needed, but this # line calls BuildPackage which in turn actually uses this information to # build a package. $(eval $(call BuildPackage,$(PKG_NAME))) 8. Compile shc ipk without errors. make package/shc/compile V=99 9. Building process complete witout errors. Now we have : binary packages directory: source/bin/packages/aarch64_armv8-a/ [SHC_BIN] = ./bin/packages/aarch64_armv8-a/base/shc_3.8.9b_aarch64_armv8-a.ipk 10. Copy and install SHC .ipk to LEDE device. scp shc_3.8.9b_aarch64_armv8-a.ipk root@\u0026lt;LEDE device IP address or name\u0026gt;:/tmp/ ssh root@\u0026lt;LEDE device IP address or name\u0026gt; #IP usually 192.168.1.1 opkg install shc_3.8.9b_aarch64_armv8-a.ipk 11. Create test script and compile it to execute. (in LEDE shell) ssh root@\u0026lt;LEDE device IP address or name\u0026gt; #IP usually 192.168.1.1 vi /tmp/1.sh #!/bin/sh echo \u0026#34;hahahaha\u0026#34; shc -v -f /tmp/1.sh /tmp/1.sh.x 这里面有几个注意点，一个是网上有很多教程，上去就是\n","keywords":[],"articleBody":"这是一次失败的任务，即使再来一次，依然会失败，因为无法验证，真够shit的，扣了我10$的手续费。\n记录一下，以儆效尤。\n任务如下：\nJob would be to compile an ipk file of SHC that would work with LEDE OS (openwrt) and the processor used in our system - will provide details SHC can be downloaded here: http://www.datsi.fi.upm.es/~frosal/ I think you must have a 64 bit system to use the SDK to compile the file 翻译一下：在OpenWRT平台下编译一个SHC，并且能工作。\n完全步骤如下：\nHow to compile SHC on LEDE: Tested build environment: OS: Ubuntu 14.04.5 LTS CPU: ARMv7 Processor rev 5 (v7l) Before you begin, check your system is updated, i.e. sudo apt-get update sudo apt-get upgrade sudo apt-get autoremove Step-by-step manual: Note: perform all steps as regular (non-root) user. User must be in sudo group. 1. Update your sources sudo apt-get update 2. Install nesessary packages: sudo apt-get install g++ libncurses5-dev zlib1g-dev bison flex unzip autoconf gawk make gettext gcc binutils patch bzip2 libz-dev asciidoc subversion sphinxsearch libtool sphinx-common libssl-dev libssl0.9.8 3. Get latest LEDE source from git repository We know our CPU is armv7, it belongs to arm64, so go to http://downloads.lede-project.org/releases , just download sdk. wget http://downloads.lede-project.org/releases/17.01.4/targets/arm64/generic/lede-sdk-17.01.4-arm64_gcc-5.4.0_musl-1.1.16.Linux-x86_64.tar.xz 4. No Need to Update and install all LEDE packages We just want to compile shc, not other packages , so don't update. 5. Run 'make menuconfig' (Just Save and Exit) 6. Get SHC sources to LEDE package tree (we are and shc-3.8.9b.tgz is in source directory) wget http://www.datsi.fi.upm.es/~frosal/sources/shc-3.8.9b.tgz mkdir -p package/shc/src tar xvf shc-3.8.9b.tgz -C package/shc/src --strip-components 1 7. Make ipk Makefile vi package/shc/Makefile ############################################## # OpenWrt Makefile for shc program # # # Most of the variables used here are defined in # the include directives below. We just need to # specify a basic description of the package, # where to build our program, where to find # the source files, and where to install the # compiled program on the router. # # Be very careful of spacing in this file. # Indents should be tabs, not spaces, and # there should be no trailing whitespace in # lines that are not commented. # ############################################## include $(TOPDIR)/rules.mk # Name and release number of this package PKG_NAME:=shc PKG_VERSION:=3.8.9b PKG_MAINTAINER:=Francisco, Rosales, # This specifies the directory where we're going to build the program. # The root build directory, $(BUILD_DIR), is by default the build_mipsel # directory in your OpenWrt SDK directory PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME) include $(INCLUDE_DIR)/package.mk # Specify package information for this program. # The variables defined here should be self explanatory. # If you are running Kamikaze, delete the DESCRIPTION # variable below and uncomment the Kamikaze define # directive for the description below define Package/$(PKG_NAME) SECTION:=utils CATEGORY:=Utilities TITLE:= shc ---- This tool generates a stripped binary executable version of the script specified at command line. URL:=http://www.datsi.fi.upm.es/~frosal endef # Uncomment portion below for Kamikaze and delete DESCRIPTION variable above define Package/$(PKG_NAME)/description shc ---- This tool generates a stripped binary executable version of the script specified at command line.\" endef # Specify what needs to be done to prepare for building the package. # In our case, we need to copy the source files to the build directory. # This is NOT the default. The default uses the PKG_SOURCE_URL and the # PKG_SOURCE which is not defined here to download the source from the web. # In order to just build a simple program that we have just written, it is # much easier to do it this way. define Build/Prepare mkdir -p $(PKG_BUILD_DIR) $(CP) ./src/* $(PKG_BUILD_DIR)/ endef # We do not need to define Build/Configure or Build/Compile directives # The defaults are appropriate for compiling a simple program such as this one # Specify where and how to install the program. Since we only have one file, # the helloworld executable, install it by copying it to the /bin directory on # the router. The $(1) variable represents the root directory on the router running # OpenWrt. The $(INSTALL_DIR) variable contains a command to prepare the install # directory if it does not already exist. Likewise $(INSTALL_BIN) contains the # command to copy the binary file from its current location (in our case the build # directory) to the install directory. define Package/$(PKG_NAME)/install $(INSTALL_DIR) $(1)/bin $(INSTALL_BIN) $(PKG_BUILD_DIR)/shc $(1)/bin/ endef # This line executes the necessary commands to compile our program. # The above define directives specify all the information needed, but this # line calls BuildPackage which in turn actually uses this information to # build a package. $(eval $(call BuildPackage,$(PKG_NAME))) 8. Compile shc ipk without errors. make package/shc/compile V=99 9. Building process complete witout errors. Now we have : binary packages directory: source/bin/packages/aarch64_armv8-a/ [SHC_BIN] = ./bin/packages/aarch64_armv8-a/base/shc_3.8.9b_aarch64_armv8-a.ipk 10. Copy and install SHC .ipk to LEDE device. scp shc_3.8.9b_aarch64_armv8-a.ipk root@:/tmp/ ssh root@ #IP usually 192.168.1.1 opkg install shc_3.8.9b_aarch64_armv8-a.ipk 11. Create test script and compile it to execute. (in LEDE shell) ssh root@ #IP usually 192.168.1.1 vi /tmp/1.sh #!/bin/sh echo \"hahahaha\" shc -v -f /tmp/1.sh /tmp/1.sh.x 这里面有几个注意点，一个是网上有很多教程，上去就是\n./scripts/feeds update -a ./scripts/feeds install -a 这个千万不要，这两条命令是把所有的库和软件都给下载下来的，如果再编译，基本半天过去了，浪费时间生命。我们的目标只是要编译个shc，其他都不管。\n第二点就是那个Makefile，其实编译shc就一句话，但是我们要放到LEDE里就必须有这个Makefile.\n这样就顺利编译出来个shc3.8.9baarch64_armv8-a.ipk，但是雇主反映拷上去不能用，我去！\n这才又仔细研究shc，这个软件其实是个混淆的软件，把shell脚本变成*.c，然后再用gcc编译成2进制文件。\n但是依OpenWRT的性格，一般根本装不下gcc的，所以必须外挂U盘装GCC上去，装法如下：\nhttp://www.th7.cn/Program/cp/201708/1224085.shtml\n验证方法也比较古怪，首先写好shell，然后跑到openwrt上用shc进行混淆，然后把混淆过的.c文件拷出来，再用gcc编译成bin，然后再拷回openwrt运行验证。\n再附上单独用gcc编译的方法：\nexport STAGING_DIR=~/LEDE-IPQ40XX$/staging_dir cd ~/LEDE-IPQ40XX$ ./staging_dir/toolchain-arm_cortex-a7+neon-vfpv4_gcc-7.3.0_musl_eabi/bin/arm-openwrt-linux-muslgnueabi-gcc script.sh.x.c -o script.sh.x shit啊，其实我编译出来的shc已经是可以运行并混淆出*.c的，但是不知道为什么arm-gcc编译出的bin文件在openwrt上无法运行，更悲剧的是我没有他那个平台，无法自己装个gcc看看到底是怎么回事\n悲惨世界啊，被扣了10$手续费。\n最后问了雇主，他又找了一个家伙解决了问题，给出的方法如下：\n9. Compile shell script ${HOME}/shc.sh -r ${HOME}/openwrt-sdk -n hello-world -s ${HOME}/hello-world.sh.x.c; ls -lh ${HOME}/openwrt-sdk/bin/packages/arm_cortex-a7_neon-vfpv4/base/script_*; ls -lh ${HOME}/openwrt-sdk/build_dir/target-arm_cortex-a7+neon-vfpv4_musl_eabi/hello-world-0.0.1/hello-world; 10. Install the script package on OpenWrt. scp ${HOME}/openwrt/bin/packages/arm_cortex-a7_neon-vfpv4/base/script_* root@192.168.1.1:/tmp/; ssh root@192.168.1.1; opkg install /tmp/script_*; exit; 看明白了吧，我也无法验证，靠有心人去试试了。记录一下。\n","wordCount":"876","inLanguage":"zh","datePublished":"2024-01-24T10:02:11+08:00","dateModified":"2024-01-24T10:02:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20240124_freelancer_6/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">Freelancer任务之六Compile an ipk file on Lede (OpenWRT)
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2024-01-24 10:02:11 +0800 CST'>2024年1月24日</span></div></header><div class=post-content><p>这是一次失败的任务，即使再来一次，依然会失败，因为无法验证，真够shit的，扣了我10$的手续费。</p><p>记录一下，以儆效尤。</p><p>任务如下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>Job would be to compile an ipk file of SHC that would work with LEDE OS <span class=o>(</span>openwrt<span class=o>)</span> and the processor used in our system - will provide details
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>SHC can be downloaded here: http://www.datsi.fi.upm.es/~frosal/
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>I think you must have a <span class=m>64</span> bit system to use the SDK to compile the file  
+</span></span></code></pre></div><p>翻译一下：在OpenWRT平台下编译一个SHC，并且能工作。</p><p>完全步骤如下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>How to compile SHC on LEDE:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Tested build environment:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>OS: Ubuntu 14.04.5 LTS  
+</span></span><span class=line><span class=cl>CPU: ARMv7 Processor rev <span class=m>5</span> <span class=o>(</span>v7l<span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Before you begin, check your system is updated, i.e.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>sudo apt-get update  
+</span></span><span class=line><span class=cl>sudo apt-get upgrade  
+</span></span><span class=line><span class=cl>sudo apt-get autoremove
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Step-by-step manual:  
+</span></span><span class=line><span class=cl>Note: perform all steps as regular <span class=o>(</span>non-root<span class=o>)</span> user. User must be in sudo group.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>1. Update your sources
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>sudo apt-get update
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>2. Install nesessary packages:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>sudo apt-get install g++ libncurses5-dev zlib1g-dev bison flex unzip autoconf gawk make gettext gcc binutils patch bzip2 libz-dev asciidoc subversion sphinxsearch libtool sphinx-common libssl-dev libssl0.9.8
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>3. Get latest LEDE <span class=nb>source</span> from git repository  
+</span></span><span class=line><span class=cl>   We know our CPU is armv7, it belongs to arm64, so go to http://downloads.lede-project.org/releases , just download sdk.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>wget http://downloads.lede-project.org/releases/17.01.4/targets/arm64/generic/lede-sdk-17.01.4-arm64_gcc-5.4.0_musl-1.1.16.Linux-x86_64.tar.xz
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>4. No Need to Update and install all LEDE packages  
+</span></span><span class=line><span class=cl>   We just want to compile shc, not other packages , so don<span class=s1>&#39;t update.
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>5. Run &#39;</span>make menuconfig<span class=s1>&#39; (Just Save and Exit)
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>6. Get SHC sources to LEDE package tree  
+</span></span></span><span class=line><span class=cl><span class=s1> (we are and shc-3.8.9b.tgz is in source directory)
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>wget http://www.datsi.fi.upm.es/~frosal/sources/shc-3.8.9b.tgz  
+</span></span></span><span class=line><span class=cl><span class=s1>mkdir -p package/shc/src  
+</span></span></span><span class=line><span class=cl><span class=s1>tar xvf shc-3.8.9b.tgz -C package/shc/src --strip-components 1
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>7. Make ipk Makefile
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>vi package/shc/Makefile  
+</span></span></span><span class=line><span class=cl><span class=s1>##############################################
+</span></span></span><span class=line><span class=cl><span class=s1># OpenWrt Makefile for shc program
+</span></span></span><span class=line><span class=cl><span class=s1>#
+</span></span></span><span class=line><span class=cl><span class=s1>#
+</span></span></span><span class=line><span class=cl><span class=s1># Most of the variables used here are defined in
+</span></span></span><span class=line><span class=cl><span class=s1># the include directives below. We just need to 
+</span></span></span><span class=line><span class=cl><span class=s1># specify a basic description of the package, 
+</span></span></span><span class=line><span class=cl><span class=s1># where to build our program, where to find 
+</span></span></span><span class=line><span class=cl><span class=s1># the source files, and where to install the 
+</span></span></span><span class=line><span class=cl><span class=s1># compiled program on the router. 
+</span></span></span><span class=line><span class=cl><span class=s1># 
+</span></span></span><span class=line><span class=cl><span class=s1># Be very careful of spacing in this file.
+</span></span></span><span class=line><span class=cl><span class=s1># Indents should be tabs, not spaces, and 
+</span></span></span><span class=line><span class=cl><span class=s1># there should be no trailing whitespace in
+</span></span></span><span class=line><span class=cl><span class=s1># lines that are not commented.
+</span></span></span><span class=line><span class=cl><span class=s1># 
+</span></span></span><span class=line><span class=cl><span class=s1>##############################################
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>include $(TOPDIR)/rules.mk
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1># Name and release number of this package
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>PKG_NAME:=shc  
+</span></span></span><span class=line><span class=cl><span class=s1>PKG_VERSION:=3.8.9b  
+</span></span></span><span class=line><span class=cl><span class=s1>PKG_MAINTAINER:=Francisco, Rosales, &lt;frosal@fi.upm.es&gt;
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1># This specifies the directory where we&#39;</span>re going to build the program.  
+</span></span><span class=line><span class=cl><span class=c1># The root build directory, $(BUILD_DIR), is by default the build_mipsel </span>
+</span></span><span class=line><span class=cl><span class=c1># directory in your OpenWrt SDK directory</span>
+</span></span><span class=line><span class=cl>PKG_BUILD_DIR :<span class=o>=</span> <span class=k>$(</span>BUILD_DIR<span class=k>)</span>/<span class=k>$(</span>PKG_NAME<span class=k>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>include <span class=k>$(</span>INCLUDE_DIR<span class=k>)</span>/package.mk
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Specify package information for this program. </span>
+</span></span><span class=line><span class=cl><span class=c1># The variables defined here should be self explanatory.</span>
+</span></span><span class=line><span class=cl><span class=c1># If you are running Kamikaze, delete the DESCRIPTION </span>
+</span></span><span class=line><span class=cl><span class=c1># variable below and uncomment the Kamikaze define</span>
+</span></span><span class=line><span class=cl><span class=c1># directive for the description below</span>
+</span></span><span class=line><span class=cl>define Package/<span class=k>$(</span>PKG_NAME<span class=k>)</span>  
+</span></span><span class=line><span class=cl>    SECTION:<span class=o>=</span>utils
+</span></span><span class=line><span class=cl>    CATEGORY:<span class=o>=</span>Utilities
+</span></span><span class=line><span class=cl>    TITLE:<span class=o>=</span> shc ---- This tool generates a stripped binary executable version of the script specified at <span class=nb>command</span> line.
+</span></span><span class=line><span class=cl>    URL:<span class=o>=</span>http://www.datsi.fi.upm.es/~frosal
+</span></span><span class=line><span class=cl>endef
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Uncomment portion below for Kamikaze and delete DESCRIPTION variable above</span>
+</span></span><span class=line><span class=cl>define Package/<span class=k>$(</span>PKG_NAME<span class=k>)</span>/description  
+</span></span><span class=line><span class=cl>    shc ---- This tool generates a stripped binary executable version
+</span></span><span class=line><span class=cl>        of the script specified at <span class=nb>command</span> line.<span class=s2>&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>endef
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2># Specify what needs to be done to prepare for building the package.
+</span></span></span><span class=line><span class=cl><span class=s2># In our case, we need to copy the source files to the build directory.
+</span></span></span><span class=line><span class=cl><span class=s2># This is NOT the default.  The default uses the PKG_SOURCE_URL and the
+</span></span></span><span class=line><span class=cl><span class=s2># PKG_SOURCE which is not defined here to download the source from the web.
+</span></span></span><span class=line><span class=cl><span class=s2># In order to just build a simple program that we have just written, it is
+</span></span></span><span class=line><span class=cl><span class=s2># much easier to do it this way.
+</span></span></span><span class=line><span class=cl><span class=s2>define Build/Prepare  
+</span></span></span><span class=line><span class=cl><span class=s2>    mkdir -p </span><span class=k>$(</span>PKG_BUILD_DIR<span class=k>)</span><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>    </span><span class=k>$(</span>CP<span class=k>)</span><span class=s2> ./src/* </span><span class=k>$(</span>PKG_BUILD_DIR<span class=k>)</span><span class=s2>/
+</span></span></span><span class=line><span class=cl><span class=s2>endef
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2># We do not need to define Build/Configure or Build/Compile directives
+</span></span></span><span class=line><span class=cl><span class=s2># The defaults are appropriate for compiling a simple program such as this one
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2># Specify where and how to install the program. Since we only have one file, 
+</span></span></span><span class=line><span class=cl><span class=s2># the helloworld executable, install it by copying it to the /bin directory on
+</span></span></span><span class=line><span class=cl><span class=s2># the router. The </span><span class=k>$(</span>1<span class=k>)</span><span class=s2> variable represents the root directory on the router running 
+</span></span></span><span class=line><span class=cl><span class=s2># OpenWrt. The </span><span class=k>$(</span>INSTALL_DIR<span class=k>)</span><span class=s2> variable contains a command to prepare the install 
+</span></span></span><span class=line><span class=cl><span class=s2># directory if it does not already exist.  Likewise </span><span class=k>$(</span>INSTALL_BIN<span class=k>)</span><span class=s2> contains the 
+</span></span></span><span class=line><span class=cl><span class=s2># command to copy the binary file from its current location (in our case the build
+</span></span></span><span class=line><span class=cl><span class=s2># directory) to the install directory.
+</span></span></span><span class=line><span class=cl><span class=s2>define Package/</span><span class=k>$(</span>PKG_NAME<span class=k>)</span><span class=s2>/install  
+</span></span></span><span class=line><span class=cl><span class=s2>    </span><span class=k>$(</span>INSTALL_DIR<span class=k>)</span><span class=s2> </span><span class=k>$(</span>1<span class=k>)</span><span class=s2>/bin
+</span></span></span><span class=line><span class=cl><span class=s2>    </span><span class=k>$(</span>INSTALL_BIN<span class=k>)</span><span class=s2> </span><span class=k>$(</span>PKG_BUILD_DIR<span class=k>)</span><span class=s2>/shc </span><span class=k>$(</span>1<span class=k>)</span><span class=s2>/bin/
+</span></span></span><span class=line><span class=cl><span class=s2>endef
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2># This line executes the necessary commands to compile our program.
+</span></span></span><span class=line><span class=cl><span class=s2># The above define directives specify all the information needed, but this
+</span></span></span><span class=line><span class=cl><span class=s2># line calls BuildPackage which in turn actually uses this information to
+</span></span></span><span class=line><span class=cl><span class=s2># build a package.
+</span></span></span><span class=line><span class=cl><span class=s2></span><span class=k>$(</span><span class=nb>eval</span> <span class=k>$(</span>call BuildPackage,<span class=k>$(</span>PKG_NAME<span class=k>)))</span><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>8. Compile shc ipk without errors.
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>make package/shc/compile V=99
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>9. Building process complete witout errors.  
+</span></span></span><span class=line><span class=cl><span class=s2>Now we have :  
+</span></span></span><span class=line><span class=cl><span class=s2>binary packages directory: source/bin/packages/aarch64_armv8-a/  
+</span></span></span><span class=line><span class=cl><span class=s2>[SHC_BIN] = ./bin/packages/aarch64_armv8-a/base/shc_3.8.9b_aarch64_armv8-a.ipk
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>10. Copy and install SHC .ipk to LEDE device.
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>scp shc_3.8.9b_aarch64_armv8-a.ipk root@&lt;LEDE device IP address or name&gt;:/tmp/  
+</span></span></span><span class=line><span class=cl><span class=s2>ssh root@&lt;LEDE device IP address or name&gt; #IP usually 192.168.1.1  
+</span></span></span><span class=line><span class=cl><span class=s2>opkg install shc_3.8.9b_aarch64_armv8-a.ipk
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>11. Create test script and compile it to execute. (in LEDE shell)  
+</span></span></span><span class=line><span class=cl><span class=s2>ssh root@&lt;LEDE device IP address or name&gt; #IP usually 192.168.1.1
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>vi /tmp/1.sh  
+</span></span></span><span class=line><span class=cl><span class=s2>#!/bin/sh
+</span></span></span><span class=line><span class=cl><span class=s2>echo &#34;</span>hahahaha<span class=s2>&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>shc -v -f /tmp/1.sh  
+</span></span></span><span class=line><span class=cl><span class=s2>/tmp/1.sh.x
+</span></span></span></code></pre></div><p>这里面有几个注意点，一个是网上有很多教程，上去就是</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>./scripts/feeds update -a
+</span></span><span class=line><span class=cl>./scripts/feeds install -a
+</span></span></code></pre></div><p>这个千万不要，这两条命令是把所有的库和软件都给下载下来的，如果再编译，基本半天过去了，浪费时间生命。我们的目标只是要编译个shc，其他都不管。</p><p>第二点就是那个Makefile，其实编译shc就一句话，但是我们要放到LEDE里就必须有这个Makefile.</p><p>这样就顺利编译出来个shc<em>3.8.9b</em>aarch64_armv8-a.ipk，但是雇主反映拷上去不能用，我去！</p><p>这才又仔细研究shc，这个软件其实是个混淆的软件，把shell脚本变成*.c，然后再用gcc编译成2进制文件。</p><p>但是依OpenWRT的性格，一般根本装不下gcc的，所以必须外挂U盘装GCC上去，装法如下：</p><p><a href=http://www.th7.cn/Program/cp/201708/1224085.shtml>http://www.th7.cn/Program/cp/201708/1224085.shtml</a></p><p>验证方法也比较古怪，首先写好shell，然后跑到openwrt上用shc进行混淆，然后把混淆过的.c文件拷出来，再用gcc编译成bin，然后再拷回openwrt运行验证。</p><p>再附上单独用gcc编译的方法：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>export</span> <span class=nv>STAGING_DIR</span><span class=o>=</span>~/LEDE-IPQ40XX$/staging_dir  
+</span></span><span class=line><span class=cl><span class=nb>cd</span> ~/LEDE-IPQ40XX$  
+</span></span><span class=line><span class=cl>./staging_dir/toolchain-arm_cortex-a7+neon-vfpv4_gcc-7.3.0_musl_eabi/bin/arm-openwrt-linux-muslgnueabi-gcc  script.sh.x.c -o script.sh.x
+</span></span></code></pre></div><p>shit啊，其实我编译出来的shc已经是可以运行并混淆出*.c的，但是不知道为什么arm-gcc编译出的bin文件在openwrt上无法运行，更悲剧的是我没有他那个平台，无法自己装个gcc看看到底是怎么回事</p><p>悲惨世界啊，被扣了10$手续费。</p><p>最后问了雇主，他又找了一个家伙解决了问题，给出的方法如下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>9. Compile shell script
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=si>${</span><span class=nv>HOME</span><span class=si>}</span>/shc.sh -r <span class=si>${</span><span class=nv>HOME</span><span class=si>}</span>/openwrt-sdk -n hello-world -s <span class=si>${</span><span class=nv>HOME</span><span class=si>}</span>/hello-world.sh.x.c<span class=p>;</span>
+</span></span><span class=line><span class=cl>ls -lh <span class=si>${</span><span class=nv>HOME</span><span class=si>}</span>/openwrt-sdk/bin/packages/arm_cortex-a7_neon-vfpv4/base/script_*<span class=p>;</span>  
+</span></span><span class=line><span class=cl>ls -lh <span class=si>${</span><span class=nv>HOME</span><span class=si>}</span>/openwrt-sdk/build_dir/target-arm_cortex-a7+neon-vfpv4_musl_eabi/hello-world-0.0.1/hello-world<span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>10.  Install the script package on OpenWrt.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>scp <span class=si>${</span><span class=nv>HOME</span><span class=si>}</span>/openwrt/bin/packages/arm_cortex-a7_neon-vfpv4/base/script_* root@192.168.1.1:/tmp/<span class=p>;</span>  
+</span></span><span class=line><span class=cl>ssh root@192.168.1.1<span class=p>;</span>  
+</span></span><span class=line><span class=cl>opkg install /tmp/script_*<span class=p>;</span>  
+</span></span><span class=line><span class=cl>exit<span class=p>;</span>  
+</span></span></code></pre></div><p>看明白了吧，我也无法验证，靠有心人去试试了。记录一下。</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

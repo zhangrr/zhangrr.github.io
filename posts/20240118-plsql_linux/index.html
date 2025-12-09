@@ -1,0 +1,156 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>在Ubuntu上装个plsql通过远程桌面访问oracle | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="这真是个无比古怪的审计需求，需要让一些同事能访问oracle，但是不允许他们通过剪切板拷贝数据。
+这只能是kvm+Ubuntu+xrdp+wine+plsql来实现了（CentOS应该也没问题）
+首先准备ubuntu的iso，选精简的server版，桌面手动装：
+wget http://mirrors.163.com/ubuntu-releases/12.04/ubuntu-12.04.5-server-i386.iso  
+生成kvm虚机磁盘：
+qemu-img create -f qcow2 /home/kvm/ubuntu.qcow2 20G  
+安装kvm虚机：
+virt-install \  
+    --name=ubuntu \
+    --vcpu=1 \
+    --ram=2048 \
+    --disk path=/home/kvm/ubuntu.qcow2,format=qcow2,size=20 \
+    --cdrom=/home/kvm/ubuntu-12.04.5-server-i386.iso \
+    --os-type=linux  \
+    --network bridge=br0 \
+    --vnc --vnclisten=0.0.0.0 --vncport=5901
+这时候就要连到实机的vnc 5901端口，开始安装。反正是只要用plsql的，所以缺省都可。记住要装上sshd server，便于远程管理。
+装ubuntu时会提示生成一个非root用户，就叫plsql好了。
+安装不表，安装好了以后因为装了sshd，所以就可以ssh远程操作了。
+安装wine：
+sudo apt-get install software-properties-common  
+sudo add-apt-repository ppa:ubuntu-wine/ppa  
+sudo apt-get update  
+sudo apt-get install wine  
+安装xrdp和gnome-shell以及输入法：
+sudo apt-get install xrdp  
+sudo apt-get install gnome-shell  
+sudo apt-get install ibus  
+sudo apt-get install fcitx-table-wbpy  
+设置xrdp由gnome-session控制："><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20240118-plsql_linux/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20240118-plsql_linux/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20240118-plsql_linux/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="在Ubuntu上装个plsql通过远程桌面访问oracle"><meta property="og:description" content="这真是个无比古怪的审计需求，需要让一些同事能访问oracle，但是不允许他们通过剪切板拷贝数据。
+这只能是kvm+Ubuntu+xrdp+wine+plsql来实现了（CentOS应该也没问题）
+首先准备ubuntu的iso，选精简的server版，桌面手动装：
+wget http://mirrors.163.com/ubuntu-releases/12.04/ubuntu-12.04.5-server-i386.iso 生成kvm虚机磁盘：
+qemu-img create -f qcow2 /home/kvm/ubuntu.qcow2 20G 安装kvm虚机：
+virt-install \ --name=ubuntu \ --vcpu=1 \ --ram=2048 \ --disk path=/home/kvm/ubuntu.qcow2,format=qcow2,size=20 \ --cdrom=/home/kvm/ubuntu-12.04.5-server-i386.iso \ --os-type=linux \ --network bridge=br0 \ --vnc --vnclisten=0.0.0.0 --vncport=5901 这时候就要连到实机的vnc 5901端口，开始安装。反正是只要用plsql的，所以缺省都可。记住要装上sshd server，便于远程管理。
+装ubuntu时会提示生成一个非root用户，就叫plsql好了。
+安装不表，安装好了以后因为装了sshd，所以就可以ssh远程操作了。
+安装wine：
+sudo apt-get install software-properties-common sudo add-apt-repository ppa:ubuntu-wine/ppa sudo apt-get update sudo apt-get install wine 安装xrdp和gnome-shell以及输入法：
+sudo apt-get install xrdp sudo apt-get install gnome-shell sudo apt-get install ibus sudo apt-get install fcitx-table-wbpy 设置xrdp由gnome-session控制："><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2024-01-18T09:00:11+08:00"><meta property="article:modified_time" content="2024-01-18T09:00:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="在Ubuntu上装个plsql通过远程桌面访问oracle"><meta name=twitter:description content="这真是个无比古怪的审计需求，需要让一些同事能访问oracle，但是不允许他们通过剪切板拷贝数据。
+这只能是kvm+Ubuntu+xrdp+wine+plsql来实现了（CentOS应该也没问题）
+首先准备ubuntu的iso，选精简的server版，桌面手动装：
+wget http://mirrors.163.com/ubuntu-releases/12.04/ubuntu-12.04.5-server-i386.iso  
+生成kvm虚机磁盘：
+qemu-img create -f qcow2 /home/kvm/ubuntu.qcow2 20G  
+安装kvm虚机：
+virt-install \  
+    --name=ubuntu \
+    --vcpu=1 \
+    --ram=2048 \
+    --disk path=/home/kvm/ubuntu.qcow2,format=qcow2,size=20 \
+    --cdrom=/home/kvm/ubuntu-12.04.5-server-i386.iso \
+    --os-type=linux  \
+    --network bridge=br0 \
+    --vnc --vnclisten=0.0.0.0 --vncport=5901
+这时候就要连到实机的vnc 5901端口，开始安装。反正是只要用plsql的，所以缺省都可。记住要装上sshd server，便于远程管理。
+装ubuntu时会提示生成一个非root用户，就叫plsql好了。
+安装不表，安装好了以后因为装了sshd，所以就可以ssh远程操作了。
+安装wine：
+sudo apt-get install software-properties-common  
+sudo add-apt-repository ppa:ubuntu-wine/ppa  
+sudo apt-get update  
+sudo apt-get install wine  
+安装xrdp和gnome-shell以及输入法：
+sudo apt-get install xrdp  
+sudo apt-get install gnome-shell  
+sudo apt-get install ibus  
+sudo apt-get install fcitx-table-wbpy  
+设置xrdp由gnome-session控制："><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"在Ubuntu上装个plsql通过远程桌面访问oracle","item":"https://rendoumi.com/posts/20240118-plsql_linux/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"在Ubuntu上装个plsql通过远程桌面访问oracle","name":"在Ubuntu上装个plsql通过远程桌面访问oracle","description":"这真是个无比古怪的审计需求，需要让一些同事能访问oracle，但是不允许他们通过剪切板拷贝数据。\n这只能是kvm+Ubuntu+xrdp+wine+plsql来实现了（CentOS应该也没问题）\n首先准备ubuntu的iso，选精简的server版，桌面手动装：\nwget http://mirrors.163.com/ubuntu-releases/12.04/ubuntu-12.04.5-server-i386.iso 生成kvm虚机磁盘：\nqemu-img create -f qcow2 /home/kvm/ubuntu.qcow2 20G 安装kvm虚机：\nvirt-install \\ --name=ubuntu \\ --vcpu=1 \\ --ram=2048 \\ --disk path=/home/kvm/ubuntu.qcow2,format=qcow2,size=20 \\ --cdrom=/home/kvm/ubuntu-12.04.5-server-i386.iso \\ --os-type=linux \\ --network bridge=br0 \\ --vnc --vnclisten=0.0.0.0 --vncport=5901 这时候就要连到实机的vnc 5901端口，开始安装。反正是只要用plsql的，所以缺省都可。记住要装上sshd server，便于远程管理。\n装ubuntu时会提示生成一个非root用户，就叫plsql好了。\n安装不表，安装好了以后因为装了sshd，所以就可以ssh远程操作了。\n安装wine：\nsudo apt-get install software-properties-common sudo add-apt-repository ppa:ubuntu-wine/ppa sudo apt-get update sudo apt-get install wine 安装xrdp和gnome-shell以及输入法：\nsudo apt-get install xrdp sudo apt-get install gnome-shell sudo apt-get install ibus sudo apt-get install fcitx-table-wbpy 设置xrdp由gnome-session控制：\n","keywords":[],"articleBody":"这真是个无比古怪的审计需求，需要让一些同事能访问oracle，但是不允许他们通过剪切板拷贝数据。\n这只能是kvm+Ubuntu+xrdp+wine+plsql来实现了（CentOS应该也没问题）\n首先准备ubuntu的iso，选精简的server版，桌面手动装：\nwget http://mirrors.163.com/ubuntu-releases/12.04/ubuntu-12.04.5-server-i386.iso 生成kvm虚机磁盘：\nqemu-img create -f qcow2 /home/kvm/ubuntu.qcow2 20G 安装kvm虚机：\nvirt-install \\ --name=ubuntu \\ --vcpu=1 \\ --ram=2048 \\ --disk path=/home/kvm/ubuntu.qcow2,format=qcow2,size=20 \\ --cdrom=/home/kvm/ubuntu-12.04.5-server-i386.iso \\ --os-type=linux \\ --network bridge=br0 \\ --vnc --vnclisten=0.0.0.0 --vncport=5901 这时候就要连到实机的vnc 5901端口，开始安装。反正是只要用plsql的，所以缺省都可。记住要装上sshd server，便于远程管理。\n装ubuntu时会提示生成一个非root用户，就叫plsql好了。\n安装不表，安装好了以后因为装了sshd，所以就可以ssh远程操作了。\n安装wine：\nsudo apt-get install software-properties-common sudo add-apt-repository ppa:ubuntu-wine/ppa sudo apt-get update sudo apt-get install wine 安装xrdp和gnome-shell以及输入法：\nsudo apt-get install xrdp sudo apt-get install gnome-shell sudo apt-get install ibus sudo apt-get install fcitx-table-wbpy 设置xrdp由gnome-session控制：\n#vi /etc/xrdp/startwm.sh ... #加一行，用gnome-session控制 echo \"gnome-session --session=gnome-classic\" \u003e .xsession . /etc/X11/Xsession ... 设置xrdp的登录，去掉其它不需要的登录方式，只留一种并改名：\n# vi /etc/xrdp/xrdp.ini [globals] bitmap_cache=yes bitmap_compression=yes port=3389 crypt_level=low channel_code=1 [xrdp1] name=plsql server lib=libvnc.so username=ask password=ask ip=127.0.0.1 port=-1 ok, 先运行一下wine，生成目录结构以及注册表文件\nwine regedit 在ssh终端运行以上的命令会退出，不要紧，退出时其实目录结构和注册表文件已经生成好了。\n我们编辑一下注册表，改动一下PATH并且添加2个环境变量：\nvi ~/.wine/system.reg ... [System\\\\CurrentControlSet\\\\Control\\\\Session Manager\\\\Environment] 1464861672 \"ComSpec\"=str(2):\"C:\\\\windows\\\\system32\\\\cmd.exe\" \"NUMBER_OF_PROCESSORS\"=\"1\" \"ORACLE_HOME\"=\"c:\\\\oracle\" \"OS\"=\"Windows_NT\" \"PATH\"=str(2):\"c:\\\\oracle\\\\bin;C:\\\\windows\\\\system32;C:\\\\windows;C:\\\\windows\\\\system32\\\\wbem\" \"PATHEXT\"=\".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH\" \"PROCESSOR_ARCHITECTURE\"=\"x86\" \"PROCESSOR_IDENTIFIER\"=\"x86 Family 6 Model 13 Stepping 3, GenuineIntel\" \"PROCESSOR_LEVEL\"=\"6\" \"PROCESSOR_REVISION\"=\"0d03\" \"SystemDrive\"=\"c:\" \"SYSTEMROOT\"=\"C:\\\\windows\" \"TEMP\"=str(2):\"C:\\\\windows\\\\temp\" \"TMP\"=str(2):\"C:\\\\windows\\\\temp\" \"TNS_ADMIN\"=\"c:\\\\oracle\\\\network\\\\admin\" \"windir\"=str(2):\"C:\\\\windows\" \"winsysdir\"=\"C:\\\\windows\\\\system32\" ... 注意上面，我们添加了两行TNSADMIN和ORACLE_HOME，并修改了PATH，总共三个地方。\n我们再下载oracle的客户端，basic的即可，并解压到指定地方：\nmkdir -p ~/.wine/drive_c/oracle/network/admin wget http://eservice.yru.ac.th/d/instantclient-basic-nt-11.2.0.4.0.zip -o /tmp/instantclient-basic-nt-11.2.0.4.0.zip cd ~/.wine/drive_c/oracle unzip -x /tmp/instantclient-basic-nt-11.2.0.4.0.zip mv instantclient_11_2 bin ok，大环境就准备好了。\n下载plsql\nmkdir ~/Desktop #下好plsqldev904.exe mv plsqldev904.exe ~/Desktop wget http://www.rendoumi.com/soft/plsql.icon -o /etc/plsq.icon 然后用远程桌面登录这台机器 直接会看到桌面上有个exe 双击执行，就开始安装了 然后I Agree，都按缺省的安装即可 装完后，就直接把这个plsql.exe删除即可\n然后生成个桌面快捷方式：\n# vi ~/Desktop/PLSQL\\ Developer.desktop [Desktop Entry] Name=PLSQL Developer Exec=wine \"/home/plsql/.wine/dosdevices/c:/Program Files/PLSQL Developer/plsqldev.exe\" Path=/home/plsql/.wine/dosdevices/c:/Program Files/PLSQL Developer Icon=/etc/plsql.icon Type=Application Categories=Wine; 这时候回到远程桌面，已经可以看到桌面上多了个白色的东西： 右键点击，打开Properties： 把Allow executing file as program给勾住，图表也显示出来了 ok，弄好了，最后运行即可，是可以输入汉字的：\n最后补充一下，tnsnames.ora是放在下面这个目录下的：\n~/.wine/drive_c/oracle/network/admin ","wordCount":"203","inLanguage":"zh","datePublished":"2024-01-18T09:00:11+08:00","dateModified":"2024-01-18T09:00:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20240118-plsql_linux/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">在Ubuntu上装个plsql通过远程桌面访问oracle
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2024-01-18 09:00:11 +0800 CST'>2024年1月18日</span></div></header><div class=post-content><p>这真是个无比古怪的审计需求，需要让一些同事能访问oracle，但是不允许他们通过剪切板拷贝数据。</p><p>这只能是kvm+Ubuntu+xrdp+wine+plsql来实现了（CentOS应该也没问题）</p><p>首先准备ubuntu的iso，选精简的server版，桌面手动装：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>wget http://mirrors.163.com/ubuntu-releases/12.04/ubuntu-12.04.5-server-i386.iso  
+</span></span></code></pre></div><p>生成kvm虚机磁盘：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>qemu-img create -f qcow2 /home/kvm/ubuntu.qcow2 20G  
+</span></span></code></pre></div><p>安装kvm虚机：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>virt-install <span class=se>\ </span> 
+</span></span><span class=line><span class=cl>    --name<span class=o>=</span>ubuntu <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --vcpu<span class=o>=</span><span class=m>1</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --ram<span class=o>=</span><span class=m>2048</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --disk <span class=nv>path</span><span class=o>=</span>/home/kvm/ubuntu.qcow2,format<span class=o>=</span>qcow2,size<span class=o>=</span><span class=m>20</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --cdrom<span class=o>=</span>/home/kvm/ubuntu-12.04.5-server-i386.iso <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --os-type<span class=o>=</span>linux  <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --network <span class=nv>bridge</span><span class=o>=</span>br0 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --vnc --vnclisten<span class=o>=</span>0.0.0.0 --vncport<span class=o>=</span><span class=m>5901</span>
+</span></span></code></pre></div><p>这时候就要连到实机的vnc 5901端口，开始安装。反正是只要用plsql的，所以缺省都可。记住要装上sshd server，便于远程管理。</p><p>装ubuntu时会提示生成一个非root用户，就叫plsql好了。</p><p>安装不表，安装好了以后因为装了sshd，所以就可以ssh远程操作了。</p><p>安装wine：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>sudo apt-get install software-properties-common  
+</span></span><span class=line><span class=cl>sudo add-apt-repository ppa:ubuntu-wine/ppa  
+</span></span><span class=line><span class=cl>sudo apt-get update  
+</span></span><span class=line><span class=cl>sudo apt-get install wine  
+</span></span></code></pre></div><p>安装xrdp和gnome-shell以及输入法：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>sudo apt-get install xrdp  
+</span></span><span class=line><span class=cl>sudo apt-get install gnome-shell  
+</span></span><span class=line><span class=cl>sudo apt-get install ibus  
+</span></span><span class=line><span class=cl>sudo apt-get install fcitx-table-wbpy  
+</span></span></code></pre></div><p>设置xrdp由gnome-session控制：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1>#vi /etc/xrdp/startwm.sh</span>
+</span></span><span class=line><span class=cl>...
+</span></span><span class=line><span class=cl><span class=c1>#加一行，用gnome-session控制</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=s2>&#34;gnome-session --session=gnome-classic&#34;</span> &gt; .xsession  
+</span></span><span class=line><span class=cl>. /etc/X11/Xsession
+</span></span><span class=line><span class=cl>...
+</span></span></code></pre></div><p>设置xrdp的登录，去掉其它不需要的登录方式，只留一种并改名：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># vi /etc/xrdp/xrdp.ini</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>globals<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>bitmap_cache</span><span class=o>=</span>yes  
+</span></span><span class=line><span class=cl><span class=nv>bitmap_compression</span><span class=o>=</span>yes  
+</span></span><span class=line><span class=cl><span class=nv>port</span><span class=o>=</span><span class=m>3389</span>  
+</span></span><span class=line><span class=cl><span class=nv>crypt_level</span><span class=o>=</span>low  
+</span></span><span class=line><span class=cl><span class=nv>channel_code</span><span class=o>=</span><span class=m>1</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>xrdp1<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>name</span><span class=o>=</span>plsql server  
+</span></span><span class=line><span class=cl><span class=nv>lib</span><span class=o>=</span>libvnc.so  
+</span></span><span class=line><span class=cl><span class=nv>username</span><span class=o>=</span>ask  
+</span></span><span class=line><span class=cl><span class=nv>password</span><span class=o>=</span>ask  
+</span></span><span class=line><span class=cl><span class=nv>ip</span><span class=o>=</span>127.0.0.1  
+</span></span><span class=line><span class=cl><span class=nv>port</span><span class=o>=</span>-1  
+</span></span></code></pre></div><p>ok, 先运行一下wine，生成目录结构以及注册表文件</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>wine regedit  
+</span></span></code></pre></div><p>在ssh终端运行以上的命令会退出，不要紧，退出时其实目录结构和注册表文件已经生成好了。</p><p>我们编辑一下注册表，改动一下PATH并且添加2个环境变量：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>vi ~/.wine/system.reg  
+</span></span><span class=line><span class=cl>...
+</span></span><span class=line><span class=cl><span class=o>[</span>System<span class=se>\\</span>CurrentControlSet<span class=se>\\</span>Control<span class=se>\\</span>Session Manager<span class=se>\\</span>Environment<span class=o>]</span> <span class=m>1464861672</span>
+</span></span><span class=line><span class=cl><span class=s2>&#34;ComSpec&#34;</span><span class=o>=</span>str<span class=o>(</span>2<span class=o>)</span>:<span class=s2>&#34;C:\\windows\\system32\\cmd.exe&#34;</span>
+</span></span><span class=line><span class=cl><span class=s2>&#34;NUMBER_OF_PROCESSORS&#34;</span><span class=o>=</span><span class=s2>&#34;1&#34;</span>
+</span></span><span class=line><span class=cl><span class=s2>&#34;ORACLE_HOME&#34;</span><span class=o>=</span><span class=s2>&#34;c:\\oracle&#34;</span>
+</span></span><span class=line><span class=cl><span class=s2>&#34;OS&#34;</span><span class=o>=</span><span class=s2>&#34;Windows_NT&#34;</span>
+</span></span><span class=line><span class=cl><span class=s2>&#34;PATH&#34;</span><span class=o>=</span>str<span class=o>(</span>2<span class=o>)</span>:<span class=s2>&#34;c:\\oracle\\bin;C:\\windows\\system32;C:\\windows;C:\\windows\\system32\\wbem&#34;</span>
+</span></span><span class=line><span class=cl><span class=s2>&#34;PATHEXT&#34;</span><span class=o>=</span><span class=s2>&#34;.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH&#34;</span>
+</span></span><span class=line><span class=cl><span class=s2>&#34;PROCESSOR_ARCHITECTURE&#34;</span><span class=o>=</span><span class=s2>&#34;x86&#34;</span>
+</span></span><span class=line><span class=cl><span class=s2>&#34;PROCESSOR_IDENTIFIER&#34;</span><span class=o>=</span><span class=s2>&#34;x86 Family 6 Model 13 Stepping 3, GenuineIntel&#34;</span>
+</span></span><span class=line><span class=cl><span class=s2>&#34;PROCESSOR_LEVEL&#34;</span><span class=o>=</span><span class=s2>&#34;6&#34;</span>
+</span></span><span class=line><span class=cl><span class=s2>&#34;PROCESSOR_REVISION&#34;</span><span class=o>=</span><span class=s2>&#34;0d03&#34;</span>
+</span></span><span class=line><span class=cl><span class=s2>&#34;SystemDrive&#34;</span><span class=o>=</span><span class=s2>&#34;c:&#34;</span>
+</span></span><span class=line><span class=cl><span class=s2>&#34;SYSTEMROOT&#34;</span><span class=o>=</span><span class=s2>&#34;C:\\windows&#34;</span>
+</span></span><span class=line><span class=cl><span class=s2>&#34;TEMP&#34;</span><span class=o>=</span>str<span class=o>(</span>2<span class=o>)</span>:<span class=s2>&#34;C:\\windows\\temp&#34;</span>
+</span></span><span class=line><span class=cl><span class=s2>&#34;TMP&#34;</span><span class=o>=</span>str<span class=o>(</span>2<span class=o>)</span>:<span class=s2>&#34;C:\\windows\\temp&#34;</span>
+</span></span><span class=line><span class=cl><span class=s2>&#34;TNS_ADMIN&#34;</span><span class=o>=</span><span class=s2>&#34;c:\\oracle\\network\\admin&#34;</span>
+</span></span><span class=line><span class=cl><span class=s2>&#34;windir&#34;</span><span class=o>=</span>str<span class=o>(</span>2<span class=o>)</span>:<span class=s2>&#34;C:\\windows&#34;</span>
+</span></span><span class=line><span class=cl><span class=s2>&#34;winsysdir&#34;</span><span class=o>=</span><span class=s2>&#34;C:\\windows\\system32&#34;</span>
+</span></span><span class=line><span class=cl>...
+</span></span></code></pre></div><p>注意上面，我们添加了两行<code>TNSADMIN</code>和<code>ORACLE_HOME</code>，并修改了<code>PATH</code>，总共三个地方。</p><p>我们再下载oracle的客户端，basic的即可，并解压到指定地方：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>mkdir -p ~/.wine/drive_c/oracle/network/admin  
+</span></span><span class=line><span class=cl>wget http://eservice.yru.ac.th/d/instantclient-basic-nt-11.2.0.4.0.zip -o /tmp/instantclient-basic-nt-11.2.0.4.0.zip  
+</span></span><span class=line><span class=cl><span class=nb>cd</span> ~/.wine/drive_c/oracle  
+</span></span><span class=line><span class=cl>unzip -x /tmp/instantclient-basic-nt-11.2.0.4.0.zip  
+</span></span><span class=line><span class=cl>mv instantclient_11_2 bin  
+</span></span></code></pre></div><p>ok，大环境就准备好了。</p><p>下载plsql</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>mkdir ~/Desktop 
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#下好plsqldev904.exe</span>
+</span></span><span class=line><span class=cl>mv plsqldev904.exe ~/Desktop  
+</span></span><span class=line><span class=cl>wget http://www.rendoumi.com/soft/plsql.icon -o /etc/plsq.icon  
+</span></span></code></pre></div><p>然后用远程桌面登录这台机器 <img alt=image-20240118091436228 loading=lazy src=/posts/20240118-plsql_linux/image-20240118091436228.png></p><p>直接会看到桌面上有个exe <img alt=image-20240118091457439 loading=lazy src=/posts/20240118-plsql_linux/image-20240118091457439.png></p><p>双击执行，就开始安装了 <img alt=image-20240118091514614 loading=lazy src=/posts/20240118-plsql_linux/image-20240118091514614.png></p><p>然后I Agree，都按缺省的安装即可 <img alt=image-20240118091543577 loading=lazy src=/posts/20240118-plsql_linux/image-20240118091543577.png></p><p>装完后，就直接把这个plsql.exe删除即可</p><p>然后生成个桌面快捷方式：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># vi ~/Desktop/PLSQL\ Developer.desktop</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>Desktop Entry<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>Name</span><span class=o>=</span>PLSQL Developer  
+</span></span><span class=line><span class=cl><span class=nv>Exec</span><span class=o>=</span>wine <span class=s2>&#34;/home/plsql/.wine/dosdevices/c:/Program Files/PLSQL Developer/plsqldev.exe&#34;</span>  
+</span></span><span class=line><span class=cl><span class=nv>Path</span><span class=o>=</span>/home/plsql/.wine/dosdevices/c:/Program Files/PLSQL Developer  
+</span></span><span class=line><span class=cl><span class=nv>Icon</span><span class=o>=</span>/etc/plsql.icon  
+</span></span><span class=line><span class=cl><span class=nv>Type</span><span class=o>=</span>Application  
+</span></span><span class=line><span class=cl><span class=nv>Categories</span><span class=o>=</span>Wine<span class=p>;</span>  
+</span></span></code></pre></div><p>这时候回到远程桌面，已经可以看到桌面上多了个白色的东西： <img alt=image-20240118091602521 loading=lazy src=/posts/20240118-plsql_linux/image-20240118091602521.png></p><p>右键点击，打开Properties： <img alt=image-20240118091621098 loading=lazy src=/posts/20240118-plsql_linux/image-20240118091621098.png></p><p>把Allow executing file as program给勾住，图表也显示出来了 <img alt=image-20240118091642142 loading=lazy src=/posts/20240118-plsql_linux/image-20240118091642142.png></p><p>ok，弄好了，最后运行即可，是可以输入汉字的：</p><p><img alt=image-20240118091659807 loading=lazy src=/posts/20240118-plsql_linux/image-20240118091659807.png></p><p>最后补充一下，tnsnames.ora是放在下面这个目录下的：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>~/.wine/drive_c/oracle/network/admin
+</span></span></code></pre></div></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

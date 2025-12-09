@@ -1,0 +1,160 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Libguestfs的救援手段 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="在生产环境中我们大量使用了 kvm 的虚拟技术，虚拟机的镜像系统使用的是 Cloud-init 的技术
+不可避免的，虚机会遭到各种损坏，维护的手段就十分必要了
+假设我们有一个虚机文件 vis-16-41-18.qcow2 坏了
+一、安装支持包
+yum install libguestfs libguestfs-tools
+二、查看日志
+virt-log -a vis-16-41-18.qcow2
+
+没有什么特殊的报错信息
+三、分析文件系统组成
+virt-filesystems和virt-df都可以，用virt-df看的更多一些
+virt-filesystems -l -a vis-16-41-18.qcow2 
+Name       Type        VFS   Label  Size          Parent
+/dev/sda1  filesystem  ext4  -      209715200     -
+/dev/sda2  filesystem  ext4  -      214536355840  -
+
+virt-df -a vis-16-41-18.qcow2
+Filesystem                           1K-blocks       Used  Available  Use%
+vis-16-41-18.qcow2:/dev/sda1            194241      31706     152295   17%
+vis-16-41-18.qcow2:/dev/sda2         206088704    5639856  189973444    3%
+四、挂载文件系统开始修复（方法1）
+从上面可以看到 vis-16-41-18.qcow2 里面有两个分区，/dev/sda1 和/dev/sda2
+第一个应该是/boot，第二个是/
+把 / mount 出来
+mkdir 18
+guestmount -a vis-16-41-18.qcow2 -m /dev/sda2 --rw ./18
+或者全自动mount"><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20211021-libguestfs/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20211021-libguestfs/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20211021-libguestfs/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="Libguestfs的救援手段"><meta property="og:description" content="在生产环境中我们大量使用了 kvm 的虚拟技术，虚拟机的镜像系统使用的是 Cloud-init 的技术
+不可避免的，虚机会遭到各种损坏，维护的手段就十分必要了
+假设我们有一个虚机文件 vis-16-41-18.qcow2 坏了
+一、安装支持包 yum install libguestfs libguestfs-tools 二、查看日志 virt-log -a vis-16-41-18.qcow2 没有什么特殊的报错信息
+三、分析文件系统组成 virt-filesystems和virt-df都可以，用virt-df看的更多一些
+virt-filesystems -l -a vis-16-41-18.qcow2 Name Type VFS Label Size Parent /dev/sda1 filesystem ext4 - 209715200 - /dev/sda2 filesystem ext4 - 214536355840 - virt-df -a vis-16-41-18.qcow2 Filesystem 1K-blocks Used Available Use% vis-16-41-18.qcow2:/dev/sda1 194241 31706 152295 17% vis-16-41-18.qcow2:/dev/sda2 206088704 5639856 189973444 3% 四、挂载文件系统开始修复（方法1） 从上面可以看到 vis-16-41-18.qcow2 里面有两个分区，/dev/sda1 和/dev/sda2
+第一个应该是/boot，第二个是/
+把 / mount 出来
+mkdir 18 guestmount -a vis-16-41-18.qcow2 -m /dev/sda2 --rw ./18 或者全自动mount"><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2021-10-21T10:30:11+08:00"><meta property="article:modified_time" content="2021-10-21T10:30:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Libguestfs的救援手段"><meta name=twitter:description content="在生产环境中我们大量使用了 kvm 的虚拟技术，虚拟机的镜像系统使用的是 Cloud-init 的技术
+不可避免的，虚机会遭到各种损坏，维护的手段就十分必要了
+假设我们有一个虚机文件 vis-16-41-18.qcow2 坏了
+一、安装支持包
+yum install libguestfs libguestfs-tools
+二、查看日志
+virt-log -a vis-16-41-18.qcow2
+
+没有什么特殊的报错信息
+三、分析文件系统组成
+virt-filesystems和virt-df都可以，用virt-df看的更多一些
+virt-filesystems -l -a vis-16-41-18.qcow2 
+Name       Type        VFS   Label  Size          Parent
+/dev/sda1  filesystem  ext4  -      209715200     -
+/dev/sda2  filesystem  ext4  -      214536355840  -
+
+virt-df -a vis-16-41-18.qcow2
+Filesystem                           1K-blocks       Used  Available  Use%
+vis-16-41-18.qcow2:/dev/sda1            194241      31706     152295   17%
+vis-16-41-18.qcow2:/dev/sda2         206088704    5639856  189973444    3%
+四、挂载文件系统开始修复（方法1）
+从上面可以看到 vis-16-41-18.qcow2 里面有两个分区，/dev/sda1 和/dev/sda2
+第一个应该是/boot，第二个是/
+把 / mount 出来
+mkdir 18
+guestmount -a vis-16-41-18.qcow2 -m /dev/sda2 --rw ./18
+或者全自动mount"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"Libguestfs的救援手段","item":"https://rendoumi.com/posts/20211021-libguestfs/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Libguestfs的救援手段","name":"Libguestfs的救援手段","description":"在生产环境中我们大量使用了 kvm 的虚拟技术，虚拟机的镜像系统使用的是 Cloud-init 的技术\n不可避免的，虚机会遭到各种损坏，维护的手段就十分必要了\n假设我们有一个虚机文件 vis-16-41-18.qcow2 坏了\n一、安装支持包 yum install libguestfs libguestfs-tools 二、查看日志 virt-log -a vis-16-41-18.qcow2 没有什么特殊的报错信息\n三、分析文件系统组成 virt-filesystems和virt-df都可以，用virt-df看的更多一些\nvirt-filesystems -l -a vis-16-41-18.qcow2 Name Type VFS Label Size Parent /dev/sda1 filesystem ext4 - 209715200 - /dev/sda2 filesystem ext4 - 214536355840 - virt-df -a vis-16-41-18.qcow2 Filesystem 1K-blocks Used Available Use% vis-16-41-18.qcow2:/dev/sda1 194241 31706 152295 17% vis-16-41-18.qcow2:/dev/sda2 206088704 5639856 189973444 3% 四、挂载文件系统开始修复（方法1） 从上面可以看到 vis-16-41-18.qcow2 里面有两个分区，/dev/sda1 和/dev/sda2\n第一个应该是/boot，第二个是/\n把 / mount 出来\nmkdir 18 guestmount -a vis-16-41-18.qcow2 -m /dev/sda2 --rw ./18 或者全自动mount\n","keywords":[],"articleBody":"在生产环境中我们大量使用了 kvm 的虚拟技术，虚拟机的镜像系统使用的是 Cloud-init 的技术\n不可避免的，虚机会遭到各种损坏，维护的手段就十分必要了\n假设我们有一个虚机文件 vis-16-41-18.qcow2 坏了\n一、安装支持包 yum install libguestfs libguestfs-tools 二、查看日志 virt-log -a vis-16-41-18.qcow2 没有什么特殊的报错信息\n三、分析文件系统组成 virt-filesystems和virt-df都可以，用virt-df看的更多一些\nvirt-filesystems -l -a vis-16-41-18.qcow2 Name Type VFS Label Size Parent /dev/sda1 filesystem ext4 - 209715200 - /dev/sda2 filesystem ext4 - 214536355840 - virt-df -a vis-16-41-18.qcow2 Filesystem 1K-blocks Used Available Use% vis-16-41-18.qcow2:/dev/sda1 194241 31706 152295 17% vis-16-41-18.qcow2:/dev/sda2 206088704 5639856 189973444 3% 四、挂载文件系统开始修复（方法1） 从上面可以看到 vis-16-41-18.qcow2 里面有两个分区，/dev/sda1 和/dev/sda2\n第一个应该是/boot，第二个是/\n把 / mount 出来\nmkdir 18 guestmount -a vis-16-41-18.qcow2 -m /dev/sda2 --rw ./18 或者全自动mount\nguestmount -a vis-16-41-18.qcow2 -i --rw ./18 这样就可以直接进18目录进行修复操作了\ncd 18/lib64 ls libc*.* 发现同事胡乱升级glibc，把libc的基础库弄坏了，少libc.so.6的软链接，建立一个修复即可\nln -s libc-2.15.so libc.so.6 五、挂载文件系统开始修复（方法2） 我们可以用 guestmount，也可以直接用 guestfish 。\nguestfish 是个命令行工具。它使用 libguestfs 的所有功能。\nguestfish Welcome to guestfish, the libguestfs filesystem interactive shell for editing virtual machine filesystems. Type: 'help' for help on commands 'man' to read the manual 'quit' to quit the shell \u003e add vis-16-41-18.qcow2 \u003e run \u003e list-filesystems /dev/sda1: ext4 /dev/sda2: ext4 \u003e mount /dev/sda2 / \u003e cat /etc/fstab # # /etc/fstab # Created by anaconda on Mon Dec 29 15:24:53 2014 # # Accessible filesystems, by reference, are maintained under '/dev/disk' # See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info # UUID=9fdc111c-3042-4527-b3f8-a2961e55077e / ext4 defaults 1 1 UUID=1855d5e1-18f8-48ea-8c3b-c52cdd512a5e /boot ext4 defaults 1 2 tmpfs /dev/shm tmpfs defaults 0 0 devpts /dev/pts devpts gid=5,mode=620 0 0 sysfs /sys sysfs defaults 0 0 proc /proc proc defaults 0 0 \u003e guestfish的常用命令：\nadd vis-16-41-18.qcow2 run list-filesystems ll / ls / cat /etc/fstab write-append /etc/rc.d/rc.local \"service sshd start\" edit /etc/fstab. less /var/log/messages mkdir /tmp/a touch /tmp/a/b.txt write /tmp/a/b.txt rm /tmp/a/b.txt upload Upload a local file to the disk. ###注意：是上载本地文件到镜像文件去！！！ 六、virt对应guestfish的一些命令 virt-cat vis-16-41-18.qcow2 /home/supdev/.bash_history virt-copy-in Copy files and directories into a guest. virt-copy-out Copy files and directories out of a guest. virt-edit Edit a file in a guest. virt-ls List files and directories in a guest 七、virt-rescue救援模式 如果虚机系统起不来，可以先尝试进入 rescue 救援模式\nvirt-rescue 类似于救援 CD，但用于虚拟机，且无需提供 CD。\nvirt-rescue 为用户提供救援外壳和一些简单的恢复工具，可用于检查和更正虚拟机或磁盘映像中的问题。\nvirt-rescue -a vis-16-41-18.qcow2 Welcome to virt-rescue, the libguestfs rescue shell. Note: The contents of / are the rescue appliance. You need to mount the guest's partitions under /sysroot before you can examine them. A helper script for that exists: mount-rootfs-and-do-chroot.sh /dev/sda2 \u003e [ 67.194384] EXT4-fs (sda1): mounting ext3 file system using the ext4 subsystem [ 67.199292] EXT4-fs (sda1): mounted filesystem with ordered data mode. Opts: (null) mount: /dev/sda1 mounted on /sysroot. mount: /dev bound on /sysroot/dev. mount: /dev/pts bound on /sysroot/dev/pts. mount: /proc bound on /sysroot/proc. mount: /sys bound on /sysroot/sys. Directory: /root Thu Jun 5 13:20:51 UTC 2014 (none):~ # ","wordCount":"411","inLanguage":"zh","datePublished":"2021-10-21T10:30:11+08:00","dateModified":"2021-10-21T10:30:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20211021-libguestfs/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">Libguestfs的救援手段
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2021-10-21 10:30:11 +0800 CST'>2021年10月21日</span></div></header><div class=post-content><p>在生产环境中我们大量使用了 kvm 的虚拟技术，虚拟机的镜像系统使用的是 Cloud-init 的技术</p><p>不可避免的，虚机会遭到各种损坏，维护的手段就十分必要了</p><p>假设我们有一个虚机文件 vis-16-41-18.qcow2 坏了</p><h2 id=一安装支持包>一、安装支持包<a hidden class=anchor aria-hidden=true href=#一安装支持包>#</a></h2><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>yum install libguestfs libguestfs-tools
+</span></span></code></pre></div><h2 id=二查看日志>二、查看日志<a hidden class=anchor aria-hidden=true href=#二查看日志>#</a></h2><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>virt-log -a vis-16-41-18.qcow2
+</span></span></code></pre></div><p><img alt="Float Left" loading=lazy src=/posts/20211021-libguestfs/image-20211021115044742.png></p><p>没有什么特殊的报错信息</p><h2 id=三分析文件系统组成>三、分析文件系统组成<a hidden class=anchor aria-hidden=true href=#三分析文件系统组成>#</a></h2><p>virt-filesystems和virt-df都可以，用virt-df看的更多一些</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>virt-filesystems -l -a vis-16-41-18.qcow2 
+</span></span><span class=line><span class=cl>Name       Type        VFS   Label  Size          Parent
+</span></span><span class=line><span class=cl>/dev/sda1  filesystem  ext4  -      <span class=m>209715200</span>     -
+</span></span><span class=line><span class=cl>/dev/sda2  filesystem  ext4  -      <span class=m>214536355840</span>  -
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>virt-df -a vis-16-41-18.qcow2
+</span></span><span class=line><span class=cl>Filesystem                           1K-blocks       Used  Available  Use%
+</span></span><span class=line><span class=cl>vis-16-41-18.qcow2:/dev/sda1            <span class=m>194241</span>      <span class=m>31706</span>     <span class=m>152295</span>   17%
+</span></span><span class=line><span class=cl>vis-16-41-18.qcow2:/dev/sda2         <span class=m>206088704</span>    <span class=m>5639856</span>  <span class=m>189973444</span>    3%
+</span></span></code></pre></div><h2 id=四挂载文件系统开始修复方法1>四、挂载文件系统开始修复（方法1）<a hidden class=anchor aria-hidden=true href=#四挂载文件系统开始修复方法1>#</a></h2><p>从上面可以看到 vis-16-41-18.qcow2 里面有两个分区，/dev/sda1 和/dev/sda2</p><p>第一个应该是/boot，第二个是/</p><p>把 / mount 出来</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>mkdir <span class=m>18</span>
+</span></span><span class=line><span class=cl>guestmount -a vis-16-41-18.qcow2 -m /dev/sda2 --rw ./18
+</span></span></code></pre></div><p>或者全自动mount</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>guestmount -a vis-16-41-18.qcow2 -i --rw ./18
+</span></span></code></pre></div><p>这样就可以直接进18目录进行修复操作了</p><pre tabindex=0><code>cd 18/lib64
+ls libc*.*
+</code></pre><p>发现同事胡乱升级glibc，把libc的基础库弄坏了，少libc.so.6的软链接，建立一个修复即可</p><pre tabindex=0><code>ln -s libc-2.15.so libc.so.6
+</code></pre><h2 id=五挂载文件系统开始修复方法2>五、挂载文件系统开始修复（方法2）<a hidden class=anchor aria-hidden=true href=#五挂载文件系统开始修复方法2>#</a></h2><p>我们可以用 guestmount，也可以直接用 guestfish 。</p><p>guestfish 是个命令行工具。它使用 libguestfs 的所有功能。</p><pre tabindex=0><code>guestfish
+
+Welcome to guestfish, the libguestfs filesystem interactive shell for
+editing virtual machine filesystems.
+
+Type: &#39;help&#39; for help on commands
+      &#39;man&#39; to read the manual
+      &#39;quit&#39; to quit the shell
+
+&gt;&lt;fs&gt; add vis-16-41-18.qcow2
+&gt;&lt;fs&gt; run
+&gt;&lt;fs&gt; list-filesystems
+/dev/sda1: ext4
+/dev/sda2: ext4
+&gt;&lt;fs&gt; mount /dev/sda2 /
+&gt;&lt;fs&gt; cat /etc/fstab
+
+#
+# /etc/fstab
+# Created by anaconda on Mon Dec 29 15:24:53 2014
+#
+# Accessible filesystems, by reference, are maintained under &#39;/dev/disk&#39;
+# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+#
+UUID=9fdc111c-3042-4527-b3f8-a2961e55077e /                       ext4    defaults        1 1
+UUID=1855d5e1-18f8-48ea-8c3b-c52cdd512a5e /boot                   ext4    defaults        1 2
+tmpfs                   /dev/shm                tmpfs   defaults        0 0
+devpts                  /dev/pts                devpts  gid=5,mode=620  0 0
+sysfs                   /sys                    sysfs   defaults        0 0
+proc                    /proc                   proc    defaults        0 0
+
+&gt;&lt;fs&gt;
+</code></pre><p>guestfish的常用命令：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=na>add vis-16-41-18.qcow2</span>
+</span></span><span class=line><span class=cl><span class=na>run</span>
+</span></span><span class=line><span class=cl><span class=na>list-filesystems</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=na>ll /</span>
+</span></span><span class=line><span class=cl><span class=na>ls /</span>
+</span></span><span class=line><span class=cl><span class=na>cat /etc/fstab</span>
+</span></span><span class=line><span class=cl><span class=na>write-append /etc/rc.d/rc.local &#34;service sshd start&#34;</span>
+</span></span><span class=line><span class=cl><span class=na>edit /etc/fstab.</span>
+</span></span><span class=line><span class=cl><span class=na>less /var/log/messages</span>
+</span></span><span class=line><span class=cl><span class=na>mkdir /tmp/a</span>
+</span></span><span class=line><span class=cl><span class=na>touch /tmp/a/b.txt</span>
+</span></span><span class=line><span class=cl><span class=na>write /tmp/a/b.txt</span>
+</span></span><span class=line><span class=cl><span class=na>rm /tmp/a/b.txt</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=na>upload Upload a local file to the disk. ###注意：是上载本地文件到镜像文件去！！！</span>
+</span></span></code></pre></div><h2 id=六virt对应guestfish的一些命令>六、virt对应guestfish的一些命令<a hidden class=anchor aria-hidden=true href=#六virt对应guestfish的一些命令>#</a></h2><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>virt-cat vis-16-41-18.qcow2  /home/supdev/.bash_history
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>virt-copy-in Copy files and directories into a guest.
+</span></span><span class=line><span class=cl>virt-copy-out Copy files and directories out of a guest.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>virt-edit Edit a file in a guest.
+</span></span><span class=line><span class=cl>virt-ls List files and directories in a guest
+</span></span></code></pre></div><h2 id=七virt-rescue救援模式>七、virt-rescue救援模式<a hidden class=anchor aria-hidden=true href=#七virt-rescue救援模式>#</a></h2><p>如果虚机系统起不来，可以先尝试进入 rescue 救援模式</p><p><code>virt-rescue</code> 类似于救援 CD，但用于虚拟机，且无需提供 CD。</p><p>virt-rescue 为用户提供救援外壳和一些简单的恢复工具，可用于检查和更正虚拟机或磁盘映像中的问题。</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>virt-rescue -a vis-16-41-18.qcow2
+</span></span><span class=line><span class=cl>Welcome to virt-rescue, the libguestfs rescue shell.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Note: The contents of / are the rescue appliance.
+</span></span><span class=line><span class=cl>You need to mount the guest<span class=err>&#39;</span>s partitions under /sysroot
+</span></span><span class=line><span class=cl>before you can examine them. A helper script <span class=k>for</span> that exists:
+</span></span><span class=line><span class=cl>mount-rootfs-and-do-chroot.sh /dev/sda2
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>&gt;&lt;rescue&gt;
+</span></span><span class=line><span class=cl><span class=o>[</span>   67.194384<span class=o>]</span> EXT4-fs <span class=o>(</span>sda1<span class=o>)</span>: mounting ext3 file system
+</span></span><span class=line><span class=cl>using the ext4 subsystem
+</span></span><span class=line><span class=cl><span class=o>[</span>   67.199292<span class=o>]</span> EXT4-fs <span class=o>(</span>sda1<span class=o>)</span>: mounted filesystem with ordered data
+</span></span><span class=line><span class=cl>mode. Opts: <span class=o>(</span>null<span class=o>)</span>
+</span></span><span class=line><span class=cl>mount: /dev/sda1 mounted on /sysroot.
+</span></span><span class=line><span class=cl>mount: /dev bound on /sysroot/dev.
+</span></span><span class=line><span class=cl>mount: /dev/pts bound on /sysroot/dev/pts.
+</span></span><span class=line><span class=cl>mount: /proc bound on /sysroot/proc.
+</span></span><span class=line><span class=cl>mount: /sys bound on /sysroot/sys.
+</span></span><span class=line><span class=cl>Directory: /root
+</span></span><span class=line><span class=cl>Thu Jun  <span class=m>5</span> 13:20:51 UTC <span class=m>2014</span>
+</span></span><span class=line><span class=cl><span class=o>(</span>none<span class=o>)</span>:~ <span class=c1>#</span>
+</span></span></code></pre></div></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

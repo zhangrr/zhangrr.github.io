@@ -1,0 +1,133 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Cisco ASA5520 VPN线路的监控和自动重启 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='Cisco ASA5520 VPN线路的监控和重启
+公司从事第三方支付工作，跟很多银行都有合作关系，拉了很多专线直通银行，双方建立VPN，两端都是Cisco的设备，但是，这些线路有时候会莫名其妙的断掉，关键是程序不知道啊，老是重连，一直等到客服反映客户投诉，查一圈程序后才知道。这在生产环境上可是行不通的，找来了所谓Cisco高手，也搞不明白为什么老断，没办法，于是写了两个监控脚本，使用Ping检测VPN对端的状况，一旦Ping不通，就用脚本登陆防火墙，自动重启VPN。
+在安装之前，先安装一个能从命令行发送邮件的软件Email来发送报警邮件，否则每台机器都起sendmail，没什么必要:
+https://github.com/muquit/mailsend-go
+
+
+#发送实例
+mailsend-go -smtp smtp.126.com -port 25 \
+auth \
+  -user xxx@126.com -pass xxx \
+  -from xxx@126.com -to  "xxx@126.com" \
+-sub "Test" \
+body -msg &#39;hello world&#39;
+
+126邮箱这里的密码用的是授权码 授权密码，不是邮箱密码
+说明一下场景：
+
+210.210.210.3是对端Cisco vpn设备的公网IP
+192.168.101.99是建立了VPN后，对端服务器的私网IP地址；
+192.168.1.1是己方Cisco ASA5520的私网地址。
+
+#!/bin/sh
+
+while [ "1" -eq "1" ]  
+do  
+    live=`ping -c4 "192.168.101.99"|wc -l`
+    if [ $live -eq 5 ] ; then
+        /usr/local/bin/mailsend-go -debug -to "ranrui.zhang@rendoumi.com" -from monit@ddky.com -ssl -port 465 -smtp smtp.qiye.aliyun.com \
+             auth -user "monit@ddky.com" -pass "xxxxxxxx" \
+             -sub "vpn断了" body -msg "`date +%Y`年`date +%m`月`date +%d`日 vpn断了！！！" \
+             -cs "utf-8"
+        /usr/local/bin/revpn.sh
+        echo "`date +%Y`年`date +%m`月`date +%d`日 `date +%H`点`date +%M`分
+                线路不能到达王府井机房，重启VPN。"
+        sleep 60
+    fi;
+    sleep 60
+done  
+以下是用expect自动登录Cisco路由器重启vpn的脚本 revpn.sh'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20240107-vpn_monitor/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20240107-vpn_monitor/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20240107-vpn_monitor/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="Cisco ASA5520 VPN线路的监控和自动重启"><meta property="og:description" content='Cisco ASA5520 VPN线路的监控和重启 公司从事第三方支付工作，跟很多银行都有合作关系，拉了很多专线直通银行，双方建立VPN，两端都是Cisco的设备，但是，这些线路有时候会莫名其妙的断掉，关键是程序不知道啊，老是重连，一直等到客服反映客户投诉，查一圈程序后才知道。这在生产环境上可是行不通的，找来了所谓Cisco高手，也搞不明白为什么老断，没办法，于是写了两个监控脚本，使用Ping检测VPN对端的状况，一旦Ping不通，就用脚本登陆防火墙，自动重启VPN。
+在安装之前，先安装一个能从命令行发送邮件的软件Email来发送报警邮件，否则每台机器都起sendmail，没什么必要:
+https://github.com/muquit/mailsend-go #发送实例 mailsend-go -smtp smtp.126.com -port 25 \ auth \ -user xxx@126.com -pass xxx \ -from xxx@126.com -to "xxx@126.com" \ -sub "Test" \ body -msg &#39;hello world&#39; 126邮箱这里的密码用的是授权码 授权密码，不是邮箱密码 说明一下场景：
+210.210.210.3是对端Cisco vpn设备的公网IP 192.168.101.99是建立了VPN后，对端服务器的私网IP地址； 192.168.1.1是己方Cisco ASA5520的私网地址。 #!/bin/sh while [ "1" -eq "1" ] do live=`ping -c4 "192.168.101.99"|wc -l` if [ $live -eq 5 ] ; then /usr/local/bin/mailsend-go -debug -to "ranrui.zhang@rendoumi.com" -from monit@ddky.com -ssl -port 465 -smtp smtp.qiye.aliyun.com \ auth -user "monit@ddky.com" -pass "xxxxxxxx" \ -sub "vpn断了" body -msg "`date +%Y`年`date +%m`月`date +%d`日 vpn断了！！！" \ -cs "utf-8" /usr/local/bin/revpn.sh echo "`date +%Y`年`date +%m`月`date +%d`日 `date +%H`点`date +%M`分 线路不能到达王府井机房，重启VPN。" sleep 60 fi; sleep 60 done 以下是用expect自动登录Cisco路由器重启vpn的脚本 revpn.sh'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2024-01-08T09:05:11+08:00"><meta property="article:modified_time" content="2024-01-08T09:05:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Cisco ASA5520 VPN线路的监控和自动重启"><meta name=twitter:description content='Cisco ASA5520 VPN线路的监控和重启
+公司从事第三方支付工作，跟很多银行都有合作关系，拉了很多专线直通银行，双方建立VPN，两端都是Cisco的设备，但是，这些线路有时候会莫名其妙的断掉，关键是程序不知道啊，老是重连，一直等到客服反映客户投诉，查一圈程序后才知道。这在生产环境上可是行不通的，找来了所谓Cisco高手，也搞不明白为什么老断，没办法，于是写了两个监控脚本，使用Ping检测VPN对端的状况，一旦Ping不通，就用脚本登陆防火墙，自动重启VPN。
+在安装之前，先安装一个能从命令行发送邮件的软件Email来发送报警邮件，否则每台机器都起sendmail，没什么必要:
+https://github.com/muquit/mailsend-go
+
+
+#发送实例
+mailsend-go -smtp smtp.126.com -port 25 \
+auth \
+  -user xxx@126.com -pass xxx \
+  -from xxx@126.com -to  "xxx@126.com" \
+-sub "Test" \
+body -msg &#39;hello world&#39;
+
+126邮箱这里的密码用的是授权码 授权密码，不是邮箱密码
+说明一下场景：
+
+210.210.210.3是对端Cisco vpn设备的公网IP
+192.168.101.99是建立了VPN后，对端服务器的私网IP地址；
+192.168.1.1是己方Cisco ASA5520的私网地址。
+
+#!/bin/sh
+
+while [ "1" -eq "1" ]  
+do  
+    live=`ping -c4 "192.168.101.99"|wc -l`
+    if [ $live -eq 5 ] ; then
+        /usr/local/bin/mailsend-go -debug -to "ranrui.zhang@rendoumi.com" -from monit@ddky.com -ssl -port 465 -smtp smtp.qiye.aliyun.com \
+             auth -user "monit@ddky.com" -pass "xxxxxxxx" \
+             -sub "vpn断了" body -msg "`date +%Y`年`date +%m`月`date +%d`日 vpn断了！！！" \
+             -cs "utf-8"
+        /usr/local/bin/revpn.sh
+        echo "`date +%Y`年`date +%m`月`date +%d`日 `date +%H`点`date +%M`分
+                线路不能到达王府井机房，重启VPN。"
+        sleep 60
+    fi;
+    sleep 60
+done  
+以下是用expect自动登录Cisco路由器重启vpn的脚本 revpn.sh'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"Cisco ASA5520 VPN线路的监控和自动重启","item":"https://rendoumi.com/posts/20240107-vpn_monitor/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Cisco ASA5520 VPN线路的监控和自动重启","name":"Cisco ASA5520 VPN线路的监控和自动重启","description":"Cisco ASA5520 VPN线路的监控和重启 公司从事第三方支付工作，跟很多银行都有合作关系，拉了很多专线直通银行，双方建立VPN，两端都是Cisco的设备，但是，这些线路有时候会莫名其妙的断掉，关键是程序不知道啊，老是重连，一直等到客服反映客户投诉，查一圈程序后才知道。这在生产环境上可是行不通的，找来了所谓Cisco高手，也搞不明白为什么老断，没办法，于是写了两个监控脚本，使用Ping检测VPN对端的状况，一旦Ping不通，就用脚本登陆防火墙，自动重启VPN。\n在安装之前，先安装一个能从命令行发送邮件的软件Email来发送报警邮件，否则每台机器都起sendmail，没什么必要:\nhttps://github.com/muquit/mailsend-go #发送实例 mailsend-go -smtp smtp.126.com -port 25 \\ auth \\ -user xxx@126.com -pass xxx \\ -from xxx@126.com -to \u0026#34;xxx@126.com\u0026#34; \\ -sub \u0026#34;Test\u0026#34; \\ body -msg \u0026#39;hello world\u0026#39; 126邮箱这里的密码用的是授权码 授权密码，不是邮箱密码 说明一下场景：\n210.210.210.3是对端Cisco vpn设备的公网IP 192.168.101.99是建立了VPN后，对端服务器的私网IP地址； 192.168.1.1是己方Cisco ASA5520的私网地址。 #!/bin/sh while [ \u0026#34;1\u0026#34; -eq \u0026#34;1\u0026#34; ] do live=`ping -c4 \u0026#34;192.168.101.99\u0026#34;|wc -l` if [ $live -eq 5 ] ; then /usr/local/bin/mailsend-go -debug -to \u0026#34;ranrui.zhang@rendoumi.com\u0026#34; -from monit@ddky.com -ssl -port 465 -smtp smtp.qiye.aliyun.com \\ auth -user \u0026#34;monit@ddky.com\u0026#34; -pass \u0026#34;xxxxxxxx\u0026#34; \\ -sub \u0026#34;vpn断了\u0026#34; body -msg \u0026#34;`date +%Y`年`date +%m`月`date +%d`日 vpn断了！！！\u0026#34; \\ -cs \u0026#34;utf-8\u0026#34; /usr/local/bin/revpn.sh echo \u0026#34;`date +%Y`年`date +%m`月`date +%d`日 `date +%H`点`date +%M`分 线路不能到达王府井机房，重启VPN。\u0026#34; sleep 60 fi; sleep 60 done 以下是用expect自动登录Cisco路由器重启vpn的脚本 revpn.sh\n","keywords":[],"articleBody":"Cisco ASA5520 VPN线路的监控和重启 公司从事第三方支付工作，跟很多银行都有合作关系，拉了很多专线直通银行，双方建立VPN，两端都是Cisco的设备，但是，这些线路有时候会莫名其妙的断掉，关键是程序不知道啊，老是重连，一直等到客服反映客户投诉，查一圈程序后才知道。这在生产环境上可是行不通的，找来了所谓Cisco高手，也搞不明白为什么老断，没办法，于是写了两个监控脚本，使用Ping检测VPN对端的状况，一旦Ping不通，就用脚本登陆防火墙，自动重启VPN。\n在安装之前，先安装一个能从命令行发送邮件的软件Email来发送报警邮件，否则每台机器都起sendmail，没什么必要:\nhttps://github.com/muquit/mailsend-go #发送实例 mailsend-go -smtp smtp.126.com -port 25 \\ auth \\ -user xxx@126.com -pass xxx \\ -from xxx@126.com -to \"xxx@126.com\" \\ -sub \"Test\" \\ body -msg 'hello world' 126邮箱这里的密码用的是授权码 授权密码，不是邮箱密码 说明一下场景：\n210.210.210.3是对端Cisco vpn设备的公网IP 192.168.101.99是建立了VPN后，对端服务器的私网IP地址； 192.168.1.1是己方Cisco ASA5520的私网地址。 #!/bin/sh while [ \"1\" -eq \"1\" ] do live=`ping -c4 \"192.168.101.99\"|wc -l` if [ $live -eq 5 ] ; then /usr/local/bin/mailsend-go -debug -to \"ranrui.zhang@rendoumi.com\" -from monit@ddky.com -ssl -port 465 -smtp smtp.qiye.aliyun.com \\ auth -user \"monit@ddky.com\" -pass \"xxxxxxxx\" \\ -sub \"vpn断了\" body -msg \"`date +%Y`年`date +%m`月`date +%d`日 vpn断了！！！\" \\ -cs \"utf-8\" /usr/local/bin/revpn.sh echo \"`date +%Y`年`date +%m`月`date +%d`日 `date +%H`点`date +%M`分 线路不能到达王府井机房，重启VPN。\" sleep 60 fi; sleep 60 done 以下是用expect自动登录Cisco路由器重启vpn的脚本 revpn.sh\n#!/usr/bin/expect set timeout 30 spawn ssh pix@192.168.1.1 expect \"password:\" send \"xxxxxxxx\\n\" expect \"ASAtoTelecom\u003e\" send \"en\\n\" expect \"Password:\" send \"xxxxxxxx\\n\" expect \"ASAtoTelecom#\" send \"clear isakmp sa\\n\" expect \"ASAtoTelecom#\" send \"clear ipsec sa peer 210.210.210.3\\n\" expect \"ASAtoTelecom#\" send \"exit\\n\" expect eof exit 0 ","wordCount":"149","inLanguage":"zh","datePublished":"2024-01-08T09:05:11+08:00","dateModified":"2024-01-08T09:05:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20240107-vpn_monitor/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">Cisco ASA5520 VPN线路的监控和自动重启
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2024-01-08 09:05:11 +0800 CST'>2024年1月8日</span></div></header><div class=post-content><h5 id=cisco-asa5520-vpn线路的监控和重启>Cisco ASA5520 VPN线路的监控和重启<a hidden class=anchor aria-hidden=true href=#cisco-asa5520-vpn线路的监控和重启>#</a></h5><p>公司从事第三方支付工作，跟很多银行都有合作关系，拉了很多专线直通银行，双方建立VPN，两端都是Cisco的设备，但是，这些线路有时候会莫名其妙的断掉，关键是程序不知道啊，老是重连，一直等到客服反映客户投诉，查一圈程序后才知道。这在生产环境上可是行不通的，找来了所谓Cisco高手，也搞不明白为什么老断，没办法，于是写了两个监控脚本，使用Ping检测VPN对端的状况，一旦Ping不通，就用脚本登陆防火墙，自动重启VPN。</p><p>在安装之前，先安装一个能从命令行发送邮件的软件Email来发送报警邮件，否则每台机器都起sendmail，没什么必要:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>https://github.com/muquit/mailsend-go
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#发送实例</span>
+</span></span><span class=line><span class=cl>mailsend-go -smtp smtp.126.com -port <span class=m>25</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>auth <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -user xxx@126.com -pass xxx <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -from xxx@126.com -to  <span class=s2>&#34;xxx@126.com&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-sub <span class=s2>&#34;Test&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>body -msg <span class=s1>&#39;hello world&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>126邮箱这里的密码用的是授权码 授权密码，不是邮箱密码
+</span></span></code></pre></div><p>说明一下场景：</p><ul><li>210.210.210.3是对端Cisco vpn设备的公网IP</li><li>192.168.101.99是建立了VPN后，对端服务器的私网IP地址；</li><li>192.168.1.1是己方Cisco ASA5520的私网地址。</li></ul><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/bin/sh
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=k>while</span> <span class=o>[</span> <span class=s2>&#34;1&#34;</span> -eq <span class=s2>&#34;1&#34;</span> <span class=o>]</span>  
+</span></span><span class=line><span class=cl><span class=k>do</span>  
+</span></span><span class=line><span class=cl>    <span class=nv>live</span><span class=o>=</span><span class=sb>`</span>ping -c4 <span class=s2>&#34;192.168.101.99&#34;</span><span class=p>|</span>wc -l<span class=sb>`</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=o>[</span> <span class=nv>$live</span> -eq <span class=m>5</span> <span class=o>]</span> <span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>        /usr/local/bin/mailsend-go -debug -to <span class=s2>&#34;ranrui.zhang@rendoumi.com&#34;</span> -from monit@ddky.com -ssl -port <span class=m>465</span> -smtp smtp.qiye.aliyun.com <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>             auth -user <span class=s2>&#34;monit@ddky.com&#34;</span> -pass <span class=s2>&#34;xxxxxxxx&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>             -sub <span class=s2>&#34;vpn断了&#34;</span> body -msg <span class=s2>&#34;`date +%Y`年`date +%m`月`date +%d`日 vpn断了！！！&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>             -cs <span class=s2>&#34;utf-8&#34;</span>
+</span></span><span class=line><span class=cl>        /usr/local/bin/revpn.sh
+</span></span><span class=line><span class=cl>        <span class=nb>echo</span> <span class=s2>&#34;`date +%Y`年`date +%m`月`date +%d`日 `date +%H`点`date +%M`分
+</span></span></span><span class=line><span class=cl><span class=s2>                线路不能到达王府井机房，重启VPN。&#34;</span>
+</span></span><span class=line><span class=cl>        sleep <span class=m>60</span>
+</span></span><span class=line><span class=cl>    <span class=k>fi</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    sleep <span class=m>60</span>
+</span></span><span class=line><span class=cl><span class=k>done</span>  
+</span></span></code></pre></div><p>以下是用expect自动登录Cisco路由器重启vpn的脚本 revpn.sh</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/usr/bin/expect
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=nb>set</span> timeout <span class=m>30</span>  
+</span></span><span class=line><span class=cl>spawn ssh pix@192.168.1.1  
+</span></span><span class=line><span class=cl>expect <span class=s2>&#34;password:&#34;</span>  
+</span></span><span class=line><span class=cl>send <span class=s2>&#34;xxxxxxxx\n&#34;</span>  
+</span></span><span class=line><span class=cl>expect <span class=s2>&#34;ASAtoTelecom&gt;&#34;</span>  
+</span></span><span class=line><span class=cl>send <span class=s2>&#34;en\n&#34;</span>  
+</span></span><span class=line><span class=cl>expect <span class=s2>&#34;Password:&#34;</span>  
+</span></span><span class=line><span class=cl>send <span class=s2>&#34;xxxxxxxx\n&#34;</span>  
+</span></span><span class=line><span class=cl>expect <span class=s2>&#34;ASAtoTelecom#&#34;</span>  
+</span></span><span class=line><span class=cl>send <span class=s2>&#34;clear isakmp sa\n&#34;</span>  
+</span></span><span class=line><span class=cl>expect <span class=s2>&#34;ASAtoTelecom#&#34;</span>  
+</span></span><span class=line><span class=cl>send <span class=s2>&#34;clear ipsec sa peer 210.210.210.3\n&#34;</span>  
+</span></span><span class=line><span class=cl>expect <span class=s2>&#34;ASAtoTelecom#&#34;</span>  
+</span></span><span class=line><span class=cl>send <span class=s2>&#34;exit\n&#34;</span>  
+</span></span><span class=line><span class=cl>expect eof  
+</span></span><span class=line><span class=cl><span class=nb>exit</span> <span class=m>0</span>  
+</span></span></code></pre></div></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

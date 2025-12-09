@@ -1,0 +1,159 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>ucarp的安装配置 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="有 V2EX 的坛友问到如何静态编译 keepalived 的问题，实际上 keepalived 确实配置比较麻烦。那还有一个简单易行的 ucarp，生产也可以用这个。
+ucarp 跟 keepalived 一样，都是用于高可用的 IP 漂移
+但是比 keepalived 配置简单，而且 opnsense 就是用的这个做的高可用，opnsense 是个非常可靠的防火墙软件。
+首先有两台虚机，172.18.19.1和172.18.19.2，虚拟ip是172.18.19.3
+先配置172.18.19.1
+yum install epel-release
+yum install psmisc
+yum install ucarp
+
+cat<< EOF >> /etc/systemd/system/ucarp.service
+[Unit]
+Description=UCARP virtual interface
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/ucarp.sh
+RemainAfterExit=true
+ExecStop=/usr/bin/killall -SIGTERM ucarp
+ExecStop=/bin/sleep 10
+TimeoutStopSec=30
+StandardOutput=journal
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+注意，上面我们的systemd是直接调用了ucarp.sh来启动，这样更简单。
+三个脚本，注意权限是755
+
+cat<< EOF >> /usr/local/bin/ucarp.sh
+#!/bin/bash'
+/usr/sbin/ucarp -i eth0 -B -p nb1Dshiwode -v 001 -a 172.18.19.3 -s 172.18.19.1 --shutdown --preempt -u /usr/local/bin/vip-up.sh -d /usr/local/bin/vip-down.sh
+EOF
+
+cat<< EOF >> /usr/local/bin/vip-up.sh 
+#!/bin/sh
+/sbin/ip addr add ${2}/24 dev ${1}
+/sbin/ip neigh flush dev ${1}
+EOF
+
+cat<< EOF >> /usr/local/bin/vip-down.sh
+#!/bin/sh
+/sbin/ip addr del ${2}/24 dev ${1}
+/usr/sbin/arp -d ${2}
+EOF
+
+chmod 755 /usr/local/bin/ucarp.sh /usr/local/bin/vip-up.sh /usr/local/bin/vip-down.sh
+ok，第一台机器就配置好了"><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20220225-ucarp/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20220225-ucarp/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20220225-ucarp/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="ucarp的安装配置"><meta property="og:description" content="有 V2EX 的坛友问到如何静态编译 keepalived 的问题，实际上 keepalived 确实配置比较麻烦。那还有一个简单易行的 ucarp，生产也可以用这个。
+ucarp 跟 keepalived 一样，都是用于高可用的 IP 漂移
+但是比 keepalived 配置简单，而且 opnsense 就是用的这个做的高可用，opnsense 是个非常可靠的防火墙软件。
+首先有两台虚机，172.18.19.1和172.18.19.2，虚拟ip是172.18.19.3
+先配置172.18.19.1
+yum install epel-release yum install psmisc yum install ucarp cat<< EOF >> /etc/systemd/system/ucarp.service [Unit] Description=UCARP virtual interface After=network.target [Service] Type=simple ExecStart=/usr/local/bin/ucarp.sh RemainAfterExit=true ExecStop=/usr/bin/killall -SIGTERM ucarp ExecStop=/bin/sleep 10 TimeoutStopSec=30 StandardOutput=journal [Install] WantedBy=multi-user.target EOF 注意，上面我们的systemd是直接调用了ucarp.sh来启动，这样更简单。 三个脚本，注意权限是755 cat<< EOF >> /usr/local/bin/ucarp.sh #!/bin/bash' /usr/sbin/ucarp -i eth0 -B -p nb1Dshiwode -v 001 -a 172.18.19.3 -s 172.18.19.1 --shutdown --preempt -u /usr/local/bin/vip-up.sh -d /usr/local/bin/vip-down.sh EOF cat<< EOF >> /usr/local/bin/vip-up.sh #!/bin/sh /sbin/ip addr add ${2}/24 dev ${1} /sbin/ip neigh flush dev ${1} EOF cat<< EOF >> /usr/local/bin/vip-down.sh #!/bin/sh /sbin/ip addr del ${2}/24 dev ${1} /usr/sbin/arp -d ${2} EOF chmod 755 /usr/local/bin/ucarp.sh /usr/local/bin/vip-up.sh /usr/local/bin/vip-down.sh ok，第一台机器就配置好了"><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-02-25T09:30:11+08:00"><meta property="article:modified_time" content="2022-02-25T09:30:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="ucarp的安装配置"><meta name=twitter:description content="有 V2EX 的坛友问到如何静态编译 keepalived 的问题，实际上 keepalived 确实配置比较麻烦。那还有一个简单易行的 ucarp，生产也可以用这个。
+ucarp 跟 keepalived 一样，都是用于高可用的 IP 漂移
+但是比 keepalived 配置简单，而且 opnsense 就是用的这个做的高可用，opnsense 是个非常可靠的防火墙软件。
+首先有两台虚机，172.18.19.1和172.18.19.2，虚拟ip是172.18.19.3
+先配置172.18.19.1
+yum install epel-release
+yum install psmisc
+yum install ucarp
+
+cat<< EOF >> /etc/systemd/system/ucarp.service
+[Unit]
+Description=UCARP virtual interface
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/ucarp.sh
+RemainAfterExit=true
+ExecStop=/usr/bin/killall -SIGTERM ucarp
+ExecStop=/bin/sleep 10
+TimeoutStopSec=30
+StandardOutput=journal
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+注意，上面我们的systemd是直接调用了ucarp.sh来启动，这样更简单。
+三个脚本，注意权限是755
+
+cat<< EOF >> /usr/local/bin/ucarp.sh
+#!/bin/bash'
+/usr/sbin/ucarp -i eth0 -B -p nb1Dshiwode -v 001 -a 172.18.19.3 -s 172.18.19.1 --shutdown --preempt -u /usr/local/bin/vip-up.sh -d /usr/local/bin/vip-down.sh
+EOF
+
+cat<< EOF >> /usr/local/bin/vip-up.sh 
+#!/bin/sh
+/sbin/ip addr add ${2}/24 dev ${1}
+/sbin/ip neigh flush dev ${1}
+EOF
+
+cat<< EOF >> /usr/local/bin/vip-down.sh
+#!/bin/sh
+/sbin/ip addr del ${2}/24 dev ${1}
+/usr/sbin/arp -d ${2}
+EOF
+
+chmod 755 /usr/local/bin/ucarp.sh /usr/local/bin/vip-up.sh /usr/local/bin/vip-down.sh
+ok，第一台机器就配置好了"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"ucarp的安装配置","item":"https://rendoumi.com/posts/20220225-ucarp/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"ucarp的安装配置","name":"ucarp的安装配置","description":"有 V2EX 的坛友问到如何静态编译 keepalived 的问题，实际上 keepalived 确实配置比较麻烦。那还有一个简单易行的 ucarp，生产也可以用这个。\nucarp 跟 keepalived 一样，都是用于高可用的 IP 漂移\n但是比 keepalived 配置简单，而且 opnsense 就是用的这个做的高可用，opnsense 是个非常可靠的防火墙软件。\n首先有两台虚机，172.18.19.1和172.18.19.2，虚拟ip是172.18.19.3\n先配置172.18.19.1\nyum install epel-release yum install psmisc yum install ucarp cat\u0026lt;\u0026lt; EOF \u0026gt;\u0026gt; /etc/systemd/system/ucarp.service [Unit] Description=UCARP virtual interface After=network.target [Service] Type=simple ExecStart=/usr/local/bin/ucarp.sh RemainAfterExit=true ExecStop=/usr/bin/killall -SIGTERM ucarp ExecStop=/bin/sleep 10 TimeoutStopSec=30 StandardOutput=journal [Install] WantedBy=multi-user.target EOF 注意，上面我们的systemd是直接调用了ucarp.sh来启动，这样更简单。 三个脚本，注意权限是755 cat\u0026lt;\u0026lt; EOF \u0026gt;\u0026gt; /usr/local/bin/ucarp.sh #!/bin/bash\u0026#39; /usr/sbin/ucarp -i eth0 -B -p nb1Dshiwode -v 001 -a 172.18.19.3 -s 172.18.19.1 --shutdown --preempt -u /usr/local/bin/vip-up.sh -d /usr/local/bin/vip-down.sh EOF cat\u0026lt;\u0026lt; EOF \u0026gt;\u0026gt; /usr/local/bin/vip-up.sh #!/bin/sh /sbin/ip addr add ${2}/24 dev ${1} /sbin/ip neigh flush dev ${1} EOF cat\u0026lt;\u0026lt; EOF \u0026gt;\u0026gt; /usr/local/bin/vip-down.sh #!/bin/sh /sbin/ip addr del ${2}/24 dev ${1} /usr/sbin/arp -d ${2} EOF chmod 755 /usr/local/bin/ucarp.sh /usr/local/bin/vip-up.sh /usr/local/bin/vip-down.sh ok，第一台机器就配置好了\n","keywords":[],"articleBody":"有 V2EX 的坛友问到如何静态编译 keepalived 的问题，实际上 keepalived 确实配置比较麻烦。那还有一个简单易行的 ucarp，生产也可以用这个。\nucarp 跟 keepalived 一样，都是用于高可用的 IP 漂移\n但是比 keepalived 配置简单，而且 opnsense 就是用的这个做的高可用，opnsense 是个非常可靠的防火墙软件。\n首先有两台虚机，172.18.19.1和172.18.19.2，虚拟ip是172.18.19.3\n先配置172.18.19.1\nyum install epel-release yum install psmisc yum install ucarp cat\u003c\u003c EOF \u003e\u003e /etc/systemd/system/ucarp.service [Unit] Description=UCARP virtual interface After=network.target [Service] Type=simple ExecStart=/usr/local/bin/ucarp.sh RemainAfterExit=true ExecStop=/usr/bin/killall -SIGTERM ucarp ExecStop=/bin/sleep 10 TimeoutStopSec=30 StandardOutput=journal [Install] WantedBy=multi-user.target EOF 注意，上面我们的systemd是直接调用了ucarp.sh来启动，这样更简单。 三个脚本，注意权限是755 cat\u003c\u003c EOF \u003e\u003e /usr/local/bin/ucarp.sh #!/bin/bash' /usr/sbin/ucarp -i eth0 -B -p nb1Dshiwode -v 001 -a 172.18.19.3 -s 172.18.19.1 --shutdown --preempt -u /usr/local/bin/vip-up.sh -d /usr/local/bin/vip-down.sh EOF cat\u003c\u003c EOF \u003e\u003e /usr/local/bin/vip-up.sh #!/bin/sh /sbin/ip addr add ${2}/24 dev ${1} /sbin/ip neigh flush dev ${1} EOF cat\u003c\u003c EOF \u003e\u003e /usr/local/bin/vip-down.sh #!/bin/sh /sbin/ip addr del ${2}/24 dev ${1} /usr/sbin/arp -d ${2} EOF chmod 755 /usr/local/bin/ucarp.sh /usr/local/bin/vip-up.sh /usr/local/bin/vip-down.sh ok，第一台机器就配置好了\n所有的东西都在ucarp.sh的那一行的参数上，直接用ucarp -h来查看\n配置第二台172.18.19.2，其他的东西都一样，唯一不同的就是ucapr.sh的一处不一样\ncat\u003c\u003c EOF \u003e\u003e /usr/local/bin/ucarp.sh #!/bin/bash' /usr/sbin/ucarp -i eth0 -B -p nb1Dshiwode -v 001 -a 172.18.19.3 -s 172.18.19.2 --shutdown --preempt -u /usr/local/bin/vip-up.sh -d /usr/local/bin/vip-down.sh EOF # -s 172.18.19.2 源ip和19.1不同 ok，两台都配置完毕, 分别执行启动\nsystemctl daemon-reload systemctl enable --now ucarp 可以再找一台机器，一直长 ping 172.18.19.3，然后随机杀掉 19.1 和 19.2 上面的 ucarp 进程，可以看到 vip 172.18.19.3 会来回飘\n注意：如果主掉了，从接管了 vip 变成 master，那么主再起来的时候不会去抢从的 master。\n","wordCount":"174","inLanguage":"zh","datePublished":"2022-02-25T09:30:11+08:00","dateModified":"2022-02-25T09:30:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20220225-ucarp/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">ucarp的安装配置
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2022-02-25 09:30:11 +0800 CST'>2022年2月25日</span></div></header><div class=post-content><p>有 V2EX 的坛友问到如何静态编译 keepalived 的问题，实际上 keepalived 确实配置比较麻烦。那还有一个简单易行的 ucarp，生产也可以用这个。</p><p>ucarp 跟 keepalived 一样，都是用于高可用的 IP 漂移</p><p>但是比 keepalived 配置简单，而且 opnsense 就是用的这个做的高可用，opnsense 是个非常可靠的防火墙软件。</p><p>首先有两台虚机，172.18.19.1和172.18.19.2，虚拟ip是172.18.19.3</p><p>先配置172.18.19.1</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>yum install epel-release
+</span></span><span class=line><span class=cl>yum install psmisc
+</span></span><span class=line><span class=cl>yum install ucarp
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>cat<span class=s>&lt;&lt; EOF &gt;&gt; /etc/systemd/system/ucarp.service
+</span></span></span><span class=line><span class=cl><span class=s>[Unit]
+</span></span></span><span class=line><span class=cl><span class=s>Description=UCARP virtual interface
+</span></span></span><span class=line><span class=cl><span class=s>After=network.target
+</span></span></span><span class=line><span class=cl><span class=s>
+</span></span></span><span class=line><span class=cl><span class=s>[Service]
+</span></span></span><span class=line><span class=cl><span class=s>Type=simple
+</span></span></span><span class=line><span class=cl><span class=s>ExecStart=/usr/local/bin/ucarp.sh
+</span></span></span><span class=line><span class=cl><span class=s>RemainAfterExit=true
+</span></span></span><span class=line><span class=cl><span class=s>ExecStop=/usr/bin/killall -SIGTERM ucarp
+</span></span></span><span class=line><span class=cl><span class=s>ExecStop=/bin/sleep 10
+</span></span></span><span class=line><span class=cl><span class=s>TimeoutStopSec=30
+</span></span></span><span class=line><span class=cl><span class=s>StandardOutput=journal
+</span></span></span><span class=line><span class=cl><span class=s>
+</span></span></span><span class=line><span class=cl><span class=s>[Install]
+</span></span></span><span class=line><span class=cl><span class=s>WantedBy=multi-user.target
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>注意，上面我们的systemd是直接调用了ucarp.sh来启动，这样更简单。
+</span></span><span class=line><span class=cl>三个脚本，注意权限是755
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>cat<span class=s>&lt;&lt; EOF &gt;&gt; /usr/local/bin/ucarp.sh
+</span></span></span><span class=line><span class=cl><span class=s>#!/bin/bash&#39;
+</span></span></span><span class=line><span class=cl><span class=s>/usr/sbin/ucarp -i eth0 -B -p nb1Dshiwode -v 001 -a 172.18.19.3 -s 172.18.19.1 --shutdown --preempt -u /usr/local/bin/vip-up.sh -d /usr/local/bin/vip-down.sh
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>cat<span class=s>&lt;&lt; EOF &gt;&gt; /usr/local/bin/vip-up.sh 
+</span></span></span><span class=line><span class=cl><span class=s>#!/bin/sh
+</span></span></span><span class=line><span class=cl><span class=s>/sbin/ip addr add ${2}/24 dev ${1}
+</span></span></span><span class=line><span class=cl><span class=s>/sbin/ip neigh flush dev ${1}
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>cat<span class=s>&lt;&lt; EOF &gt;&gt; /usr/local/bin/vip-down.sh
+</span></span></span><span class=line><span class=cl><span class=s>#!/bin/sh
+</span></span></span><span class=line><span class=cl><span class=s>/sbin/ip addr del ${2}/24 dev ${1}
+</span></span></span><span class=line><span class=cl><span class=s>/usr/sbin/arp -d ${2}
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>chmod <span class=m>755</span> /usr/local/bin/ucarp.sh /usr/local/bin/vip-up.sh /usr/local/bin/vip-down.sh
+</span></span></code></pre></div><p>ok，第一台机器就配置好了</p><p>所有的东西都在ucarp.sh的那一行的参数上，直接用ucarp -h来查看</p><p>配置第二台172.18.19.2，其他的东西都一样，唯一不同的就是ucapr.sh的一处不一样</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat<span class=s>&lt;&lt; EOF &gt;&gt; /usr/local/bin/ucarp.sh
+</span></span></span><span class=line><span class=cl><span class=s>#!/bin/bash&#39;
+</span></span></span><span class=line><span class=cl><span class=s>/usr/sbin/ucarp -i eth0 -B -p nb1Dshiwode -v 001 -a 172.18.19.3 -s 172.18.19.2 --shutdown --preempt -u /usr/local/bin/vip-up.sh -d /usr/local/bin/vip-down.sh
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># -s 172.18.19.2 源ip和19.1不同</span>
+</span></span></code></pre></div><p>ok，两台都配置完毕, 分别执行启动</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>systemctl daemon-reload
+</span></span><span class=line><span class=cl>systemctl <span class=nb>enable</span> --now ucarp
+</span></span></code></pre></div><p>可以再找一台机器，一直长 ping 172.18.19.3，然后随机杀掉 19.1 和 19.2 上面的 ucarp 进程，可以看到 vip 172.18.19.3 会来回飘</p><p>注意：如果主掉了，从接管了 vip 变成 master，那么主再起来的时候不会去抢从的 master。</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

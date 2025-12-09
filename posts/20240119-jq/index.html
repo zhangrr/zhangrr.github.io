@@ -1,0 +1,161 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>linux下如何在命令行下解析处理json文件 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='最近调试Elasticsearch比较多，老用curl来查看数据，pretty=on固然是好，可是如果要具体看传回来的json数据，还是不方便，另外如果想在shell里处理json格式，就不知道如何是好了。就被迫改用python了，有没有在shell下调试json的工具呢？
+有，就是jq，安装so easy：
+wget http://stedolan.github.io/jq/download/linux32/jq (32-bit system)  
+wget http://stedolan.github.io/jq/download/linux64/jq (64-bit system)  
+chmod +x ./jq  
+mv jq /usr/local/bin  
+给个json样本文件
+cat google.json  
+{
+        "name": "Google",
+        "location":
+                {
+                        "street": "1600 Amphitheatre Parkway",
+                        "city": "Mountain View",
+                        "state": "California",
+                        "country": "US"
+                },
+        "employees":
+                [
+                        {
+                                "name": "Michael",
+                                "division": "Engineering"
+                        },
+                        {
+                                "name": "Laura",
+                                "division": "HR"
+                        },
+                        {
+                                "name": "Elise",
+                                "division": "Marketing"
+                        }
+                ]
+}
+看上面，{}括起来的是对象，如果是[]括起来的就是数组了，nodejs要注意这一点，其实json是js的Object的子集。
+获取对象：
+cat google.json | jq &#39;.name&#39;  
+"Google"
+获取嵌套对象：
+cat google.json | jq &#39;.location.city&#39;  
+"Mountain View"
+获取一个数组的值：
+cat google.json | jq &#39;.employees[0].name&#39;  
+"Michael"
+获取对象的多个字段：
+cat google.json | jq &#39;.location | {street, city}&#39;  
+{
+  "city": "Mountain View",
+  "street": "1600 Amphitheatre Parkway"
+}
+很简单吧，和curl结合起来，就可以在shell进行编程处理json文件了。'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20240119-jq/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20240119-jq/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20240119-jq/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="linux下如何在命令行下解析处理json文件"><meta property="og:description" content='最近调试Elasticsearch比较多，老用curl来查看数据，pretty=on固然是好，可是如果要具体看传回来的json数据，还是不方便，另外如果想在shell里处理json格式，就不知道如何是好了。就被迫改用python了，有没有在shell下调试json的工具呢？
+有，就是jq，安装so easy：
+wget http://stedolan.github.io/jq/download/linux32/jq (32-bit system) wget http://stedolan.github.io/jq/download/linux64/jq (64-bit system) chmod +x ./jq mv jq /usr/local/bin 给个json样本文件
+cat google.json { "name": "Google", "location": { "street": "1600 Amphitheatre Parkway", "city": "Mountain View", "state": "California", "country": "US" }, "employees": [ { "name": "Michael", "division": "Engineering" }, { "name": "Laura", "division": "HR" }, { "name": "Elise", "division": "Marketing" } ] } 看上面，{}括起来的是对象，如果是[]括起来的就是数组了，nodejs要注意这一点，其实json是js的Object的子集。
+获取对象：
+cat google.json | jq &#39;.name&#39; "Google" 获取嵌套对象：
+cat google.json | jq &#39;.location.city&#39; "Mountain View" 获取一个数组的值：
+cat google.json | jq &#39;.employees[0].name&#39; "Michael" 获取对象的多个字段：
+cat google.json | jq &#39;.location | {street, city}&#39; { "city": "Mountain View", "street": "1600 Amphitheatre Parkway" } 很简单吧，和curl结合起来，就可以在shell进行编程处理json文件了。'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2024-01-19T10:13:11+08:00"><meta property="article:modified_time" content="2024-01-19T10:13:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="linux下如何在命令行下解析处理json文件"><meta name=twitter:description content='最近调试Elasticsearch比较多，老用curl来查看数据，pretty=on固然是好，可是如果要具体看传回来的json数据，还是不方便，另外如果想在shell里处理json格式，就不知道如何是好了。就被迫改用python了，有没有在shell下调试json的工具呢？
+有，就是jq，安装so easy：
+wget http://stedolan.github.io/jq/download/linux32/jq (32-bit system)  
+wget http://stedolan.github.io/jq/download/linux64/jq (64-bit system)  
+chmod +x ./jq  
+mv jq /usr/local/bin  
+给个json样本文件
+cat google.json  
+{
+        "name": "Google",
+        "location":
+                {
+                        "street": "1600 Amphitheatre Parkway",
+                        "city": "Mountain View",
+                        "state": "California",
+                        "country": "US"
+                },
+        "employees":
+                [
+                        {
+                                "name": "Michael",
+                                "division": "Engineering"
+                        },
+                        {
+                                "name": "Laura",
+                                "division": "HR"
+                        },
+                        {
+                                "name": "Elise",
+                                "division": "Marketing"
+                        }
+                ]
+}
+看上面，{}括起来的是对象，如果是[]括起来的就是数组了，nodejs要注意这一点，其实json是js的Object的子集。
+获取对象：
+cat google.json | jq &#39;.name&#39;  
+"Google"
+获取嵌套对象：
+cat google.json | jq &#39;.location.city&#39;  
+"Mountain View"
+获取一个数组的值：
+cat google.json | jq &#39;.employees[0].name&#39;  
+"Michael"
+获取对象的多个字段：
+cat google.json | jq &#39;.location | {street, city}&#39;  
+{
+  "city": "Mountain View",
+  "street": "1600 Amphitheatre Parkway"
+}
+很简单吧，和curl结合起来，就可以在shell进行编程处理json文件了。'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"linux下如何在命令行下解析处理json文件","item":"https://rendoumi.com/posts/20240119-jq/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"linux下如何在命令行下解析处理json文件","name":"linux下如何在命令行下解析处理json文件","description":"最近调试Elasticsearch比较多，老用curl来查看数据，pretty=on固然是好，可是如果要具体看传回来的json数据，还是不方便，另外如果想在shell里处理json格式，就不知道如何是好了。就被迫改用python了，有没有在shell下调试json的工具呢？\n有，就是jq，安装so easy：\nwget http://stedolan.github.io/jq/download/linux32/jq (32-bit system) wget http://stedolan.github.io/jq/download/linux64/jq (64-bit system) chmod +x ./jq mv jq /usr/local/bin 给个json样本文件\ncat google.json { \u0026#34;name\u0026#34;: \u0026#34;Google\u0026#34;, \u0026#34;location\u0026#34;: { \u0026#34;street\u0026#34;: \u0026#34;1600 Amphitheatre Parkway\u0026#34;, \u0026#34;city\u0026#34;: \u0026#34;Mountain View\u0026#34;, \u0026#34;state\u0026#34;: \u0026#34;California\u0026#34;, \u0026#34;country\u0026#34;: \u0026#34;US\u0026#34; }, \u0026#34;employees\u0026#34;: [ { \u0026#34;name\u0026#34;: \u0026#34;Michael\u0026#34;, \u0026#34;division\u0026#34;: \u0026#34;Engineering\u0026#34; }, { \u0026#34;name\u0026#34;: \u0026#34;Laura\u0026#34;, \u0026#34;division\u0026#34;: \u0026#34;HR\u0026#34; }, { \u0026#34;name\u0026#34;: \u0026#34;Elise\u0026#34;, \u0026#34;division\u0026#34;: \u0026#34;Marketing\u0026#34; } ] } 看上面，{}括起来的是对象，如果是[]括起来的就是数组了，nodejs要注意这一点，其实json是js的Object的子集。\n获取对象：\ncat google.json | jq \u0026#39;.name\u0026#39; \u0026#34;Google\u0026#34; 获取嵌套对象：\ncat google.json | jq \u0026#39;.location.city\u0026#39; \u0026#34;Mountain View\u0026#34; 获取一个数组的值：\ncat google.json | jq \u0026#39;.employees[0].name\u0026#39; \u0026#34;Michael\u0026#34; 获取对象的多个字段：\ncat google.json | jq \u0026#39;.location | {street, city}\u0026#39; { \u0026#34;city\u0026#34;: \u0026#34;Mountain View\u0026#34;, \u0026#34;street\u0026#34;: \u0026#34;1600 Amphitheatre Parkway\u0026#34; } 很简单吧，和curl结合起来，就可以在shell进行编程处理json文件了。\n","keywords":[],"articleBody":"最近调试Elasticsearch比较多，老用curl来查看数据，pretty=on固然是好，可是如果要具体看传回来的json数据，还是不方便，另外如果想在shell里处理json格式，就不知道如何是好了。就被迫改用python了，有没有在shell下调试json的工具呢？\n有，就是jq，安装so easy：\nwget http://stedolan.github.io/jq/download/linux32/jq (32-bit system) wget http://stedolan.github.io/jq/download/linux64/jq (64-bit system) chmod +x ./jq mv jq /usr/local/bin 给个json样本文件\ncat google.json { \"name\": \"Google\", \"location\": { \"street\": \"1600 Amphitheatre Parkway\", \"city\": \"Mountain View\", \"state\": \"California\", \"country\": \"US\" }, \"employees\": [ { \"name\": \"Michael\", \"division\": \"Engineering\" }, { \"name\": \"Laura\", \"division\": \"HR\" }, { \"name\": \"Elise\", \"division\": \"Marketing\" } ] } 看上面，{}括起来的是对象，如果是[]括起来的就是数组了，nodejs要注意这一点，其实json是js的Object的子集。\n获取对象：\ncat google.json | jq '.name' \"Google\" 获取嵌套对象：\ncat google.json | jq '.location.city' \"Mountain View\" 获取一个数组的值：\ncat google.json | jq '.employees[0].name' \"Michael\" 获取对象的多个字段：\ncat google.json | jq '.location | {street, city}' { \"city\": \"Mountain View\", \"street\": \"1600 Amphitheatre Parkway\" } 很简单吧，和curl结合起来，就可以在shell进行编程处理json文件了。\ncurl和jq结合的例子：\ncurl -s ... | jq . 如果返回的是一个字符串，不想要字符串的引号，-r即可\ncurl -s ... | jq '.location.city' \"Mountain View\" curl -s ... | jq -r '.location.city' Mountain View 如果要计算某个数组的长度，length\ncurl -s ... | jq '.data | length' 最后放上Document：\nhttps://stedolan.github.io/jq/manual/\njq现在已经到1.7了，有很多新用法，可以计算等等，用法大全：\nhttp://hyperpolyglot.org/json\n","wordCount":"139","inLanguage":"zh","datePublished":"2024-01-19T10:13:11+08:00","dateModified":"2024-01-19T10:13:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20240119-jq/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">linux下如何在命令行下解析处理json文件
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2024-01-19 10:13:11 +0800 CST'>2024年1月19日</span></div></header><div class=post-content><p>最近调试Elasticsearch比较多，老用curl来查看数据，pretty=on固然是好，可是如果要具体看传回来的json数据，还是不方便，另外如果想在shell里处理json格式，就不知道如何是好了。就被迫改用python了，有没有在shell下调试json的工具呢？</p><p>有，就是jq，安装so easy：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>wget http://stedolan.github.io/jq/download/linux32/jq <span class=o>(</span>32-bit system<span class=o>)</span>  
+</span></span><span class=line><span class=cl>wget http://stedolan.github.io/jq/download/linux64/jq <span class=o>(</span>64-bit system<span class=o>)</span>  
+</span></span><span class=line><span class=cl>chmod +x ./jq  
+</span></span><span class=line><span class=cl>mv jq /usr/local/bin  
+</span></span></code></pre></div><p>给个json样本文件</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat google.json  
+</span></span><span class=line><span class=cl><span class=o>{</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;name&#34;</span>: <span class=s2>&#34;Google&#34;</span>,
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;location&#34;</span>:
+</span></span><span class=line><span class=cl>                <span class=o>{</span>
+</span></span><span class=line><span class=cl>                        <span class=s2>&#34;street&#34;</span>: <span class=s2>&#34;1600 Amphitheatre Parkway&#34;</span>,
+</span></span><span class=line><span class=cl>                        <span class=s2>&#34;city&#34;</span>: <span class=s2>&#34;Mountain View&#34;</span>,
+</span></span><span class=line><span class=cl>                        <span class=s2>&#34;state&#34;</span>: <span class=s2>&#34;California&#34;</span>,
+</span></span><span class=line><span class=cl>                        <span class=s2>&#34;country&#34;</span>: <span class=s2>&#34;US&#34;</span>
+</span></span><span class=line><span class=cl>                <span class=o>}</span>,
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;employees&#34;</span>:
+</span></span><span class=line><span class=cl>                <span class=o>[</span>
+</span></span><span class=line><span class=cl>                        <span class=o>{</span>
+</span></span><span class=line><span class=cl>                                <span class=s2>&#34;name&#34;</span>: <span class=s2>&#34;Michael&#34;</span>,
+</span></span><span class=line><span class=cl>                                <span class=s2>&#34;division&#34;</span>: <span class=s2>&#34;Engineering&#34;</span>
+</span></span><span class=line><span class=cl>                        <span class=o>}</span>,
+</span></span><span class=line><span class=cl>                        <span class=o>{</span>
+</span></span><span class=line><span class=cl>                                <span class=s2>&#34;name&#34;</span>: <span class=s2>&#34;Laura&#34;</span>,
+</span></span><span class=line><span class=cl>                                <span class=s2>&#34;division&#34;</span>: <span class=s2>&#34;HR&#34;</span>
+</span></span><span class=line><span class=cl>                        <span class=o>}</span>,
+</span></span><span class=line><span class=cl>                        <span class=o>{</span>
+</span></span><span class=line><span class=cl>                                <span class=s2>&#34;name&#34;</span>: <span class=s2>&#34;Elise&#34;</span>,
+</span></span><span class=line><span class=cl>                                <span class=s2>&#34;division&#34;</span>: <span class=s2>&#34;Marketing&#34;</span>
+</span></span><span class=line><span class=cl>                        <span class=o>}</span>
+</span></span><span class=line><span class=cl>                <span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></div><p>看上面，{}括起来的是对象，如果是[]括起来的就是数组了，nodejs要注意这一点，其实json是js的Object的子集。</p><p>获取对象：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat google.json <span class=p>|</span> jq <span class=s1>&#39;.name&#39;</span>  
+</span></span><span class=line><span class=cl><span class=s2>&#34;Google&#34;</span>
+</span></span></code></pre></div><p>获取嵌套对象：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat google.json <span class=p>|</span> jq <span class=s1>&#39;.location.city&#39;</span>  
+</span></span><span class=line><span class=cl><span class=s2>&#34;Mountain View&#34;</span>
+</span></span></code></pre></div><p>获取一个数组的值：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat google.json <span class=p>|</span> jq <span class=s1>&#39;.employees[0].name&#39;</span>  
+</span></span><span class=line><span class=cl><span class=s2>&#34;Michael&#34;</span>
+</span></span></code></pre></div><p>获取对象的多个字段：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat google.json <span class=p>|</span> jq <span class=s1>&#39;.location | {street, city}&#39;</span>  
+</span></span><span class=line><span class=cl><span class=o>{</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;city&#34;</span>: <span class=s2>&#34;Mountain View&#34;</span>,
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;street&#34;</span>: <span class=s2>&#34;1600 Amphitheatre Parkway&#34;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></div><p>很简单吧，和curl结合起来，就可以在shell进行编程处理json文件了。</p><p>curl和jq结合的例子：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>curl -s ... <span class=p>|</span> jq .  
+</span></span></code></pre></div><p>如果返回的是一个字符串，不想要字符串的引号，<code>-r</code>即可</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>curl -s ... <span class=p>|</span> jq <span class=s1>&#39;.location.city&#39;</span>  
+</span></span><span class=line><span class=cl><span class=s2>&#34;Mountain View&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>curl -s ... <span class=p>|</span> jq -r <span class=s1>&#39;.location.city&#39;</span>  
+</span></span><span class=line><span class=cl>Mountain View  
+</span></span></code></pre></div><p>如果要计算某个数组的长度，length</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>curl -s ... <span class=p>|</span> jq <span class=s1>&#39;.data | length&#39;</span>  
+</span></span></code></pre></div><p>最后放上Document：</p><p><a href=https://stedolan.github.io/jq/manual/>https://stedolan.github.io/jq/manual/</a></p><p>jq现在已经到1.7了，有很多新用法，可以计算等等，用法大全：</p><p><a href=http://hyperpolyglot.org/json>http://hyperpolyglot.org/json</a></p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

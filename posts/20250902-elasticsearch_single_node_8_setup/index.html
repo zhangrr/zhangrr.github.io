@@ -1,0 +1,331 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>生产环境Elasticsearch 8单节点Docker-compose的安装方法 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="要在生产环境建一套Elasticsearch 8.0，单节点搭配Kibana，确实是困难重重，新版本需要TLS验证了
+现在这个时间节点，2025年9月2日，Elasticsearch最新版本是9.0，后撤2个版本是8.18.6
+那就用这个版本了，然后根据官方的文档会把人搞糊涂的。
+正确的方法如下：
+一、建立自签的证书
+其实可以用ACME的证书，但是没有人会三个月就去重启一下ES的容器，更新证书吧！
+那只能选择自建CA，自签一个证书了！
+因为有2个pod，es和kibana，所以要签两张证书，签证书随便用ES的一个版本就可以：
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.4.1-linux-x86_64.tar.gz
+
+tar -zxf elasticsearch-8.4.1-linux-x86_64.tar.gz
+
+cd elasticsearch-8.4.1/
+./bin/elasticsearch-certutil ca --pem
+
+# 得到CA证书，放在当前目录ca目录下
+unzip elastic-stack-ca.zip
+
+# 生成签发配置文件
+cat << EOF >instances.yml 
+instances:
+   - name: es01
+     dns:
+       - es01
+       - localhost
+     ip:
+       - 127.0.0.1
+   - name: kibana
+     dns:
+       - kibana
+       - localhost
+     ip:
+       - 127.0.0.1
+EOF
+
+# 签发2个pod的证书
+./bin/elasticsearch-certutil cert --ca-cert ca/ca.crt --ca-key ca/ca.key --pem --in instances.yml
+ 
+# 得到2张证书和key
+unzip certificate-bundle.zip
+# 生成两个目录，es01和kibana
+
+# 准备好证书目录
+mkdir -p /data/elasticsearch/certs
+mv ca es01 kibana /data/elasticsearch/certs
+
+# 准备好持久化卷
+mkdir -p /data/elasticsearch/kibanadata
+mkdir -p /data/elasticsearch/esdata01
+二、配置docker-compose.yaml
+8.18.6版本的docker-compose.yaml文件，位于：/data/elasticsearch/docker-compose.yaml"><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20250902-elasticsearch_single_node_8_setup/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20250902-elasticsearch_single_node_8_setup/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20250902-elasticsearch_single_node_8_setup/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="生产环境Elasticsearch 8单节点Docker-compose的安装方法"><meta property="og:description" content="要在生产环境建一套Elasticsearch 8.0，单节点搭配Kibana，确实是困难重重，新版本需要TLS验证了
+现在这个时间节点，2025年9月2日，Elasticsearch最新版本是9.0，后撤2个版本是8.18.6
+那就用这个版本了，然后根据官方的文档会把人搞糊涂的。
+正确的方法如下：
+一、建立自签的证书 其实可以用ACME的证书，但是没有人会三个月就去重启一下ES的容器，更新证书吧！
+那只能选择自建CA，自签一个证书了！
+因为有2个pod，es和kibana，所以要签两张证书，签证书随便用ES的一个版本就可以：
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.4.1-linux-x86_64.tar.gz tar -zxf elasticsearch-8.4.1-linux-x86_64.tar.gz cd elasticsearch-8.4.1/ ./bin/elasticsearch-certutil ca --pem # 得到CA证书，放在当前目录ca目录下 unzip elastic-stack-ca.zip # 生成签发配置文件 cat << EOF >instances.yml instances: - name: es01 dns: - es01 - localhost ip: - 127.0.0.1 - name: kibana dns: - kibana - localhost ip: - 127.0.0.1 EOF # 签发2个pod的证书 ./bin/elasticsearch-certutil cert --ca-cert ca/ca.crt --ca-key ca/ca.key --pem --in instances.yml # 得到2张证书和key unzip certificate-bundle.zip # 生成两个目录，es01和kibana # 准备好证书目录 mkdir -p /data/elasticsearch/certs mv ca es01 kibana /data/elasticsearch/certs # 准备好持久化卷 mkdir -p /data/elasticsearch/kibanadata mkdir -p /data/elasticsearch/esdata01 二、配置docker-compose.yaml 8.18.6版本的docker-compose.yaml文件，位于：/data/elasticsearch/docker-compose.yaml"><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2025-09-02T09:01:11+08:00"><meta property="article:modified_time" content="2025-09-02T09:01:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="生产环境Elasticsearch 8单节点Docker-compose的安装方法"><meta name=twitter:description content="要在生产环境建一套Elasticsearch 8.0，单节点搭配Kibana，确实是困难重重，新版本需要TLS验证了
+现在这个时间节点，2025年9月2日，Elasticsearch最新版本是9.0，后撤2个版本是8.18.6
+那就用这个版本了，然后根据官方的文档会把人搞糊涂的。
+正确的方法如下：
+一、建立自签的证书
+其实可以用ACME的证书，但是没有人会三个月就去重启一下ES的容器，更新证书吧！
+那只能选择自建CA，自签一个证书了！
+因为有2个pod，es和kibana，所以要签两张证书，签证书随便用ES的一个版本就可以：
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.4.1-linux-x86_64.tar.gz
+
+tar -zxf elasticsearch-8.4.1-linux-x86_64.tar.gz
+
+cd elasticsearch-8.4.1/
+./bin/elasticsearch-certutil ca --pem
+
+# 得到CA证书，放在当前目录ca目录下
+unzip elastic-stack-ca.zip
+
+# 生成签发配置文件
+cat << EOF >instances.yml 
+instances:
+   - name: es01
+     dns:
+       - es01
+       - localhost
+     ip:
+       - 127.0.0.1
+   - name: kibana
+     dns:
+       - kibana
+       - localhost
+     ip:
+       - 127.0.0.1
+EOF
+
+# 签发2个pod的证书
+./bin/elasticsearch-certutil cert --ca-cert ca/ca.crt --ca-key ca/ca.key --pem --in instances.yml
+ 
+# 得到2张证书和key
+unzip certificate-bundle.zip
+# 生成两个目录，es01和kibana
+
+# 准备好证书目录
+mkdir -p /data/elasticsearch/certs
+mv ca es01 kibana /data/elasticsearch/certs
+
+# 准备好持久化卷
+mkdir -p /data/elasticsearch/kibanadata
+mkdir -p /data/elasticsearch/esdata01
+二、配置docker-compose.yaml
+8.18.6版本的docker-compose.yaml文件，位于：/data/elasticsearch/docker-compose.yaml"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"生产环境Elasticsearch 8单节点Docker-compose的安装方法","item":"https://rendoumi.com/posts/20250902-elasticsearch_single_node_8_setup/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"生产环境Elasticsearch 8单节点Docker-compose的安装方法","name":"生产环境Elasticsearch 8单节点Docker-compose的安装方法","description":"要在生产环境建一套Elasticsearch 8.0，单节点搭配Kibana，确实是困难重重，新版本需要TLS验证了\n现在这个时间节点，2025年9月2日，Elasticsearch最新版本是9.0，后撤2个版本是8.18.6\n那就用这个版本了，然后根据官方的文档会把人搞糊涂的。\n正确的方法如下：\n一、建立自签的证书 其实可以用ACME的证书，但是没有人会三个月就去重启一下ES的容器，更新证书吧！\n那只能选择自建CA，自签一个证书了！\n因为有2个pod，es和kibana，所以要签两张证书，签证书随便用ES的一个版本就可以：\nwget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.4.1-linux-x86_64.tar.gz tar -zxf elasticsearch-8.4.1-linux-x86_64.tar.gz cd elasticsearch-8.4.1/ ./bin/elasticsearch-certutil ca --pem # 得到CA证书，放在当前目录ca目录下 unzip elastic-stack-ca.zip # 生成签发配置文件 cat \u0026lt;\u0026lt; EOF \u0026gt;instances.yml instances: - name: es01 dns: - es01 - localhost ip: - 127.0.0.1 - name: kibana dns: - kibana - localhost ip: - 127.0.0.1 EOF # 签发2个pod的证书 ./bin/elasticsearch-certutil cert --ca-cert ca/ca.crt --ca-key ca/ca.key --pem --in instances.yml # 得到2张证书和key unzip certificate-bundle.zip # 生成两个目录，es01和kibana # 准备好证书目录 mkdir -p /data/elasticsearch/certs mv ca es01 kibana /data/elasticsearch/certs # 准备好持久化卷 mkdir -p /data/elasticsearch/kibanadata mkdir -p /data/elasticsearch/esdata01 二、配置docker-compose.yaml 8.18.6版本的docker-compose.yaml文件，位于：/data/elasticsearch/docker-compose.yaml\n","keywords":[],"articleBody":"要在生产环境建一套Elasticsearch 8.0，单节点搭配Kibana，确实是困难重重，新版本需要TLS验证了\n现在这个时间节点，2025年9月2日，Elasticsearch最新版本是9.0，后撤2个版本是8.18.6\n那就用这个版本了，然后根据官方的文档会把人搞糊涂的。\n正确的方法如下：\n一、建立自签的证书 其实可以用ACME的证书，但是没有人会三个月就去重启一下ES的容器，更新证书吧！\n那只能选择自建CA，自签一个证书了！\n因为有2个pod，es和kibana，所以要签两张证书，签证书随便用ES的一个版本就可以：\nwget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.4.1-linux-x86_64.tar.gz tar -zxf elasticsearch-8.4.1-linux-x86_64.tar.gz cd elasticsearch-8.4.1/ ./bin/elasticsearch-certutil ca --pem # 得到CA证书，放在当前目录ca目录下 unzip elastic-stack-ca.zip # 生成签发配置文件 cat \u003c\u003c EOF \u003einstances.yml instances: - name: es01 dns: - es01 - localhost ip: - 127.0.0.1 - name: kibana dns: - kibana - localhost ip: - 127.0.0.1 EOF # 签发2个pod的证书 ./bin/elasticsearch-certutil cert --ca-cert ca/ca.crt --ca-key ca/ca.key --pem --in instances.yml # 得到2张证书和key unzip certificate-bundle.zip # 生成两个目录，es01和kibana # 准备好证书目录 mkdir -p /data/elasticsearch/certs mv ca es01 kibana /data/elasticsearch/certs # 准备好持久化卷 mkdir -p /data/elasticsearch/kibanadata mkdir -p /data/elasticsearch/esdata01 二、配置docker-compose.yaml 8.18.6版本的docker-compose.yaml文件，位于：/data/elasticsearch/docker-compose.yaml\n# docker-compose.yaml services: es01: container_name: es # The Docker image to use for this service image: docker.elastic.co/elasticsearch/elasticsearch:8.18.6 # The volumes to mount into this service volumes: - ./certs:/usr/share/elasticsearch/config/certs - ./esdata01:/usr/share/elasticsearch/data # The ports to expose from this service ports: - 9200:9200 # The environment variables to set inside the container environment: - node.name=es01 - cluster.name=lancode-cluster - discovery.type=single-node - ELASTIC_PASSWORD=aaaaaaaaaaaa - bootstrap.memory_lock=true - \"ES_JAVA_OPTS=-Xms10g -Xmx10g\" - xpack.security.enabled=true - xpack.security.http.ssl.enabled=true - xpack.security.http.ssl.key=certs/es01/es01.key - xpack.security.http.ssl.certificate=certs/es01/es01.crt - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt - xpack.security.http.ssl.verification_mode=certificate - xpack.security.transport.ssl.enabled=true - xpack.security.transport.ssl.key=certs/es01/es01.key - xpack.security.transport.ssl.certificate=certs/es01/es01.crt - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt - xpack.security.transport.ssl.verification_mode=certificate - xpack.license.self_generated.type=basic # The memory limit for this service 12g = 1024*1024*1024*12 mem_limit: 12884901888 # The ulimits to set for this service ulimits: memlock: soft: -1 hard: -1 # The healthcheck to determine the health of this service healthcheck: test: [ \"CMD-SHELL\", \"curl -s --cacert config/certs/ca/ca.crt https://localhost:9200 | grep -q 'missing authentication credentials'\", ] interval: 10s timeout: 10s retries: 120 # The kibana service represents a Kibana instance kibana: # This service depends on the es01 service depends_on: es01: condition: service_healthy container_name: kibana # The Docker image to use for this service image: docker.elastic.co/kibana/kibana:8.18.6 # The volumes to mount into this service volumes: - ./certs:/usr/share/kibana/config/certs - ./kibanadata:/usr/share/kibana/data # The ports to expose from this service ports: - 5601:5601 # The environment variables to set inside the container environment: - SERVERNAME=kibana - ELASTICSEARCH_HOSTS=https://es01:9200 - ELASTICSEARCH_USERNAME=kibana_system - ELASTICSEARCH_PASSWORD=bbbbbbbbbbbbbbb - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=config/certs/ca/ca.crt - xpack.security.audit.enabled=true - XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=cccccccccccccccccccccc # The memory limit for this service 2g = 1024*1024*1024*2 mem_limit: 2147483648 # The healthcheck to determine the health of this service healthcheck: test: [ \"CMD-SHELL\", \"curl -s -I http://localhost:5601 | grep -q 'HTTP/1.1 302 Found'\", ] interval: 10s timeout: 10s retries: 120 注意上面的计算：\n内存，系统是16G，2G保留，2G给kibana，12G给es，java启动参数给10g ELASTIC_PASSWORD=aaaaaaaaaaaa 这里的pass是指ES的独立用户elastic ELASTICSEARCH_PASSWORD=bbbbbbbbbbbbbb 这里的pass是指需要单独给kibana开的一个es用户kibana_system 最后登录kibana的密码是elastic用户的密码aaaaaaaaa\n这里差点被绕糊涂了，ES升级后需要启用https，然后也多加了用户。kibana需要单独用一个用户kibana_system去连接es，而es呢，也有一个独立的用户elastic进行管理。登录kibanna呢，实际是要用elastic这个用户登录。Faint！！！\n三、启动 docker compose up -d # 启动后必然报错，因为里面只有elastic这个用户，没有kibana_system用户 # 进入容器 docker exec -it es /bin/bash # 生成密码 curl -X POST --cacert config/certs/ca/ca.crt -u \"elastic:aaaaaaaa\" -H \"Content-Type: application/json\" https://es01:9200/_security/user/kibana_system/_password -d '{\"password\": \"bbbbbbbb\"}' # 或者这样也行 docker-compose exec -T es bin/elasticsearch-reset-password --batch --user kibana_system Password for the [kibana_system] user successfully reset. New value: bbbbbbbb 然后就ok了，登录的时候用elastic的密码，不要用kibana_system！\n四、题外 最鬼畜的地方就是kibana\n里面设置的两个配置项ELASTICSEARCH_USERNAME和ELASTICSEARCH_PASSWORD还有ELASTICSEARCH_HOSTS, 居然是环境变量\n进入容器里看到的kibana.yaml，倒数第二行elasticsearch.hosts 根本就是错的，误导群众，这里是环境变量优先，根本没有用到kibana.yaml中的配置！！！一定要注意。\n五、后记 无语啊无语，弄了自签证书，结果同事反映连接报证书错误\n算了，给个不要证书的配置docker-compose.yaml\nservices: es01: container_name: es # The Docker image to use for this service image: docker.elastic.co/elasticsearch/elasticsearch:8.18.6 # The volumes to mount into this service volumes: - ./certs:/usr/share/elasticsearch/config/certs - ./esdata01:/usr/share/elasticsearch/data # The ports to expose from this service ports: - 9200:9200 # The environment variables to set inside the container environment: - node.name=es01 - cluster.name=lancode-cluster - discovery.type=single-node - ELASTIC_PASSWORD=aaaaaaaaaaaa - bootstrap.memory_lock=true - \"ES_JAVA_OPTS=-Xms10g -Xmx10g\" - xpack.security.enabled=false - xpack.license.self_generated.type=basic # The memory limit for this service 12g = 1024*1024*1024*12 mem_limit: 12884901888 # The ulimits to set for this service ulimits: memlock: soft: -1 hard: -1 # The healthcheck to determine the health of this service healthcheck: test: [ \"CMD-SHELL\", \"curl -s -I http://localhost:9200 | grep -q 'HTTP/1.1 200 OK'\", ] interval: 10s timeout: 10s retries: 120 # The kibana service represents a Kibana instance kibana: # This service depends on the es01 service depends_on: es01: condition: service_healthy container_name: kibana # The Docker image to use for this service image: docker.elastic.co/kibana/kibana:8.18.6 # The volumes to mount into this service volumes: - ./certs:/usr/share/kibana/config/certs - ./kibanadata:/usr/share/kibana/data # The ports to expose from this service ports: - 5601:5601 # The environment variables to set inside the container environment: - SERVERNAME=kibana - ELASTICSEARCH_HOSTS=http://es01:9200 - ELASTICSEARCH_USERNAME=kibana_system - ELASTICSEARCH_PASSWORD=bbbbbbbbbbbbbbb - xpack.security.enabled=false - xpack.security.audit.enabled=true - XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=cccccccccccccccccccccc # The memory limit for this service 2g = 1024*1024*1024*2 mem_limit: 2147483648 # The healthcheck to determine the health of this service healthcheck: test: [ \"CMD-SHELL\", \"curl -s -I http://localhost:5601 | grep -q 'HTTP/1.1 302 Found'\", ] interval: 10s timeout: 10s retries: 120 区别在于 xpack.security.enabled=false和healthcheck\n","wordCount":"679","inLanguage":"zh","datePublished":"2025-09-02T09:01:11+08:00","dateModified":"2025-09-02T09:01:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20250902-elasticsearch_single_node_8_setup/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">生产环境Elasticsearch 8单节点Docker-compose的安装方法
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2025-09-02 09:01:11 +0800 CST'>2025年9月2日</span></div></header><div class=post-content><p>要在生产环境建一套Elasticsearch 8.0，单节点搭配Kibana，确实是困难重重，新版本需要TLS验证了</p><p>现在这个时间节点，2025年9月2日，Elasticsearch最新版本是9.0，后撤2个版本是8.18.6</p><p>那就用这个版本了，然后根据官方的文档会把人搞糊涂的。</p><p>正确的方法如下：</p><h5 id=一建立自签的证书>一、建立自签的证书<a hidden class=anchor aria-hidden=true href=#一建立自签的证书>#</a></h5><p>其实可以用ACME的证书，但是没有人会三个月就去重启一下ES的容器，更新证书吧！</p><p>那只能选择自建CA，自签一个证书了！</p><p>因为有2个pod，es和kibana，所以要签两张证书，签证书随便用ES的一个版本就可以：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.4.1-linux-x86_64.tar.gz
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>tar -zxf elasticsearch-8.4.1-linux-x86_64.tar.gz
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>cd</span> elasticsearch-8.4.1/
+</span></span><span class=line><span class=cl>./bin/elasticsearch-certutil ca --pem
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 得到CA证书，放在当前目录ca目录下</span>
+</span></span><span class=line><span class=cl>unzip elastic-stack-ca.zip
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 生成签发配置文件</span>
+</span></span><span class=line><span class=cl>cat <span class=s>&lt;&lt; EOF &gt;instances.yml 
+</span></span></span><span class=line><span class=cl><span class=s>instances:
+</span></span></span><span class=line><span class=cl><span class=s>   - name: es01
+</span></span></span><span class=line><span class=cl><span class=s>     dns:
+</span></span></span><span class=line><span class=cl><span class=s>       - es01
+</span></span></span><span class=line><span class=cl><span class=s>       - localhost
+</span></span></span><span class=line><span class=cl><span class=s>     ip:
+</span></span></span><span class=line><span class=cl><span class=s>       - 127.0.0.1
+</span></span></span><span class=line><span class=cl><span class=s>   - name: kibana
+</span></span></span><span class=line><span class=cl><span class=s>     dns:
+</span></span></span><span class=line><span class=cl><span class=s>       - kibana
+</span></span></span><span class=line><span class=cl><span class=s>       - localhost
+</span></span></span><span class=line><span class=cl><span class=s>     ip:
+</span></span></span><span class=line><span class=cl><span class=s>       - 127.0.0.1
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 签发2个pod的证书</span>
+</span></span><span class=line><span class=cl>./bin/elasticsearch-certutil cert --ca-cert ca/ca.crt --ca-key ca/ca.key --pem --in instances.yml
+</span></span><span class=line><span class=cl> 
+</span></span><span class=line><span class=cl><span class=c1># 得到2张证书和key</span>
+</span></span><span class=line><span class=cl>unzip certificate-bundle.zip
+</span></span><span class=line><span class=cl><span class=c1># 生成两个目录，es01和kibana</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 准备好证书目录</span>
+</span></span><span class=line><span class=cl>mkdir -p /data/elasticsearch/certs
+</span></span><span class=line><span class=cl>mv ca es01 kibana /data/elasticsearch/certs
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 准备好持久化卷</span>
+</span></span><span class=line><span class=cl>mkdir -p /data/elasticsearch/kibanadata
+</span></span><span class=line><span class=cl>mkdir -p /data/elasticsearch/esdata01
+</span></span></code></pre></div><h5 id=二配置docker-composeyaml>二、配置docker-compose.yaml<a hidden class=anchor aria-hidden=true href=#二配置docker-composeyaml>#</a></h5><p>8.18.6版本的docker-compose.yaml文件，位于：/data/elasticsearch/docker-compose.yaml</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># docker-compose.yaml</span>
+</span></span><span class=line><span class=cl>services:
+</span></span><span class=line><span class=cl>  es01:
+</span></span><span class=line><span class=cl>    container_name: es
+</span></span><span class=line><span class=cl>    <span class=c1># The Docker image to use for this service</span>
+</span></span><span class=line><span class=cl>    image: docker.elastic.co/elasticsearch/elasticsearch:8.18.6
+</span></span><span class=line><span class=cl>    <span class=c1># The volumes to mount into this service</span>
+</span></span><span class=line><span class=cl>    volumes:
+</span></span><span class=line><span class=cl>      - ./certs:/usr/share/elasticsearch/config/certs
+</span></span><span class=line><span class=cl>      - ./esdata01:/usr/share/elasticsearch/data
+</span></span><span class=line><span class=cl>    <span class=c1># The ports to expose from this service</span>
+</span></span><span class=line><span class=cl>    ports:
+</span></span><span class=line><span class=cl>      - 9200:9200
+</span></span><span class=line><span class=cl>    <span class=c1># The environment variables to set inside the container</span>
+</span></span><span class=line><span class=cl>    environment:
+</span></span><span class=line><span class=cl>      - node.name<span class=o>=</span>es01
+</span></span><span class=line><span class=cl>      - cluster.name<span class=o>=</span>lancode-cluster
+</span></span><span class=line><span class=cl>      - discovery.type<span class=o>=</span>single-node
+</span></span><span class=line><span class=cl>      - <span class=nv>ELASTIC_PASSWORD</span><span class=o>=</span>aaaaaaaaaaaa
+</span></span><span class=line><span class=cl>      - bootstrap.memory_lock<span class=o>=</span><span class=nb>true</span>
+</span></span><span class=line><span class=cl>      - <span class=s2>&#34;ES_JAVA_OPTS=-Xms10g -Xmx10g&#34;</span>
+</span></span><span class=line><span class=cl>      - xpack.security.enabled<span class=o>=</span><span class=nb>true</span>
+</span></span><span class=line><span class=cl>      - xpack.security.http.ssl.enabled<span class=o>=</span><span class=nb>true</span>
+</span></span><span class=line><span class=cl>      - xpack.security.http.ssl.key<span class=o>=</span>certs/es01/es01.key
+</span></span><span class=line><span class=cl>      - xpack.security.http.ssl.certificate<span class=o>=</span>certs/es01/es01.crt
+</span></span><span class=line><span class=cl>      - xpack.security.http.ssl.certificate_authorities<span class=o>=</span>certs/ca/ca.crt
+</span></span><span class=line><span class=cl>      - xpack.security.http.ssl.verification_mode<span class=o>=</span>certificate
+</span></span><span class=line><span class=cl>      - xpack.security.transport.ssl.enabled<span class=o>=</span><span class=nb>true</span>
+</span></span><span class=line><span class=cl>      - xpack.security.transport.ssl.key<span class=o>=</span>certs/es01/es01.key
+</span></span><span class=line><span class=cl>      - xpack.security.transport.ssl.certificate<span class=o>=</span>certs/es01/es01.crt
+</span></span><span class=line><span class=cl>      - xpack.security.transport.ssl.certificate_authorities<span class=o>=</span>certs/ca/ca.crt
+</span></span><span class=line><span class=cl>      - xpack.security.transport.ssl.verification_mode<span class=o>=</span>certificate
+</span></span><span class=line><span class=cl>      - xpack.license.self_generated.type<span class=o>=</span>basic
+</span></span><span class=line><span class=cl>    <span class=c1># The memory limit for this service 12g = 1024*1024*1024*12</span>
+</span></span><span class=line><span class=cl>    mem_limit: <span class=m>12884901888</span>
+</span></span><span class=line><span class=cl>    <span class=c1># The ulimits to set for this service</span>
+</span></span><span class=line><span class=cl>    ulimits:
+</span></span><span class=line><span class=cl>      memlock:
+</span></span><span class=line><span class=cl>        soft: -1
+</span></span><span class=line><span class=cl>        hard: -1
+</span></span><span class=line><span class=cl>    <span class=c1># The healthcheck to determine the health of this service</span>
+</span></span><span class=line><span class=cl>    healthcheck:
+</span></span><span class=line><span class=cl>      test:
+</span></span><span class=line><span class=cl>        <span class=o>[</span>
+</span></span><span class=line><span class=cl>          <span class=s2>&#34;CMD-SHELL&#34;</span>,
+</span></span><span class=line><span class=cl>          <span class=s2>&#34;curl -s --cacert config/certs/ca/ca.crt https://localhost:9200 | grep -q &#39;missing authentication credentials&#39;&#34;</span>,
+</span></span><span class=line><span class=cl>        <span class=o>]</span>
+</span></span><span class=line><span class=cl>      interval: 10s
+</span></span><span class=line><span class=cl>      timeout: 10s
+</span></span><span class=line><span class=cl>      retries: <span class=m>120</span>
+</span></span><span class=line><span class=cl>  <span class=c1># The kibana service represents a Kibana instance</span>
+</span></span><span class=line><span class=cl>  kibana:
+</span></span><span class=line><span class=cl>    <span class=c1># This service depends on the es01 service</span>
+</span></span><span class=line><span class=cl>    depends_on:
+</span></span><span class=line><span class=cl>      es01:
+</span></span><span class=line><span class=cl>        condition: service_healthy
+</span></span><span class=line><span class=cl>    container_name: kibana
+</span></span><span class=line><span class=cl>    <span class=c1># The Docker image to use for this service</span>
+</span></span><span class=line><span class=cl>    image: docker.elastic.co/kibana/kibana:8.18.6
+</span></span><span class=line><span class=cl>    <span class=c1># The volumes to mount into this service</span>
+</span></span><span class=line><span class=cl>    volumes:
+</span></span><span class=line><span class=cl>      - ./certs:/usr/share/kibana/config/certs
+</span></span><span class=line><span class=cl>      - ./kibanadata:/usr/share/kibana/data
+</span></span><span class=line><span class=cl>    <span class=c1># The ports to expose from this service</span>
+</span></span><span class=line><span class=cl>    ports:
+</span></span><span class=line><span class=cl>      - 5601:5601
+</span></span><span class=line><span class=cl>    <span class=c1># The environment variables to set inside the container</span>
+</span></span><span class=line><span class=cl>    environment:
+</span></span><span class=line><span class=cl>      - <span class=nv>SERVERNAME</span><span class=o>=</span>kibana
+</span></span><span class=line><span class=cl>      - <span class=nv>ELASTICSEARCH_HOSTS</span><span class=o>=</span>https://es01:9200
+</span></span><span class=line><span class=cl>      - <span class=nv>ELASTICSEARCH_USERNAME</span><span class=o>=</span>kibana_system
+</span></span><span class=line><span class=cl>      - <span class=nv>ELASTICSEARCH_PASSWORD</span><span class=o>=</span>bbbbbbbbbbbbbbb
+</span></span><span class=line><span class=cl>      - <span class=nv>ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES</span><span class=o>=</span>config/certs/ca/ca.crt
+</span></span><span class=line><span class=cl>      - xpack.security.audit.enabled<span class=o>=</span><span class=nb>true</span>
+</span></span><span class=line><span class=cl>      - <span class=nv>XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY</span><span class=o>=</span>cccccccccccccccccccccc
+</span></span><span class=line><span class=cl>    <span class=c1># The memory limit for this service 2g = 1024*1024*1024*2</span>
+</span></span><span class=line><span class=cl>    mem_limit: <span class=m>2147483648</span>
+</span></span><span class=line><span class=cl>    <span class=c1># The healthcheck to determine the health of this service</span>
+</span></span><span class=line><span class=cl>    healthcheck:
+</span></span><span class=line><span class=cl>      test:
+</span></span><span class=line><span class=cl>        <span class=o>[</span>
+</span></span><span class=line><span class=cl>          <span class=s2>&#34;CMD-SHELL&#34;</span>,
+</span></span><span class=line><span class=cl>          <span class=s2>&#34;curl -s -I http://localhost:5601 | grep -q &#39;HTTP/1.1 302 Found&#39;&#34;</span>,
+</span></span><span class=line><span class=cl>        <span class=o>]</span>
+</span></span><span class=line><span class=cl>      interval: 10s
+</span></span><span class=line><span class=cl>      timeout: 10s
+</span></span><span class=line><span class=cl>      retries: <span class=m>120</span>
+</span></span></code></pre></div><p>注意上面的计算：</p><ul><li>内存，系统是16G，2G保留，2G给kibana，12G给es，java启动参数给10g</li><li>ELASTIC_PASSWORD=aaaaaaaaaaaa 这里的pass是指ES的独立用户elastic</li><li>ELASTICSEARCH_PASSWORD=bbbbbbbbbbbbbb 这里的pass是指需要单独给kibana开的一个es用户kibana_system</li></ul><p>最后登录kibana的密码是elastic用户的密码aaaaaaaaa</p><p><strong>这里差点被绕糊涂了，ES升级后需要启用https，然后也多加了用户。kibana需要单独用一个用户kibana_system去连接es，而es呢，也有一个独立的用户elastic进行管理。登录kibanna呢，实际是要用elastic这个用户登录。Faint！！</strong>！</p><h5 id=三启动>三、启动<a hidden class=anchor aria-hidden=true href=#三启动>#</a></h5><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>docker compose up -d
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 启动后必然报错，因为里面只有elastic这个用户，没有kibana_system用户</span>
+</span></span><span class=line><span class=cl><span class=c1># 进入容器</span>
+</span></span><span class=line><span class=cl>docker <span class=nb>exec</span> -it es /bin/bash
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 生成密码</span>
+</span></span><span class=line><span class=cl>curl  -X POST --cacert config/certs/ca/ca.crt -u <span class=s2>&#34;elastic:aaaaaaaa&#34;</span> -H <span class=s2>&#34;Content-Type: application/json&#34;</span> https://es01:9200/_security/user/kibana_system/_password -d <span class=s1>&#39;{&#34;password&#34;: &#34;bbbbbbbb&#34;}&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 或者这样也行</span>
+</span></span><span class=line><span class=cl>docker-compose <span class=nb>exec</span> -T es bin/elasticsearch-reset-password --batch --user kibana_system
+</span></span><span class=line><span class=cl>Password <span class=k>for</span> the <span class=o>[</span>kibana_system<span class=o>]</span> user successfully reset.
+</span></span><span class=line><span class=cl>New value: bbbbbbbb
+</span></span></code></pre></div><p>然后就ok了，登录的时候用elastic的密码，不要用kibana_system！</p><p><img alt=image-20250902171625026 loading=lazy src=/posts/20250902-elasticsearch_single_node_8_setup/image-20250902171625026.png></p><h5 id=四题外>四、题外<a hidden class=anchor aria-hidden=true href=#四题外>#</a></h5><p>最鬼畜的地方就是kibana</p><p>里面设置的两个配置项<code>ELASTICSEARCH_USERNAME</code>和<code>ELASTICSEARCH_PASSWORD</code>还有<code>ELASTICSEARCH_HOSTS</code>, 居然是环境变量</p><p>进入容器里看到的kibana.yaml，倒数第二行elasticsearch.hosts 根本就是错的，误导群众，这里是环境变量优先，根本没有用到kibana.yaml中的配置！！！一定要注意。</p><p><img alt=image-20250902172211327 loading=lazy src=/posts/20250902-elasticsearch_single_node_8_setup/image-20250902172211327.png></p><h5 id=五后记>五、后记<a hidden class=anchor aria-hidden=true href=#五后记>#</a></h5><p>无语啊无语，弄了自签证书，结果同事反映连接报证书错误</p><p>算了，给个不要证书的配置docker-compose.yaml</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>services:
+</span></span><span class=line><span class=cl>  es01:
+</span></span><span class=line><span class=cl>    container_name: es
+</span></span><span class=line><span class=cl>    <span class=c1># The Docker image to use for this service</span>
+</span></span><span class=line><span class=cl>    image: docker.elastic.co/elasticsearch/elasticsearch:8.18.6
+</span></span><span class=line><span class=cl>    <span class=c1># The volumes to mount into this service</span>
+</span></span><span class=line><span class=cl>    volumes:
+</span></span><span class=line><span class=cl>      - ./certs:/usr/share/elasticsearch/config/certs
+</span></span><span class=line><span class=cl>      - ./esdata01:/usr/share/elasticsearch/data
+</span></span><span class=line><span class=cl>    <span class=c1># The ports to expose from this service</span>
+</span></span><span class=line><span class=cl>    ports:
+</span></span><span class=line><span class=cl>      - 9200:9200
+</span></span><span class=line><span class=cl>    <span class=c1># The environment variables to set inside the container</span>
+</span></span><span class=line><span class=cl>    environment:
+</span></span><span class=line><span class=cl>      - node.name<span class=o>=</span>es01
+</span></span><span class=line><span class=cl>      - cluster.name<span class=o>=</span>lancode-cluster
+</span></span><span class=line><span class=cl>      - discovery.type<span class=o>=</span>single-node
+</span></span><span class=line><span class=cl>      - <span class=nv>ELASTIC_PASSWORD</span><span class=o>=</span>aaaaaaaaaaaa
+</span></span><span class=line><span class=cl>      - bootstrap.memory_lock<span class=o>=</span><span class=nb>true</span>
+</span></span><span class=line><span class=cl>      - <span class=s2>&#34;ES_JAVA_OPTS=-Xms10g -Xmx10g&#34;</span>
+</span></span><span class=line><span class=cl>      - xpack.security.enabled<span class=o>=</span><span class=nb>false</span>
+</span></span><span class=line><span class=cl>      - xpack.license.self_generated.type<span class=o>=</span>basic
+</span></span><span class=line><span class=cl>    <span class=c1># The memory limit for this service 12g = 1024*1024*1024*12</span>
+</span></span><span class=line><span class=cl>    mem_limit: <span class=m>12884901888</span>
+</span></span><span class=line><span class=cl>    <span class=c1># The ulimits to set for this service</span>
+</span></span><span class=line><span class=cl>    ulimits:
+</span></span><span class=line><span class=cl>      memlock:
+</span></span><span class=line><span class=cl>        soft: -1
+</span></span><span class=line><span class=cl>        hard: -1
+</span></span><span class=line><span class=cl>    <span class=c1># The healthcheck to determine the health of this service</span>
+</span></span><span class=line><span class=cl>    healthcheck:
+</span></span><span class=line><span class=cl>      test:
+</span></span><span class=line><span class=cl>        <span class=o>[</span>
+</span></span><span class=line><span class=cl>          <span class=s2>&#34;CMD-SHELL&#34;</span>,
+</span></span><span class=line><span class=cl>          <span class=s2>&#34;curl -s -I http://localhost:9200 | grep -q &#39;HTTP/1.1 200 OK&#39;&#34;</span>,
+</span></span><span class=line><span class=cl>        <span class=o>]</span>
+</span></span><span class=line><span class=cl>      interval: 10s
+</span></span><span class=line><span class=cl>      timeout: 10s
+</span></span><span class=line><span class=cl>      retries: <span class=m>120</span>
+</span></span><span class=line><span class=cl>  <span class=c1># The kibana service represents a Kibana instance</span>
+</span></span><span class=line><span class=cl>  kibana:
+</span></span><span class=line><span class=cl>    <span class=c1># This service depends on the es01 service</span>
+</span></span><span class=line><span class=cl>    depends_on:
+</span></span><span class=line><span class=cl>      es01:
+</span></span><span class=line><span class=cl>        condition: service_healthy
+</span></span><span class=line><span class=cl>    container_name: kibana
+</span></span><span class=line><span class=cl>    <span class=c1># The Docker image to use for this service</span>
+</span></span><span class=line><span class=cl>    image: docker.elastic.co/kibana/kibana:8.18.6
+</span></span><span class=line><span class=cl>    <span class=c1># The volumes to mount into this service</span>
+</span></span><span class=line><span class=cl>    volumes:
+</span></span><span class=line><span class=cl>      - ./certs:/usr/share/kibana/config/certs
+</span></span><span class=line><span class=cl>      - ./kibanadata:/usr/share/kibana/data
+</span></span><span class=line><span class=cl>    <span class=c1># The ports to expose from this service</span>
+</span></span><span class=line><span class=cl>    ports:
+</span></span><span class=line><span class=cl>      - 5601:5601
+</span></span><span class=line><span class=cl>    <span class=c1># The environment variables to set inside the container</span>
+</span></span><span class=line><span class=cl>    environment:
+</span></span><span class=line><span class=cl>      - <span class=nv>SERVERNAME</span><span class=o>=</span>kibana
+</span></span><span class=line><span class=cl>      - <span class=nv>ELASTICSEARCH_HOSTS</span><span class=o>=</span>http://es01:9200
+</span></span><span class=line><span class=cl>      - <span class=nv>ELASTICSEARCH_USERNAME</span><span class=o>=</span>kibana_system
+</span></span><span class=line><span class=cl>      - <span class=nv>ELASTICSEARCH_PASSWORD</span><span class=o>=</span>bbbbbbbbbbbbbbb
+</span></span><span class=line><span class=cl>      - xpack.security.enabled<span class=o>=</span><span class=nb>false</span>
+</span></span><span class=line><span class=cl>      - xpack.security.audit.enabled<span class=o>=</span><span class=nb>true</span>
+</span></span><span class=line><span class=cl>      - <span class=nv>XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY</span><span class=o>=</span>cccccccccccccccccccccc
+</span></span><span class=line><span class=cl>    <span class=c1># The memory limit for this service 2g = 1024*1024*1024*2</span>
+</span></span><span class=line><span class=cl>    mem_limit: <span class=m>2147483648</span>
+</span></span><span class=line><span class=cl>    <span class=c1># The healthcheck to determine the health of this service</span>
+</span></span><span class=line><span class=cl>    healthcheck:
+</span></span><span class=line><span class=cl>      test:
+</span></span><span class=line><span class=cl>        <span class=o>[</span>
+</span></span><span class=line><span class=cl>          <span class=s2>&#34;CMD-SHELL&#34;</span>,
+</span></span><span class=line><span class=cl>          <span class=s2>&#34;curl -s -I http://localhost:5601 | grep -q &#39;HTTP/1.1 302 Found&#39;&#34;</span>,
+</span></span><span class=line><span class=cl>        <span class=o>]</span>
+</span></span><span class=line><span class=cl>      interval: 10s
+</span></span><span class=line><span class=cl>      timeout: 10s
+</span></span><span class=line><span class=cl>      retries: <span class=m>120</span>
+</span></span></code></pre></div><p>区别在于 xpack.security.enabled=false和healthcheck</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

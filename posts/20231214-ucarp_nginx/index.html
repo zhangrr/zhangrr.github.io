@@ -1,0 +1,162 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Ucarp和nginx提供内网vip | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="ucarp我们来实战一下完成ucarp+nginx做内网vip，模拟F5的vip的方法
+ucarp的安装参考之前的文章，环境如下：
+
+ucarp1：192.168.19.1
+ucarp2：192.168.19.2
+vip：172.18.19.10
+
+在172.18.19.1和172.18.19.2上编译Nginx 1.16.1
+    ./configure --prefix=/export/servers/nginx1161 --with-stream --with-stream_ssl_module
+	make
+	make install
+重点是/export/servers/nginx1161/conf/nginx.conf
+cat /export/servers/nginx1161/conf/nginx.conf
+
+  user  nobody;
+  worker_processes  auto;
+
+  events {
+    use epoll;
+    worker_connections  65535;
+  }
+
+  stream {
+  log_format proxy '$remote_addr [$time_local] '
+               '$protocol $status $bytes_sent $bytes_received '
+               '$session_time &#34;$upstream_addr&#34; '
+               '&#34;$upstream_bytes_sent&#34; &#34;$upstream_bytes_received&#34; &#34;$upstream_connect_time&#34;';
+  }
+  
+  access_log logs/tcp-access.log proxy ;
+  open_log_file_cache off;
+
+  upstream stream_backend01 {
+    hash $remote_addr consistent;
+    #server 172.18.31.2:80 weight=5;
+    server 172.18.31.2:80 max_fails=2 fail_timeout=30s;
+    #server 172.18.31.2:80 max_conns=3;
+  }
+
+  server {
+        listen 172.18.19.10:80; 
+        proxy_timeout 20s;
+        proxy_pass stream_backend01;
+  }
+
+}   
+注意：
+1、打出了tcp-access.log
+2、根据源IP做hash，强制分配到后面的同一台服务器上，保证一致性
+3、后端的server可以有权重，最大连接，以及失效检测（30s内无法连通2次，就摘掉这个服务器）"><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20231214-ucarp_nginx/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20231214-ucarp_nginx/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20231214-ucarp_nginx/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="Ucarp和nginx提供内网vip"><meta property="og:description" content="ucarp我们来实战一下完成ucarp+nginx做内网vip，模拟F5的vip的方法
+ucarp的安装参考之前的文章，环境如下：
+ucarp1：192.168.19.1 ucarp2：192.168.19.2 vip：172.18.19.10 在172.18.19.1和172.18.19.2上编译Nginx 1.16.1
+./configure --prefix=/export/servers/nginx1161 --with-stream --with-stream_ssl_module make make install 重点是/export/servers/nginx1161/conf/nginx.conf
+cat /export/servers/nginx1161/conf/nginx.conf user nobody; worker_processes auto; events { use epoll; worker_connections 65535; } stream { log_format proxy '$remote_addr [$time_local] ' '$protocol $status $bytes_sent $bytes_received ' '$session_time &#34;$upstream_addr&#34; ' '&#34;$upstream_bytes_sent&#34; &#34;$upstream_bytes_received&#34; &#34;$upstream_connect_time&#34;'; } access_log logs/tcp-access.log proxy ; open_log_file_cache off; upstream stream_backend01 { hash $remote_addr consistent; #server 172.18.31.2:80 weight=5; server 172.18.31.2:80 max_fails=2 fail_timeout=30s; #server 172.18.31.2:80 max_conns=3; } server { listen 172.18.19.10:80; proxy_timeout 20s; proxy_pass stream_backend01; } } 注意： 1、打出了tcp-access.log 2、根据源IP做hash，强制分配到后面的同一台服务器上，保证一致性 3、后端的server可以有权重，最大连接，以及失效检测（30s内无法连通2次，就摘掉这个服务器）"><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2023-12-14T16:05:11+08:00"><meta property="article:modified_time" content="2023-12-14T16:05:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Ucarp和nginx提供内网vip"><meta name=twitter:description content="ucarp我们来实战一下完成ucarp+nginx做内网vip，模拟F5的vip的方法
+ucarp的安装参考之前的文章，环境如下：
+
+ucarp1：192.168.19.1
+ucarp2：192.168.19.2
+vip：172.18.19.10
+
+在172.18.19.1和172.18.19.2上编译Nginx 1.16.1
+    ./configure --prefix=/export/servers/nginx1161 --with-stream --with-stream_ssl_module
+	make
+	make install
+重点是/export/servers/nginx1161/conf/nginx.conf
+cat /export/servers/nginx1161/conf/nginx.conf
+
+  user  nobody;
+  worker_processes  auto;
+
+  events {
+    use epoll;
+    worker_connections  65535;
+  }
+
+  stream {
+  log_format proxy '$remote_addr [$time_local] '
+               '$protocol $status $bytes_sent $bytes_received '
+               '$session_time &#34;$upstream_addr&#34; '
+               '&#34;$upstream_bytes_sent&#34; &#34;$upstream_bytes_received&#34; &#34;$upstream_connect_time&#34;';
+  }
+  
+  access_log logs/tcp-access.log proxy ;
+  open_log_file_cache off;
+
+  upstream stream_backend01 {
+    hash $remote_addr consistent;
+    #server 172.18.31.2:80 weight=5;
+    server 172.18.31.2:80 max_fails=2 fail_timeout=30s;
+    #server 172.18.31.2:80 max_conns=3;
+  }
+
+  server {
+        listen 172.18.19.10:80; 
+        proxy_timeout 20s;
+        proxy_pass stream_backend01;
+  }
+
+}   
+注意：
+1、打出了tcp-access.log
+2、根据源IP做hash，强制分配到后面的同一台服务器上，保证一致性
+3、后端的server可以有权重，最大连接，以及失效检测（30s内无法连通2次，就摘掉这个服务器）"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"Ucarp和nginx提供内网vip","item":"https://rendoumi.com/posts/20231214-ucarp_nginx/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Ucarp和nginx提供内网vip","name":"Ucarp和nginx提供内网vip","description":"ucarp我们来实战一下完成ucarp+nginx做内网vip，模拟F5的vip的方法\nucarp的安装参考之前的文章，环境如下：\nucarp1：192.168.19.1 ucarp2：192.168.19.2 vip：172.18.19.10 在172.18.19.1和172.18.19.2上编译Nginx 1.16.1\n./configure --prefix=/export/servers/nginx1161 --with-stream --with-stream_ssl_module make make install 重点是/export/servers/nginx1161/conf/nginx.conf\ncat /export/servers/nginx1161/conf/nginx.conf user nobody; worker_processes auto; events { use epoll; worker_connections 65535; } stream { log_format proxy \u0026#39;$remote_addr [$time_local] \u0026#39; \u0026#39;$protocol $status $bytes_sent $bytes_received \u0026#39; \u0026#39;$session_time \u0026#34;$upstream_addr\u0026#34; \u0026#39; \u0026#39;\u0026#34;$upstream_bytes_sent\u0026#34; \u0026#34;$upstream_bytes_received\u0026#34; \u0026#34;$upstream_connect_time\u0026#34;\u0026#39;; } access_log logs/tcp-access.log proxy ; open_log_file_cache off; upstream stream_backend01 { hash $remote_addr consistent; #server 172.18.31.2:80 weight=5; server 172.18.31.2:80 max_fails=2 fail_timeout=30s; #server 172.18.31.2:80 max_conns=3; } server { listen 172.18.19.10:80; proxy_timeout 20s; proxy_pass stream_backend01; } } 注意： 1、打出了tcp-access.log 2、根据源IP做hash，强制分配到后面的同一台服务器上，保证一致性 3、后端的server可以有权重，最大连接，以及失效检测（30s内无法连通2次，就摘掉这个服务器）\n","keywords":[],"articleBody":"ucarp我们来实战一下完成ucarp+nginx做内网vip，模拟F5的vip的方法\nucarp的安装参考之前的文章，环境如下：\nucarp1：192.168.19.1 ucarp2：192.168.19.2 vip：172.18.19.10 在172.18.19.1和172.18.19.2上编译Nginx 1.16.1\n./configure --prefix=/export/servers/nginx1161 --with-stream --with-stream_ssl_module make make install 重点是/export/servers/nginx1161/conf/nginx.conf\ncat /export/servers/nginx1161/conf/nginx.conf user nobody; worker_processes auto; events { use epoll; worker_connections 65535; } stream { log_format proxy '$remote_addr [$time_local] ' '$protocol $status $bytes_sent $bytes_received ' '$session_time \"$upstream_addr\" ' '\"$upstream_bytes_sent\" \"$upstream_bytes_received\" \"$upstream_connect_time\"'; } access_log logs/tcp-access.log proxy ; open_log_file_cache off; upstream stream_backend01 { hash $remote_addr consistent; #server 172.18.31.2:80 weight=5; server 172.18.31.2:80 max_fails=2 fail_timeout=30s; #server 172.18.31.2:80 max_conns=3; } server { listen 172.18.19.10:80; proxy_timeout 20s; proxy_pass stream_backend01; } } 注意： 1、打出了tcp-access.log 2、根据源IP做hash，强制分配到后面的同一台服务器上，保证一致性 3、后端的server可以有权重，最大连接，以及失效检测（30s内无法连通2次，就摘掉这个服务器）\n同时调整vip-up.sh\ncat /usr/local/bin/vip-up.sh #!/bin/sh /sbin/ip addr add ${2}/24 dev ${1} /sbin/ip neigh flush dev ${1} /export/servers/nginx/sbin/nginx /export/servers/nginx/sbin/nginx -s reload 谁获得了主ip 172.18.19.10，谁就会启动nginx，并且强制刷一下配置\n注意，一开始的时候，由于172.18.19.2没有获得主ip 172.18.19.10，所以上面是不会自动起nginx进程的！！！\n测试一下：\n在172.18.19.1上面 kill -usr2 ucarp的进程pid 看172.18.19.2上面，nginx已经自动启动了 然后访问 curl http://172.18.19.10/ ok\n","wordCount":"117","inLanguage":"zh","datePublished":"2023-12-14T16:05:11+08:00","dateModified":"2023-12-14T16:05:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20231214-ucarp_nginx/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">Ucarp和nginx提供内网vip
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2023-12-14 16:05:11 +0800 CST'>2023年12月14日</span></div></header><div class=post-content><p>ucarp我们来实战一下完成ucarp+nginx做内网vip，模拟F5的vip的方法</p><p>ucarp的安装参考之前的文章，环境如下：</p><ul><li>ucarp1：192.168.19.1</li><li>ucarp2：192.168.19.2</li><li>vip：172.18.19.10</li></ul><p>在172.18.19.1和172.18.19.2上编译Nginx 1.16.1</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>    ./configure --prefix<span class=o>=</span>/export/servers/nginx1161 --with-stream --with-stream_ssl_module
+</span></span><span class=line><span class=cl>	make
+</span></span><span class=line><span class=cl>	make install
+</span></span></code></pre></div><p>重点是/export/servers/nginx1161/conf/nginx.conf</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat /export/servers/nginx1161/conf/nginx.conf
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  user  nobody<span class=p>;</span>
+</span></span><span class=line><span class=cl>  worker_processes  auto<span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  events <span class=o>{</span>
+</span></span><span class=line><span class=cl>    use epoll<span class=p>;</span>
+</span></span><span class=line><span class=cl>    worker_connections  65535<span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  stream <span class=o>{</span>
+</span></span><span class=line><span class=cl>  log_format proxy <span class=s1>&#39;$remote_addr [$time_local] &#39;</span>
+</span></span><span class=line><span class=cl>               <span class=s1>&#39;$protocol $status $bytes_sent $bytes_received &#39;</span>
+</span></span><span class=line><span class=cl>               <span class=s1>&#39;$session_time &#34;$upstream_addr&#34; &#39;</span>
+</span></span><span class=line><span class=cl>               <span class=s1>&#39;&#34;$upstream_bytes_sent&#34; &#34;$upstream_bytes_received&#34; &#34;$upstream_connect_time&#34;&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=o>}</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  access_log logs/tcp-access.log proxy <span class=p>;</span>
+</span></span><span class=line><span class=cl>  open_log_file_cache off<span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  upstream stream_backend01 <span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=nb>hash</span> <span class=nv>$remote_addr</span> consistent<span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=c1>#server 172.18.31.2:80 weight=5;</span>
+</span></span><span class=line><span class=cl>    server 172.18.31.2:80 <span class=nv>max_fails</span><span class=o>=</span><span class=m>2</span> <span class=nv>fail_timeout</span><span class=o>=</span>30s<span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=c1>#server 172.18.31.2:80 max_conns=3;</span>
+</span></span><span class=line><span class=cl>  <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  server <span class=o>{</span>
+</span></span><span class=line><span class=cl>        listen 172.18.19.10:80<span class=p>;</span> 
+</span></span><span class=line><span class=cl>        proxy_timeout 20s<span class=p>;</span>
+</span></span><span class=line><span class=cl>        proxy_pass stream_backend01<span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>}</span>   
+</span></span></code></pre></div><p>注意：
+1、打出了tcp-access.log
+2、根据源IP做hash，强制分配到后面的同一台服务器上，保证一致性
+3、后端的server可以有权重，最大连接，以及失效检测（30s内无法连通2次，就摘掉这个服务器）</p><p>同时调整vip-up.sh</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat /usr/local/bin/vip-up.sh 
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#!/bin/sh</span>
+</span></span><span class=line><span class=cl>/sbin/ip addr add <span class=si>${</span><span class=nv>2</span><span class=si>}</span>/24 dev <span class=si>${</span><span class=nv>1</span><span class=si>}</span>
+</span></span><span class=line><span class=cl>/sbin/ip neigh flush dev <span class=si>${</span><span class=nv>1</span><span class=si>}</span>
+</span></span><span class=line><span class=cl>/export/servers/nginx/sbin/nginx
+</span></span><span class=line><span class=cl>/export/servers/nginx/sbin/nginx -s reload
+</span></span></code></pre></div><p>谁获得了主ip 172.18.19.10，谁就会启动nginx，并且强制刷一下配置</p><p>注意，一开始的时候，由于172.18.19.2没有获得主ip 172.18.19.10，所以上面是不会自动起nginx进程的！！！</p><p>测试一下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>在172.18.19.1上面
+</span></span><span class=line><span class=cl><span class=nb>kill</span> -usr2 ucarp的进程pid
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>看172.18.19.2上面，nginx已经自动启动了
+</span></span><span class=line><span class=cl>然后访问
+</span></span><span class=line><span class=cl>curl http://172.18.19.10/
+</span></span></code></pre></div><p>ok</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

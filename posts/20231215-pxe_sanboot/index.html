@@ -1,0 +1,118 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>ipxe使用sanboot远程启动iscsi硬盘 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='如果一台宿主机上面cpu和memory都有富裕，但是磁盘不富裕，那就会面临资源浪费
+所以干脆用ipxe的sanboot来启动远程的iscsi磁盘来启动虚机好了
+首先用《iscsi卷的远程挂载》这篇文章中所说的方法，在172.18.30.18的20T的loopback vg group上，划出一块80G的硬盘
+#划个lvc，用的是vg-targetd的20T中的80G
+lvcreate -L 80G -n pvc-vis-18-31-48 vg-targetd
+
+#建立block块设备
+targetcli /backstores/block create vg-targetd:pvc-vis-18-31-48 /dev/vg-targetd/pvc-vis-18-31-48
+
+#建立30.18上的iscsi服务端，似乎用renhe-18-30-18比较好，但是不好区分多个卷，还是用下面的精准
+targetcli /iscsi create iqn.2020-10.com.ddky:vis-18-31-48
+
+#建立luns，会自动建立portal
+targetcli /iscsi/iqn.2020-10.com.ddky:vis-18-31-48/tpg1/luns create /backstores/block/vg-targetd:pvc-vis-18-31-48
+
+#建立客户端的iscsi，不加任何认证
+targetcli /iscsi/iqn.2020-10.com.ddky:vis-18-31-48/tpg1/acls create iqn.2020-10.com.ddky:vis-18-31-48
+记下来这个:  iqn.2020-10.com.ddky:vis-18-31-48
+然后修改pxe，位于172.18.31.2 /export/html/pxeboot/boot2.php，本质是发送ipxe的命令
+sanhook是加载远程硬盘，并设置为/dev/sda
+function sansetup() {
+    global $hostname;
+    echo ":sansetup\n";
+    echo "set initiator-iqn iqn.2020-10.com.ddky:vis-18-31-48\n";
+    echo "set keep-san 1\n";
+    echo "sanhook iscsi:172.18.30.18::::iqn.2020-10.com.ddky:vis-18-31-48\n";
+    echo "kernel $hostname/repos/centos/7/os/x86_64/images/pxeboot/vmlinuz\n";
+    echo "initrd $hostname/repos/centos/7/os/x86_64/images/pxeboot/initrd.img\n";
+    echo "imgargs vmlinuz load_ramdisk=1 ks=$hostname/pxeboot/install/centos/centos7_last.php ksdevice=eth0 net.ifnames=0 biosdevname=0\n";
+    echo "boot\n";
+}
+发动一个无盘的虚机从pxe启动（172.18.30.3 /export/kvm/48.sh）：'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20231215-pxe_sanboot/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20231215-pxe_sanboot/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20231215-pxe_sanboot/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="ipxe使用sanboot远程启动iscsi硬盘"><meta property="og:description" content='如果一台宿主机上面cpu和memory都有富裕，但是磁盘不富裕，那就会面临资源浪费
+所以干脆用ipxe的sanboot来启动远程的iscsi磁盘来启动虚机好了
+首先用《iscsi卷的远程挂载》这篇文章中所说的方法，在172.18.30.18的20T的loopback vg group上，划出一块80G的硬盘
+#划个lvc，用的是vg-targetd的20T中的80G lvcreate -L 80G -n pvc-vis-18-31-48 vg-targetd #建立block块设备 targetcli /backstores/block create vg-targetd:pvc-vis-18-31-48 /dev/vg-targetd/pvc-vis-18-31-48 #建立30.18上的iscsi服务端，似乎用renhe-18-30-18比较好，但是不好区分多个卷，还是用下面的精准 targetcli /iscsi create iqn.2020-10.com.ddky:vis-18-31-48 #建立luns，会自动建立portal targetcli /iscsi/iqn.2020-10.com.ddky:vis-18-31-48/tpg1/luns create /backstores/block/vg-targetd:pvc-vis-18-31-48 #建立客户端的iscsi，不加任何认证 targetcli /iscsi/iqn.2020-10.com.ddky:vis-18-31-48/tpg1/acls create iqn.2020-10.com.ddky:vis-18-31-48 记下来这个: iqn.2020-10.com.ddky:vis-18-31-48
+然后修改pxe，位于172.18.31.2 /export/html/pxeboot/boot2.php，本质是发送ipxe的命令
+sanhook是加载远程硬盘，并设置为/dev/sda
+function sansetup() { global $hostname; echo ":sansetup\n"; echo "set initiator-iqn iqn.2020-10.com.ddky:vis-18-31-48\n"; echo "set keep-san 1\n"; echo "sanhook iscsi:172.18.30.18::::iqn.2020-10.com.ddky:vis-18-31-48\n"; echo "kernel $hostname/repos/centos/7/os/x86_64/images/pxeboot/vmlinuz\n"; echo "initrd $hostname/repos/centos/7/os/x86_64/images/pxeboot/initrd.img\n"; echo "imgargs vmlinuz load_ramdisk=1 ks=$hostname/pxeboot/install/centos/centos7_last.php ksdevice=eth0 net.ifnames=0 biosdevname=0\n"; echo "boot\n"; } 发动一个无盘的虚机从pxe启动（172.18.30.3 /export/kvm/48.sh）：'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2023-12-15T15:05:11+08:00"><meta property="article:modified_time" content="2023-12-15T15:05:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="ipxe使用sanboot远程启动iscsi硬盘"><meta name=twitter:description content='如果一台宿主机上面cpu和memory都有富裕，但是磁盘不富裕，那就会面临资源浪费
+所以干脆用ipxe的sanboot来启动远程的iscsi磁盘来启动虚机好了
+首先用《iscsi卷的远程挂载》这篇文章中所说的方法，在172.18.30.18的20T的loopback vg group上，划出一块80G的硬盘
+#划个lvc，用的是vg-targetd的20T中的80G
+lvcreate -L 80G -n pvc-vis-18-31-48 vg-targetd
+
+#建立block块设备
+targetcli /backstores/block create vg-targetd:pvc-vis-18-31-48 /dev/vg-targetd/pvc-vis-18-31-48
+
+#建立30.18上的iscsi服务端，似乎用renhe-18-30-18比较好，但是不好区分多个卷，还是用下面的精准
+targetcli /iscsi create iqn.2020-10.com.ddky:vis-18-31-48
+
+#建立luns，会自动建立portal
+targetcli /iscsi/iqn.2020-10.com.ddky:vis-18-31-48/tpg1/luns create /backstores/block/vg-targetd:pvc-vis-18-31-48
+
+#建立客户端的iscsi，不加任何认证
+targetcli /iscsi/iqn.2020-10.com.ddky:vis-18-31-48/tpg1/acls create iqn.2020-10.com.ddky:vis-18-31-48
+记下来这个:  iqn.2020-10.com.ddky:vis-18-31-48
+然后修改pxe，位于172.18.31.2 /export/html/pxeboot/boot2.php，本质是发送ipxe的命令
+sanhook是加载远程硬盘，并设置为/dev/sda
+function sansetup() {
+    global $hostname;
+    echo ":sansetup\n";
+    echo "set initiator-iqn iqn.2020-10.com.ddky:vis-18-31-48\n";
+    echo "set keep-san 1\n";
+    echo "sanhook iscsi:172.18.30.18::::iqn.2020-10.com.ddky:vis-18-31-48\n";
+    echo "kernel $hostname/repos/centos/7/os/x86_64/images/pxeboot/vmlinuz\n";
+    echo "initrd $hostname/repos/centos/7/os/x86_64/images/pxeboot/initrd.img\n";
+    echo "imgargs vmlinuz load_ramdisk=1 ks=$hostname/pxeboot/install/centos/centos7_last.php ksdevice=eth0 net.ifnames=0 biosdevname=0\n";
+    echo "boot\n";
+}
+发动一个无盘的虚机从pxe启动（172.18.30.3 /export/kvm/48.sh）：'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"ipxe使用sanboot远程启动iscsi硬盘","item":"https://rendoumi.com/posts/20231215-pxe_sanboot/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"ipxe使用sanboot远程启动iscsi硬盘","name":"ipxe使用sanboot远程启动iscsi硬盘","description":"如果一台宿主机上面cpu和memory都有富裕，但是磁盘不富裕，那就会面临资源浪费\n所以干脆用ipxe的sanboot来启动远程的iscsi磁盘来启动虚机好了\n首先用《iscsi卷的远程挂载》这篇文章中所说的方法，在172.18.30.18的20T的loopback vg group上，划出一块80G的硬盘\n#划个lvc，用的是vg-targetd的20T中的80G lvcreate -L 80G -n pvc-vis-18-31-48 vg-targetd #建立block块设备 targetcli /backstores/block create vg-targetd:pvc-vis-18-31-48 /dev/vg-targetd/pvc-vis-18-31-48 #建立30.18上的iscsi服务端，似乎用renhe-18-30-18比较好，但是不好区分多个卷，还是用下面的精准 targetcli /iscsi create iqn.2020-10.com.ddky:vis-18-31-48 #建立luns，会自动建立portal targetcli /iscsi/iqn.2020-10.com.ddky:vis-18-31-48/tpg1/luns create /backstores/block/vg-targetd:pvc-vis-18-31-48 #建立客户端的iscsi，不加任何认证 targetcli /iscsi/iqn.2020-10.com.ddky:vis-18-31-48/tpg1/acls create iqn.2020-10.com.ddky:vis-18-31-48 记下来这个: iqn.2020-10.com.ddky:vis-18-31-48\n然后修改pxe，位于172.18.31.2 /export/html/pxeboot/boot2.php，本质是发送ipxe的命令\nsanhook是加载远程硬盘，并设置为/dev/sda\nfunction sansetup() { global $hostname; echo \u0026#34;:sansetup\\n\u0026#34;; echo \u0026#34;set initiator-iqn iqn.2020-10.com.ddky:vis-18-31-48\\n\u0026#34;; echo \u0026#34;set keep-san 1\\n\u0026#34;; echo \u0026#34;sanhook iscsi:172.18.30.18::::iqn.2020-10.com.ddky:vis-18-31-48\\n\u0026#34;; echo \u0026#34;kernel $hostname/repos/centos/7/os/x86_64/images/pxeboot/vmlinuz\\n\u0026#34;; echo \u0026#34;initrd $hostname/repos/centos/7/os/x86_64/images/pxeboot/initrd.img\\n\u0026#34;; echo \u0026#34;imgargs vmlinuz load_ramdisk=1 ks=$hostname/pxeboot/install/centos/centos7_last.php ksdevice=eth0 net.ifnames=0 biosdevname=0\\n\u0026#34;; echo \u0026#34;boot\\n\u0026#34;; } 发动一个无盘的虚机从pxe启动（172.18.30.3 /export/kvm/48.sh）：\n","keywords":[],"articleBody":"如果一台宿主机上面cpu和memory都有富裕，但是磁盘不富裕，那就会面临资源浪费\n所以干脆用ipxe的sanboot来启动远程的iscsi磁盘来启动虚机好了\n首先用《iscsi卷的远程挂载》这篇文章中所说的方法，在172.18.30.18的20T的loopback vg group上，划出一块80G的硬盘\n#划个lvc，用的是vg-targetd的20T中的80G lvcreate -L 80G -n pvc-vis-18-31-48 vg-targetd #建立block块设备 targetcli /backstores/block create vg-targetd:pvc-vis-18-31-48 /dev/vg-targetd/pvc-vis-18-31-48 #建立30.18上的iscsi服务端，似乎用renhe-18-30-18比较好，但是不好区分多个卷，还是用下面的精准 targetcli /iscsi create iqn.2020-10.com.ddky:vis-18-31-48 #建立luns，会自动建立portal targetcli /iscsi/iqn.2020-10.com.ddky:vis-18-31-48/tpg1/luns create /backstores/block/vg-targetd:pvc-vis-18-31-48 #建立客户端的iscsi，不加任何认证 targetcli /iscsi/iqn.2020-10.com.ddky:vis-18-31-48/tpg1/acls create iqn.2020-10.com.ddky:vis-18-31-48 记下来这个: iqn.2020-10.com.ddky:vis-18-31-48\n然后修改pxe，位于172.18.31.2 /export/html/pxeboot/boot2.php，本质是发送ipxe的命令\nsanhook是加载远程硬盘，并设置为/dev/sda\nfunction sansetup() { global $hostname; echo \":sansetup\\n\"; echo \"set initiator-iqn iqn.2020-10.com.ddky:vis-18-31-48\\n\"; echo \"set keep-san 1\\n\"; echo \"sanhook iscsi:172.18.30.18::::iqn.2020-10.com.ddky:vis-18-31-48\\n\"; echo \"kernel $hostname/repos/centos/7/os/x86_64/images/pxeboot/vmlinuz\\n\"; echo \"initrd $hostname/repos/centos/7/os/x86_64/images/pxeboot/initrd.img\\n\"; echo \"imgargs vmlinuz load_ramdisk=1 ks=$hostname/pxeboot/install/centos/centos7_last.php ksdevice=eth0 net.ifnames=0 biosdevname=0\\n\"; echo \"boot\\n\"; } 发动一个无盘的虚机从pxe启动（172.18.30.3 /export/kvm/48.sh）：\n#!/bin/bash virt-install \\ --name=pxe-18-31-48 \\ --vcpu=4 \\ --ram=4096 \\ --pxe \\ --disk none \\ --os-type=linux \\ --network bridge=br0.199 \\ --vnc --vnclisten=0.0.0.0 --vncport=5910 注意上面：指定了pxe 和disk none，这样就会启动起来并安装到远程的iscsi盘上去\n安装完成后，修改ipxe指定该虚机机从sanboot启动，这时候iscsi卷里已经有引导信息了，就需要去掉指定。\nfunction sanboot() { global $hostname; echo \":sanboot\\n\"; echo \"set initiator-iqn iqn.2020-10.com.ddky:vis-18-31-48\\n\"; echo \"set keep-san 1\\n\"; echo \"sanboot iscsi:172.18.30.18::::iqn.2020-10.com.ddky:vis-18-31-48\\n\"; echo \"boot\\n\"; } 重启后该机器就会从iscsi启动了。\n","wordCount":"123","inLanguage":"zh","datePublished":"2023-12-15T15:05:11+08:00","dateModified":"2023-12-15T15:05:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20231215-pxe_sanboot/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">ipxe使用sanboot远程启动iscsi硬盘
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2023-12-15 15:05:11 +0800 CST'>2023年12月15日</span></div></header><div class=post-content><p>如果一台宿主机上面cpu和memory都有富裕，但是磁盘不富裕，那就会面临资源浪费</p><p>所以干脆用ipxe的sanboot来启动远程的iscsi磁盘来启动虚机好了</p><p>首先用《<a href=https://bajie.dev/posts/20230801-iscsi_volume/>iscsi卷的远程挂载</a>》这篇文章中所说的方法，在172.18.30.18的20T的loopback vg group上，划出一块80G的硬盘</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1>#划个lvc，用的是vg-targetd的20T中的80G</span>
+</span></span><span class=line><span class=cl>lvcreate -L 80G -n pvc-vis-18-31-48 vg-targetd
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#建立block块设备</span>
+</span></span><span class=line><span class=cl>targetcli /backstores/block create vg-targetd:pvc-vis-18-31-48 /dev/vg-targetd/pvc-vis-18-31-48
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#建立30.18上的iscsi服务端，似乎用renhe-18-30-18比较好，但是不好区分多个卷，还是用下面的精准</span>
+</span></span><span class=line><span class=cl>targetcli /iscsi create iqn.2020-10.com.ddky:vis-18-31-48
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#建立luns，会自动建立portal</span>
+</span></span><span class=line><span class=cl>targetcli /iscsi/iqn.2020-10.com.ddky:vis-18-31-48/tpg1/luns create /backstores/block/vg-targetd:pvc-vis-18-31-48
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#建立客户端的iscsi，不加任何认证</span>
+</span></span><span class=line><span class=cl>targetcli /iscsi/iqn.2020-10.com.ddky:vis-18-31-48/tpg1/acls create iqn.2020-10.com.ddky:vis-18-31-48
+</span></span></code></pre></div><p>记下来这个: iqn.2020-10.com.ddky:vis-18-31-48</p><p>然后修改pxe，位于172.18.31.2 /export/html/pxeboot/boot2.php，本质是发送ipxe的命令</p><p>sanhook是加载远程硬盘，并设置为/dev/sda</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=k>function</span> sansetup<span class=o>()</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>    global <span class=nv>$hostname</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;:sansetup\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;set initiator-iqn iqn.2020-10.com.ddky:vis-18-31-48\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;set keep-san 1\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;sanhook iscsi:172.18.30.18::::iqn.2020-10.com.ddky:vis-18-31-48\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;kernel </span><span class=nv>$hostname</span><span class=s2>/repos/centos/7/os/x86_64/images/pxeboot/vmlinuz\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;initrd </span><span class=nv>$hostname</span><span class=s2>/repos/centos/7/os/x86_64/images/pxeboot/initrd.img\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;imgargs vmlinuz load_ramdisk=1 ks=</span><span class=nv>$hostname</span><span class=s2>/pxeboot/install/centos/centos7_last.php ksdevice=eth0 net.ifnames=0 biosdevname=0\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;boot\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></div><p>发动一个无盘的虚机从pxe启动（172.18.30.3 /export/kvm/48.sh）：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/bin/bash
+</span></span></span><span class=line><span class=cl><span class=cp></span>    virt-install <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --name<span class=o>=</span>pxe-18-31-48 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --vcpu<span class=o>=</span><span class=m>4</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --ram<span class=o>=</span><span class=m>4096</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --pxe <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --disk none <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --os-type<span class=o>=</span>linux  <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --network <span class=nv>bridge</span><span class=o>=</span>br0.199 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --vnc --vnclisten<span class=o>=</span>0.0.0.0 --vncport<span class=o>=</span><span class=m>5910</span>
+</span></span></code></pre></div><p>注意上面：指定了pxe 和disk none，这样就会启动起来并安装到远程的iscsi盘上去</p><p>安装完成后，修改ipxe指定该虚机机从sanboot启动，这时候iscsi卷里已经有引导信息了，就需要去掉指定。</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=k>function</span> sanboot<span class=o>()</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>    global <span class=nv>$hostname</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;:sanboot\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;set initiator-iqn iqn.2020-10.com.ddky:vis-18-31-48\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;set keep-san 1\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;sanboot iscsi:172.18.30.18::::iqn.2020-10.com.ddky:vis-18-31-48\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;boot\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></div><p>重启后该机器就会从iscsi启动了。</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

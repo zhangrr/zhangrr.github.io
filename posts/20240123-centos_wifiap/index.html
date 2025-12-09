@@ -1,0 +1,175 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>CentOS下做无线AP热点 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='自己的笔记本是装了个CentOS的系统，然后上面跑了个Vmware，又装了Win10，然后接两个屏幕，小的是linux跑gnome，大的是Win10屏幕，这样干活的。
+路由更是混乱无比，网卡有tun0 / wlan0 / eth0 ，没有弄br0，这是大前提。如果弄br0的话，得改一堆东西。
+这样的话wlan0无线网卡不联网就空闲了，于是想把无线网卡做AP共享出来，给手机用，做法真是比较复杂，弄了2天才弄好，网上的教程都是莫名啊，不太适合CentOS。
+其实就是安装hostpapd，把做法记录一下：
+首先不想改动已有的网络，那么桥接这条路就彻底断了，只能在无线网卡上做DHCP+NAT一条路了。
+先检查网络：
+lspci -k | grep -A 3 -i "network"  
+03:00.0 Network controller: Qualcomm Atheros QCA9565 / AR9565 Wireless Network Adapter (rev 01)  
+    Subsystem: Lite-On Communications Inc Device 0662
+    Kernel driver in use: ath9k
+    Kernel modules: ath9k
+看到自己的网卡驱动是ath9k，再看看模块
+modinfo ath9k | grep &#39;depend&#39;  
+depends:        mac80211,ath9k_hw,ath9k_common,cfg80211,ath  
+mac80211, cfg80211看到这个就放心了，driver就是nl80211
+再确认一下，里面有* AP 字样这样就没问题了：
+iw list|grep -A8 "Supported interface modes:"  
+    Supported interface modes:
+         * IBSS
+         * managed
+         * AP
+         * AP/VLAN
+         * WDS
+         * monitor
+         * P2P-client
+         * P2P-GO
+首先看看自己的无线网卡物理地址，30:10:B3:6A:22:AA记下来'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20240123-centos_wifiap/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20240123-centos_wifiap/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20240123-centos_wifiap/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="CentOS下做无线AP热点"><meta property="og:description" content='自己的笔记本是装了个CentOS的系统，然后上面跑了个Vmware，又装了Win10，然后接两个屏幕，小的是linux跑gnome，大的是Win10屏幕，这样干活的。
+路由更是混乱无比，网卡有tun0 / wlan0 / eth0 ，没有弄br0，这是大前提。如果弄br0的话，得改一堆东西。
+这样的话wlan0无线网卡不联网就空闲了，于是想把无线网卡做AP共享出来，给手机用，做法真是比较复杂，弄了2天才弄好，网上的教程都是莫名啊，不太适合CentOS。
+其实就是安装hostpapd，把做法记录一下：
+首先不想改动已有的网络，那么桥接这条路就彻底断了，只能在无线网卡上做DHCP+NAT一条路了。
+先检查网络：
+lspci -k | grep -A 3 -i "network" 03:00.0 Network controller: Qualcomm Atheros QCA9565 / AR9565 Wireless Network Adapter (rev 01) Subsystem: Lite-On Communications Inc Device 0662 Kernel driver in use: ath9k Kernel modules: ath9k 看到自己的网卡驱动是ath9k，再看看模块
+modinfo ath9k | grep &#39;depend&#39; depends: mac80211,ath9k_hw,ath9k_common,cfg80211,ath mac80211, cfg80211看到这个就放心了，driver就是nl80211
+再确认一下，里面有* AP 字样这样就没问题了：
+iw list|grep -A8 "Supported interface modes:" Supported interface modes: * IBSS * managed * AP * AP/VLAN * WDS * monitor * P2P-client * P2P-GO 首先看看自己的无线网卡物理地址，30:10:B3:6A:22:AA记下来'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2024-01-23T15:20:11+08:00"><meta property="article:modified_time" content="2024-01-23T15:20:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="CentOS下做无线AP热点"><meta name=twitter:description content='自己的笔记本是装了个CentOS的系统，然后上面跑了个Vmware，又装了Win10，然后接两个屏幕，小的是linux跑gnome，大的是Win10屏幕，这样干活的。
+路由更是混乱无比，网卡有tun0 / wlan0 / eth0 ，没有弄br0，这是大前提。如果弄br0的话，得改一堆东西。
+这样的话wlan0无线网卡不联网就空闲了，于是想把无线网卡做AP共享出来，给手机用，做法真是比较复杂，弄了2天才弄好，网上的教程都是莫名啊，不太适合CentOS。
+其实就是安装hostpapd，把做法记录一下：
+首先不想改动已有的网络，那么桥接这条路就彻底断了，只能在无线网卡上做DHCP+NAT一条路了。
+先检查网络：
+lspci -k | grep -A 3 -i "network"  
+03:00.0 Network controller: Qualcomm Atheros QCA9565 / AR9565 Wireless Network Adapter (rev 01)  
+    Subsystem: Lite-On Communications Inc Device 0662
+    Kernel driver in use: ath9k
+    Kernel modules: ath9k
+看到自己的网卡驱动是ath9k，再看看模块
+modinfo ath9k | grep &#39;depend&#39;  
+depends:        mac80211,ath9k_hw,ath9k_common,cfg80211,ath  
+mac80211, cfg80211看到这个就放心了，driver就是nl80211
+再确认一下，里面有* AP 字样这样就没问题了：
+iw list|grep -A8 "Supported interface modes:"  
+    Supported interface modes:
+         * IBSS
+         * managed
+         * AP
+         * AP/VLAN
+         * WDS
+         * monitor
+         * P2P-client
+         * P2P-GO
+首先看看自己的无线网卡物理地址，30:10:B3:6A:22:AA记下来'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"CentOS下做无线AP热点","item":"https://rendoumi.com/posts/20240123-centos_wifiap/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"CentOS下做无线AP热点","name":"CentOS下做无线AP热点","description":"自己的笔记本是装了个CentOS的系统，然后上面跑了个Vmware，又装了Win10，然后接两个屏幕，小的是linux跑gnome，大的是Win10屏幕，这样干活的。\n路由更是混乱无比，网卡有tun0 / wlan0 / eth0 ，没有弄br0，这是大前提。如果弄br0的话，得改一堆东西。\n这样的话wlan0无线网卡不联网就空闲了，于是想把无线网卡做AP共享出来，给手机用，做法真是比较复杂，弄了2天才弄好，网上的教程都是莫名啊，不太适合CentOS。\n其实就是安装hostpapd，把做法记录一下：\n首先不想改动已有的网络，那么桥接这条路就彻底断了，只能在无线网卡上做DHCP+NAT一条路了。\n先检查网络：\nlspci -k | grep -A 3 -i \u0026#34;network\u0026#34; 03:00.0 Network controller: Qualcomm Atheros QCA9565 / AR9565 Wireless Network Adapter (rev 01) Subsystem: Lite-On Communications Inc Device 0662 Kernel driver in use: ath9k Kernel modules: ath9k 看到自己的网卡驱动是ath9k，再看看模块\nmodinfo ath9k | grep \u0026#39;depend\u0026#39; depends: mac80211,ath9k_hw,ath9k_common,cfg80211,ath mac80211, cfg80211看到这个就放心了，driver就是nl80211\n再确认一下，里面有* AP 字样这样就没问题了：\niw list|grep -A8 \u0026#34;Supported interface modes:\u0026#34; Supported interface modes: * IBSS * managed * AP * AP/VLAN * WDS * monitor * P2P-client * P2P-GO 首先看看自己的无线网卡物理地址，30:10:B3:6A:22:AA记下来\n","keywords":[],"articleBody":"自己的笔记本是装了个CentOS的系统，然后上面跑了个Vmware，又装了Win10，然后接两个屏幕，小的是linux跑gnome，大的是Win10屏幕，这样干活的。\n路由更是混乱无比，网卡有tun0 / wlan0 / eth0 ，没有弄br0，这是大前提。如果弄br0的话，得改一堆东西。\n这样的话wlan0无线网卡不联网就空闲了，于是想把无线网卡做AP共享出来，给手机用，做法真是比较复杂，弄了2天才弄好，网上的教程都是莫名啊，不太适合CentOS。\n其实就是安装hostpapd，把做法记录一下：\n首先不想改动已有的网络，那么桥接这条路就彻底断了，只能在无线网卡上做DHCP+NAT一条路了。\n先检查网络：\nlspci -k | grep -A 3 -i \"network\" 03:00.0 Network controller: Qualcomm Atheros QCA9565 / AR9565 Wireless Network Adapter (rev 01) Subsystem: Lite-On Communications Inc Device 0662 Kernel driver in use: ath9k Kernel modules: ath9k 看到自己的网卡驱动是ath9k，再看看模块\nmodinfo ath9k | grep 'depend' depends: mac80211,ath9k_hw,ath9k_common,cfg80211,ath mac80211, cfg80211看到这个就放心了，driver就是nl80211\n再确认一下，里面有* AP 字样这样就没问题了：\niw list|grep -A8 \"Supported interface modes:\" Supported interface modes: * IBSS * managed * AP * AP/VLAN * WDS * monitor * P2P-client * P2P-GO 首先看看自己的无线网卡物理地址，30:10:B3:6A:22:AA记下来\nifconfig -a ...... wlan0 Link encap:Ethernet HWaddr 30:10:B3:6A:22:AA ...... 再看看自己的缺省路由网卡，是虚拟网卡tun0，也记下来\nroute -n ...... 0.0.0.0 10.10.0.9 0.0.0.0 UG 0 0 0 tun0 ...... 下载hostapd并安装，如果提示libnl没装，那就补装一下\nwget http://mirrors.ustc.edu.cn/epel/6/x86_64/hostapd-2.0-7.el6.x86_64.rpm yum -y install hostapd-2.0-7.el6.x86_64.rpm 禁止掉NetworkManager对无线网卡的管理\nvi /etc/NetworkManager/NetworkManager.conf ...... #在文件最后加两行 [keyfile] unmanaged-devices=mac:30:10:B3:6A:22:AA 然后瞬间大家就可以在gnome的桌面网卡里看到无线网卡失联了，这就对了！\n编辑/etc/hostapd/hostapd.conf\nvi /etc/hostapd/hostapd.conf interface=wlan0 driver=nl80211 ssid=dontMessWithVincentValentine hw_mode=g channel=6 macaddr_acl=0 auth_algs=1 ignore_broadcast_ssid=0 wpa=3 wpa_passphrase=KeePGuessinG wpa_key_mgmt=WPA-PSK wpa_pairwise=TKIP rsn_pairwise=CCMP 注意，上面hwmode是无线工作的模式，g、b、a都可以，一般是g，channel是信道，找个没多少人用的信道最好，11、6、3、1都可以。interface就是无线网卡了，wlan0。ssid和wpapassphrase按你的需求来设置即可。\nok，然后运行:\nrfkill unblock all rfkill是控制无线和蓝牙的开关，我们放行一切，否则hostapd无法启动。\n现在，启动hostapt测试一下\nhostapd /etc/hostapd/hostapd.conf 没有意外的话，就应该成功了。但这只是做了一半，首先改改dnsmasq，给无线网卡分配地址\nvi /etc/dnsmasq.conf interface=wlan0 bind-interfaces listen-address=192.168.0.1 #no-dhcp-interface= dhcp-range=192.168.0.2,192.168.0.224,12h dhcp-option=3,192.168.0.1 dhcp-option=6,223.5.5.5 注意，我的dnsmasq.conf就只有这么7行，没有别的了。里面很简单，首先dhcp是放到了wlan0上并分配地址，dhcp-option中3表示网关，gateway；6表示dns，这里设置的是阿里的公共dns 223.5.5.5。\n剩下的我们就写个脚本来完成吧： 内容其实就是\n解除无线block 配置wlan0的ip为192.168.0.1 启动dnsmasq 做iptable的nat 注意里面我是用的tun0，如果你的缺省路由是eth0，改了即可。 vi /usr/local/bin/initSoftAP.sh #!/bin/bash start() { rfkill unblock all ifconfig wlan0 up 192.168.0.1 netmask 255.255.255.0 sleep 2 if [ -z \"$(ps -e | grep dnsmasq)\" ] then dnsmasq fi #Enable NAT iptables -F iptables -X iptables -t nat -A POSTROUTING -o tun0 -j MASQUERADE #Thanks to lorenzo #Uncomment the line below if facing problems while sharing PPPoE, see lorenzo's comment for more details #iptables -I FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu sysctl -w net.ipv4.ip_forward=1 #start hostapd hostapd -B /etc/hostapd/hostapd.conf } stop() { service iptables stop service dnsmasq stop pkill hostapd /sbin/ip link set down dev wlan0 } case $1 in start) start ;; stop) stop ;; *) echo \"Usage: $0 {start|stop}\" exit 2 esac ok, 这么就搞定了。\n#启动 /usr/local/bin/initSoftAP.sh start #停止 /usr/local/bin/initSoftAP.sh stop ","wordCount":"290","inLanguage":"zh","datePublished":"2024-01-23T15:20:11+08:00","dateModified":"2024-01-23T15:20:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20240123-centos_wifiap/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">CentOS下做无线AP热点
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2024-01-23 15:20:11 +0800 CST'>2024年1月23日</span></div></header><div class=post-content><p>自己的笔记本是装了个CentOS的系统，然后上面跑了个Vmware，又装了Win10，然后接两个屏幕，小的是linux跑gnome，大的是Win10屏幕，这样干活的。</p><p>路由更是混乱无比，网卡有tun0 / wlan0 / eth0 ，没有弄br0，这是大前提。如果弄br0的话，得改一堆东西。</p><p>这样的话wlan0无线网卡不联网就空闲了，于是想把无线网卡做AP共享出来，给手机用，做法真是比较复杂，弄了2天才弄好，网上的教程都是莫名啊，不太适合CentOS。</p><p>其实就是安装<code>hostpapd</code>，把做法记录一下：</p><p>首先不想改动已有的网络，那么桥接这条路就彻底断了，只能在无线网卡上做DHCP+NAT一条路了。</p><p>先检查网络：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>lspci -k <span class=p>|</span> grep -A <span class=m>3</span> -i <span class=s2>&#34;network&#34;</span>  
+</span></span><span class=line><span class=cl>03:00.0 Network controller: Qualcomm Atheros QCA9565 / AR9565 Wireless Network Adapter <span class=o>(</span>rev 01<span class=o>)</span>  
+</span></span><span class=line><span class=cl>    Subsystem: Lite-On Communications Inc Device <span class=m>0662</span>
+</span></span><span class=line><span class=cl>    Kernel driver in use: ath9k
+</span></span><span class=line><span class=cl>    Kernel modules: ath9k
+</span></span></code></pre></div><p>看到自己的网卡驱动是ath9k，再看看模块</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>modinfo ath9k <span class=p>|</span> grep <span class=s1>&#39;depend&#39;</span>  
+</span></span><span class=line><span class=cl>depends:        mac80211,ath9k_hw,ath9k_common,cfg80211,ath  
+</span></span></code></pre></div><p>mac80211, cfg80211看到这个就放心了，driver就是nl80211</p><p>再确认一下，里面有* AP 字样这样就没问题了：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>iw list<span class=p>|</span>grep -A8 <span class=s2>&#34;Supported interface modes:&#34;</span>  
+</span></span><span class=line><span class=cl>    Supported interface modes:
+</span></span><span class=line><span class=cl>         * IBSS
+</span></span><span class=line><span class=cl>         * managed
+</span></span><span class=line><span class=cl>         * AP
+</span></span><span class=line><span class=cl>         * AP/VLAN
+</span></span><span class=line><span class=cl>         * WDS
+</span></span><span class=line><span class=cl>         * monitor
+</span></span><span class=line><span class=cl>         * P2P-client
+</span></span><span class=line><span class=cl>         * P2P-GO
+</span></span></code></pre></div><p>首先看看自己的无线网卡物理地址，30:10:B3:6A:22:AA记下来</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>ifconfig -a  
+</span></span><span class=line><span class=cl>......
+</span></span><span class=line><span class=cl>wlan0     Link encap:Ethernet  HWaddr 30:10:B3:6A:22:AA  
+</span></span><span class=line><span class=cl>......
+</span></span></code></pre></div><p>再看看自己的缺省路由网卡，是虚拟网卡tun0，也记下来</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>route -n  
+</span></span><span class=line><span class=cl>......
+</span></span><span class=line><span class=cl>0.0.0.0         10.10.0.9       0.0.0.0         UG    <span class=m>0</span>      <span class=m>0</span>        <span class=m>0</span> tun0  
+</span></span><span class=line><span class=cl>......
+</span></span></code></pre></div><p>下载<code>hostapd</code>并安装，如果提示libnl没装，那就补装一下</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>wget http://mirrors.ustc.edu.cn/epel/6/x86_64/hostapd-2.0-7.el6.x86_64.rpm  
+</span></span><span class=line><span class=cl>yum -y install hostapd-2.0-7.el6.x86_64.rpm  
+</span></span></code></pre></div><p>禁止掉NetworkManager对无线网卡的管理</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>vi /etc/NetworkManager/NetworkManager.conf  
+</span></span><span class=line><span class=cl>......
+</span></span><span class=line><span class=cl><span class=c1>#在文件最后加两行</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>keyfile<span class=o>]</span>
+</span></span><span class=line><span class=cl>unmanaged-devices<span class=o>=</span>mac:30:10:B3:6A:22:AA  
+</span></span></code></pre></div><p>然后瞬间大家就可以在gnome的桌面网卡里看到无线网卡失联了，这就对了！</p><p>编辑/etc/hostapd/hostapd.conf</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>vi /etc/hostapd/hostapd.conf  
+</span></span><span class=line><span class=cl><span class=nv>interface</span><span class=o>=</span>wlan0  
+</span></span><span class=line><span class=cl><span class=nv>driver</span><span class=o>=</span>nl80211  
+</span></span><span class=line><span class=cl><span class=nv>ssid</span><span class=o>=</span>dontMessWithVincentValentine  
+</span></span><span class=line><span class=cl><span class=nv>hw_mode</span><span class=o>=</span>g  
+</span></span><span class=line><span class=cl><span class=nv>channel</span><span class=o>=</span><span class=m>6</span>  
+</span></span><span class=line><span class=cl><span class=nv>macaddr_acl</span><span class=o>=</span><span class=m>0</span>  
+</span></span><span class=line><span class=cl><span class=nv>auth_algs</span><span class=o>=</span><span class=m>1</span>  
+</span></span><span class=line><span class=cl><span class=nv>ignore_broadcast_ssid</span><span class=o>=</span><span class=m>0</span>  
+</span></span><span class=line><span class=cl><span class=nv>wpa</span><span class=o>=</span><span class=m>3</span>  
+</span></span><span class=line><span class=cl><span class=nv>wpa_passphrase</span><span class=o>=</span>KeePGuessinG  
+</span></span><span class=line><span class=cl><span class=nv>wpa_key_mgmt</span><span class=o>=</span>WPA-PSK  
+</span></span><span class=line><span class=cl><span class=nv>wpa_pairwise</span><span class=o>=</span>TKIP  
+</span></span><span class=line><span class=cl><span class=nv>rsn_pairwise</span><span class=o>=</span>CCMP  
+</span></span></code></pre></div><p>注意，上面hw<em>mode是无线工作的模式，g、b、a都可以，一般是g，channel是信道，找个没多少人用的信道最好，11、6、3、1都可以。interface就是无线网卡了，wlan0。ssid和wpa</em>passphrase按你的需求来设置即可。</p><p>ok，然后运行:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>rfkill unblock all  
+</span></span></code></pre></div><p>rfkill是控制无线和蓝牙的开关，我们放行一切，否则hostapd无法启动。</p><p>现在，启动hostapt测试一下</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>hostapd /etc/hostapd/hostapd.conf  
+</span></span></code></pre></div><p>没有意外的话，就应该成功了。但这只是做了一半，首先改改dnsmasq，给无线网卡分配地址</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>vi /etc/dnsmasq.conf  
+</span></span><span class=line><span class=cl><span class=nv>interface</span><span class=o>=</span>wlan0  
+</span></span><span class=line><span class=cl>bind-interfaces  
+</span></span><span class=line><span class=cl>listen-address<span class=o>=</span>192.168.0.1  
+</span></span><span class=line><span class=cl><span class=c1>#no-dhcp-interface= </span>
+</span></span><span class=line><span class=cl>dhcp-range<span class=o>=</span>192.168.0.2,192.168.0.224,12h  
+</span></span><span class=line><span class=cl>dhcp-option<span class=o>=</span>3,192.168.0.1  
+</span></span><span class=line><span class=cl>dhcp-option<span class=o>=</span>6,223.5.5.5  
+</span></span></code></pre></div><p>注意，我的dnsmasq.conf就只有这么7行，没有别的了。里面很简单，首先dhcp是放到了wlan0上并分配地址，dhcp-option中3表示网关，gateway；6表示dns，这里设置的是阿里的公共dns 223.5.5.5。</p><p>剩下的我们就写个脚本来完成吧： 内容其实就是</p><ul><li>解除无线block</li><li>配置wlan0的ip为192.168.0.1</li><li>启动dnsmasq</li><li>做iptable的nat 注意里面我是用的tun0，如果你的缺省路由是eth0，改了即可。</li></ul><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>vi /usr/local/bin/initSoftAP.sh  
+</span></span><span class=line><span class=cl><span class=c1>#!/bin/bash</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>start<span class=o>()</span> <span class=o>{</span>  
+</span></span><span class=line><span class=cl>rfkill unblock all  
+</span></span><span class=line><span class=cl>ifconfig wlan0 up 192.168.0.1 netmask 255.255.255.0  
+</span></span><span class=line><span class=cl>sleep <span class=m>2</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[</span> -z <span class=s2>&#34;</span><span class=k>$(</span>ps -e <span class=p>|</span> grep dnsmasq<span class=k>)</span><span class=s2>&#34;</span> <span class=o>]</span>  
+</span></span><span class=line><span class=cl><span class=k>then</span>  
+</span></span><span class=line><span class=cl> dnsmasq
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#Enable NAT</span>
+</span></span><span class=line><span class=cl>iptables -F  
+</span></span><span class=line><span class=cl>iptables -X  
+</span></span><span class=line><span class=cl>iptables -t nat -A POSTROUTING -o tun0 -j MASQUERADE
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#Thanks to lorenzo</span>
+</span></span><span class=line><span class=cl><span class=c1>#Uncomment the line below if facing problems while sharing PPPoE, see lorenzo&#39;s comment for more details</span>
+</span></span><span class=line><span class=cl><span class=c1>#iptables -I FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>sysctl -w net.ipv4.ip_forward<span class=o>=</span><span class=m>1</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#start hostapd</span>
+</span></span><span class=line><span class=cl>hostapd -B /etc/hostapd/hostapd.conf  
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>stop<span class=o>()</span> <span class=o>{</span>  
+</span></span><span class=line><span class=cl>service iptables stop  
+</span></span><span class=line><span class=cl>service dnsmasq stop  
+</span></span><span class=line><span class=cl>pkill hostapd  
+</span></span><span class=line><span class=cl>/sbin/ip link <span class=nb>set</span> down dev wlan0
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>case</span> <span class=nv>$1</span> in  
+</span></span><span class=line><span class=cl>        start<span class=o>)</span>
+</span></span><span class=line><span class=cl>                start
+</span></span><span class=line><span class=cl>        <span class=p>;;</span>
+</span></span><span class=line><span class=cl>        stop<span class=o>)</span>
+</span></span><span class=line><span class=cl>                stop
+</span></span><span class=line><span class=cl>        <span class=p>;;</span>
+</span></span><span class=line><span class=cl>        *<span class=o>)</span>
+</span></span><span class=line><span class=cl>        <span class=nb>echo</span> <span class=s2>&#34;Usage: </span><span class=nv>$0</span><span class=s2> {start|stop}&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=nb>exit</span> <span class=m>2</span>
+</span></span><span class=line><span class=cl><span class=k>esac</span>  
+</span></span></code></pre></div><p>ok, 这么就搞定了。</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1>#启动</span>
+</span></span><span class=line><span class=cl>/usr/local/bin/initSoftAP.sh start
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#停止</span>
+</span></span><span class=line><span class=cl>/usr/local/bin/initSoftAP.sh stop
+</span></span></code></pre></div></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

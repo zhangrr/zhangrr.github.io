@@ -1,0 +1,79 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>OpenVPN客户端定制IP和路由 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='公司用的 OpenVPN ，研发部门和普通员工的权限不一样，技术部门需要访问服务器，普通员工则不需要
+这样的话就需要根据用户定制路由了，技术部门推送特定的路由，普通员工不推送。
+那么做法如下，在 server.conf 做如下设定：
+ifconfig-pool-persist /etc/openvpn/conf/ipp.txt
+client-config-dir /etc/openvpn/conf/static
+第一行是指定记录 ip 地址的文件，作用是如果服务器进程重启了，重启后会读取这个文件，客户端重新拨号后获得的 IP 就不会变，还是重启前的 IP。
+第二行是指定了客户端的单独配置
+我们假设一个用户是 zhangranrui，那么就去 /etc/openvpn/conf/static 下建立一个 zhangranrui 的文本文件，内容如下：
+# 前面是客户端固定IP地址，后面是网关地址
+ifconfig-push 172.18.0.10 172.18.0.9
+
+# 推送路由，后面是掩码
+push "route 10.10.0.0 255.255.0.0"
+
+# 重定向客户端的所有流量，否则访问服务端内网要像上面一样推送路由
+# push "redirect-gateway def1"
+
+# 推送给客户端的DNS解析地址
+# push "dhcp-option DNS 223.5.5.5"
+# push "dhcp-option DNS 114.114.114.114"
+上面我们固定了IP，也推送了特定路由，那么怎么知道一个客户的 ip 呢，去看 ipp 文件：
+cat /etc/openvpn/conf/ipp.txt
+zhangranrui,172.18.0.8
+注意，上面文件里的 172.18.0.8 不是 ip ，是 网段 地址
+172.18.0.9 是网关地址，172.18.0.10才是真正的 IP 地址，所以不要搞错了'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20221119-openvpn_client/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20221119-openvpn_client/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20221119-openvpn_client/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="OpenVPN客户端定制IP和路由"><meta property="og:description" content='公司用的 OpenVPN ，研发部门和普通员工的权限不一样，技术部门需要访问服务器，普通员工则不需要
+这样的话就需要根据用户定制路由了，技术部门推送特定的路由，普通员工不推送。
+那么做法如下，在 server.conf 做如下设定：
+ifconfig-pool-persist /etc/openvpn/conf/ipp.txt client-config-dir /etc/openvpn/conf/static 第一行是指定记录 ip 地址的文件，作用是如果服务器进程重启了，重启后会读取这个文件，客户端重新拨号后获得的 IP 就不会变，还是重启前的 IP。
+第二行是指定了客户端的单独配置
+我们假设一个用户是 zhangranrui，那么就去 /etc/openvpn/conf/static 下建立一个 zhangranrui 的文本文件，内容如下：
+# 前面是客户端固定IP地址，后面是网关地址ifconfig-push 172.18.0.10 172.18.0.9# 推送路由，后面是掩码push "route 10.10.0.0 255.255.0.0"# 重定向客户端的所有流量，否则访问服务端内网要像上面一样推送路由# push "redirect-gateway def1"# 推送给客户端的DNS解析地址# push "dhcp-option DNS 223.5.5.5"# push "dhcp-option DNS 114.114.114.114" 上面我们固定了IP，也推送了特定路由，那么怎么知道一个客户的 ip 呢，去看 ipp 文件：
+cat /etc/openvpn/conf/ipp.txt zhangranrui,172.18.0.8 注意，上面文件里的 172.18.0.8 不是 ip ，是 网段 地址
+172.18.0.9 是网关地址，172.18.0.10才是真正的 IP 地址，所以不要搞错了'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-11-19T09:30:11+08:00"><meta property="article:modified_time" content="2022-11-19T09:30:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="OpenVPN客户端定制IP和路由"><meta name=twitter:description content='公司用的 OpenVPN ，研发部门和普通员工的权限不一样，技术部门需要访问服务器，普通员工则不需要
+这样的话就需要根据用户定制路由了，技术部门推送特定的路由，普通员工不推送。
+那么做法如下，在 server.conf 做如下设定：
+ifconfig-pool-persist /etc/openvpn/conf/ipp.txt
+client-config-dir /etc/openvpn/conf/static
+第一行是指定记录 ip 地址的文件，作用是如果服务器进程重启了，重启后会读取这个文件，客户端重新拨号后获得的 IP 就不会变，还是重启前的 IP。
+第二行是指定了客户端的单独配置
+我们假设一个用户是 zhangranrui，那么就去 /etc/openvpn/conf/static 下建立一个 zhangranrui 的文本文件，内容如下：
+# 前面是客户端固定IP地址，后面是网关地址
+ifconfig-push 172.18.0.10 172.18.0.9
+
+# 推送路由，后面是掩码
+push "route 10.10.0.0 255.255.0.0"
+
+# 重定向客户端的所有流量，否则访问服务端内网要像上面一样推送路由
+# push "redirect-gateway def1"
+
+# 推送给客户端的DNS解析地址
+# push "dhcp-option DNS 223.5.5.5"
+# push "dhcp-option DNS 114.114.114.114"
+上面我们固定了IP，也推送了特定路由，那么怎么知道一个客户的 ip 呢，去看 ipp 文件：
+cat /etc/openvpn/conf/ipp.txt
+zhangranrui,172.18.0.8
+注意，上面文件里的 172.18.0.8 不是 ip ，是 网段 地址
+172.18.0.9 是网关地址，172.18.0.10才是真正的 IP 地址，所以不要搞错了'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"OpenVPN客户端定制IP和路由","item":"https://rendoumi.com/posts/20221119-openvpn_client/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"OpenVPN客户端定制IP和路由","name":"OpenVPN客户端定制IP和路由","description":"公司用的 OpenVPN ，研发部门和普通员工的权限不一样，技术部门需要访问服务器，普通员工则不需要\n这样的话就需要根据用户定制路由了，技术部门推送特定的路由，普通员工不推送。\n那么做法如下，在 server.conf 做如下设定：\nifconfig-pool-persist /etc/openvpn/conf/ipp.txt client-config-dir /etc/openvpn/conf/static 第一行是指定记录 ip 地址的文件，作用是如果服务器进程重启了，重启后会读取这个文件，客户端重新拨号后获得的 IP 就不会变，还是重启前的 IP。\n第二行是指定了客户端的单独配置\n我们假设一个用户是 zhangranrui，那么就去 /etc/openvpn/conf/static 下建立一个 zhangranrui 的文本文件，内容如下：\n# 前面是客户端固定IP地址，后面是网关地址\rifconfig-push 172.18.0.10 172.18.0.9\r# 推送路由，后面是掩码\rpush \u0026#34;route 10.10.0.0 255.255.0.0\u0026#34;\r# 重定向客户端的所有流量，否则访问服务端内网要像上面一样推送路由\r# push \u0026#34;redirect-gateway def1\u0026#34;\r# 推送给客户端的DNS解析地址\r# push \u0026#34;dhcp-option DNS 223.5.5.5\u0026#34;\r# push \u0026#34;dhcp-option DNS 114.114.114.114\u0026#34; 上面我们固定了IP，也推送了特定路由，那么怎么知道一个客户的 ip 呢，去看 ipp 文件：\ncat /etc/openvpn/conf/ipp.txt zhangranrui,172.18.0.8 注意，上面文件里的 172.18.0.8 不是 ip ，是 网段 地址\n172.18.0.9 是网关地址，172.18.0.10才是真正的 IP 地址，所以不要搞错了\n","keywords":[],"articleBody":"公司用的 OpenVPN ，研发部门和普通员工的权限不一样，技术部门需要访问服务器，普通员工则不需要\n这样的话就需要根据用户定制路由了，技术部门推送特定的路由，普通员工不推送。\n那么做法如下，在 server.conf 做如下设定：\nifconfig-pool-persist /etc/openvpn/conf/ipp.txt client-config-dir /etc/openvpn/conf/static 第一行是指定记录 ip 地址的文件，作用是如果服务器进程重启了，重启后会读取这个文件，客户端重新拨号后获得的 IP 就不会变，还是重启前的 IP。\n第二行是指定了客户端的单独配置\n我们假设一个用户是 zhangranrui，那么就去 /etc/openvpn/conf/static 下建立一个 zhangranrui 的文本文件，内容如下：\n# 前面是客户端固定IP地址，后面是网关地址\rifconfig-push 172.18.0.10 172.18.0.9\r# 推送路由，后面是掩码\rpush \"route 10.10.0.0 255.255.0.0\"\r# 重定向客户端的所有流量，否则访问服务端内网要像上面一样推送路由\r# push \"redirect-gateway def1\"\r# 推送给客户端的DNS解析地址\r# push \"dhcp-option DNS 223.5.5.5\"\r# push \"dhcp-option DNS 114.114.114.114\" 上面我们固定了IP，也推送了特定路由，那么怎么知道一个客户的 ip 呢，去看 ipp 文件：\ncat /etc/openvpn/conf/ipp.txt zhangranrui,172.18.0.8 注意，上面文件里的 172.18.0.8 不是 ip ，是 网段 地址\n172.18.0.9 是网关地址，172.18.0.10才是真正的 IP 地址，所以不要搞错了\n也可以针对用户推送一些其他选项。\n","wordCount":"73","inLanguage":"zh","datePublished":"2022-11-19T09:30:11+08:00","dateModified":"2022-11-19T09:30:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20221119-openvpn_client/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">OpenVPN客户端定制IP和路由
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2022-11-19 09:30:11 +0800 CST'>2022年11月19日</span></div></header><div class=post-content><p>公司用的 OpenVPN ，研发部门和普通员工的权限不一样，技术部门需要访问服务器，普通员工则不需要</p><p>这样的话就需要根据用户定制路由了，技术部门推送特定的路由，普通员工不推送。</p><p>那么做法如下，在 server.conf 做如下设定：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>ifconfig-pool-persist /etc/openvpn/conf/ipp.txt
+</span></span><span class=line><span class=cl>client-config-dir /etc/openvpn/conf/static
+</span></span></code></pre></div><p>第一行是指定记录 ip 地址的文件，作用是如果服务器进程重启了，重启后会读取这个文件，客户端重新拨号后获得的 IP 就不会变，还是重启前的 IP。</p><p>第二行是指定了客户端的单独配置</p><p>我们假设一个用户是 zhangranrui，那么就去 /etc/openvpn/conf/static 下建立一个 zhangranrui 的文本文件，内容如下：</p><pre tabindex=0><code># 前面是客户端固定IP地址，后面是网关地址
+ifconfig-push 172.18.0.10 172.18.0.9
+
+# 推送路由，后面是掩码
+push &#34;route 10.10.0.0 255.255.0.0&#34;
+
+# 重定向客户端的所有流量，否则访问服务端内网要像上面一样推送路由
+# push &#34;redirect-gateway def1&#34;
+
+# 推送给客户端的DNS解析地址
+# push &#34;dhcp-option DNS 223.5.5.5&#34;
+# push &#34;dhcp-option DNS 114.114.114.114&#34;
+</code></pre><p>上面我们固定了IP，也推送了特定路由，那么怎么知道一个客户的 ip 呢，去看 ipp 文件：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>cat /etc/openvpn/conf/ipp.txt
+</span></span><span class=line><span class=cl>zhangranrui,172.18.0.8
+</span></span></code></pre></div><p>注意，上面文件里的 172.18.0.8 不是 ip ，是 <strong>网段</strong> 地址</p><p>172.18.0.9 是网关地址，172.18.0.10才是真正的 IP 地址，所以不要搞错了</p><p>也可以针对用户推送一些其他选项。</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

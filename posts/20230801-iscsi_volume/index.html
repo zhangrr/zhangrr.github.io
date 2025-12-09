@@ -1,0 +1,165 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>iscsi卷的远程挂载使用 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="如果机器的磁盘空间不够，可以用iscsi把服务器172.18.30.18上面划出一片空间，远程挂上来用。
+注意，服务器用losetup的这种做法是为了将来k8s也可以这样用动态iscsi卷
+服务器端安装
+登录172.18.30.18
+安装：
+yum install -y targetcli targetd`
+用文件来虚拟LVM卷：
+cd /glusterfs/iscsi-volumes/
+生成20TB文件
+dd if=/dev/zero of=k8s-iscsi-volumes.img bs=1G count=20000
+export LOOP=`losetup -f`
+losetup $LOOP k8s-iscsi-volumes.img
+vgcreate vg-targetd $LOOP
+修改targetd.yaml:
+vi /etc/target/targetd.yaml
+password: xxxxxxxx
+# defaults below; uncomment and edit
+# if using a thin pool, use <volume group name>/<thin pool name>
+# e.g vg-targetd/pool
+pool_name: vg-targetd
+user: admin
+ssl: false
+target_name: iqn.2020-04.com.ddky:renhe-18-30-18
+注意，这个文件生成后，就不需要改动了，如果以后target_name变了，也不用管，也不需要重启targetd
+启动服务：
+systemctl enable --now target
+systemctl enable --now targetd
+运行一下命令，看看显示结果
+pvdisplay
+vgdisplay
+lvdisplay
+targetcli ls /
+注意：lvdisplay结果和targetcli ls /结果都是空"><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20230801-iscsi_volume/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20230801-iscsi_volume/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20230801-iscsi_volume/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="iscsi卷的远程挂载使用"><meta property="og:description" content="如果机器的磁盘空间不够，可以用iscsi把服务器172.18.30.18上面划出一片空间，远程挂上来用。
+注意，服务器用losetup的这种做法是为了将来k8s也可以这样用动态iscsi卷
+服务器端安装 登录172.18.30.18
+安装：
+yum install -y targetcli targetd` 用文件来虚拟LVM卷：
+cd /glusterfs/iscsi-volumes/ 生成20TB文件 dd if=/dev/zero of=k8s-iscsi-volumes.img bs=1G count=20000 export LOOP=`losetup -f` losetup $LOOP k8s-iscsi-volumes.img vgcreate vg-targetd $LOOP 修改targetd.yaml:
+vi /etc/target/targetd.yaml password: xxxxxxxx # defaults below; uncomment and edit # if using a thin pool, use <volume group name>/<thin pool name> # e.g vg-targetd/pool pool_name: vg-targetd user: admin ssl: false target_name: iqn.2020-04.com.ddky:renhe-18-30-18 注意，这个文件生成后，就不需要改动了，如果以后target_name变了，也不用管，也不需要重启targetd
+启动服务：
+systemctl enable --now target systemctl enable --now targetd 运行一下命令，看看显示结果 pvdisplay vgdisplay lvdisplay targetcli ls /
+注意：lvdisplay结果和targetcli ls /结果都是空"><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2023-08-01T09:05:11+08:00"><meta property="article:modified_time" content="2023-08-01T09:05:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="iscsi卷的远程挂载使用"><meta name=twitter:description content="如果机器的磁盘空间不够，可以用iscsi把服务器172.18.30.18上面划出一片空间，远程挂上来用。
+注意，服务器用losetup的这种做法是为了将来k8s也可以这样用动态iscsi卷
+服务器端安装
+登录172.18.30.18
+安装：
+yum install -y targetcli targetd`
+用文件来虚拟LVM卷：
+cd /glusterfs/iscsi-volumes/
+生成20TB文件
+dd if=/dev/zero of=k8s-iscsi-volumes.img bs=1G count=20000
+export LOOP=`losetup -f`
+losetup $LOOP k8s-iscsi-volumes.img
+vgcreate vg-targetd $LOOP
+修改targetd.yaml:
+vi /etc/target/targetd.yaml
+password: xxxxxxxx
+# defaults below; uncomment and edit
+# if using a thin pool, use <volume group name>/<thin pool name>
+# e.g vg-targetd/pool
+pool_name: vg-targetd
+user: admin
+ssl: false
+target_name: iqn.2020-04.com.ddky:renhe-18-30-18
+注意，这个文件生成后，就不需要改动了，如果以后target_name变了，也不用管，也不需要重启targetd
+启动服务：
+systemctl enable --now target
+systemctl enable --now targetd
+运行一下命令，看看显示结果
+pvdisplay
+vgdisplay
+lvdisplay
+targetcli ls /
+注意：lvdisplay结果和targetcli ls /结果都是空"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"iscsi卷的远程挂载使用","item":"https://rendoumi.com/posts/20230801-iscsi_volume/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"iscsi卷的远程挂载使用","name":"iscsi卷的远程挂载使用","description":"如果机器的磁盘空间不够，可以用iscsi把服务器172.18.30.18上面划出一片空间，远程挂上来用。\n注意，服务器用losetup的这种做法是为了将来k8s也可以这样用动态iscsi卷\n服务器端安装 登录172.18.30.18\n安装：\nyum install -y targetcli targetd` 用文件来虚拟LVM卷：\ncd /glusterfs/iscsi-volumes/ 生成20TB文件 dd if=/dev/zero of=k8s-iscsi-volumes.img bs=1G count=20000 export LOOP=`losetup -f` losetup $LOOP k8s-iscsi-volumes.img vgcreate vg-targetd $LOOP 修改targetd.yaml:\nvi /etc/target/targetd.yaml password: xxxxxxxx # defaults below; uncomment and edit # if using a thin pool, use \u0026lt;volume group name\u0026gt;/\u0026lt;thin pool name\u0026gt; # e.g vg-targetd/pool pool_name: vg-targetd user: admin ssl: false target_name: iqn.2020-04.com.ddky:renhe-18-30-18 注意，这个文件生成后，就不需要改动了，如果以后target_name变了，也不用管，也不需要重启targetd\n启动服务：\nsystemctl enable --now target systemctl enable --now targetd 运行一下命令，看看显示结果 pvdisplay vgdisplay lvdisplay targetcli ls /\n注意：lvdisplay结果和targetcli ls /结果都是空\n","keywords":[],"articleBody":"如果机器的磁盘空间不够，可以用iscsi把服务器172.18.30.18上面划出一片空间，远程挂上来用。\n注意，服务器用losetup的这种做法是为了将来k8s也可以这样用动态iscsi卷\n服务器端安装 登录172.18.30.18\n安装：\nyum install -y targetcli targetd` 用文件来虚拟LVM卷：\ncd /glusterfs/iscsi-volumes/ 生成20TB文件 dd if=/dev/zero of=k8s-iscsi-volumes.img bs=1G count=20000 export LOOP=`losetup -f` losetup $LOOP k8s-iscsi-volumes.img vgcreate vg-targetd $LOOP 修改targetd.yaml:\nvi /etc/target/targetd.yaml password: xxxxxxxx # defaults below; uncomment and edit # if using a thin pool, use / # e.g vg-targetd/pool pool_name: vg-targetd user: admin ssl: false target_name: iqn.2020-04.com.ddky:renhe-18-30-18 注意，这个文件生成后，就不需要改动了，如果以后target_name变了，也不用管，也不需要重启targetd\n启动服务：\nsystemctl enable --now target systemctl enable --now targetd 运行一下命令，看看显示结果 pvdisplay vgdisplay lvdisplay targetcli ls /\n注意：lvdisplay结果和targetcli ls /结果都是空\n如果有定义好的iscsi，3260端口才会开放。所以现在只开启了18700的targetd，3260未开放中。\n如果以后定义好了，那么显示结果如下图：\n那如果想要彻底删除某个已经存在的iscsi卷，三步曲：\n首先删掉block设备 targetcli /backstores/block delete vg-targetd:pvc-harbor 然后删除iscsi targetcli /iscsi delete iqn.2020-07.com.ddky:renhe-18-30-18 最后删除lv lvremove /dev/vg-targetd/pvc-harbor 建立新的卷的方法：\n建立新的lv pvc-harbor, 200G lvcreate -L 200G -n pvc-harbor vg-targetd 建立新的block设备 targetcli /backstores/block create vg-targetd:pvc-harbor /dev/vg-targetd/pvc-harbor 建立新的iqn targetcli /iscsi create iqn.2020-07.com.ddky:renhe-18-30-18 建立新的lun，portal会自动建立，3260端口会开放 targetcli /iscsi/iqn.2020-07.com.ddky:renhe-18-30-18/tpg1/luns create /backstores/block/vg-targetd:pvc-harbor 建立新的acls targetcli /iscsi/iqn.2020-07.com.ddky:renhe-18-30-18/tpg1/acls create iqn.2020-07.com.ddky:harbor-18-31-28 设置acls的鉴权 targetcli /iscsi/iqn.2020-07.com.ddky:renhe-18-30-18/tpg1/acls/iqn.2020-07.com.ddky:harbor-18-31-28 set attribute authentication=0 targetcli /iscsi/iqn.2020-07.com.ddky:renhe-18-30-18/tpg1/acls/iqn.2020-07.com.ddky:harbor-18-31-28 set auth userid=admin password=nishiwode 如果lun只对srv2开放，不对srv1开放，方法如下： /\u003e iscsi/iqn.2003-01.local.rhce.ipa:target/tpg1/acls create iqn.1994-05.com.redhat:srv1 add_mapped_luns=false /\u003e iscsi/iqn.2003-01.local.rhce.ipa:target/tpg1/acls create iqn.1994-05.com.redhat:srv2 ok，如上，服务器端就设置好了\n这里没有重启，只是运行了targetcli saveconfig 实测，真的不需要重启target，systemctl restart target\n客户端安装 安装iscsi客户端\nyum install iscsi-initiator-utils -y 修改initiatorname.iscsi，也就是自己的iqn号\nvi /etc/iscsi/initiatorname.iscsi InitiatorName=iqn.2020-07.com.ddky:harbor-18-31-28 修改iscsid.conf\nvi /etc/iscsi/iscsid.conf，增加3行 node.session.auth.authmethod = CHAP node.session.auth.username = admin node.session.auth.password = xxxxxxxx 重启服务：\nsystemctl restart iscsid 发现一下对端：\n# iscsiadm -m discovery -t sendtargets -p 172.18.30.18:3260 172.18.30.18:3260,1 iqn.2020-07.com.ddky:renhe-18-30-18 登录ISCSI：\n# iscsiadm -m node -T iqn.2020-07.com.ddky:renhe-18-30-18 -p 172.18.30.18:3260 --login Logging in to [iface: default, target: iqn.2020-07.com.ddky:renhe-18-30-18, portal: 172.18.30.18,3260] (multiple) Login to [iface: default, target: iqn.2020-07.com.ddky:renhe-18-30-18, portal: 172.18.30.18,3260] successful. 查看session:\niscsiadm -m session -P3 | less 系统中会多出一块盘，/dev/sda\n直接格式化，不要分区，mkfs.xfs /dev/sda\n查出uuid\nblkid /dev/sda /dev/sda: UUID=\"58024012-aa03-4091-a11a-0bb74beeed5a\" TYPE=\"xfs\" 编辑/etc/fstab\nvi /etc/fstab UUID=58024012-aa03-4091-a11a-0bb74beeed5a /mnt xfs _netdev 0 0 Ok, 搞定。\n增加给vis-18-31-48增加pxe的sanboot启动硬盘的方法：\n#划个lvc，用的是vg-targetd的20T中的80G lvcreate -L 80G -n pvc-vis-18-31-48 vg-targetd #建立block块设备 targetcli /backstores/block create vg-targetd:pvc-vis-18-31-48 /dev/vg-targetd/pvc-vis-18-31-48 #建立30.18上的iscsi服务端，似乎用renhe-18-30-18比较好，但是不好区分多个卷 targetcli /iscsi create iqn.2020-10.com.ddky:vis-18-31-48 #建立luns，会自动建立portal targetcli /iscsi/iqn.2020-10.com.ddky:vis-18-31-48/tpg1/luns create /backstores/block/vg-targetd:pvc-vis-18-31-48 #建立客户端的iscsi，不加认证 targetcli /iscsi/iqn.2020-10.com.ddky:vis-18-31-48/tpg1/acls create iqn.2020-10.com.ddky:vis-18-31-48 这样客户端用 iqn.2020-10.com.ddky:vis-13-31-48 就可以mount出来\n","wordCount":"282","inLanguage":"zh","datePublished":"2023-08-01T09:05:11+08:00","dateModified":"2023-08-01T09:05:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20230801-iscsi_volume/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">iscsi卷的远程挂载使用
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2023-08-01 09:05:11 +0800 CST'>2023年8月1日</span></div></header><div class=post-content><p>如果机器的磁盘空间不够，可以用iscsi把服务器172.18.30.18上面划出一片空间，远程挂上来用。</p><p>注意，服务器用losetup的这种做法是为了将来k8s也可以这样用动态iscsi卷</p><h1 id=服务器端安装>服务器端安装<a hidden class=anchor aria-hidden=true href=#服务器端安装>#</a></h1><p>登录172.18.30.18</p><p>安装：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>yum install -y targetcli targetd<span class=sb>`</span>
+</span></span></code></pre></div><p>用文件来虚拟LVM卷：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>cd</span> /glusterfs/iscsi-volumes/
+</span></span><span class=line><span class=cl>生成20TB文件
+</span></span><span class=line><span class=cl>dd <span class=k>if</span><span class=o>=</span>/dev/zero <span class=nv>of</span><span class=o>=</span>k8s-iscsi-volumes.img <span class=nv>bs</span><span class=o>=</span>1G <span class=nv>count</span><span class=o>=</span><span class=m>20000</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>LOOP</span><span class=o>=</span><span class=sb>`</span>losetup -f<span class=sb>`</span>
+</span></span><span class=line><span class=cl>losetup <span class=nv>$LOOP</span> k8s-iscsi-volumes.img
+</span></span><span class=line><span class=cl>vgcreate vg-targetd <span class=nv>$LOOP</span>
+</span></span></code></pre></div><p>修改targetd.yaml:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>vi /etc/target/targetd.yaml
+</span></span><span class=line><span class=cl>password: xxxxxxxx
+</span></span><span class=line><span class=cl><span class=c1># defaults below; uncomment and edit</span>
+</span></span><span class=line><span class=cl><span class=c1># if using a thin pool, use &lt;volume group name&gt;/&lt;thin pool name&gt;</span>
+</span></span><span class=line><span class=cl><span class=c1># e.g vg-targetd/pool</span>
+</span></span><span class=line><span class=cl>pool_name: vg-targetd
+</span></span><span class=line><span class=cl>user: admin
+</span></span><span class=line><span class=cl>ssl: <span class=nb>false</span>
+</span></span><span class=line><span class=cl>target_name: iqn.2020-04.com.ddky:renhe-18-30-18
+</span></span></code></pre></div><p>注意，这个文件生成后，就不需要改动了，如果以后target_name变了，也不用管，也不需要重启targetd</p><p>启动服务：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>systemctl <span class=nb>enable</span> --now target
+</span></span><span class=line><span class=cl>systemctl <span class=nb>enable</span> --now targetd
+</span></span></code></pre></div><p>运行一下命令，看看显示结果
+pvdisplay
+vgdisplay
+lvdisplay
+targetcli ls /</p><p>注意：lvdisplay结果和targetcli ls /结果都是空</p><p>如果有定义好的iscsi，3260端口才会开放。所以现在只开启了18700的targetd，3260未开放中。</p><p>如果以后定义好了，那么显示结果如下图：</p><p><img loading=lazy src=/posts/20230801-iscsi_volume/2020-07-06_174206.png></p><p>那如果想要彻底删除某个已经存在的iscsi卷，三步曲：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>首先删掉block设备
+</span></span><span class=line><span class=cl>targetcli /backstores/block delete vg-targetd:pvc-harbor
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>然后删除iscsi
+</span></span><span class=line><span class=cl>targetcli /iscsi delete iqn.2020-07.com.ddky:renhe-18-30-18
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>最后删除lv
+</span></span><span class=line><span class=cl>lvremove /dev/vg-targetd/pvc-harbor
+</span></span></code></pre></div><p>建立新的卷的方法：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>建立新的lv pvc-harbor, 200G
+</span></span><span class=line><span class=cl>lvcreate -L 200G -n pvc-harbor vg-targetd
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>建立新的block设备
+</span></span><span class=line><span class=cl>targetcli /backstores/block create vg-targetd:pvc-harbor /dev/vg-targetd/pvc-harbor
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>建立新的iqn
+</span></span><span class=line><span class=cl>targetcli /iscsi create iqn.2020-07.com.ddky:renhe-18-30-18
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>建立新的lun，portal会自动建立，3260端口会开放
+</span></span><span class=line><span class=cl>targetcli /iscsi/iqn.2020-07.com.ddky:renhe-18-30-18/tpg1/luns create /backstores/block/vg-targetd:pvc-harbor
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>建立新的acls
+</span></span><span class=line><span class=cl>targetcli /iscsi/iqn.2020-07.com.ddky:renhe-18-30-18/tpg1/acls create iqn.2020-07.com.ddky:harbor-18-31-28
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>设置acls的鉴权
+</span></span><span class=line><span class=cl>targetcli /iscsi/iqn.2020-07.com.ddky:renhe-18-30-18/tpg1/acls/iqn.2020-07.com.ddky:harbor-18-31-28 <span class=nb>set</span> attribute <span class=nv>authentication</span><span class=o>=</span><span class=m>0</span>
+</span></span><span class=line><span class=cl>targetcli /iscsi/iqn.2020-07.com.ddky:renhe-18-30-18/tpg1/acls/iqn.2020-07.com.ddky:harbor-18-31-28 <span class=nb>set</span> auth <span class=nv>userid</span><span class=o>=</span>admin <span class=nv>password</span><span class=o>=</span>nishiwode
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>如果lun只对srv2开放，不对srv1开放，方法如下：
+</span></span><span class=line><span class=cl>/&gt; iscsi/iqn.2003-01.local.rhce.ipa:target/tpg1/acls create iqn.1994-05.com.redhat:srv1 <span class=nv>add_mapped_luns</span><span class=o>=</span><span class=nb>false</span>
+</span></span><span class=line><span class=cl>/&gt; iscsi/iqn.2003-01.local.rhce.ipa:target/tpg1/acls create iqn.1994-05.com.redhat:srv2
+</span></span></code></pre></div><p>ok，如上，服务器端就设置好了</p><p>这里没有重启，只是运行了targetcli saveconfig
+实测，真的不需要重启target，systemctl restart target</p><h1 id=客户端安装>客户端安装<a hidden class=anchor aria-hidden=true href=#客户端安装>#</a></h1><p>安装iscsi客户端</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>yum install iscsi-initiator-utils -y
+</span></span></code></pre></div><p>修改initiatorname.iscsi，也就是自己的iqn号</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>vi /etc/iscsi/initiatorname.iscsi 
+</span></span><span class=line><span class=cl><span class=nv>InitiatorName</span><span class=o>=</span>iqn.2020-07.com.ddky:harbor-18-31-28
+</span></span></code></pre></div><p>修改iscsid.conf</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>vi /etc/iscsi/iscsid.conf，增加3行
+</span></span><span class=line><span class=cl>node.session.auth.authmethod <span class=o>=</span> CHAP
+</span></span><span class=line><span class=cl>node.session.auth.username <span class=o>=</span> admin
+</span></span><span class=line><span class=cl>node.session.auth.password <span class=o>=</span> xxxxxxxx
+</span></span></code></pre></div><p>重启服务：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>systemctl restart iscsid
+</span></span></code></pre></div><p>发现一下对端：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># iscsiadm -m discovery -t sendtargets -p 172.18.30.18:3260</span>
+</span></span><span class=line><span class=cl>172.18.30.18:3260,1 iqn.2020-07.com.ddky:renhe-18-30-18
+</span></span></code></pre></div><p>登录ISCSI：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># iscsiadm -m node -T iqn.2020-07.com.ddky:renhe-18-30-18 -p 172.18.30.18:3260 --login</span>
+</span></span><span class=line><span class=cl>Logging in to <span class=o>[</span>iface: default, target: iqn.2020-07.com.ddky:renhe-18-30-18, portal: 172.18.30.18,3260<span class=o>]</span> <span class=o>(</span>multiple<span class=o>)</span>
+</span></span><span class=line><span class=cl>Login to <span class=o>[</span>iface: default, target: iqn.2020-07.com.ddky:renhe-18-30-18, portal: 172.18.30.18,3260<span class=o>]</span> successful.
+</span></span></code></pre></div><p>查看session:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>iscsiadm -m session -P3 <span class=p>|</span> less
+</span></span></code></pre></div><p>系统中会多出一块盘，/dev/sda</p><p>直接格式化，不要分区，mkfs.xfs /dev/sda</p><p>查出uuid</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>blkid /dev/sda
+</span></span><span class=line><span class=cl>/dev/sda: <span class=nv>UUID</span><span class=o>=</span><span class=s2>&#34;58024012-aa03-4091-a11a-0bb74beeed5a&#34;</span> <span class=nv>TYPE</span><span class=o>=</span><span class=s2>&#34;xfs&#34;</span>
+</span></span></code></pre></div><p>编辑/etc/fstab</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>vi /etc/fstab
+</span></span><span class=line><span class=cl><span class=nv>UUID</span><span class=o>=</span>58024012-aa03-4091-a11a-0bb74beeed5a /mnt xfs _netdev <span class=m>0</span> <span class=m>0</span>
+</span></span></code></pre></div><p>Ok, 搞定。</p><p>增加给vis-18-31-48增加pxe的sanboot启动硬盘的方法：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1>#划个lvc，用的是vg-targetd的20T中的80G</span>
+</span></span><span class=line><span class=cl>lvcreate -L 80G -n pvc-vis-18-31-48 vg-targetd
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#建立block块设备</span>
+</span></span><span class=line><span class=cl>targetcli /backstores/block create vg-targetd:pvc-vis-18-31-48 /dev/vg-targetd/pvc-vis-18-31-48
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#建立30.18上的iscsi服务端，似乎用renhe-18-30-18比较好，但是不好区分多个卷</span>
+</span></span><span class=line><span class=cl>targetcli /iscsi create iqn.2020-10.com.ddky:vis-18-31-48
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#建立luns，会自动建立portal</span>
+</span></span><span class=line><span class=cl>targetcli /iscsi/iqn.2020-10.com.ddky:vis-18-31-48/tpg1/luns create /backstores/block/vg-targetd:pvc-vis-18-31-48
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#建立客户端的iscsi，不加认证</span>
+</span></span><span class=line><span class=cl>targetcli /iscsi/iqn.2020-10.com.ddky:vis-18-31-48/tpg1/acls create iqn.2020-10.com.ddky:vis-18-31-48
+</span></span></code></pre></div><p>这样客户端用 iqn.2020-10.com.ddky:vis-13-31-48 就可以mount出来</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

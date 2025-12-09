@@ -1,0 +1,285 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>CentOS7安装ZFS | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="zfs用来顶替Raid控制卡，有相当强悍的性能，TrueNAS用的就是这玩意。
+官方安装文档：
+https://openzfs.github.io/openzfs-docs/Getting%20Started/RHEL%20and%20CentOS.html
+CentOS7安装
+yum install -y epel-release
+yum install -y https://zfsonlinux.org/epel/zfs-release.el7_9.noarch.rpm
+yum install -y kernel-devel zfs
+加载模块
+[root@localhost ~]# lsmod|grep zfs
+
+[root@localhost ~]# modprobe zfs
+
+[root@localhost ~]# lsmod|grep zfs
+zfs                  3986850  0 
+zunicode              331170  1 zfs
+zlua                  151525  1 zfs
+zcommon                89551  1 zfs
+znvpair                94388  2 zfs,zcommon
+zavl                   15167  1 zfs
+icp                   301854  1 zfs
+spl                   104299  5 icp,zfs,zavl,zcommon,znvpair
+看看文件系统
+[root@localhost ~]#  zfs list
+no datasets available
+192.168.85.100的本地磁盘从sdb 一直到 sdg，首先zpool建立池子，类似raid卡的功能
+然后再zfs建立文件系统
+[root@localhost ~]# zpool create -f zfspool sdb sdc sdd sde sdf sdg
+
+[root@localhost ~]# zpool status
+  pool: zfspool
+ state: ONLINE
+  scan: none requested
+config:
+
+        NAME        STATE     READ WRITE CKSUM
+        zfspool     ONLINE       0     0     0
+          sdb       ONLINE       0     0     0
+          sdc       ONLINE       0     0     0
+          sdd       ONLINE       0     0     0
+          sde       ONLINE       0     0     0
+          sdf       ONLINE       0     0     0
+          sdg       ONLINE       0     0     0
+
+errors: No known data errors
+
+[root@localhost ~]# df -h
+文件系统                 容量  已用  可用 已用% 挂载点
+devtmpfs                  63G     0   63G    0% /dev
+tmpfs                     63G     0   63G    0% /dev/shm
+tmpfs                     63G  9.9M   63G    1% /run
+tmpfs                     63G     0   63G    0% /sys/fs/cgroup
+/dev/mapper/centos-root   50G  1.7G   49G    4% /
+/dev/sda1               1014M  189M  826M   19% /boot
+/dev/mapper/centos-home  392G   33M  392G    1% /home
+tmpfs                     13G     0   13G    0% /run/user/0
+zfspool                   53T  128K   53T    1% /zfspool
+上面对生产无意义，没有任何冗余的配置在生产是行不通的"><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20231215-zfs_centos/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20231215-zfs_centos/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20231215-zfs_centos/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="CentOS7安装ZFS"><meta property="og:description" content="zfs用来顶替Raid控制卡，有相当强悍的性能，TrueNAS用的就是这玩意。
+官方安装文档： https://openzfs.github.io/openzfs-docs/Getting%20Started/RHEL%20and%20CentOS.html
+CentOS7安装
+yum install -y epel-releaseyum install -y https://zfsonlinux.org/epel/zfs-release.el7_9.noarch.rpmyum install -y kernel-devel zfs 加载模块
+[root@localhost ~]# lsmod|grep zfs[root@localhost ~]# modprobe zfs[root@localhost ~]# lsmod|grep zfszfs 3986850 0 zunicode 331170 1 zfszlua 151525 1 zfszcommon 89551 1 zfsznvpair 94388 2 zfs,zcommonzavl 15167 1 zfsicp 301854 1 zfsspl 104299 5 icp,zfs,zavl,zcommon,znvpair 看看文件系统
+[root@localhost ~]# zfs listno datasets available 192.168.85.100的本地磁盘从sdb 一直到 sdg，首先zpool建立池子，类似raid卡的功能 然后再zfs建立文件系统
+[root@localhost ~]# zpool create -f zfspool sdb sdc sdd sde sdf sdg[root@localhost ~]# zpool statuspool: zfspoolstate: ONLINEscan: none requestedconfig:NAME STATE READ WRITE CKSUMzfspool ONLINE 0 0 0sdb ONLINE 0 0 0sdc ONLINE 0 0 0sdd ONLINE 0 0 0sde ONLINE 0 0 0sdf ONLINE 0 0 0sdg ONLINE 0 0 0errors: No known data errors[root@localhost ~]# df -h文件系统 容量 已用 可用 已用% 挂载点devtmpfs 63G 0 63G 0% /devtmpfs 63G 0 63G 0% /dev/shmtmpfs 63G 9.9M 63G 1% /runtmpfs 63G 0 63G 0% /sys/fs/cgroup/dev/mapper/centos-root 50G 1.7G 49G 4% //dev/sda1 1014M 189M 826M 19% /boot/dev/mapper/centos-home 392G 33M 392G 1% /hometmpfs 13G 0 13G 0% /run/user/0zfspool 53T 128K 53T 1% /zfspool 上面对生产无意义，没有任何冗余的配置在生产是行不通的"><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2023-12-15T13:05:11+08:00"><meta property="article:modified_time" content="2023-12-15T13:05:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="CentOS7安装ZFS"><meta name=twitter:description content="zfs用来顶替Raid控制卡，有相当强悍的性能，TrueNAS用的就是这玩意。
+官方安装文档：
+https://openzfs.github.io/openzfs-docs/Getting%20Started/RHEL%20and%20CentOS.html
+CentOS7安装
+yum install -y epel-release
+yum install -y https://zfsonlinux.org/epel/zfs-release.el7_9.noarch.rpm
+yum install -y kernel-devel zfs
+加载模块
+[root@localhost ~]# lsmod|grep zfs
+
+[root@localhost ~]# modprobe zfs
+
+[root@localhost ~]# lsmod|grep zfs
+zfs                  3986850  0 
+zunicode              331170  1 zfs
+zlua                  151525  1 zfs
+zcommon                89551  1 zfs
+znvpair                94388  2 zfs,zcommon
+zavl                   15167  1 zfs
+icp                   301854  1 zfs
+spl                   104299  5 icp,zfs,zavl,zcommon,znvpair
+看看文件系统
+[root@localhost ~]#  zfs list
+no datasets available
+192.168.85.100的本地磁盘从sdb 一直到 sdg，首先zpool建立池子，类似raid卡的功能
+然后再zfs建立文件系统
+[root@localhost ~]# zpool create -f zfspool sdb sdc sdd sde sdf sdg
+
+[root@localhost ~]# zpool status
+  pool: zfspool
+ state: ONLINE
+  scan: none requested
+config:
+
+        NAME        STATE     READ WRITE CKSUM
+        zfspool     ONLINE       0     0     0
+          sdb       ONLINE       0     0     0
+          sdc       ONLINE       0     0     0
+          sdd       ONLINE       0     0     0
+          sde       ONLINE       0     0     0
+          sdf       ONLINE       0     0     0
+          sdg       ONLINE       0     0     0
+
+errors: No known data errors
+
+[root@localhost ~]# df -h
+文件系统                 容量  已用  可用 已用% 挂载点
+devtmpfs                  63G     0   63G    0% /dev
+tmpfs                     63G     0   63G    0% /dev/shm
+tmpfs                     63G  9.9M   63G    1% /run
+tmpfs                     63G     0   63G    0% /sys/fs/cgroup
+/dev/mapper/centos-root   50G  1.7G   49G    4% /
+/dev/sda1               1014M  189M  826M   19% /boot
+/dev/mapper/centos-home  392G   33M  392G    1% /home
+tmpfs                     13G     0   13G    0% /run/user/0
+zfspool                   53T  128K   53T    1% /zfspool
+上面对生产无意义，没有任何冗余的配置在生产是行不通的"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"CentOS7安装ZFS","item":"https://rendoumi.com/posts/20231215-zfs_centos/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"CentOS7安装ZFS","name":"CentOS7安装ZFS","description":"zfs用来顶替Raid控制卡，有相当强悍的性能，TrueNAS用的就是这玩意。\n官方安装文档： https://openzfs.github.io/openzfs-docs/Getting%20Started/RHEL%20and%20CentOS.html\nCentOS7安装\nyum install -y epel-release\ryum install -y https://zfsonlinux.org/epel/zfs-release.el7_9.noarch.rpm\ryum install -y kernel-devel zfs 加载模块\n[root@localhost ~]# lsmod|grep zfs\r[root@localhost ~]# modprobe zfs\r[root@localhost ~]# lsmod|grep zfs\rzfs 3986850 0 zunicode 331170 1 zfs\rzlua 151525 1 zfs\rzcommon 89551 1 zfs\rznvpair 94388 2 zfs,zcommon\rzavl 15167 1 zfs\ricp 301854 1 zfs\rspl 104299 5 icp,zfs,zavl,zcommon,znvpair 看看文件系统\n[root@localhost ~]# zfs list\rno datasets available 192.168.85.100的本地磁盘从sdb 一直到 sdg，首先zpool建立池子，类似raid卡的功能 然后再zfs建立文件系统\n[root@localhost ~]# zpool create -f zfspool sdb sdc sdd sde sdf sdg\r[root@localhost ~]# zpool status\rpool: zfspool\rstate: ONLINE\rscan: none requested\rconfig:\rNAME STATE READ WRITE CKSUM\rzfspool ONLINE 0 0 0\rsdb ONLINE 0 0 0\rsdc ONLINE 0 0 0\rsdd ONLINE 0 0 0\rsde ONLINE 0 0 0\rsdf ONLINE 0 0 0\rsdg ONLINE 0 0 0\rerrors: No known data errors\r[root@localhost ~]# df -h\r文件系统 容量 已用 可用 已用% 挂载点\rdevtmpfs 63G 0 63G 0% /dev\rtmpfs 63G 0 63G 0% /dev/shm\rtmpfs 63G 9.9M 63G 1% /run\rtmpfs 63G 0 63G 0% /sys/fs/cgroup\r/dev/mapper/centos-root 50G 1.7G 49G 4% /\r/dev/sda1 1014M 189M 826M 19% /boot\r/dev/mapper/centos-home 392G 33M 392G 1% /home\rtmpfs 13G 0 13G 0% /run/user/0\rzfspool 53T 128K 53T 1% /zfspool 上面对生产无意义，没有任何冗余的配置在生产是行不通的\n","keywords":[],"articleBody":"zfs用来顶替Raid控制卡，有相当强悍的性能，TrueNAS用的就是这玩意。\n官方安装文档： https://openzfs.github.io/openzfs-docs/Getting%20Started/RHEL%20and%20CentOS.html\nCentOS7安装\nyum install -y epel-release\ryum install -y https://zfsonlinux.org/epel/zfs-release.el7_9.noarch.rpm\ryum install -y kernel-devel zfs 加载模块\n[root@localhost ~]# lsmod|grep zfs\r[root@localhost ~]# modprobe zfs\r[root@localhost ~]# lsmod|grep zfs\rzfs 3986850 0 zunicode 331170 1 zfs\rzlua 151525 1 zfs\rzcommon 89551 1 zfs\rznvpair 94388 2 zfs,zcommon\rzavl 15167 1 zfs\ricp 301854 1 zfs\rspl 104299 5 icp,zfs,zavl,zcommon,znvpair 看看文件系统\n[root@localhost ~]# zfs list\rno datasets available 192.168.85.100的本地磁盘从sdb 一直到 sdg，首先zpool建立池子，类似raid卡的功能 然后再zfs建立文件系统\n[root@localhost ~]# zpool create -f zfspool sdb sdc sdd sde sdf sdg\r[root@localhost ~]# zpool status\rpool: zfspool\rstate: ONLINE\rscan: none requested\rconfig:\rNAME STATE READ WRITE CKSUM\rzfspool ONLINE 0 0 0\rsdb ONLINE 0 0 0\rsdc ONLINE 0 0 0\rsdd ONLINE 0 0 0\rsde ONLINE 0 0 0\rsdf ONLINE 0 0 0\rsdg ONLINE 0 0 0\rerrors: No known data errors\r[root@localhost ~]# df -h\r文件系统 容量 已用 可用 已用% 挂载点\rdevtmpfs 63G 0 63G 0% /dev\rtmpfs 63G 0 63G 0% /dev/shm\rtmpfs 63G 9.9M 63G 1% /run\rtmpfs 63G 0 63G 0% /sys/fs/cgroup\r/dev/mapper/centos-root 50G 1.7G 49G 4% /\r/dev/sda1 1014M 189M 826M 19% /boot\r/dev/mapper/centos-home 392G 33M 392G 1% /home\rtmpfs 13G 0 13G 0% /run/user/0\rzfspool 53T 128K 53T 1% /zfspool 上面对生产无意义，没有任何冗余的配置在生产是行不通的\n破坏掉先\nzpool destroy zfspool 条带对机房基本无意义，做mirror 1即Raid1\n[root@localhost ~]# zpool create -f zfspool mirror sdb sdc\r[root@localhost ~]# zpool status\rpool: zfspool\rstate: ONLINE\rscan: none requested\rconfig:\rNAME STATE READ WRITE CKSUM\rzfspool ONLINE 0 0 0\rmirror-0 ONLINE 0 0 0\rsdb ONLINE 0 0 0\rsdc ONLINE 0 0 0\rerrors: No known data errors mirror的话往里面增加盘必须成对，单盘禁止往里面加\n[root@localhost ~]# zpool add -f zfspool mirror sde\rinvalid vdev specification: mirror requires at least 2 devices 增加一对盘进去，这样就做成Raid10了\n[root@localhost ~]# zpool add -f zfspool mirror sde sdf\r[root@localhost ~]# zpool status\rpool: zfspool\rstate: ONLINE\rscan: none requested\rconfig:\rNAME STATE READ WRITE CKSUM\rzfspool ONLINE 0 0 0\rmirror-0 ONLINE 0 0 0\rsdb ONLINE 0 0 0\rsdc ONLINE 0 0 0\rmirror-1 ONLINE 0 0 0\rsde ONLINE 0 0 0\rsdf ONLINE 0 0 0\rerrors: No known data errors 另外zfs有个特殊的raidz1 raidz2 raidz3 分别代表允许1块盘坏，2块盘坏，3块盘坏 需要的盘最小数量分别是2块，3块，4块\n在生产，比较适合的是允许2块盘坏，并加1块host spare\n[root@localhost /]# zpool create -f zfspool raidz2 sdb sdc sde sdf\r[root@localhost /]# zpool status\rpool: zfspool\rstate: ONLINE\rscan: none requested\rconfig:\rNAME STATE READ WRITE CKSUM\rzfspool ONLINE 0 0 0\rraidz2-0 ONLINE 0 0 0\rsdb ONLINE 0 0 0\rsdc ONLINE 0 0 0\rsde ONLINE 0 0 0\rsdf ONLINE 0 0 0\rerrors: No known data errors 增加热备盘spare\n[root@localhost /]# zpool add zfspool spare sdg\r[root@localhost /]# zpool status\rpool: zfspool\rstate: ONLINE\rscan: none requested\rconfig:\rNAME STATE READ WRITE CKSUM\rzfspool ONLINE 0 0 0\rraidz2-0 ONLINE 0 0 0\rsdb ONLINE 0 0 0\rsdc ONLINE 0 0 0\rsde ONLINE 0 0 0\rsdf ONLINE 0 0 0\rspares\rsdg AVAIL errors: No known data errors 如果出现坏盘，用好盘sdf换掉坏盘sde\n[root@localhost /]# zpool replace zfspool sde sdf\r[root@localhost /]# zpool status\rpool: zfspool\rstate: ONLINE\rscan: resilvered 1.17M in 0 days 00:00:00 with 0 errors on Thu Mar 11 20:02:19 2021\rconfig:\rNAME STATE READ WRITE CKSUM\rzfspool ONLINE 0 0 0\rraidz2-0 ONLINE 0 0 0\rsdb ONLINE 0 0 0\rsdc ONLINE 0 0 0\rsdf ONLINE 0 0 0\rspares\rsdg AVAIL errors: No known data errors 检查zpool磁盘组的完整性\nzpool scrub testpool 增加cache会增加读速度，类似盘阵热点SSD自动落盘技术\n$ zpool create mirror /dev/sda /dev/sdb cache /dev/sdk /dev/sdl 增加log会提高写速度，类似盘阵热点SSD自动落盘技术\n$ zpool create mirror /dev/sda /dev/sdb log /dev/sdk /dev/sdl zpool 建立好zfspool后，可以建文件系统\nzfs create zfspool/dba-vol\r[root@localhost /]# zfs list\rNAME USED AVAIL REFER MOUNTPOINT\rzfspool 1.47M 35.2T 153K /zfspool\rzfspool/dba-vol 262K 35.2T 160K /zfspool/dba-vol 修改挂载点\nzfs set mountpoint=/path/to/mount zpool-name/dataset-name 快照\nzfs snapshot [pool]/[dataset name]@[snapshot name] zfs snapshot zfspool/dba-vol@dba-vol-20210315\rzfs list -t snapshot 注意，快照恢复后，该时间点之后的快照会全部丢失\rzfs rollback -r [pool]/[dataset]@[snapshot name] zfs rollback -r zfspool/dba-vol@dba-vol-20210315 ","wordCount":"629","inLanguage":"zh","datePublished":"2023-12-15T13:05:11+08:00","dateModified":"2023-12-15T13:05:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20231215-zfs_centos/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">CentOS7安装ZFS
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2023-12-15 13:05:11 +0800 CST'>2023年12月15日</span></div></header><div class=post-content><p>zfs用来顶替Raid控制卡，有相当强悍的性能，TrueNAS用的就是这玩意。</p><p>官方安装文档：
+<a href=https://openzfs.github.io/openzfs-docs/Getting%20Started/RHEL%20and%20CentOS.html>https://openzfs.github.io/openzfs-docs/Getting%20Started/RHEL%20and%20CentOS.html</a></p><p>CentOS7安装</p><pre tabindex=0><code>yum install -y epel-release
+yum install -y https://zfsonlinux.org/epel/zfs-release.el7_9.noarch.rpm
+yum install -y kernel-devel zfs
+</code></pre><p>加载模块</p><pre tabindex=0><code>[root@localhost ~]# lsmod|grep zfs
+
+[root@localhost ~]# modprobe zfs
+
+[root@localhost ~]# lsmod|grep zfs
+zfs                  3986850  0 
+zunicode              331170  1 zfs
+zlua                  151525  1 zfs
+zcommon                89551  1 zfs
+znvpair                94388  2 zfs,zcommon
+zavl                   15167  1 zfs
+icp                   301854  1 zfs
+spl                   104299  5 icp,zfs,zavl,zcommon,znvpair
+</code></pre><p>看看文件系统</p><pre tabindex=0><code>[root@localhost ~]#  zfs list
+no datasets available
+</code></pre><p>192.168.85.100的本地磁盘从sdb 一直到 sdg，首先zpool建立池子，类似raid卡的功能
+然后再zfs建立文件系统</p><pre tabindex=0><code>[root@localhost ~]# zpool create -f zfspool sdb sdc sdd sde sdf sdg
+
+[root@localhost ~]# zpool status
+  pool: zfspool
+ state: ONLINE
+  scan: none requested
+config:
+
+        NAME        STATE     READ WRITE CKSUM
+        zfspool     ONLINE       0     0     0
+          sdb       ONLINE       0     0     0
+          sdc       ONLINE       0     0     0
+          sdd       ONLINE       0     0     0
+          sde       ONLINE       0     0     0
+          sdf       ONLINE       0     0     0
+          sdg       ONLINE       0     0     0
+
+errors: No known data errors
+
+[root@localhost ~]# df -h
+文件系统                 容量  已用  可用 已用% 挂载点
+devtmpfs                  63G     0   63G    0% /dev
+tmpfs                     63G     0   63G    0% /dev/shm
+tmpfs                     63G  9.9M   63G    1% /run
+tmpfs                     63G     0   63G    0% /sys/fs/cgroup
+/dev/mapper/centos-root   50G  1.7G   49G    4% /
+/dev/sda1               1014M  189M  826M   19% /boot
+/dev/mapper/centos-home  392G   33M  392G    1% /home
+tmpfs                     13G     0   13G    0% /run/user/0
+zfspool                   53T  128K   53T    1% /zfspool
+</code></pre><p>上面对生产无意义，没有任何冗余的配置在生产是行不通的</p><p>破坏掉先</p><pre tabindex=0><code>zpool destroy zfspool
+</code></pre><p>条带对机房基本无意义，做mirror 1即Raid1</p><pre tabindex=0><code>[root@localhost ~]# zpool create -f zfspool mirror sdb sdc
+
+[root@localhost ~]# zpool status
+  pool: zfspool
+ state: ONLINE
+  scan: none requested
+config:
+
+        NAME        STATE     READ WRITE CKSUM
+        zfspool     ONLINE       0     0     0
+          mirror-0  ONLINE       0     0     0
+            sdb     ONLINE       0     0     0
+            sdc     ONLINE       0     0     0
+
+errors: No known data errors
+</code></pre><p>mirror的话往里面增加盘必须成对，单盘禁止往里面加</p><pre tabindex=0><code>[root@localhost ~]# zpool add -f zfspool mirror sde
+invalid vdev specification: mirror requires at least 2 devices
+</code></pre><p>增加一对盘进去，这样就做成Raid10了</p><pre tabindex=0><code>[root@localhost ~]# zpool add -f zfspool mirror sde sdf
+
+[root@localhost ~]# zpool status
+  pool: zfspool
+ state: ONLINE
+  scan: none requested
+config:
+
+        NAME        STATE     READ WRITE CKSUM
+        zfspool     ONLINE       0     0     0
+          mirror-0  ONLINE       0     0     0
+            sdb     ONLINE       0     0     0
+            sdc     ONLINE       0     0     0
+          mirror-1  ONLINE       0     0     0
+            sde     ONLINE       0     0     0
+            sdf     ONLINE       0     0     0
+
+errors: No known data errors
+</code></pre><p>另外zfs有个特殊的raidz1 raidz2 raidz3
+分别代表允许1块盘坏，2块盘坏，3块盘坏
+需要的盘最小数量分别是2块，3块，4块</p><p>在生产，比较适合的是允许2块盘坏，并加1块host spare</p><pre tabindex=0><code>[root@localhost /]# zpool create -f zfspool raidz2 sdb sdc sde sdf
+
+[root@localhost /]# zpool status
+  pool: zfspool
+ state: ONLINE
+  scan: none requested
+config:
+
+        NAME        STATE     READ WRITE CKSUM
+        zfspool     ONLINE       0     0     0
+          raidz2-0  ONLINE       0     0     0
+            sdb     ONLINE       0     0     0
+            sdc     ONLINE       0     0     0
+            sde     ONLINE       0     0     0
+            sdf     ONLINE       0     0     0
+
+errors: No known data errors
+</code></pre><p>增加热备盘spare</p><pre tabindex=0><code>[root@localhost /]# zpool add zfspool spare sdg
+
+[root@localhost /]# zpool status
+  pool: zfspool
+ state: ONLINE
+  scan: none requested
+config:
+
+        NAME        STATE     READ WRITE CKSUM
+        zfspool     ONLINE       0     0     0
+          raidz2-0  ONLINE       0     0     0
+            sdb     ONLINE       0     0     0
+            sdc     ONLINE       0     0     0
+            sde     ONLINE       0     0     0
+            sdf     ONLINE       0     0     0
+        spares
+          sdg       AVAIL   
+
+errors: No known data errors
+</code></pre><p>如果出现坏盘，用好盘sdf换掉坏盘sde</p><pre tabindex=0><code>[root@localhost /]# zpool replace zfspool sde sdf
+
+[root@localhost /]# zpool status
+  pool: zfspool
+ state: ONLINE
+  scan: resilvered 1.17M in 0 days 00:00:00 with 0 errors on Thu Mar 11 20:02:19 2021
+config:
+
+        NAME        STATE     READ WRITE CKSUM
+        zfspool     ONLINE       0     0     0
+          raidz2-0  ONLINE       0     0     0
+            sdb     ONLINE       0     0     0
+            sdc     ONLINE       0     0     0
+            sdf     ONLINE       0     0     0
+        spares
+          sdg       AVAIL   
+
+errors: No known data errors
+</code></pre><p>检查zpool磁盘组的完整性</p><pre tabindex=0><code>zpool scrub testpool
+</code></pre><p>增加cache会增加读速度，类似盘阵热点SSD自动落盘技术</p><pre tabindex=0><code>$ zpool create mirror /dev/sda /dev/sdb cache /dev/sdk /dev/sdl
+</code></pre><p>增加log会提高写速度，类似盘阵热点SSD自动落盘技术</p><pre tabindex=0><code>$ zpool create mirror /dev/sda /dev/sdb log /dev/sdk /dev/sdl
+</code></pre><p>zpool 建立好zfspool后，可以建文件系统</p><pre tabindex=0><code>zfs create zfspool/dba-vol
+
+[root@localhost /]# zfs list
+NAME              USED  AVAIL     REFER  MOUNTPOINT
+zfspool          1.47M  35.2T      153K  /zfspool
+zfspool/dba-vol   262K  35.2T      160K  /zfspool/dba-vol
+</code></pre><p>修改挂载点</p><pre tabindex=0><code>zfs set mountpoint=/path/to/mount zpool-name/dataset-name
+</code></pre><p>快照</p><pre tabindex=0><code>zfs snapshot [pool]/[dataset name]@[snapshot name]  
+zfs snapshot zfspool/dba-vol@dba-vol-20210315
+
+zfs list -t snapshot  
+
+注意，快照恢复后，该时间点之后的快照会全部丢失
+zfs rollback -r [pool]/[dataset]@[snapshot name]  
+zfs rollback -r zfspool/dba-vol@dba-vol-20210315
+</code></pre></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

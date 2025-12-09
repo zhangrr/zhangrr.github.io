@@ -1,0 +1,165 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>xxl-job的动态编辑并执行java脚本 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='数据库管理员有个特殊的需求：
+需要一个msyql客户端，可以定时去连接mysql服务器执行SQL语句。且可以自己动态编辑SQL语句。
+找来找去，数据库管理员对spring java这类东西吧一无所知，但是通晓SQL，这种情形XXL-JOB的EXECUTOR代位执行就比较适合。
+主控地址：http://172.18.31.13/xxl-job-admin/
+
+使用很简单，我们在172.18.31.14装一个被控端的executor，运行模式选择GLUE(Java)模式，GLUE模式就可以随便编辑 JAVA+SQL源代码了。设置执行频率是每30分钟执行一次。
+
+选择GLUE模式后，我们就可以在GLUE IDE里编辑代码：
+
+代码如下：
+注：在172.18.31.14上面已经装了一个MySQL服务端，有一个user库。
+package com.xxl.job.service.handler;
+
+import com.xxl.job.core.context.XxlJobHelper;
+import com.xxl.job.core.handler.IJobHandler;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+
+public class DemoGlueJobHandler extends IJobHandler {
+
+	@Override
+	public void execute() throws Exception {
+
+        DriverManagerDataSource ds = new DriverManagerDataSource();
+        ds.setDriverClassName("com.mysql.jdbc.Driver");
+        ds.setUrl("jdbc:mysql://localhost:3306/users?characterEncoding=UTF-8&amp;useSSL=false");
+        ds.setUsername("root");
+        ds.setPassword("xxxxxxxx");
+
+        JdbcTemplate jdbcTemplate = new JdbcTemplate();
+        jdbcTemplate.setDataSource(ds);
+      
+
+        List rows = jdbcTemplate.queryForList("select * from user"); 
+        Iterator it = rows.iterator(); 
+        while(it.hasNext()) { 
+            Map userMap = (Map) it.next(); 
+            XxlJobHelper.log(userMap.get("id") + "\t"); 
+            XxlJobHelper.log(userMap.get("name") + "\t"); 
+        } 
+      
+        XxlJobHelper.log("XXL-JOB guning, Hello World.");
+	}
+
+  
+}
+为了实现mysql客户端可以对MySQL进行读写，我们需要在xxl-job的xxl-job-executor-sample-springboot示例项目中，pom.xml中增加spring-jdbc和mysql-connector-java的jar包部分。打出一个xxl-job的executor的执行端程序。'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20231212-xxl-job/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20231212-xxl-job/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20231212-xxl-job/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="xxl-job的动态编辑并执行java脚本"><meta property="og:description" content='数据库管理员有个特殊的需求：
+需要一个msyql客户端，可以定时去连接mysql服务器执行SQL语句。且可以自己动态编辑SQL语句。
+找来找去，数据库管理员对spring java这类东西吧一无所知，但是通晓SQL，这种情形XXL-JOB的EXECUTOR代位执行就比较适合。
+主控地址：http://172.18.31.13/xxl-job-admin/
+使用很简单，我们在172.18.31.14装一个被控端的executor，运行模式选择GLUE(Java)模式，GLUE模式就可以随便编辑 JAVA+SQL源代码了。设置执行频率是每30分钟执行一次。
+选择GLUE模式后，我们就可以在GLUE IDE里编辑代码：
+代码如下： 注：在172.18.31.14上面已经装了一个MySQL服务端，有一个user库。
+package com.xxl.job.service.handler;import com.xxl.job.core.context.XxlJobHelper;import com.xxl.job.core.handler.IJobHandler;import org.springframework.jdbc.core.JdbcTemplate;import org.springframework.jdbc.datasource.DriverManagerDataSource;public class DemoGlueJobHandler extends IJobHandler {@Overridepublic void execute() throws Exception {DriverManagerDataSource ds = new DriverManagerDataSource();ds.setDriverClassName("com.mysql.jdbc.Driver");ds.setUrl("jdbc:mysql://localhost:3306/users?characterEncoding=UTF-8&amp;useSSL=false");ds.setUsername("root");ds.setPassword("xxxxxxxx");JdbcTemplate jdbcTemplate = new JdbcTemplate();jdbcTemplate.setDataSource(ds);List rows = jdbcTemplate.queryForList("select * from user"); Iterator it = rows.iterator(); while(it.hasNext()) { Map userMap = (Map) it.next(); XxlJobHelper.log(userMap.get("id") + "\t"); XxlJobHelper.log(userMap.get("name") + "\t"); } XxlJobHelper.log("XXL-JOB guning, Hello World.");}} 为了实现mysql客户端可以对MySQL进行读写，我们需要在xxl-job的xxl-job-executor-sample-springboot示例项目中，pom.xml中增加spring-jdbc和mysql-connector-java的jar包部分。打出一个xxl-job的executor的执行端程序。'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2023-12-12T10:05:11+08:00"><meta property="article:modified_time" content="2023-12-12T10:05:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="xxl-job的动态编辑并执行java脚本"><meta name=twitter:description content='数据库管理员有个特殊的需求：
+需要一个msyql客户端，可以定时去连接mysql服务器执行SQL语句。且可以自己动态编辑SQL语句。
+找来找去，数据库管理员对spring java这类东西吧一无所知，但是通晓SQL，这种情形XXL-JOB的EXECUTOR代位执行就比较适合。
+主控地址：http://172.18.31.13/xxl-job-admin/
+
+使用很简单，我们在172.18.31.14装一个被控端的executor，运行模式选择GLUE(Java)模式，GLUE模式就可以随便编辑 JAVA+SQL源代码了。设置执行频率是每30分钟执行一次。
+
+选择GLUE模式后，我们就可以在GLUE IDE里编辑代码：
+
+代码如下：
+注：在172.18.31.14上面已经装了一个MySQL服务端，有一个user库。
+package com.xxl.job.service.handler;
+
+import com.xxl.job.core.context.XxlJobHelper;
+import com.xxl.job.core.handler.IJobHandler;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+
+public class DemoGlueJobHandler extends IJobHandler {
+
+	@Override
+	public void execute() throws Exception {
+
+        DriverManagerDataSource ds = new DriverManagerDataSource();
+        ds.setDriverClassName("com.mysql.jdbc.Driver");
+        ds.setUrl("jdbc:mysql://localhost:3306/users?characterEncoding=UTF-8&amp;useSSL=false");
+        ds.setUsername("root");
+        ds.setPassword("xxxxxxxx");
+
+        JdbcTemplate jdbcTemplate = new JdbcTemplate();
+        jdbcTemplate.setDataSource(ds);
+      
+
+        List rows = jdbcTemplate.queryForList("select * from user"); 
+        Iterator it = rows.iterator(); 
+        while(it.hasNext()) { 
+            Map userMap = (Map) it.next(); 
+            XxlJobHelper.log(userMap.get("id") + "\t"); 
+            XxlJobHelper.log(userMap.get("name") + "\t"); 
+        } 
+      
+        XxlJobHelper.log("XXL-JOB guning, Hello World.");
+	}
+
+  
+}
+为了实现mysql客户端可以对MySQL进行读写，我们需要在xxl-job的xxl-job-executor-sample-springboot示例项目中，pom.xml中增加spring-jdbc和mysql-connector-java的jar包部分。打出一个xxl-job的executor的执行端程序。'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"xxl-job的动态编辑并执行java脚本","item":"https://rendoumi.com/posts/20231212-xxl-job/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"xxl-job的动态编辑并执行java脚本","name":"xxl-job的动态编辑并执行java脚本","description":"数据库管理员有个特殊的需求：\n需要一个msyql客户端，可以定时去连接mysql服务器执行SQL语句。且可以自己动态编辑SQL语句。\n找来找去，数据库管理员对spring java这类东西吧一无所知，但是通晓SQL，这种情形XXL-JOB的EXECUTOR代位执行就比较适合。\n主控地址：http://172.18.31.13/xxl-job-admin/\n使用很简单，我们在172.18.31.14装一个被控端的executor，运行模式选择GLUE(Java)模式，GLUE模式就可以随便编辑 JAVA+SQL源代码了。设置执行频率是每30分钟执行一次。\n选择GLUE模式后，我们就可以在GLUE IDE里编辑代码：\n代码如下： 注：在172.18.31.14上面已经装了一个MySQL服务端，有一个user库。\npackage com.xxl.job.service.handler;\rimport com.xxl.job.core.context.XxlJobHelper;\rimport com.xxl.job.core.handler.IJobHandler;\rimport org.springframework.jdbc.core.JdbcTemplate;\rimport org.springframework.jdbc.datasource.DriverManagerDataSource;\rpublic class DemoGlueJobHandler extends IJobHandler {\r@Override\rpublic void execute() throws Exception {\rDriverManagerDataSource ds = new DriverManagerDataSource();\rds.setDriverClassName(\u0026#34;com.mysql.jdbc.Driver\u0026#34;);\rds.setUrl(\u0026#34;jdbc:mysql://localhost:3306/users?characterEncoding=UTF-8\u0026amp;useSSL=false\u0026#34;);\rds.setUsername(\u0026#34;root\u0026#34;);\rds.setPassword(\u0026#34;xxxxxxxx\u0026#34;);\rJdbcTemplate jdbcTemplate = new JdbcTemplate();\rjdbcTemplate.setDataSource(ds);\rList rows = jdbcTemplate.queryForList(\u0026#34;select * from user\u0026#34;); Iterator it = rows.iterator(); while(it.hasNext()) { Map userMap = (Map) it.next(); XxlJobHelper.log(userMap.get(\u0026#34;id\u0026#34;) + \u0026#34;\\t\u0026#34;); XxlJobHelper.log(userMap.get(\u0026#34;name\u0026#34;) + \u0026#34;\\t\u0026#34;); } XxlJobHelper.log(\u0026#34;XXL-JOB guning, Hello World.\u0026#34;);\r}\r} 为了实现mysql客户端可以对MySQL进行读写，我们需要在xxl-job的xxl-job-executor-sample-springboot示例项目中，pom.xml中增加spring-jdbc和mysql-connector-java的jar包部分。打出一个xxl-job的executor的执行端程序。\n","keywords":[],"articleBody":"数据库管理员有个特殊的需求：\n需要一个msyql客户端，可以定时去连接mysql服务器执行SQL语句。且可以自己动态编辑SQL语句。\n找来找去，数据库管理员对spring java这类东西吧一无所知，但是通晓SQL，这种情形XXL-JOB的EXECUTOR代位执行就比较适合。\n主控地址：http://172.18.31.13/xxl-job-admin/\n使用很简单，我们在172.18.31.14装一个被控端的executor，运行模式选择GLUE(Java)模式，GLUE模式就可以随便编辑 JAVA+SQL源代码了。设置执行频率是每30分钟执行一次。\n选择GLUE模式后，我们就可以在GLUE IDE里编辑代码：\n代码如下： 注：在172.18.31.14上面已经装了一个MySQL服务端，有一个user库。\npackage com.xxl.job.service.handler;\rimport com.xxl.job.core.context.XxlJobHelper;\rimport com.xxl.job.core.handler.IJobHandler;\rimport org.springframework.jdbc.core.JdbcTemplate;\rimport org.springframework.jdbc.datasource.DriverManagerDataSource;\rpublic class DemoGlueJobHandler extends IJobHandler {\r@Override\rpublic void execute() throws Exception {\rDriverManagerDataSource ds = new DriverManagerDataSource();\rds.setDriverClassName(\"com.mysql.jdbc.Driver\");\rds.setUrl(\"jdbc:mysql://localhost:3306/users?characterEncoding=UTF-8\u0026useSSL=false\");\rds.setUsername(\"root\");\rds.setPassword(\"xxxxxxxx\");\rJdbcTemplate jdbcTemplate = new JdbcTemplate();\rjdbcTemplate.setDataSource(ds);\rList rows = jdbcTemplate.queryForList(\"select * from user\"); Iterator it = rows.iterator(); while(it.hasNext()) { Map userMap = (Map) it.next(); XxlJobHelper.log(userMap.get(\"id\") + \"\\t\"); XxlJobHelper.log(userMap.get(\"name\") + \"\\t\"); } XxlJobHelper.log(\"XXL-JOB guning, Hello World.\");\r}\r} 为了实现mysql客户端可以对MySQL进行读写，我们需要在xxl-job的xxl-job-executor-sample-springboot示例项目中，pom.xml中增加spring-jdbc和mysql-connector-java的jar包部分。打出一个xxl-job的executor的执行端程序。\n代码在 /root/xxl-job-2.3.0/xxl-job-executor-samples/xxl-job-executor-sample-springboot目录下，用mvn package就可以打出xxl-job-executor-sample-springboot-2.3.0.jar包。\norg.springframework\rspring-jdbc\r4.3.2.RELEASE\rmysql\rmysql-connector-java\r${mysql-connector-java.version}\r启动agent的systemd服务脚本，/etc/systemd/system/xxljob-agent.service\n[Unit] After=network.target Wants=network.target [Service] WorkingDirectory=/usr/local/bin\rType=simple ExecStart=/usr/bin/java -jar /usr/local/bin/xxl-job-executor-sample-springboot-2.3.0.jar\rRestart=on-failure [Install] WantedBy=multi-user.target 这样就OK了。\n","wordCount":"108","inLanguage":"zh","datePublished":"2023-12-12T10:05:11+08:00","dateModified":"2023-12-12T10:05:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20231212-xxl-job/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">xxl-job的动态编辑并执行java脚本
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2023-12-12 10:05:11 +0800 CST'>2023年12月12日</span></div></header><div class=post-content><p>数据库管理员有个特殊的需求：</p><p>需要一个msyql客户端，可以定时去连接mysql服务器执行SQL语句。且可以自己动态编辑SQL语句。</p><p>找来找去，数据库管理员对spring java这类东西吧一无所知，但是通晓SQL，这种情形XXL-JOB的EXECUTOR代位执行就比较适合。</p><p>主控地址：http://172.18.31.13/xxl-job-admin/</p><p><img loading=lazy src=/posts/20231212-xxl-job/2022-02-07_091252.png></p><p>使用很简单，我们在172.18.31.14装一个被控端的executor，运行模式选择GLUE(Java)模式，GLUE模式就可以随便编辑 JAVA+SQL源代码了。设置执行频率是每30分钟执行一次。</p><p><img loading=lazy src=/posts/20231212-xxl-job/2022-02-07_091351.png></p><p>选择GLUE模式后，我们就可以在GLUE IDE里编辑代码：</p><p><img loading=lazy src=/posts/20231212-xxl-job/2022-02-07_091558.png></p><p>代码如下：
+注：在172.18.31.14上面已经装了一个MySQL服务端，有一个user库。</p><pre tabindex=0><code>package com.xxl.job.service.handler;
+
+import com.xxl.job.core.context.XxlJobHelper;
+import com.xxl.job.core.handler.IJobHandler;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+
+public class DemoGlueJobHandler extends IJobHandler {
+
+	@Override
+	public void execute() throws Exception {
+
+        DriverManagerDataSource ds = new DriverManagerDataSource();
+        ds.setDriverClassName(&#34;com.mysql.jdbc.Driver&#34;);
+        ds.setUrl(&#34;jdbc:mysql://localhost:3306/users?characterEncoding=UTF-8&amp;useSSL=false&#34;);
+        ds.setUsername(&#34;root&#34;);
+        ds.setPassword(&#34;xxxxxxxx&#34;);
+
+        JdbcTemplate jdbcTemplate = new JdbcTemplate();
+        jdbcTemplate.setDataSource(ds);
+      
+
+        List rows = jdbcTemplate.queryForList(&#34;select * from user&#34;); 
+        Iterator it = rows.iterator(); 
+        while(it.hasNext()) { 
+            Map userMap = (Map) it.next(); 
+            XxlJobHelper.log(userMap.get(&#34;id&#34;) + &#34;\t&#34;); 
+            XxlJobHelper.log(userMap.get(&#34;name&#34;) + &#34;\t&#34;); 
+        } 
+      
+        XxlJobHelper.log(&#34;XXL-JOB guning, Hello World.&#34;);
+	}
+
+  
+}
+</code></pre><p>为了实现mysql客户端可以对MySQL进行读写，我们需要在xxl-job的xxl-job-executor-sample-springboot示例项目中，pom.xml中增加spring-jdbc和mysql-connector-java的jar包部分。打出一个xxl-job的executor的执行端程序。</p><p>代码在
+/root/xxl-job-2.3.0/xxl-job-executor-samples/xxl-job-executor-sample-springboot目录下，用mvn package就可以打出xxl-job-executor-sample-springboot-2.3.0.jar包。</p><pre tabindex=0><code>        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-jdbc&lt;/artifactId&gt;
+            &lt;version&gt;4.3.2.RELEASE&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;mysql&lt;/groupId&gt;
+            &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;
+            &lt;version&gt;${mysql-connector-java.version}&lt;/version&gt;
+        &lt;/dependency&gt;
+</code></pre><p>启动agent的systemd服务脚本，/etc/systemd/system/xxljob-agent.service</p><pre tabindex=0><code>[Unit]  
+After=network.target  
+Wants=network.target  
+
+[Service]  
+WorkingDirectory=/usr/local/bin
+Type=simple  
+ExecStart=/usr/bin/java -jar /usr/local/bin/xxl-job-executor-sample-springboot-2.3.0.jar
+Restart=on-failure  
+
+[Install]  
+WantedBy=multi-user.target 
+</code></pre><p>这样就OK了。</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

@@ -1,0 +1,170 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>lua与redis结合应用于nginx的动态upstream | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='技术要求很简明：
+nginx分发请求的时候，upstream是由lua从redis中读取配置动态生成的，这样便于用程序动态修改。
+装好nginx+lua，过程不表。 把lua redis的模块配到路径中
+wget https://raw.github.com/nrk/redis-lua/version-2.0/src/redis.lua  
+nginx配置如下：
+server {  
+  listen 80;
+  server_name _;
+  server_name_in_redirect off;
+  port_in_redirect off;
+  root /root/html;
+
+  location / {
+    set $upstream "";
+    rewrite_by_lua &#39;
+      -- load global route cache into current request scope
+      -- by default vars are not shared between requests
+      local routes = _G.routes
+
+      -- setup routes cache if empty
+      if routes == nil then
+        routes = {}
+        ngx.log(ngx.ALERT, "Route cache is empty.")
+      end
+
+      -- try cached route first
+      local route = routes[ngx.var.http_host]
+      if route == nil then
+        local redis  = require "redis"
+        local client = redis.connect("localhost", 6379)
+        route        = client:get(ngx.var.http_host)
+      end
+
+      -- fallback to redis for lookups
+      if route ~= nil then
+        ngx.var.upstream = route
+        routes[ngx.var.http_host] = route
+        _G.routes = routes
+      else
+        ngx.exit(ngx.HTTP_NOT_FOUND)
+      end
+    &#39;;
+
+    proxy_buffering             off;
+    proxy_set_header            Host $host;
+    proxy_set_header            X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_redirect              off;
+    proxy_connect_timeout       10;
+    proxy_send_timeout          30;
+    proxy_read_timeout          30;
+    proxy_pass                  http://$upstream;
+  }
+}
+送进redis一些数据'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20240123-lua_redis_nginx_upstream/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20240123-lua_redis_nginx_upstream/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20240123-lua_redis_nginx_upstream/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="lua与redis结合应用于nginx的动态upstream"><meta property="og:description" content='技术要求很简明：
+nginx分发请求的时候，upstream是由lua从redis中读取配置动态生成的，这样便于用程序动态修改。
+装好nginx+lua，过程不表。 把lua redis的模块配到路径中
+wget https://raw.github.com/nrk/redis-lua/version-2.0/src/redis.lua nginx配置如下：
+server { listen 80; server_name _; server_name_in_redirect off; port_in_redirect off; root /root/html; location / { set $upstream ""; rewrite_by_lua &#39; -- load global route cache into current request scope -- by default vars are not shared between requests local routes = _G.routes -- setup routes cache if empty if routes == nil then routes = {} ngx.log(ngx.ALERT, "Route cache is empty.") end -- try cached route first local route = routes[ngx.var.http_host] if route == nil then local redis = require "redis" local client = redis.connect("localhost", 6379) route = client:get(ngx.var.http_host) end -- fallback to redis for lookups if route ~= nil then ngx.var.upstream = route routes[ngx.var.http_host] = route _G.routes = routes else ngx.exit(ngx.HTTP_NOT_FOUND) end &#39;; proxy_buffering off; proxy_set_header Host $host; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_redirect off; proxy_connect_timeout 10; proxy_send_timeout 30; proxy_read_timeout 30; proxy_pass http://$upstream; } } 送进redis一些数据'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2024-01-23T10:12:11+08:00"><meta property="article:modified_time" content="2024-01-23T10:12:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="lua与redis结合应用于nginx的动态upstream"><meta name=twitter:description content='技术要求很简明：
+nginx分发请求的时候，upstream是由lua从redis中读取配置动态生成的，这样便于用程序动态修改。
+装好nginx+lua，过程不表。 把lua redis的模块配到路径中
+wget https://raw.github.com/nrk/redis-lua/version-2.0/src/redis.lua  
+nginx配置如下：
+server {  
+  listen 80;
+  server_name _;
+  server_name_in_redirect off;
+  port_in_redirect off;
+  root /root/html;
+
+  location / {
+    set $upstream "";
+    rewrite_by_lua &#39;
+      -- load global route cache into current request scope
+      -- by default vars are not shared between requests
+      local routes = _G.routes
+
+      -- setup routes cache if empty
+      if routes == nil then
+        routes = {}
+        ngx.log(ngx.ALERT, "Route cache is empty.")
+      end
+
+      -- try cached route first
+      local route = routes[ngx.var.http_host]
+      if route == nil then
+        local redis  = require "redis"
+        local client = redis.connect("localhost", 6379)
+        route        = client:get(ngx.var.http_host)
+      end
+
+      -- fallback to redis for lookups
+      if route ~= nil then
+        ngx.var.upstream = route
+        routes[ngx.var.http_host] = route
+        _G.routes = routes
+      else
+        ngx.exit(ngx.HTTP_NOT_FOUND)
+      end
+    &#39;;
+
+    proxy_buffering             off;
+    proxy_set_header            Host $host;
+    proxy_set_header            X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_redirect              off;
+    proxy_connect_timeout       10;
+    proxy_send_timeout          30;
+    proxy_read_timeout          30;
+    proxy_pass                  http://$upstream;
+  }
+}
+送进redis一些数据'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"lua与redis结合应用于nginx的动态upstream","item":"https://rendoumi.com/posts/20240123-lua_redis_nginx_upstream/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"lua与redis结合应用于nginx的动态upstream","name":"lua与redis结合应用于nginx的动态upstream","description":"技术要求很简明：\nnginx分发请求的时候，upstream是由lua从redis中读取配置动态生成的，这样便于用程序动态修改。\n装好nginx+lua，过程不表。 把lua redis的模块配到路径中\nwget https://raw.github.com/nrk/redis-lua/version-2.0/src/redis.lua nginx配置如下：\nserver { listen 80; server_name _; server_name_in_redirect off; port_in_redirect off; root /root/html; location / { set $upstream \u0026#34;\u0026#34;; rewrite_by_lua \u0026#39; -- load global route cache into current request scope -- by default vars are not shared between requests local routes = _G.routes -- setup routes cache if empty if routes == nil then routes = {} ngx.log(ngx.ALERT, \u0026#34;Route cache is empty.\u0026#34;) end -- try cached route first local route = routes[ngx.var.http_host] if route == nil then local redis = require \u0026#34;redis\u0026#34; local client = redis.connect(\u0026#34;localhost\u0026#34;, 6379) route = client:get(ngx.var.http_host) end -- fallback to redis for lookups if route ~= nil then ngx.var.upstream = route routes[ngx.var.http_host] = route _G.routes = routes else ngx.exit(ngx.HTTP_NOT_FOUND) end \u0026#39;; proxy_buffering off; proxy_set_header Host $host; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_redirect off; proxy_connect_timeout 10; proxy_send_timeout 30; proxy_read_timeout 30; proxy_pass http://$upstream; } } 送进redis一些数据\n","keywords":[],"articleBody":"技术要求很简明：\nnginx分发请求的时候，upstream是由lua从redis中读取配置动态生成的，这样便于用程序动态修改。\n装好nginx+lua，过程不表。 把lua redis的模块配到路径中\nwget https://raw.github.com/nrk/redis-lua/version-2.0/src/redis.lua nginx配置如下：\nserver { listen 80; server_name _; server_name_in_redirect off; port_in_redirect off; root /root/html; location / { set $upstream \"\"; rewrite_by_lua ' -- load global route cache into current request scope -- by default vars are not shared between requests local routes = _G.routes -- setup routes cache if empty if routes == nil then routes = {} ngx.log(ngx.ALERT, \"Route cache is empty.\") end -- try cached route first local route = routes[ngx.var.http_host] if route == nil then local redis = require \"redis\" local client = redis.connect(\"localhost\", 6379) route = client:get(ngx.var.http_host) end -- fallback to redis for lookups if route ~= nil then ngx.var.upstream = route routes[ngx.var.http_host] = route _G.routes = routes else ngx.exit(ngx.HTTP_NOT_FOUND) end '; proxy_buffering off; proxy_set_header Host $host; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_redirect off; proxy_connect_timeout 10; proxy_send_timeout 30; proxy_read_timeout 30; proxy_pass http://$upstream; } } 送进redis一些数据\nredis-cli =\u003e SET localhost 127.0.0.1:49153 测试一下：\ncurl -i -X HEAD \"http://127.0.0.1/\" # -\u003e 404，没这个域名 curl -i -X HEAD \"http://localhost/\" # -\u003e 正常 ","wordCount":"165","inLanguage":"zh","datePublished":"2024-01-23T10:12:11+08:00","dateModified":"2024-01-23T10:12:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20240123-lua_redis_nginx_upstream/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">lua与redis结合应用于nginx的动态upstream
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2024-01-23 10:12:11 +0800 CST'>2024年1月23日</span></div></header><div class=post-content><p>技术要求很简明：</p><p>nginx分发请求的时候，upstream是由lua从redis中读取配置动态生成的，这样便于用程序动态修改。</p><p>装好nginx+lua，过程不表。 把lua redis的模块配到路径中</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>wget https://raw.github.com/nrk/redis-lua/version-2.0/src/redis.lua  
+</span></span></code></pre></div><p>nginx配置如下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>server <span class=o>{</span>  
+</span></span><span class=line><span class=cl>  listen 80<span class=p>;</span>
+</span></span><span class=line><span class=cl>  server_name _<span class=p>;</span>
+</span></span><span class=line><span class=cl>  server_name_in_redirect off<span class=p>;</span>
+</span></span><span class=line><span class=cl>  port_in_redirect off<span class=p>;</span>
+</span></span><span class=line><span class=cl>  root /root/html<span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  location / <span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=nb>set</span> <span class=nv>$upstream</span> <span class=s2>&#34;&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    rewrite_by_lua <span class=s1>&#39;
+</span></span></span><span class=line><span class=cl><span class=s1>      -- load global route cache into current request scope
+</span></span></span><span class=line><span class=cl><span class=s1>      -- by default vars are not shared between requests
+</span></span></span><span class=line><span class=cl><span class=s1>      local routes = _G.routes
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>      -- setup routes cache if empty
+</span></span></span><span class=line><span class=cl><span class=s1>      if routes == nil then
+</span></span></span><span class=line><span class=cl><span class=s1>        routes = {}
+</span></span></span><span class=line><span class=cl><span class=s1>        ngx.log(ngx.ALERT, &#34;Route cache is empty.&#34;)
+</span></span></span><span class=line><span class=cl><span class=s1>      end
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>      -- try cached route first
+</span></span></span><span class=line><span class=cl><span class=s1>      local route = routes[ngx.var.http_host]
+</span></span></span><span class=line><span class=cl><span class=s1>      if route == nil then
+</span></span></span><span class=line><span class=cl><span class=s1>        local redis  = require &#34;redis&#34;
+</span></span></span><span class=line><span class=cl><span class=s1>        local client = redis.connect(&#34;localhost&#34;, 6379)
+</span></span></span><span class=line><span class=cl><span class=s1>        route        = client:get(ngx.var.http_host)
+</span></span></span><span class=line><span class=cl><span class=s1>      end
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>      -- fallback to redis for lookups
+</span></span></span><span class=line><span class=cl><span class=s1>      if route ~= nil then
+</span></span></span><span class=line><span class=cl><span class=s1>        ngx.var.upstream = route
+</span></span></span><span class=line><span class=cl><span class=s1>        routes[ngx.var.http_host] = route
+</span></span></span><span class=line><span class=cl><span class=s1>        _G.routes = routes
+</span></span></span><span class=line><span class=cl><span class=s1>      else
+</span></span></span><span class=line><span class=cl><span class=s1>        ngx.exit(ngx.HTTP_NOT_FOUND)
+</span></span></span><span class=line><span class=cl><span class=s1>      end
+</span></span></span><span class=line><span class=cl><span class=s1>    &#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    proxy_buffering             off<span class=p>;</span>
+</span></span><span class=line><span class=cl>    proxy_set_header            Host <span class=nv>$host</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    proxy_set_header            X-Forwarded-For <span class=nv>$proxy_add_x_forwarded_for</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    proxy_redirect              off<span class=p>;</span>
+</span></span><span class=line><span class=cl>    proxy_connect_timeout       10<span class=p>;</span>
+</span></span><span class=line><span class=cl>    proxy_send_timeout          30<span class=p>;</span>
+</span></span><span class=line><span class=cl>    proxy_read_timeout          30<span class=p>;</span>
+</span></span><span class=line><span class=cl>    proxy_pass                  http://<span class=nv>$upstream</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></div><p>送进redis一些数据</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>redis-cli <span class=o>=</span>&gt;  
+</span></span><span class=line><span class=cl>SET localhost 127.0.0.1:49153  
+</span></span></code></pre></div><p>测试一下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>curl -i -X HEAD <span class=s2>&#34;http://127.0.0.1/&#34;</span> <span class=c1># -&gt; 404，没这个域名  </span>
+</span></span><span class=line><span class=cl>curl -i -X HEAD <span class=s2>&#34;http://localhost/&#34;</span> <span class=c1># -&gt; 正常  </span>
+</span></span></code></pre></div></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

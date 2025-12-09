@@ -1,0 +1,165 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>vault使用agent验证approle生成.env环境变量 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="Vault是个很厉害的 secret 引擎了，不多说了，主要用于集中管理各种密码、密钥。
+用来管理Kubernetes的凭据相当好，但是我们通常是自己开发的程序，然后需要读各种配置文件，比如连接DB的用户名，密码等等，最后连接到数据库。
+那么这种情况下，如果管理好配置项呢？
+方法如下，用approle读取Vault的配置信息：
+一、启动vault引擎测试环境
+首先启动vault引擎，测试，用Docker，方便创建和销毁
+# 启动容器
+# 我们手动指定了ROOT_TOKEN是root，这只用于测试环境
+docker run -d --rm \
+  --add-host host.docker.internal:host-gateway \
+  --cap-add=IPC_LOCK \
+  --name vault \
+  -p 8200:8200 \
+  -e VAULT_DEV_ROOT_TOKEN_ID=root \
+  -e VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200 \
+  hashicorp/vault
+--add-host host.docker.internal:host-gateway
+这个个参数的作用是在容器的 /etc/hosts 文件中添加一个主机名和 IP 地址的映射。
+
+--add-host: 这是 docker run 的一个选项，用来在容器的 /etc/hosts 文件中添加一个自定义的主机条目。
+host.docker.internal: 这是主机名。在 Docker Desktop（macOS 和 Windows）中，host.docker.internal 是一个特殊的 DNS 名称，它会被解析为宿主机的内部 IP 地址。
+host-gateway: 这是 docker 在较新版本中引入的一个特殊关键字。它代表了宿主机与 Docker 网络之间的网关 IP 地址。在许多 Linux 环境中，这个关键字会指向 Docker 的网桥 IP（例如 172.17.0.1）。
+
+综合起来，--add-host host.docker.internal:host-gateway 的作用是："><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20250806-vault_approle_env/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20250806-vault_approle_env/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20250806-vault_approle_env/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="vault使用agent验证approle生成.env环境变量"><meta property="og:description" content="Vault是个很厉害的 secret 引擎了，不多说了，主要用于集中管理各种密码、密钥。
+用来管理Kubernetes的凭据相当好，但是我们通常是自己开发的程序，然后需要读各种配置文件，比如连接DB的用户名，密码等等，最后连接到数据库。
+那么这种情况下，如果管理好配置项呢？
+方法如下，用approle读取Vault的配置信息：
+一、启动vault引擎测试环境 首先启动vault引擎，测试，用Docker，方便创建和销毁
+# 启动容器 # 我们手动指定了ROOT_TOKEN是root，这只用于测试环境 docker run -d --rm \ --add-host host.docker.internal:host-gateway \ --cap-add=IPC_LOCK \ --name vault \ -p 8200:8200 \ -e VAULT_DEV_ROOT_TOKEN_ID=root \ -e VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200 \ hashicorp/vault --add-host host.docker.internal:host-gateway 这个个参数的作用是在容器的 /etc/hosts 文件中添加一个主机名和 IP 地址的映射。
+--add-host: 这是 docker run 的一个选项，用来在容器的 /etc/hosts 文件中添加一个自定义的主机条目。 host.docker.internal: 这是主机名。在 Docker Desktop（macOS 和 Windows）中，host.docker.internal 是一个特殊的 DNS 名称，它会被解析为宿主机的内部 IP 地址。 host-gateway: 这是 docker 在较新版本中引入的一个特殊关键字。它代表了宿主机与 Docker 网络之间的网关 IP 地址。在许多 Linux 环境中，这个关键字会指向 Docker 的网桥 IP（例如 172.17.0.1）。 综合起来，--add-host host.docker.internal:host-gateway 的作用是："><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2025-08-06T09:01:11+08:00"><meta property="article:modified_time" content="2025-08-06T09:01:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="vault使用agent验证approle生成.env环境变量"><meta name=twitter:description content="Vault是个很厉害的 secret 引擎了，不多说了，主要用于集中管理各种密码、密钥。
+用来管理Kubernetes的凭据相当好，但是我们通常是自己开发的程序，然后需要读各种配置文件，比如连接DB的用户名，密码等等，最后连接到数据库。
+那么这种情况下，如果管理好配置项呢？
+方法如下，用approle读取Vault的配置信息：
+一、启动vault引擎测试环境
+首先启动vault引擎，测试，用Docker，方便创建和销毁
+# 启动容器
+# 我们手动指定了ROOT_TOKEN是root，这只用于测试环境
+docker run -d --rm \
+  --add-host host.docker.internal:host-gateway \
+  --cap-add=IPC_LOCK \
+  --name vault \
+  -p 8200:8200 \
+  -e VAULT_DEV_ROOT_TOKEN_ID=root \
+  -e VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200 \
+  hashicorp/vault
+--add-host host.docker.internal:host-gateway
+这个个参数的作用是在容器的 /etc/hosts 文件中添加一个主机名和 IP 地址的映射。
+
+--add-host: 这是 docker run 的一个选项，用来在容器的 /etc/hosts 文件中添加一个自定义的主机条目。
+host.docker.internal: 这是主机名。在 Docker Desktop（macOS 和 Windows）中，host.docker.internal 是一个特殊的 DNS 名称，它会被解析为宿主机的内部 IP 地址。
+host-gateway: 这是 docker 在较新版本中引入的一个特殊关键字。它代表了宿主机与 Docker 网络之间的网关 IP 地址。在许多 Linux 环境中，这个关键字会指向 Docker 的网桥 IP（例如 172.17.0.1）。
+
+综合起来，--add-host host.docker.internal:host-gateway 的作用是："><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"vault使用agent验证approle生成.env环境变量","item":"https://rendoumi.com/posts/20250806-vault_approle_env/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"vault使用agent验证approle生成.env环境变量","name":"vault使用agent验证approle生成.env环境变量","description":"Vault是个很厉害的 secret 引擎了，不多说了，主要用于集中管理各种密码、密钥。\n用来管理Kubernetes的凭据相当好，但是我们通常是自己开发的程序，然后需要读各种配置文件，比如连接DB的用户名，密码等等，最后连接到数据库。\n那么这种情况下，如果管理好配置项呢？\n方法如下，用approle读取Vault的配置信息：\n一、启动vault引擎测试环境 首先启动vault引擎，测试，用Docker，方便创建和销毁\n# 启动容器 # 我们手动指定了ROOT_TOKEN是root，这只用于测试环境 docker run -d --rm \\ --add-host host.docker.internal:host-gateway \\ --cap-add=IPC_LOCK \\ --name vault \\ -p 8200:8200 \\ -e VAULT_DEV_ROOT_TOKEN_ID=root \\ -e VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200 \\ hashicorp/vault --add-host host.docker.internal:host-gateway 这个个参数的作用是在容器的 /etc/hosts 文件中添加一个主机名和 IP 地址的映射。\n--add-host: 这是 docker run 的一个选项，用来在容器的 /etc/hosts 文件中添加一个自定义的主机条目。 host.docker.internal: 这是主机名。在 Docker Desktop（macOS 和 Windows）中，host.docker.internal 是一个特殊的 DNS 名称，它会被解析为宿主机的内部 IP 地址。 host-gateway: 这是 docker 在较新版本中引入的一个特殊关键字。它代表了宿主机与 Docker 网络之间的网关 IP 地址。在许多 Linux 环境中，这个关键字会指向 Docker 的网桥 IP（例如 172.17.0.1）。 综合起来，--add-host host.docker.internal:host-gateway 的作用是：\n","keywords":[],"articleBody":"Vault是个很厉害的 secret 引擎了，不多说了，主要用于集中管理各种密码、密钥。\n用来管理Kubernetes的凭据相当好，但是我们通常是自己开发的程序，然后需要读各种配置文件，比如连接DB的用户名，密码等等，最后连接到数据库。\n那么这种情况下，如果管理好配置项呢？\n方法如下，用approle读取Vault的配置信息：\n一、启动vault引擎测试环境 首先启动vault引擎，测试，用Docker，方便创建和销毁\n# 启动容器 # 我们手动指定了ROOT_TOKEN是root，这只用于测试环境 docker run -d --rm \\ --add-host host.docker.internal:host-gateway \\ --cap-add=IPC_LOCK \\ --name vault \\ -p 8200:8200 \\ -e VAULT_DEV_ROOT_TOKEN_ID=root \\ -e VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200 \\ hashicorp/vault --add-host host.docker.internal:host-gateway 这个个参数的作用是在容器的 /etc/hosts 文件中添加一个主机名和 IP 地址的映射。\n--add-host: 这是 docker run 的一个选项，用来在容器的 /etc/hosts 文件中添加一个自定义的主机条目。 host.docker.internal: 这是主机名。在 Docker Desktop（macOS 和 Windows）中，host.docker.internal 是一个特殊的 DNS 名称，它会被解析为宿主机的内部 IP 地址。 host-gateway: 这是 docker 在较新版本中引入的一个特殊关键字。它代表了宿主机与 Docker 网络之间的网关 IP 地址。在许多 Linux 环境中，这个关键字会指向 Docker 的网桥 IP（例如 172.17.0.1）。 综合起来，--add-host host.docker.internal:host-gateway 的作用是：\n在容器内部创建一个 DNS 条目，将 host.docker.internal 这个名字映射到宿主机的 IP 地址。这使得容器中的应用程序可以通过 host.docker.internal 这个域名来访问宿主机上运行的服务，而无需知道宿主机的具体 IP 地址。\n这对于开发环境非常有用，比如你的 Vault 容器需要访问在宿主机上运行的数据库或认证服务。\n容器跑起来之后我们验证一下：\nexport VAULT_ADDR=\"http://127.0.0.1:8200\" export VAULT_TOKEN=\"root\" vault status 然后我们打开浏览器：http://x.x.x.x:8200，使用Token root登录\n看看有啥secret引擎，还真不少\n接下来的操作尽量都是在CLI命令行完成了。\n二、初始化各种配置信息 export VAULT_ADDR=\"http://127.0.0.1:8200\" export VAULT_TOKEN=\"root\" # 放入测试数据 vault kv put secret/dbinfo user=root pass=test123 # 设置approle的认证方式 vault auth enable approle # 编辑一个policy文件，agent-policy.hcl cat \u003c EOF \u003e agent-policy.hcl path \"secret/data/dbinfo\" { capabilities = [\"read\"] } EOF # 写入policy vault policy write agent-policy agent-policy.hcl # 建立AppRole 并附加policy vault write auth/approle/role/vault-agent-role policies=\"agent-policy\" # gen出 role-id 和 secret-id vault read auth/approle/role/vault-agent-role/role-id vault write -f auth/approle/role/vault-agent-role/secret-id # 把 role-id 和 secert-id 放入文件 vault read -field role_id auth/approle/role/vault-agent-role/role-id \u003e role-id 或 vault read auth/approle/role/vault-agent-role/role-id -format=json | jq -r .data.role_id \u003e role-id # 注意，每次写都会变的 vault write -f -field secret_id auth/approle/role/vault-agent-role/secret-id \u003e secret-id 或 vault write -f auth/approle/role/vault-agent-role/secret-id -format=json | jq -r .data.secret_id \u003e secret-id unset VAULT_ADDR unset VAULT_TOKEN 注意上面一系列操作，跟IAM的操作基本一摸一样，如出一辙，先定义policy，然后policy附加role，role再gen出role-id和secret-id\n那role-id就相当于username，那secret-id就相当于password，这么理解就对了。\n三、配置Vault Agent代理，动态从Vault获取配置信息，并通过模板输出 设置vault-agent.hcl：\nvault { address = \"http://127.0.0.1:8200\" token = \"root\" } auto_auth { method { type = \"approle\" config = { role_id_file_path = \"./role-id\" secret_id_file_path = \"./secret-id\" remove_secret_id_file_after_reading = false } } sink { type = \"file\" config = { path = \"./vault-agent-token\" } } } template { source = \"./env.tmpl\" destination = \"./.env\" } 设置模板文件env.tmpl：\nDB_USER={{ with secret \"secret/data/dbinfo\" }}{{ .Data.data.user }}{{ end }} DB_PASS={{ with secret \"secret/data/dbinfo\" }}{{ .Data.data.pass }}{{ end }} 启动\nvault agent -config=./agent.hcl -log-level=debug 然后检查.env\ncat .env DB_USER=root DB_PASS=test123 cat vault-agent-token hvs.CAESILRWC98usmzSfxdJRMnKWUlvT9kFV1zzPfrkGgdBInYfGh4KHGh2cy54NHhEQnNUa2pmTzU5NTlRN1234567890 这样就ok了，但是这样也有个大麻烦，那就是token，如果重启token变了，那必须重新灌入。\n最后，放上agent的systemd文件/etc/systemd/system/vault-agent.service：\n[Unit] Description=Nomad Agent Requires=consul-online.target After=consul-online.target [Service] KillMode=process KillSignal=SIGINT ExecStart=/usr/local/bin/vault agent -config /etc/vault-agent.d/vault-agent.hcl ExecReload=/bin/kill -HUP $MAINPID Restart=on-failure RestartSec=2 StartLimitBurst=3 StartLimitIntervalSec=10 LimitNOFILE=65536 [Install] WantedBy=multi-user.target 关于Root Token\n第一次运行的时候，vault operator init 会得到这个这个Token\n随后呢，再得到这个，就必须 vault operator generate-root了，必须unseal key。\n再随后，用vault login，就可以用了。\n","wordCount":"339","inLanguage":"zh","datePublished":"2025-08-06T09:01:11+08:00","dateModified":"2025-08-06T09:01:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20250806-vault_approle_env/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">vault使用agent验证approle生成.env环境变量
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2025-08-06 09:01:11 +0800 CST'>2025年8月6日</span></div></header><div class=post-content><p>Vault是个很厉害的 secret 引擎了，不多说了，主要用于集中管理各种密码、密钥。</p><p>用来管理Kubernetes的凭据相当好，但是我们通常是自己开发的程序，然后需要读各种配置文件，比如连接DB的用户名，密码等等，最后连接到数据库。</p><p>那么这种情况下，如果管理好配置项呢？</p><p>方法如下，用approle读取Vault的配置信息：</p><h5 id=一启动vault引擎测试环境>一、启动vault引擎测试环境<a hidden class=anchor aria-hidden=true href=#一启动vault引擎测试环境>#</a></h5><p>首先启动vault引擎，测试，用Docker，方便创建和销毁</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 启动容器</span>
+</span></span><span class=line><span class=cl><span class=c1># 我们手动指定了ROOT_TOKEN是root，这只用于测试环境</span>
+</span></span><span class=line><span class=cl>docker run -d --rm <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --add-host host.docker.internal:host-gateway <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --cap-add<span class=o>=</span>IPC_LOCK <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --name vault <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -p 8200:8200 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -e <span class=nv>VAULT_DEV_ROOT_TOKEN_ID</span><span class=o>=</span>root <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -e <span class=nv>VAULT_DEV_LISTEN_ADDRESS</span><span class=o>=</span>0.0.0.0:8200 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  hashicorp/vault
+</span></span></code></pre></div><h6 id=--add-host-hostdockerinternalhost-gateway><code>--add-host host.docker.internal:host-gateway</code><a hidden class=anchor aria-hidden=true href=#--add-host-hostdockerinternalhost-gateway>#</a></h6><p>这个个参数的作用是在容器的 <code>/etc/hosts</code> 文件中添加一个主机名和 IP 地址的映射。</p><ul><li><strong><code>--add-host</code></strong>: 这是 <code>docker run</code> 的一个选项，用来在容器的 <code>/etc/hosts</code> 文件中添加一个自定义的主机条目。</li><li><strong><code>host.docker.internal</code></strong>: 这是主机名。在 Docker Desktop（macOS 和 Windows）中，<code>host.docker.internal</code> 是一个特殊的 DNS 名称，它会被解析为宿主机的内部 IP 地址。</li><li><strong><code>host-gateway</code></strong>: 这是 <code>docker</code> 在较新版本中引入的一个特殊关键字。它代表了宿主机与 Docker 网络之间的网关 IP 地址。在许多 Linux 环境中，这个关键字会指向 Docker 的网桥 IP（例如 <code>172.17.0.1</code>）。</li></ul><p><strong>综合起来，<code>--add-host host.docker.internal:host-gateway</code> 的作用是：</strong></p><p>在容器内部创建一个 DNS 条目，将 <code>host.docker.internal</code> 这个名字映射到宿主机的 IP 地址。这使得容器中的应用程序可以<strong>通过 <code>host.docker.internal</code> 这个域名来访问宿主机上运行的服务</strong>，而无需知道宿主机的具体 IP 地址。</p><p>这对于开发环境非常有用，比如你的 Vault 容器需要访问在宿主机上运行的数据库或认证服务。</p><p>容器跑起来之后我们验证一下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>export</span> <span class=nv>VAULT_ADDR</span><span class=o>=</span><span class=s2>&#34;http://127.0.0.1:8200&#34;</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>VAULT_TOKEN</span><span class=o>=</span><span class=s2>&#34;root&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>vault status
+</span></span></code></pre></div><p><img alt=image-20250806111735993 loading=lazy src=/posts/20250806-vault_approle_env/image-20250806111735993.png></p><p>然后我们打开浏览器：http://x.x.x.x:8200，使用Token root登录</p><p><img alt=image-20250806111838077 loading=lazy src=/posts/20250806-vault_approle_env/image-20250806111838077.png></p><p>看看有啥secret引擎，还真不少</p><p><img alt=image-20250806111920434 loading=lazy src=/posts/20250806-vault_approle_env/image-20250806111920434.png></p><p>接下来的操作尽量都是在CLI命令行完成了。</p><h5 id=二初始化各种配置信息>二、初始化各种配置信息<a hidden class=anchor aria-hidden=true href=#二初始化各种配置信息>#</a></h5><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>export</span> <span class=nv>VAULT_ADDR</span><span class=o>=</span><span class=s2>&#34;http://127.0.0.1:8200&#34;</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>VAULT_TOKEN</span><span class=o>=</span><span class=s2>&#34;root&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 放入测试数据</span>
+</span></span><span class=line><span class=cl>vault kv put secret/dbinfo <span class=nv>user</span><span class=o>=</span>root <span class=nv>pass</span><span class=o>=</span>test123
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 设置approle的认证方式</span>
+</span></span><span class=line><span class=cl>vault auth <span class=nb>enable</span> approle
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 编辑一个policy文件，agent-policy.hcl</span>
+</span></span><span class=line><span class=cl>cat &lt; EOF &gt; agent-policy.hcl
+</span></span><span class=line><span class=cl>path <span class=s2>&#34;secret/data/dbinfo&#34;</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>  <span class=nv>capabilities</span> <span class=o>=</span> <span class=o>[</span><span class=s2>&#34;read&#34;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>EOF
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 写入policy</span>
+</span></span><span class=line><span class=cl>vault policy write agent-policy agent-policy.hcl
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 建立AppRole 并附加policy</span>
+</span></span><span class=line><span class=cl>vault write auth/approle/role/vault-agent-role <span class=nv>policies</span><span class=o>=</span><span class=s2>&#34;agent-policy&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># gen出 role-id 和 secret-id</span>
+</span></span><span class=line><span class=cl>vault <span class=nb>read</span> auth/approle/role/vault-agent-role/role-id
+</span></span><span class=line><span class=cl>vault write -f auth/approle/role/vault-agent-role/secret-id
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 把 role-id 和 secert-id 放入文件</span>
+</span></span><span class=line><span class=cl>vault <span class=nb>read</span> -field role_id auth/approle/role/vault-agent-role/role-id &gt; role-id
+</span></span><span class=line><span class=cl>或
+</span></span><span class=line><span class=cl>vault <span class=nb>read</span> auth/approle/role/vault-agent-role/role-id -format<span class=o>=</span>json <span class=p>|</span> jq -r .data.role_id &gt; role-id
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 注意，每次写都会变的</span>
+</span></span><span class=line><span class=cl>vault write -f -field secret_id auth/approle/role/vault-agent-role/secret-id &gt; secret-id
+</span></span><span class=line><span class=cl>或
+</span></span><span class=line><span class=cl>vault write -f auth/approle/role/vault-agent-role/secret-id -format<span class=o>=</span>json <span class=p>|</span> jq -r .data.secret_id &gt; secret-id
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>unset</span> VAULT_ADDR
+</span></span><span class=line><span class=cl><span class=nb>unset</span> VAULT_TOKEN
+</span></span></code></pre></div><p>注意上面一系列操作，跟IAM的操作基本一摸一样，如出一辙，先定义policy，然后policy附加role，role再gen出role-id和secret-id</p><p>那role-id就相当于username，那secret-id就相当于password，这么理解就对了。</p><h5 id=三配置vault-agent代理动态从vault获取配置信息并通过模板输出>三、配置Vault Agent代理，动态从Vault获取配置信息，并通过模板输出<a hidden class=anchor aria-hidden=true href=#三配置vault-agent代理动态从vault获取配置信息并通过模板输出>#</a></h5><p>设置vault-agent.hcl：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>vault <span class=o>{</span>
+</span></span><span class=line><span class=cl>  <span class=nv>address</span> <span class=o>=</span> <span class=s2>&#34;http://127.0.0.1:8200&#34;</span>
+</span></span><span class=line><span class=cl>  <span class=nv>token</span> <span class=o>=</span> <span class=s2>&#34;root&#34;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>auto_auth <span class=o>{</span>
+</span></span><span class=line><span class=cl>    method <span class=o>{</span>
+</span></span><span class=line><span class=cl>        <span class=nb>type</span> <span class=o>=</span> <span class=s2>&#34;approle&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=nv>config</span> <span class=o>=</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>            <span class=nv>role_id_file_path</span> <span class=o>=</span> <span class=s2>&#34;./role-id&#34;</span>
+</span></span><span class=line><span class=cl>            <span class=nv>secret_id_file_path</span> <span class=o>=</span> <span class=s2>&#34;./secret-id&#34;</span>
+</span></span><span class=line><span class=cl>            <span class=nv>remove_secret_id_file_after_reading</span> <span class=o>=</span> <span class=nb>false</span>
+</span></span><span class=line><span class=cl>        <span class=o>}</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    sink <span class=o>{</span>
+</span></span><span class=line><span class=cl>        <span class=nb>type</span> <span class=o>=</span> <span class=s2>&#34;file&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=nv>config</span> <span class=o>=</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>            <span class=nv>path</span> <span class=o>=</span> <span class=s2>&#34;./vault-agent-token&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=o>}</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>template <span class=o>{</span>
+</span></span><span class=line><span class=cl>  <span class=nb>source</span>      <span class=o>=</span> <span class=s2>&#34;./env.tmpl&#34;</span>
+</span></span><span class=line><span class=cl>  <span class=nv>destination</span> <span class=o>=</span> <span class=s2>&#34;./.env&#34;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></div><p>设置模板文件env.tmpl：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nv>DB_USER</span><span class=o>={{</span> with secret <span class=s2>&#34;secret/data/dbinfo&#34;</span> <span class=o>}}{{</span> .Data.data.user <span class=o>}}{{</span> end <span class=o>}}</span>
+</span></span><span class=line><span class=cl><span class=nv>DB_PASS</span><span class=o>={{</span> with secret <span class=s2>&#34;secret/data/dbinfo&#34;</span> <span class=o>}}{{</span> .Data.data.pass <span class=o>}}{{</span> end <span class=o>}}</span>
+</span></span></code></pre></div><p>启动</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>vault agent -config<span class=o>=</span>./agent.hcl -log-level<span class=o>=</span>debug
+</span></span></code></pre></div><p>然后检查.env</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat .env
+</span></span><span class=line><span class=cl><span class=nv>DB_USER</span><span class=o>=</span>root
+</span></span><span class=line><span class=cl><span class=nv>DB_PASS</span><span class=o>=</span>test123
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>cat vault-agent-token
+</span></span><span class=line><span class=cl>hvs.CAESILRWC98usmzSfxdJRMnKWUlvT9kFV1zzPfrkGgdBInYfGh4KHGh2cy54NHhEQnNUa2pmTzU5NTlRN1234567890
+</span></span></code></pre></div><p>这样就ok了，但是这样也有个大麻烦，那就是token，如果重启token变了，那必须重新灌入。</p><p>最后，放上agent的systemd文件<code>/etc/systemd/system/vault-agent.service</code>：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=o>[</span>Unit<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>Description</span><span class=o>=</span>Nomad Agent
+</span></span><span class=line><span class=cl><span class=nv>Requires</span><span class=o>=</span>consul-online.target
+</span></span><span class=line><span class=cl><span class=nv>After</span><span class=o>=</span>consul-online.target
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>Service<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>KillMode</span><span class=o>=</span>process
+</span></span><span class=line><span class=cl><span class=nv>KillSignal</span><span class=o>=</span>SIGINT
+</span></span><span class=line><span class=cl><span class=nv>ExecStart</span><span class=o>=</span>/usr/local/bin/vault agent -config /etc/vault-agent.d/vault-agent.hcl
+</span></span><span class=line><span class=cl><span class=nv>ExecReload</span><span class=o>=</span>/bin/kill -HUP <span class=nv>$MAINPID</span>
+</span></span><span class=line><span class=cl><span class=nv>Restart</span><span class=o>=</span>on-failure
+</span></span><span class=line><span class=cl><span class=nv>RestartSec</span><span class=o>=</span><span class=m>2</span>
+</span></span><span class=line><span class=cl><span class=nv>StartLimitBurst</span><span class=o>=</span><span class=m>3</span>
+</span></span><span class=line><span class=cl><span class=nv>StartLimitIntervalSec</span><span class=o>=</span><span class=m>10</span>
+</span></span><span class=line><span class=cl><span class=nv>LimitNOFILE</span><span class=o>=</span><span class=m>65536</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>Install<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>WantedBy</span><span class=o>=</span>multi-user.target
+</span></span></code></pre></div><p>关于Root Token</p><p>第一次运行的时候，vault operator init 会得到这个这个Token</p><p>随后呢，再得到这个，就必须 vault operator generate-root了，必须unseal key。</p><p>再随后，用vault login，就可以用了。</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

@@ -1,0 +1,210 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>最新版出国旅行安装一个FreePBX的voip电话自用 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='新的一年依始，开始定好了旅行计划，但是有个东西却依然心神不宁。
+那就是万一在国外有什么变动，如何往国内打电话呢？！
+说到这里，不得不提个东西，那就是旅顺的App，这个东西已经消失了，但是绝对值得被记住啊。
+这个东西在塞班岛旅游的时候曾经救了自己两次
+首先是它的第一代产品：
+
+第一代的原理似乎是把手机的信号直接通过网络转移到了国内，随身携带然后配合app使用，这点非常牛吧！国内的窜出点会随机，忽而天津，忽而别的地方，所以呼出电话搞不好是长途计费。第一次呢八戒是在塞班岛中部那个麦当劳附近，用这个接到了国内的电话，说是出大事了，有人把公司数据库的数据给改了，当时约定下午6：00再打，然后下午在台湾牛肉面的店里，又用这个往国内通了电话，打了半个多小时，领导告知了具体的情况，要是接不起来那可真就麻烦大了。
+这个是它第二代的产品：
+
+这个是升级版pro，就更厉害了，直接放家里，手机上下个app，有网络就能用了，不用像第一代一样随身携带了。
+这个更是救命了，话说第二回在塞班的时候正是疫情刚发作的时候，塞班直接封岛了，然后好多航班都延期或终止了，就是用这个旅顺打国内电话改签了回国的机票，足足打了两个小时啊，到处占线等待，如果打国际长途的话费用不堪设想，另外打塞班大韩航空的电话改签两程机票也是不可想像的，所以，关键时刻是真的救命啊。
+这么好的软件却直接倒闭消失了，真是万分可惜啊。
+哎，现在没有这个了，只能自己搭一个voip电话自用了。
+刚开始是考虑RasPBX，其实自己用树莓派搭过，费事不说，主要树莓派容易死机，务必要稳定，所以干脆用FreePBX搭建在kvm服务器虚拟机上的方式，来保持绝对稳定。
+以下教程只适用于 FreePBX 16 的官方ISO，具体做法如下：
+一、安装KVM虚机：
+#下载FreePBX16的iso光盘
+wget https://downloads.freepbxdistro.org/ISO/SNG7-PBX16-64bit-2302-1.iso
+
+#创建qcow2虚机文件
+qemu-img create -f qcow2 freepbx-8-2-60/freepbx-8-2-60.qcow2 20G
+
+virt-install \
+--name=freepbx-8-2-60 \
+--vcpu=4 \
+--ram=8096 \
+--disk path=/export/kvm/freepbx-8-2-60/freepbs-8-2-60.qcow2,format=qcow2,size=20 \
+--cdrom=/export/kvm/SNG7-PBX16-64bit-2302-1.iso \
+--network bridge=br0 \
+--os-type=linux \
+--vnc --vnclisten=0.0.0.0 --vncport=5916
+用vnc连接5916端口安装，设置一下root的密码安装。
+这样安装好后，系统其实是dhcp动态获得ip的，进入看了看，是Centos，我们不需要dhcp，把IP给固定死
+vi /etc/sysconfig/network-scripts/ifcfg-eth0 
+
+TYPE="Ethernet"
+BOOTPROTO="static"
+IPADDR=10.8.2.60
+NETMASK=255.255.255.0
+GATEWAY=10.8.2.1
+DNS1=114.114.114.114
+DEFROUTE="yes"
+NAME="eth0"
+DEVICE="eth0"
+ONBOOT="yes"
+SSH登录一下没问题，看到绿框就ok了
+
+二、配置FreePBX的分机
+打开网址 http://10.8.2.60 , 登录 FreePBX Administration
+
+登上去后是这个样子
+
+上面我没有开System Firewall，这个看个人需求，绝对不要像公网开放80端口，只开5060的udp和1000-10004的UDP。'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20240105-voip_iphone/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20240105-voip_iphone/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20240105-voip_iphone/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="最新版出国旅行安装一个FreePBX的voip电话自用"><meta property="og:description" content='新的一年依始，开始定好了旅行计划，但是有个东西却依然心神不宁。
+那就是万一在国外有什么变动，如何往国内打电话呢？！
+说到这里，不得不提个东西，那就是旅顺的App，这个东西已经消失了，但是绝对值得被记住啊。
+这个东西在塞班岛旅游的时候曾经救了自己两次
+首先是它的第一代产品：
+第一代的原理似乎是把手机的信号直接通过网络转移到了国内，随身携带然后配合app使用，这点非常牛吧！国内的窜出点会随机，忽而天津，忽而别的地方，所以呼出电话搞不好是长途计费。第一次呢八戒是在塞班岛中部那个麦当劳附近，用这个接到了国内的电话，说是出大事了，有人把公司数据库的数据给改了，当时约定下午6：00再打，然后下午在台湾牛肉面的店里，又用这个往国内通了电话，打了半个多小时，领导告知了具体的情况，要是接不起来那可真就麻烦大了。
+这个是它第二代的产品：
+这个是升级版pro，就更厉害了，直接放家里，手机上下个app，有网络就能用了，不用像第一代一样随身携带了。
+这个更是救命了，话说第二回在塞班的时候正是疫情刚发作的时候，塞班直接封岛了，然后好多航班都延期或终止了，就是用这个旅顺打国内电话改签了回国的机票，足足打了两个小时啊，到处占线等待，如果打国际长途的话费用不堪设想，另外打塞班大韩航空的电话改签两程机票也是不可想像的，所以，关键时刻是真的救命啊。
+这么好的软件却直接倒闭消失了，真是万分可惜啊。
+哎，现在没有这个了，只能自己搭一个voip电话自用了。
+刚开始是考虑RasPBX，其实自己用树莓派搭过，费事不说，主要树莓派容易死机，务必要稳定，所以干脆用FreePBX搭建在kvm服务器虚拟机上的方式，来保持绝对稳定。
+以下教程只适用于 FreePBX 16 的官方ISO，具体做法如下：
+一、安装KVM虚机： #下载FreePBX16的iso光盘 wget https://downloads.freepbxdistro.org/ISO/SNG7-PBX16-64bit-2302-1.iso #创建qcow2虚机文件 qemu-img create -f qcow2 freepbx-8-2-60/freepbx-8-2-60.qcow2 20G virt-install \ --name=freepbx-8-2-60 \ --vcpu=4 \ --ram=8096 \ --disk path=/export/kvm/freepbx-8-2-60/freepbs-8-2-60.qcow2,format=qcow2,size=20 \ --cdrom=/export/kvm/SNG7-PBX16-64bit-2302-1.iso \ --network bridge=br0 \ --os-type=linux \ --vnc --vnclisten=0.0.0.0 --vncport=5916 用vnc连接5916端口安装，设置一下root的密码安装。
+这样安装好后，系统其实是dhcp动态获得ip的，进入看了看，是Centos，我们不需要dhcp，把IP给固定死
+vi /etc/sysconfig/network-scripts/ifcfg-eth0 TYPE="Ethernet" BOOTPROTO="static" IPADDR=10.8.2.60 NETMASK=255.255.255.0 GATEWAY=10.8.2.1 DNS1=114.114.114.114 DEFROUTE="yes" NAME="eth0" DEVICE="eth0" ONBOOT="yes" SSH登录一下没问题，看到绿框就ok了
+二、配置FreePBX的分机 打开网址 http://10.8.2.60 , 登录 FreePBX Administration
+登上去后是这个样子
+上面我没有开System Firewall，这个看个人需求，绝对不要像公网开放80端口，只开5060的udp和1000-10004的UDP。'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2024-01-05T09:35:11+08:00"><meta property="article:modified_time" content="2024-01-05T09:35:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="最新版出国旅行安装一个FreePBX的voip电话自用"><meta name=twitter:description content='新的一年依始，开始定好了旅行计划，但是有个东西却依然心神不宁。
+那就是万一在国外有什么变动，如何往国内打电话呢？！
+说到这里，不得不提个东西，那就是旅顺的App，这个东西已经消失了，但是绝对值得被记住啊。
+这个东西在塞班岛旅游的时候曾经救了自己两次
+首先是它的第一代产品：
+
+第一代的原理似乎是把手机的信号直接通过网络转移到了国内，随身携带然后配合app使用，这点非常牛吧！国内的窜出点会随机，忽而天津，忽而别的地方，所以呼出电话搞不好是长途计费。第一次呢八戒是在塞班岛中部那个麦当劳附近，用这个接到了国内的电话，说是出大事了，有人把公司数据库的数据给改了，当时约定下午6：00再打，然后下午在台湾牛肉面的店里，又用这个往国内通了电话，打了半个多小时，领导告知了具体的情况，要是接不起来那可真就麻烦大了。
+这个是它第二代的产品：
+
+这个是升级版pro，就更厉害了，直接放家里，手机上下个app，有网络就能用了，不用像第一代一样随身携带了。
+这个更是救命了，话说第二回在塞班的时候正是疫情刚发作的时候，塞班直接封岛了，然后好多航班都延期或终止了，就是用这个旅顺打国内电话改签了回国的机票，足足打了两个小时啊，到处占线等待，如果打国际长途的话费用不堪设想，另外打塞班大韩航空的电话改签两程机票也是不可想像的，所以，关键时刻是真的救命啊。
+这么好的软件却直接倒闭消失了，真是万分可惜啊。
+哎，现在没有这个了，只能自己搭一个voip电话自用了。
+刚开始是考虑RasPBX，其实自己用树莓派搭过，费事不说，主要树莓派容易死机，务必要稳定，所以干脆用FreePBX搭建在kvm服务器虚拟机上的方式，来保持绝对稳定。
+以下教程只适用于 FreePBX 16 的官方ISO，具体做法如下：
+一、安装KVM虚机：
+#下载FreePBX16的iso光盘
+wget https://downloads.freepbxdistro.org/ISO/SNG7-PBX16-64bit-2302-1.iso
+
+#创建qcow2虚机文件
+qemu-img create -f qcow2 freepbx-8-2-60/freepbx-8-2-60.qcow2 20G
+
+virt-install \
+--name=freepbx-8-2-60 \
+--vcpu=4 \
+--ram=8096 \
+--disk path=/export/kvm/freepbx-8-2-60/freepbs-8-2-60.qcow2,format=qcow2,size=20 \
+--cdrom=/export/kvm/SNG7-PBX16-64bit-2302-1.iso \
+--network bridge=br0 \
+--os-type=linux \
+--vnc --vnclisten=0.0.0.0 --vncport=5916
+用vnc连接5916端口安装，设置一下root的密码安装。
+这样安装好后，系统其实是dhcp动态获得ip的，进入看了看，是Centos，我们不需要dhcp，把IP给固定死
+vi /etc/sysconfig/network-scripts/ifcfg-eth0 
+
+TYPE="Ethernet"
+BOOTPROTO="static"
+IPADDR=10.8.2.60
+NETMASK=255.255.255.0
+GATEWAY=10.8.2.1
+DNS1=114.114.114.114
+DEFROUTE="yes"
+NAME="eth0"
+DEVICE="eth0"
+ONBOOT="yes"
+SSH登录一下没问题，看到绿框就ok了
+
+二、配置FreePBX的分机
+打开网址 http://10.8.2.60 , 登录 FreePBX Administration
+
+登上去后是这个样子
+
+上面我没有开System Firewall，这个看个人需求，绝对不要像公网开放80端口，只开5060的udp和1000-10004的UDP。'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"最新版出国旅行安装一个FreePBX的voip电话自用","item":"https://rendoumi.com/posts/20240105-voip_iphone/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"最新版出国旅行安装一个FreePBX的voip电话自用","name":"最新版出国旅行安装一个FreePBX的voip电话自用","description":"新的一年依始，开始定好了旅行计划，但是有个东西却依然心神不宁。\n那就是万一在国外有什么变动，如何往国内打电话呢？！\n说到这里，不得不提个东西，那就是旅顺的App，这个东西已经消失了，但是绝对值得被记住啊。\n这个东西在塞班岛旅游的时候曾经救了自己两次\n首先是它的第一代产品：\n第一代的原理似乎是把手机的信号直接通过网络转移到了国内，随身携带然后配合app使用，这点非常牛吧！国内的窜出点会随机，忽而天津，忽而别的地方，所以呼出电话搞不好是长途计费。第一次呢八戒是在塞班岛中部那个麦当劳附近，用这个接到了国内的电话，说是出大事了，有人把公司数据库的数据给改了，当时约定下午6：00再打，然后下午在台湾牛肉面的店里，又用这个往国内通了电话，打了半个多小时，领导告知了具体的情况，要是接不起来那可真就麻烦大了。\n这个是它第二代的产品：\n这个是升级版pro，就更厉害了，直接放家里，手机上下个app，有网络就能用了，不用像第一代一样随身携带了。\n这个更是救命了，话说第二回在塞班的时候正是疫情刚发作的时候，塞班直接封岛了，然后好多航班都延期或终止了，就是用这个旅顺打国内电话改签了回国的机票，足足打了两个小时啊，到处占线等待，如果打国际长途的话费用不堪设想，另外打塞班大韩航空的电话改签两程机票也是不可想像的，所以，关键时刻是真的救命啊。\n这么好的软件却直接倒闭消失了，真是万分可惜啊。\n哎，现在没有这个了，只能自己搭一个voip电话自用了。\n刚开始是考虑RasPBX，其实自己用树莓派搭过，费事不说，主要树莓派容易死机，务必要稳定，所以干脆用FreePBX搭建在kvm服务器虚拟机上的方式，来保持绝对稳定。\n以下教程只适用于 FreePBX 16 的官方ISO，具体做法如下：\n一、安装KVM虚机： #下载FreePBX16的iso光盘 wget https://downloads.freepbxdistro.org/ISO/SNG7-PBX16-64bit-2302-1.iso #创建qcow2虚机文件 qemu-img create -f qcow2 freepbx-8-2-60/freepbx-8-2-60.qcow2 20G virt-install \\ --name=freepbx-8-2-60 \\ --vcpu=4 \\ --ram=8096 \\ --disk path=/export/kvm/freepbx-8-2-60/freepbs-8-2-60.qcow2,format=qcow2,size=20 \\ --cdrom=/export/kvm/SNG7-PBX16-64bit-2302-1.iso \\ --network bridge=br0 \\ --os-type=linux \\ --vnc --vnclisten=0.0.0.0 --vncport=5916 用vnc连接5916端口安装，设置一下root的密码安装。\n这样安装好后，系统其实是dhcp动态获得ip的，进入看了看，是Centos，我们不需要dhcp，把IP给固定死\nvi /etc/sysconfig/network-scripts/ifcfg-eth0 TYPE=\u0026#34;Ethernet\u0026#34; BOOTPROTO=\u0026#34;static\u0026#34; IPADDR=10.8.2.60 NETMASK=255.255.255.0 GATEWAY=10.8.2.1 DNS1=114.114.114.114 DEFROUTE=\u0026#34;yes\u0026#34; NAME=\u0026#34;eth0\u0026#34; DEVICE=\u0026#34;eth0\u0026#34; ONBOOT=\u0026#34;yes\u0026#34; SSH登录一下没问题，看到绿框就ok了\n二、配置FreePBX的分机 打开网址 http://10.8.2.60 , 登录 FreePBX Administration\n登上去后是这个样子\n上面我没有开System Firewall，这个看个人需求，绝对不要像公网开放80端口，只开5060的udp和1000-10004的UDP。\n","keywords":[],"articleBody":"新的一年依始，开始定好了旅行计划，但是有个东西却依然心神不宁。\n那就是万一在国外有什么变动，如何往国内打电话呢？！\n说到这里，不得不提个东西，那就是旅顺的App，这个东西已经消失了，但是绝对值得被记住啊。\n这个东西在塞班岛旅游的时候曾经救了自己两次\n首先是它的第一代产品：\n第一代的原理似乎是把手机的信号直接通过网络转移到了国内，随身携带然后配合app使用，这点非常牛吧！国内的窜出点会随机，忽而天津，忽而别的地方，所以呼出电话搞不好是长途计费。第一次呢八戒是在塞班岛中部那个麦当劳附近，用这个接到了国内的电话，说是出大事了，有人把公司数据库的数据给改了，当时约定下午6：00再打，然后下午在台湾牛肉面的店里，又用这个往国内通了电话，打了半个多小时，领导告知了具体的情况，要是接不起来那可真就麻烦大了。\n这个是它第二代的产品：\n这个是升级版pro，就更厉害了，直接放家里，手机上下个app，有网络就能用了，不用像第一代一样随身携带了。\n这个更是救命了，话说第二回在塞班的时候正是疫情刚发作的时候，塞班直接封岛了，然后好多航班都延期或终止了，就是用这个旅顺打国内电话改签了回国的机票，足足打了两个小时啊，到处占线等待，如果打国际长途的话费用不堪设想，另外打塞班大韩航空的电话改签两程机票也是不可想像的，所以，关键时刻是真的救命啊。\n这么好的软件却直接倒闭消失了，真是万分可惜啊。\n哎，现在没有这个了，只能自己搭一个voip电话自用了。\n刚开始是考虑RasPBX，其实自己用树莓派搭过，费事不说，主要树莓派容易死机，务必要稳定，所以干脆用FreePBX搭建在kvm服务器虚拟机上的方式，来保持绝对稳定。\n以下教程只适用于 FreePBX 16 的官方ISO，具体做法如下：\n一、安装KVM虚机： #下载FreePBX16的iso光盘 wget https://downloads.freepbxdistro.org/ISO/SNG7-PBX16-64bit-2302-1.iso #创建qcow2虚机文件 qemu-img create -f qcow2 freepbx-8-2-60/freepbx-8-2-60.qcow2 20G virt-install \\ --name=freepbx-8-2-60 \\ --vcpu=4 \\ --ram=8096 \\ --disk path=/export/kvm/freepbx-8-2-60/freepbs-8-2-60.qcow2,format=qcow2,size=20 \\ --cdrom=/export/kvm/SNG7-PBX16-64bit-2302-1.iso \\ --network bridge=br0 \\ --os-type=linux \\ --vnc --vnclisten=0.0.0.0 --vncport=5916 用vnc连接5916端口安装，设置一下root的密码安装。\n这样安装好后，系统其实是dhcp动态获得ip的，进入看了看，是Centos，我们不需要dhcp，把IP给固定死\nvi /etc/sysconfig/network-scripts/ifcfg-eth0 TYPE=\"Ethernet\" BOOTPROTO=\"static\" IPADDR=10.8.2.60 NETMASK=255.255.255.0 GATEWAY=10.8.2.1 DNS1=114.114.114.114 DEFROUTE=\"yes\" NAME=\"eth0\" DEVICE=\"eth0\" ONBOOT=\"yes\" SSH登录一下没问题，看到绿框就ok了\n二、配置FreePBX的分机 打开网址 http://10.8.2.60 , 登录 FreePBX Administration\n登上去后是这个样子\n上面我没有开System Firewall，这个看个人需求，绝对不要像公网开放80端口，只开5060的udp和1000-10004的UDP。\n开了公网80的话，那就是另外一个悲伤的故事了！！！\n然后建立第一个分机888：\n直接在Applications-\u003eExtensions-\u003eAdd new Chan_SIP Extension新建一个分机，在Generaltab页里面填好第一个SIP账户的信息\nGeneral填写:\nUser Extension 分机号为888 Display Name 为 ba jie，最好自己名字，好区分 Secret 是密码，要填写个非常复杂的，绝对不能简单。 然后最底下，Submit 提交一下\n最后点击右上角的Apply Config应用刚才的配置。\n三、配置dongle无线卡 内部分机有了，我们需要配置外部线路\n去淘宝上买个dongle卡，插到服务器上\n登录服务器，lsusb 查看一下usb的地址\n得到 vendori d: 12d1 和 product id: 1436 这两个字串，编辑一个文件 usb-attach.xml 文件：\nvi usb-attach.xml ","wordCount":"349","inLanguage":"zh","datePublished":"2024-01-05T09:35:11+08:00","dateModified":"2024-01-05T09:35:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20240105-voip_iphone/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">最新版出国旅行安装一个FreePBX的voip电话自用
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2024-01-05 09:35:11 +0800 CST'>2024年1月5日</span></div></header><div class=post-content><p>新的一年依始，开始定好了旅行计划，但是有个东西却依然心神不宁。</p><p>那就是万一在国外有什么变动，如何往国内打电话呢？！</p><p>说到这里，不得不提个东西，那就是旅顺的App，这个东西已经消失了，但是绝对值得被记住啊。</p><p>这个东西在塞班岛旅游的时候曾经救了自己两次</p><p>首先是它的第一代产品：</p><p><img alt=image-20240105135104823 loading=lazy src=/posts/20240105-voip_iphone/image-20240105135104823.png></p><p>第一代的原理似乎是把手机的信号直接通过网络转移到了国内，随身携带然后配合app使用，这点非常牛吧！国内的窜出点会随机，忽而天津，忽而别的地方，所以呼出电话搞不好是长途计费。第一次呢八戒是在塞班岛中部那个麦当劳附近，用这个接到了国内的电话，说是出大事了，有人把公司数据库的数据给改了，当时约定下午6：00再打，然后下午在台湾牛肉面的店里，又用这个往国内通了电话，打了半个多小时，领导告知了具体的情况，要是接不起来那可真就麻烦大了。</p><p>这个是它第二代的产品：</p><p><img alt=image-20240105135031364 loading=lazy src=/posts/20240105-voip_iphone/image-20240105135031364.png></p><p>这个是升级版pro，就更厉害了，直接放家里，手机上下个app，有网络就能用了，不用像第一代一样随身携带了。</p><p>这个更是救命了，话说第二回在塞班的时候正是疫情刚发作的时候，塞班直接封岛了，然后好多航班都延期或终止了，就是用这个旅顺打国内电话改签了回国的机票，足足打了两个小时啊，到处占线等待，如果打国际长途的话费用不堪设想，另外打塞班大韩航空的电话改签两程机票也是不可想像的，所以，关键时刻是真的救命啊。</p><p>这么好的软件却直接倒闭消失了，真是万分可惜啊。</p><p>哎，现在没有这个了，只能自己搭一个voip电话自用了。</p><p>刚开始是考虑RasPBX，其实自己用树莓派搭过，费事不说，主要树莓派容易死机，务必要稳定，所以干脆用FreePBX搭建在kvm服务器虚拟机上的方式，来保持绝对稳定。</p><p>以下教程只适用于 FreePBX 16 的官方ISO，具体做法如下：</p><h2 id=一安装kvm虚机>一、安装KVM虚机：<a hidden class=anchor aria-hidden=true href=#一安装kvm虚机>#</a></h2><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1>#下载FreePBX16的iso光盘</span>
+</span></span><span class=line><span class=cl>wget https://downloads.freepbxdistro.org/ISO/SNG7-PBX16-64bit-2302-1.iso
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#创建qcow2虚机文件</span>
+</span></span><span class=line><span class=cl>qemu-img create -f qcow2 freepbx-8-2-60/freepbx-8-2-60.qcow2 20G
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>virt-install <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>--name<span class=o>=</span>freepbx-8-2-60 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>--vcpu<span class=o>=</span><span class=m>4</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>--ram<span class=o>=</span><span class=m>8096</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>--disk <span class=nv>path</span><span class=o>=</span>/export/kvm/freepbx-8-2-60/freepbs-8-2-60.qcow2,format<span class=o>=</span>qcow2,size<span class=o>=</span><span class=m>20</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>--cdrom<span class=o>=</span>/export/kvm/SNG7-PBX16-64bit-2302-1.iso <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>--network <span class=nv>bridge</span><span class=o>=</span>br0 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>--os-type<span class=o>=</span>linux <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>--vnc --vnclisten<span class=o>=</span>0.0.0.0 --vncport<span class=o>=</span><span class=m>5916</span>
+</span></span></code></pre></div><p>用vnc连接5916端口安装，设置一下root的密码安装。</p><p>这样安装好后，系统其实是dhcp动态获得ip的，进入看了看，是Centos，我们不需要dhcp，把IP给固定死</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>vi /etc/sysconfig/network-scripts/ifcfg-eth0 
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>TYPE</span><span class=o>=</span><span class=s2>&#34;Ethernet&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>BOOTPROTO</span><span class=o>=</span><span class=s2>&#34;static&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>IPADDR</span><span class=o>=</span>10.8.2.60
+</span></span><span class=line><span class=cl><span class=nv>NETMASK</span><span class=o>=</span>255.255.255.0
+</span></span><span class=line><span class=cl><span class=nv>GATEWAY</span><span class=o>=</span>10.8.2.1
+</span></span><span class=line><span class=cl><span class=nv>DNS1</span><span class=o>=</span>114.114.114.114
+</span></span><span class=line><span class=cl><span class=nv>DEFROUTE</span><span class=o>=</span><span class=s2>&#34;yes&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>NAME</span><span class=o>=</span><span class=s2>&#34;eth0&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>DEVICE</span><span class=o>=</span><span class=s2>&#34;eth0&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>ONBOOT</span><span class=o>=</span><span class=s2>&#34;yes&#34;</span>
+</span></span></code></pre></div><p>SSH登录一下没问题，看到绿框就ok了</p><p><img alt=image-20240105141241964 loading=lazy src=/posts/20240105-voip_iphone/image-20240105141241964.png></p><h2 id=二配置freepbx的分机>二、配置FreePBX的分机<a hidden class=anchor aria-hidden=true href=#二配置freepbx的分机>#</a></h2><p>打开网址 http://10.8.2.60 , 登录 FreePBX Administration</p><p><img alt=image-20240105144025926 loading=lazy src=/posts/20240105-voip_iphone/image-20240105144025926.png></p><p>登上去后是这个样子</p><p><img alt=image-20240105144212316 loading=lazy src=/posts/20240105-voip_iphone/image-20240105144212316.png></p><p>上面我没有开System Firewall，这个看个人需求，绝对不要像公网开放80端口，只开5060的udp和1000-10004的UDP。</p><p>开了公网80的话，那就是另外一个悲伤的故事了！！！</p><p>然后建立第一个分机888：</p><p>直接在<code>Applications</code>-><code>Extensions</code>-><code>Add new Chan_SIP Extension</code>新建一个分机，在<code>General</code>tab页里面填好第一个SIP账户的信息</p><p><img alt=image-20240105144407020.png loading=lazy src=/posts/20240105-voip_iphone/image-20240105144407020.png></p><p><img alt=image-20240105144454864.png loading=lazy src=/posts/20240105-voip_iphone/image-20240105144454864.png></p><p>General填写:</p><ul><li>User Extension 分机号为888</li><li>Display Name 为 ba jie，最好自己名字，好区分</li><li>Secret 是密码，要填写个非常复杂的，绝对不能简单。</li></ul><p><img alt=image-20240105144750579.png loading=lazy src=/posts/20240105-voip_iphone/image-20240105144750579.png></p><p>然后最底下，Submit 提交一下</p><p>最后点击右上角的<code>Apply Config</code>应用刚才的配置。</p><h2 id=三配置dongle无线卡>三、配置dongle无线卡<a hidden class=anchor aria-hidden=true href=#三配置dongle无线卡>#</a></h2><p>内部分机有了，我们需要配置外部线路</p><p>去淘宝上买个dongle卡，插到服务器上</p><p><img alt=image-20240105150152946 loading=lazy src=/posts/20240105-voip_iphone/image-20240105150152946.png></p><p>登录服务器，lsusb 查看一下usb的地址</p><p><img alt=image-20240105150501476 loading=lazy src=/posts/20240105-voip_iphone/image-20240105150501476.png></p><p>得到 vendori d: 12d1 和 product id: 1436 这两个字串，编辑一个文件 usb-attach.xml 文件：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>vi usb-attach.xml
+</span></span><span class=line><span class=cl>&lt;hostdev <span class=nv>mode</span><span class=o>=</span><span class=s1>&#39;subsystem&#39;</span> <span class=nv>type</span><span class=o>=</span><span class=s1>&#39;usb&#39;</span>&gt;
+</span></span><span class=line><span class=cl>  &lt;source&gt;
+</span></span><span class=line><span class=cl>    &lt;vendor <span class=nv>id</span><span class=o>=</span><span class=s1>&#39;0x12d1&#39;</span>/&gt;  
+</span></span><span class=line><span class=cl>    &lt;product <span class=nv>id</span><span class=o>=</span><span class=s1>&#39;0x1436&#39;</span>/&gt;
+</span></span><span class=line><span class=cl>  &lt;/source&gt;
+</span></span><span class=line><span class=cl>&lt;/hostdev&gt;
+</span></span></code></pre></div><p>然后挂接上</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>virsh attach-device freepbx-8-2-60 --file usb_huawei.xml --persistent
+</span></span></code></pre></div><p>ssh登录进入freepbx，lsusb查看一下，同样能看到就对了</p><p><img alt=image-20240105151249664 loading=lazy src=/posts/20240105-voip_iphone/image-20240105151249664.png></p><p>然后就是大工程了，编译驱动程序，非常的复杂</p><p>不想编译的办法：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 解压包</span>
+</span></span><span class=line><span class=cl>unzip -x dongle.zip
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>cp chan_dongle.so /usr/lib64/asterisk/modules
+</span></span><span class=line><span class=cl>chmod <span class=m>644</span> /usr/lib64/asterisk/modules/chan_dongle.so
+</span></span></code></pre></div><p>完整的编译的方法：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1>#解压包</span>
+</span></span><span class=line><span class=cl>unzip asterisk-chan-dongle-master*
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#安装准备包编译</span>
+</span></span><span class=line><span class=cl>yum install automake autotools-dev autoconf
+</span></span><span class=line><span class=cl>yum -y install tcl asterisk18-devel make automake binutils
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#编译安装</span>
+</span></span><span class=line><span class=cl><span class=nb>cd</span> asterisk-chan-dongle-master/
+</span></span><span class=line><span class=cl>autoupdate
+</span></span><span class=line><span class=cl>aclocal
+</span></span><span class=line><span class=cl>autoconf
+</span></span><span class=line><span class=cl>automake -a
+</span></span><span class=line><span class=cl>./bootstrap
+</span></span><span class=line><span class=cl>./configure --with-astversion<span class=o>=</span>18.19.0
+</span></span><span class=line><span class=cl>make clean
+</span></span><span class=line><span class=cl>make
+</span></span><span class=line><span class=cl>make install
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>cd</span> /usr/lib64/asterisk/modules
+</span></span><span class=line><span class=cl>ls -lcat<span class=p>|</span>more
+</span></span></code></pre></div><p>看到有dongle字样就ok了</p><p><img alt=image-20240105151955008 loading=lazy src=/posts/20240105-voip_iphone/image-20240105151955008.png></p><p>没完呢啊，还需要把配置文件都弄进去</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1>#解压</span>
+</span></span><span class=line><span class=cl>unzip -x dongle.zip
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#install dongles driver</span>
+</span></span><span class=line><span class=cl><span class=nb>cd</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=s1>&#39;KERNEL==&#34;ttyUSB*&#34;, MODE=&#34;0666&#34;, OWNER=&#34;asterisk&#34;, GROUP=&#34;uucp&#34;&#39;</span>&gt;/etc/udev/rules.d/92-dongle.rules
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=s1>&#39;rungroup = dialout&#39;</span>&gt;&gt;/etc/asterisk/asterisk.conf
+</span></span><span class=line><span class=cl>mv dongle.conf /etc/asterisk/dongle.conf
+</span></span><span class=line><span class=cl>chown asterisk.asterisk /etc/asterisk/dongle.conf
+</span></span><span class=line><span class=cl>chmod <span class=m>664</span> /etc/asterisk/dongle.conf
+</span></span><span class=line><span class=cl>mv extensions_custom.conf /etc/asterisk/extensions_custom.conf
+</span></span><span class=line><span class=cl>chown asterisk.asterisk /etc/asterisk/extensions_custom.conf
+</span></span><span class=line><span class=cl>chmod <span class=m>664</span> /etc/asterisk/extensions_custom.conf
+</span></span></code></pre></div><p>下载地址：<a href=dongle.zip>dongle.zip</a></p><p>然后把虚机reboot一下，进入asterisk查看</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>asterisk -rvvv
+</span></span><span class=line><span class=cl>dongle show devices
+</span></span></code></pre></div><p><img alt=image-20240105153128272 loading=lazy src=/posts/20240105-voip_iphone/image-20240105153128272.png></p><p>看到自己dongle设备的id，是dongle1，记下来，就ok</p><h2 id=四配置freepbx的进出线路>四、配置FreePBX的进出线路<a hidden class=anchor aria-hidden=true href=#四配置freepbx的进出线路>#</a></h2><h3 id=1增加trunk>1、增加trunk<a hidden class=anchor aria-hidden=true href=#1增加trunk>#</a></h3><p>回到 FreePBX 的配置界面，先配一下 Trunk 线路，增加一个trunk:<code>connectivity</code>-><code>Trunks</code></p><p><img alt=image-20240105153644786.png loading=lazy src=/posts/20240105-voip_iphone/image-20240105153644786.png></p><p>增加一个 Custom Trunk:</p><p><img alt=image-20240105154010116.png loading=lazy src=/posts/20240105-voip_iphone/image-20240105154010116.png></p><p>General填写：</p><ul><li>Trunk Name : china_unicom</li><li>Outbound CallerID: 空 （联通手机号，最好空，后面有提示忽略，这个接打的时候会自动替你填上的）</li><li>Maximum Channels: 1 (只有一个联通sim卡，就是1，2个就是2)</li></ul><p><img alt=image-20240105154828153.png loading=lazy src=/posts/20240105-voip_iphone/image-20240105154828153.png></p><p>然后点到custom Settings，填入如下内容，注意，我的设备是dongle1，按查出来的设备填写啊。</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>dongle/dongle1/<span class=nv>$OUTNUM</span>$
+</span></span></code></pre></div><p><img alt=image-20240105154152522.png loading=lazy src=/posts/20240105-voip_iphone/image-20240105154152522.png></p><p>然后同样 Submit， 然后 Apply config. 会提示CallerID，ok忽略即可。</p><p><img alt=image-20240105155518868.png loading=lazy src=/posts/20240105-voip_iphone/image-20240105155518868.png></p><h3 id=2配置拨入线路inbound-route>2、配置拨入线路Inbound route<a hidden class=anchor aria-hidden=true href=#2配置拨入线路inbound-route>#</a></h3><p><code>connectivity</code>-><code>Inbound Routes</code></p><p><img alt=image-20240105155754237.png loading=lazy src=/posts/20240105-voip_iphone/image-20240105155754237.png></p><p>增加一个新的Inbound，名字就叫gsm_in，可以随便改。DID和CallerID都是ANY，意味着所有达到这个sim卡内的电话都接下来，Destination选择咱们一开始的888分机，这样呼入的电话就可以被888分机接听了</p><ul><li>Description: gsm_in</li><li>DID Number: ANY</li><li>CallerID Number: ANY</li><li>Set Destination: Extensions</li><li>​ 888 zhang ranrui</li></ul><p><img alt=image-20240105155956512.png loading=lazy src=/posts/20240105-voip_iphone/image-20240105155956512.png></p><p>最后同样 Submit , Apply Config配置生效</p><h3 id=3配置拨出线路outbound-routes>3、配置拨出线路Outbound Routes<a hidden class=anchor aria-hidden=true href=#3配置拨出线路outbound-routes>#</a></h3><p><code>connectivity</code>-><code>Outbound Routes</code></p><p><img alt=image-20240105160416719.png loading=lazy src=/posts/20240105-voip_iphone/image-20240105160416719.png></p><p>增加一条新的拨出线路，名字叫gsm_out好了，可以随便改，Trunk选咱们建立的 china_unicom</p><p>Route Name : gsm_out</p><p>Trunk Sequence for Matched Routes: china_unicom</p><p><img alt=image-20240105160604531.png loading=lazy src=/posts/20240105-voip_iphone/image-20240105160604531.png></p><p>注意，点到拨号盘，还需要配一下 <code>Dail Patterns</code></p><p><img alt=image-20240105160845252.png loading=lazy src=/posts/20240105-voip_iphone/image-20240105160845252.png></p><ul><li><strong>Match Pattern</strong>: <strong>ZX.</strong></li></ul><p>ZX. 的意思是拨出去的号码最少有3个数字那么长，且第一位不是0，那手机11位，起始是1就满足了。很多教程教配个1和9什么的，有毛病啊，拨出去还要加拨1和9</p><p>最后仍然是Submit，Apply Config配置生效。</p><p>这样基本上就完工了</p><h2 id=五配置手机端voip软件>五、配置手机端voip软件<a hidden class=anchor aria-hidden=true href=#五配置手机端voip软件>#</a></h2><p>网上大多数的教程都是用zoiper，这里强烈指出，这个软件根本不行！！！</p><p>一是zoiper必须运行在前台才能接起来打到dongle里的电话，二是zoiper里gsm好的音频编码居然是收费的。</p><p>网上搜了半天，终于找到了个好的，PortSIP，iphone下也是必须用外区id才能搜到并下载安装。</p><p><img alt=image-20240227144454366 loading=lazy src=/posts/20240105-voip_iphone/image-20240227144454366.png></p><p>这个软件其实是一家提供pbx服务的公司提供的客户端，可以接起来打到asterisk手机卡里的手机，而且音频编码g.729等等都是免费的。</p><p>那必须赞一个。高级设置里强制和集成就是接起来的保证，不过会大面积耗电。</p><p><img alt=image-20240227144805603 loading=lazy src=/posts/20240105-voip_iphone/image-20240227144805603.png></p><p>音频编码器中g.729也是免费的。比zoiper还收你钱厚道多了。</p><p><img alt=image-20240227144835248 loading=lazy src=/posts/20240105-voip_iphone/image-20240227144835248.png></p><p>设置也及其简单：</p><p><img alt=image-20240227145005885 loading=lazy src=/posts/20240105-voip_iphone/image-20240227145005885.png></p><p>域名和出站代理都写Freepbx暴露出去的公网ip即可</p><p>用户名就是pbx添加的那个分机888，密码就是secret。</p><p>八戒亲自在泰国普吉测试了很多次，完胜zoiper，强烈推荐啊。</p><h2 id=六路由器设置>六、路由器设置<a hidden class=anchor aria-hidden=true href=#六路由器设置>#</a></h2><p>有公网设置，需要做端口映射</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>路由器Port <span class=m>5060</span> udp --&gt; FreePBX Port <span class=m>5060</span> udp
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>路由器Port 10000-&gt;10004 udp --&gt; FreePBX Port 10000-10004 udp
+</span></span></code></pre></div><p>10000到10004的端口映射出去是因为语音一路，数据一路，我们只有一个sim卡，4路足够了。</p><h2 id=七补充>七、补充<a hidden class=anchor aria-hidden=true href=#七补充>#</a></h2><p>在freepbx上面发送短信的命令</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>asterisk -rx <span class=s2>&#34;dongle sms dongle1 +8613000000000 信息测试&#34;</span>
+</span></span></code></pre></div></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

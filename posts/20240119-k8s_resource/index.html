@@ -1,0 +1,243 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>kubernetes中Pod资源清单和解释 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='Pod的yaml文件的资源清单和解释，备查
+apiVersion: v1     #必选，版本号，例如v1
+kind: Pod       　 #必选，资源类型，例如 Pod
+metadata:       　 #必选，元数据
+  name: string     #必选，Pod名称
+  namespace: string  #Pod所属的命名空间,默认为"default"
+  labels:       　　  #自定义标签列表
+    - name: string      　          
+spec:  #必选，Pod中容器的详细定义
+  containers:  #必选，Pod中容器列表
+  - name: string   #必选，容器名称
+    image: string  #必选，容器的镜像名称
+    imagePullPolicy: [ Always|Never|IfNotPresent ]  #获取镜像的策略 
+    command: [string]   #容器的启动命令列表，如不指定，使用打包时使用的启动命令
+    args: [string]      #容器的启动命令参数列表
+    workingDir: string  #容器的工作目录
+    volumeMounts:       #挂载到容器内部的存储卷配置
+    - name: string      #引用pod定义的共享存储卷的名称，需用volumes[]部分定义的的卷名
+      mountPath: string #存储卷在容器内mount的绝对路径，应少于512字符
+      readOnly: boolean #是否为只读模式
+    ports: #需要暴露的端口库号列表
+    - name: string        #端口的名称
+      containerPort: int  #容器需要监听的端口号
+      hostPort: int       #容器所在主机需要监听的端口号，默认与Container相同
+      protocol: string    #端口协议，支持TCP和UDP，默认TCP
+    env:   #容器运行前需设置的环境变量列表
+    - name: string  #环境变量名称
+      value: string #环境变量的值
+    resources: #资源限制和请求的设置
+      limits:  #资源限制的设置
+        cpu: string     #Cpu的限制，单位为core数，将用于docker run --cpu-shares参数
+        memory: string  #内存限制，单位可以为Mib/Gib，将用于docker run --memory参数
+      requests: #资源请求的设置
+        cpu: string    #Cpu请求，容器启动的初始可用数量
+        memory: string #内存请求,容器启动的初始可用数量
+    lifecycle: #生命周期钩子
+        postStart: #容器启动后立即执行此钩子,如果执行失败,会根据重启策略进行重启
+        preStop: #容器终止前执行此钩子,无论结果如何,容器都会终止
+    livenessProbe:  #对Pod内各容器健康检查的设置，当探测无响应几次后将自动重启该容器
+      exec:       　 #对Pod容器内检查方式设置为exec方式
+        command: [string]  #exec方式需要制定的命令或脚本
+      httpGet:       #对Pod内个容器健康检查方法设置为HttpGet，需要制定Path、port
+        path: string
+        port: number
+        host: string
+        scheme: string
+        HttpHeaders:
+        - name: string
+          value: string
+      tcpSocket:     #对Pod内个容器健康检查方式设置为tcpSocket方式
+         port: number
+       initialDelaySeconds: 0       #容器启动完成后首次探测的时间，单位为秒
+       timeoutSeconds: 0    　　    #对容器健康检查探测等待响应的超时时间，单位秒，默认1秒
+       periodSeconds: 0     　　    #对容器监控检查的定期探测时间设置，单位秒，默认10秒一次
+       successThreshold: 0
+       failureThreshold: 0
+       securityContext:
+         privileged: false
+  restartPolicy: [Always | Never | OnFailure]  #Pod的重启策略
+  nodeName: <string> #设置NodeName表示将该Pod调度到指定到名称的node节点上
+  nodeSelector: obeject #设置NodeSelector表示将该Pod调度到包含这个label的node上
+  imagePullSecrets: #Pull镜像时使用的secret名称，以key：secretkey格式指定
+  - name: string
+  hostNetwork: false   #是否使用主机网络模式，默认为false，如果设置为true，表示使用宿主机网络
+  volumes:   #在该pod上定义共享存储卷列表
+  - name: string    #共享存储卷名称 （volumes类型有很多种）
+    emptyDir: {}       #类型为emtyDir的存储卷，与Pod同生命周期的一个临时目录。为空值
+    hostPath: string   #类型为hostPath的存储卷，表示挂载Pod所在宿主机的目录
+      path: string      　　        #Pod所在宿主机的目录，将被用于同期中mount的目录
+    secret:       　　　#类型为secret的存储卷，挂载集群与定义的secret对象到容器内部
+      scretname: string  
+      items:     
+      - key: string
+        path: string
+    configMap:         #类型为configMap的存储卷，挂载预定义的configMap对象到容器内部
+      name: string
+      items:
+      - key: string
+        path: string
+在kubernetes中基本所有资源的一级属性都是一样的，主要包含5部分：'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20240119-k8s_resource/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20240119-k8s_resource/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20240119-k8s_resource/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="kubernetes中Pod资源清单和解释"><meta property="og:description" content='Pod的yaml文件的资源清单和解释，备查 apiVersion: v1 #必选，版本号，例如v1 kind: Pod #必选，资源类型，例如 Pod metadata: #必选，元数据 name: string #必选，Pod名称 namespace: string #Pod所属的命名空间,默认为"default" labels: #自定义标签列表 - name: string spec: #必选，Pod中容器的详细定义 containers: #必选，Pod中容器列表 - name: string #必选，容器名称 image: string #必选，容器的镜像名称 imagePullPolicy: [ Always|Never|IfNotPresent ] #获取镜像的策略 command: [string] #容器的启动命令列表，如不指定，使用打包时使用的启动命令 args: [string] #容器的启动命令参数列表 workingDir: string #容器的工作目录 volumeMounts: #挂载到容器内部的存储卷配置 - name: string #引用pod定义的共享存储卷的名称，需用volumes[]部分定义的的卷名 mountPath: string #存储卷在容器内mount的绝对路径，应少于512字符 readOnly: boolean #是否为只读模式 ports: #需要暴露的端口库号列表 - name: string #端口的名称 containerPort: int #容器需要监听的端口号 hostPort: int #容器所在主机需要监听的端口号，默认与Container相同 protocol: string #端口协议，支持TCP和UDP，默认TCP env: #容器运行前需设置的环境变量列表 - name: string #环境变量名称 value: string #环境变量的值 resources: #资源限制和请求的设置 limits: #资源限制的设置 cpu: string #Cpu的限制，单位为core数，将用于docker run --cpu-shares参数 memory: string #内存限制，单位可以为Mib/Gib，将用于docker run --memory参数 requests: #资源请求的设置 cpu: string #Cpu请求，容器启动的初始可用数量 memory: string #内存请求,容器启动的初始可用数量 lifecycle: #生命周期钩子 postStart: #容器启动后立即执行此钩子,如果执行失败,会根据重启策略进行重启 preStop: #容器终止前执行此钩子,无论结果如何,容器都会终止 livenessProbe: #对Pod内各容器健康检查的设置，当探测无响应几次后将自动重启该容器 exec: #对Pod容器内检查方式设置为exec方式 command: [string] #exec方式需要制定的命令或脚本 httpGet: #对Pod内个容器健康检查方法设置为HttpGet，需要制定Path、port path: string port: number host: string scheme: string HttpHeaders: - name: string value: string tcpSocket: #对Pod内个容器健康检查方式设置为tcpSocket方式 port: number initialDelaySeconds: 0 #容器启动完成后首次探测的时间，单位为秒 timeoutSeconds: 0 #对容器健康检查探测等待响应的超时时间，单位秒，默认1秒 periodSeconds: 0 #对容器监控检查的定期探测时间设置，单位秒，默认10秒一次 successThreshold: 0 failureThreshold: 0 securityContext: privileged: false restartPolicy: [Always | Never | OnFailure] #Pod的重启策略 nodeName: <string> #设置NodeName表示将该Pod调度到指定到名称的node节点上 nodeSelector: obeject #设置NodeSelector表示将该Pod调度到包含这个label的node上 imagePullSecrets: #Pull镜像时使用的secret名称，以key：secretkey格式指定 - name: string hostNetwork: false #是否使用主机网络模式，默认为false，如果设置为true，表示使用宿主机网络 volumes: #在该pod上定义共享存储卷列表 - name: string #共享存储卷名称 （volumes类型有很多种） emptyDir: {} #类型为emtyDir的存储卷，与Pod同生命周期的一个临时目录。为空值 hostPath: string #类型为hostPath的存储卷，表示挂载Pod所在宿主机的目录 path: string #Pod所在宿主机的目录，将被用于同期中mount的目录 secret: #类型为secret的存储卷，挂载集群与定义的secret对象到容器内部 scretname: string items: - key: string path: string configMap: #类型为configMap的存储卷，挂载预定义的configMap对象到容器内部 name: string items: - key: string path: string 在kubernetes中基本所有资源的一级属性都是一样的，主要包含5部分：'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2024-01-19T12:09:11+08:00"><meta property="article:modified_time" content="2024-01-19T12:09:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="kubernetes中Pod资源清单和解释"><meta name=twitter:description content='Pod的yaml文件的资源清单和解释，备查
+apiVersion: v1     #必选，版本号，例如v1
+kind: Pod       　 #必选，资源类型，例如 Pod
+metadata:       　 #必选，元数据
+  name: string     #必选，Pod名称
+  namespace: string  #Pod所属的命名空间,默认为"default"
+  labels:       　　  #自定义标签列表
+    - name: string      　          
+spec:  #必选，Pod中容器的详细定义
+  containers:  #必选，Pod中容器列表
+  - name: string   #必选，容器名称
+    image: string  #必选，容器的镜像名称
+    imagePullPolicy: [ Always|Never|IfNotPresent ]  #获取镜像的策略 
+    command: [string]   #容器的启动命令列表，如不指定，使用打包时使用的启动命令
+    args: [string]      #容器的启动命令参数列表
+    workingDir: string  #容器的工作目录
+    volumeMounts:       #挂载到容器内部的存储卷配置
+    - name: string      #引用pod定义的共享存储卷的名称，需用volumes[]部分定义的的卷名
+      mountPath: string #存储卷在容器内mount的绝对路径，应少于512字符
+      readOnly: boolean #是否为只读模式
+    ports: #需要暴露的端口库号列表
+    - name: string        #端口的名称
+      containerPort: int  #容器需要监听的端口号
+      hostPort: int       #容器所在主机需要监听的端口号，默认与Container相同
+      protocol: string    #端口协议，支持TCP和UDP，默认TCP
+    env:   #容器运行前需设置的环境变量列表
+    - name: string  #环境变量名称
+      value: string #环境变量的值
+    resources: #资源限制和请求的设置
+      limits:  #资源限制的设置
+        cpu: string     #Cpu的限制，单位为core数，将用于docker run --cpu-shares参数
+        memory: string  #内存限制，单位可以为Mib/Gib，将用于docker run --memory参数
+      requests: #资源请求的设置
+        cpu: string    #Cpu请求，容器启动的初始可用数量
+        memory: string #内存请求,容器启动的初始可用数量
+    lifecycle: #生命周期钩子
+        postStart: #容器启动后立即执行此钩子,如果执行失败,会根据重启策略进行重启
+        preStop: #容器终止前执行此钩子,无论结果如何,容器都会终止
+    livenessProbe:  #对Pod内各容器健康检查的设置，当探测无响应几次后将自动重启该容器
+      exec:       　 #对Pod容器内检查方式设置为exec方式
+        command: [string]  #exec方式需要制定的命令或脚本
+      httpGet:       #对Pod内个容器健康检查方法设置为HttpGet，需要制定Path、port
+        path: string
+        port: number
+        host: string
+        scheme: string
+        HttpHeaders:
+        - name: string
+          value: string
+      tcpSocket:     #对Pod内个容器健康检查方式设置为tcpSocket方式
+         port: number
+       initialDelaySeconds: 0       #容器启动完成后首次探测的时间，单位为秒
+       timeoutSeconds: 0    　　    #对容器健康检查探测等待响应的超时时间，单位秒，默认1秒
+       periodSeconds: 0     　　    #对容器监控检查的定期探测时间设置，单位秒，默认10秒一次
+       successThreshold: 0
+       failureThreshold: 0
+       securityContext:
+         privileged: false
+  restartPolicy: [Always | Never | OnFailure]  #Pod的重启策略
+  nodeName: <string> #设置NodeName表示将该Pod调度到指定到名称的node节点上
+  nodeSelector: obeject #设置NodeSelector表示将该Pod调度到包含这个label的node上
+  imagePullSecrets: #Pull镜像时使用的secret名称，以key：secretkey格式指定
+  - name: string
+  hostNetwork: false   #是否使用主机网络模式，默认为false，如果设置为true，表示使用宿主机网络
+  volumes:   #在该pod上定义共享存储卷列表
+  - name: string    #共享存储卷名称 （volumes类型有很多种）
+    emptyDir: {}       #类型为emtyDir的存储卷，与Pod同生命周期的一个临时目录。为空值
+    hostPath: string   #类型为hostPath的存储卷，表示挂载Pod所在宿主机的目录
+      path: string      　　        #Pod所在宿主机的目录，将被用于同期中mount的目录
+    secret:       　　　#类型为secret的存储卷，挂载集群与定义的secret对象到容器内部
+      scretname: string  
+      items:     
+      - key: string
+        path: string
+    configMap:         #类型为configMap的存储卷，挂载预定义的configMap对象到容器内部
+      name: string
+      items:
+      - key: string
+        path: string
+在kubernetes中基本所有资源的一级属性都是一样的，主要包含5部分：'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"kubernetes中Pod资源清单和解释","item":"https://rendoumi.com/posts/20240119-k8s_resource/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"kubernetes中Pod资源清单和解释","name":"kubernetes中Pod资源清单和解释","description":"Pod的yaml文件的资源清单和解释，备查 apiVersion: v1 #必选，版本号，例如v1 kind: Pod #必选，资源类型，例如 Pod metadata: #必选，元数据 name: string #必选，Pod名称 namespace: string #Pod所属的命名空间,默认为\u0026#34;default\u0026#34; labels: #自定义标签列表 - name: string spec: #必选，Pod中容器的详细定义 containers: #必选，Pod中容器列表 - name: string #必选，容器名称 image: string #必选，容器的镜像名称 imagePullPolicy: [ Always|Never|IfNotPresent ] #获取镜像的策略 command: [string] #容器的启动命令列表，如不指定，使用打包时使用的启动命令 args: [string] #容器的启动命令参数列表 workingDir: string #容器的工作目录 volumeMounts: #挂载到容器内部的存储卷配置 - name: string #引用pod定义的共享存储卷的名称，需用volumes[]部分定义的的卷名 mountPath: string #存储卷在容器内mount的绝对路径，应少于512字符 readOnly: boolean #是否为只读模式 ports: #需要暴露的端口库号列表 - name: string #端口的名称 containerPort: int #容器需要监听的端口号 hostPort: int #容器所在主机需要监听的端口号，默认与Container相同 protocol: string #端口协议，支持TCP和UDP，默认TCP env: #容器运行前需设置的环境变量列表 - name: string #环境变量名称 value: string #环境变量的值 resources: #资源限制和请求的设置 limits: #资源限制的设置 cpu: string #Cpu的限制，单位为core数，将用于docker run --cpu-shares参数 memory: string #内存限制，单位可以为Mib/Gib，将用于docker run --memory参数 requests: #资源请求的设置 cpu: string #Cpu请求，容器启动的初始可用数量 memory: string #内存请求,容器启动的初始可用数量 lifecycle: #生命周期钩子 postStart: #容器启动后立即执行此钩子,如果执行失败,会根据重启策略进行重启 preStop: #容器终止前执行此钩子,无论结果如何,容器都会终止 livenessProbe: #对Pod内各容器健康检查的设置，当探测无响应几次后将自动重启该容器 exec: #对Pod容器内检查方式设置为exec方式 command: [string] #exec方式需要制定的命令或脚本 httpGet: #对Pod内个容器健康检查方法设置为HttpGet，需要制定Path、port path: string port: number host: string scheme: string HttpHeaders: - name: string value: string tcpSocket: #对Pod内个容器健康检查方式设置为tcpSocket方式 port: number initialDelaySeconds: 0 #容器启动完成后首次探测的时间，单位为秒 timeoutSeconds: 0 #对容器健康检查探测等待响应的超时时间，单位秒，默认1秒 periodSeconds: 0 #对容器监控检查的定期探测时间设置，单位秒，默认10秒一次 successThreshold: 0 failureThreshold: 0 securityContext: privileged: false restartPolicy: [Always | Never | OnFailure] #Pod的重启策略 nodeName: \u0026lt;string\u0026gt; #设置NodeName表示将该Pod调度到指定到名称的node节点上 nodeSelector: obeject #设置NodeSelector表示将该Pod调度到包含这个label的node上 imagePullSecrets: #Pull镜像时使用的secret名称，以key：secretkey格式指定 - name: string hostNetwork: false #是否使用主机网络模式，默认为false，如果设置为true，表示使用宿主机网络 volumes: #在该pod上定义共享存储卷列表 - name: string #共享存储卷名称 （volumes类型有很多种） emptyDir: {} #类型为emtyDir的存储卷，与Pod同生命周期的一个临时目录。为空值 hostPath: string #类型为hostPath的存储卷，表示挂载Pod所在宿主机的目录 path: string #Pod所在宿主机的目录，将被用于同期中mount的目录 secret: #类型为secret的存储卷，挂载集群与定义的secret对象到容器内部 scretname: string items: - key: string path: string configMap: #类型为configMap的存储卷，挂载预定义的configMap对象到容器内部 name: string items: - key: string path: string 在kubernetes中基本所有资源的一级属性都是一样的，主要包含5部分：\n","keywords":[],"articleBody":"Pod的yaml文件的资源清单和解释，备查 apiVersion: v1 #必选，版本号，例如v1 kind: Pod #必选，资源类型，例如 Pod metadata: #必选，元数据 name: string #必选，Pod名称 namespace: string #Pod所属的命名空间,默认为\"default\" labels: #自定义标签列表 - name: string spec: #必选，Pod中容器的详细定义 containers: #必选，Pod中容器列表 - name: string #必选，容器名称 image: string #必选，容器的镜像名称 imagePullPolicy: [ Always|Never|IfNotPresent ] #获取镜像的策略 command: [string] #容器的启动命令列表，如不指定，使用打包时使用的启动命令 args: [string] #容器的启动命令参数列表 workingDir: string #容器的工作目录 volumeMounts: #挂载到容器内部的存储卷配置 - name: string #引用pod定义的共享存储卷的名称，需用volumes[]部分定义的的卷名 mountPath: string #存储卷在容器内mount的绝对路径，应少于512字符 readOnly: boolean #是否为只读模式 ports: #需要暴露的端口库号列表 - name: string #端口的名称 containerPort: int #容器需要监听的端口号 hostPort: int #容器所在主机需要监听的端口号，默认与Container相同 protocol: string #端口协议，支持TCP和UDP，默认TCP env: #容器运行前需设置的环境变量列表 - name: string #环境变量名称 value: string #环境变量的值 resources: #资源限制和请求的设置 limits: #资源限制的设置 cpu: string #Cpu的限制，单位为core数，将用于docker run --cpu-shares参数 memory: string #内存限制，单位可以为Mib/Gib，将用于docker run --memory参数 requests: #资源请求的设置 cpu: string #Cpu请求，容器启动的初始可用数量 memory: string #内存请求,容器启动的初始可用数量 lifecycle: #生命周期钩子 postStart: #容器启动后立即执行此钩子,如果执行失败,会根据重启策略进行重启 preStop: #容器终止前执行此钩子,无论结果如何,容器都会终止 livenessProbe: #对Pod内各容器健康检查的设置，当探测无响应几次后将自动重启该容器 exec: #对Pod容器内检查方式设置为exec方式 command: [string] #exec方式需要制定的命令或脚本 httpGet: #对Pod内个容器健康检查方法设置为HttpGet，需要制定Path、port path: string port: number host: string scheme: string HttpHeaders: - name: string value: string tcpSocket: #对Pod内个容器健康检查方式设置为tcpSocket方式 port: number initialDelaySeconds: 0 #容器启动完成后首次探测的时间，单位为秒 timeoutSeconds: 0 #对容器健康检查探测等待响应的超时时间，单位秒，默认1秒 periodSeconds: 0 #对容器监控检查的定期探测时间设置，单位秒，默认10秒一次 successThreshold: 0 failureThreshold: 0 securityContext: privileged: false restartPolicy: [Always | Never | OnFailure] #Pod的重启策略 nodeName: #设置NodeName表示将该Pod调度到指定到名称的node节点上 nodeSelector: obeject #设置NodeSelector表示将该Pod调度到包含这个label的node上 imagePullSecrets: #Pull镜像时使用的secret名称，以key：secretkey格式指定 - name: string hostNetwork: false #是否使用主机网络模式，默认为false，如果设置为true，表示使用宿主机网络 volumes: #在该pod上定义共享存储卷列表 - name: string #共享存储卷名称 （volumes类型有很多种） emptyDir: {} #类型为emtyDir的存储卷，与Pod同生命周期的一个临时目录。为空值 hostPath: string #类型为hostPath的存储卷，表示挂载Pod所在宿主机的目录 path: string #Pod所在宿主机的目录，将被用于同期中mount的目录 secret: #类型为secret的存储卷，挂载集群与定义的secret对象到容器内部 scretname: string items: - key: string path: string configMap: #类型为configMap的存储卷，挂载预定义的configMap对象到容器内部 name: string items: - key: string path: string 在kubernetes中基本所有资源的一级属性都是一样的，主要包含5部分：\napiVersion 版本，由kubernetes内部定义，版本号必须可以用 kubectl api-versions 查询到 kind 类型，由kubernetes内部定义，版本号必须可以用 kubectl api-resources 查询到 metadata 元数据，主要是资源标识和说明，常用的有name、namespace、labels等 spec 描述，这是配置中最重要的一部分，里面是对各种资源配置的详细描述 status 状态信息，里面的内容不需要定义，由kubernetes自动生成 spec描述是主要关注的：\ncontainers \u003c[]Object\u003e 容器列表，用于定义容器的详细信息 nodeName 根据nodeName的值将pod调度到指定的Node节点上 nodeSelector 根据NodeSelector中定义的信息选择将该Pod调度到包含这些label的Node 上 hostNetwork 是否使用主机网络模式，默认为false，如果设置为true，表示使用宿主机网络 volumes \u003c[]Object\u003e 存储卷，用于定义Pod上面挂在的存储信息 restartPolicy 重启策略，表示Pod在遇到故障的时候的处理策略 ","wordCount":"244","inLanguage":"zh","datePublished":"2024-01-19T12:09:11+08:00","dateModified":"2024-01-19T12:09:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20240119-k8s_resource/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">kubernetes中Pod资源清单和解释
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2024-01-19 12:09:11 +0800 CST'>2024年1月19日</span></div></header><div class=post-content><h3 id=pod的yaml文件的资源清单和解释备查>Pod的yaml文件的资源清单和解释，备查<a hidden class=anchor aria-hidden=true href=#pod的yaml文件的资源清单和解释备查>#</a></h3><div class=highlight><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>v1    </span><span class=w> </span><span class=c>#必选，版本号，例如v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Pod       　</span><span class=w> </span><span class=c>#必选，资源类型，例如 Pod</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>       　 </span><span class=c>#必选，元数据</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>string    </span><span class=w> </span><span class=c>#必选，Pod名称</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>namespace</span><span class=p>:</span><span class=w> </span><span class=l>string </span><span class=w> </span><span class=c>#Pod所属的命名空间,默认为&#34;default&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>labels</span><span class=p>:</span><span class=w>       　　  </span><span class=c>#自定义标签列表</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>string      　          </span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>  </span><span class=c>#必选，Pod中容器的详细定义</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>containers</span><span class=p>:</span><span class=w>  </span><span class=c>#必选，Pod中容器列表</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>string  </span><span class=w> </span><span class=c>#必选，容器名称</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>image</span><span class=p>:</span><span class=w> </span><span class=l>string </span><span class=w> </span><span class=c>#必选，容器的镜像名称</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>imagePullPolicy</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=w> </span><span class=l>Always|Never|IfNotPresent ] </span><span class=w> </span><span class=c>#获取镜像的策略 </span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>command</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=l>string]  </span><span class=w> </span><span class=c>#容器的启动命令列表，如不指定，使用打包时使用的启动命令</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>args</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=l>string]     </span><span class=w> </span><span class=c>#容器的启动命令参数列表</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>workingDir</span><span class=p>:</span><span class=w> </span><span class=l>string </span><span class=w> </span><span class=c>#容器的工作目录</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>volumeMounts</span><span class=p>:</span><span class=w>       </span><span class=c>#挂载到容器内部的存储卷配置</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>string     </span><span class=w> </span><span class=c>#引用pod定义的共享存储卷的名称，需用volumes[]部分定义的的卷名</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>mountPath</span><span class=p>:</span><span class=w> </span><span class=l>string</span><span class=w> </span><span class=c>#存储卷在容器内mount的绝对路径，应少于512字符</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>readOnly</span><span class=p>:</span><span class=w> </span><span class=l>boolean</span><span class=w> </span><span class=c>#是否为只读模式</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>ports</span><span class=p>:</span><span class=w> </span><span class=c>#需要暴露的端口库号列表</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>string       </span><span class=w> </span><span class=c>#端口的名称</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>containerPort</span><span class=p>:</span><span class=w> </span><span class=l>int </span><span class=w> </span><span class=c>#容器需要监听的端口号</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>hostPort</span><span class=p>:</span><span class=w> </span><span class=l>int      </span><span class=w> </span><span class=c>#容器所在主机需要监听的端口号，默认与Container相同</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>protocol</span><span class=p>:</span><span class=w> </span><span class=l>string   </span><span class=w> </span><span class=c>#端口协议，支持TCP和UDP，默认TCP</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>env</span><span class=p>:</span><span class=w>   </span><span class=c>#容器运行前需设置的环境变量列表</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>string </span><span class=w> </span><span class=c>#环境变量名称</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>value</span><span class=p>:</span><span class=w> </span><span class=l>string</span><span class=w> </span><span class=c>#环境变量的值</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>resources</span><span class=p>:</span><span class=w> </span><span class=c>#资源限制和请求的设置</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>limits</span><span class=p>:</span><span class=w>  </span><span class=c>#资源限制的设置</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>cpu</span><span class=p>:</span><span class=w> </span><span class=l>string    </span><span class=w> </span><span class=c>#Cpu的限制，单位为core数，将用于docker run --cpu-shares参数</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>memory</span><span class=p>:</span><span class=w> </span><span class=l>string </span><span class=w> </span><span class=c>#内存限制，单位可以为Mib/Gib，将用于docker run --memory参数</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>requests</span><span class=p>:</span><span class=w> </span><span class=c>#资源请求的设置</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>cpu</span><span class=p>:</span><span class=w> </span><span class=l>string   </span><span class=w> </span><span class=c>#Cpu请求，容器启动的初始可用数量</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>memory</span><span class=p>:</span><span class=w> </span><span class=l>string</span><span class=w> </span><span class=c>#内存请求,容器启动的初始可用数量</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>lifecycle</span><span class=p>:</span><span class=w> </span><span class=c>#生命周期钩子</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>postStart</span><span class=p>:</span><span class=w> </span><span class=c>#容器启动后立即执行此钩子,如果执行失败,会根据重启策略进行重启</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>preStop</span><span class=p>:</span><span class=w> </span><span class=c>#容器终止前执行此钩子,无论结果如何,容器都会终止</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>livenessProbe</span><span class=p>:</span><span class=w>  </span><span class=c>#对Pod内各容器健康检查的设置，当探测无响应几次后将自动重启该容器</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>exec</span><span class=p>:</span><span class=w>       　 </span><span class=c>#对Pod容器内检查方式设置为exec方式</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>command</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=l>string] </span><span class=w> </span><span class=c>#exec方式需要制定的命令或脚本</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>httpGet</span><span class=p>:</span><span class=w>       </span><span class=c>#对Pod内个容器健康检查方法设置为HttpGet，需要制定Path、port</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>path</span><span class=p>:</span><span class=w> </span><span class=l>string</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>port</span><span class=p>:</span><span class=w> </span><span class=l>number</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>host</span><span class=p>:</span><span class=w> </span><span class=l>string</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>scheme</span><span class=p>:</span><span class=w> </span><span class=l>string</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>HttpHeaders</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>string</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>value</span><span class=p>:</span><span class=w> </span><span class=l>string</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>tcpSocket</span><span class=p>:</span><span class=w>     </span><span class=c>#对Pod内个容器健康检查方式设置为tcpSocket方式</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>         </span><span class=nt>port</span><span class=p>:</span><span class=w> </span><span class=l>number</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>       </span><span class=nt>initialDelaySeconds</span><span class=p>:</span><span class=w> </span><span class=m>0</span><span class=w>       </span><span class=c>#容器启动完成后首次探测的时间，单位为秒</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>       </span><span class=nt>timeoutSeconds</span><span class=p>:</span><span class=w> </span><span class=m>0</span><span class=w>    　　    </span><span class=c>#对容器健康检查探测等待响应的超时时间，单位秒，默认1秒</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>       </span><span class=nt>periodSeconds</span><span class=p>:</span><span class=w> </span><span class=m>0</span><span class=w>     　　    </span><span class=c>#对容器监控检查的定期探测时间设置，单位秒，默认10秒一次</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>       </span><span class=nt>successThreshold</span><span class=p>:</span><span class=w> </span><span class=m>0</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>       </span><span class=nt>failureThreshold</span><span class=p>:</span><span class=w> </span><span class=m>0</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>       </span><span class=nt>securityContext</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>         </span><span class=nt>privileged</span><span class=p>:</span><span class=w> </span><span class=kc>false</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>restartPolicy</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=l>Always | Never | OnFailure] </span><span class=w> </span><span class=c>#Pod的重启策略</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>nodeName</span><span class=p>:</span><span class=w> </span><span class=l>&lt;string&gt;</span><span class=w> </span><span class=c>#设置NodeName表示将该Pod调度到指定到名称的node节点上</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>nodeSelector</span><span class=p>:</span><span class=w> </span><span class=l>obeject</span><span class=w> </span><span class=c>#设置NodeSelector表示将该Pod调度到包含这个label的node上</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>imagePullSecrets</span><span class=p>:</span><span class=w> </span><span class=c>#Pull镜像时使用的secret名称，以key：secretkey格式指定</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>string</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>hostNetwork</span><span class=p>:</span><span class=w> </span><span class=kc>false</span><span class=w>   </span><span class=c>#是否使用主机网络模式，默认为false，如果设置为true，表示使用宿主机网络</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>volumes</span><span class=p>:</span><span class=w>   </span><span class=c>#在该pod上定义共享存储卷列表</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>string   </span><span class=w> </span><span class=c>#共享存储卷名称 （volumes类型有很多种）</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>emptyDir</span><span class=p>:</span><span class=w> </span>{}<span class=w>       </span><span class=c>#类型为emtyDir的存储卷，与Pod同生命周期的一个临时目录。为空值</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>hostPath</span><span class=p>:</span><span class=w> </span><span class=l>string  </span><span class=w> </span><span class=c>#类型为hostPath的存储卷，表示挂载Pod所在宿主机的目录</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>path</span><span class=p>:</span><span class=w> </span><span class=l>string      　　       </span><span class=w> </span><span class=c>#Pod所在宿主机的目录，将被用于同期中mount的目录</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>secret</span><span class=p>:</span><span class=w>       　　　</span><span class=c>#类型为secret的存储卷，挂载集群与定义的secret对象到容器内部</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>scretname</span><span class=p>:</span><span class=w> </span><span class=l>string  </span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>items</span><span class=p>:</span><span class=w>     
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>key</span><span class=p>:</span><span class=w> </span><span class=l>string</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>path</span><span class=p>:</span><span class=w> </span><span class=l>string</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>configMap</span><span class=p>:</span><span class=w>         </span><span class=c>#类型为configMap的存储卷，挂载预定义的configMap对象到容器内部</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>string</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>items</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>key</span><span class=p>:</span><span class=w> </span><span class=l>string</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>path</span><span class=p>:</span><span class=w> </span><span class=l>string</span><span class=w>
+</span></span></span></code></pre></div><p>在kubernetes中基本所有资源的一级属性都是一样的，主要包含5部分：</p><ul><li>apiVersion 版本，由kubernetes内部定义，版本号必须可以用 kubectl api-versions 查询到</li><li>kind 类型，由kubernetes内部定义，版本号必须可以用 kubectl api-resources 查询到</li><li>metadata 元数据，主要是资源标识和说明，常用的有name、namespace、labels等</li><li>spec 描述，这是配置中最重要的一部分，里面是对各种资源配置的详细描述</li><li>status 状态信息，里面的内容不需要定义，由kubernetes自动生成</li></ul><p><strong>spec</strong>描述是主要关注的：</p><ul><li>containers &lt;[]Object> 容器列表，用于定义容器的详细信息</li><li>nodeName 根据nodeName的值将pod调度到指定的Node节点上</li><li>nodeSelector &lt;map[]> 根据NodeSelector中定义的信息选择将该Pod调度到包含这些label的Node 上</li><li>hostNetwork 是否使用主机网络模式，默认为false，如果设置为true，表示使用宿主机网络</li><li>volumes &lt;[]Object> 存储卷，用于定义Pod上面挂在的存储信息</li><li>restartPolicy 重启策略，表示Pod在遇到故障的时候的处理策略</li></ul></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

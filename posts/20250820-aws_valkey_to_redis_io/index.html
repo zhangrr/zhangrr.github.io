@@ -1,0 +1,163 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>AWS托管的Valkey数据转移到社区Redis.io去 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='这还真是个大活，耗费了整整一天的时间。
+究其原因根本就是无论AWS托管的Valkey还是社区的Redis.io，都是被魔改过的阉割版，真是无语他妈给无语开门，无语到家了！
+说一下详细的过程：
+接到这个任务，首先想到的是同步软件redis-Gunyu
+https://github.com/mgtv-tech/redis-GunYu
+结果是失败，原因很奇葩，因为aws valkey是必须带tls连接的，Gunyu不支持，放弃。
+然后找到了redis-shake
+https://tair-opensource.github.io/RedisShake
+结果还是失败，理由是不支持PSync，用了scan_reader也失败
+
+然后就又想到了万能的ChatGPT和Google的Gemini，分别给了2个python程序，也是失败
+原因是不支持Migrate命令，而且valkey是基于redis 7.2改的，而Redis.io是8.0，命令不兼容
+走投无路之下想到了rdb-tools，先把valkey做个备份，放到S3桶里
+valeky-20250819-0001.rdb
+valeky-20250819-0002.rdb
+valeky-20250819-0003.rdb
+valeky-20250819-0004.rdb
+valeky-20250819-0005.rdb
+valeky-20250819-config.json
+
+cat valeky-20250819-config.json 
+{
+  "valeky-20250819/valeky-20250819-0002.rdb" : {
+    "Slots" : "0-5496",
+    "rdbSize" : "5234516"
+  },
+  "valeky-20250819/valeky-20250819-0004.rdb" : {
+    "Slots" : "5497-8375",
+    "rdbSize" : "4340658"
+  },
+  "valeky-20250819/valeky-20250819-0003.rdb" : {
+    "Slots" : "10082-16383",
+    "rdbSize" : "5962581"
+  },
+  "valeky-20250819/valeky-20250819-0001.rdb" : {
+    "Slots" : "8376",
+    "rdbSize" : "2218"
+  },
+  "valeky-20250819/valeky-20250819-0005.rdb" : {
+    "Slots" : "8377-10081",
+    "rdbSize" : "1540505"
+  }
+}
+看起来是5个rdb备份，每个文件对应redis不同的slots
+用rdb来解析备份文件，结果失败，因为不认识valkey rdb的版本。
+没办法了，又找到了这个软件
+https://github.com/HDT3213/rdb
+下载后，首先想处理成json文件，然后灌入到redis.io
+./rdb-linux-amd64 -c json -o 0001.json valeky-20250819-0001.rdb
+失败，因为json文件灌入的时候redis.io又被阉割了，命令不支持'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20250820-aws_valkey_to_redis_io/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20250820-aws_valkey_to_redis_io/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20250820-aws_valkey_to_redis_io/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="AWS托管的Valkey数据转移到社区Redis.io去"><meta property="og:description" content='这还真是个大活，耗费了整整一天的时间。
+究其原因根本就是无论AWS托管的Valkey还是社区的Redis.io，都是被魔改过的阉割版，真是无语他妈给无语开门，无语到家了！
+说一下详细的过程：
+接到这个任务，首先想到的是同步软件redis-Gunyu
+https://github.com/mgtv-tech/redis-GunYu
+结果是失败，原因很奇葩，因为aws valkey是必须带tls连接的，Gunyu不支持，放弃。
+然后找到了redis-shake
+https://tair-opensource.github.io/RedisShake
+结果还是失败，理由是不支持PSync，用了scan_reader也失败
+然后就又想到了万能的ChatGPT和Google的Gemini，分别给了2个python程序，也是失败
+原因是不支持Migrate命令，而且valkey是基于redis 7.2改的，而Redis.io是8.0，命令不兼容
+走投无路之下想到了rdb-tools，先把valkey做个备份，放到S3桶里
+valeky-20250819-0001.rdb valeky-20250819-0002.rdb valeky-20250819-0003.rdb valeky-20250819-0004.rdb valeky-20250819-0005.rdb valeky-20250819-config.json cat valeky-20250819-config.json { "valeky-20250819/valeky-20250819-0002.rdb" : { "Slots" : "0-5496", "rdbSize" : "5234516" }, "valeky-20250819/valeky-20250819-0004.rdb" : { "Slots" : "5497-8375", "rdbSize" : "4340658" }, "valeky-20250819/valeky-20250819-0003.rdb" : { "Slots" : "10082-16383", "rdbSize" : "5962581" }, "valeky-20250819/valeky-20250819-0001.rdb" : { "Slots" : "8376", "rdbSize" : "2218" }, "valeky-20250819/valeky-20250819-0005.rdb" : { "Slots" : "8377-10081", "rdbSize" : "1540505" } } 看起来是5个rdb备份，每个文件对应redis不同的slots
+用rdb来解析备份文件，结果失败，因为不认识valkey rdb的版本。
+没办法了，又找到了这个软件
+https://github.com/HDT3213/rdb
+下载后，首先想处理成json文件，然后灌入到redis.io
+./rdb-linux-amd64 -c json -o 0001.json valeky-20250819-0001.rdb 失败，因为json文件灌入的时候redis.io又被阉割了，命令不支持'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2025-08-20T09:01:11+08:00"><meta property="article:modified_time" content="2025-08-20T09:01:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="AWS托管的Valkey数据转移到社区Redis.io去"><meta name=twitter:description content='这还真是个大活，耗费了整整一天的时间。
+究其原因根本就是无论AWS托管的Valkey还是社区的Redis.io，都是被魔改过的阉割版，真是无语他妈给无语开门，无语到家了！
+说一下详细的过程：
+接到这个任务，首先想到的是同步软件redis-Gunyu
+https://github.com/mgtv-tech/redis-GunYu
+结果是失败，原因很奇葩，因为aws valkey是必须带tls连接的，Gunyu不支持，放弃。
+然后找到了redis-shake
+https://tair-opensource.github.io/RedisShake
+结果还是失败，理由是不支持PSync，用了scan_reader也失败
+
+然后就又想到了万能的ChatGPT和Google的Gemini，分别给了2个python程序，也是失败
+原因是不支持Migrate命令，而且valkey是基于redis 7.2改的，而Redis.io是8.0，命令不兼容
+走投无路之下想到了rdb-tools，先把valkey做个备份，放到S3桶里
+valeky-20250819-0001.rdb
+valeky-20250819-0002.rdb
+valeky-20250819-0003.rdb
+valeky-20250819-0004.rdb
+valeky-20250819-0005.rdb
+valeky-20250819-config.json
+
+cat valeky-20250819-config.json 
+{
+  "valeky-20250819/valeky-20250819-0002.rdb" : {
+    "Slots" : "0-5496",
+    "rdbSize" : "5234516"
+  },
+  "valeky-20250819/valeky-20250819-0004.rdb" : {
+    "Slots" : "5497-8375",
+    "rdbSize" : "4340658"
+  },
+  "valeky-20250819/valeky-20250819-0003.rdb" : {
+    "Slots" : "10082-16383",
+    "rdbSize" : "5962581"
+  },
+  "valeky-20250819/valeky-20250819-0001.rdb" : {
+    "Slots" : "8376",
+    "rdbSize" : "2218"
+  },
+  "valeky-20250819/valeky-20250819-0005.rdb" : {
+    "Slots" : "8377-10081",
+    "rdbSize" : "1540505"
+  }
+}
+看起来是5个rdb备份，每个文件对应redis不同的slots
+用rdb来解析备份文件，结果失败，因为不认识valkey rdb的版本。
+没办法了，又找到了这个软件
+https://github.com/HDT3213/rdb
+下载后，首先想处理成json文件，然后灌入到redis.io
+./rdb-linux-amd64 -c json -o 0001.json valeky-20250819-0001.rdb
+失败，因为json文件灌入的时候redis.io又被阉割了，命令不支持'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"AWS托管的Valkey数据转移到社区Redis.io去","item":"https://rendoumi.com/posts/20250820-aws_valkey_to_redis_io/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"AWS托管的Valkey数据转移到社区Redis.io去","name":"AWS托管的Valkey数据转移到社区Redis.io去","description":"这还真是个大活，耗费了整整一天的时间。\n究其原因根本就是无论AWS托管的Valkey还是社区的Redis.io，都是被魔改过的阉割版，真是无语他妈给无语开门，无语到家了！\n说一下详细的过程：\n接到这个任务，首先想到的是同步软件redis-Gunyu\nhttps://github.com/mgtv-tech/redis-GunYu\n结果是失败，原因很奇葩，因为aws valkey是必须带tls连接的，Gunyu不支持，放弃。\n然后找到了redis-shake\nhttps://tair-opensource.github.io/RedisShake\n结果还是失败，理由是不支持PSync，用了scan_reader也失败\n然后就又想到了万能的ChatGPT和Google的Gemini，分别给了2个python程序，也是失败\n原因是不支持Migrate命令，而且valkey是基于redis 7.2改的，而Redis.io是8.0，命令不兼容\n走投无路之下想到了rdb-tools，先把valkey做个备份，放到S3桶里\nvaleky-20250819-0001.rdb valeky-20250819-0002.rdb valeky-20250819-0003.rdb valeky-20250819-0004.rdb valeky-20250819-0005.rdb valeky-20250819-config.json cat valeky-20250819-config.json { \u0026#34;valeky-20250819/valeky-20250819-0002.rdb\u0026#34; : { \u0026#34;Slots\u0026#34; : \u0026#34;0-5496\u0026#34;, \u0026#34;rdbSize\u0026#34; : \u0026#34;5234516\u0026#34; }, \u0026#34;valeky-20250819/valeky-20250819-0004.rdb\u0026#34; : { \u0026#34;Slots\u0026#34; : \u0026#34;5497-8375\u0026#34;, \u0026#34;rdbSize\u0026#34; : \u0026#34;4340658\u0026#34; }, \u0026#34;valeky-20250819/valeky-20250819-0003.rdb\u0026#34; : { \u0026#34;Slots\u0026#34; : \u0026#34;10082-16383\u0026#34;, \u0026#34;rdbSize\u0026#34; : \u0026#34;5962581\u0026#34; }, \u0026#34;valeky-20250819/valeky-20250819-0001.rdb\u0026#34; : { \u0026#34;Slots\u0026#34; : \u0026#34;8376\u0026#34;, \u0026#34;rdbSize\u0026#34; : \u0026#34;2218\u0026#34; }, \u0026#34;valeky-20250819/valeky-20250819-0005.rdb\u0026#34; : { \u0026#34;Slots\u0026#34; : \u0026#34;8377-10081\u0026#34;, \u0026#34;rdbSize\u0026#34; : \u0026#34;1540505\u0026#34; } } 看起来是5个rdb备份，每个文件对应redis不同的slots\n用rdb来解析备份文件，结果失败，因为不认识valkey rdb的版本。\n没办法了，又找到了这个软件\nhttps://github.com/HDT3213/rdb\n下载后，首先想处理成json文件，然后灌入到redis.io\n./rdb-linux-amd64 -c json -o 0001.json valeky-20250819-0001.rdb 失败，因为json文件灌入的时候redis.io又被阉割了，命令不支持\n","keywords":[],"articleBody":"这还真是个大活，耗费了整整一天的时间。\n究其原因根本就是无论AWS托管的Valkey还是社区的Redis.io，都是被魔改过的阉割版，真是无语他妈给无语开门，无语到家了！\n说一下详细的过程：\n接到这个任务，首先想到的是同步软件redis-Gunyu\nhttps://github.com/mgtv-tech/redis-GunYu\n结果是失败，原因很奇葩，因为aws valkey是必须带tls连接的，Gunyu不支持，放弃。\n然后找到了redis-shake\nhttps://tair-opensource.github.io/RedisShake\n结果还是失败，理由是不支持PSync，用了scan_reader也失败\n然后就又想到了万能的ChatGPT和Google的Gemini，分别给了2个python程序，也是失败\n原因是不支持Migrate命令，而且valkey是基于redis 7.2改的，而Redis.io是8.0，命令不兼容\n走投无路之下想到了rdb-tools，先把valkey做个备份，放到S3桶里\nvaleky-20250819-0001.rdb valeky-20250819-0002.rdb valeky-20250819-0003.rdb valeky-20250819-0004.rdb valeky-20250819-0005.rdb valeky-20250819-config.json cat valeky-20250819-config.json { \"valeky-20250819/valeky-20250819-0002.rdb\" : { \"Slots\" : \"0-5496\", \"rdbSize\" : \"5234516\" }, \"valeky-20250819/valeky-20250819-0004.rdb\" : { \"Slots\" : \"5497-8375\", \"rdbSize\" : \"4340658\" }, \"valeky-20250819/valeky-20250819-0003.rdb\" : { \"Slots\" : \"10082-16383\", \"rdbSize\" : \"5962581\" }, \"valeky-20250819/valeky-20250819-0001.rdb\" : { \"Slots\" : \"8376\", \"rdbSize\" : \"2218\" }, \"valeky-20250819/valeky-20250819-0005.rdb\" : { \"Slots\" : \"8377-10081\", \"rdbSize\" : \"1540505\" } } 看起来是5个rdb备份，每个文件对应redis不同的slots\n用rdb来解析备份文件，结果失败，因为不认识valkey rdb的版本。\n没办法了，又找到了这个软件\nhttps://github.com/HDT3213/rdb\n下载后，首先想处理成json文件，然后灌入到redis.io\n./rdb-linux-amd64 -c json -o 0001.json valeky-20250819-0001.rdb 失败，因为json文件灌入的时候redis.io又被阉割了，命令不支持\n走投无路，走投无路，走投无路啊！！！欲哭无泪，欲哭无泪，欲哭无泪啊！！！\n没办法了，用redis-shake把rdb文件逐个灌进去\n[rdb_reader] filepath = \"/root/redis/rdbs/valeky-20250819-0001.rdb\" [redis_writer] cluster = false address = \"redis-22222.c1.ap-southeast-1-1.ec2.redns.redis-cloud.com:22222\" username = \"default\" password = \"ABCDEFG\" tls = false 执行了5次，就可以了。\n后续啊：可以先去下个rdt\nhttps://github.com/leonchen83/redis-rdb-cli/\n把5个rdb合成一个，然后再灌入。\n./rdt -m ../../valeky-20250819-0001.rdb ../../valeky-20250819-0002.rdb ../../valeky-20250819-0003.rdb ../../valeky-20250819-0004.rdb ../../valeky-20250819-0005.rdb -o all.rdb 真的是累死了。\n","wordCount":"123","inLanguage":"zh","datePublished":"2025-08-20T09:01:11+08:00","dateModified":"2025-08-20T09:01:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20250820-aws_valkey_to_redis_io/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">AWS托管的Valkey数据转移到社区Redis.io去
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2025-08-20 09:01:11 +0800 CST'>2025年8月20日</span></div></header><div class=post-content><p>这还真是个大活，耗费了整整一天的时间。</p><p>究其原因根本就是无论AWS托管的Valkey还是社区的Redis.io，都是被魔改过的阉割版，真是无语他妈给无语开门，无语到家了！</p><p>说一下详细的过程：</p><p>接到这个任务，首先想到的是同步软件redis-Gunyu</p><p><a href=https://github.com/mgtv-tech/redis-GunYu>https://github.com/mgtv-tech/redis-GunYu</a></p><p>结果是失败，原因很奇葩，因为aws valkey是必须带tls连接的，Gunyu不支持，放弃。</p><p>然后找到了redis-shake</p><p><a href=https://tair-opensource.github.io/RedisShake>https://tair-opensource.github.io/RedisShake</a></p><p>结果还是失败，理由是不支持PSync，用了scan_reader也失败</p><p><img alt=image-20250820141906654 loading=lazy src=/posts/20250820-aws_valkey_to_redis_io/image-20250820141906654.png></p><p>然后就又想到了万能的ChatGPT和Google的Gemini，分别给了2个python程序，也是失败</p><p>原因是不支持Migrate命令，而且valkey是基于redis 7.2改的，而Redis.io是8.0，命令不兼容</p><p>走投无路之下想到了rdb-tools，先把valkey做个备份，放到S3桶里</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>valeky-20250819-0001.rdb
+</span></span><span class=line><span class=cl>valeky-20250819-0002.rdb
+</span></span><span class=line><span class=cl>valeky-20250819-0003.rdb
+</span></span><span class=line><span class=cl>valeky-20250819-0004.rdb
+</span></span><span class=line><span class=cl>valeky-20250819-0005.rdb
+</span></span><span class=line><span class=cl>valeky-20250819-config.json
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>cat valeky-20250819-config.json 
+</span></span><span class=line><span class=cl><span class=o>{</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;valeky-20250819/valeky-20250819-0002.rdb&#34;</span> : <span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;Slots&#34;</span> : <span class=s2>&#34;0-5496&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;rdbSize&#34;</span> : <span class=s2>&#34;5234516&#34;</span>
+</span></span><span class=line><span class=cl>  <span class=o>}</span>,
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;valeky-20250819/valeky-20250819-0004.rdb&#34;</span> : <span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;Slots&#34;</span> : <span class=s2>&#34;5497-8375&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;rdbSize&#34;</span> : <span class=s2>&#34;4340658&#34;</span>
+</span></span><span class=line><span class=cl>  <span class=o>}</span>,
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;valeky-20250819/valeky-20250819-0003.rdb&#34;</span> : <span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;Slots&#34;</span> : <span class=s2>&#34;10082-16383&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;rdbSize&#34;</span> : <span class=s2>&#34;5962581&#34;</span>
+</span></span><span class=line><span class=cl>  <span class=o>}</span>,
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;valeky-20250819/valeky-20250819-0001.rdb&#34;</span> : <span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;Slots&#34;</span> : <span class=s2>&#34;8376&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;rdbSize&#34;</span> : <span class=s2>&#34;2218&#34;</span>
+</span></span><span class=line><span class=cl>  <span class=o>}</span>,
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;valeky-20250819/valeky-20250819-0005.rdb&#34;</span> : <span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;Slots&#34;</span> : <span class=s2>&#34;8377-10081&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;rdbSize&#34;</span> : <span class=s2>&#34;1540505&#34;</span>
+</span></span><span class=line><span class=cl>  <span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></div><p>看起来是5个rdb备份，每个文件对应redis不同的slots</p><p>用rdb来解析备份文件，结果失败，因为不认识valkey rdb的版本。</p><p>没办法了，又找到了这个软件</p><p><a href=https://github.com/HDT3213/rdb>https://github.com/HDT3213/rdb</a></p><p>下载后，首先想处理成json文件，然后灌入到redis.io</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>./rdb-linux-amd64 -c json -o 0001.json valeky-20250819-0001.rdb
+</span></span></code></pre></div><p>失败，因为json文件灌入的时候redis.io又被阉割了，命令不支持</p><p>走投无路，走投无路，走投无路啊！！！欲哭无泪，欲哭无泪，欲哭无泪啊！！！</p><p>没办法了，用redis-shake把rdb文件逐个灌进去</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=o>[</span>rdb_reader<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>filepath</span> <span class=o>=</span> <span class=s2>&#34;/root/redis/rdbs/valeky-20250819-0001.rdb&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>redis_writer<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>cluster</span> <span class=o>=</span> <span class=nb>false</span>
+</span></span><span class=line><span class=cl><span class=nv>address</span> <span class=o>=</span> <span class=s2>&#34;redis-22222.c1.ap-southeast-1-1.ec2.redns.redis-cloud.com:22222&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>username</span> <span class=o>=</span> <span class=s2>&#34;default&#34;</span>              
+</span></span><span class=line><span class=cl><span class=nv>password</span> <span class=o>=</span> <span class=s2>&#34;ABCDEFG&#34;</span>          
+</span></span><span class=line><span class=cl><span class=nv>tls</span> <span class=o>=</span> <span class=nb>false</span>
+</span></span></code></pre></div><p>执行了5次，就可以了。</p><p>后续啊：可以先去下个rdt</p><p><a href=https://github.com/leonchen83/redis-rdb-cli/>https://github.com/leonchen83/redis-rdb-cli/</a></p><p>把5个rdb合成一个，然后再灌入。</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>./rdt -m ../../valeky-20250819-0001.rdb ../../valeky-20250819-0002.rdb ../../valeky-20250819-0003.rdb ../../valeky-20250819-0004.rdb ../../valeky-20250819-0005.rdb -o all.rdb
+</span></span></code></pre></div><p>真的是累死了。</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

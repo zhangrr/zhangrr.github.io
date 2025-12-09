@@ -1,0 +1,100 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>用IPXE启动个Ubuntu桌面 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='有了上篇IPXE的启动方法，我们来启动一个Ubuntu来玩：
+简单的修改boot2.php即可：
+  case &#39;\ec:f4:bb:d9:96:40&#39;:
+    $ip="172.16.36.2:172.16.37.254:255.255.254.0:myhost-16-36-2";
+    $ipa=explode(&#39;:&#39;,$ip);
+    echo "ifopen net0\n";
+    echo "set net0/ip $ipa[0]\n";
+    echo "set net0/netmask $ipa[2]\n";
+    echo "set net0/gateway $ipa[1]\n";
+    echo "set net0/dns $dns\n";
+    echo "kernel http://172.16.8.1/ks/ubuntu/vmlinuz.efi root=/dev/nfs boot=casper netboot=nfs nfsroot=172.16.11.6:/root/ubuntu ip=172.16.36.2::172.16.37.254:255.255.254.0:renhe-16-36-2:eno1 ro\n";
+    echo "initrd http://172.16.8.1/ks/ubuntu/initrd.lz\n";
+    echo "boot\n";
+    break;
+注意：变的就是kernel和init那两行，netboot支持nfs和cifs，不支持http啊，试了半天！另外ip那一行，如果是动态的，ip=dhcp，如果是静态的，格式如下：
+ip=客户端ip:服务器端ip:网关:掩码:主机名:网卡
+服务器端ip不填，主机名也可以不填。
+首先我们要去下个ISO
+wget http://mirrors.163.com/ubuntu-releases/16.04/ubuntu-16.04-desktop-amd64.iso  
+然后把vmlinuz.efi和initrd.lz弄出来，放到[http://172.16.8.1/ks/ubuntu]目录下
+mount -o loop ubuntu-16.04-desktop-amd64.iso /mnt/iso  
+cp /mnt/iso/casper/vmlinuz.efi /var/www/html/ks/ubuntu  
+cp /mnt/iso/casper/initrd.lz /var/www/html/ks/ubuntu  
+然后建立nfs，把iso里的东西都弄到nfs共享里去：
+mkdir -p /export/ubuntu  
+vi /etc/exports  
+/export/ubuntu *(rw,sync,no_subtree_check,fsid=0,no_root_squash)
+
+yum install -y nfs-utils rpcbind  
+service nfs start  
+ok，启动pxe，就看到桌面了。
+'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20240118-pxe_utuntu_desk/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20240118-pxe_utuntu_desk/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20240118-pxe_utuntu_desk/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="用IPXE启动个Ubuntu桌面"><meta property="og:description" content='有了上篇IPXE的启动方法，我们来启动一个Ubuntu来玩：
+简单的修改boot2.php即可：
+case &#39;\ec:f4:bb:d9:96:40&#39;: $ip="172.16.36.2:172.16.37.254:255.255.254.0:myhost-16-36-2"; $ipa=explode(&#39;:&#39;,$ip); echo "ifopen net0\n"; echo "set net0/ip $ipa[0]\n"; echo "set net0/netmask $ipa[2]\n"; echo "set net0/gateway $ipa[1]\n"; echo "set net0/dns $dns\n"; echo "kernel http://172.16.8.1/ks/ubuntu/vmlinuz.efi root=/dev/nfs boot=casper netboot=nfs nfsroot=172.16.11.6:/root/ubuntu ip=172.16.36.2::172.16.37.254:255.255.254.0:renhe-16-36-2:eno1 ro\n"; echo "initrd http://172.16.8.1/ks/ubuntu/initrd.lz\n"; echo "boot\n"; break; 注意：变的就是kernel和init那两行，netboot支持nfs和cifs，不支持http啊，试了半天！另外ip那一行，如果是动态的，ip=dhcp，如果是静态的，格式如下：
+ip=客户端ip:服务器端ip:网关:掩码:主机名:网卡
+服务器端ip不填，主机名也可以不填。
+首先我们要去下个ISO
+wget http://mirrors.163.com/ubuntu-releases/16.04/ubuntu-16.04-desktop-amd64.iso 然后把vmlinuz.efi和initrd.lz弄出来，放到[http://172.16.8.1/ks/ubuntu]目录下
+mount -o loop ubuntu-16.04-desktop-amd64.iso /mnt/iso cp /mnt/iso/casper/vmlinuz.efi /var/www/html/ks/ubuntu cp /mnt/iso/casper/initrd.lz /var/www/html/ks/ubuntu 然后建立nfs，把iso里的东西都弄到nfs共享里去：
+mkdir -p /export/ubuntu vi /etc/exports /export/ubuntu *(rw,sync,no_subtree_check,fsid=0,no_root_squash) yum install -y nfs-utils rpcbind service nfs start ok，启动pxe，就看到桌面了。 '><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2024-01-18T13:40:11+08:00"><meta property="article:modified_time" content="2024-01-18T13:40:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="用IPXE启动个Ubuntu桌面"><meta name=twitter:description content='有了上篇IPXE的启动方法，我们来启动一个Ubuntu来玩：
+简单的修改boot2.php即可：
+  case &#39;\ec:f4:bb:d9:96:40&#39;:
+    $ip="172.16.36.2:172.16.37.254:255.255.254.0:myhost-16-36-2";
+    $ipa=explode(&#39;:&#39;,$ip);
+    echo "ifopen net0\n";
+    echo "set net0/ip $ipa[0]\n";
+    echo "set net0/netmask $ipa[2]\n";
+    echo "set net0/gateway $ipa[1]\n";
+    echo "set net0/dns $dns\n";
+    echo "kernel http://172.16.8.1/ks/ubuntu/vmlinuz.efi root=/dev/nfs boot=casper netboot=nfs nfsroot=172.16.11.6:/root/ubuntu ip=172.16.36.2::172.16.37.254:255.255.254.0:renhe-16-36-2:eno1 ro\n";
+    echo "initrd http://172.16.8.1/ks/ubuntu/initrd.lz\n";
+    echo "boot\n";
+    break;
+注意：变的就是kernel和init那两行，netboot支持nfs和cifs，不支持http啊，试了半天！另外ip那一行，如果是动态的，ip=dhcp，如果是静态的，格式如下：
+ip=客户端ip:服务器端ip:网关:掩码:主机名:网卡
+服务器端ip不填，主机名也可以不填。
+首先我们要去下个ISO
+wget http://mirrors.163.com/ubuntu-releases/16.04/ubuntu-16.04-desktop-amd64.iso  
+然后把vmlinuz.efi和initrd.lz弄出来，放到[http://172.16.8.1/ks/ubuntu]目录下
+mount -o loop ubuntu-16.04-desktop-amd64.iso /mnt/iso  
+cp /mnt/iso/casper/vmlinuz.efi /var/www/html/ks/ubuntu  
+cp /mnt/iso/casper/initrd.lz /var/www/html/ks/ubuntu  
+然后建立nfs，把iso里的东西都弄到nfs共享里去：
+mkdir -p /export/ubuntu  
+vi /etc/exports  
+/export/ubuntu *(rw,sync,no_subtree_check,fsid=0,no_root_squash)
+
+yum install -y nfs-utils rpcbind  
+service nfs start  
+ok，启动pxe，就看到桌面了。
+'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"用IPXE启动个Ubuntu桌面","item":"https://rendoumi.com/posts/20240118-pxe_utuntu_desk/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"用IPXE启动个Ubuntu桌面","name":"用IPXE启动个Ubuntu桌面","description":"有了上篇IPXE的启动方法，我们来启动一个Ubuntu来玩：\n简单的修改boot2.php即可：\ncase \u0026#39;\\ec:f4:bb:d9:96:40\u0026#39;: $ip=\u0026#34;172.16.36.2:172.16.37.254:255.255.254.0:myhost-16-36-2\u0026#34;; $ipa=explode(\u0026#39;:\u0026#39;,$ip); echo \u0026#34;ifopen net0\\n\u0026#34;; echo \u0026#34;set net0/ip $ipa[0]\\n\u0026#34;; echo \u0026#34;set net0/netmask $ipa[2]\\n\u0026#34;; echo \u0026#34;set net0/gateway $ipa[1]\\n\u0026#34;; echo \u0026#34;set net0/dns $dns\\n\u0026#34;; echo \u0026#34;kernel http://172.16.8.1/ks/ubuntu/vmlinuz.efi root=/dev/nfs boot=casper netboot=nfs nfsroot=172.16.11.6:/root/ubuntu ip=172.16.36.2::172.16.37.254:255.255.254.0:renhe-16-36-2:eno1 ro\\n\u0026#34;; echo \u0026#34;initrd http://172.16.8.1/ks/ubuntu/initrd.lz\\n\u0026#34;; echo \u0026#34;boot\\n\u0026#34;; break; 注意：变的就是kernel和init那两行，netboot支持nfs和cifs，不支持http啊，试了半天！另外ip那一行，如果是动态的，ip=dhcp，如果是静态的，格式如下：\nip=客户端ip:服务器端ip:网关:掩码:主机名:网卡\n服务器端ip不填，主机名也可以不填。\n首先我们要去下个ISO\nwget http://mirrors.163.com/ubuntu-releases/16.04/ubuntu-16.04-desktop-amd64.iso 然后把vmlinuz.efi和initrd.lz弄出来，放到[http://172.16.8.1/ks/ubuntu]目录下\nmount -o loop ubuntu-16.04-desktop-amd64.iso /mnt/iso cp /mnt/iso/casper/vmlinuz.efi /var/www/html/ks/ubuntu cp /mnt/iso/casper/initrd.lz /var/www/html/ks/ubuntu 然后建立nfs，把iso里的东西都弄到nfs共享里去：\nmkdir -p /export/ubuntu vi /etc/exports /export/ubuntu *(rw,sync,no_subtree_check,fsid=0,no_root_squash) yum install -y nfs-utils rpcbind service nfs start ok，启动pxe，就看到桌面了。 ","keywords":[],"articleBody":"有了上篇IPXE的启动方法，我们来启动一个Ubuntu来玩：\n简单的修改boot2.php即可：\ncase '\\ec:f4:bb:d9:96:40': $ip=\"172.16.36.2:172.16.37.254:255.255.254.0:myhost-16-36-2\"; $ipa=explode(':',$ip); echo \"ifopen net0\\n\"; echo \"set net0/ip $ipa[0]\\n\"; echo \"set net0/netmask $ipa[2]\\n\"; echo \"set net0/gateway $ipa[1]\\n\"; echo \"set net0/dns $dns\\n\"; echo \"kernel http://172.16.8.1/ks/ubuntu/vmlinuz.efi root=/dev/nfs boot=casper netboot=nfs nfsroot=172.16.11.6:/root/ubuntu ip=172.16.36.2::172.16.37.254:255.255.254.0:renhe-16-36-2:eno1 ro\\n\"; echo \"initrd http://172.16.8.1/ks/ubuntu/initrd.lz\\n\"; echo \"boot\\n\"; break; 注意：变的就是kernel和init那两行，netboot支持nfs和cifs，不支持http啊，试了半天！另外ip那一行，如果是动态的，ip=dhcp，如果是静态的，格式如下：\nip=客户端ip:服务器端ip:网关:掩码:主机名:网卡\n服务器端ip不填，主机名也可以不填。\n首先我们要去下个ISO\nwget http://mirrors.163.com/ubuntu-releases/16.04/ubuntu-16.04-desktop-amd64.iso 然后把vmlinuz.efi和initrd.lz弄出来，放到[http://172.16.8.1/ks/ubuntu]目录下\nmount -o loop ubuntu-16.04-desktop-amd64.iso /mnt/iso cp /mnt/iso/casper/vmlinuz.efi /var/www/html/ks/ubuntu cp /mnt/iso/casper/initrd.lz /var/www/html/ks/ubuntu 然后建立nfs，把iso里的东西都弄到nfs共享里去：\nmkdir -p /export/ubuntu vi /etc/exports /export/ubuntu *(rw,sync,no_subtree_check,fsid=0,no_root_squash) yum install -y nfs-utils rpcbind service nfs start ok，启动pxe，就看到桌面了。 ","wordCount":"75","inLanguage":"zh","datePublished":"2024-01-18T13:40:11+08:00","dateModified":"2024-01-18T13:40:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20240118-pxe_utuntu_desk/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">用IPXE启动个Ubuntu桌面
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2024-01-18 13:40:11 +0800 CST'>2024年1月18日</span></div></header><div class=post-content><p>有了上篇IPXE的启动方法，我们来启动一个Ubuntu来玩：</p><p>简单的修改boot2.php即可：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>  <span class=k>case</span> <span class=s1>&#39;\ec:f4:bb:d9:96:40&#39;</span>:
+</span></span><span class=line><span class=cl>    <span class=nv>$ip</span><span class=o>=</span><span class=s2>&#34;172.16.36.2:172.16.37.254:255.255.254.0:myhost-16-36-2&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nv>$ipa</span><span class=o>=</span>explode<span class=o>(</span><span class=s1>&#39;:&#39;</span>,<span class=nv>$ip</span><span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;ifopen net0\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;set net0/ip </span><span class=nv>$ipa</span><span class=s2>[0]\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;set net0/netmask </span><span class=nv>$ipa</span><span class=s2>[2]\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;set net0/gateway </span><span class=nv>$ipa</span><span class=s2>[1]\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;set net0/dns </span><span class=nv>$dns</span><span class=s2>\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;kernel http://172.16.8.1/ks/ubuntu/vmlinuz.efi root=/dev/nfs boot=casper netboot=nfs nfsroot=172.16.11.6:/root/ubuntu ip=172.16.36.2::172.16.37.254:255.255.254.0:renhe-16-36-2:eno1 ro\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;initrd http://172.16.8.1/ks/ubuntu/initrd.lz\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;boot\n&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    break<span class=p>;</span>
+</span></span></code></pre></div><p>注意：变的就是<code>kernel</code>和<code>init</code>那两行，netboot支持nfs和cifs，不支持http啊，试了半天！另外ip那一行，如果是动态的，ip=dhcp，如果是静态的，格式如下：</p><p><strong>ip=客户端ip:服务器端ip:网关:掩码:主机名:网卡</strong></p><p>服务器端ip不填，主机名也可以不填。</p><p>首先我们要去下个ISO</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>wget http://mirrors.163.com/ubuntu-releases/16.04/ubuntu-16.04-desktop-amd64.iso  
+</span></span></code></pre></div><p>然后把vmlinuz.efi和initrd.lz弄出来，放到[<a href=http://172.16.8.1/ks/ubuntu>http://172.16.8.1/ks/ubuntu</a>]目录下</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>mount -o loop ubuntu-16.04-desktop-amd64.iso /mnt/iso  
+</span></span><span class=line><span class=cl>cp /mnt/iso/casper/vmlinuz.efi /var/www/html/ks/ubuntu  
+</span></span><span class=line><span class=cl>cp /mnt/iso/casper/initrd.lz /var/www/html/ks/ubuntu  
+</span></span></code></pre></div><p>然后建立nfs，把iso里的东西都弄到nfs共享里去：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>mkdir -p /export/ubuntu  
+</span></span><span class=line><span class=cl>vi /etc/exports  
+</span></span><span class=line><span class=cl>/export/ubuntu *<span class=o>(</span>rw,sync,no_subtree_check,fsid<span class=o>=</span>0,no_root_squash<span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>yum install -y nfs-utils rpcbind  
+</span></span><span class=line><span class=cl>service nfs start  
+</span></span></code></pre></div><p>ok，启动pxe，就看到桌面了。
+<img alt=image-20240118135302316 loading=lazy src=/posts/20240118-pxe_utuntu_desk/image-20240118135302316.png></p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

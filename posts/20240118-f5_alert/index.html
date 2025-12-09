@@ -1,0 +1,106 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>F5-bigip的Load balance告警邮件设置 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='F5-Bigip负载均衡设备，在我们的生产环境，用于分发前端的请求，如果后端的成员离线了，需要及时得到通知。
+规则是：load balance池子里的成员如果离线，就发送告警邮件，如果又恢复了，也发告警邮件。
+首先我们需要在内网中设置一个邮件发送服务器，我们用的是qq的企业邮箱，如何设置在之前说过，这里设置的是内网用这台服务器发邮件不需要验证，但是发送者必须是monit@company.com。
+先来确认f5的版本，不同的版本不一定通用撒。这里版本是11.5.3才可以。
+登录F5(ip是172.16.0.1)，查看版本，是不是11.5.3
+$ ssh user@172.16.0.1
+# tmsh show /sys version
+...
+  Product  BIG-IP
+  Version  11.5.3
+...
+# quit
+编辑/etc/ssmtp/ssmtp.conf，设置邮件服务器
+# vi /etc/ssmtp/ssmtp.conf
+mailhub=192.168.0.1
+
+# 如果没有安装内网的邮件服务器，可以在这里设置。安装了就不用设
+FromLineOverride=YES  
+UseTLS=yes  
+AuthUser=smtp_account  
+AuthPass=password  
+设置告警内容：
+alert BIGIP_MCPD_MCPDERR_POOL_MEMBER_MON_DOWN "Pool (.*?) member (.*?):(.*?) monitor status down." {  
+        email toaddress="user01@company.com,user02@company.com"
+        fromaddress="monit@company.com"
+        body="A pool member went down"
+}
+
+alert BIGIP_MCPD_MCPDERR_POOL_MEMBER_MON_UP "Pool (.*?) member (.*?):(.*?) monitor status up." {  
+        email toaddress="user01@company.com,user02@company.com"
+        fromaddress="monit@company.com"
+        body="A pool member went up"
+}
+ok，搞定。不用重启什么的啊，即时生效。'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20240118-f5_alert/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20240118-f5_alert/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20240118-f5_alert/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="F5-bigip的Load balance告警邮件设置"><meta property="og:description" content='F5-Bigip负载均衡设备，在我们的生产环境，用于分发前端的请求，如果后端的成员离线了，需要及时得到通知。
+规则是：load balance池子里的成员如果离线，就发送告警邮件，如果又恢复了，也发告警邮件。
+首先我们需要在内网中设置一个邮件发送服务器，我们用的是qq的企业邮箱，如何设置在之前说过，这里设置的是内网用这台服务器发邮件不需要验证，但是发送者必须是monit@company.com。
+先来确认f5的版本，不同的版本不一定通用撒。这里版本是11.5.3才可以。
+登录F5(ip是172.16.0.1)，查看版本，是不是11.5.3
+$ ssh user@172.16.0.1 # tmsh show /sys version ... Product BIG-IP Version 11.5.3 ... # quit 编辑/etc/ssmtp/ssmtp.conf，设置邮件服务器
+# vi /etc/ssmtp/ssmtp.conf mailhub=192.168.0.1 # 如果没有安装内网的邮件服务器，可以在这里设置。安装了就不用设 FromLineOverride=YES UseTLS=yes AuthUser=smtp_account AuthPass=password 设置告警内容：
+alert BIGIP_MCPD_MCPDERR_POOL_MEMBER_MON_DOWN "Pool (.*?) member (.*?):(.*?) monitor status down." { email toaddress="user01@company.com,user02@company.com" fromaddress="monit@company.com" body="A pool member went down" } alert BIGIP_MCPD_MCPDERR_POOL_MEMBER_MON_UP "Pool (.*?) member (.*?):(.*?) monitor status up." { email toaddress="user01@company.com,user02@company.com" fromaddress="monit@company.com" body="A pool member went up" } ok，搞定。不用重启什么的啊，即时生效。'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2024-01-18T09:20:11+08:00"><meta property="article:modified_time" content="2024-01-18T09:20:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="F5-bigip的Load balance告警邮件设置"><meta name=twitter:description content='F5-Bigip负载均衡设备，在我们的生产环境，用于分发前端的请求，如果后端的成员离线了，需要及时得到通知。
+规则是：load balance池子里的成员如果离线，就发送告警邮件，如果又恢复了，也发告警邮件。
+首先我们需要在内网中设置一个邮件发送服务器，我们用的是qq的企业邮箱，如何设置在之前说过，这里设置的是内网用这台服务器发邮件不需要验证，但是发送者必须是monit@company.com。
+先来确认f5的版本，不同的版本不一定通用撒。这里版本是11.5.3才可以。
+登录F5(ip是172.16.0.1)，查看版本，是不是11.5.3
+$ ssh user@172.16.0.1
+# tmsh show /sys version
+...
+  Product  BIG-IP
+  Version  11.5.3
+...
+# quit
+编辑/etc/ssmtp/ssmtp.conf，设置邮件服务器
+# vi /etc/ssmtp/ssmtp.conf
+mailhub=192.168.0.1
+
+# 如果没有安装内网的邮件服务器，可以在这里设置。安装了就不用设
+FromLineOverride=YES  
+UseTLS=yes  
+AuthUser=smtp_account  
+AuthPass=password  
+设置告警内容：
+alert BIGIP_MCPD_MCPDERR_POOL_MEMBER_MON_DOWN "Pool (.*?) member (.*?):(.*?) monitor status down." {  
+        email toaddress="user01@company.com,user02@company.com"
+        fromaddress="monit@company.com"
+        body="A pool member went down"
+}
+
+alert BIGIP_MCPD_MCPDERR_POOL_MEMBER_MON_UP "Pool (.*?) member (.*?):(.*?) monitor status up." {  
+        email toaddress="user01@company.com,user02@company.com"
+        fromaddress="monit@company.com"
+        body="A pool member went up"
+}
+ok，搞定。不用重启什么的啊，即时生效。'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"F5-bigip的Load balance告警邮件设置","item":"https://rendoumi.com/posts/20240118-f5_alert/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"F5-bigip的Load balance告警邮件设置","name":"F5-bigip的Load balance告警邮件设置","description":"F5-Bigip负载均衡设备，在我们的生产环境，用于分发前端的请求，如果后端的成员离线了，需要及时得到通知。\n规则是：load balance池子里的成员如果离线，就发送告警邮件，如果又恢复了，也发告警邮件。\n首先我们需要在内网中设置一个邮件发送服务器，我们用的是qq的企业邮箱，如何设置在之前说过，这里设置的是内网用这台服务器发邮件不需要验证，但是发送者必须是monit@company.com。\n先来确认f5的版本，不同的版本不一定通用撒。这里版本是11.5.3才可以。\n登录F5(ip是172.16.0.1)，查看版本，是不是11.5.3\n$ ssh user@172.16.0.1 # tmsh show /sys version ... Product BIG-IP Version 11.5.3 ... # quit 编辑/etc/ssmtp/ssmtp.conf，设置邮件服务器\n# vi /etc/ssmtp/ssmtp.conf mailhub=192.168.0.1 # 如果没有安装内网的邮件服务器，可以在这里设置。安装了就不用设 FromLineOverride=YES UseTLS=yes AuthUser=smtp_account AuthPass=password 设置告警内容：\nalert BIGIP_MCPD_MCPDERR_POOL_MEMBER_MON_DOWN \u0026#34;Pool (.*?) member (.*?):(.*?) monitor status down.\u0026#34; { email toaddress=\u0026#34;user01@company.com,user02@company.com\u0026#34; fromaddress=\u0026#34;monit@company.com\u0026#34; body=\u0026#34;A pool member went down\u0026#34; } alert BIGIP_MCPD_MCPDERR_POOL_MEMBER_MON_UP \u0026#34;Pool (.*?) member (.*?):(.*?) monitor status up.\u0026#34; { email toaddress=\u0026#34;user01@company.com,user02@company.com\u0026#34; fromaddress=\u0026#34;monit@company.com\u0026#34; body=\u0026#34;A pool member went up\u0026#34; } ok，搞定。不用重启什么的啊，即时生效。\n","keywords":[],"articleBody":"F5-Bigip负载均衡设备，在我们的生产环境，用于分发前端的请求，如果后端的成员离线了，需要及时得到通知。\n规则是：load balance池子里的成员如果离线，就发送告警邮件，如果又恢复了，也发告警邮件。\n首先我们需要在内网中设置一个邮件发送服务器，我们用的是qq的企业邮箱，如何设置在之前说过，这里设置的是内网用这台服务器发邮件不需要验证，但是发送者必须是monit@company.com。\n先来确认f5的版本，不同的版本不一定通用撒。这里版本是11.5.3才可以。\n登录F5(ip是172.16.0.1)，查看版本，是不是11.5.3\n$ ssh user@172.16.0.1 # tmsh show /sys version ... Product BIG-IP Version 11.5.3 ... # quit 编辑/etc/ssmtp/ssmtp.conf，设置邮件服务器\n# vi /etc/ssmtp/ssmtp.conf mailhub=192.168.0.1 # 如果没有安装内网的邮件服务器，可以在这里设置。安装了就不用设 FromLineOverride=YES UseTLS=yes AuthUser=smtp_account AuthPass=password 设置告警内容：\nalert BIGIP_MCPD_MCPDERR_POOL_MEMBER_MON_DOWN \"Pool (.*?) member (.*?):(.*?) monitor status down.\" { email toaddress=\"user01@company.com,user02@company.com\" fromaddress=\"monit@company.com\" body=\"A pool member went down\" } alert BIGIP_MCPD_MCPDERR_POOL_MEMBER_MON_UP \"Pool (.*?) member (.*?):(.*?) monitor status up.\" { email toaddress=\"user01@company.com,user02@company.com\" fromaddress=\"monit@company.com\" body=\"A pool member went up\" } ok，搞定。不用重启什么的啊，即时生效。\n","wordCount":"73","inLanguage":"zh","datePublished":"2024-01-18T09:20:11+08:00","dateModified":"2024-01-18T09:20:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20240118-f5_alert/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">F5-bigip的Load balance告警邮件设置
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2024-01-18 09:20:11 +0800 CST'>2024年1月18日</span></div></header><div class=post-content><p>F5-Bigip负载均衡设备，在我们的生产环境，用于分发前端的请求，如果后端的成员离线了，需要及时得到通知。</p><p>规则是：load balance池子里的成员如果离线，就发送告警邮件，如果又恢复了，也发告警邮件。</p><p>首先我们需要在内网中设置一个邮件发送服务器，我们用的是qq的企业邮箱，如何设置在之前说过，这里设置的是内网用这台服务器发邮件不需要验证，但是发送者必须是monit@company.com。</p><p>先来确认f5的版本，不同的版本不一定通用撒。这里版本是11.5.3才可以。</p><p>登录F5(ip是172.16.0.1)，查看版本，是不是11.5.3</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>$ ssh user@172.16.0.1
+</span></span><span class=line><span class=cl><span class=c1># tmsh show /sys version</span>
+</span></span><span class=line><span class=cl>...
+</span></span><span class=line><span class=cl>  Product  BIG-IP
+</span></span><span class=line><span class=cl>  Version  11.5.3
+</span></span><span class=line><span class=cl>...
+</span></span><span class=line><span class=cl><span class=c1># quit</span>
+</span></span></code></pre></div><p>编辑/etc/ssmtp/ssmtp.conf，设置邮件服务器</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># vi /etc/ssmtp/ssmtp.conf</span>
+</span></span><span class=line><span class=cl><span class=nv>mailhub</span><span class=o>=</span>192.168.0.1
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 如果没有安装内网的邮件服务器，可以在这里设置。安装了就不用设</span>
+</span></span><span class=line><span class=cl><span class=nv>FromLineOverride</span><span class=o>=</span>YES  
+</span></span><span class=line><span class=cl><span class=nv>UseTLS</span><span class=o>=</span>yes  
+</span></span><span class=line><span class=cl><span class=nv>AuthUser</span><span class=o>=</span>smtp_account  
+</span></span><span class=line><span class=cl><span class=nv>AuthPass</span><span class=o>=</span>password  
+</span></span></code></pre></div><p>设置告警内容：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>alert BIGIP_MCPD_MCPDERR_POOL_MEMBER_MON_DOWN <span class=s2>&#34;Pool (.*?) member (.*?):(.*?) monitor status down.&#34;</span> <span class=o>{</span>  
+</span></span><span class=line><span class=cl>        email <span class=nv>toaddress</span><span class=o>=</span><span class=s2>&#34;user01@company.com,user02@company.com&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=nv>fromaddress</span><span class=o>=</span><span class=s2>&#34;monit@company.com&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=nv>body</span><span class=o>=</span><span class=s2>&#34;A pool member went down&#34;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>alert BIGIP_MCPD_MCPDERR_POOL_MEMBER_MON_UP <span class=s2>&#34;Pool (.*?) member (.*?):(.*?) monitor status up.&#34;</span> <span class=o>{</span>  
+</span></span><span class=line><span class=cl>        email <span class=nv>toaddress</span><span class=o>=</span><span class=s2>&#34;user01@company.com,user02@company.com&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=nv>fromaddress</span><span class=o>=</span><span class=s2>&#34;monit@company.com&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=nv>body</span><span class=o>=</span><span class=s2>&#34;A pool member went up&#34;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></div><p>ok，搞定。不用重启什么的啊，即时生效。</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

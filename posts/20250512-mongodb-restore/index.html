@@ -1,0 +1,183 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>mongodb 集群的恢复 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='要做一个mongodb集群的迁移和恢复，真是折腾死人了。记录并顺便吐槽一下：
+mongodb的tools真的是太简易、粗糙、丑陋了。
+线上的源数据库是腾讯的服务，要废弃搬迁到内网，足足折腾了一个星期。
+线上源数据库环境如下：
+
+云数据库 TencentDB
+4C/8GB/500GB
+3节点
+
+于是在线下对等建立了mongo集群，同样配置，同样3节点。
+噩梦由此开始啊，注意线下集群的memory配置一定要高：
+
+32GB
+用户名和密码一定要和线上完全一致
+如果用户名密码不一致，Document恢复完毕，Index无法建立，因为是完全恢复，会覆盖admin这个db
+
+然后开始dump线上数据
+mongodump -vvvvv --uri="mongodb://root:xxxxxxxx@10.1.2.3:27017/?authSource=admin"
+然后生成一个24G大小得dump文件夹，压缩后2.4G，传输到线下库上准备恢复
+# 大量恢复必须扩大文件句柄，否则过不去
+ulimit -n 655360
+
+# 一定要记录下来开始的时间戳，后面有用
+date
+Sun May 11 06:34:02 PM CST 2025
+
+# 开始恢复，漫长的一天开始了
+# 必须放到screen中执行，否则网络不好，断了也会很悲剧
+
+screen -L
+
+./mongorestore \
+   --drop \
+   --host=192.168.111.222 \
+   --port=27017 \
+   --username=root \
+   --authenticationDatabase=admin \
+   --nsExclude=admin \
+   /root/dump
+   
+ ctrl+a+d
+其实刚开始线下三节点得配置是8G，然后恢复用了一晚，报错，直接把shard3给打崩了，虽然三节点都是docker启动得，有自动恢复机制，但是mongorestore可不管这个，中断期间有1000个Document没有恢复成功。
+重试了2次后才发现这问题，2天已经过去了，意识到就立刻把内存提升到32G，再次进行恢复。
+但是新建的集群的密码跟源库这时是不一致的，又一天过去了，Document文档是恢复完毕，Index又无法建立，因为用户名和密码不一致，Fuck！
+又双叒再次开始恢复，这下天下大吉了，然后这还不算完！
+restore后，其实又过了一天，那要追平之后的数据，就得用上实时同步工具了，这里用的是阿里的mongoshake
+下载：
+wget https://github.com/alibaba/MongoShake/releases/download/release-v2.8.5-20250403/mongo-shake-v2.8.5.tgz
+
+tar zxvf mongo-shake-v2.8.5.tgz
+cd mongo-shake-v2.8.5
+wget https://raw.githubusercontent.com/alibaba/MongoShake/refs/heads/develop/conf/collector.conf
+我们需要注意collector.conf的以下地方：'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20250512-mongodb-restore/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20250512-mongodb-restore/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20250512-mongodb-restore/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="mongodb 集群的恢复"><meta property="og:description" content='要做一个mongodb集群的迁移和恢复，真是折腾死人了。记录并顺便吐槽一下：
+mongodb的tools真的是太简易、粗糙、丑陋了。
+线上的源数据库是腾讯的服务，要废弃搬迁到内网，足足折腾了一个星期。
+线上源数据库环境如下：
+云数据库 TencentDB 4C/8GB/500GB 3节点 于是在线下对等建立了mongo集群，同样配置，同样3节点。
+噩梦由此开始啊，注意线下集群的memory配置一定要高：
+32GB 用户名和密码一定要和线上完全一致 如果用户名密码不一致，Document恢复完毕，Index无法建立，因为是完全恢复，会覆盖admin这个db 然后开始dump线上数据
+mongodump -vvvvv --uri="mongodb://root:xxxxxxxx@10.1.2.3:27017/?authSource=admin" 然后生成一个24G大小得dump文件夹，压缩后2.4G，传输到线下库上准备恢复
+# 大量恢复必须扩大文件句柄，否则过不去 ulimit -n 655360 # 一定要记录下来开始的时间戳，后面有用 date Sun May 11 06:34:02 PM CST 2025 # 开始恢复，漫长的一天开始了 # 必须放到screen中执行，否则网络不好，断了也会很悲剧 screen -L ./mongorestore \ --drop \ --host=192.168.111.222 \ --port=27017 \ --username=root \ --authenticationDatabase=admin \ --nsExclude=admin \ /root/dump ctrl+a+d 其实刚开始线下三节点得配置是8G，然后恢复用了一晚，报错，直接把shard3给打崩了，虽然三节点都是docker启动得，有自动恢复机制，但是mongorestore可不管这个，中断期间有1000个Document没有恢复成功。
+重试了2次后才发现这问题，2天已经过去了，意识到就立刻把内存提升到32G，再次进行恢复。
+但是新建的集群的密码跟源库这时是不一致的，又一天过去了，Document文档是恢复完毕，Index又无法建立，因为用户名和密码不一致，Fuck！
+又双叒再次开始恢复，这下天下大吉了，然后这还不算完！
+restore后，其实又过了一天，那要追平之后的数据，就得用上实时同步工具了，这里用的是阿里的mongoshake
+下载：
+wget https://github.com/alibaba/MongoShake/releases/download/release-v2.8.5-20250403/mongo-shake-v2.8.5.tgz tar zxvf mongo-shake-v2.8.5.tgz cd mongo-shake-v2.8.5 wget https://raw.githubusercontent.com/alibaba/MongoShake/refs/heads/develop/conf/collector.conf 我们需要注意collector.conf的以下地方：'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2025-05-12T09:01:11+08:00"><meta property="article:modified_time" content="2025-05-12T09:01:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="mongodb 集群的恢复"><meta name=twitter:description content='要做一个mongodb集群的迁移和恢复，真是折腾死人了。记录并顺便吐槽一下：
+mongodb的tools真的是太简易、粗糙、丑陋了。
+线上的源数据库是腾讯的服务，要废弃搬迁到内网，足足折腾了一个星期。
+线上源数据库环境如下：
+
+云数据库 TencentDB
+4C/8GB/500GB
+3节点
+
+于是在线下对等建立了mongo集群，同样配置，同样3节点。
+噩梦由此开始啊，注意线下集群的memory配置一定要高：
+
+32GB
+用户名和密码一定要和线上完全一致
+如果用户名密码不一致，Document恢复完毕，Index无法建立，因为是完全恢复，会覆盖admin这个db
+
+然后开始dump线上数据
+mongodump -vvvvv --uri="mongodb://root:xxxxxxxx@10.1.2.3:27017/?authSource=admin"
+然后生成一个24G大小得dump文件夹，压缩后2.4G，传输到线下库上准备恢复
+# 大量恢复必须扩大文件句柄，否则过不去
+ulimit -n 655360
+
+# 一定要记录下来开始的时间戳，后面有用
+date
+Sun May 11 06:34:02 PM CST 2025
+
+# 开始恢复，漫长的一天开始了
+# 必须放到screen中执行，否则网络不好，断了也会很悲剧
+
+screen -L
+
+./mongorestore \
+   --drop \
+   --host=192.168.111.222 \
+   --port=27017 \
+   --username=root \
+   --authenticationDatabase=admin \
+   --nsExclude=admin \
+   /root/dump
+   
+ ctrl+a+d
+其实刚开始线下三节点得配置是8G，然后恢复用了一晚，报错，直接把shard3给打崩了，虽然三节点都是docker启动得，有自动恢复机制，但是mongorestore可不管这个，中断期间有1000个Document没有恢复成功。
+重试了2次后才发现这问题，2天已经过去了，意识到就立刻把内存提升到32G，再次进行恢复。
+但是新建的集群的密码跟源库这时是不一致的，又一天过去了，Document文档是恢复完毕，Index又无法建立，因为用户名和密码不一致，Fuck！
+又双叒再次开始恢复，这下天下大吉了，然后这还不算完！
+restore后，其实又过了一天，那要追平之后的数据，就得用上实时同步工具了，这里用的是阿里的mongoshake
+下载：
+wget https://github.com/alibaba/MongoShake/releases/download/release-v2.8.5-20250403/mongo-shake-v2.8.5.tgz
+
+tar zxvf mongo-shake-v2.8.5.tgz
+cd mongo-shake-v2.8.5
+wget https://raw.githubusercontent.com/alibaba/MongoShake/refs/heads/develop/conf/collector.conf
+我们需要注意collector.conf的以下地方：'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"mongodb 集群的恢复","item":"https://rendoumi.com/posts/20250512-mongodb-restore/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"mongodb 集群的恢复","name":"mongodb 集群的恢复","description":"要做一个mongodb集群的迁移和恢复，真是折腾死人了。记录并顺便吐槽一下：\nmongodb的tools真的是太简易、粗糙、丑陋了。\n线上的源数据库是腾讯的服务，要废弃搬迁到内网，足足折腾了一个星期。\n线上源数据库环境如下：\n云数据库 TencentDB 4C/8GB/500GB 3节点 于是在线下对等建立了mongo集群，同样配置，同样3节点。\n噩梦由此开始啊，注意线下集群的memory配置一定要高：\n32GB 用户名和密码一定要和线上完全一致 如果用户名密码不一致，Document恢复完毕，Index无法建立，因为是完全恢复，会覆盖admin这个db 然后开始dump线上数据\nmongodump -vvvvv --uri=\u0026#34;mongodb://root:xxxxxxxx@10.1.2.3:27017/?authSource=admin\u0026#34; 然后生成一个24G大小得dump文件夹，压缩后2.4G，传输到线下库上准备恢复\n# 大量恢复必须扩大文件句柄，否则过不去 ulimit -n 655360 # 一定要记录下来开始的时间戳，后面有用 date Sun May 11 06:34:02 PM CST 2025 # 开始恢复，漫长的一天开始了 # 必须放到screen中执行，否则网络不好，断了也会很悲剧 screen -L ./mongorestore \\ --drop \\ --host=192.168.111.222 \\ --port=27017 \\ --username=root \\ --authenticationDatabase=admin \\ --nsExclude=admin \\ /root/dump ctrl+a+d 其实刚开始线下三节点得配置是8G，然后恢复用了一晚，报错，直接把shard3给打崩了，虽然三节点都是docker启动得，有自动恢复机制，但是mongorestore可不管这个，中断期间有1000个Document没有恢复成功。\n重试了2次后才发现这问题，2天已经过去了，意识到就立刻把内存提升到32G，再次进行恢复。\n但是新建的集群的密码跟源库这时是不一致的，又一天过去了，Document文档是恢复完毕，Index又无法建立，因为用户名和密码不一致，Fuck！\n又双叒再次开始恢复，这下天下大吉了，然后这还不算完！\nrestore后，其实又过了一天，那要追平之后的数据，就得用上实时同步工具了，这里用的是阿里的mongoshake\n下载：\nwget https://github.com/alibaba/MongoShake/releases/download/release-v2.8.5-20250403/mongo-shake-v2.8.5.tgz tar zxvf mongo-shake-v2.8.5.tgz cd mongo-shake-v2.8.5 wget https://raw.githubusercontent.com/alibaba/MongoShake/refs/heads/develop/conf/collector.conf 我们需要注意collector.conf的以下地方：\n","keywords":[],"articleBody":"要做一个mongodb集群的迁移和恢复，真是折腾死人了。记录并顺便吐槽一下：\nmongodb的tools真的是太简易、粗糙、丑陋了。\n线上的源数据库是腾讯的服务，要废弃搬迁到内网，足足折腾了一个星期。\n线上源数据库环境如下：\n云数据库 TencentDB 4C/8GB/500GB 3节点 于是在线下对等建立了mongo集群，同样配置，同样3节点。\n噩梦由此开始啊，注意线下集群的memory配置一定要高：\n32GB 用户名和密码一定要和线上完全一致 如果用户名密码不一致，Document恢复完毕，Index无法建立，因为是完全恢复，会覆盖admin这个db 然后开始dump线上数据\nmongodump -vvvvv --uri=\"mongodb://root:xxxxxxxx@10.1.2.3:27017/?authSource=admin\" 然后生成一个24G大小得dump文件夹，压缩后2.4G，传输到线下库上准备恢复\n# 大量恢复必须扩大文件句柄，否则过不去 ulimit -n 655360 # 一定要记录下来开始的时间戳，后面有用 date Sun May 11 06:34:02 PM CST 2025 # 开始恢复，漫长的一天开始了 # 必须放到screen中执行，否则网络不好，断了也会很悲剧 screen -L ./mongorestore \\ --drop \\ --host=192.168.111.222 \\ --port=27017 \\ --username=root \\ --authenticationDatabase=admin \\ --nsExclude=admin \\ /root/dump ctrl+a+d 其实刚开始线下三节点得配置是8G，然后恢复用了一晚，报错，直接把shard3给打崩了，虽然三节点都是docker启动得，有自动恢复机制，但是mongorestore可不管这个，中断期间有1000个Document没有恢复成功。\n重试了2次后才发现这问题，2天已经过去了，意识到就立刻把内存提升到32G，再次进行恢复。\n但是新建的集群的密码跟源库这时是不一致的，又一天过去了，Document文档是恢复完毕，Index又无法建立，因为用户名和密码不一致，Fuck！\n又双叒再次开始恢复，这下天下大吉了，然后这还不算完！\nrestore后，其实又过了一天，那要追平之后的数据，就得用上实时同步工具了，这里用的是阿里的mongoshake\n下载：\nwget https://github.com/alibaba/MongoShake/releases/download/release-v2.8.5-20250403/mongo-shake-v2.8.5.tgz tar zxvf mongo-shake-v2.8.5.tgz cd mongo-shake-v2.8.5 wget https://raw.githubusercontent.com/alibaba/MongoShake/refs/heads/develop/conf/collector.conf 我们需要注意collector.conf的以下地方：\n# 源数据库 mongo_urls = mongodb://root:xxxxxxxx@10.1.2.3:27017/?authSource=admin # 目标数据库 tunnel.address = mongodb://root:xxxxxxxx@192.168.4.5:27017/?authSource=admin # 同步模式，all表示全量+增量同步，full表示全量同步，incr表示增量同步。 # 也就是说，其实我们一开始就可以用full模式来进行同步，那为什么不呢？看下面的解释 sync_mode = incr # 那还有一个问题：就是如果mongoshake的collector进程掉了，比如被OOM了 # 下次再启动，会重新全量同步还是接着增量同步呢？ # 答案是：同步的时候，collector会在源库建立一个mongoshake的db，里面有个表ckpt_default，里面放着同步信息 # collector重启后会读取这个表进行增量同步，哪怕 sync_mode=full # 所以如果想重启后重新全量同步，那就需要手动删了这个表，或者换个表名，比如换成ckpt_sync # 那mongoshake实际是根据oplog进行同步的，那如果以前的oplog有删除，我们就必须用dump和restore进行一次完整备份恢复 # 然后再进行追平，那刚开始我们记录下来的时间戳就有用了 # Sun May 11 06:34:02 PM CST 2025 下午16点34分 # collector用的是UST时间，我们的时间是东八区，CST，所以要减去8小时，16-8=8 # 那就是：2025-05-11T08:30:00Z 时间稍稍前推一点，然后追平数据 checkpoint.storage.db = mongoshake checkpoint.storage.collection = ckpt_default checkpoint.start_position = 2025-05-11T08:30:00Z 然后注意，源库实际是个代理，直接连的话，有三个节点，而mongoshake是够不到这三个节点的，所以需要强制改成一个直接连接：\nmongo_urls = mongodb://root:xxxxxxxx@10.1.2.3:27017/?authSource=admin\u0026connect=direct 然后就开始同步\n# 注意，一定放到screen里 screen -L # verbose 需要是0，记录到文本文件，便于之后持续观察 ./collector.linux -conf=collector.conf -verbose 0 看日志有同步的，就OK\n","wordCount":"143","inLanguage":"zh","datePublished":"2025-05-12T09:01:11+08:00","dateModified":"2025-05-12T09:01:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20250512-mongodb-restore/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">mongodb 集群的恢复
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2025-05-12 09:01:11 +0800 CST'>2025年5月12日</span></div></header><div class=post-content><p>要做一个mongodb集群的迁移和恢复，真是折腾死人了。记录并顺便吐槽一下：</p><p>mongodb的tools真的是太简易、粗糙、丑陋了。</p><p>线上的源数据库是腾讯的服务，要废弃搬迁到内网，足足折腾了一个星期。</p><p>线上源数据库环境如下：</p><ul><li>云数据库 TencentDB</li><li>4C/8GB/500GB</li><li>3节点</li></ul><p>于是在线下对等建立了mongo集群，同样配置，同样3节点。</p><p>噩梦由此开始啊，注意线下集群的memory配置一定要高：</p><ul><li>32GB</li><li>用户名和密码一定要和线上完全一致</li><li>如果用户名密码不一致，Document恢复完毕，Index无法建立，因为是完全恢复，会覆盖admin这个db</li></ul><p>然后开始dump线上数据</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>mongodump -vvvvv --uri<span class=o>=</span><span class=s2>&#34;mongodb://root:xxxxxxxx@10.1.2.3:27017/?authSource=admin&#34;</span>
+</span></span></code></pre></div><p>然后生成一个24G大小得dump文件夹，压缩后2.4G，传输到线下库上准备恢复</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 大量恢复必须扩大文件句柄，否则过不去</span>
+</span></span><span class=line><span class=cl><span class=nb>ulimit</span> -n <span class=m>655360</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 一定要记录下来开始的时间戳，后面有用</span>
+</span></span><span class=line><span class=cl>date
+</span></span><span class=line><span class=cl>Sun May <span class=m>11</span> 06:34:02 PM CST <span class=m>2025</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 开始恢复，漫长的一天开始了</span>
+</span></span><span class=line><span class=cl><span class=c1># 必须放到screen中执行，否则网络不好，断了也会很悲剧</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>screen -L
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>./mongorestore <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>   --drop <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>   --host<span class=o>=</span>192.168.111.222 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>   --port<span class=o>=</span><span class=m>27017</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>   --username<span class=o>=</span>root <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>   --authenticationDatabase<span class=o>=</span>admin <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>   --nsExclude<span class=o>=</span>admin <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>   /root/dump
+</span></span><span class=line><span class=cl>   
+</span></span><span class=line><span class=cl> ctrl+a+d
+</span></span></code></pre></div><p>其实刚开始线下三节点得配置是8G，然后恢复用了一晚，报错，直接把shard3给打崩了，虽然三节点都是docker启动得，有自动恢复机制，但是mongorestore可不管这个，中断期间有1000个Document没有恢复成功。</p><p>重试了2次后才发现这问题，2天已经过去了，意识到就立刻把内存提升到32G，再次进行恢复。</p><p>但是新建的集群的密码跟源库这时是不一致的，又一天过去了，Document文档是恢复完毕，Index又无法建立，因为用户名和密码不一致，Fuck！</p><p>又双叒再次开始恢复，这下天下大吉了，然后这还不算完！</p><p>restore后，其实又过了一天，那要追平之后的数据，就得用上实时同步工具了，这里用的是阿里的mongoshake</p><p>下载：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>wget https://github.com/alibaba/MongoShake/releases/download/release-v2.8.5-20250403/mongo-shake-v2.8.5.tgz
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>tar zxvf mongo-shake-v2.8.5.tgz
+</span></span><span class=line><span class=cl><span class=nb>cd</span> mongo-shake-v2.8.5
+</span></span><span class=line><span class=cl>wget https://raw.githubusercontent.com/alibaba/MongoShake/refs/heads/develop/conf/collector.conf
+</span></span></code></pre></div><p>我们需要注意<code>collector.conf</code>的以下地方：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 源数据库</span>
+</span></span><span class=line><span class=cl><span class=nv>mongo_urls</span> <span class=o>=</span> mongodb://root:xxxxxxxx@10.1.2.3:27017/?authSource<span class=o>=</span>admin
+</span></span><span class=line><span class=cl><span class=c1># 目标数据库</span>
+</span></span><span class=line><span class=cl>tunnel.address <span class=o>=</span> mongodb://root:xxxxxxxx@192.168.4.5:27017/?authSource<span class=o>=</span>admin
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 同步模式，all表示全量+增量同步，full表示全量同步，incr表示增量同步。</span>
+</span></span><span class=line><span class=cl><span class=c1># 也就是说，其实我们一开始就可以用full模式来进行同步，那为什么不呢？看下面的解释</span>
+</span></span><span class=line><span class=cl><span class=nv>sync_mode</span> <span class=o>=</span> incr
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 那还有一个问题：就是如果mongoshake的collector进程掉了，比如被OOM了</span>
+</span></span><span class=line><span class=cl><span class=c1># 下次再启动，会重新全量同步还是接着增量同步呢？</span>
+</span></span><span class=line><span class=cl><span class=c1># 答案是：同步的时候，collector会在源库建立一个mongoshake的db，里面有个表ckpt_default，里面放着同步信息</span>
+</span></span><span class=line><span class=cl><span class=c1># collector重启后会读取这个表进行增量同步，哪怕 sync_mode=full</span>
+</span></span><span class=line><span class=cl><span class=c1># 所以如果想重启后重新全量同步，那就需要手动删了这个表，或者换个表名，比如换成ckpt_sync</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 那mongoshake实际是根据oplog进行同步的，那如果以前的oplog有删除，我们就必须用dump和restore进行一次完整备份恢复</span>
+</span></span><span class=line><span class=cl><span class=c1># 然后再进行追平，那刚开始我们记录下来的时间戳就有用了</span>
+</span></span><span class=line><span class=cl><span class=c1># Sun May 11 06:34:02 PM CST 2025 下午16点34分</span>
+</span></span><span class=line><span class=cl><span class=c1># collector用的是UST时间，我们的时间是东八区，CST，所以要减去8小时，16-8=8</span>
+</span></span><span class=line><span class=cl><span class=c1># 那就是：2025-05-11T08:30:00Z  时间稍稍前推一点，然后追平数据</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>checkpoint.storage.db <span class=o>=</span> mongoshake
+</span></span><span class=line><span class=cl>checkpoint.storage.collection <span class=o>=</span> ckpt_default
+</span></span><span class=line><span class=cl>checkpoint.start_position <span class=o>=</span> 2025-05-11T08:30:00Z
+</span></span></code></pre></div><p>然后注意，源库实际是个代理，直接连的话，有三个节点，而mongoshake是够不到这三个节点的，所以需要强制改成一个直接连接：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nv>mongo_urls</span> <span class=o>=</span> mongodb://root:xxxxxxxx@10.1.2.3:27017/?authSource<span class=o>=</span>admin<span class=p>&amp;</span><span class=nv>connect</span><span class=o>=</span>direct
+</span></span></code></pre></div><p>然后就开始同步</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 注意，一定放到screen里</span>
+</span></span><span class=line><span class=cl>screen -L
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># verbose 需要是0，记录到文本文件，便于之后持续观察</span>
+</span></span><span class=line><span class=cl>./collector.linux -conf<span class=o>=</span>collector.conf -verbose <span class=m>0</span>
+</span></span></code></pre></div><p>看日志有同步的，就OK</p><p><img alt=image-20250513134512063 loading=lazy src=/posts/20250512-mongodb-restore/image-20250513134512063.png></p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

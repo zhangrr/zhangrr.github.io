@@ -1,0 +1,164 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>F5利用irule来防止Ddos的方法 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='公司的服务器遭受了攻击，某些人不停调用公司服务器发送短信的api，真是有够无聊的。
+由于我们的架构是前面F5 Bigip，后面接了N个Tomcat，那就直接写个F5的irule来阻止它。
+阻止GET请求的频率，30秒只允许单个ip发5次
+假设GET的模式是
+GET /sendsms.do?mobile=13800000000&amp;msg=aaaaaaaa  
+irule里有个非常神奇的东西，table，是session会话表的超表，基本操作是key-value型，带有生存时间，这点最重要。
+详细的大家可以去看：
+https://clouddocs.f5.com/api/irules/table.html
+阻止GET的irule：
+when RULE_INIT {  
+  set static::windowSecs 30
+}
+
+
+when HTTP_REQUEST {  
+    if { ( [HTTP::method] equals "GET" ) && ( [HTTP::uri] starts_with "/sendsms.do" ) } {
+            set myUserId [IP::client_addr]
+            set myMaxRate 5
+            if { $myMaxRate ne "" } {
+                set reqnum [table incr "req:$myUserId"]
+                set tbl "countpost:$myUserId"
+                table set -subtable $tbl $reqnum "ignored" indef $static::windowSecs
+                if { [table keys -subtable $tbl -count] > $myMaxRate } {
+                    HTTP::respond 403 "Block"
+                    return
+                }
+            }
+    }
+}
+来个更加复杂的例子：
+POST的请求如下：
+POST /api/sendMessage.htm HTTP/1.1  
+Content-Length: 203  
+Content-Type: application/x-www-form-urlencoded; charset=UTF-8  
+Host: 172.8.2.23  
+Connection: Keep-Alive  
+User-Agent: Apache-HttpClient/4.5 (Java/1.7.0_51)  
+Accept-Encoding: gzip,deflate
+
+action=order.sumit.order&amp;jsonData=%7B%22channelCode%22%3A%22%22%2C%22mobiles%22%3A%5B%2215176989787%22%5D%2C%22source%22%3A%22pop%22%2C%22tempParameters%22%3A%5B%22480827%22%2C%2291%22%5D%2C%22templateId%22%3A2%7D  
+我们要阻止POST /api/sendMessage.htm且action=sendmsg的话，就比较复杂一些，我们判断uri满足条件后，还要进一步判断content中action=的内容：'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20240111-f5_irule_ddos/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20240111-f5_irule_ddos/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20240111-f5_irule_ddos/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="F5利用irule来防止Ddos的方法"><meta property="og:description" content='公司的服务器遭受了攻击，某些人不停调用公司服务器发送短信的api，真是有够无聊的。
+由于我们的架构是前面F5 Bigip，后面接了N个Tomcat，那就直接写个F5的irule来阻止它。
+阻止GET请求的频率，30秒只允许单个ip发5次
+假设GET的模式是 GET /sendsms.do?mobile=13800000000&amp;msg=aaaaaaaa irule里有个非常神奇的东西，table，是session会话表的超表，基本操作是key-value型，带有生存时间，这点最重要。
+详细的大家可以去看：
+https://clouddocs.f5.com/api/irules/table.html
+阻止GET的irule：
+when RULE_INIT { set static::windowSecs 30 } when HTTP_REQUEST { if { ( [HTTP::method] equals "GET" ) && ( [HTTP::uri] starts_with "/sendsms.do" ) } { set myUserId [IP::client_addr] set myMaxRate 5 if { $myMaxRate ne "" } { set reqnum [table incr "req:$myUserId"] set tbl "countpost:$myUserId" table set -subtable $tbl $reqnum "ignored" indef $static::windowSecs if { [table keys -subtable $tbl -count] > $myMaxRate } { HTTP::respond 403 "Block" return } } } } 来个更加复杂的例子：
+POST的请求如下：
+POST /api/sendMessage.htm HTTP/1.1 Content-Length: 203 Content-Type: application/x-www-form-urlencoded; charset=UTF-8 Host: 172.8.2.23 Connection: Keep-Alive User-Agent: Apache-HttpClient/4.5 (Java/1.7.0_51) Accept-Encoding: gzip,deflate action=order.sumit.order&amp;jsonData=%7B%22channelCode%22%3A%22%22%2C%22mobiles%22%3A%5B%2215176989787%22%5D%2C%22source%22%3A%22pop%22%2C%22tempParameters%22%3A%5B%22480827%22%2C%2291%22%5D%2C%22templateId%22%3A2%7D 我们要阻止POST /api/sendMessage.htm且action=sendmsg的话，就比较复杂一些，我们判断uri满足条件后，还要进一步判断content中action=的内容：'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2024-01-11T14:20:11+08:00"><meta property="article:modified_time" content="2024-01-11T14:20:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="F5利用irule来防止Ddos的方法"><meta name=twitter:description content='公司的服务器遭受了攻击，某些人不停调用公司服务器发送短信的api，真是有够无聊的。
+由于我们的架构是前面F5 Bigip，后面接了N个Tomcat，那就直接写个F5的irule来阻止它。
+阻止GET请求的频率，30秒只允许单个ip发5次
+假设GET的模式是
+GET /sendsms.do?mobile=13800000000&amp;msg=aaaaaaaa  
+irule里有个非常神奇的东西，table，是session会话表的超表，基本操作是key-value型，带有生存时间，这点最重要。
+详细的大家可以去看：
+https://clouddocs.f5.com/api/irules/table.html
+阻止GET的irule：
+when RULE_INIT {  
+  set static::windowSecs 30
+}
+
+
+when HTTP_REQUEST {  
+    if { ( [HTTP::method] equals "GET" ) && ( [HTTP::uri] starts_with "/sendsms.do" ) } {
+            set myUserId [IP::client_addr]
+            set myMaxRate 5
+            if { $myMaxRate ne "" } {
+                set reqnum [table incr "req:$myUserId"]
+                set tbl "countpost:$myUserId"
+                table set -subtable $tbl $reqnum "ignored" indef $static::windowSecs
+                if { [table keys -subtable $tbl -count] > $myMaxRate } {
+                    HTTP::respond 403 "Block"
+                    return
+                }
+            }
+    }
+}
+来个更加复杂的例子：
+POST的请求如下：
+POST /api/sendMessage.htm HTTP/1.1  
+Content-Length: 203  
+Content-Type: application/x-www-form-urlencoded; charset=UTF-8  
+Host: 172.8.2.23  
+Connection: Keep-Alive  
+User-Agent: Apache-HttpClient/4.5 (Java/1.7.0_51)  
+Accept-Encoding: gzip,deflate
+
+action=order.sumit.order&amp;jsonData=%7B%22channelCode%22%3A%22%22%2C%22mobiles%22%3A%5B%2215176989787%22%5D%2C%22source%22%3A%22pop%22%2C%22tempParameters%22%3A%5B%22480827%22%2C%2291%22%5D%2C%22templateId%22%3A2%7D  
+我们要阻止POST /api/sendMessage.htm且action=sendmsg的话，就比较复杂一些，我们判断uri满足条件后，还要进一步判断content中action=的内容：'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"F5利用irule来防止Ddos的方法","item":"https://rendoumi.com/posts/20240111-f5_irule_ddos/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"F5利用irule来防止Ddos的方法","name":"F5利用irule来防止Ddos的方法","description":"公司的服务器遭受了攻击，某些人不停调用公司服务器发送短信的api，真是有够无聊的。\n由于我们的架构是前面F5 Bigip，后面接了N个Tomcat，那就直接写个F5的irule来阻止它。\n阻止GET请求的频率，30秒只允许单个ip发5次\n假设GET的模式是 GET /sendsms.do?mobile=13800000000\u0026amp;msg=aaaaaaaa irule里有个非常神奇的东西，table，是session会话表的超表，基本操作是key-value型，带有生存时间，这点最重要。\n详细的大家可以去看：\nhttps://clouddocs.f5.com/api/irules/table.html\n阻止GET的irule：\nwhen RULE_INIT { set static::windowSecs 30 } when HTTP_REQUEST { if { ( [HTTP::method] equals \u0026#34;GET\u0026#34; ) \u0026amp;\u0026amp; ( [HTTP::uri] starts_with \u0026#34;/sendsms.do\u0026#34; ) } { set myUserId [IP::client_addr] set myMaxRate 5 if { $myMaxRate ne \u0026#34;\u0026#34; } { set reqnum [table incr \u0026#34;req:$myUserId\u0026#34;] set tbl \u0026#34;countpost:$myUserId\u0026#34; table set -subtable $tbl $reqnum \u0026#34;ignored\u0026#34; indef $static::windowSecs if { [table keys -subtable $tbl -count] \u0026gt; $myMaxRate } { HTTP::respond 403 \u0026#34;Block\u0026#34; return } } } } 来个更加复杂的例子：\nPOST的请求如下：\nPOST /api/sendMessage.htm HTTP/1.1 Content-Length: 203 Content-Type: application/x-www-form-urlencoded; charset=UTF-8 Host: 172.8.2.23 Connection: Keep-Alive User-Agent: Apache-HttpClient/4.5 (Java/1.7.0_51) Accept-Encoding: gzip,deflate action=order.sumit.order\u0026amp;jsonData=%7B%22channelCode%22%3A%22%22%2C%22mobiles%22%3A%5B%2215176989787%22%5D%2C%22source%22%3A%22pop%22%2C%22tempParameters%22%3A%5B%22480827%22%2C%2291%22%5D%2C%22templateId%22%3A2%7D 我们要阻止POST /api/sendMessage.htm且action=sendmsg的话，就比较复杂一些，我们判断uri满足条件后，还要进一步判断content中action=的内容：\n","keywords":[],"articleBody":"公司的服务器遭受了攻击，某些人不停调用公司服务器发送短信的api，真是有够无聊的。\n由于我们的架构是前面F5 Bigip，后面接了N个Tomcat，那就直接写个F5的irule来阻止它。\n阻止GET请求的频率，30秒只允许单个ip发5次\n假设GET的模式是 GET /sendsms.do?mobile=13800000000\u0026msg=aaaaaaaa irule里有个非常神奇的东西，table，是session会话表的超表，基本操作是key-value型，带有生存时间，这点最重要。\n详细的大家可以去看：\nhttps://clouddocs.f5.com/api/irules/table.html\n阻止GET的irule：\nwhen RULE_INIT { set static::windowSecs 30 } when HTTP_REQUEST { if { ( [HTTP::method] equals \"GET\" ) \u0026\u0026 ( [HTTP::uri] starts_with \"/sendsms.do\" ) } { set myUserId [IP::client_addr] set myMaxRate 5 if { $myMaxRate ne \"\" } { set reqnum [table incr \"req:$myUserId\"] set tbl \"countpost:$myUserId\" table set -subtable $tbl $reqnum \"ignored\" indef $static::windowSecs if { [table keys -subtable $tbl -count] \u003e $myMaxRate } { HTTP::respond 403 \"Block\" return } } } } 来个更加复杂的例子：\nPOST的请求如下：\nPOST /api/sendMessage.htm HTTP/1.1 Content-Length: 203 Content-Type: application/x-www-form-urlencoded; charset=UTF-8 Host: 172.8.2.23 Connection: Keep-Alive User-Agent: Apache-HttpClient/4.5 (Java/1.7.0_51) Accept-Encoding: gzip,deflate action=order.sumit.order\u0026jsonData=%7B%22channelCode%22%3A%22%22%2C%22mobiles%22%3A%5B%2215176989787%22%5D%2C%22source%22%3A%22pop%22%2C%22tempParameters%22%3A%5B%22480827%22%2C%2291%22%5D%2C%22templateId%22%3A2%7D 我们要阻止POST /api/sendMessage.htm且action=sendmsg的话，就比较复杂一些，我们判断uri满足条件后，还要进一步判断content中action=的内容：\nwhen RULE_INIT { set static::windowSecs 10 } when HTTP_REQUEST { if { ( [HTTP::method] equals \"POST\" ) \u0026\u0026 ( [HTTP::uri] equals \"/api/sendMessage.htm\" ) \u0026\u0026 ([HTTP::header \"Content-Length\"] \u003c= 2048) } { HTTP::collect [HTTP::header Content-Length] } } when HTTP_REQUEST_DATA { set myUserId [IP::client_addr] set mymethod \"unknown\" foreach x [split [string tolower [HTTP::payload]] \"\u0026\"] { if { $x starts_with \"action=\" } { set mymethod [lindex [split $x \"=\"] 1] } } if { $mymethod equals \"order.submit.order\" } { set myMaxRate 5 if { $myMaxRate ne \"\" } { set reqnum [table incr \"req:$myUserId\"] set tbl \"countpost:$myUserId\" table set -subtable $tbl $reqnum \"ignored\" indef $static::windowSecs if { [table keys -subtable $tbl -count] \u003e $myMaxRate } { HTTP::respond 403 \"Block\" return } } } } ","wordCount":"226","inLanguage":"zh","datePublished":"2024-01-11T14:20:11+08:00","dateModified":"2024-01-11T14:20:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20240111-f5_irule_ddos/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">F5利用irule来防止Ddos的方法
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2024-01-11 14:20:11 +0800 CST'>2024年1月11日</span></div></header><div class=post-content><p>公司的服务器遭受了攻击，某些人不停调用公司服务器发送短信的api，真是有够无聊的。</p><p>由于我们的架构是前面F5 Bigip，后面接了N个Tomcat，那就直接写个F5的irule来阻止它。</p><p>阻止GET请求的频率，30秒只允许单个ip发5次</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>假设GET的模式是
+</span></span><span class=line><span class=cl>GET /sendsms.do?mobile<span class=o>=</span>13800000000<span class=p>&amp;</span><span class=nv>msg</span><span class=o>=</span>aaaaaaaa  
+</span></span></code></pre></div><p>irule里有个非常神奇的东西，table，是session会话表的超表，基本操作是key-value型，带有生存时间，这点最重要。</p><p>详细的大家可以去看：</p><p><a href=https://clouddocs.f5.com/api/irules/table.html>https://clouddocs.f5.com/api/irules/table.html</a></p><p>阻止GET的irule：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>when RULE_INIT <span class=o>{</span>  
+</span></span><span class=line><span class=cl>  <span class=nb>set</span> static::windowSecs <span class=m>30</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>when HTTP_REQUEST <span class=o>{</span>  
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=o>{</span> <span class=o>(</span> <span class=o>[</span>HTTP::method<span class=o>]</span> equals <span class=s2>&#34;GET&#34;</span> <span class=o>)</span> <span class=o>&amp;&amp;</span> <span class=o>(</span> <span class=o>[</span>HTTP::uri<span class=o>]</span> starts_with <span class=s2>&#34;/sendsms.do&#34;</span> <span class=o>)</span> <span class=o>}</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>            <span class=nb>set</span> myUserId <span class=o>[</span>IP::client_addr<span class=o>]</span>
+</span></span><span class=line><span class=cl>            <span class=nb>set</span> myMaxRate <span class=m>5</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=o>{</span> <span class=nv>$myMaxRate</span> ne <span class=s2>&#34;&#34;</span> <span class=o>}</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>                <span class=nb>set</span> reqnum <span class=o>[</span>table incr <span class=s2>&#34;req:</span><span class=nv>$myUserId</span><span class=s2>&#34;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>                <span class=nb>set</span> tbl <span class=s2>&#34;countpost:</span><span class=nv>$myUserId</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>                table <span class=nb>set</span> -subtable <span class=nv>$tbl</span> <span class=nv>$reqnum</span> <span class=s2>&#34;ignored&#34;</span> indef <span class=nv>$static</span>::windowSecs
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=o>{</span> <span class=o>[</span>table keys -subtable <span class=nv>$tbl</span> -count<span class=o>]</span> &gt; <span class=nv>$myMaxRate</span> <span class=o>}</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>                    HTTP::respond <span class=m>403</span> <span class=s2>&#34;Block&#34;</span>
+</span></span><span class=line><span class=cl>                    <span class=k>return</span>
+</span></span><span class=line><span class=cl>                <span class=o>}</span>
+</span></span><span class=line><span class=cl>            <span class=o>}</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></div><p>来个更加复杂的例子：</p><p>POST的请求如下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>POST /api/sendMessage.htm HTTP/1.1  
+</span></span><span class=line><span class=cl>Content-Length: <span class=m>203</span>  
+</span></span><span class=line><span class=cl>Content-Type: application/x-www-form-urlencoded<span class=p>;</span> <span class=nv>charset</span><span class=o>=</span>UTF-8  
+</span></span><span class=line><span class=cl>Host: 172.8.2.23  
+</span></span><span class=line><span class=cl>Connection: Keep-Alive  
+</span></span><span class=line><span class=cl>User-Agent: Apache-HttpClient/4.5 <span class=o>(</span>Java/1.7.0_51<span class=o>)</span>  
+</span></span><span class=line><span class=cl>Accept-Encoding: gzip,deflate
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>action</span><span class=o>=</span>order.sumit.order<span class=p>&amp;</span><span class=nv>jsonData</span><span class=o>=</span>%7B%22channelCode%22%3A%22%22%2C%22mobiles%22%3A%5B%2215176989787%22%5D%2C%22source%22%3A%22pop%22%2C%22tempParameters%22%3A%5B%22480827%22%2C%2291%22%5D%2C%22templateId%22%3A2%7D  
+</span></span></code></pre></div><p>我们要阻止POST /api/sendMessage.htm且action=sendmsg的话，就比较复杂一些，我们判断uri满足条件后，还要进一步判断content中action=的内容：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>when RULE_INIT <span class=o>{</span>  
+</span></span><span class=line><span class=cl>  <span class=nb>set</span> static::windowSecs <span class=m>10</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>when HTTP_REQUEST <span class=o>{</span> 
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=o>{</span> <span class=o>(</span> <span class=o>[</span>HTTP::method<span class=o>]</span> equals <span class=s2>&#34;POST&#34;</span> <span class=o>)</span> <span class=o>&amp;&amp;</span> <span class=o>(</span> <span class=o>[</span>HTTP::uri<span class=o>]</span> equals <span class=s2>&#34;/api/sendMessage.htm&#34;</span> <span class=o>)</span> <span class=o>&amp;&amp;</span> <span class=o>([</span>HTTP::header <span class=s2>&#34;Content-Length&#34;</span><span class=o>]</span> &lt;<span class=o>=</span> 2048<span class=o>)</span> <span class=o>}</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>        HTTP::collect <span class=o>[</span>HTTP::header Content-Length<span class=o>]</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>when HTTP_REQUEST_DATA <span class=o>{</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nb>set</span> myUserId <span class=o>[</span>IP::client_addr<span class=o>]</span>
+</span></span><span class=line><span class=cl>    <span class=nb>set</span> mymethod <span class=s2>&#34;unknown&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    foreach x <span class=o>[</span>split <span class=o>[</span>string tolower <span class=o>[</span>HTTP::payload<span class=o>]]</span> <span class=s2>&#34;&amp;&#34;</span><span class=o>]</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=o>{</span> <span class=nv>$x</span> starts_with <span class=s2>&#34;action=&#34;</span> <span class=o>}</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>            <span class=nb>set</span> mymethod <span class=o>[</span>lindex <span class=o>[</span>split <span class=nv>$x</span> <span class=s2>&#34;=&#34;</span><span class=o>]</span> 1<span class=o>]</span>
+</span></span><span class=line><span class=cl>        <span class=o>}</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=o>{</span> <span class=nv>$mymethod</span> equals <span class=s2>&#34;order.submit.order&#34;</span> <span class=o>}</span>
+</span></span><span class=line><span class=cl>    <span class=o>{</span>
+</span></span><span class=line><span class=cl>        <span class=nb>set</span> myMaxRate <span class=m>5</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=o>{</span> <span class=nv>$myMaxRate</span> ne <span class=s2>&#34;&#34;</span> <span class=o>}</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>            <span class=nb>set</span> reqnum <span class=o>[</span>table incr <span class=s2>&#34;req:</span><span class=nv>$myUserId</span><span class=s2>&#34;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>            <span class=nb>set</span> tbl <span class=s2>&#34;countpost:</span><span class=nv>$myUserId</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>            table <span class=nb>set</span> -subtable <span class=nv>$tbl</span> <span class=nv>$reqnum</span> <span class=s2>&#34;ignored&#34;</span> indef <span class=nv>$static</span>::windowSecs
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=o>{</span> <span class=o>[</span>table keys -subtable <span class=nv>$tbl</span> -count<span class=o>]</span> &gt; <span class=nv>$myMaxRate</span> <span class=o>}</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>                HTTP::respond <span class=m>403</span> <span class=s2>&#34;Block&#34;</span>
+</span></span><span class=line><span class=cl>                <span class=k>return</span>
+</span></span><span class=line><span class=cl>            <span class=o>}</span>
+</span></span><span class=line><span class=cl>        <span class=o>}</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></div></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

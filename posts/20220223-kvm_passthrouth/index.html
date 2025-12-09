@@ -1,0 +1,152 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>KVM下宿主机的目录直通到虚机 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="这个需求也很有点意思，DBA 要求做 MySQL 的卸载从库，数据量会很大，硬盘空间后期需要扩容，但是 cpu 反倒占的不多。
+单独 MySQL 是无法限制其 CPU 核使用的，这样的话，最好就是做个虚机来控制 MySQL 总 CPU 核数的使用，然后硬盘扩容的话，比如要拉伸虚机的附加第二块硬盘，如果是 QEMU 格式，会花费很长时间，所以干脆把宿主机的目录直接透传进虚机，之后如果要扩容加硬盘，直接把新的大硬盘 mount 出来再透进去即可，新旧硬盘拷贝数据也比拉伸虚机硬盘快。
+CentOS7 下的做法如下：
+两个大前提：
+一、宿主机的 KVM qemu 系统需要使用新的 rpm 包，需要编译
+二、虚机的内核需要升级，mount 命令需要支持 -t p9 的新格式
+我们做好准备，就可以开始了
+一、编译宿主机的qemu新包
+现在已经是2022年了，所以编译的方式也发生变化了，最佳编译方式是干脆启动一个 Docker 虚拟机，来编译出来 rpm 包，也不污染环境。
+首先克隆下来项目：
+git clone https://github.com/AlekseyChudov/qemu-kvm-virtfs.git
+
+cd qemu-kvm-virtfs
+看一下最后的 build 脚本，有一个地方需要修改：
+现在的 CentOS 最新版是 7.9.2009 ，这个版本树里是没有 qemu 的 Source Code 的，需要修改 baseurl，降低到 7.8.2003 才有 Source 的 repo
+baseurl=https://mirrors.tripadvisor.com/centos-vault/centos/\$releasever/virt/Source/kvm-common/
+
+改成：
+
+baseurl=https://mirrors.tripadvisor.com/centos-vault/centos/7.8.2003/virt/Source/kvm-common/
+改好后 build 脚本如下"><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20220223-kvm_passthrouth/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20220223-kvm_passthrouth/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20220223-kvm_passthrouth/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="KVM下宿主机的目录直通到虚机"><meta property="og:description" content="这个需求也很有点意思，DBA 要求做 MySQL 的卸载从库，数据量会很大，硬盘空间后期需要扩容，但是 cpu 反倒占的不多。
+单独 MySQL 是无法限制其 CPU 核使用的，这样的话，最好就是做个虚机来控制 MySQL 总 CPU 核数的使用，然后硬盘扩容的话，比如要拉伸虚机的附加第二块硬盘，如果是 QEMU 格式，会花费很长时间，所以干脆把宿主机的目录直接透传进虚机，之后如果要扩容加硬盘，直接把新的大硬盘 mount 出来再透进去即可，新旧硬盘拷贝数据也比拉伸虚机硬盘快。
+CentOS7 下的做法如下：
+两个大前提：
+一、宿主机的 KVM qemu 系统需要使用新的 rpm 包，需要编译
+二、虚机的内核需要升级，mount 命令需要支持 -t p9 的新格式
+我们做好准备，就可以开始了
+一、编译宿主机的qemu新包 现在已经是2022年了，所以编译的方式也发生变化了，最佳编译方式是干脆启动一个 Docker 虚拟机，来编译出来 rpm 包，也不污染环境。
+首先克隆下来项目：
+git clone https://github.com/AlekseyChudov/qemu-kvm-virtfs.git cd qemu-kvm-virtfs 看一下最后的 build 脚本，有一个地方需要修改：
+现在的 CentOS 最新版是 7.9.2009 ，这个版本树里是没有 qemu 的 Source Code 的，需要修改 baseurl，降低到 7.8.2003 才有 Source 的 repo
+baseurl=https://mirrors.tripadvisor.com/centos-vault/centos/\$releasever/virt/Source/kvm-common/ 改成： baseurl=https://mirrors.tripadvisor.com/centos-vault/centos/7.8.2003/virt/Source/kvm-common/ 改好后 build 脚本如下"><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-02-23T09:30:11+08:00"><meta property="article:modified_time" content="2022-02-23T09:30:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="KVM下宿主机的目录直通到虚机"><meta name=twitter:description content="这个需求也很有点意思，DBA 要求做 MySQL 的卸载从库，数据量会很大，硬盘空间后期需要扩容，但是 cpu 反倒占的不多。
+单独 MySQL 是无法限制其 CPU 核使用的，这样的话，最好就是做个虚机来控制 MySQL 总 CPU 核数的使用，然后硬盘扩容的话，比如要拉伸虚机的附加第二块硬盘，如果是 QEMU 格式，会花费很长时间，所以干脆把宿主机的目录直接透传进虚机，之后如果要扩容加硬盘，直接把新的大硬盘 mount 出来再透进去即可，新旧硬盘拷贝数据也比拉伸虚机硬盘快。
+CentOS7 下的做法如下：
+两个大前提：
+一、宿主机的 KVM qemu 系统需要使用新的 rpm 包，需要编译
+二、虚机的内核需要升级，mount 命令需要支持 -t p9 的新格式
+我们做好准备，就可以开始了
+一、编译宿主机的qemu新包
+现在已经是2022年了，所以编译的方式也发生变化了，最佳编译方式是干脆启动一个 Docker 虚拟机，来编译出来 rpm 包，也不污染环境。
+首先克隆下来项目：
+git clone https://github.com/AlekseyChudov/qemu-kvm-virtfs.git
+
+cd qemu-kvm-virtfs
+看一下最后的 build 脚本，有一个地方需要修改：
+现在的 CentOS 最新版是 7.9.2009 ，这个版本树里是没有 qemu 的 Source Code 的，需要修改 baseurl，降低到 7.8.2003 才有 Source 的 repo
+baseurl=https://mirrors.tripadvisor.com/centos-vault/centos/\$releasever/virt/Source/kvm-common/
+
+改成：
+
+baseurl=https://mirrors.tripadvisor.com/centos-vault/centos/7.8.2003/virt/Source/kvm-common/
+改好后 build 脚本如下"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"KVM下宿主机的目录直通到虚机","item":"https://rendoumi.com/posts/20220223-kvm_passthrouth/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"KVM下宿主机的目录直通到虚机","name":"KVM下宿主机的目录直通到虚机","description":"这个需求也很有点意思，DBA 要求做 MySQL 的卸载从库，数据量会很大，硬盘空间后期需要扩容，但是 cpu 反倒占的不多。\n单独 MySQL 是无法限制其 CPU 核使用的，这样的话，最好就是做个虚机来控制 MySQL 总 CPU 核数的使用，然后硬盘扩容的话，比如要拉伸虚机的附加第二块硬盘，如果是 QEMU 格式，会花费很长时间，所以干脆把宿主机的目录直接透传进虚机，之后如果要扩容加硬盘，直接把新的大硬盘 mount 出来再透进去即可，新旧硬盘拷贝数据也比拉伸虚机硬盘快。\nCentOS7 下的做法如下：\n两个大前提：\n一、宿主机的 KVM qemu 系统需要使用新的 rpm 包，需要编译\n二、虚机的内核需要升级，mount 命令需要支持 -t p9 的新格式\n我们做好准备，就可以开始了\n一、编译宿主机的qemu新包 现在已经是2022年了，所以编译的方式也发生变化了，最佳编译方式是干脆启动一个 Docker 虚拟机，来编译出来 rpm 包，也不污染环境。\n首先克隆下来项目：\ngit clone https://github.com/AlekseyChudov/qemu-kvm-virtfs.git cd qemu-kvm-virtfs 看一下最后的 build 脚本，有一个地方需要修改：\n现在的 CentOS 最新版是 7.9.2009 ，这个版本树里是没有 qemu 的 Source Code 的，需要修改 baseurl，降低到 7.8.2003 才有 Source 的 repo\nbaseurl=https://mirrors.tripadvisor.com/centos-vault/centos/\\$releasever/virt/Source/kvm-common/ 改成： baseurl=https://mirrors.tripadvisor.com/centos-vault/centos/7.8.2003/virt/Source/kvm-common/ 改好后 build 脚本如下\n","keywords":[],"articleBody":"这个需求也很有点意思，DBA 要求做 MySQL 的卸载从库，数据量会很大，硬盘空间后期需要扩容，但是 cpu 反倒占的不多。\n单独 MySQL 是无法限制其 CPU 核使用的，这样的话，最好就是做个虚机来控制 MySQL 总 CPU 核数的使用，然后硬盘扩容的话，比如要拉伸虚机的附加第二块硬盘，如果是 QEMU 格式，会花费很长时间，所以干脆把宿主机的目录直接透传进虚机，之后如果要扩容加硬盘，直接把新的大硬盘 mount 出来再透进去即可，新旧硬盘拷贝数据也比拉伸虚机硬盘快。\nCentOS7 下的做法如下：\n两个大前提：\n一、宿主机的 KVM qemu 系统需要使用新的 rpm 包，需要编译\n二、虚机的内核需要升级，mount 命令需要支持 -t p9 的新格式\n我们做好准备，就可以开始了\n一、编译宿主机的qemu新包 现在已经是2022年了，所以编译的方式也发生变化了，最佳编译方式是干脆启动一个 Docker 虚拟机，来编译出来 rpm 包，也不污染环境。\n首先克隆下来项目：\ngit clone https://github.com/AlekseyChudov/qemu-kvm-virtfs.git cd qemu-kvm-virtfs 看一下最后的 build 脚本，有一个地方需要修改：\n现在的 CentOS 最新版是 7.9.2009 ，这个版本树里是没有 qemu 的 Source Code 的，需要修改 baseurl，降低到 7.8.2003 才有 Source 的 repo\nbaseurl=https://mirrors.tripadvisor.com/centos-vault/centos/\\$releasever/virt/Source/kvm-common/ 改成： baseurl=https://mirrors.tripadvisor.com/centos-vault/centos/7.8.2003/virt/Source/kvm-common/ 改好后 build 脚本如下\n#!/bin/bash set -ex yum -y update yum -y install \\ \"@Development Tools\" \\ centos-release-qemu-ev \\ glusterfs-api-devel \\ glusterfs-devel \\ iasl \\ kernel-devel \\ libcacard-devel \\ libepoxy-devel \\ mesa-libgbm-devel \\ nss-devel \\ spice-protocol \\ spice-server-devel \\ usbredir-devel cat \u003c\u003c EOF \u003e\u003e /etc/yum.repos.d/CentOS-QEMU-EV.repo [centos-qemu-ev-source] name=CentOS-\\$releasever - QEMU EV Sources baseurl=https://mirrors.tripadvisor.com/centos-vault/centos/7.8.2003/virt/Source/kvm-common/ gpgcheck=1 enabled=0 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-Virtualization EOF yum-builddep -y qemu-kvm-ev yumdownloader --source qemu-kvm-ev rpm -Uvh qemu-kvm-ev-*.src.rpm sed -i 's/--disable-virtfs/--enable-virtfs/' /root/rpmbuild/SOURCES/build_configure.sh sed -i -e '/^%files -n qemu-kvm-common/,/^$/s/^$/%{_bindir}\\/virtfs-proxy-helper\\n%{_mandir}\\/man1\\/virtfs-proxy-helper.1.gz\\n/' \\ -e '/^%if %{rhev}$/,/^%else$/s/pkgsuffix -ev/pkgsuffix -virtfs/' \\ -e '/%define rhel_rhev_conflicts()/ a Provides: %1-ev = %{epoch}:%{version}-%{release} \\\\\\nObsoletes: %1-ev \u003c %{obsoletes_version} \\\\' \\ /root/rpmbuild/SPECS/qemu-kvm.spec rpmbuild -ba --clean /root/rpmbuild/SPECS/qemu-kvm.spec 然后一句话执行 Build：\ncd qemu-kvm-virtfs docker run -it --privileged -v \"$PWD/rpmbuild:/root/rpmbuild\" \\ docker.io/centos:7 /root/rpmbuild/build 会得到如下的包，版本是 2.12.0-44.1.el7_8.1 ： rpmbuild/RPMS/x86_64/qemu-img-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm rpmbuild/RPMS/x86_64/qemu-kvm-common-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm rpmbuild/RPMS/x86_64/qemu-kvm-tools-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm rpmbuild/RPMS/x86_64/qemu-kvm-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm rpmbuild/RPMS/x86_64/qemu-kvm-virtfs-debuginfo-2.12.0-44.1.el7_8.1.x86_64.rpm rpmbuild/SRPMS/qemu-kvm-virtfs-2.12.0-44.1.el7_8.1.src.rpm 我们在宿主机上安装替换新的 qemu 包，并重启 libvirtd\nyum -y install \\ cloud-utils \\ libvirt-client \\ libvirt-daemon-config-network \\ libvirt-daemon-config-nwfilter \\ libvirt-daemon-driver-interface \\ libvirt-daemon-driver-qemu \\ virt-install \\ rpmbuild/RPMS/x86_64/qemu-img-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm \\ rpmbuild/RPMS/x86_64/qemu-kvm-common-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm \\ rpmbuild/RPMS/x86_64/qemu-kvm-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm systemctl restart libvirtd 这样宿主机就准备好了。\n二、生产虚机，做好passthrough 生产虚机的时候，需要做好内外文件目录的直通，宿主机目录是 /opt/test，对应虚机目录是 /test\n... ","wordCount":"276","inLanguage":"zh","datePublished":"2022-02-23T09:30:11+08:00","dateModified":"2022-02-23T09:30:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20220223-kvm_passthrouth/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">KVM下宿主机的目录直通到虚机
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2022-02-23 09:30:11 +0800 CST'>2022年2月23日</span></div></header><div class=post-content><p>这个需求也很有点意思，DBA 要求做 MySQL 的卸载从库，数据量会很大，硬盘空间后期需要扩容，但是 cpu 反倒占的不多。</p><p>单独 MySQL 是无法限制其 CPU 核使用的，这样的话，最好就是做个虚机来控制 MySQL 总 CPU 核数的使用，然后硬盘扩容的话，比如要拉伸虚机的附加第二块硬盘，如果是 QEMU 格式，会花费很长时间，所以干脆把宿主机的目录直接透传进虚机，之后如果要扩容加硬盘，直接把新的大硬盘 mount 出来再透进去即可，新旧硬盘拷贝数据也比拉伸虚机硬盘快。</p><p>CentOS7 下的做法如下：</p><p>两个大前提：</p><p>一、宿主机的 KVM qemu 系统需要使用新的 rpm 包，需要编译</p><p>二、虚机的内核需要升级，mount 命令需要支持 -t p9 的新格式</p><p>我们做好准备，就可以开始了</p><h2 id=一编译宿主机的qemu新包>一、编译宿主机的qemu新包<a hidden class=anchor aria-hidden=true href=#一编译宿主机的qemu新包>#</a></h2><p>现在已经是2022年了，所以编译的方式也发生变化了，最佳编译方式是干脆启动一个 Docker 虚拟机，来编译出来 rpm 包，也不污染环境。</p><p>首先克隆下来项目：</p><pre tabindex=0><code>git clone https://github.com/AlekseyChudov/qemu-kvm-virtfs.git
+
+cd qemu-kvm-virtfs
+</code></pre><p>看一下最后的 build 脚本，有一个地方需要修改：</p><p>现在的 CentOS 最新版是 7.9.2009 ，这个版本树里是没有 qemu 的 Source Code 的，需要修改 baseurl，降低到 7.8.2003 才有 Source 的 repo</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=na>baseurl</span><span class=o>=</span><span class=s>https://mirrors.tripadvisor.com/centos-vault/centos/\$releasever/virt/Source/kvm-common/</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=na>改成：</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=na>baseurl</span><span class=o>=</span><span class=s>https://mirrors.tripadvisor.com/centos-vault/centos/7.8.2003/virt/Source/kvm-common/</span>
+</span></span></code></pre></div><p>改好后 build 脚本如下</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/bin/bash
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=nb>set</span> -ex
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>yum -y update
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>yum -y install <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    <span class=s2>&#34;@Development Tools&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    centos-release-qemu-ev <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    glusterfs-api-devel <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    glusterfs-devel <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    iasl <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    kernel-devel <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    libcacard-devel <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    libepoxy-devel <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    mesa-libgbm-devel <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    nss-devel <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    spice-protocol <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    spice-server-devel <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    usbredir-devel
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>cat <span class=s>&lt;&lt; EOF &gt;&gt; /etc/yum.repos.d/CentOS-QEMU-EV.repo
+</span></span></span><span class=line><span class=cl><span class=s>[centos-qemu-ev-source]
+</span></span></span><span class=line><span class=cl><span class=s>name=CentOS-\$releasever - QEMU EV Sources
+</span></span></span><span class=line><span class=cl><span class=s>baseurl=https://mirrors.tripadvisor.com/centos-vault/centos/7.8.2003/virt/Source/kvm-common/
+</span></span></span><span class=line><span class=cl><span class=s>gpgcheck=1
+</span></span></span><span class=line><span class=cl><span class=s>enabled=0
+</span></span></span><span class=line><span class=cl><span class=s>gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-Virtualization
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>yum-builddep -y qemu-kvm-ev
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>yumdownloader --source qemu-kvm-ev
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>rpm -Uvh qemu-kvm-ev-*.src.rpm
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>sed -i <span class=s1>&#39;s/--disable-virtfs/--enable-virtfs/&#39;</span> /root/rpmbuild/SOURCES/build_configure.sh
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>sed -i -e <span class=s1>&#39;/^%files -n qemu-kvm-common/,/^$/s/^$/%{_bindir}\/virtfs-proxy-helper\n%{_mandir}\/man1\/virtfs-proxy-helper.1.gz\n/&#39;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    -e <span class=s1>&#39;/^%if %{rhev}$/,/^%else$/s/pkgsuffix -ev/pkgsuffix -virtfs/&#39;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    -e <span class=s1>&#39;/%define rhel_rhev_conflicts()/ a Provides: %1-ev = %{epoch}:%{version}-%{release} \\\nObsoletes: %1-ev &lt; %{obsoletes_version} \\&#39;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    /root/rpmbuild/SPECS/qemu-kvm.spec
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>rpmbuild -ba --clean /root/rpmbuild/SPECS/qemu-kvm.spec
+</span></span></code></pre></div><p>然后一句话执行 Build：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>cd</span> qemu-kvm-virtfs
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>docker run -it --privileged -v <span class=s2>&#34;</span><span class=nv>$PWD</span><span class=s2>/rpmbuild:/root/rpmbuild&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    docker.io/centos:7 /root/rpmbuild/build
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>会得到如下的包，版本是 2.12.0-44.1.el7_8.1 ：
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>rpmbuild/RPMS/x86_64/qemu-img-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm
+</span></span><span class=line><span class=cl>rpmbuild/RPMS/x86_64/qemu-kvm-common-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm
+</span></span><span class=line><span class=cl>rpmbuild/RPMS/x86_64/qemu-kvm-tools-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm
+</span></span><span class=line><span class=cl>rpmbuild/RPMS/x86_64/qemu-kvm-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm
+</span></span><span class=line><span class=cl>rpmbuild/RPMS/x86_64/qemu-kvm-virtfs-debuginfo-2.12.0-44.1.el7_8.1.x86_64.rpm
+</span></span><span class=line><span class=cl>rpmbuild/SRPMS/qemu-kvm-virtfs-2.12.0-44.1.el7_8.1.src.rpm
+</span></span></code></pre></div><p>我们在宿主机上安装替换新的 qemu 包，并重启 libvirtd</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>yum -y install <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    cloud-utils <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    libvirt-client <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    libvirt-daemon-config-network <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    libvirt-daemon-config-nwfilter <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    libvirt-daemon-driver-interface <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    libvirt-daemon-driver-qemu <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    virt-install <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    rpmbuild/RPMS/x86_64/qemu-img-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    rpmbuild/RPMS/x86_64/qemu-kvm-common-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    rpmbuild/RPMS/x86_64/qemu-kvm-virtfs-2.12.0-44.1.el7_8.1.x86_64.rpm
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>systemctl restart libvirtd
+</span></span></code></pre></div><p>这样宿主机就准备好了。</p><h2 id=二生产虚机做好passthrough>二、生产虚机，做好passthrough<a hidden class=anchor aria-hidden=true href=#二生产虚机做好passthrough>#</a></h2><p>生产虚机的时候，需要做好内外文件目录的直通，宿主机目录是 /opt/test，对应虚机目录是 /test</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>&lt;domains ...&gt;
+</span></span><span class=line><span class=cl>  ...
+</span></span><span class=line><span class=cl>  &lt;devices ...&gt;
+</span></span><span class=line><span class=cl>    &lt;filesystem <span class=nv>type</span><span class=o>=</span><span class=s1>&#39;mount&#39;</span> <span class=nv>accessmode</span><span class=o>=</span><span class=s1>&#39;passthrough&#39;</span>&gt;
+</span></span><span class=line><span class=cl>      &lt;<span class=nb>source</span> <span class=nv>dir</span><span class=o>=</span><span class=s1>&#39;/opt/test&#39;</span>/&gt;
+</span></span><span class=line><span class=cl>      &lt;target <span class=nv>dir</span><span class=o>=</span><span class=s1>&#39;/test&#39;</span>/&gt;
+</span></span><span class=line><span class=cl>    &lt;/filesystem&gt;
+</span></span><span class=line><span class=cl>  &lt;/devices&gt;
+</span></span><span class=line><span class=cl>&lt;/domains&gt;
+</span></span></code></pre></div><p>虚机启动后，需要升级核心，支持新的 mount 选项</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>yum -y update
+</span></span><span class=line><span class=cl>yum -y --enablerepo centosplus install kernel-plus
+</span></span><span class=line><span class=cl>reboot
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 把宿主机提供的 /test 点 mount 出来</span>
+</span></span><span class=line><span class=cl>mount -t 9p -o <span class=nv>trans</span><span class=o>=</span>virtio,version<span class=o>=</span>9p2000.L /test /opt/test
+</span></span></code></pre></div><p>也可以把挂载点写进虚机的 fstab，下次就会自动 mount 了</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=na>/test /opt/test 9p trans</span><span class=o>=</span><span class=s>virtio,version=9p2000.L,nofail,_netdev,x-mount.mkdir 0 0</span>
+</span></span></code></pre></div></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>

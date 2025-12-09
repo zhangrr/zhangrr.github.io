@@ -1,0 +1,279 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>核心交换机的配置过程 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="换了公司，也搞起了桌面运维，配置交换机的过程记录一下，其实很简单，就是命令记不住。
+拿到一台华为交换机，重新初始化后，配置如下：
+<HUAWEI>dis cur
+!Software Version V200R008C00SPC500
+#
+sysname HUAWEI
+#
+aaa
+ authentication-scheme default
+ authorization-scheme default
+ accounting-scheme default
+ domain default
+ domain default_admin
+ local-user admin password irreversible-cipher %^%#7:.iL]+u&#34;4\j8ZFhGeg/-m.&&#34;^0}kMznjk%>;BaUDO/'6m\X\=V8JGY:W;i,%^%#
+ local-user admin service-type http
+#
+interface Vlanif1
+#
+interface MEth0/0/1
+#
+interface GigabitEthernet0/0/1
+#                                         
+interface NULL0
+#
+user-interface con 0
+ authentication-mode password
+ set authentication password cipher $1a$~!;$-JF0-W$Z><1.F]<sF.R_NBj34CJ/JPe=/tZDMM(Ws3'9u%+$
+user-interface vty 0 4
+user-interface vty 16 20
+#
+return
+一、配名称
+sysname BJ_FANGHENG_JIERU
+二、配置登录用户
+1、aaa
+local-user admin password irreversible-cipher abcdefg
+local-user admin privilege level 3
+local-user admin service-type telnet terminal ssh
+
+2、user-interface con 0
+authentication-mode aaa
+
+3、user-interface vty 0 4
+authentication-mode aaa
+protocol inbound all
+三、配置下联交换机端口
+interface GigabitEthernet0/0/23
+ description == H3cSW --> 24
+ port link-type trunk
+ port trunk allow-pass vlan 2 to 4094
+四、配置上联交换机端口
+interface GigabitEthernet0/0/24
+ description == RuijieRoute --> lan0
+ port link-type trunk
+ port trunk allow-pass vlan 2 to 4094
+五、配置vlan地址
+vlan 11
+vlan 100
+
+vlan 11
+ interface Vlanif11
+ ip address 10.8.0.7 255.255.254.0
+ 
+vlan 100
+ interface Vlanif100
+ ip address 192.168.10.7 255.255.255.0
+六、配置缺省路由
+ip route-static 0.0.0.0 0.0.0.0 10.8.0.1
+七、批量配置端口
+port-group group-member GigabitEthernet0/0/1 to GigabitEthernet0/0/23
+port link-type access
+port default vlan 11
+stp edged-port enable
+八、lldp
+lldp enable
+九、dhcp
+dhcp enable
+ip pool 11
+ gateway-list 10.8.0.1
+ network 10.8.0.0 mask 255.255.254.0
+ static-bind ip-address 10.8.0.4 mac-address 8005-88f1-fa62
+ dns-list 114.114.114.114
+ 
+interface Vlanif11
+ description === Ke hu duan
+ ip address 10.8.0.1 255.255.254.0
+ dhcp select global
+十、telnet和ssh
+dsa local-key-pair create
+
+telnet server enable
+
+stelnet server enable
+ssh authentication-type default password
+这样就完成了一台核心设备的简单配置"><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20230324-huawei_switch/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.74dff769c849e7908342c626b27d92486e2c568e0a3c69bddd21ad6aad6674d3.css integrity="sha256-dN/3achJ55CDQsYmsn2SSG4sVo4KPGm93SGtaq1mdNM=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20230324-huawei_switch/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20230324-huawei_switch/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="核心交换机的配置过程"><meta property="og:description" content="换了公司，也搞起了桌面运维，配置交换机的过程记录一下，其实很简单，就是命令记不住。
+拿到一台华为交换机，重新初始化后，配置如下：
+<HUAWEI>dis cur !Software Version V200R008C00SPC500 # sysname HUAWEI # aaa authentication-scheme default authorization-scheme default accounting-scheme default domain default domain default_admin local-user admin password irreversible-cipher %^%#7:.iL]+u&#34;4\j8ZFhGeg/-m.&&#34;^0}kMznjk%>;BaUDO/'6m\X\=V8JGY:W;i,%^%# local-user admin service-type http # interface Vlanif1 # interface MEth0/0/1 # interface GigabitEthernet0/0/1 # interface NULL0 # user-interface con 0 authentication-mode password set authentication password cipher $1a$~!;$-JF0-W$Z><1.F]<sF.R_NBj34CJ/JPe=/tZDMM(Ws3'9u%+$ user-interface vty 0 4 user-interface vty 16 20 # return 一、配名称 sysname BJ_FANGHENG_JIERU 二、配置登录用户 1、aaa local-user admin password irreversible-cipher abcdefg local-user admin privilege level 3 local-user admin service-type telnet terminal ssh 2、user-interface con 0 authentication-mode aaa 3、user-interface vty 0 4 authentication-mode aaa protocol inbound all 三、配置下联交换机端口 interface GigabitEthernet0/0/23 description == H3cSW --> 24 port link-type trunk port trunk allow-pass vlan 2 to 4094 四、配置上联交换机端口 interface GigabitEthernet0/0/24 description == RuijieRoute --> lan0 port link-type trunk port trunk allow-pass vlan 2 to 4094 五、配置vlan地址 vlan 11 vlan 100 vlan 11 interface Vlanif11 ip address 10.8.0.7 255.255.254.0 vlan 100 interface Vlanif100 ip address 192.168.10.7 255.255.255.0 六、配置缺省路由 ip route-static 0.0.0.0 0.0.0.0 10.8.0.1 七、批量配置端口 port-group group-member GigabitEthernet0/0/1 to GigabitEthernet0/0/23 port link-type access port default vlan 11 stp edged-port enable 八、lldp lldp enable 九、dhcp dhcp enable ip pool 11 gateway-list 10.8.0.1 network 10.8.0.0 mask 255.255.254.0 static-bind ip-address 10.8.0.4 mac-address 8005-88f1-fa62 dns-list 114.114.114.114 interface Vlanif11 description === Ke hu duan ip address 10.8.0.1 255.255.254.0 dhcp select global 十、telnet和ssh dsa local-key-pair create telnet server enable stelnet server enable ssh authentication-type default password 这样就完成了一台核心设备的简单配置"><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2023-03-24T09:05:11+08:00"><meta property="article:modified_time" content="2023-03-24T09:05:11+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="核心交换机的配置过程"><meta name=twitter:description content="换了公司，也搞起了桌面运维，配置交换机的过程记录一下，其实很简单，就是命令记不住。
+拿到一台华为交换机，重新初始化后，配置如下：
+<HUAWEI>dis cur
+!Software Version V200R008C00SPC500
+#
+sysname HUAWEI
+#
+aaa
+ authentication-scheme default
+ authorization-scheme default
+ accounting-scheme default
+ domain default
+ domain default_admin
+ local-user admin password irreversible-cipher %^%#7:.iL]+u&#34;4\j8ZFhGeg/-m.&&#34;^0}kMznjk%>;BaUDO/'6m\X\=V8JGY:W;i,%^%#
+ local-user admin service-type http
+#
+interface Vlanif1
+#
+interface MEth0/0/1
+#
+interface GigabitEthernet0/0/1
+#                                         
+interface NULL0
+#
+user-interface con 0
+ authentication-mode password
+ set authentication password cipher $1a$~!;$-JF0-W$Z><1.F]<sF.R_NBj34CJ/JPe=/tZDMM(Ws3'9u%+$
+user-interface vty 0 4
+user-interface vty 16 20
+#
+return
+一、配名称
+sysname BJ_FANGHENG_JIERU
+二、配置登录用户
+1、aaa
+local-user admin password irreversible-cipher abcdefg
+local-user admin privilege level 3
+local-user admin service-type telnet terminal ssh
+
+2、user-interface con 0
+authentication-mode aaa
+
+3、user-interface vty 0 4
+authentication-mode aaa
+protocol inbound all
+三、配置下联交换机端口
+interface GigabitEthernet0/0/23
+ description == H3cSW --> 24
+ port link-type trunk
+ port trunk allow-pass vlan 2 to 4094
+四、配置上联交换机端口
+interface GigabitEthernet0/0/24
+ description == RuijieRoute --> lan0
+ port link-type trunk
+ port trunk allow-pass vlan 2 to 4094
+五、配置vlan地址
+vlan 11
+vlan 100
+
+vlan 11
+ interface Vlanif11
+ ip address 10.8.0.7 255.255.254.0
+ 
+vlan 100
+ interface Vlanif100
+ ip address 192.168.10.7 255.255.255.0
+六、配置缺省路由
+ip route-static 0.0.0.0 0.0.0.0 10.8.0.1
+七、批量配置端口
+port-group group-member GigabitEthernet0/0/1 to GigabitEthernet0/0/23
+port link-type access
+port default vlan 11
+stp edged-port enable
+八、lldp
+lldp enable
+九、dhcp
+dhcp enable
+ip pool 11
+ gateway-list 10.8.0.1
+ network 10.8.0.0 mask 255.255.254.0
+ static-bind ip-address 10.8.0.4 mac-address 8005-88f1-fa62
+ dns-list 114.114.114.114
+ 
+interface Vlanif11
+ description === Ke hu duan
+ ip address 10.8.0.1 255.255.254.0
+ dhcp select global
+十、telnet和ssh
+dsa local-key-pair create
+
+telnet server enable
+
+stelnet server enable
+ssh authentication-type default password
+这样就完成了一台核心设备的简单配置"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"核心交换机的配置过程","item":"https://rendoumi.com/posts/20230324-huawei_switch/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"核心交换机的配置过程","name":"核心交换机的配置过程","description":"换了公司，也搞起了桌面运维，配置交换机的过程记录一下，其实很简单，就是命令记不住。\n拿到一台华为交换机，重新初始化后，配置如下：\n\u0026lt;HUAWEI\u0026gt;dis cur !Software Version V200R008C00SPC500 # sysname HUAWEI # aaa authentication-scheme default authorization-scheme default accounting-scheme default domain default domain default_admin local-user admin password irreversible-cipher %^%#7:.iL]+u\u0026#34;4\\j8ZFhGeg/-m.\u0026amp;\u0026#34;^0}kMznjk%\u0026gt;;BaUDO/\u0026#39;6m\\X\\=V8JGY:W;i,%^%# local-user admin service-type http # interface Vlanif1 # interface MEth0/0/1 # interface GigabitEthernet0/0/1 # interface NULL0 # user-interface con 0 authentication-mode password set authentication password cipher $1a$~!;$-JF0-W$Z\u0026gt;\u0026lt;1.F]\u0026lt;sF.R_NBj34CJ/JPe=/tZDMM(Ws3\u0026#39;9u%+$ user-interface vty 0 4 user-interface vty 16 20 # return 一、配名称 sysname BJ_FANGHENG_JIERU 二、配置登录用户 1、aaa local-user admin password irreversible-cipher abcdefg local-user admin privilege level 3 local-user admin service-type telnet terminal ssh 2、user-interface con 0 authentication-mode aaa 3、user-interface vty 0 4 authentication-mode aaa protocol inbound all 三、配置下联交换机端口 interface GigabitEthernet0/0/23 description == H3cSW --\u0026gt; 24 port link-type trunk port trunk allow-pass vlan 2 to 4094 四、配置上联交换机端口 interface GigabitEthernet0/0/24 description == RuijieRoute --\u0026gt; lan0 port link-type trunk port trunk allow-pass vlan 2 to 4094 五、配置vlan地址 vlan 11 vlan 100 vlan 11 interface Vlanif11 ip address 10.8.0.7 255.255.254.0 vlan 100 interface Vlanif100 ip address 192.168.10.7 255.255.255.0 六、配置缺省路由 ip route-static 0.0.0.0 0.0.0.0 10.8.0.1 七、批量配置端口 port-group group-member GigabitEthernet0/0/1 to GigabitEthernet0/0/23 port link-type access port default vlan 11 stp edged-port enable 八、lldp lldp enable 九、dhcp dhcp enable ip pool 11 gateway-list 10.8.0.1 network 10.8.0.0 mask 255.255.254.0 static-bind ip-address 10.8.0.4 mac-address 8005-88f1-fa62 dns-list 114.114.114.114 interface Vlanif11 description === Ke hu duan ip address 10.8.0.1 255.255.254.0 dhcp select global 十、telnet和ssh dsa local-key-pair create telnet server enable stelnet server enable ssh authentication-type default password 这样就完成了一台核心设备的简单配置\n","keywords":[],"articleBody":"换了公司，也搞起了桌面运维，配置交换机的过程记录一下，其实很简单，就是命令记不住。\n拿到一台华为交换机，重新初始化后，配置如下：\ndis cur !Software Version V200R008C00SPC500 # sysname HUAWEI # aaa authentication-scheme default authorization-scheme default accounting-scheme default domain default domain default_admin local-user admin password irreversible-cipher %^%#7:.iL]+u\"4\\j8ZFhGeg/-m.\u0026\"^0}kMznjk%\u003e;BaUDO/'6m\\X\\=V8JGY:W;i,%^%# local-user admin service-type http # interface Vlanif1 # interface MEth0/0/1 # interface GigabitEthernet0/0/1 # interface NULL0 # user-interface con 0 authentication-mode password set authentication password cipher $1a$~!;$-JF0-W$Z\u003e\u003c1.F]9u%+$ user-interface vty 0 4 user-interface vty 16 20 # return 一、配名称 sysname BJ_FANGHENG_JIERU 二、配置登录用户 1、aaa local-user admin password irreversible-cipher abcdefg local-user admin privilege level 3 local-user admin service-type telnet terminal ssh 2、user-interface con 0 authentication-mode aaa 3、user-interface vty 0 4 authentication-mode aaa protocol inbound all 三、配置下联交换机端口 interface GigabitEthernet0/0/23 description == H3cSW --\u003e 24 port link-type trunk port trunk allow-pass vlan 2 to 4094 四、配置上联交换机端口 interface GigabitEthernet0/0/24 description == RuijieRoute --\u003e lan0 port link-type trunk port trunk allow-pass vlan 2 to 4094 五、配置vlan地址 vlan 11 vlan 100 vlan 11 interface Vlanif11 ip address 10.8.0.7 255.255.254.0 vlan 100 interface Vlanif100 ip address 192.168.10.7 255.255.255.0 六、配置缺省路由 ip route-static 0.0.0.0 0.0.0.0 10.8.0.1 七、批量配置端口 port-group group-member GigabitEthernet0/0/1 to GigabitEthernet0/0/23 port link-type access port default vlan 11 stp edged-port enable 八、lldp lldp enable 九、dhcp dhcp enable ip pool 11 gateway-list 10.8.0.1 network 10.8.0.0 mask 255.255.254.0 static-bind ip-address 10.8.0.4 mac-address 8005-88f1-fa62 dns-list 114.114.114.114 interface Vlanif11 description === Ke hu duan ip address 10.8.0.1 255.255.254.0 dhcp select global 十、telnet和ssh dsa local-key-pair create telnet server enable stelnet server enable ssh authentication-type default password 这样就完成了一台核心设备的简单配置\n","wordCount":"229","inLanguage":"zh","datePublished":"2023-03-24T09:05:11+08:00","dateModified":"2023-03-24T09:05:11+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20230324-huawei_switch/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">核心交换机的配置过程
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2023-03-24 09:05:11 +0800 CST'>2023年3月24日</span></div></header><div class=post-content><p>换了公司，也搞起了桌面运维，配置交换机的过程记录一下，其实很简单，就是命令记不住。</p><p>拿到一台华为交换机，重新初始化后，配置如下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>&lt;HUAWEI&gt;dis cur
+</span></span><span class=line><span class=cl>!Software Version V200R008C00SPC500
+</span></span><span class=line><span class=cl><span class=c1>#</span>
+</span></span><span class=line><span class=cl>sysname HUAWEI
+</span></span><span class=line><span class=cl><span class=c1>#</span>
+</span></span><span class=line><span class=cl>aaa
+</span></span><span class=line><span class=cl> authentication-scheme default
+</span></span><span class=line><span class=cl> authorization-scheme default
+</span></span><span class=line><span class=cl> accounting-scheme default
+</span></span><span class=line><span class=cl> domain default
+</span></span><span class=line><span class=cl> domain default_admin
+</span></span><span class=line><span class=cl> local-user admin password irreversible-cipher %^%#7:.iL<span class=o>]</span>+u<span class=s2>&#34;4\j8ZFhGeg/-m.&amp;&#34;</span>^0<span class=o>}</span>kMznjk%&gt;<span class=p>;</span>BaUDO/<span class=s1>&#39;6m\X\=V8JGY:W;i,%^%#
+</span></span></span><span class=line><span class=cl><span class=s1> local-user admin service-type http
+</span></span></span><span class=line><span class=cl><span class=s1>#
+</span></span></span><span class=line><span class=cl><span class=s1>interface Vlanif1
+</span></span></span><span class=line><span class=cl><span class=s1>#
+</span></span></span><span class=line><span class=cl><span class=s1>interface MEth0/0/1
+</span></span></span><span class=line><span class=cl><span class=s1>#
+</span></span></span><span class=line><span class=cl><span class=s1>interface GigabitEthernet0/0/1
+</span></span></span><span class=line><span class=cl><span class=s1>#                                         
+</span></span></span><span class=line><span class=cl><span class=s1>interface NULL0
+</span></span></span><span class=line><span class=cl><span class=s1>#
+</span></span></span><span class=line><span class=cl><span class=s1>user-interface con 0
+</span></span></span><span class=line><span class=cl><span class=s1> authentication-mode password
+</span></span></span><span class=line><span class=cl><span class=s1> set authentication password cipher $1a$~!;$-JF0-W$Z&gt;&lt;1.F]&lt;sF.R_NBj34CJ/JPe=/tZDMM(Ws3&#39;</span>9u%+$
+</span></span><span class=line><span class=cl>user-interface vty <span class=m>0</span> <span class=m>4</span>
+</span></span><span class=line><span class=cl>user-interface vty <span class=m>16</span> <span class=m>20</span>
+</span></span><span class=line><span class=cl><span class=c1>#</span>
+</span></span><span class=line><span class=cl><span class=k>return</span>
+</span></span></code></pre></div><h4 id=一配名称>一、配名称<a hidden class=anchor aria-hidden=true href=#一配名称>#</a></h4><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>sysname BJ_FANGHENG_JIERU
+</span></span></code></pre></div><h4 id=二配置登录用户>二、配置登录用户<a hidden class=anchor aria-hidden=true href=#二配置登录用户>#</a></h4><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>1、aaa
+</span></span><span class=line><span class=cl>local-user admin password irreversible-cipher abcdefg
+</span></span><span class=line><span class=cl>local-user admin privilege level <span class=m>3</span>
+</span></span><span class=line><span class=cl>local-user admin service-type telnet terminal ssh
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>2、user-interface con <span class=m>0</span>
+</span></span><span class=line><span class=cl>authentication-mode aaa
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>3、user-interface vty <span class=m>0</span> <span class=m>4</span>
+</span></span><span class=line><span class=cl>authentication-mode aaa
+</span></span><span class=line><span class=cl>protocol inbound all
+</span></span></code></pre></div><h4 id=三配置下联交换机端口>三、配置下联交换机端口<a hidden class=anchor aria-hidden=true href=#三配置下联交换机端口>#</a></h4><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>interface GigabitEthernet0/0/23
+</span></span><span class=line><span class=cl> <span class=nv>description</span> <span class=o>==</span> H3cSW --&gt; <span class=m>24</span>
+</span></span><span class=line><span class=cl> port link-type trunk
+</span></span><span class=line><span class=cl> port trunk allow-pass vlan <span class=m>2</span> to <span class=m>4094</span>
+</span></span></code></pre></div><h4 id=四配置上联交换机端口>四、配置上联交换机端口<a hidden class=anchor aria-hidden=true href=#四配置上联交换机端口>#</a></h4><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>interface GigabitEthernet0/0/24
+</span></span><span class=line><span class=cl> <span class=nv>description</span> <span class=o>==</span> RuijieRoute --&gt; lan0
+</span></span><span class=line><span class=cl> port link-type trunk
+</span></span><span class=line><span class=cl> port trunk allow-pass vlan <span class=m>2</span> to <span class=m>4094</span>
+</span></span></code></pre></div><h4 id=五配置vlan地址>五、配置vlan地址<a hidden class=anchor aria-hidden=true href=#五配置vlan地址>#</a></h4><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>vlan <span class=m>11</span>
+</span></span><span class=line><span class=cl>vlan <span class=m>100</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>vlan <span class=m>11</span>
+</span></span><span class=line><span class=cl> interface Vlanif11
+</span></span><span class=line><span class=cl> ip address 10.8.0.7 255.255.254.0
+</span></span><span class=line><span class=cl> 
+</span></span><span class=line><span class=cl>vlan <span class=m>100</span>
+</span></span><span class=line><span class=cl> interface Vlanif100
+</span></span><span class=line><span class=cl> ip address 192.168.10.7 255.255.255.0
+</span></span></code></pre></div><h4 id=六配置缺省路由>六、配置缺省路由<a hidden class=anchor aria-hidden=true href=#六配置缺省路由>#</a></h4><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>ip route-static 0.0.0.0 0.0.0.0 10.8.0.1
+</span></span></code></pre></div><h4 id=七批量配置端口>七、批量配置端口<a hidden class=anchor aria-hidden=true href=#七批量配置端口>#</a></h4><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>port-group group-member GigabitEthernet0/0/1 to GigabitEthernet0/0/23
+</span></span><span class=line><span class=cl>port link-type access
+</span></span><span class=line><span class=cl>port default vlan <span class=m>11</span>
+</span></span><span class=line><span class=cl>stp edged-port <span class=nb>enable</span>
+</span></span></code></pre></div><h4 id=八lldp>八、lldp<a hidden class=anchor aria-hidden=true href=#八lldp>#</a></h4><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>lldp <span class=nb>enable</span>
+</span></span></code></pre></div><h4 id=九dhcp>九、dhcp<a hidden class=anchor aria-hidden=true href=#九dhcp>#</a></h4><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>dhcp <span class=nb>enable</span>
+</span></span><span class=line><span class=cl>ip pool <span class=m>11</span>
+</span></span><span class=line><span class=cl> gateway-list 10.8.0.1
+</span></span><span class=line><span class=cl> network 10.8.0.0 mask 255.255.254.0
+</span></span><span class=line><span class=cl> static-bind ip-address 10.8.0.4 mac-address 8005-88f1-fa62
+</span></span><span class=line><span class=cl> dns-list 114.114.114.114
+</span></span><span class=line><span class=cl> 
+</span></span><span class=line><span class=cl>interface Vlanif11
+</span></span><span class=line><span class=cl> <span class=nv>description</span> <span class=o>===</span> Ke hu duan
+</span></span><span class=line><span class=cl> ip address 10.8.0.1 255.255.254.0
+</span></span><span class=line><span class=cl> dhcp <span class=k>select</span> global
+</span></span></code></pre></div><h4 id=十telnet和ssh>十、telnet和ssh<a hidden class=anchor aria-hidden=true href=#十telnet和ssh>#</a></h4><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>dsa local-key-pair create
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>telnet server <span class=nb>enable</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>stelnet server <span class=nb>enable</span>
+</span></span><span class=line><span class=cl>ssh authentication-type default password
+</span></span></code></pre></div><p>这样就完成了一台核心设备的简单配置</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>
