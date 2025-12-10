@@ -7,8 +7,49 @@
     <generator>Hugo -- 0.147.3</generator>
     <language>zh</language>
     <copyright>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Wed, 03 Dec 2025 09:00:01 +0800</lastBuildDate>
+    <lastBuildDate>Wed, 10 Dec 2025 09:00:01 +0800</lastBuildDate>
     <atom:link href="https://rendoumi.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>LibreChat</title>
+      <link>https://rendoumi.com/posts/20251210-librechat_azure/</link>
+      <pubDate>Wed, 10 Dec 2025 09:00:01 +0800</pubDate>
+      <guid>https://rendoumi.com/posts/20251210-librechat_azure/</guid>
+      <description>&lt;p&gt;Ai的时代已经来临，现在主用的是谷歌的antigravity，然后平时对话询问，用的是LibreChat，给个链接&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://github.com/danny-avila/LibreChat&#34;&gt;https://github.com/danny-avila/LibreChat&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;然后这个东西吧，配起来没那么简单，还是 docker compose 的部署方法快捷&lt;/p&gt;
+&lt;p&gt;那有openrouter的api，这个接入简单。那同时之前还有用Azure gpt-4o的api，用的是Javis，直接接入Azure&lt;/p&gt;
+&lt;p&gt;Javis偏弱，现在想统一用到LibreChat，接入还真的是一言难尽&lt;/p&gt;
+&lt;p&gt;来详细说说Azure的配法，背景：Azure是同事在2024年开的，只给了我三个参数&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;AZURE_OPENAI_API_BASE&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;https://pppqqq-eus.openai.azure.com/&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;OPENAI_API_KEY&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;12xxxaaabbbccccccccccccgggggggggggggggggggggggggggCOGuy6M&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;AZURE_OPENAI_DEPLOYMENT_NAME&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;gpt-4o-abc&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;然后呢，同事还离职了，然后其它参数就都问不到了&lt;/p&gt;
+&lt;p&gt;LibreChat呢，文档简直稀烂，而且变动还特别大&lt;/p&gt;
+&lt;p&gt;LibreChat主要的思路呢，就是在.env中定义变量，然后在librechat.yaml中使用变量，我们就省了，都扔到librechat.yaml中好了&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;endpoints:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  azureOpenAI:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    titleModel: &lt;span class=&#34;s2&#34;&gt;&amp;#34;gpt-4o&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    plugins: &lt;span class=&#34;nb&#34;&gt;true&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    groups:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      - group: &lt;span class=&#34;s2&#34;&gt;&amp;#34;azure&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        apiKey: &lt;span class=&#34;s2&#34;&gt;&amp;#34;12xxxaaabbbccccccccccccgggggggggggggggggggggggggggCOGuy6M&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        instanceName: &lt;span class=&#34;s2&#34;&gt;&amp;#34;pppqqq-eus&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        version: &lt;span class=&#34;s2&#34;&gt;&amp;#34;2024-05-01-preview&amp;#34;&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;# 推荐使用新版API，以支持GPT-4o&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;c1&#34;&gt;# --- Model-Level Mapping (重点) ---&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        models:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;          &lt;span class=&#34;c1&#34;&gt;# LibreChat显示的名称: 实际Azure部署的名称&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;          gpt-4o: &lt;span class=&#34;c1&#34;&gt;# &amp;lt;--- 这个名称会显示在LibreChat的下拉菜单中&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;            deploymentName: &lt;span class=&#34;s2&#34;&gt;&amp;#34;gpt-4o-abc&amp;#34;&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;# &amp;lt;--- 您的实际Azure部署名称&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;            version: &lt;span class=&#34;s2&#34;&gt;&amp;#34;2024-05-01-preview&amp;#34;&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;# 可覆盖group的version&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;          gpt-4-turbo-2024-04-09: &lt;span class=&#34;c1&#34;&gt;# LibreChat显示的名称&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;            deploymentName: &lt;span class=&#34;s2&#34;&gt;&amp;#34;gpt-4o-abc&amp;#34;&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;# 您的实际Azure部署名称&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;            version: &lt;span class=&#34;s2&#34;&gt;&amp;#34;2024-02-15-preview&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;上面的配置是问了gemini给出的，看得出来变量AZURE_OPENAI_API_BASE中的xxx.openai.azure.com前面的xxx，就是instanceName&lt;/p&gt;
+&lt;p&gt;OPENAI_API_KEY就是apiKey&lt;/p&gt;
+&lt;p&gt;AZURE_OPENAI_DEPLOYMENT_NAME就是deploymentName&lt;/p&gt;
+&lt;p&gt;模型的gpt-4o还有gpt-4-turbo-2024-04-09都是geimini给出的，version也很重要，不对会报错&lt;/p&gt;
+&lt;p&gt;然后就可以了&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Milvus生产环境搭建</title>
       <link>https://rendoumi.com/posts/20251203-milvus_install/</link>
