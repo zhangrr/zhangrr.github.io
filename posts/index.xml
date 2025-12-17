@@ -7,8 +7,132 @@
     <generator>Hugo -- 0.147.3</generator>
     <language>zh</language>
     <copyright>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Sat, 13 Dec 2025 09:00:01 +0800</lastBuildDate>
+    <lastBuildDate>Wed, 17 Dec 2025 09:10:01 +0800</lastBuildDate>
     <atom:link href="https://rendoumi.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>AWS的迁移替换</title>
+      <link>https://rendoumi.com/posts/20251217-aws_migrate/</link>
+      <pubDate>Wed, 17 Dec 2025 09:10:01 +0800</pubDate>
+      <guid>https://rendoumi.com/posts/20251217-aws_migrate/</guid>
+      <description>&lt;p&gt;本篇是叙述文，没有技术含量，纯纯的记录一下&lt;/p&gt;
+&lt;p&gt;那在25年9月份的时候，把AWS的整个架构给平移到VPS的机房了&lt;/p&gt;
+&lt;p&gt;为什么呢？AWS的费用实在是太贵了&lt;/p&gt;
+&lt;p&gt;各种服务都是要钱的，什么Mysql的proxy，跟实例一个价格了；还有什么Serurity hub，Cloudwatch等等等等&lt;/p&gt;
+&lt;p&gt;用到了就得交钱，出故障的时候，还得买客服支持服务，各种奇技淫巧&lt;/p&gt;
+&lt;p&gt;看日志发告警用Cloudwatch是最快最便捷的，但是贵啊，最佳实践是仍到S3桶里，用 Athena 分析&lt;/p&gt;
+&lt;p&gt;每个月都要关注saveing plan，看看超了没有，实在是忍无可忍&lt;/p&gt;
+&lt;p&gt;而且被迫升级，用的服务各种阉割&lt;/p&gt;
+&lt;p&gt;redis服务只支持一个库，被迫升级到valkey, 结果valkey不支持redis-exporter，被逼无奈只好用社区的redis.io&lt;/p&gt;
+&lt;p&gt;alermanager不支持webhook，只能发到SNS&lt;/p&gt;
+&lt;p&gt;无语了，而且最佳实践太多，每次都得研究半天什么才是最合适自己得&lt;/p&gt;
+&lt;p&gt;写个Terrfaform，代码总共2千行，有1000行是IAM的权限配置&lt;/p&gt;
+&lt;p&gt;终于终于挪了&lt;/p&gt;
+&lt;p&gt;那各种服务必须有相应的替代产品，那总结一下：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Loadbalance + Firewall：就用OPNSense替代&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Kubernetes:  用kuberspray手搓&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Redis: 自建redis&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Postgres和Mysql: 手搓，用pgbackrest备份。MySQL每天fullbackup&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;S3: 用seeweedfs替代，完美替换，支持各种IAM替代，静态化用Caddy来顶替&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;cloudfront：其它家CDN&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Elasticsearch: 自建，取消证书&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;MongoDB： 自建&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Kafka：自建，kraft换掉zookeeper&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;flink：自建&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;milvus：自建&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;</description>
+    </item>
+    <item>
+      <title>OPNSense配置配置wireguard</title>
+      <link>https://rendoumi.com/posts/20251217-opnsense_wireguard/</link>
+      <pubDate>Wed, 17 Dec 2025 09:00:01 +0800</pubDate>
+      <guid>https://rendoumi.com/posts/20251217-opnsense_wireguard/</guid>
+      <description>&lt;p&gt;居然花了一晚上和一整天的时间来配置这个，真的是大出所料，在最浅显的地方栽了最大的跟头&lt;/p&gt;
+&lt;p&gt;因为之前配置的时候都太痛快了，5分钟，然后放路由，就ok了，结果这次就结结实实翻车了！&lt;/p&gt;
+&lt;p&gt;先说最大的原因：墙，无视墙的存在，必然被墙反噬，本来简单的事情也变得复杂。&lt;/p&gt;
+&lt;p&gt;注意事项，普通配其实很简单，但是出乎意料的还有MTU等着你，因为VPS被强制改了MTU，所以这里还有一个坑，普通的不会遇到这个情况。&lt;/p&gt;
+&lt;p&gt;记录一下过程：&lt;/p&gt;
+&lt;p&gt;首先，OPNSense老版本的需要安装插件os-wireguard，但新版本已经内置wireguard了，完全不用安装&lt;/p&gt;
+&lt;p&gt;左边栏看一下，有就OK，不用安装&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20251217140635467&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20251217-opnsense_wireguard/image-20251217140635467.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;然后我们先去WireGuard的Instances，初始是空白的，那就按+号添加一个新的实例&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20251217140952967&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20251217-opnsense_wireguard/image-20251217140952967.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;需要填写以下几项&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20251217141111022&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20251217-opnsense_wireguard/image-20251217141111022.png&#34;&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Name：WG-LC&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Instance是0，表示这个实例会是wg0这个网卡&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;按齿轮Gen出sever的 Public key和Private key&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;LIsten port：51821 采用非标端口，是UDP类型的端口&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Tunnel address：表明wg0网卡所在的网段，10.100.100.1是服务器的地址&lt;/p&gt;
+&lt;p&gt;然后填完点击Save就OK了&lt;/p&gt;
+&lt;p&gt;返回后，选中Enable WireGuard，然后Apply，就会启动服务了。&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20251217141311489&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20251217-opnsense_wireguard/image-20251217141311489.png&#34;&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;接着去gen客户端配置：&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20251217141608725&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20251217-opnsense_wireguard/image-20251217141608725.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;到 Peer generator，填入以下内容&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Name：客户端名称，起个ZRR，好认&lt;/li&gt;
+&lt;li&gt;Address：会自动按序列生成，这里是10.100.100.2/32&lt;/li&gt;
+&lt;li&gt;Allowed IPs：这里非常关键，一定不能填0.0.0.0，那相当于所有路由都走这个wg隧道了，所以一定要指定自己要走的路由，首先是wg0的网段10.100.100.0/24，然后是内网的192.168.99.0/24&lt;/li&gt;
+&lt;li&gt;然后一定要把Config的配置给拷贝出来备用&lt;/li&gt;
+&lt;li&gt;最后点击 Store and generate nexe的按钮，不要点Apply那个&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;然后就OK了，回到 Peers 页看看，多了一个ZRR的对端，就没问题&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20251217142110721&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20251217-opnsense_wireguard/image-20251217142110721.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;继续，需要配置接口和防火墙规则&lt;/p&gt;
+&lt;p&gt;左边栏，Interfaces &amp;ndash;&amp;gt; Assignments&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20251217142807893&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20251217-opnsense_wireguard/image-20251217142807893.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;会多出一个interface，wg0的，Description写大写的WG0，必须是这个，不要起其它的名字，WG0 &amp;ndash;&amp;gt; wg0相呼应对照，不要乱写&lt;/p&gt;
+&lt;p&gt;点击Add&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20251217142908316&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20251217-opnsense_wireguard/image-20251217142908316.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;会变成三个并排，如果加多个实例，就WG1、WG2这么排下去，一目了然&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20251217143151970&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20251217-opnsense_wireguard/image-20251217143151970.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;接着去WG0的interfaces&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20251217143824101&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20251217-opnsense_wireguard/image-20251217143824101.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;选中：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Enable 激活这个interface&lt;/li&gt;
+&lt;li&gt;Lock 阻止这个interface被误删&lt;/li&gt;
+&lt;li&gt;其它都保持缺省&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20251217144020653&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20251217-opnsense_wireguard/image-20251217144020653.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;然后点击Save，然后Apply changes，让配置生效，就可以了&lt;/p&gt;
+&lt;p&gt;去Firewall，Rules, WG0，会看到有13条继承的规则，我们新加一条&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Ai时代的Blog换脸与字体压缩</title>
       <link>https://rendoumi.com/posts/20251213-blog_renew/</link>

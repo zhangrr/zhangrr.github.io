@@ -1,0 +1,158 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3988508441804851" crossorigin=anonymous></script><title>OPNSense配置配置wireguard | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="居然花了一晚上和一整天的时间来配置这个，真的是大出所料，在最浅显的地方栽了最大的跟头
+因为之前配置的时候都太痛快了，5分钟，然后放路由，就ok了，结果这次就结结实实翻车了！
+先说最大的原因：墙，无视墙的存在，必然被墙反噬，本来简单的事情也变得复杂。
+注意事项，普通配其实很简单，但是出乎意料的还有MTU等着你，因为VPS被强制改了MTU，所以这里还有一个坑，普通的不会遇到这个情况。
+记录一下过程：
+首先，OPNSense老版本的需要安装插件os-wireguard，但新版本已经内置wireguard了，完全不用安装
+左边栏看一下，有就OK，不用安装
+
+然后我们先去WireGuard的Instances，初始是空白的，那就按+号添加一个新的实例
+
+需要填写以下几项
+
+
+
+Name：WG-LC
+
+
+Instance是0，表示这个实例会是wg0这个网卡
+
+
+按齿轮Gen出sever的 Public key和Private key
+
+
+LIsten port：51821 采用非标端口，是UDP类型的端口
+
+
+Tunnel address：表明wg0网卡所在的网段，10.100.100.1是服务器的地址
+然后填完点击Save就OK了
+返回后，选中Enable WireGuard，然后Apply，就会启动服务了。
+
+
+
+接着去gen客户端配置：
+
+到 Peer generator，填入以下内容
+
+Name：客户端名称，起个ZRR，好认
+Address：会自动按序列生成，这里是10.100.100.2/32
+Allowed IPs：这里非常关键，一定不能填0.0.0.0，那相当于所有路由都走这个wg隧道了，所以一定要指定自己要走的路由，首先是wg0的网段10.100.100.0/24，然后是内网的192.168.99.0/24
+然后一定要把Config的配置给拷贝出来备用
+最后点击 Store and generate nexe的按钮，不要点Apply那个
+
+然后就OK了，回到 Peers 页看看，多了一个ZRR的对端，就没问题
+
+继续，需要配置接口和防火墙规则
+左边栏，Interfaces &ndash;> Assignments
+
+会多出一个interface，wg0的，Description写大写的WG0，必须是这个，不要起其它的名字，WG0 &ndash;> wg0相呼应对照，不要乱写
+点击Add
+
+会变成三个并排，如果加多个实例，就WG1、WG2这么排下去，一目了然
+
+接着去WG0的interfaces
+
+选中：
+
+Enable 激活这个interface
+Lock 阻止这个interface被误删
+其它都保持缺省
+
+
+然后点击Save，然后Apply changes，让配置生效，就可以了
+去Firewall，Rules, WG0，会看到有13条继承的规则，我们新加一条"><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20251217-opnsense_wireguard/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.5d8a858b4ad07d913988e10d3c3dbc8c171f45316a396de8a60d67f44840812d.css integrity="sha256-XYqFi0rQfZE5iOENPD28jBcfRTFqOW3opg1n9EhAgS0=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20251217-opnsense_wireguard/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20251217-opnsense_wireguard/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="OPNSense配置配置wireguard"><meta property="og:description" content="居然花了一晚上和一整天的时间来配置这个，真的是大出所料，在最浅显的地方栽了最大的跟头
+因为之前配置的时候都太痛快了，5分钟，然后放路由，就ok了，结果这次就结结实实翻车了！
+先说最大的原因：墙，无视墙的存在，必然被墙反噬，本来简单的事情也变得复杂。
+注意事项，普通配其实很简单，但是出乎意料的还有MTU等着你，因为VPS被强制改了MTU，所以这里还有一个坑，普通的不会遇到这个情况。
+记录一下过程：
+首先，OPNSense老版本的需要安装插件os-wireguard，但新版本已经内置wireguard了，完全不用安装
+左边栏看一下，有就OK，不用安装
+然后我们先去WireGuard的Instances，初始是空白的，那就按+号添加一个新的实例
+需要填写以下几项
+Name：WG-LC
+Instance是0，表示这个实例会是wg0这个网卡
+按齿轮Gen出sever的 Public key和Private key
+LIsten port：51821 采用非标端口，是UDP类型的端口
+Tunnel address：表明wg0网卡所在的网段，10.100.100.1是服务器的地址
+然后填完点击Save就OK了
+返回后，选中Enable WireGuard，然后Apply，就会启动服务了。
+接着去gen客户端配置：
+到 Peer generator，填入以下内容
+Name：客户端名称，起个ZRR，好认 Address：会自动按序列生成，这里是10.100.100.2/32 Allowed IPs：这里非常关键，一定不能填0.0.0.0，那相当于所有路由都走这个wg隧道了，所以一定要指定自己要走的路由，首先是wg0的网段10.100.100.0/24，然后是内网的192.168.99.0/24 然后一定要把Config的配置给拷贝出来备用 最后点击 Store and generate nexe的按钮，不要点Apply那个 然后就OK了，回到 Peers 页看看，多了一个ZRR的对端，就没问题
+继续，需要配置接口和防火墙规则
+左边栏，Interfaces –> Assignments
+会多出一个interface，wg0的，Description写大写的WG0，必须是这个，不要起其它的名字，WG0 –> wg0相呼应对照，不要乱写
+点击Add
+会变成三个并排，如果加多个实例，就WG1、WG2这么排下去，一目了然
+接着去WG0的interfaces
+选中：
+Enable 激活这个interface Lock 阻止这个interface被误删 其它都保持缺省 然后点击Save，然后Apply changes，让配置生效，就可以了
+去Firewall，Rules, WG0，会看到有13条继承的规则，我们新加一条"><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2025-12-17T09:00:01+08:00"><meta property="article:modified_time" content="2025-12-17T09:00:01+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="OPNSense配置配置wireguard"><meta name=twitter:description content="居然花了一晚上和一整天的时间来配置这个，真的是大出所料，在最浅显的地方栽了最大的跟头
+因为之前配置的时候都太痛快了，5分钟，然后放路由，就ok了，结果这次就结结实实翻车了！
+先说最大的原因：墙，无视墙的存在，必然被墙反噬，本来简单的事情也变得复杂。
+注意事项，普通配其实很简单，但是出乎意料的还有MTU等着你，因为VPS被强制改了MTU，所以这里还有一个坑，普通的不会遇到这个情况。
+记录一下过程：
+首先，OPNSense老版本的需要安装插件os-wireguard，但新版本已经内置wireguard了，完全不用安装
+左边栏看一下，有就OK，不用安装
+
+然后我们先去WireGuard的Instances，初始是空白的，那就按+号添加一个新的实例
+
+需要填写以下几项
+
+
+
+Name：WG-LC
+
+
+Instance是0，表示这个实例会是wg0这个网卡
+
+
+按齿轮Gen出sever的 Public key和Private key
+
+
+LIsten port：51821 采用非标端口，是UDP类型的端口
+
+
+Tunnel address：表明wg0网卡所在的网段，10.100.100.1是服务器的地址
+然后填完点击Save就OK了
+返回后，选中Enable WireGuard，然后Apply，就会启动服务了。
+
+
+
+接着去gen客户端配置：
+
+到 Peer generator，填入以下内容
+
+Name：客户端名称，起个ZRR，好认
+Address：会自动按序列生成，这里是10.100.100.2/32
+Allowed IPs：这里非常关键，一定不能填0.0.0.0，那相当于所有路由都走这个wg隧道了，所以一定要指定自己要走的路由，首先是wg0的网段10.100.100.0/24，然后是内网的192.168.99.0/24
+然后一定要把Config的配置给拷贝出来备用
+最后点击 Store and generate nexe的按钮，不要点Apply那个
+
+然后就OK了，回到 Peers 页看看，多了一个ZRR的对端，就没问题
+
+继续，需要配置接口和防火墙规则
+左边栏，Interfaces &ndash;> Assignments
+
+会多出一个interface，wg0的，Description写大写的WG0，必须是这个，不要起其它的名字，WG0 &ndash;> wg0相呼应对照，不要乱写
+点击Add
+
+会变成三个并排，如果加多个实例，就WG1、WG2这么排下去，一目了然
+
+接着去WG0的interfaces
+
+选中：
+
+Enable 激活这个interface
+Lock 阻止这个interface被误删
+其它都保持缺省
+
+
+然后点击Save，然后Apply changes，让配置生效，就可以了
+去Firewall，Rules, WG0，会看到有13条继承的规则，我们新加一条"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"OPNSense配置配置wireguard","item":"https://rendoumi.com/posts/20251217-opnsense_wireguard/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"OPNSense配置配置wireguard","name":"OPNSense配置配置wireguard","description":"居然花了一晚上和一整天的时间来配置这个，真的是大出所料，在最浅显的地方栽了最大的跟头\n因为之前配置的时候都太痛快了，5分钟，然后放路由，就ok了，结果这次就结结实实翻车了！\n先说最大的原因：墙，无视墙的存在，必然被墙反噬，本来简单的事情也变得复杂。\n注意事项，普通配其实很简单，但是出乎意料的还有MTU等着你，因为VPS被强制改了MTU，所以这里还有一个坑，普通的不会遇到这个情况。\n记录一下过程：\n首先，OPNSense老版本的需要安装插件os-wireguard，但新版本已经内置wireguard了，完全不用安装\n左边栏看一下，有就OK，不用安装\n然后我们先去WireGuard的Instances，初始是空白的，那就按+号添加一个新的实例\n需要填写以下几项\nName：WG-LC\nInstance是0，表示这个实例会是wg0这个网卡\n按齿轮Gen出sever的 Public key和Private key\nLIsten port：51821 采用非标端口，是UDP类型的端口\nTunnel address：表明wg0网卡所在的网段，10.100.100.1是服务器的地址\n然后填完点击Save就OK了\n返回后，选中Enable WireGuard，然后Apply，就会启动服务了。\n接着去gen客户端配置：\n到 Peer generator，填入以下内容\nName：客户端名称，起个ZRR，好认 Address：会自动按序列生成，这里是10.100.100.2/32 Allowed IPs：这里非常关键，一定不能填0.0.0.0，那相当于所有路由都走这个wg隧道了，所以一定要指定自己要走的路由，首先是wg0的网段10.100.100.0/24，然后是内网的192.168.99.0/24 然后一定要把Config的配置给拷贝出来备用 最后点击 Store and generate nexe的按钮，不要点Apply那个 然后就OK了，回到 Peers 页看看，多了一个ZRR的对端，就没问题\n继续，需要配置接口和防火墙规则\n左边栏，Interfaces \u0026ndash;\u0026gt; Assignments\n会多出一个interface，wg0的，Description写大写的WG0，必须是这个，不要起其它的名字，WG0 \u0026ndash;\u0026gt; wg0相呼应对照，不要乱写\n点击Add\n会变成三个并排，如果加多个实例，就WG1、WG2这么排下去，一目了然\n接着去WG0的interfaces\n选中：\nEnable 激活这个interface Lock 阻止这个interface被误删 其它都保持缺省 然后点击Save，然后Apply changes，让配置生效，就可以了\n去Firewall，Rules, WG0，会看到有13条继承的规则，我们新加一条\n","keywords":[],"articleBody":"居然花了一晚上和一整天的时间来配置这个，真的是大出所料，在最浅显的地方栽了最大的跟头\n因为之前配置的时候都太痛快了，5分钟，然后放路由，就ok了，结果这次就结结实实翻车了！\n先说最大的原因：墙，无视墙的存在，必然被墙反噬，本来简单的事情也变得复杂。\n注意事项，普通配其实很简单，但是出乎意料的还有MTU等着你，因为VPS被强制改了MTU，所以这里还有一个坑，普通的不会遇到这个情况。\n记录一下过程：\n首先，OPNSense老版本的需要安装插件os-wireguard，但新版本已经内置wireguard了，完全不用安装\n左边栏看一下，有就OK，不用安装\n然后我们先去WireGuard的Instances，初始是空白的，那就按+号添加一个新的实例\n需要填写以下几项\nName：WG-LC\nInstance是0，表示这个实例会是wg0这个网卡\n按齿轮Gen出sever的 Public key和Private key\nLIsten port：51821 采用非标端口，是UDP类型的端口\nTunnel address：表明wg0网卡所在的网段，10.100.100.1是服务器的地址\n然后填完点击Save就OK了\n返回后，选中Enable WireGuard，然后Apply，就会启动服务了。\n接着去gen客户端配置：\n到 Peer generator，填入以下内容\nName：客户端名称，起个ZRR，好认 Address：会自动按序列生成，这里是10.100.100.2/32 Allowed IPs：这里非常关键，一定不能填0.0.0.0，那相当于所有路由都走这个wg隧道了，所以一定要指定自己要走的路由，首先是wg0的网段10.100.100.0/24，然后是内网的192.168.99.0/24 然后一定要把Config的配置给拷贝出来备用 最后点击 Store and generate nexe的按钮，不要点Apply那个 然后就OK了，回到 Peers 页看看，多了一个ZRR的对端，就没问题\n继续，需要配置接口和防火墙规则\n左边栏，Interfaces –\u003e Assignments\n会多出一个interface，wg0的，Description写大写的WG0，必须是这个，不要起其它的名字，WG0 –\u003e wg0相呼应对照，不要乱写\n点击Add\n会变成三个并排，如果加多个实例，就WG1、WG2这么排下去，一目了然\n接着去WG0的interfaces\n选中：\nEnable 激活这个interface Lock 阻止这个interface被误删 其它都保持缺省 然后点击Save，然后Apply changes，让配置生效，就可以了\n去Firewall，Rules, WG0，会看到有13条继承的规则，我们新加一条\n新加入的规则，Source选择WG0 net，这样10.100.100.0/24会被带入，其它保持缺省，Save即可\n那会看到多了一条规则\n然后我们来看看Rules还有一个WireGuard(Group)\n点开看，里面只有继承的规则，而且写了这里面没有规则，那么所有进入的连接都会被拒绝，直到里面添加了规则\n这玩意是干什么用的呢？\n成组配置，比如说你有WG0、WG1、WG2、WG3若干个实例，那么相同的防火墙规则可以放入这个Group规则中，就不用配多次了\n生成最终配置的时候，组配置优先，然后是实例自己的单独配置，组合起来合成最终的配置，所以虽然组缺省是block策略，最后合起来就不是block了\n我们这个不管，不配。\n然后到Rules，WAN我们需要放行防火墙\n添加一条规则：\n填入以下几项：\nProtocol：UDP Destination：WAN address 这个如果你WAN口有多个地址，那就随便哪个都能连接上 Destination port range：51821 Description：Allow wireguard in 这个可以不填，填上是为了分清楚51821是谁开的 然后Save、Apply即可。\n这样通常就ok了，我们这里有个超常情况，那就是MTU，如果以上步骤，客户端填入之前拷贝的配置能用，就完结了\n不用看以下内容。\n我们还不行，因为机房改了MTU，所以必须适配\n我们需要加一条，MTU=1420才可以\n为啥呢？MTU正常是1500。\n1420 字节的 MTU 是 WireGuard 隧道上一个非常常见的推荐值，因为它能确保原始 1500 字节的 IP 包在经过 WireGuard 的 80 字节加密和头部封装后，不会在传输层（如通过 1500 MTU 的以太网）发生分片（Fragmentation）。\n完结了，完全没有预料到墙是禁止墙内直连墙外的wg服务器的，握手阶段就直接进行了打断。所以换了三台服务器还是不行，严重怀疑OPNSense配置错乱，之前配Nginx stream就是这样，然后想清理配置，最后的最后是找了一台新加披的服务器，一测就通了！\n于是，遥远的东方，墙遥遥领先。\n","wordCount":"109","inLanguage":"zh","datePublished":"2025-12-17T09:00:01+08:00","dateModified":"2025-12-17T09:00:01+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20251217-opnsense_wireguard/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">OPNSense配置配置wireguard
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2025-12-17 09:00:01 +0800 CST'>2025年12月17日</span></div></header><div class=post-content><p>居然花了一晚上和一整天的时间来配置这个，真的是大出所料，在最浅显的地方栽了最大的跟头</p><p>因为之前配置的时候都太痛快了，5分钟，然后放路由，就ok了，结果这次就结结实实翻车了！</p><p>先说最大的原因：墙，无视墙的存在，必然被墙反噬，本来简单的事情也变得复杂。</p><p>注意事项，普通配其实很简单，但是出乎意料的还有MTU等着你，因为VPS被强制改了MTU，所以这里还有一个坑，普通的不会遇到这个情况。</p><p>记录一下过程：</p><p>首先，OPNSense老版本的需要安装插件os-wireguard，但新版本已经内置wireguard了，完全不用安装</p><p>左边栏看一下，有就OK，不用安装</p><p><img alt=image-20251217140635467 loading=lazy src=/posts/20251217-opnsense_wireguard/image-20251217140635467.png></p><p>然后我们先去WireGuard的Instances，初始是空白的，那就按+号添加一个新的实例</p><p><img alt=image-20251217140952967 loading=lazy src=/posts/20251217-opnsense_wireguard/image-20251217140952967.png></p><p>需要填写以下几项</p><p><img alt=image-20251217141111022 loading=lazy src=/posts/20251217-opnsense_wireguard/image-20251217141111022.png></p><ul><li><p>Name：WG-LC</p></li><li><p>Instance是0，表示这个实例会是wg0这个网卡</p></li><li><p>按齿轮Gen出sever的 Public key和Private key</p></li><li><p>LIsten port：51821 采用非标端口，是UDP类型的端口</p></li><li><p>Tunnel address：表明wg0网卡所在的网段，10.100.100.1是服务器的地址</p><p>然后填完点击Save就OK了</p><p>返回后，选中Enable WireGuard，然后Apply，就会启动服务了。</p><p><img alt=image-20251217141311489 loading=lazy src=/posts/20251217-opnsense_wireguard/image-20251217141311489.png></p></li></ul><p>接着去gen客户端配置：</p><p><img alt=image-20251217141608725 loading=lazy src=/posts/20251217-opnsense_wireguard/image-20251217141608725.png></p><p>到 Peer generator，填入以下内容</p><ul><li>Name：客户端名称，起个ZRR，好认</li><li>Address：会自动按序列生成，这里是10.100.100.2/32</li><li>Allowed IPs：这里非常关键，一定不能填0.0.0.0，那相当于所有路由都走这个wg隧道了，所以一定要指定自己要走的路由，首先是wg0的网段10.100.100.0/24，然后是内网的192.168.99.0/24</li><li>然后一定要把Config的配置给拷贝出来备用</li><li>最后点击 Store and generate nexe的按钮，不要点Apply那个</li></ul><p>然后就OK了，回到 Peers 页看看，多了一个ZRR的对端，就没问题</p><p><img alt=image-20251217142110721 loading=lazy src=/posts/20251217-opnsense_wireguard/image-20251217142110721.png></p><p>继续，需要配置接口和防火墙规则</p><p>左边栏，Interfaces &ndash;> Assignments</p><p><img alt=image-20251217142807893 loading=lazy src=/posts/20251217-opnsense_wireguard/image-20251217142807893.png></p><p>会多出一个interface，wg0的，Description写大写的WG0，必须是这个，不要起其它的名字，WG0 &ndash;> wg0相呼应对照，不要乱写</p><p>点击Add</p><p><img alt=image-20251217142908316 loading=lazy src=/posts/20251217-opnsense_wireguard/image-20251217142908316.png></p><p>会变成三个并排，如果加多个实例，就WG1、WG2这么排下去，一目了然</p><p><img alt=image-20251217143151970 loading=lazy src=/posts/20251217-opnsense_wireguard/image-20251217143151970.png></p><p>接着去WG0的interfaces</p><p><img alt=image-20251217143824101 loading=lazy src=/posts/20251217-opnsense_wireguard/image-20251217143824101.png></p><p>选中：</p><ul><li>Enable 激活这个interface</li><li>Lock 阻止这个interface被误删</li><li>其它都保持缺省</li></ul><p><img alt=image-20251217144020653 loading=lazy src=/posts/20251217-opnsense_wireguard/image-20251217144020653.png></p><p>然后点击Save，然后Apply changes，让配置生效，就可以了</p><p>去Firewall，Rules, WG0，会看到有13条继承的规则，我们新加一条</p><p><img alt=image-20251217144326205 loading=lazy src=/posts/20251217-opnsense_wireguard/image-20251217144326205.png></p><p>新加入的规则，Source选择WG0 net，这样10.100.100.0/24会被带入，其它保持缺省，Save即可</p><p><img alt=image-20251217144449895 loading=lazy src=/posts/20251217-opnsense_wireguard/image-20251217144449895.png></p><p>那会看到多了一条规则</p><p><img alt=image-20251217144641182 loading=lazy src=/posts/20251217-opnsense_wireguard/image-20251217144641182.png></p><p>然后我们来看看Rules还有一个WireGuard(Group)</p><p><img alt=image-20251217144718915 loading=lazy src=/posts/20251217-opnsense_wireguard/image-20251217144718915.png></p><p>点开看，里面只有继承的规则，而且写了这里面没有规则，那么所有进入的连接都会被拒绝，直到里面添加了规则</p><p><img alt=image-20251217144812007 loading=lazy src=/posts/20251217-opnsense_wireguard/image-20251217144812007.png></p><p>这玩意是干什么用的呢？</p><p>成组配置，比如说你有WG0、WG1、WG2、WG3若干个实例，那么相同的防火墙规则可以放入这个Group规则中，就不用配多次了</p><p>生成最终配置的时候，组配置优先，然后是实例自己的单独配置，组合起来合成最终的配置，所以虽然组缺省是block策略，最后合起来就不是block了</p><p>我们这个不管，不配。</p><p>然后到Rules，WAN我们需要放行防火墙</p><p><img alt=image-20251217145258252 loading=lazy src=/posts/20251217-opnsense_wireguard/image-20251217145258252.png></p><p>添加一条规则：</p><p><img alt=image-20251217145531222 loading=lazy src=/posts/20251217-opnsense_wireguard/image-20251217145531222.png></p><p><img alt=image-20251217145626067 loading=lazy src=/posts/20251217-opnsense_wireguard/image-20251217145626067.png></p><p><img alt=image-20251217150003603 loading=lazy src=/posts/20251217-opnsense_wireguard/image-20251217150003603.png></p><p>填入以下几项：</p><ul><li>Protocol：UDP</li><li>Destination：WAN address 这个如果你WAN口有多个地址，那就随便哪个都能连接上</li><li>Destination port range：51821</li><li>Description：Allow wireguard in 这个可以不填，填上是为了分清楚51821是谁开的</li></ul><p>然后Save、Apply即可。</p><p>这样通常就ok了，我们这里有个超常情况，那就是MTU，如果以上步骤，客户端填入之前拷贝的配置能用，就完结了</p><p>不用看以下内容。</p><p>我们还不行，因为机房改了MTU，所以必须适配</p><p><img alt=image-20251217150623262 loading=lazy src=/posts/20251217-opnsense_wireguard/image-20251217150623262.png></p><p>我们需要加一条，MTU=1420才可以</p><p>为啥呢？MTU正常是1500。</p><p>1420 字节的 MTU 是 WireGuard 隧道上一个非常常见的推荐值，因为它能确保原始 1500 字节的 IP 包在经过 WireGuard 的 <strong>80 字节</strong>加密和头部封装后，不会在传输层（如通过 1500 MTU 的以太网）发生分片（Fragmentation）。</p><p>完结了，完全没有预料到墙是禁止墙内直连墙外的wg服务器的，握手阶段就直接进行了打断。所以换了三台服务器还是不行，严重怀疑OPNSense配置错乱，之前配Nginx stream就是这样，然后想清理配置，最后的最后是找了一台新加披的服务器，一测就通了！</p><p>于是，遥远的东方，墙遥遥领先。</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>
