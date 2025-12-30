@@ -7,8 +7,67 @@
     <generator>Hugo -- 0.147.3</generator>
     <language>zh</language>
     <copyright>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Wed, 17 Dec 2025 09:10:01 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 30 Dec 2025 09:10:01 +0800</lastBuildDate>
     <atom:link href="https://rendoumi.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Linux机器的历史命令查询和保存</title>
+      <link>https://rendoumi.com/posts/20251230-linux_comand_log/</link>
+      <pubDate>Tue, 30 Dec 2025 09:10:01 +0800</pubDate>
+      <guid>https://rendoumi.com/posts/20251230-linux_comand_log/</guid>
+      <description>&lt;p&gt;由于自己实际的工作机是一台Linux，更准确的说是Debian 12&lt;/p&gt;
+&lt;p&gt;多数时间就是通过WindTerm ssh登录到这台机器上，然后开多个窗口，开始干活&lt;/p&gt;
+&lt;p&gt;那么查看历史命令就变得很重要了，需要全部记录下来，随时进行查看&lt;/p&gt;
+&lt;p&gt;如果是公司的服务器，也可以加上这个，统一把命令历史发送到统一的一台日志服务器上，进行保管和审计&lt;/p&gt;
+&lt;p&gt;Any，都很重要，记录一下：&lt;/p&gt;
+&lt;p&gt;一、编辑 /etc/profile，新增三句&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;export&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;HISTTIMEFORMAT&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;%Y-%m-%d %H:%M &amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;export&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;PROMPT_COMMAND&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s1&#34;&gt;&amp;#39;RETRN_VAL=$?;logger -p local6.debug &amp;#34;$(whoami) [$$]: $(history 1 | sed &amp;#34;s/^[ ]*[0-9]\+[ ]*//&amp;#34;) [$RETRN_VAL]&amp;#34;&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;export&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;PROMPT_COMMAND&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;history -a;history -c;history -r;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$PROMPT_COMMAND&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;第一句是为了使用 history 的时候更好看一些&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20251230100755555&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20251230-linux_comand_log/image-20251230100755555.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;二三句是为了把历史命令发到日志服务器去&lt;/p&gt;
+&lt;p&gt;二、安装并设置rsyslog&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install rsyslog
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;vi  /etc/rsyslog.d/00-my-format.conf
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 定义一个简洁的时间格式模板：2025-12-30 09:50&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;$template&lt;/span&gt; MyPreciseFormat,&lt;span class=&#34;s2&#34;&gt;&amp;#34;%TIMESTAMP:1:10:date-rfc3339% %TIMESTAMP:12:16:date-rfc3339% %HOSTNAME% %syslogtag%%msg%\n&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 将这个模板设置为所有日志文件的默认格式&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;$ActionFileDefaultTemplate&lt;/span&gt; MyPreciseFormat
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;vi /etc/rsyslog.conf
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;...
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;auth,authpriv.*                 /var/log/auth.log
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;cron.*                          -/var/log/cron.log
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;kern.*                          -/var/log/kern.log
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;mail.*                          -/var/log/mail.log
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;user.*                          -/var/log/user.log
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;local6.*                        /var/log/commands.log
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;...
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;systemctl &lt;span class=&#34;nb&#34;&gt;enable&lt;/span&gt; rsyslog
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;systemctl restart rsyslog
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;如上，就会把命令都发送到 /var/log/commands.log&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>关于学习，关于AI</title>
+      <link>https://rendoumi.com/posts/20251230-learn/</link>
+      <pubDate>Tue, 30 Dec 2025 09:10:01 +0800</pubDate>
+      <guid>https://rendoumi.com/posts/20251230-learn/</guid>
+      <description>&lt;h4 id=&#34;devto-上面有一篇深度好文最近在孜孜不倦的学习ai感觉什么cluaude-codecodexgemini各种模型纷至沓来忙乱且自顾不暇感觉很慌乱看到了这篇好文顿时安静下来慢就是快慢慢来&#34;&gt;Dev.to 上面有一篇深度好文，最近在孜孜不倦的学习AI，感觉什么Cluaude code、Codex、Gemini，各种模型纷至沓来，忙乱且自顾不暇。感觉很慌乱，看到了这篇好文，顿时安静下来。慢就是快，慢慢来！&lt;/h4&gt;
+&lt;h1 id=&#34;coding-without-pressure-how-slowing-down-helped-me-learn-faster&#34;&gt;Coding Without Pressure: How Slowing Down Helped Me Learn Faster&lt;/h1&gt;
+&lt;p&gt;​&lt;/p&gt;
+&lt;p&gt;For a long time, I thought learning to code had to feel intense.
+Daily goals. Long hours. Constant progress.
+If I wasn’t exhausted, I felt like I wasn’t doing enough.&lt;/p&gt;
+&lt;p&gt;So I pushed harder.
+More tutorials. More projects. More pressure.&lt;/p&gt;
+&lt;p&gt;And somehow… I learned &lt;em&gt;less&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;It took me a while to realize this simple truth&amp;hellip;
+&lt;strong&gt;I wasn’t failing because I was slow; I was failing because I wouldn’t let myself slow down.&lt;/strong&gt;&lt;/p&gt;</description>
+    </item>
     <item>
       <title>AWS的迁移替换</title>
       <link>https://rendoumi.com/posts/20251217-aws_migrate/</link>
