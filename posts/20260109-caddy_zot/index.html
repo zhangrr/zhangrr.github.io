@@ -1,0 +1,194 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3988508441804851" crossorigin=anonymous></script><title>Caddy配合zot实现ip白名单登录docker registry | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='公司有两个docker的registry，一个是在公司内网，一个是在hk的公网
+那jenkins打镜像的时候，FROM底包是在hk，打出镜像后，又要推到公司的内网，这样jenkins的pipeline看起来就很痛苦
+打包登录公网一次，打包的地址是内网的harbor，推包再登录内网一次，脚本如下：
+docker.withRegistry("https://hk.rendoumi.com", "hk-user") {
+  image = docker.build("harbor.rendoumi.dev/${IMAGE_NAME}:${TAG}", "${PROJECT_PATH}")
+}
+
+docker.withRegistry("https://harbor.rendoumi.dev", "harbor-user") {
+  if (image) { image.push() }
+}
+流水线不多的话这么还行得通，流水线很多，就得改个一溜够
+那就想如果登录hk的服务器使用白名单机制，公司的jenkins worknodes服务器去访问，就不用登录，直接访问，就好了
+那公司私网的registry是用的harbor搭的，公网的registry用的caddy+zot搭建
+问了下 Gemini， 结果非常的荒谬，居然出现幻觉，呓推出了zot根本不存在的ip白名单限制规则，简直了！！！
+后来跑到 zot 的官网看了半天文档，发现不行，根本没有这种配置
+那就只能从Caddy入手了，从公司jenkins worknode出来的ip先到Caddy
+然后Caddy模拟登录信息，给后端的zot发请求，就可以通过了
+做法如下：
+首先把 hk registry 的用户名和密码生成base64字串，得到XXXXX的BASE64字符串
+echo -n "user1:pass1" | base64 
+然后修改Caddyfile，原有的配置
+hk.rendoumi.com {
+    reverse_proxy 127.0.0.1:5000 {
+        header_up X-Real-IP {remote_host}
+        transport http {
+            dial_timeout 15s
+            response_header_timeout 300s
+        }
+    }
+}
+改成如下：
+hk.rendoumi.com {
+    @trusted {
+        remote_ip 111.222.333.444
+    }
+
+    handle @trusted {
+        reverse_proxy 127.0.0.1:5000 {
+            header_up Authorization "Basic XXXXXXXXXXXXXXXX"
+            header_up X-Real-IP {remote_host}
+            transport http {
+                dial_timeout 15s
+                response_header_timeout 300s
+            }
+        }
+    }
+
+    handle {
+        reverse_proxy 127.0.0.1:5000 {
+            header_up X-Real-IP {remote_host}
+            transport http {
+                dial_timeout 15s
+                response_header_timeout 300s
+            }
+        }
+    }
+}
+解释一下，上面如果是 111.222.333.444 的ip来访问，那就模拟登录的 Head 头信息，如果不是，就直接放行，由后端的zot进行验证'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20260109-caddy_zot/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.5d8a858b4ad07d913988e10d3c3dbc8c171f45316a396de8a60d67f44840812d.css integrity="sha256-XYqFi0rQfZE5iOENPD28jBcfRTFqOW3opg1n9EhAgS0=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20260109-caddy_zot/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20260109-caddy_zot/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="Caddy配合zot实现ip白名单登录docker registry"><meta property="og:description" content='公司有两个docker的registry，一个是在公司内网，一个是在hk的公网
+那jenkins打镜像的时候，FROM底包是在hk，打出镜像后，又要推到公司的内网，这样jenkins的pipeline看起来就很痛苦
+打包登录公网一次，打包的地址是内网的harbor，推包再登录内网一次，脚本如下：
+docker.withRegistry("https://hk.rendoumi.com", "hk-user") { image = docker.build("harbor.rendoumi.dev/${IMAGE_NAME}:${TAG}", "${PROJECT_PATH}") } docker.withRegistry("https://harbor.rendoumi.dev", "harbor-user") { if (image) { image.push() } } 流水线不多的话这么还行得通，流水线很多，就得改个一溜够
+那就想如果登录hk的服务器使用白名单机制，公司的jenkins worknodes服务器去访问，就不用登录，直接访问，就好了
+那公司私网的registry是用的harbor搭的，公网的registry用的caddy+zot搭建
+问了下 Gemini， 结果非常的荒谬，居然出现幻觉，呓推出了zot根本不存在的ip白名单限制规则，简直了！！！
+后来跑到 zot 的官网看了半天文档，发现不行，根本没有这种配置
+那就只能从Caddy入手了，从公司jenkins worknode出来的ip先到Caddy
+然后Caddy模拟登录信息，给后端的zot发请求，就可以通过了
+做法如下：
+首先把 hk registry 的用户名和密码生成base64字串，得到XXXXX的BASE64字符串
+echo -n "user1:pass1" | base64 然后修改Caddyfile，原有的配置
+hk.rendoumi.com { reverse_proxy 127.0.0.1:5000 { header_up X-Real-IP {remote_host} transport http { dial_timeout 15s response_header_timeout 300s } } } 改成如下：
+hk.rendoumi.com { @trusted { remote_ip 111.222.333.444 } handle @trusted { reverse_proxy 127.0.0.1:5000 { header_up Authorization "Basic XXXXXXXXXXXXXXXX" header_up X-Real-IP {remote_host} transport http { dial_timeout 15s response_header_timeout 300s } } } handle { reverse_proxy 127.0.0.1:5000 { header_up X-Real-IP {remote_host} transport http { dial_timeout 15s response_header_timeout 300s } } } } 解释一下，上面如果是 111.222.333.444 的ip来访问，那就模拟登录的 Head 头信息，如果不是，就直接放行，由后端的zot进行验证'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2026-01-09T09:00:01+08:00"><meta property="article:modified_time" content="2026-01-09T09:00:01+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Caddy配合zot实现ip白名单登录docker registry"><meta name=twitter:description content='公司有两个docker的registry，一个是在公司内网，一个是在hk的公网
+那jenkins打镜像的时候，FROM底包是在hk，打出镜像后，又要推到公司的内网，这样jenkins的pipeline看起来就很痛苦
+打包登录公网一次，打包的地址是内网的harbor，推包再登录内网一次，脚本如下：
+docker.withRegistry("https://hk.rendoumi.com", "hk-user") {
+  image = docker.build("harbor.rendoumi.dev/${IMAGE_NAME}:${TAG}", "${PROJECT_PATH}")
+}
+
+docker.withRegistry("https://harbor.rendoumi.dev", "harbor-user") {
+  if (image) { image.push() }
+}
+流水线不多的话这么还行得通，流水线很多，就得改个一溜够
+那就想如果登录hk的服务器使用白名单机制，公司的jenkins worknodes服务器去访问，就不用登录，直接访问，就好了
+那公司私网的registry是用的harbor搭的，公网的registry用的caddy+zot搭建
+问了下 Gemini， 结果非常的荒谬，居然出现幻觉，呓推出了zot根本不存在的ip白名单限制规则，简直了！！！
+后来跑到 zot 的官网看了半天文档，发现不行，根本没有这种配置
+那就只能从Caddy入手了，从公司jenkins worknode出来的ip先到Caddy
+然后Caddy模拟登录信息，给后端的zot发请求，就可以通过了
+做法如下：
+首先把 hk registry 的用户名和密码生成base64字串，得到XXXXX的BASE64字符串
+echo -n "user1:pass1" | base64 
+然后修改Caddyfile，原有的配置
+hk.rendoumi.com {
+    reverse_proxy 127.0.0.1:5000 {
+        header_up X-Real-IP {remote_host}
+        transport http {
+            dial_timeout 15s
+            response_header_timeout 300s
+        }
+    }
+}
+改成如下：
+hk.rendoumi.com {
+    @trusted {
+        remote_ip 111.222.333.444
+    }
+
+    handle @trusted {
+        reverse_proxy 127.0.0.1:5000 {
+            header_up Authorization "Basic XXXXXXXXXXXXXXXX"
+            header_up X-Real-IP {remote_host}
+            transport http {
+                dial_timeout 15s
+                response_header_timeout 300s
+            }
+        }
+    }
+
+    handle {
+        reverse_proxy 127.0.0.1:5000 {
+            header_up X-Real-IP {remote_host}
+            transport http {
+                dial_timeout 15s
+                response_header_timeout 300s
+            }
+        }
+    }
+}
+解释一下，上面如果是 111.222.333.444 的ip来访问，那就模拟登录的 Head 头信息，如果不是，就直接放行，由后端的zot进行验证'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"Caddy配合zot实现ip白名单登录docker registry","item":"https://rendoumi.com/posts/20260109-caddy_zot/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Caddy配合zot实现ip白名单登录docker registry","name":"Caddy配合zot实现ip白名单登录docker registry","description":"公司有两个docker的registry，一个是在公司内网，一个是在hk的公网\n那jenkins打镜像的时候，FROM底包是在hk，打出镜像后，又要推到公司的内网，这样jenkins的pipeline看起来就很痛苦\n打包登录公网一次，打包的地址是内网的harbor，推包再登录内网一次，脚本如下：\ndocker.withRegistry(\u0026#34;https://hk.rendoumi.com\u0026#34;, \u0026#34;hk-user\u0026#34;) { image = docker.build(\u0026#34;harbor.rendoumi.dev/${IMAGE_NAME}:${TAG}\u0026#34;, \u0026#34;${PROJECT_PATH}\u0026#34;) } docker.withRegistry(\u0026#34;https://harbor.rendoumi.dev\u0026#34;, \u0026#34;harbor-user\u0026#34;) { if (image) { image.push() } } 流水线不多的话这么还行得通，流水线很多，就得改个一溜够\n那就想如果登录hk的服务器使用白名单机制，公司的jenkins worknodes服务器去访问，就不用登录，直接访问，就好了\n那公司私网的registry是用的harbor搭的，公网的registry用的caddy+zot搭建\n问了下 Gemini， 结果非常的荒谬，居然出现幻觉，呓推出了zot根本不存在的ip白名单限制规则，简直了！！！\n后来跑到 zot 的官网看了半天文档，发现不行，根本没有这种配置\n那就只能从Caddy入手了，从公司jenkins worknode出来的ip先到Caddy\n然后Caddy模拟登录信息，给后端的zot发请求，就可以通过了\n做法如下：\n首先把 hk registry 的用户名和密码生成base64字串，得到XXXXX的BASE64字符串\necho -n \u0026#34;user1:pass1\u0026#34; | base64 然后修改Caddyfile，原有的配置\nhk.rendoumi.com { reverse_proxy 127.0.0.1:5000 { header_up X-Real-IP {remote_host} transport http { dial_timeout 15s response_header_timeout 300s } } } 改成如下：\nhk.rendoumi.com { @trusted { remote_ip 111.222.333.444 } handle @trusted { reverse_proxy 127.0.0.1:5000 { header_up Authorization \u0026#34;Basic XXXXXXXXXXXXXXXX\u0026#34; header_up X-Real-IP {remote_host} transport http { dial_timeout 15s response_header_timeout 300s } } } handle { reverse_proxy 127.0.0.1:5000 { header_up X-Real-IP {remote_host} transport http { dial_timeout 15s response_header_timeout 300s } } } } 解释一下，上面如果是 111.222.333.444 的ip来访问，那就模拟登录的 Head 头信息，如果不是，就直接放行，由后端的zot进行验证\n","keywords":[],"articleBody":"公司有两个docker的registry，一个是在公司内网，一个是在hk的公网\n那jenkins打镜像的时候，FROM底包是在hk，打出镜像后，又要推到公司的内网，这样jenkins的pipeline看起来就很痛苦\n打包登录公网一次，打包的地址是内网的harbor，推包再登录内网一次，脚本如下：\ndocker.withRegistry(\"https://hk.rendoumi.com\", \"hk-user\") { image = docker.build(\"harbor.rendoumi.dev/${IMAGE_NAME}:${TAG}\", \"${PROJECT_PATH}\") } docker.withRegistry(\"https://harbor.rendoumi.dev\", \"harbor-user\") { if (image) { image.push() } } 流水线不多的话这么还行得通，流水线很多，就得改个一溜够\n那就想如果登录hk的服务器使用白名单机制，公司的jenkins worknodes服务器去访问，就不用登录，直接访问，就好了\n那公司私网的registry是用的harbor搭的，公网的registry用的caddy+zot搭建\n问了下 Gemini， 结果非常的荒谬，居然出现幻觉，呓推出了zot根本不存在的ip白名单限制规则，简直了！！！\n后来跑到 zot 的官网看了半天文档，发现不行，根本没有这种配置\n那就只能从Caddy入手了，从公司jenkins worknode出来的ip先到Caddy\n然后Caddy模拟登录信息，给后端的zot发请求，就可以通过了\n做法如下：\n首先把 hk registry 的用户名和密码生成base64字串，得到XXXXX的BASE64字符串\necho -n \"user1:pass1\" | base64 然后修改Caddyfile，原有的配置\nhk.rendoumi.com { reverse_proxy 127.0.0.1:5000 { header_up X-Real-IP {remote_host} transport http { dial_timeout 15s response_header_timeout 300s } } } 改成如下：\nhk.rendoumi.com { @trusted { remote_ip 111.222.333.444 } handle @trusted { reverse_proxy 127.0.0.1:5000 { header_up Authorization \"Basic XXXXXXXXXXXXXXXX\" header_up X-Real-IP {remote_host} transport http { dial_timeout 15s response_header_timeout 300s } } } handle { reverse_proxy 127.0.0.1:5000 { header_up X-Real-IP {remote_host} transport http { dial_timeout 15s response_header_timeout 300s } } } } 解释一下，上面如果是 111.222.333.444 的ip来访问，那就模拟登录的 Head 头信息，如果不是，就直接放行，由后端的zot进行验证\n那相应的，后端的zot也必须采用httpasswd的认证方式，zot的config.json配置如下：\n{ \"distSpecVersion\": \"1.0.0-dev\", \"http\": { \"address\": \"127.0.0.1\", \"port\": \"5000\", \"compat\": [\"docker2s2\"], \"auth\": { \"htpasswd\": { \"path\": \"/zot/htpasswd\" } } }, \"storage\": { \"rootDirectory\": \"/zot/registry\" } } 这样就OK了\n","wordCount":"145","inLanguage":"zh","datePublished":"2026-01-09T09:00:01+08:00","dateModified":"2026-01-09T09:00:01+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20260109-caddy_zot/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">Caddy配合zot实现ip白名单登录docker registry
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2026-01-09 09:00:01 +0800 CST'>2026年1月9日</span></div></header><div class=post-content><p>公司有两个docker的registry，一个是在公司内网，一个是在hk的公网</p><p>那jenkins打镜像的时候，FROM底包是在hk，打出镜像后，又要推到公司的内网，这样jenkins的pipeline看起来就很痛苦</p><p>打包登录公网一次，打包的地址是内网的harbor，推包再登录内网一次，脚本如下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>docker.withRegistry<span class=o>(</span><span class=s2>&#34;https://hk.rendoumi.com&#34;</span>, <span class=s2>&#34;hk-user&#34;</span><span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>  <span class=nv>image</span> <span class=o>=</span> docker.build<span class=o>(</span><span class=s2>&#34;harbor.rendoumi.dev/</span><span class=si>${</span><span class=nv>IMAGE_NAME</span><span class=si>}</span><span class=s2>:</span><span class=si>${</span><span class=nv>TAG</span><span class=si>}</span><span class=s2>&#34;</span>, <span class=s2>&#34;</span><span class=si>${</span><span class=nv>PROJECT_PATH</span><span class=si>}</span><span class=s2>&#34;</span><span class=o>)</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>docker.withRegistry<span class=o>(</span><span class=s2>&#34;https://harbor.rendoumi.dev&#34;</span>, <span class=s2>&#34;harbor-user&#34;</span><span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=o>(</span>image<span class=o>)</span> <span class=o>{</span> image.push<span class=o>()</span> <span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></div><p>流水线不多的话这么还行得通，流水线很多，就得改个一溜够</p><p>那就想如果登录hk的服务器使用白名单机制，公司的jenkins worknodes服务器去访问，就不用登录，直接访问，就好了</p><p>那公司私网的registry是用的harbor搭的，公网的registry用的caddy+zot搭建</p><p>问了下 Gemini， 结果非常的荒谬，居然出现幻觉，呓推出了zot根本不存在的ip白名单限制规则，简直了！！！</p><p>后来跑到 zot 的官网看了半天文档，发现不行，根本没有这种配置</p><p>那就只能从Caddy入手了，从公司jenkins worknode出来的ip先到Caddy</p><p>然后Caddy模拟登录信息，给后端的zot发请求，就可以通过了</p><p>做法如下：</p><p>首先把 hk registry 的用户名和密码生成base64字串，得到XXXXX的BASE64字符串</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>echo</span> -n <span class=s2>&#34;user1:pass1&#34;</span> <span class=p>|</span> base64 
+</span></span></code></pre></div><p>然后修改Caddyfile，原有的配置</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>hk.rendoumi.com <span class=o>{</span>
+</span></span><span class=line><span class=cl>    reverse_proxy 127.0.0.1:5000 <span class=o>{</span>
+</span></span><span class=line><span class=cl>        header_up X-Real-IP <span class=o>{</span>remote_host<span class=o>}</span>
+</span></span><span class=line><span class=cl>        transport http <span class=o>{</span>
+</span></span><span class=line><span class=cl>            dial_timeout 15s
+</span></span><span class=line><span class=cl>            response_header_timeout 300s
+</span></span><span class=line><span class=cl>        <span class=o>}</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></div><p>改成如下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>hk.rendoumi.com <span class=o>{</span>
+</span></span><span class=line><span class=cl>    @trusted <span class=o>{</span>
+</span></span><span class=line><span class=cl>        remote_ip 111.222.333.444
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    handle @trusted <span class=o>{</span>
+</span></span><span class=line><span class=cl>        reverse_proxy 127.0.0.1:5000 <span class=o>{</span>
+</span></span><span class=line><span class=cl>            header_up Authorization <span class=s2>&#34;Basic XXXXXXXXXXXXXXXX&#34;</span>
+</span></span><span class=line><span class=cl>            header_up X-Real-IP <span class=o>{</span>remote_host<span class=o>}</span>
+</span></span><span class=line><span class=cl>            transport http <span class=o>{</span>
+</span></span><span class=line><span class=cl>                dial_timeout 15s
+</span></span><span class=line><span class=cl>                response_header_timeout 300s
+</span></span><span class=line><span class=cl>            <span class=o>}</span>
+</span></span><span class=line><span class=cl>        <span class=o>}</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    handle <span class=o>{</span>
+</span></span><span class=line><span class=cl>        reverse_proxy 127.0.0.1:5000 <span class=o>{</span>
+</span></span><span class=line><span class=cl>            header_up X-Real-IP <span class=o>{</span>remote_host<span class=o>}</span>
+</span></span><span class=line><span class=cl>            transport http <span class=o>{</span>
+</span></span><span class=line><span class=cl>                dial_timeout 15s
+</span></span><span class=line><span class=cl>                response_header_timeout 300s
+</span></span><span class=line><span class=cl>            <span class=o>}</span>
+</span></span><span class=line><span class=cl>        <span class=o>}</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></div><p>解释一下，上面如果是 111.222.333.444 的ip来访问，那就模拟登录的 Head 头信息，如果不是，就直接放行，由后端的zot进行验证</p><p>那相应的，后端的zot也必须采用httpasswd的认证方式，zot的config.json配置如下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=o>{</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;distSpecVersion&#34;</span>: <span class=s2>&#34;1.0.0-dev&#34;</span>,
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;http&#34;</span>: <span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;address&#34;</span>: <span class=s2>&#34;127.0.0.1&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;port&#34;</span>: <span class=s2>&#34;5000&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;compat&#34;</span>: <span class=o>[</span><span class=s2>&#34;docker2s2&#34;</span><span class=o>]</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;auth&#34;</span>: <span class=o>{</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;htpasswd&#34;</span>: <span class=o>{</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;path&#34;</span>: <span class=s2>&#34;/zot/htpasswd&#34;</span>
+</span></span><span class=line><span class=cl>      <span class=o>}</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>  <span class=o>}</span>,
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;storage&#34;</span>: <span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;rootDirectory&#34;</span>: <span class=s2>&#34;/zot/registry&#34;</span>
+</span></span><span class=line><span class=cl>  <span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></div><p>这样就OK了</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>
