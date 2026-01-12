@@ -7,8 +7,41 @@
     <generator>Hugo -- 0.147.3</generator>
     <language>zh</language>
     <copyright>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Mon, 12 Jan 2026 09:00:00 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 12 Jan 2026 09:00:01 +0800</lastBuildDate>
     <atom:link href="https://rendoumi.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>claude code的Ralph Wiggum编程模式和技巧</title>
+      <link>https://rendoumi.com/posts/20260112-claude_ralph_wiggum/</link>
+      <pubDate>Mon, 12 Jan 2026 09:00:01 +0800</pubDate>
+      <guid>https://rendoumi.com/posts/20260112-claude_ralph_wiggum/</guid>
+      <description>&lt;p&gt;拉尔夫·维古姆（Ralph Wiggum）：没完没了的 Claude 代码循环&lt;/p&gt;
+&lt;p&gt;这其实是个梗：&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Ralph Wiggum&lt;/strong&gt; 是动画片《辛普森一家》中那个总是搞不清状况、智商不太在线的孩子。他最著名的梗图是 &lt;strong&gt;&amp;ldquo;I&amp;rsquo;m helping&amp;rdquo;（我在帮忙）&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20260112092557711&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20260112-claude_ralph_wiggum/image-20260112092557711.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;我们在calude-code源代码仓库中可以看到这个插件&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://github.com/anthropics/claude-code/tree/main/plugins/ralph-wiggum&#34;&gt;https://github.com/anthropics/claude-code/tree/main/plugins/ralph-wiggum&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;核心概念：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# You run ONCE:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;/ralph-loop &lt;span class=&#34;s2&#34;&gt;&amp;#34;Your task description&amp;#34;&lt;/span&gt; --completion-promise &lt;span class=&#34;s2&#34;&gt;&amp;#34;DONE&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# Then Claude Code automatically:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 1. Works on the task&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 2. Tries to exit&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 3. Stop hook blocks exit&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 4. Stop hook feeds the SAME prompt back&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 5. Repeat until completion&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;翻译一下：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 执行命令&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;/ralph-loop &lt;span class=&#34;s2&#34;&gt;&amp;#34;Your task description&amp;#34;&lt;/span&gt; --completion-promise &lt;span class=&#34;s2&#34;&gt;&amp;#34;DONE&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 接下来 Claude Code 将自动执行以下操作：&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 1. 处理/执行该任务&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 2. 尝试退出程序&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 3. “停止挂钩（Stop hook）”拦截并阻止退出&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 4. “停止挂钩”将完全相同的提示词（prompt）重新传回给系统&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 5. 重复上述循环，直到任务完成（即出现 &amp;#34;DONE&amp;#34;）&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;说白了就是Claude执行了一轮后要退出，然后拉尔夫就蹦出来阻止，没完；再跑一轮，又想退出，又被阻止，如此往复。&lt;/p&gt;</description>
+    </item>
     <item>
       <title>claude code的session历史回顾和继续工具</title>
       <link>https://rendoumi.com/posts/20260112-claude_history/</link>
@@ -16,8 +49,8 @@
       <guid>https://rendoumi.com/posts/20260112-claude_history/</guid>
       <description>&lt;p&gt;现在基本Claude code 和 Codex 和 Gemini 混用&lt;/p&gt;
 &lt;p&gt;运维本身的项目也不会怎么大&lt;/p&gt;
-&lt;p&gt;用Claude的时候，开了很多项目去学习、研究；那历史和切回来继续就很重要的&lt;/p&gt;
-&lt;p&gt;搓了了一个工具claude-history，可以观看历史，并且生成命令，可以在以前的session基础上继续&lt;/p&gt;
+&lt;p&gt;用Claude的时候，开了很多项目去学习、研究；那历史和切回来继续研究就变得很重要，每次如果都从头开始分析，那崩溃了&lt;/p&gt;
+&lt;p&gt;手搓了一个工具claude-history，可以观看历史，并且生成命令，可以在以前的session基础上继续研究&lt;/p&gt;
 &lt;p&gt;&lt;a href=&#34;http://github.com/zhangrr/claude-history&#34;&gt;http://github.com/zhangrr/claude-history&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;纯用Go，前后端一起，监听端口是8888&lt;/p&gt;
 &lt;p&gt;&lt;img alt=&#34;image-20260112091316727&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20260112-claude_history/image-20260112091316727.png&#34;&gt;&lt;/p&gt;
