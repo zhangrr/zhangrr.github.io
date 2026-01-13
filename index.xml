@@ -7,8 +7,89 @@
     <generator>Hugo -- 0.147.3</generator>
     <language>zh</language>
     <copyright>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Mon, 12 Jan 2026 09:00:01 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 13 Jan 2026 09:00:01 +0800</lastBuildDate>
     <atom:link href="https://rendoumi.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>一个轻量级超级省钱的lxc平台containarium</title>
+      <link>https://rendoumi.com/posts/20260113-lxc_containarium/</link>
+      <pubDate>Tue, 13 Jan 2026 09:00:01 +0800</pubDate>
+      <guid>https://rendoumi.com/posts/20260113-lxc_containarium/</guid>
+      <description>&lt;p&gt;现在的爱好是天天逛github.com，里面真的是有非常多的好项目&lt;/p&gt;
+&lt;p&gt;哪个好就clone下来，让Cluade Code来分析分析&lt;/p&gt;
+&lt;p&gt;推荐一个好的lxc容器平台&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;https://github.com/FootprintAI/Containarium
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;之所有说它好，是因为10年前，初到叮当的时候，就搭了一套LXC的容器平台，那时候Docker才方兴未艾，ZFS好像也才刚起步&lt;/p&gt;
+&lt;p&gt;找了三台特别普通的Dell R720 2U服务器，然后搭了LXC，一台物理机虚拟60台lxc容器，然后同事们用了大概6年，没有人意识到这只是个容器，并非完整虚机，但都当做完整虚机再使用，直到运行到第6年，大数据的同事在上面跑了若干elasticsearch，然后就拉跨了。原因是用的人过多，而es又认为有服务器的一半内存可用，一旦灌输数据，就把服务器拖死了。&lt;/p&gt;
+&lt;p&gt;这个项目也是相同的想法，也用lxc，然后用ZFS来当存储，这个主意很绝妙&lt;/p&gt;
+&lt;p&gt;完成度相当的高，用terraform来搭建底层支撑平台。&lt;/p&gt;
+&lt;p&gt;看看claude code的分析：&lt;/p&gt;
+&lt;p&gt;● 现在我已经获得了足够的信息来进行详细分析。让我基于收集的信息为您提供全面的项目可行性评估。&lt;/p&gt;
+&lt;p&gt;Containarium 项目详细分析与可行性评估&lt;/p&gt;
+&lt;p&gt;📋 项目概述&lt;/p&gt;
+&lt;p&gt;Containarium 是一个基于 LXC 系统容器的多租户开发环境平台,旨在通过在单个云虚拟机上运行数百个隔离的 Linux 开发环境,大幅降低基础设施成本(可节省高达92%)。&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;✅ 核心优势与创新点&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;成本效益极高&lt;/li&gt;
+&lt;/ol&gt;
+&lt;ul&gt;
+&lt;li&gt;资源密度: 相比传统 VM,每个容器仅消耗 100-500MB RAM,密度提升 10-50倍&lt;/li&gt;
+&lt;li&gt;Spot 实例: 利用 GCP Spot 实例可节省 76% 成本&lt;/li&gt;
+&lt;li&gt;实际数字: 50 用户从 $1,250/月 降至 $98/月 (92% 节省)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ol start=&#34;2&#34;&gt;
+&lt;li&gt;技术架构扎实&lt;/li&gt;
+&lt;/ol&gt;
+&lt;ul&gt;
+&lt;li&gt;LXC vs Docker: 选择系统容器(LXC)而非应用容器,更适合多用户开发环境&lt;/li&gt;
+&lt;li&gt;ZFS 存储: 支持压缩、配额、快照,数据在 Spot 实例重启后完全保留&lt;/li&gt;
+&lt;li&gt;安全多租户:
+&lt;ul&gt;
+&lt;li&gt;每个用户独立的 jump server 账户(proxy-only,无 shell 访问)&lt;/li&gt;
+&lt;li&gt;unprivileged 容器隔离&lt;/li&gt;
+&lt;li&gt;fail2ban + SSH 审计日志&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ol start=&#34;3&#34;&gt;
+&lt;li&gt;工程质量高&lt;/li&gt;
+&lt;/ol&gt;
+&lt;ul&gt;
+&lt;li&gt;类型安全: 使用 Protobuf/gRPC 定义接口&lt;/li&gt;
+&lt;li&gt;测试完备: 包含基于 Terraform 的 E2E 测试,验证 ZFS 持久化&lt;/li&gt;
+&lt;li&gt;文档完善: README 长达 2400+ 行,包含详细架构图、使用指南、FAQ&lt;/li&gt;
+&lt;li&gt;生产就绪: 支持 mTLS 远程管理、水平扩展、负载均衡&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;🎯 技术可行性分析&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Google学生号的申请</title>
+      <link>https://rendoumi.com/posts/20260113_google_pro/</link>
+      <pubDate>Tue, 13 Jan 2026 09:00:00 +0800</pubDate>
+      <guid>https://rendoumi.com/posts/20260113_google_pro/</guid>
+      <description>&lt;p&gt;Google 学生号的申请，备份一下，省的忘记了：&lt;/p&gt;
+&lt;p&gt;首先前提是要有一个纯净的美国IP，可打开下面网址先看看纯净不纯净&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;ping0.cc
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;然后打开网页看看有没有权限&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;https://gemini.google.com/students
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;然后不要乱点，一定要右键复制链接&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20260113113304335&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20260113_google_pro/image-20260113113304335.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;但是奇怪的是，我这边直接点了就过了，也是奇葩&lt;/p&gt;
+&lt;p&gt;如果能Copy链接，就拷贝了&lt;/p&gt;
+&lt;p&gt;然后到&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;https://batch.1key.me
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;打开验证通过&lt;/p&gt;
+&lt;p&gt;然后刷新页面，绑卡，就OK了。&lt;/p&gt;
+&lt;p&gt;然后啊，需要打开&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;https://aistudio.google.com/?authuser&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;3&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;拿到缺省项目的key，然后&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;export&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;GEMINI_API_KEY&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;你的API_KEY&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;尝试gemini登录一下，问问它是什么模型&lt;/p&gt;
+&lt;p&gt;最后别忘记在主号里面，管理会员资格，管理会员方案，打开共享&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20260113140511689&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20260113_google_pro/image-20260113140511689.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;就可以放心的登录antigravity了&lt;/p&gt;</description>
+    </item>
     <item>
       <title>claude code的Ralph Wiggum编程模式和技巧</title>
       <link>https://rendoumi.com/posts/20260112-claude_ralph_wiggum/</link>
