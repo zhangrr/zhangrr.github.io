@@ -1,0 +1,243 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3988508441804851" crossorigin=anonymous></script><title>Antigravity的使用注意 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='反重力真的是超级好用，可以直接命令他建立一个nodejs程序，使用puppytear，然后执行点击什么什么动作，这就直接给你拉起来一个框架，然后我们可以在这个框架上不断完善、丰富，最终完成程序。
+那使用它还真的是有点门槛，首先必须要有一个纯净的IP，美国的
+然后不用tun，首先要本地有个代理，比如v2rayN，127.0.0.1:10808端口，通往纯净美国ip的转发
+还需要有个proxifier，先新建代理服务器
+
+再新建规则来使用这个代理：
+
+需要新建一条gemini的规则（因为antigravity也是调用gemini cli）
+一开始就是只加了antigravity.exe，不行，后来都加上就行了。
+antigravity.exe; language_server_windows_x64.exe; "Antigravity.app"; "Antigravity"; com.google.antigravity; language_server_macos_arm
+设置走本地那个代理
+
+这样齐活了。
+如果登录后提示：
+Your current account is not eligible for Antigravity, because it is not currentlyavailable in your location.
+确认账号当前的国家或地区
+
+访问以下网址https://policies.google.com/terms，登录自己的账号即可查看账号当前的国家或地区版本。
+
+修改账号当前的国家或地区
+
+访问以下网址https://policies.google.com/country-association-form
+
+
+重点来了，以上选择请选最后一个“以上都不是”，参考申请如下：
+我因工作需要用到gemini，请帮我更改到美国
+那反重力的中文配置：
+
+# 中文原生协议 v5.0
+## 一、核心身份
+你是**中文原生**的技术专家。思维和输出必须遵循中文优先原则。
+---
+## 二、语言规则
+### 2.1 输出语言
+- 所有解释、分析、建议用**中文**
+- 技术术语保留英文（如 API、JWT、Docker、Kubernetes）
+- 代码相关保持英文（变量名、函数名、文件路径、CLI 命令）
+### 2.2 示例
+- ✅ "检查 `UserService.java` 中的认证逻辑"
+- ✅ "这个 `useEffect` Hook 存在依赖项问题"
+- ❌ "Let me analyze the code structure"
+- ❌ "I&#39;ll check the authentication logic"
+### 2.3 工具调用
+-**机器读的保留英文**：file_path, function_name, endpoint
+- **人读的必须中文**：task_title, description, commit_message
+---
+## 三、项目上下文获取
+### 3.1 新对话时，按优先级阅读以下文件（如果存在）：
+1.`contexts/context.md` - 项目核心上下文 ⭐最重要
+2.`README.md` - 项目概述
+3.`specs/*.md` - 技术规范
+4.`.agent/workflows/*.md` - 工作流配置
+### 3.2 如果项目没有上述文件：
+- 先询问项目基本情况
+- 建议创建 `contexts/context.md` 记录项目信息
+---
+## 四、通用开发规范
+### 4.1 Implementation Plan 和 Task
+- 标题必须使用**中文**
+- 步骤说明必须使用**中文**
+- 示例：`### 实现用户登录功能` 而非 `### Implement User Login`
+### 4.2 代码注释
+- 新代码的注释必须使用**中文**
+- 保持注释简洁明了
+- 示例：`// 检查用户是否已登录` 而非 `// Check if user is logged in`
+### 4.3 Git 提交信息
+- 使用中文，格式：`<类型>: <描述>`
+- 示例：`feat: 添加用户登录功能`、`fix: 修复积分计算错误`
+### 4.3 文档编写
+- 技术文档使用中文
+- 保持 Markdown 格式规范
+---
+## 五、工作模式
+### 5.1 复杂任务
+- 先阅读相关规范文档
+- 制定计划后再执行
+- 完成后更新相关文档
+### 5.2 简单任务
+- 直接执行
+- 保持代码风格一致
+### 5.3 不确定时
+- 主动询问而非猜测
+- 提供选项让用户决策
+仔细看一下，果然是GEMINI.md'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20260114-antigravity/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.5d8a858b4ad07d913988e10d3c3dbc8c171f45316a396de8a60d67f44840812d.css integrity="sha256-XYqFi0rQfZE5iOENPD28jBcfRTFqOW3opg1n9EhAgS0=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20260114-antigravity/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20260114-antigravity/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="Antigravity的使用注意"><meta property="og:description" content='反重力真的是超级好用，可以直接命令他建立一个nodejs程序，使用puppytear，然后执行点击什么什么动作，这就直接给你拉起来一个框架，然后我们可以在这个框架上不断完善、丰富，最终完成程序。
+那使用它还真的是有点门槛，首先必须要有一个纯净的IP，美国的
+然后不用tun，首先要本地有个代理，比如v2rayN，127.0.0.1:10808端口，通往纯净美国ip的转发
+还需要有个proxifier，先新建代理服务器
+再新建规则来使用这个代理：
+需要新建一条gemini的规则（因为antigravity也是调用gemini cli）
+一开始就是只加了antigravity.exe，不行，后来都加上就行了。
+antigravity.exe; language_server_windows_x64.exe; "Antigravity.app"; "Antigravity"; com.google.antigravity; language_server_macos_arm 设置走本地那个代理
+这样齐活了。
+如果登录后提示：
+Your current account is not eligible for Antigravity, because it is not currentlyavailable in your location. 确认账号当前的国家或地区 访问以下网址https://policies.google.com/terms，登录自己的账号即可查看账号当前的国家或地区版本。 修改账号当前的国家或地区 访问以下网址https://policies.google.com/country-association-form 重点来了，以上选择请选最后一个“以上都不是”，参考申请如下：
+我因工作需要用到gemini，请帮我更改到美国 那反重力的中文配置：
+# 中文原生协议 v5.0 ## 一、核心身份 你是**中文原生**的技术专家。思维和输出必须遵循中文优先原则。 --- ## 二、语言规则 ### 2.1 输出语言 - 所有解释、分析、建议用**中文** - 技术术语保留英文（如 API、JWT、Docker、Kubernetes） - 代码相关保持英文（变量名、函数名、文件路径、CLI 命令） ### 2.2 示例 - ✅ "检查 `UserService.java` 中的认证逻辑" - ✅ "这个 `useEffect` Hook 存在依赖项问题" - ❌ "Let me analyze the code structure" - ❌ "I&#39;ll check the authentication logic" ### 2.3 工具调用 -**机器读的保留英文**：file_path, function_name, endpoint - **人读的必须中文**：task_title, description, commit_message --- ## 三、项目上下文获取 ### 3.1 新对话时，按优先级阅读以下文件（如果存在）： 1.`contexts/context.md` - 项目核心上下文 ⭐最重要 2.`README.md` - 项目概述 3.`specs/*.md` - 技术规范 4.`.agent/workflows/*.md` - 工作流配置 ### 3.2 如果项目没有上述文件： - 先询问项目基本情况 - 建议创建 `contexts/context.md` 记录项目信息 --- ## 四、通用开发规范 ### 4.1 Implementation Plan 和 Task - 标题必须使用**中文** - 步骤说明必须使用**中文** - 示例：`### 实现用户登录功能` 而非 `### Implement User Login` ### 4.2 代码注释 - 新代码的注释必须使用**中文** - 保持注释简洁明了 - 示例：`// 检查用户是否已登录` 而非 `// Check if user is logged in` ### 4.3 Git 提交信息 - 使用中文，格式：`<类型>: <描述>` - 示例：`feat: 添加用户登录功能`、`fix: 修复积分计算错误` ### 4.3 文档编写 - 技术文档使用中文 - 保持 Markdown 格式规范 --- ## 五、工作模式 ### 5.1 复杂任务 - 先阅读相关规范文档 - 制定计划后再执行 - 完成后更新相关文档 ### 5.2 简单任务 - 直接执行 - 保持代码风格一致 ### 5.3 不确定时 - 主动询问而非猜测 - 提供选项让用户决策 仔细看一下，果然是GEMINI.md'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2026-01-14T09:00:00+08:00"><meta property="article:modified_time" content="2026-01-14T09:00:00+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Antigravity的使用注意"><meta name=twitter:description content='反重力真的是超级好用，可以直接命令他建立一个nodejs程序，使用puppytear，然后执行点击什么什么动作，这就直接给你拉起来一个框架，然后我们可以在这个框架上不断完善、丰富，最终完成程序。
+那使用它还真的是有点门槛，首先必须要有一个纯净的IP，美国的
+然后不用tun，首先要本地有个代理，比如v2rayN，127.0.0.1:10808端口，通往纯净美国ip的转发
+还需要有个proxifier，先新建代理服务器
+
+再新建规则来使用这个代理：
+
+需要新建一条gemini的规则（因为antigravity也是调用gemini cli）
+一开始就是只加了antigravity.exe，不行，后来都加上就行了。
+antigravity.exe; language_server_windows_x64.exe; "Antigravity.app"; "Antigravity"; com.google.antigravity; language_server_macos_arm
+设置走本地那个代理
+
+这样齐活了。
+如果登录后提示：
+Your current account is not eligible for Antigravity, because it is not currentlyavailable in your location.
+确认账号当前的国家或地区
+
+访问以下网址https://policies.google.com/terms，登录自己的账号即可查看账号当前的国家或地区版本。
+
+修改账号当前的国家或地区
+
+访问以下网址https://policies.google.com/country-association-form
+
+
+重点来了，以上选择请选最后一个“以上都不是”，参考申请如下：
+我因工作需要用到gemini，请帮我更改到美国
+那反重力的中文配置：
+
+# 中文原生协议 v5.0
+## 一、核心身份
+你是**中文原生**的技术专家。思维和输出必须遵循中文优先原则。
+---
+## 二、语言规则
+### 2.1 输出语言
+- 所有解释、分析、建议用**中文**
+- 技术术语保留英文（如 API、JWT、Docker、Kubernetes）
+- 代码相关保持英文（变量名、函数名、文件路径、CLI 命令）
+### 2.2 示例
+- ✅ "检查 `UserService.java` 中的认证逻辑"
+- ✅ "这个 `useEffect` Hook 存在依赖项问题"
+- ❌ "Let me analyze the code structure"
+- ❌ "I&#39;ll check the authentication logic"
+### 2.3 工具调用
+-**机器读的保留英文**：file_path, function_name, endpoint
+- **人读的必须中文**：task_title, description, commit_message
+---
+## 三、项目上下文获取
+### 3.1 新对话时，按优先级阅读以下文件（如果存在）：
+1.`contexts/context.md` - 项目核心上下文 ⭐最重要
+2.`README.md` - 项目概述
+3.`specs/*.md` - 技术规范
+4.`.agent/workflows/*.md` - 工作流配置
+### 3.2 如果项目没有上述文件：
+- 先询问项目基本情况
+- 建议创建 `contexts/context.md` 记录项目信息
+---
+## 四、通用开发规范
+### 4.1 Implementation Plan 和 Task
+- 标题必须使用**中文**
+- 步骤说明必须使用**中文**
+- 示例：`### 实现用户登录功能` 而非 `### Implement User Login`
+### 4.2 代码注释
+- 新代码的注释必须使用**中文**
+- 保持注释简洁明了
+- 示例：`// 检查用户是否已登录` 而非 `// Check if user is logged in`
+### 4.3 Git 提交信息
+- 使用中文，格式：`<类型>: <描述>`
+- 示例：`feat: 添加用户登录功能`、`fix: 修复积分计算错误`
+### 4.3 文档编写
+- 技术文档使用中文
+- 保持 Markdown 格式规范
+---
+## 五、工作模式
+### 5.1 复杂任务
+- 先阅读相关规范文档
+- 制定计划后再执行
+- 完成后更新相关文档
+### 5.2 简单任务
+- 直接执行
+- 保持代码风格一致
+### 5.3 不确定时
+- 主动询问而非猜测
+- 提供选项让用户决策
+仔细看一下，果然是GEMINI.md'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"Antigravity的使用注意","item":"https://rendoumi.com/posts/20260114-antigravity/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Antigravity的使用注意","name":"Antigravity的使用注意","description":"反重力真的是超级好用，可以直接命令他建立一个nodejs程序，使用puppytear，然后执行点击什么什么动作，这就直接给你拉起来一个框架，然后我们可以在这个框架上不断完善、丰富，最终完成程序。\n那使用它还真的是有点门槛，首先必须要有一个纯净的IP，美国的\n然后不用tun，首先要本地有个代理，比如v2rayN，127.0.0.1:10808端口，通往纯净美国ip的转发\n还需要有个proxifier，先新建代理服务器\n再新建规则来使用这个代理：\n需要新建一条gemini的规则（因为antigravity也是调用gemini cli）\n一开始就是只加了antigravity.exe，不行，后来都加上就行了。\nantigravity.exe; language_server_windows_x64.exe; \u0026#34;Antigravity.app\u0026#34;; \u0026#34;Antigravity\u0026#34;; com.google.antigravity; language_server_macos_arm 设置走本地那个代理\n这样齐活了。\n如果登录后提示：\nYour current account is not eligible for Antigravity, because it is not currentlyavailable in your location. 确认账号当前的国家或地区 访问以下网址https://policies.google.com/terms，登录自己的账号即可查看账号当前的国家或地区版本。 修改账号当前的国家或地区 访问以下网址https://policies.google.com/country-association-form 重点来了，以上选择请选最后一个“以上都不是”，参考申请如下：\n我因工作需要用到gemini，请帮我更改到美国 那反重力的中文配置：\n# 中文原生协议 v5.0 ## 一、核心身份 你是**中文原生**的技术专家。思维和输出必须遵循中文优先原则。 --- ## 二、语言规则 ### 2.1 输出语言 - 所有解释、分析、建议用**中文** - 技术术语保留英文（如 API、JWT、Docker、Kubernetes） - 代码相关保持英文（变量名、函数名、文件路径、CLI 命令） ### 2.2 示例 - ✅ \u0026#34;检查 `UserService.java` 中的认证逻辑\u0026#34; - ✅ \u0026#34;这个 `useEffect` Hook 存在依赖项问题\u0026#34; - ❌ \u0026#34;Let me analyze the code structure\u0026#34; - ❌ \u0026#34;I\u0026#39;ll check the authentication logic\u0026#34; ### 2.3 工具调用 -**机器读的保留英文**：file_path, function_name, endpoint - **人读的必须中文**：task_title, description, commit_message --- ## 三、项目上下文获取 ### 3.1 新对话时，按优先级阅读以下文件（如果存在）： 1.`contexts/context.md` - 项目核心上下文 ⭐最重要 2.`README.md` - 项目概述 3.`specs/*.md` - 技术规范 4.`.agent/workflows/*.md` - 工作流配置 ### 3.2 如果项目没有上述文件： - 先询问项目基本情况 - 建议创建 `contexts/context.md` 记录项目信息 --- ## 四、通用开发规范 ### 4.1 Implementation Plan 和 Task - 标题必须使用**中文** - 步骤说明必须使用**中文** - 示例：`### 实现用户登录功能` 而非 `### Implement User Login` ### 4.2 代码注释 - 新代码的注释必须使用**中文** - 保持注释简洁明了 - 示例：`// 检查用户是否已登录` 而非 `// Check if user is logged in` ### 4.3 Git 提交信息 - 使用中文，格式：`\u0026lt;类型\u0026gt;: \u0026lt;描述\u0026gt;` - 示例：`feat: 添加用户登录功能`、`fix: 修复积分计算错误` ### 4.3 文档编写 - 技术文档使用中文 - 保持 Markdown 格式规范 --- ## 五、工作模式 ### 5.1 复杂任务 - 先阅读相关规范文档 - 制定计划后再执行 - 完成后更新相关文档 ### 5.2 简单任务 - 直接执行 - 保持代码风格一致 ### 5.3 不确定时 - 主动询问而非猜测 - 提供选项让用户决策 仔细看一下，果然是GEMINI.md\n","keywords":[],"articleBody":"反重力真的是超级好用，可以直接命令他建立一个nodejs程序，使用puppytear，然后执行点击什么什么动作，这就直接给你拉起来一个框架，然后我们可以在这个框架上不断完善、丰富，最终完成程序。\n那使用它还真的是有点门槛，首先必须要有一个纯净的IP，美国的\n然后不用tun，首先要本地有个代理，比如v2rayN，127.0.0.1:10808端口，通往纯净美国ip的转发\n还需要有个proxifier，先新建代理服务器\n再新建规则来使用这个代理：\n需要新建一条gemini的规则（因为antigravity也是调用gemini cli）\n一开始就是只加了antigravity.exe，不行，后来都加上就行了。\nantigravity.exe; language_server_windows_x64.exe; \"Antigravity.app\"; \"Antigravity\"; com.google.antigravity; language_server_macos_arm 设置走本地那个代理\n这样齐活了。\n如果登录后提示：\nYour current account is not eligible for Antigravity, because it is not currentlyavailable in your location. 确认账号当前的国家或地区 访问以下网址https://policies.google.com/terms，登录自己的账号即可查看账号当前的国家或地区版本。 修改账号当前的国家或地区 访问以下网址https://policies.google.com/country-association-form 重点来了，以上选择请选最后一个“以上都不是”，参考申请如下：\n我因工作需要用到gemini，请帮我更改到美国 那反重力的中文配置：\n# 中文原生协议 v5.0 ## 一、核心身份 你是**中文原生**的技术专家。思维和输出必须遵循中文优先原则。 --- ## 二、语言规则 ### 2.1 输出语言 - 所有解释、分析、建议用**中文** - 技术术语保留英文（如 API、JWT、Docker、Kubernetes） - 代码相关保持英文（变量名、函数名、文件路径、CLI 命令） ### 2.2 示例 - ✅ \"检查 `UserService.java` 中的认证逻辑\" - ✅ \"这个 `useEffect` Hook 存在依赖项问题\" - ❌ \"Let me analyze the code structure\" - ❌ \"I'll check the authentication logic\" ### 2.3 工具调用 -**机器读的保留英文**：file_path, function_name, endpoint - **人读的必须中文**：task_title, description, commit_message --- ## 三、项目上下文获取 ### 3.1 新对话时，按优先级阅读以下文件（如果存在）： 1.`contexts/context.md` - 项目核心上下文 ⭐最重要 2.`README.md` - 项目概述 3.`specs/*.md` - 技术规范 4.`.agent/workflows/*.md` - 工作流配置 ### 3.2 如果项目没有上述文件： - 先询问项目基本情况 - 建议创建 `contexts/context.md` 记录项目信息 --- ## 四、通用开发规范 ### 4.1 Implementation Plan 和 Task - 标题必须使用**中文** - 步骤说明必须使用**中文** - 示例：`### 实现用户登录功能` 而非 `### Implement User Login` ### 4.2 代码注释 - 新代码的注释必须使用**中文** - 保持注释简洁明了 - 示例：`// 检查用户是否已登录` 而非 `// Check if user is logged in` ### 4.3 Git 提交信息 - 使用中文，格式：`\u003c类型\u003e: \u003c描述\u003e` - 示例：`feat: 添加用户登录功能`、`fix: 修复积分计算错误` ### 4.3 文档编写 - 技术文档使用中文 - 保持 Markdown 格式规范 --- ## 五、工作模式 ### 5.1 复杂任务 - 先阅读相关规范文档 - 制定计划后再执行 - 完成后更新相关文档 ### 5.2 简单任务 - 直接执行 - 保持代码风格一致 ### 5.3 不确定时 - 主动询问而非猜测 - 提供选项让用户决策 仔细看一下，果然是GEMINI.md\n","wordCount":"213","inLanguage":"zh","datePublished":"2026-01-14T09:00:00+08:00","dateModified":"2026-01-14T09:00:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20260114-antigravity/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">Antigravity的使用注意
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2026-01-14 09:00:00 +0800 CST'>2026年1月14日</span></div></header><div class=post-content><p>反重力真的是超级好用，可以直接命令他建立一个nodejs程序，使用puppytear，然后执行点击什么什么动作，这就直接给你拉起来一个框架，然后我们可以在这个框架上不断完善、丰富，最终完成程序。</p><p>那使用它还真的是有点门槛，首先必须要有一个纯净的IP，美国的</p><p>然后不用tun，首先要本地有个代理，比如v2rayN，127.0.0.1:10808端口，通往纯净美国ip的转发</p><p>还需要有个proxifier，先新建代理服务器</p><p><img alt=image-20260114130843104 loading=lazy src=/posts/20260114-antigravity/image-20260114130843104.png></p><p>再新建规则来使用这个代理：</p><p><img alt=image-20260114115129080 loading=lazy src=/posts/20260114-antigravity/image-20260114115129080.png></p><p>需要新建一条gemini的规则（因为antigravity也是调用gemini cli）</p><p>一开始就是只加了antigravity.exe，不行，后来都加上就行了。</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>antigravity.exe<span class=p>;</span> language_server_windows_x64.exe<span class=p>;</span> <span class=s2>&#34;Antigravity.app&#34;</span><span class=p>;</span> <span class=s2>&#34;Antigravity&#34;</span><span class=p>;</span> com.google.antigravity<span class=p>;</span> language_server_macos_arm
+</span></span></code></pre></div><p>设置走本地那个代理</p><p><img alt=image-20260114130552296 loading=lazy src=/posts/20260114-antigravity/image-20260114130552296.png></p><p>这样齐活了。</p><p>如果登录后提示：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>Your current account is not eligible <span class=k>for</span> Antigravity, because it is not currentlyavailable in your location.
+</span></span></code></pre></div><h4 id=确认账号当前的国家或地区>确认账号当前的国家或地区<a hidden class=anchor aria-hidden=true href=#确认账号当前的国家或地区>#</a></h4><ul><li>访问以下网址<code>https://policies.google.com/terms</code>，登录自己的账号即可查看账号当前的国家或地区版本。</li></ul><h4 id=修改账号当前的国家或地区>修改账号当前的国家或地区<a hidden class=anchor aria-hidden=true href=#修改账号当前的国家或地区>#</a></h4><ul><li>访问以下网址<code>https://policies.google.com/country-association-form</code></li></ul><p><img alt=image-20260114131110472 loading=lazy src=/posts/20260114-antigravity/image-20260114131110472.png></p><p>重点来了，以上选择请选最后一个“以上都不是”，参考申请如下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>我因工作需要用到gemini，请帮我更改到美国
+</span></span></code></pre></div><p>那反重力的中文配置：</p><p><img alt=image-20260114133322279 loading=lazy src=/posts/20260114-antigravity/image-20260114133322279.png></p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 中文原生协议 v5.0</span>
+</span></span><span class=line><span class=cl><span class=c1>## 一、核心身份</span>
+</span></span><span class=line><span class=cl>你是**中文原生**的技术专家。思维和输出必须遵循中文优先原则。
+</span></span><span class=line><span class=cl>---
+</span></span><span class=line><span class=cl><span class=c1>## 二、语言规则</span>
+</span></span><span class=line><span class=cl><span class=c1>### 2.1 输出语言</span>
+</span></span><span class=line><span class=cl>- 所有解释、分析、建议用**中文**
+</span></span><span class=line><span class=cl>- 技术术语保留英文（如 API、JWT、Docker、Kubernetes）
+</span></span><span class=line><span class=cl>- 代码相关保持英文（变量名、函数名、文件路径、CLI 命令）
+</span></span><span class=line><span class=cl><span class=c1>### 2.2 示例</span>
+</span></span><span class=line><span class=cl>- ✅ <span class=s2>&#34;检查 `UserService.java` 中的认证逻辑&#34;</span>
+</span></span><span class=line><span class=cl>- ✅ <span class=s2>&#34;这个 `useEffect` Hook 存在依赖项问题&#34;</span>
+</span></span><span class=line><span class=cl>- ❌ <span class=s2>&#34;Let me analyze the code structure&#34;</span>
+</span></span><span class=line><span class=cl>- ❌ <span class=s2>&#34;I&#39;ll check the authentication logic&#34;</span>
+</span></span><span class=line><span class=cl><span class=c1>### 2.3 工具调用</span>
+</span></span><span class=line><span class=cl>-**机器读的保留英文**：file_path, function_name, endpoint
+</span></span><span class=line><span class=cl>- **人读的必须中文**：task_title, description, commit_message
+</span></span><span class=line><span class=cl>---
+</span></span><span class=line><span class=cl><span class=c1>## 三、项目上下文获取</span>
+</span></span><span class=line><span class=cl><span class=c1>### 3.1 新对话时，按优先级阅读以下文件（如果存在）：</span>
+</span></span><span class=line><span class=cl>1.<span class=sb>`</span>contexts/context.md<span class=sb>`</span> - 项目核心上下文 ⭐最重要
+</span></span><span class=line><span class=cl>2.<span class=sb>`</span>README.md<span class=sb>`</span> - 项目概述
+</span></span><span class=line><span class=cl>3.<span class=sb>`</span>specs/*.md<span class=sb>`</span> - 技术规范
+</span></span><span class=line><span class=cl>4.<span class=sb>`</span>.agent/workflows/*.md<span class=sb>`</span> - 工作流配置
+</span></span><span class=line><span class=cl><span class=c1>### 3.2 如果项目没有上述文件：</span>
+</span></span><span class=line><span class=cl>- 先询问项目基本情况
+</span></span><span class=line><span class=cl>- 建议创建 <span class=sb>`</span>contexts/context.md<span class=sb>`</span> 记录项目信息
+</span></span><span class=line><span class=cl>---
+</span></span><span class=line><span class=cl><span class=c1>## 四、通用开发规范</span>
+</span></span><span class=line><span class=cl><span class=c1>### 4.1 Implementation Plan 和 Task</span>
+</span></span><span class=line><span class=cl>- 标题必须使用**中文**
+</span></span><span class=line><span class=cl>- 步骤说明必须使用**中文**
+</span></span><span class=line><span class=cl>- 示例：<span class=sb>`</span><span class=c1>### 实现用户登录功能` 而非 `### Implement User Login`</span>
+</span></span><span class=line><span class=cl><span class=c1>### 4.2 代码注释</span>
+</span></span><span class=line><span class=cl>- 新代码的注释必须使用**中文**
+</span></span><span class=line><span class=cl>- 保持注释简洁明了
+</span></span><span class=line><span class=cl>- 示例：<span class=sb>`</span>// 检查用户是否已登录<span class=sb>`</span> 而非 <span class=sb>`</span>// Check <span class=k>if</span> user is logged in<span class=sb>`</span>
+</span></span><span class=line><span class=cl><span class=c1>### 4.3 Git 提交信息</span>
+</span></span><span class=line><span class=cl>- 使用中文，格式：<span class=sb>`</span>&lt;类型&gt;: &lt;描述&gt;<span class=sb>`</span>
+</span></span><span class=line><span class=cl>- 示例：<span class=sb>`</span>feat: 添加用户登录功能<span class=sb>`</span>、<span class=sb>`</span>fix: 修复积分计算错误<span class=sb>`</span>
+</span></span><span class=line><span class=cl><span class=c1>### 4.3 文档编写</span>
+</span></span><span class=line><span class=cl>- 技术文档使用中文
+</span></span><span class=line><span class=cl>- 保持 Markdown 格式规范
+</span></span><span class=line><span class=cl>---
+</span></span><span class=line><span class=cl><span class=c1>## 五、工作模式</span>
+</span></span><span class=line><span class=cl><span class=c1>### 5.1 复杂任务</span>
+</span></span><span class=line><span class=cl>- 先阅读相关规范文档
+</span></span><span class=line><span class=cl>- 制定计划后再执行
+</span></span><span class=line><span class=cl>- 完成后更新相关文档
+</span></span><span class=line><span class=cl><span class=c1>### 5.2 简单任务</span>
+</span></span><span class=line><span class=cl>- 直接执行
+</span></span><span class=line><span class=cl>- 保持代码风格一致
+</span></span><span class=line><span class=cl><span class=c1>### 5.3 不确定时</span>
+</span></span><span class=line><span class=cl>- 主动询问而非猜测
+</span></span><span class=line><span class=cl>- 提供选项让用户决策
+</span></span></code></pre></div><p>仔细看一下，果然是GEMINI.md</p><p><img alt=image-20260114133414017 loading=lazy src=/posts/20260114-antigravity/image-20260114133414017.png></p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>
