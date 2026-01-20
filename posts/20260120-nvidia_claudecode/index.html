@@ -1,0 +1,113 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3988508441804851" crossorigin=anonymous></script><title>黄大善人免费的的nvidia glm和minimax模型应用于Claude Code | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='黄大善人的Nvidia里面有很多免费的模型，包括zai/glm4.7和minimaxai/minimax-m2.1
+那没有订阅的同学们可以拿来直接用到Cluade code中
+方法如下：
+一、从官网进行获取api-key
+起手先注册账户拿Key
+地址：https://build.nvidia.com/explore/discover
+
+
+或者
+
+二、如何使用
+然后主要是我不用ccr，CLIProxyAPI也开全局代理了，也无法用，所以干脆搓个好了
+用ccr和CLIProxyAPI就可以直接用。
+源代码：
+https://github.com/zhangrr/claude-nvidia-proxy
+配置文件：
+{
+  "nvidia_url": "https://integrate.api.nvidia.com/v1/chat/completions",
+  "nvidia_key": "nvapi-api-key"
+}
+直接运行程序，会监听本地端口3001
+glm 4.7的配法：
+export ANTHROPIC_BASE_URL=http://localhost:3001
+export ANTHROPIC_AUTH_TOKEN=nvapi-api-key
+export ANTHROPIC_DEFAULT_HAIKU_MODEL=z-ai/glm4.7
+export ANTHROPIC_DEFAULT_SONNET_MODEL=z-ai/glm4.7
+export ANTHROPIC_DEFAULT_OPUS_MODEL=z-ai/glm4.7
+
+claude
+minimax 2.1 的配法：
+export ANTHROPIC_BASE_URL=http://localhost:3001
+export ANTHROPIC_AUTH_TOKEN=nvapi-api-key
+export ANTHROPIC_DEFAULT_HAIKU_MODEL=minimaxai/minimax-m2.1
+export ANTHROPIC_DEFAULT_SONNET_MODEL=minimaxai/minimax-m2.1
+export ANTHROPIC_DEFAULT_OPUS_MODEL=minimaxai/minimax-m2.1
+
+claude
+'><meta name=author content><link rel=canonical href=https://rendoumi.com/posts/20260120-nvidia_claudecode/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.5d8a858b4ad07d913988e10d3c3dbc8c171f45316a396de8a60d67f44840812d.css integrity="sha256-XYqFi0rQfZE5iOENPD28jBcfRTFqOW3opg1n9EhAgS0=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20260120-nvidia_claudecode/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>localStorage.getItem("pref-theme")==="dark"?document.querySelector("html").dataset.theme="dark":localStorage.getItem("pref-theme")==="light"?document.querySelector("html").dataset.theme="light":window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20260120-nvidia_claudecode/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="黄大善人免费的的nvidia glm和minimax模型应用于Claude Code"><meta property="og:description" content='黄大善人的Nvidia里面有很多免费的模型，包括zai/glm4.7和minimaxai/minimax-m2.1
+那没有订阅的同学们可以拿来直接用到Cluade code中
+方法如下：
+一、从官网进行获取api-key 起手先注册账户拿Key
+地址：https://build.nvidia.com/explore/discover
+或者
+二、如何使用 然后主要是我不用ccr，CLIProxyAPI也开全局代理了，也无法用，所以干脆搓个好了 用ccr和CLIProxyAPI就可以直接用。
+源代码：
+https://github.com/zhangrr/claude-nvidia-proxy 配置文件：
+{ "nvidia_url": "https://integrate.api.nvidia.com/v1/chat/completions", "nvidia_key": "nvapi-api-key" } 直接运行程序，会监听本地端口3001
+glm 4.7的配法：
+export ANTHROPIC_BASE_URL=http://localhost:3001 export ANTHROPIC_AUTH_TOKEN=nvapi-api-key export ANTHROPIC_DEFAULT_HAIKU_MODEL=z-ai/glm4.7 export ANTHROPIC_DEFAULT_SONNET_MODEL=z-ai/glm4.7 export ANTHROPIC_DEFAULT_OPUS_MODEL=z-ai/glm4.7 claude minimax 2.1 的配法：
+export ANTHROPIC_BASE_URL=http://localhost:3001 export ANTHROPIC_AUTH_TOKEN=nvapi-api-key export ANTHROPIC_DEFAULT_HAIKU_MODEL=minimaxai/minimax-m2.1 export ANTHROPIC_DEFAULT_SONNET_MODEL=minimaxai/minimax-m2.1 export ANTHROPIC_DEFAULT_OPUS_MODEL=minimaxai/minimax-m2.1 claude '><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2026-01-20T09:00:00+08:00"><meta property="article:modified_time" content="2026-01-20T09:00:00+08:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="黄大善人免费的的nvidia glm和minimax模型应用于Claude Code"><meta name=twitter:description content='黄大善人的Nvidia里面有很多免费的模型，包括zai/glm4.7和minimaxai/minimax-m2.1
+那没有订阅的同学们可以拿来直接用到Cluade code中
+方法如下：
+一、从官网进行获取api-key
+起手先注册账户拿Key
+地址：https://build.nvidia.com/explore/discover
+
+
+或者
+
+二、如何使用
+然后主要是我不用ccr，CLIProxyAPI也开全局代理了，也无法用，所以干脆搓个好了
+用ccr和CLIProxyAPI就可以直接用。
+源代码：
+https://github.com/zhangrr/claude-nvidia-proxy
+配置文件：
+{
+  "nvidia_url": "https://integrate.api.nvidia.com/v1/chat/completions",
+  "nvidia_key": "nvapi-api-key"
+}
+直接运行程序，会监听本地端口3001
+glm 4.7的配法：
+export ANTHROPIC_BASE_URL=http://localhost:3001
+export ANTHROPIC_AUTH_TOKEN=nvapi-api-key
+export ANTHROPIC_DEFAULT_HAIKU_MODEL=z-ai/glm4.7
+export ANTHROPIC_DEFAULT_SONNET_MODEL=z-ai/glm4.7
+export ANTHROPIC_DEFAULT_OPUS_MODEL=z-ai/glm4.7
+
+claude
+minimax 2.1 的配法：
+export ANTHROPIC_BASE_URL=http://localhost:3001
+export ANTHROPIC_AUTH_TOKEN=nvapi-api-key
+export ANTHROPIC_DEFAULT_HAIKU_MODEL=minimaxai/minimax-m2.1
+export ANTHROPIC_DEFAULT_SONNET_MODEL=minimaxai/minimax-m2.1
+export ANTHROPIC_DEFAULT_OPUS_MODEL=minimaxai/minimax-m2.1
+
+claude
+'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"黄大善人免费的的nvidia glm和minimax模型应用于Claude Code","item":"https://rendoumi.com/posts/20260120-nvidia_claudecode/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"黄大善人免费的的nvidia glm和minimax模型应用于Claude Code","name":"黄大善人免费的的nvidia glm和minimax模型应用于Claude Code","description":"黄大善人的Nvidia里面有很多免费的模型，包括zai/glm4.7和minimaxai/minimax-m2.1\n那没有订阅的同学们可以拿来直接用到Cluade code中\n方法如下：\n一、从官网进行获取api-key 起手先注册账户拿Key\n地址：https://build.nvidia.com/explore/discover\n或者\n二、如何使用 然后主要是我不用ccr，CLIProxyAPI也开全局代理了，也无法用，所以干脆搓个好了 用ccr和CLIProxyAPI就可以直接用。\n源代码：\nhttps://github.com/zhangrr/claude-nvidia-proxy 配置文件：\n{ \u0026#34;nvidia_url\u0026#34;: \u0026#34;https://integrate.api.nvidia.com/v1/chat/completions\u0026#34;, \u0026#34;nvidia_key\u0026#34;: \u0026#34;nvapi-api-key\u0026#34; } 直接运行程序，会监听本地端口3001\nglm 4.7的配法：\nexport ANTHROPIC_BASE_URL=http://localhost:3001 export ANTHROPIC_AUTH_TOKEN=nvapi-api-key export ANTHROPIC_DEFAULT_HAIKU_MODEL=z-ai/glm4.7 export ANTHROPIC_DEFAULT_SONNET_MODEL=z-ai/glm4.7 export ANTHROPIC_DEFAULT_OPUS_MODEL=z-ai/glm4.7 claude minimax 2.1 的配法：\nexport ANTHROPIC_BASE_URL=http://localhost:3001 export ANTHROPIC_AUTH_TOKEN=nvapi-api-key export ANTHROPIC_DEFAULT_HAIKU_MODEL=minimaxai/minimax-m2.1 export ANTHROPIC_DEFAULT_SONNET_MODEL=minimaxai/minimax-m2.1 export ANTHROPIC_DEFAULT_OPUS_MODEL=minimaxai/minimax-m2.1 claude ","keywords":[],"articleBody":"黄大善人的Nvidia里面有很多免费的模型，包括zai/glm4.7和minimaxai/minimax-m2.1\n那没有订阅的同学们可以拿来直接用到Cluade code中\n方法如下：\n一、从官网进行获取api-key 起手先注册账户拿Key\n地址：https://build.nvidia.com/explore/discover\n或者\n二、如何使用 然后主要是我不用ccr，CLIProxyAPI也开全局代理了，也无法用，所以干脆搓个好了 用ccr和CLIProxyAPI就可以直接用。\n源代码：\nhttps://github.com/zhangrr/claude-nvidia-proxy 配置文件：\n{ \"nvidia_url\": \"https://integrate.api.nvidia.com/v1/chat/completions\", \"nvidia_key\": \"nvapi-api-key\" } 直接运行程序，会监听本地端口3001\nglm 4.7的配法：\nexport ANTHROPIC_BASE_URL=http://localhost:3001 export ANTHROPIC_AUTH_TOKEN=nvapi-api-key export ANTHROPIC_DEFAULT_HAIKU_MODEL=z-ai/glm4.7 export ANTHROPIC_DEFAULT_SONNET_MODEL=z-ai/glm4.7 export ANTHROPIC_DEFAULT_OPUS_MODEL=z-ai/glm4.7 claude minimax 2.1 的配法：\nexport ANTHROPIC_BASE_URL=http://localhost:3001 export ANTHROPIC_AUTH_TOKEN=nvapi-api-key export ANTHROPIC_DEFAULT_HAIKU_MODEL=minimaxai/minimax-m2.1 export ANTHROPIC_DEFAULT_SONNET_MODEL=minimaxai/minimax-m2.1 export ANTHROPIC_DEFAULT_OPUS_MODEL=minimaxai/minimax-m2.1 claude ","wordCount":"48","inLanguage":"zh","datePublished":"2026-01-20T09:00:00+08:00","dateModified":"2026-01-20T09:00:00+08:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20260120-nvidia_claudecode/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="八戒的技术博客 (Alt + H)">八戒的技术博客</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">黄大善人免费的的nvidia glm和minimax模型应用于Claude Code
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2026-01-20 09:00:00 +0800 CST'>2026年1月20日</span></div></header><div class=post-content><p>黄大善人的Nvidia里面有很多免费的模型，包括zai/glm4.7和minimaxai/minimax-m2.1</p><p>那没有订阅的同学们可以拿来直接用到Cluade code中</p><p>方法如下：</p><h3 id=一从官网进行获取api-key>一、从官网进行获取api-key<a hidden class=anchor aria-hidden=true href=#一从官网进行获取api-key>#</a></h3><p>起手先注册账户拿Key</p><p>地址：https://build.nvidia.com/explore/discover</p><p><img alt=image-20260120112209005 loading=lazy src=/posts/20260120-nvidia_claudecode/image-20260120112209005.png></p><p><img alt=image-20260120112343106 loading=lazy src=/posts/20260120-nvidia_claudecode/image-20260120112343106.png></p><p>或者</p><p><img alt=image-20260120112301489 loading=lazy src=/posts/20260120-nvidia_claudecode/image-20260120112301489.png></p><h3 id=二如何使用>二、如何使用<a hidden class=anchor aria-hidden=true href=#二如何使用>#</a></h3><p>然后主要是我不用ccr，CLIProxyAPI也开全局代理了，也无法用，所以干脆搓个好了
+用ccr和CLIProxyAPI就可以直接用。</p><p>源代码：</p><pre tabindex=0><code>https://github.com/zhangrr/claude-nvidia-proxy
+</code></pre><p>配置文件：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=o>{</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;nvidia_url&#34;</span>: <span class=s2>&#34;https://integrate.api.nvidia.com/v1/chat/completions&#34;</span>,
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;nvidia_key&#34;</span>: <span class=s2>&#34;nvapi-api-key&#34;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></div><p>直接运行程序，会监听本地端口3001</p><p>glm 4.7的配法：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ANTHROPIC_BASE_URL</span><span class=o>=</span>http://localhost:3001
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ANTHROPIC_AUTH_TOKEN</span><span class=o>=</span>nvapi-api-key
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ANTHROPIC_DEFAULT_HAIKU_MODEL</span><span class=o>=</span>z-ai/glm4.7
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ANTHROPIC_DEFAULT_SONNET_MODEL</span><span class=o>=</span>z-ai/glm4.7
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ANTHROPIC_DEFAULT_OPUS_MODEL</span><span class=o>=</span>z-ai/glm4.7
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>claude
+</span></span></code></pre></div><p>minimax 2.1 的配法：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ANTHROPIC_BASE_URL</span><span class=o>=</span>http://localhost:3001
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ANTHROPIC_AUTH_TOKEN</span><span class=o>=</span>nvapi-api-key
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ANTHROPIC_DEFAULT_HAIKU_MODEL</span><span class=o>=</span>minimaxai/minimax-m2.1
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ANTHROPIC_DEFAULT_SONNET_MODEL</span><span class=o>=</span>minimaxai/minimax-m2.1
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ANTHROPIC_DEFAULT_OPUS_MODEL</span><span class=o>=</span>minimaxai/minimax-m2.1
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>claude
+</span></span></code></pre></div><p><img alt=image-20260120112903833 loading=lazy src=/posts/20260120-nvidia_claudecode/image-20260120112903833.png></p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{const e=document.querySelector("html");e.dataset.theme==="dark"?(e.dataset.theme="light",localStorage.setItem("pref-theme","light")):(e.dataset.theme="dark",localStorage.setItem("pref-theme","dark"))})</script></body></html>
