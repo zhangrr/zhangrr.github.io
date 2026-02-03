@@ -1,0 +1,209 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3988508441804851" crossorigin=anonymous></script><title>Claude Code如何使用ollama提供的qwen3:2.5B大模型来私网使用 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='Cluade code、Codex、Gemini三架马车是齐头并进的势头，那将来必定是Farm农场和Token战争的年代。
+那我们必须准备好，自己在局域网部署大模型，不依赖于任何的提供厂家。
+本篇就是从光杆的debian 12开始，搭配AMD 6700 xt 12G的显卡，从头搭建一个大模型服务器，供局域网的同事们使用
+一、Debian安装
+光杆debian iso下载
+https://gemmei.ftp.acc.umu.se/cdimage/archive/12.0.0/amd64/iso-cd/debian-12.0.0-amd64-netinst.iso
+用rufus刻录到U盘，然后安装
+root用户，然后建立一个普通用户debian
+二、Debian准备驱动
+# root 用户
+apt update && sudo apt upgrade -y
+apt install sudo
+
+# debian用户
+sudo apt install -y wget gnupg2 curl software-properties-common linux-headers-$(uname -r)
+
+wget -qO - https://repo.radeon.com/rocm/rocm.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/rocm.gpg
+
+echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/amdgpu/6.0/ubuntu jammy main" | sudo tee /etc/apt/sources.list.d/amdgpu.list
+
+echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/rocm/apt/6.0 jammy main" | sudo tee /etc/apt/sources.list.d/rocm.list
+
+sudo apt update
+
+sudo apt install -y amdgpu-dkms rocm-hip-libraries
+
+sudo tee /etc/apt/preferences.d/rocm-pin-600 <<EOF
+Package: *
+Pin: origin repo.radeon.com
+Pin-Priority: 600
+EOF
+
+sudo apt update
+sudo apt install -y amdgpu-dkms rocm-hip-libraries
+
+sudo usermod -aG video,render $USER
+
+sudo reboot
+然后就安装好了显卡驱动，解释一下，必须让新repo的优先级提高，才能安装！确认一下：'><meta name=author content="八戒"><link rel=canonical href=https://rendoumi.com/posts/20260203-cluadecode_qwen2.5b/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.5d8a858b4ad07d913988e10d3c3dbc8c171f45316a396de8a60d67f44840812d.css integrity="sha256-XYqFi0rQfZE5iOENPD28jBcfRTFqOW3opg1n9EhAgS0=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/%3Clink%20/%20abs%20url%3E><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20260203-cluadecode_qwen2.5b/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20260203-cluadecode_qwen2.5b/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="Claude Code如何使用ollama提供的qwen3:2.5B大模型来私网使用"><meta property="og:description" content='Cluade code、Codex、Gemini三架马车是齐头并进的势头，那将来必定是Farm农场和Token战争的年代。
+那我们必须准备好，自己在局域网部署大模型，不依赖于任何的提供厂家。
+本篇就是从光杆的debian 12开始，搭配AMD 6700 xt 12G的显卡，从头搭建一个大模型服务器，供局域网的同事们使用
+一、Debian安装 光杆debian iso下载
+https://gemmei.ftp.acc.umu.se/cdimage/archive/12.0.0/amd64/iso-cd/debian-12.0.0-amd64-netinst.iso 用rufus刻录到U盘，然后安装
+root用户，然后建立一个普通用户debian
+二、Debian准备驱动 # root 用户 apt update && sudo apt upgrade -y apt install sudo # debian用户 sudo apt install -y wget gnupg2 curl software-properties-common linux-headers-$(uname -r) wget -qO - https://repo.radeon.com/rocm/rocm.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/rocm.gpg echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/amdgpu/6.0/ubuntu jammy main" | sudo tee /etc/apt/sources.list.d/amdgpu.list echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/rocm/apt/6.0 jammy main" | sudo tee /etc/apt/sources.list.d/rocm.list sudo apt update sudo apt install -y amdgpu-dkms rocm-hip-libraries sudo tee /etc/apt/preferences.d/rocm-pin-600 <<EOF Package: * Pin: origin repo.radeon.com Pin-Priority: 600 EOF sudo apt update sudo apt install -y amdgpu-dkms rocm-hip-libraries sudo usermod -aG video,render $USER sudo reboot 然后就安装好了显卡驱动，解释一下，必须让新repo的优先级提高，才能安装！确认一下：'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2026-02-03T09:00:01+08:00"><meta property="article:modified_time" content="2026-02-03T09:00:01+08:00"><meta property="og:image" content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:title content="Claude Code如何使用ollama提供的qwen3:2.5B大模型来私网使用"><meta name=twitter:description content='Cluade code、Codex、Gemini三架马车是齐头并进的势头，那将来必定是Farm农场和Token战争的年代。
+那我们必须准备好，自己在局域网部署大模型，不依赖于任何的提供厂家。
+本篇就是从光杆的debian 12开始，搭配AMD 6700 xt 12G的显卡，从头搭建一个大模型服务器，供局域网的同事们使用
+一、Debian安装
+光杆debian iso下载
+https://gemmei.ftp.acc.umu.se/cdimage/archive/12.0.0/amd64/iso-cd/debian-12.0.0-amd64-netinst.iso
+用rufus刻录到U盘，然后安装
+root用户，然后建立一个普通用户debian
+二、Debian准备驱动
+# root 用户
+apt update && sudo apt upgrade -y
+apt install sudo
+
+# debian用户
+sudo apt install -y wget gnupg2 curl software-properties-common linux-headers-$(uname -r)
+
+wget -qO - https://repo.radeon.com/rocm/rocm.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/rocm.gpg
+
+echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/amdgpu/6.0/ubuntu jammy main" | sudo tee /etc/apt/sources.list.d/amdgpu.list
+
+echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/rocm/apt/6.0 jammy main" | sudo tee /etc/apt/sources.list.d/rocm.list
+
+sudo apt update
+
+sudo apt install -y amdgpu-dkms rocm-hip-libraries
+
+sudo tee /etc/apt/preferences.d/rocm-pin-600 <<EOF
+Package: *
+Pin: origin repo.radeon.com
+Pin-Priority: 600
+EOF
+
+sudo apt update
+sudo apt install -y amdgpu-dkms rocm-hip-libraries
+
+sudo usermod -aG video,render $USER
+
+sudo reboot
+然后就安装好了显卡驱动，解释一下，必须让新repo的优先级提高，才能安装！确认一下：'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"Claude Code如何使用ollama提供的qwen3:2.5B大模型来私网使用","item":"https://rendoumi.com/posts/20260203-cluadecode_qwen2.5b/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Claude Code如何使用ollama提供的qwen3:2.5B大模型来私网使用","name":"Claude Code如何使用ollama提供的qwen3:2.5B大模型来私网使用","description":"Cluade code、Codex、Gemini三架马车是齐头并进的势头，那将来必定是Farm农场和Token战争的年代。\n那我们必须准备好，自己在局域网部署大模型，不依赖于任何的提供厂家。\n本篇就是从光杆的debian 12开始，搭配AMD 6700 xt 12G的显卡，从头搭建一个大模型服务器，供局域网的同事们使用\n一、Debian安装 光杆debian iso下载\nhttps://gemmei.ftp.acc.umu.se/cdimage/archive/12.0.0/amd64/iso-cd/debian-12.0.0-amd64-netinst.iso 用rufus刻录到U盘，然后安装\nroot用户，然后建立一个普通用户debian\n二、Debian准备驱动 # root 用户 apt update \u0026amp;\u0026amp; sudo apt upgrade -y apt install sudo # debian用户 sudo apt install -y wget gnupg2 curl software-properties-common linux-headers-$(uname -r) wget -qO - https://repo.radeon.com/rocm/rocm.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/rocm.gpg echo \u0026#34;deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/amdgpu/6.0/ubuntu jammy main\u0026#34; | sudo tee /etc/apt/sources.list.d/amdgpu.list echo \u0026#34;deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/rocm/apt/6.0 jammy main\u0026#34; | sudo tee /etc/apt/sources.list.d/rocm.list sudo apt update sudo apt install -y amdgpu-dkms rocm-hip-libraries sudo tee /etc/apt/preferences.d/rocm-pin-600 \u0026lt;\u0026lt;EOF Package: * Pin: origin repo.radeon.com Pin-Priority: 600 EOF sudo apt update sudo apt install -y amdgpu-dkms rocm-hip-libraries sudo usermod -aG video,render $USER sudo reboot 然后就安装好了显卡驱动，解释一下，必须让新repo的优先级提高，才能安装！确认一下：\n","keywords":[],"articleBody":"Cluade code、Codex、Gemini三架马车是齐头并进的势头，那将来必定是Farm农场和Token战争的年代。\n那我们必须准备好，自己在局域网部署大模型，不依赖于任何的提供厂家。\n本篇就是从光杆的debian 12开始，搭配AMD 6700 xt 12G的显卡，从头搭建一个大模型服务器，供局域网的同事们使用\n一、Debian安装 光杆debian iso下载\nhttps://gemmei.ftp.acc.umu.se/cdimage/archive/12.0.0/amd64/iso-cd/debian-12.0.0-amd64-netinst.iso 用rufus刻录到U盘，然后安装\nroot用户，然后建立一个普通用户debian\n二、Debian准备驱动 # root 用户 apt update \u0026\u0026 sudo apt upgrade -y apt install sudo # debian用户 sudo apt install -y wget gnupg2 curl software-properties-common linux-headers-$(uname -r) wget -qO - https://repo.radeon.com/rocm/rocm.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/rocm.gpg echo \"deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/amdgpu/6.0/ubuntu jammy main\" | sudo tee /etc/apt/sources.list.d/amdgpu.list echo \"deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/rocm/apt/6.0 jammy main\" | sudo tee /etc/apt/sources.list.d/rocm.list sudo apt update sudo apt install -y amdgpu-dkms rocm-hip-libraries sudo tee /etc/apt/preferences.d/rocm-pin-600 \u003c","wordCount":"369","inLanguage":"zh","image":"https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E","datePublished":"2026-02-03T09:00:01+08:00","dateModified":"2026-02-03T09:00:01+08:00","author":{"@type":"Person","name":"八戒"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20260203-cluadecode_qwen2.5b/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="Home (Alt + H)"><img src=https://rendoumi.com/apple-touch-icon.png alt aria-label=logo height=35>Home</a><div class=logo-switches></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><div class=breadcrumbs><a href=https://rendoumi.com/>主页</a>&nbsp;»&nbsp;<a href=https://rendoumi.com/posts/>所有文章</a></div><h1 class="post-title entry-hint-parent">Claude Code如何使用ollama提供的qwen3:2.5B大模型来私网使用
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2026-02-03 09:00:01 +0800 CST'>2026年3月</span>&nbsp;·&nbsp;<span>2 分钟</span>&nbsp;·&nbsp;<span>369 字</span>&nbsp;·&nbsp;<span>八戒</span></div></header><div class=post-content><p>Cluade code、Codex、Gemini三架马车是齐头并进的势头，那将来必定是Farm农场和Token战争的年代。</p><p>那我们必须准备好，自己在局域网部署大模型，不依赖于任何的提供厂家。</p><p>本篇就是从光杆的debian 12开始，搭配AMD 6700 xt 12G的显卡，从头搭建一个大模型服务器，供局域网的同事们使用</p><h3 id=一debian安装>一、Debian安装<a hidden class=anchor aria-hidden=true href=#一debian安装>#</a></h3><p>光杆debian iso下载</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>https://gemmei.ftp.acc.umu.se/cdimage/archive/12.0.0/amd64/iso-cd/debian-12.0.0-amd64-netinst.iso
+</span></span></code></pre></div><p>用rufus刻录到U盘，然后安装</p><p>root用户，然后建立一个普通用户debian</p><h3 id=二debian准备驱动>二、Debian准备驱动<a hidden class=anchor aria-hidden=true href=#二debian准备驱动>#</a></h3><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># root 用户</span>
+</span></span><span class=line><span class=cl>apt update <span class=o>&amp;&amp;</span> sudo apt upgrade -y
+</span></span><span class=line><span class=cl>apt install sudo
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># debian用户</span>
+</span></span><span class=line><span class=cl>sudo apt install -y wget gnupg2 curl software-properties-common linux-headers-<span class=k>$(</span>uname -r<span class=k>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>wget -qO - https://repo.radeon.com/rocm/rocm.gpg.key <span class=p>|</span> sudo gpg --dearmor -o /etc/apt/keyrings/rocm.gpg
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=s2>&#34;deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/amdgpu/6.0/ubuntu jammy main&#34;</span> <span class=p>|</span> sudo tee /etc/apt/sources.list.d/amdgpu.list
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=s2>&#34;deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/rocm/apt/6.0 jammy main&#34;</span> <span class=p>|</span> sudo tee /etc/apt/sources.list.d/rocm.list
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>sudo apt update
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>sudo apt install -y amdgpu-dkms rocm-hip-libraries
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>sudo tee /etc/apt/preferences.d/rocm-pin-600 <span class=s>&lt;&lt;EOF
+</span></span></span><span class=line><span class=cl><span class=s>Package: *
+</span></span></span><span class=line><span class=cl><span class=s>Pin: origin repo.radeon.com
+</span></span></span><span class=line><span class=cl><span class=s>Pin-Priority: 600
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>sudo apt update
+</span></span><span class=line><span class=cl>sudo apt install -y amdgpu-dkms rocm-hip-libraries
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>sudo usermod -aG video,render <span class=nv>$USER</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>sudo reboot
+</span></span></code></pre></div><p>然后就安装好了显卡驱动，解释一下，必须让新repo的优先级提高，才能安装！确认一下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>rocminfo <span class=p>|</span> grep gfx
+</span></span></code></pre></div><p><img alt=image-20260203114618257 loading=lazy src=/posts/20260203-cluadecode_qwen2.5b/image-20260203114618257.png></p><p>看到gfx103x的代码，就OK了</p><h3 id=三安装ollama>三、安装ollama<a hidden class=anchor aria-hidden=true href=#三安装ollama>#</a></h3><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># debian 用户</span>
+</span></span><span class=line><span class=cl>sudo curl -fsSL https://ollama.com/install.sh <span class=p>|</span> sh
+</span></span></code></pre></div><p>然后修改service文件</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># vi /etc/systemd/system/ollama.service</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>Unit<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>Description</span><span class=o>=</span>Ollama Service
+</span></span><span class=line><span class=cl><span class=nv>After</span><span class=o>=</span>network-online.target
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>Service<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>ExecStart</span><span class=o>=</span>/usr/local/bin/ollama serve
+</span></span><span class=line><span class=cl><span class=nv>User</span><span class=o>=</span>ollama
+</span></span><span class=line><span class=cl><span class=nv>Group</span><span class=o>=</span>ollama
+</span></span><span class=line><span class=cl><span class=nv>Restart</span><span class=o>=</span>always
+</span></span><span class=line><span class=cl><span class=nv>RestartSec</span><span class=o>=</span><span class=m>3</span>
+</span></span><span class=line><span class=cl><span class=nv>Environment</span><span class=o>=</span><span class=s2>&#34;PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games&#34;</span>
+</span></span><span class=line><span class=cl><span class=c1># 核心修复：强制将 gfx1031 伪装成 gfx1030</span>
+</span></span><span class=line><span class=cl><span class=nv>Environment</span><span class=o>=</span><span class=s2>&#34;HSA_OVERRIDE_GFX_VERSION=10.3.0&#34;</span>
+</span></span><span class=line><span class=cl><span class=c1># 可选：如果你要让局域网其他人访问</span>
+</span></span><span class=line><span class=cl><span class=nv>Environment</span><span class=o>=</span><span class=s2>&#34;OLLAMA_HOST=0.0.0.0&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>Install<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>WantedBy</span><span class=o>=</span>default.target
+</span></span></code></pre></div><p>重启</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>systemctl daemon-reload
+</span></span><span class=line><span class=cl>systemctl ollama restart
+</span></span></code></pre></div><p>看看版本，拉取模型</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>ollama -v
+</span></span><span class=line><span class=cl>ollama version is 0.15.4
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 拉取模型</span>
+</span></span><span class=line><span class=cl>ollama pull qwen2.5:14b
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 看看都有什么模型</span>
+</span></span><span class=line><span class=cl>curl -s http://127.0.0.1:11434/v1/models
+</span></span></code></pre></div><p>Ollama从（v0.14.0+）开始，提供了Anthropic&rsquo;s Messages API，也就是说直接可以用Claude code来访问了。</p><h3 id=四测试一下>四、测试一下<a hidden class=anchor aria-hidden=true href=#四测试一下>#</a></h3><p>先开个独立ssh窗口，观察GPU</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>watch -n <span class=m>1</span> rocm-smi
+</span></span></code></pre></div><p>然后测试</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>ollama run qwen2.5:14b <span class=s2>&#34;写一个快速排序算法&#34;</span> --verbose
+</span></span></code></pre></div><p>看到GPU很高</p><p><img alt=image-20260203130212926 loading=lazy src=/posts/20260203-cluadecode_qwen2.5b/image-20260203130212926.png></p><p>给出答案：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>当然，下面是一个使用Python编写的快速排序（Quick Sort）算法的示例。快速排序是一种非常高效的排序算法，它基于分治法的原则来工作。
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>### 快速排序的基本思想：</span>
+</span></span><span class=line><span class=cl>- 选择一个基准值（pivot），将数组中的元素根据与该基准值的大小关系分成两部分。
+</span></span><span class=line><span class=cl>- 小于基准值的部分放在左边，大于基准值的部分放在右边。
+</span></span><span class=line><span class=cl>- 对这两部分递归地进行同样的操作，直到每个子数组只有一个元素或为空。
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>### Python代码实现：</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=sb>```</span>python
+</span></span><span class=line><span class=cl>def quick_sort<span class=o>(</span>arr<span class=o>)</span>:
+</span></span><span class=line><span class=cl>    <span class=k>if</span> len<span class=o>(</span>arr<span class=o>)</span> &lt;<span class=o>=</span> 1:
+</span></span><span class=line><span class=cl>        <span class=k>return</span> arr
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 选择基准值 pivot</span>
+</span></span><span class=line><span class=cl>    <span class=nv>pivot</span> <span class=o>=</span> arr<span class=o>[</span>len<span class=o>(</span>arr<span class=o>)</span> // 2<span class=o>]</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=nv>left</span> <span class=o>=</span> <span class=o>[</span>x <span class=k>for</span> x in arr <span class=k>if</span> x &lt; pivot<span class=o>]</span>     <span class=c1># 小于基准值的元素集合</span>
+</span></span><span class=line><span class=cl>    <span class=nv>middle</span> <span class=o>=</span> <span class=o>[</span>x <span class=k>for</span> x in arr <span class=k>if</span> <span class=nv>x</span> <span class=o>==</span> pivot<span class=o>]</span>  <span class=c1># 等于基准值的元素集合</span>
+</span></span><span class=line><span class=cl>    <span class=nv>right</span> <span class=o>=</span> <span class=o>[</span>x <span class=k>for</span> x in arr <span class=k>if</span> x &gt; pivot<span class=o>]</span>    <span class=c1># 大于基准值的元素集合</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> quick_sort<span class=o>(</span>left<span class=o>)</span> + middle + quick_sort<span class=o>(</span>right<span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 示例使用</span>
+</span></span><span class=line><span class=cl><span class=nv>arr</span> <span class=o>=</span> <span class=o>[</span>3, 6, 8, 10, 1, 2, 1<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>sorted_arr</span> <span class=o>=</span> quick_sort<span class=o>(</span>arr<span class=o>)</span>
+</span></span><span class=line><span class=cl>print<span class=o>(</span><span class=s2>&#34;排序后的数组:&#34;</span>, sorted_arr<span class=o>)</span>
+</span></span><span class=line><span class=cl><span class=sb>```</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>### 解释代码：</span>
+</span></span><span class=line><span class=cl>- 函数 <span class=sb>`</span>quick_sort<span class=sb>`</span> 接收一个列表（或数组）作为参数。
+</span></span><span class=line><span class=cl>- 如果输入的长度小于等于1，直接返回该输入，因为单个元素或者空集已经是有序的。
+</span></span><span class=line><span class=cl>- 选择中间位置的元素作为基准值 pivot。这里可以改进为随机选取以优化性能和稳定性。
+</span></span><span class=line><span class=cl>- 构建三个列表：<span class=sb>`</span>left<span class=sb>`</span> 包含所有比 pivot 小的元素；<span class=sb>`</span>middle<span class=sb>`</span> 包含等于 pivot 的所有元素； <span class=sb>`</span>right<span class=sb>`</span> 包含所有大于 pivot 的元素。
+</span></span><span class=line><span class=cl>- 递归地对 left 和 right 列表进行快速排序，然后将结果合并。
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>### 性能和改进：</span>
+</span></span><span class=line><span class=cl>- 快速排序在平均情况下的时间复杂度为 O<span class=o>(</span>n log n<span class=o>)</span>，但在最坏的情况下（例如输入已经完全有序），它的性能会降级到 O<span class=o>(</span>n^2<span class=o>)</span>。
+</span></span><span class=line><span class=cl>- 为了减少发生最差情况的概率，可以选择随机元素作为基准值或者使用三数取中法选择更合适的基准值。
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>以上就是一个快速排序算法的完整实现。希望这对你有所帮助！如果你有任何问题或需要进一步解释，请告诉我。
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>total duration:       26.640771498s
+</span></span><span class=line><span class=cl>load duration:        9.655767337s
+</span></span><span class=line><span class=cl>prompt <span class=nb>eval</span> count:    <span class=m>34</span> token<span class=o>(</span>s<span class=o>)</span>
+</span></span><span class=line><span class=cl>prompt <span class=nb>eval</span> duration: 124.326028ms
+</span></span><span class=line><span class=cl>prompt <span class=nb>eval</span> rate:     273.47 tokens/s
+</span></span><span class=line><span class=cl><span class=nb>eval</span> count:           <span class=m>528</span> token<span class=o>(</span>s<span class=o>)</span>
+</span></span><span class=line><span class=cl><span class=nb>eval</span> duration:        16.361471625s
+</span></span><span class=line><span class=cl><span class=nb>eval</span> rate:            32.27 tokens/s
+</span></span></code></pre></div><h3 id=五结合claude-code>五、结合Claude code<a hidden class=anchor aria-hidden=true href=#五结合claude-code>#</a></h3><p>claude code的安装就不说了</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ANTHROPIC_API_KEY</span><span class=o>=</span><span class=s2>&#34;&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ANTHROPIC_BASE_URL</span><span class=o>=</span><span class=s2>&#34;http://192.168.0.10:11434&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>claude --model qwen2.5:14b 
+</span></span></code></pre></div><p>然后就可以问一些问题和指导代码了，但是确认弱得可怜。</p><p>只能片面实现一些功能，对于空手套狼，徒手建一个新项目还做不到！！</p><p><img alt=image-20260203131315312 loading=lazy src=/posts/20260203-cluadecode_qwen2.5b/image-20260203131315312.png></p><p><img alt=image-20260203131337468 loading=lazy src=/posts/20260203-cluadecode_qwen2.5b/image-20260203131337468.png></p><p><img alt=image-20260203131353627 loading=lazy src=/posts/20260203-cluadecode_qwen2.5b/image-20260203131353627.png></p><p><img alt=image-20260203131409044 loading=lazy src=/posts/20260203-cluadecode_qwen2.5b/image-20260203131409044.png></p><p><img alt=image-20260203131421772 loading=lazy src=/posts/20260203-cluadecode_qwen2.5b/image-20260203131421772.png></p><p>可以参考一下。</p></div><footer class=post-footer><ul class=post-tags></ul><nav class=paginav><a class=next href=https://rendoumi.com/posts/20260203-claudecode_openrouter/><span class=title>下一页 »</span><br><span>Claude Code如何使用openrouter提供的大模型来节省费用</span></a></nav></footer><div id=comments></div><script src=https://cwd.js.org/cwd.js></script><script>const comments=new CWDComments({el:"#comments",apiBaseUrl:"https://cwd.rendoumi.qzz.io"});comments.mount()</script></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script></body></html>
