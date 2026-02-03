@@ -12,8 +12,55 @@
     <generator>Hugo -- 0.147.3</generator>
     <language>zh</language>
     <copyright>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Tue, 20 Jan 2026 09:00:00 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 03 Feb 2026 09:00:00 +0800</lastBuildDate>
     <atom:link href="https://rendoumi.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Claude Code如何使用openrouter提供的大模型来节省费用</title>
+      <link>https://rendoumi.com/posts/20260203-claudecode_openrouter/</link>
+      <pubDate>Tue, 03 Feb 2026 09:00:00 +0800</pubDate>
+      <guid>https://rendoumi.com/posts/20260203-claudecode_openrouter/</guid>
+      <description>&lt;p&gt;Cluade code、Codex、Gemini三架马车是齐头并进的势头，那将来必定是Farm农场和Token战争的年代。&lt;/p&gt;
+&lt;p&gt;那节省成本的方法是尽量使用合适的模型来做合适的事情&lt;/p&gt;
+&lt;p&gt;那如果有openrouter的API KEY，如何接入Claude code进行使用呢？&lt;/p&gt;
+&lt;p&gt;openrouter基本提供了500个AI models，从中选择合适的模型就可以极大的降低费用&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20260203092128937&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20260203-claudecode_openrouter/image-20260203092128937.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;那Claude Code使用的三个模型&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Opus &amp;ndash; &lt;strong&gt;复杂推理任务&lt;/strong&gt;（适合架构设计、解决棘手 Bug）&lt;/li&gt;
+&lt;li&gt;Sonnet &amp;ndash; &lt;strong&gt;日常标准任务&lt;/strong&gt;（适合绝大多数编程/写代码工作）&lt;/li&gt;
+&lt;li&gt;Haiku &amp;ndash; &lt;strong&gt;快速、低成本任务&lt;/strong&gt;（适合探索性工作、查阅文档）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;我们分别用 Gemini Flash、DeepSeek Coder来替代，最后用Sonnet来补全剩余部分，就省钱多了&lt;/p&gt;
+&lt;p&gt;方法如下：&lt;/p&gt;
+&lt;h4 id=&#34;一gen出openroute的api-key&#34;&gt;一、gen出OpenRoute的API Key&lt;/h4&gt;
+&lt;ol&gt;
+&lt;li&gt;访问 &lt;a href=&#34;https://openrouter.ai/&#34;&gt;OpenRouter&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;注册登录 (有 $1 的免费额度)&lt;/li&gt;
+&lt;li&gt;访问 &lt;a href=&#34;https://openrouter.ai/keys&#34;&gt;API Keys&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;点击 “Create Key”&lt;/li&gt;
+&lt;li&gt;把key复制下来 (类似 &lt;code&gt;sk-or-v1-...&lt;/code&gt;)&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h4 id=&#34;二安装配置薅claude-code&#34;&gt;二、安装配置薅Claude Code&lt;/h4&gt;
+&lt;p&gt;这个也不多说了&lt;/p&gt;
+&lt;h4 id=&#34;三配置连接claude-code的连接&#34;&gt;三、配置连接Claude Code的连接&lt;/h4&gt;
+&lt;p&gt;主要是几个变量：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;export&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;OPENROUTER_API_KEY&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;sk-or-v1-your-actual-key-here&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;export&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;ANTHROPIC_BASE_URL&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;https://openrouter.ai/api&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;export&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;ANTHROPIC_AUTH_TOKEN&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$OPENROUTER_API_KEY&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;export&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;ANTHROPIC_API_KEY&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;验证一下，启动claude，输入 /status&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20260203093938347&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20260203-claudecode_openrouter/image-20260203093938347.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;看到就ok了&lt;/p&gt;
+&lt;h4 id=&#34;四cluaude工具链调用的模型选择&#34;&gt;四、Cluaude工具链调用的模型选择&lt;/h4&gt;
+&lt;p&gt;Claude Code需要模型能支持&amp;quot;tool use&amp;quot;(也叫做函数调用)，这些允许Claude code做如下事情&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;*&lt;strong&gt;Read and edit files*&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;*&lt;strong&gt;Run terminal commands*&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;*&lt;strong&gt;Search your codebase*&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;*&lt;strong&gt;Execute git commands*&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;支持工具链调用的模型:&lt;/strong&gt;&lt;/p&gt;</description>
+    </item>
     <item>
       <title>黄大善人免费的的nvidia glm和minimax模型应用于Claude Code</title>
       <link>https://rendoumi.com/posts/20260120-nvidia_claudecode/</link>

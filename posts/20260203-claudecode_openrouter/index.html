@@ -1,0 +1,142 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3988508441804851" crossorigin=anonymous></script><title>Claude Code如何使用openrouter提供的大模型来节省费用 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='Cluade code、Codex、Gemini三架马车是齐头并进的势头，那将来必定是Farm农场和Token战争的年代。
+那节省成本的方法是尽量使用合适的模型来做合适的事情
+那如果有openrouter的API KEY，如何接入Claude code进行使用呢？
+openrouter基本提供了500个AI models，从中选择合适的模型就可以极大的降低费用
+
+那Claude Code使用的三个模型
+
+Opus &ndash; 复杂推理任务（适合架构设计、解决棘手 Bug）
+Sonnet &ndash; 日常标准任务（适合绝大多数编程/写代码工作）
+Haiku &ndash; 快速、低成本任务（适合探索性工作、查阅文档）
+
+我们分别用 Gemini Flash、DeepSeek Coder来替代，最后用Sonnet来补全剩余部分，就省钱多了
+方法如下：
+一、gen出OpenRoute的API Key
+
+访问 OpenRouter
+注册登录 (有 $1 的免费额度)
+访问 API Keys
+点击 “Create Key”
+把key复制下来 (类似 sk-or-v1-...)
+
+二、安装配置薅Claude Code
+这个也不多说了
+三、配置连接Claude Code的连接
+主要是几个变量：
+export OPENROUTER_API_KEY="sk-or-v1-your-actual-key-here"
+export ANTHROPIC_BASE_URL="https://openrouter.ai/api"
+export ANTHROPIC_AUTH_TOKEN="$OPENROUTER_API_KEY"
+export ANTHROPIC_API_KEY=""
+验证一下，启动claude，输入 /status
+
+看到就ok了
+四、Cluaude工具链调用的模型选择
+Claude Code需要模型能支持"tool use"(也叫做函数调用)，这些允许Claude code做如下事情
+
+*Read and edit files*
+*Run terminal commands*
+*Search your codebase*
+*Execute git commands*
+
+支持工具链调用的模型:'><meta name=author content="八戒"><link rel=canonical href=https://rendoumi.com/posts/20260203-claudecode_openrouter/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.5d8a858b4ad07d913988e10d3c3dbc8c171f45316a396de8a60d67f44840812d.css integrity="sha256-XYqFi0rQfZE5iOENPD28jBcfRTFqOW3opg1n9EhAgS0=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/%3Clink%20/%20abs%20url%3E><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20260203-claudecode_openrouter/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20260203-claudecode_openrouter/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="Claude Code如何使用openrouter提供的大模型来节省费用"><meta property="og:description" content='Cluade code、Codex、Gemini三架马车是齐头并进的势头，那将来必定是Farm农场和Token战争的年代。
+那节省成本的方法是尽量使用合适的模型来做合适的事情
+那如果有openrouter的API KEY，如何接入Claude code进行使用呢？
+openrouter基本提供了500个AI models，从中选择合适的模型就可以极大的降低费用
+那Claude Code使用的三个模型
+Opus – 复杂推理任务（适合架构设计、解决棘手 Bug） Sonnet – 日常标准任务（适合绝大多数编程/写代码工作） Haiku – 快速、低成本任务（适合探索性工作、查阅文档） 我们分别用 Gemini Flash、DeepSeek Coder来替代，最后用Sonnet来补全剩余部分，就省钱多了
+方法如下：
+一、gen出OpenRoute的API Key 访问 OpenRouter 注册登录 (有 $1 的免费额度) 访问 API Keys 点击 “Create Key” 把key复制下来 (类似 sk-or-v1-...) 二、安装配置薅Claude Code 这个也不多说了
+三、配置连接Claude Code的连接 主要是几个变量：
+export OPENROUTER_API_KEY="sk-or-v1-your-actual-key-here" export ANTHROPIC_BASE_URL="https://openrouter.ai/api" export ANTHROPIC_AUTH_TOKEN="$OPENROUTER_API_KEY" export ANTHROPIC_API_KEY="" 验证一下，启动claude，输入 /status
+看到就ok了
+四、Cluaude工具链调用的模型选择 Claude Code需要模型能支持"tool use"(也叫做函数调用)，这些允许Claude code做如下事情
+*Read and edit files* *Run terminal commands* *Search your codebase* *Execute git commands* 支持工具链调用的模型:'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2026-02-03T09:00:00+08:00"><meta property="article:modified_time" content="2026-02-03T09:00:00+08:00"><meta property="og:image" content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:title content="Claude Code如何使用openrouter提供的大模型来节省费用"><meta name=twitter:description content='Cluade code、Codex、Gemini三架马车是齐头并进的势头，那将来必定是Farm农场和Token战争的年代。
+那节省成本的方法是尽量使用合适的模型来做合适的事情
+那如果有openrouter的API KEY，如何接入Claude code进行使用呢？
+openrouter基本提供了500个AI models，从中选择合适的模型就可以极大的降低费用
+
+那Claude Code使用的三个模型
+
+Opus &ndash; 复杂推理任务（适合架构设计、解决棘手 Bug）
+Sonnet &ndash; 日常标准任务（适合绝大多数编程/写代码工作）
+Haiku &ndash; 快速、低成本任务（适合探索性工作、查阅文档）
+
+我们分别用 Gemini Flash、DeepSeek Coder来替代，最后用Sonnet来补全剩余部分，就省钱多了
+方法如下：
+一、gen出OpenRoute的API Key
+
+访问 OpenRouter
+注册登录 (有 $1 的免费额度)
+访问 API Keys
+点击 “Create Key”
+把key复制下来 (类似 sk-or-v1-...)
+
+二、安装配置薅Claude Code
+这个也不多说了
+三、配置连接Claude Code的连接
+主要是几个变量：
+export OPENROUTER_API_KEY="sk-or-v1-your-actual-key-here"
+export ANTHROPIC_BASE_URL="https://openrouter.ai/api"
+export ANTHROPIC_AUTH_TOKEN="$OPENROUTER_API_KEY"
+export ANTHROPIC_API_KEY=""
+验证一下，启动claude，输入 /status
+
+看到就ok了
+四、Cluaude工具链调用的模型选择
+Claude Code需要模型能支持"tool use"(也叫做函数调用)，这些允许Claude code做如下事情
+
+*Read and edit files*
+*Run terminal commands*
+*Search your codebase*
+*Execute git commands*
+
+支持工具链调用的模型:'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"Claude Code如何使用openrouter提供的大模型来节省费用","item":"https://rendoumi.com/posts/20260203-claudecode_openrouter/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Claude Code如何使用openrouter提供的大模型来节省费用","name":"Claude Code如何使用openrouter提供的大模型来节省费用","description":"Cluade code、Codex、Gemini三架马车是齐头并进的势头，那将来必定是Farm农场和Token战争的年代。\n那节省成本的方法是尽量使用合适的模型来做合适的事情\n那如果有openrouter的API KEY，如何接入Claude code进行使用呢？\nopenrouter基本提供了500个AI models，从中选择合适的模型就可以极大的降低费用\n那Claude Code使用的三个模型\nOpus \u0026ndash; 复杂推理任务（适合架构设计、解决棘手 Bug） Sonnet \u0026ndash; 日常标准任务（适合绝大多数编程/写代码工作） Haiku \u0026ndash; 快速、低成本任务（适合探索性工作、查阅文档） 我们分别用 Gemini Flash、DeepSeek Coder来替代，最后用Sonnet来补全剩余部分，就省钱多了\n方法如下：\n一、gen出OpenRoute的API Key 访问 OpenRouter 注册登录 (有 $1 的免费额度) 访问 API Keys 点击 “Create Key” 把key复制下来 (类似 sk-or-v1-...) 二、安装配置薅Claude Code 这个也不多说了\n三、配置连接Claude Code的连接 主要是几个变量：\nexport OPENROUTER_API_KEY=\u0026#34;sk-or-v1-your-actual-key-here\u0026#34; export ANTHROPIC_BASE_URL=\u0026#34;https://openrouter.ai/api\u0026#34; export ANTHROPIC_AUTH_TOKEN=\u0026#34;$OPENROUTER_API_KEY\u0026#34; export ANTHROPIC_API_KEY=\u0026#34;\u0026#34; 验证一下，启动claude，输入 /status\n看到就ok了\n四、Cluaude工具链调用的模型选择 Claude Code需要模型能支持\u0026quot;tool use\u0026quot;(也叫做函数调用)，这些允许Claude code做如下事情\n*Read and edit files* *Run terminal commands* *Search your codebase* *Execute git commands* 支持工具链调用的模型:\n","keywords":[],"articleBody":"Cluade code、Codex、Gemini三架马车是齐头并进的势头，那将来必定是Farm农场和Token战争的年代。\n那节省成本的方法是尽量使用合适的模型来做合适的事情\n那如果有openrouter的API KEY，如何接入Claude code进行使用呢？\nopenrouter基本提供了500个AI models，从中选择合适的模型就可以极大的降低费用\n那Claude Code使用的三个模型\nOpus – 复杂推理任务（适合架构设计、解决棘手 Bug） Sonnet – 日常标准任务（适合绝大多数编程/写代码工作） Haiku – 快速、低成本任务（适合探索性工作、查阅文档） 我们分别用 Gemini Flash、DeepSeek Coder来替代，最后用Sonnet来补全剩余部分，就省钱多了\n方法如下：\n一、gen出OpenRoute的API Key 访问 OpenRouter 注册登录 (有 $1 的免费额度) 访问 API Keys 点击 “Create Key” 把key复制下来 (类似 sk-or-v1-...) 二、安装配置薅Claude Code 这个也不多说了\n三、配置连接Claude Code的连接 主要是几个变量：\nexport OPENROUTER_API_KEY=\"sk-or-v1-your-actual-key-here\" export ANTHROPIC_BASE_URL=\"https://openrouter.ai/api\" export ANTHROPIC_AUTH_TOKEN=\"$OPENROUTER_API_KEY\" export ANTHROPIC_API_KEY=\"\" 验证一下，启动claude，输入 /status\n看到就ok了\n四、Cluaude工具链调用的模型选择 Claude Code需要模型能支持\"tool use\"(也叫做函数调用)，这些允许Claude code做如下事情\n*Read and edit files* *Run terminal commands* *Search your codebase* *Execute git commands* 支持工具链调用的模型:\nAll Claude models (Opus, Sonnet, Haiku) GPT-4, GPT-4 Turbo, GPT-4o, GPT-5 series Google Gemini 1.5 Pro, Gemini 2.0 Pro, Gemini 3.0 Pro DeepSeek Coder V2 不支持工具链调用的模型:\n大多数 Llama 模型 7B的基座模型 大多数的小型开源模型 五、选择合适的模型 那基于上面的原则，以及Claude code的三个模型，我们可以选择合适的替代模型\nexport ANTHROPIC_DEFAULT_SONNET_MODEL=\"openai/gpt-4o\" export ANTHROPIC_DEFAULT_OPUS_MODEL=\"openai/gpt-5.2-pro\" export ANTHROPIC_DEFAULT_HAIKU_MODEL=\"google/gemini-2.0-flash\" 推荐的模型栈（节省大量费用）： export ANTHROPIC_DEFAULT_HAIKU_MODEL=\"google/gemini-2.0-flash\" export ANTHROPIC_DEFAULT_SONNET_MODEL=\"deepseek/deepseek-coder-v2\" export ANTHROPIC_DEFAULT_OPUS_MODEL=\"anthropic/claude-sonnet-4.5\" 六、(可选)优化openrouter的模型链 那由于openrouter有个preset的模型链链路，可以指定模型失败后的备用模型，我们可以更好的优化\nexport ANTHROPIC_DEFAULT_SONNET_MODEL=\"@preset/beast-mode-workflow\" preset的定义： { \"name\": \"beast-mode-workflow\", \"model\": \"anthropic/claude-sonnet-4.5\", \"fallbacks\": [ \"openai/gpt-4o\", \"google/gemini-2.5-pro\", \"deepseek/deepseek-coder-v2\" ], \"route\": \"fallback\" } 如果claude-sonnet-4.5失败，那会依次调用备用模型：openai/gpt-4o –\u003e google/gemini-2.5-pro –\u003e deepseek/deepseek-coder-v2\n七、根据不同状况，灵活选用模型 1、初期探索\nexport ANTHROPIC_DEFAULT_SONNET_MODEL=\"google/gemini-2.0-flash\" claude 2、节省费用的实施阶段\nexport ANTHROPIC_DEFAULT_SONNET_MODEL=\"deepseek/deepseek-coder-v2\" claude 3、高级模式\nexport ANTHROPIC_DEFAULT_SONNET_MODEL=\"anthropic/claude-sonnet-4.5\" claude 4、A/B 测试\n# A轮测试 export ANTHROPIC_DEFAULT_SONNET_MODEL=\"deepseek/deepseek-coder-v2\" claude -p \"Implement a simple cache with LRU eviction\" \u003e output-deepseek.txt # B轮测试 export ANTHROPIC_DEFAULT_SONNET_MODEL=\"anthropic/claude-sonnet-4.5\" claude -p \"Implement a simple cache with LRU eviction\" \u003e output-sonnet.txt # C轮测试 export ANTHROPIC_DEFAULT_SONNET_MODEL=\"google/gemini-2.5-pro\" claude -p \"Implement a simple cache with LRU eviction\" \u003e output-gemini.txt # 比较A/B轮测试结果 diff output-deepseek.txt output-sonnet.txt ","wordCount":"214","inLanguage":"zh","image":"https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E","datePublished":"2026-02-03T09:00:00+08:00","dateModified":"2026-02-03T09:00:00+08:00","author":{"@type":"Person","name":"八戒"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20260203-claudecode_openrouter/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="Home (Alt + H)"><img src=https://rendoumi.com/apple-touch-icon.png alt aria-label=logo height=35>Home</a><div class=logo-switches></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><div class=breadcrumbs><a href=https://rendoumi.com/>主页</a>&nbsp;»&nbsp;<a href=https://rendoumi.com/posts/>所有文章</a></div><h1 class="post-title entry-hint-parent">Claude Code如何使用openrouter提供的大模型来节省费用
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2026-02-03 09:00:00 +0800 CST'>2026年3月</span>&nbsp;·&nbsp;<span>2 分钟</span>&nbsp;·&nbsp;<span>214 字</span>&nbsp;·&nbsp;<span>八戒</span></div></header><div class=post-content><p>Cluade code、Codex、Gemini三架马车是齐头并进的势头，那将来必定是Farm农场和Token战争的年代。</p><p>那节省成本的方法是尽量使用合适的模型来做合适的事情</p><p>那如果有openrouter的API KEY，如何接入Claude code进行使用呢？</p><p>openrouter基本提供了500个AI models，从中选择合适的模型就可以极大的降低费用</p><p><img alt=image-20260203092128937 loading=lazy src=/posts/20260203-claudecode_openrouter/image-20260203092128937.png></p><p>那Claude Code使用的三个模型</p><ul><li>Opus &ndash; <strong>复杂推理任务</strong>（适合架构设计、解决棘手 Bug）</li><li>Sonnet &ndash; <strong>日常标准任务</strong>（适合绝大多数编程/写代码工作）</li><li>Haiku &ndash; <strong>快速、低成本任务</strong>（适合探索性工作、查阅文档）</li></ul><p>我们分别用 Gemini Flash、DeepSeek Coder来替代，最后用Sonnet来补全剩余部分，就省钱多了</p><p>方法如下：</p><h4 id=一gen出openroute的api-key>一、gen出OpenRoute的API Key<a hidden class=anchor aria-hidden=true href=#一gen出openroute的api-key>#</a></h4><ol><li>访问 <a href=https://openrouter.ai/>OpenRouter</a></li><li>注册登录 (有 $1 的免费额度)</li><li>访问 <a href=https://openrouter.ai/keys>API Keys</a></li><li>点击 “Create Key”</li><li>把key复制下来 (类似 <code>sk-or-v1-...</code>)</li></ol><h4 id=二安装配置薅claude-code>二、安装配置薅Claude Code<a hidden class=anchor aria-hidden=true href=#二安装配置薅claude-code>#</a></h4><p>这个也不多说了</p><h4 id=三配置连接claude-code的连接>三、配置连接Claude Code的连接<a hidden class=anchor aria-hidden=true href=#三配置连接claude-code的连接>#</a></h4><p>主要是几个变量：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>export</span> <span class=nv>OPENROUTER_API_KEY</span><span class=o>=</span><span class=s2>&#34;sk-or-v1-your-actual-key-here&#34;</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ANTHROPIC_BASE_URL</span><span class=o>=</span><span class=s2>&#34;https://openrouter.ai/api&#34;</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ANTHROPIC_AUTH_TOKEN</span><span class=o>=</span><span class=s2>&#34;</span><span class=nv>$OPENROUTER_API_KEY</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ANTHROPIC_API_KEY</span><span class=o>=</span><span class=s2>&#34;&#34;</span>
+</span></span></code></pre></div><p>验证一下，启动claude，输入 /status</p><p><img alt=image-20260203093938347 loading=lazy src=/posts/20260203-claudecode_openrouter/image-20260203093938347.png></p><p>看到就ok了</p><h4 id=四cluaude工具链调用的模型选择>四、Cluaude工具链调用的模型选择<a hidden class=anchor aria-hidden=true href=#四cluaude工具链调用的模型选择>#</a></h4><p>Claude Code需要模型能支持"tool use"(也叫做函数调用)，这些允许Claude code做如下事情</p><ul><li>*<strong>Read and edit files*</strong></li><li>*<strong>Run terminal commands*</strong></li><li>*<strong>Search your codebase*</strong></li><li>*<strong>Execute git commands*</strong></li></ul><p><strong>支持工具链调用的模型:</strong></p><ul><li>All Claude models (Opus, Sonnet, Haiku)</li><li>GPT-4, GPT-4 Turbo, GPT-4o, GPT-5 series</li><li>Google Gemini 1.5 Pro, Gemini 2.0 Pro, Gemini 3.0 Pro</li><li>DeepSeek Coder V2</li></ul><p><strong>不支持工具链调用的模型:</strong></p><ul><li>大多数 Llama 模型</li><li>7B的基座模型</li><li>大多数的小型开源模型</li></ul><h4 id=五选择合适的模型>五、选择合适的模型<a hidden class=anchor aria-hidden=true href=#五选择合适的模型>#</a></h4><p>那基于上面的原则，以及Claude code的三个模型，我们可以选择合适的替代模型</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ANTHROPIC_DEFAULT_SONNET_MODEL</span><span class=o>=</span><span class=s2>&#34;openai/gpt-4o&#34;</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ANTHROPIC_DEFAULT_OPUS_MODEL</span><span class=o>=</span><span class=s2>&#34;openai/gpt-5.2-pro&#34;</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ANTHROPIC_DEFAULT_HAIKU_MODEL</span><span class=o>=</span><span class=s2>&#34;google/gemini-2.0-flash&#34;</span>
+</span></span></code></pre></div><h5 id=推荐的模型栈节省大量费用>推荐的模型栈（节省大量费用）：<a hidden class=anchor aria-hidden=true href=#推荐的模型栈节省大量费用>#</a></h5><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ANTHROPIC_DEFAULT_HAIKU_MODEL</span><span class=o>=</span><span class=s2>&#34;google/gemini-2.0-flash&#34;</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ANTHROPIC_DEFAULT_SONNET_MODEL</span><span class=o>=</span><span class=s2>&#34;deepseek/deepseek-coder-v2&#34;</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ANTHROPIC_DEFAULT_OPUS_MODEL</span><span class=o>=</span><span class=s2>&#34;anthropic/claude-sonnet-4.5&#34;</span>
+</span></span></code></pre></div><h4 id=六可选优化openrouter的模型链>六、(可选)优化openrouter的模型链<a hidden class=anchor aria-hidden=true href=#六可选优化openrouter的模型链>#</a></h4><p>那由于openrouter有个preset的模型链链路，可以指定模型失败后的备用模型，我们可以更好的优化</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ANTHROPIC_DEFAULT_SONNET_MODEL</span><span class=o>=</span><span class=s2>&#34;@preset/beast-mode-workflow&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>preset的定义：
+</span></span><span class=line><span class=cl><span class=o>{</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;name&#34;</span>: <span class=s2>&#34;beast-mode-workflow&#34;</span>,
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;model&#34;</span>: <span class=s2>&#34;anthropic/claude-sonnet-4.5&#34;</span>,
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;fallbacks&#34;</span>: <span class=o>[</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;openai/gpt-4o&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;google/gemini-2.5-pro&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;deepseek/deepseek-coder-v2&#34;</span>
+</span></span><span class=line><span class=cl>  <span class=o>]</span>,
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;route&#34;</span>: <span class=s2>&#34;fallback&#34;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></div><p>如果claude-sonnet-4.5失败，那会依次调用备用模型：openai/gpt-4o &ndash;> google/gemini-2.5-pro &ndash;> deepseek/deepseek-coder-v2</p><h4 id=七根据不同状况灵活选用模型>七、根据不同状况，灵活选用模型<a hidden class=anchor aria-hidden=true href=#七根据不同状况灵活选用模型>#</a></h4><p>1、初期探索</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ANTHROPIC_DEFAULT_SONNET_MODEL</span><span class=o>=</span><span class=s2>&#34;google/gemini-2.0-flash&#34;</span>
+</span></span><span class=line><span class=cl>claude
+</span></span></code></pre></div><p>2、节省费用的实施阶段</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ANTHROPIC_DEFAULT_SONNET_MODEL</span><span class=o>=</span><span class=s2>&#34;deepseek/deepseek-coder-v2&#34;</span>
+</span></span><span class=line><span class=cl>claude
+</span></span></code></pre></div><p>3、高级模式</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ANTHROPIC_DEFAULT_SONNET_MODEL</span><span class=o>=</span><span class=s2>&#34;anthropic/claude-sonnet-4.5&#34;</span>
+</span></span><span class=line><span class=cl>claude
+</span></span></code></pre></div><p>4、A/B 测试</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># A轮测试</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ANTHROPIC_DEFAULT_SONNET_MODEL</span><span class=o>=</span><span class=s2>&#34;deepseek/deepseek-coder-v2&#34;</span>
+</span></span><span class=line><span class=cl>claude -p <span class=s2>&#34;Implement a simple cache with LRU eviction&#34;</span> &gt; output-deepseek.txt
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># B轮测试</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ANTHROPIC_DEFAULT_SONNET_MODEL</span><span class=o>=</span><span class=s2>&#34;anthropic/claude-sonnet-4.5&#34;</span>
+</span></span><span class=line><span class=cl>claude -p <span class=s2>&#34;Implement a simple cache with LRU eviction&#34;</span> &gt; output-sonnet.txt
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># C轮测试</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ANTHROPIC_DEFAULT_SONNET_MODEL</span><span class=o>=</span><span class=s2>&#34;google/gemini-2.5-pro&#34;</span>
+</span></span><span class=line><span class=cl>claude -p <span class=s2>&#34;Implement a simple cache with LRU eviction&#34;</span> &gt; output-gemini.txt
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 比较A/B轮测试结果</span>
+</span></span><span class=line><span class=cl>diff output-deepseek.txt output-sonnet.txt
+</span></span></code></pre></div></div><footer class=post-footer><ul class=post-tags></ul><nav class=paginav><a class=next href=https://rendoumi.com/posts/20260120-nvidia_claudecode/><span class=title>下一页 »</span><br><span>黄大善人免费的的nvidia glm和minimax模型应用于Claude Code</span></a></nav></footer><div id=comments></div><script src=https://cwd.js.org/cwd.js></script><script>const comments=new CWDComments({el:"#comments",apiBaseUrl:"https://cwd.rendoumi.qzz.io"});comments.mount()</script></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script></body></html>
