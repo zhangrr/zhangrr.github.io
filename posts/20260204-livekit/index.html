@@ -1,0 +1,120 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3988508441804851" crossorigin=anonymous></script><title>Livekit的安装 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='Livekit是个语音的套件，安装确实比较困难，步骤如下：
+准备好Debian 12，安装好Docker，因为Livekit安装脚本其实是有问题的
+apt update
+
+apt install -y curl gpg
+
+wget -O - https://download.docker.com/linux/debian/gpg |  gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+echo   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
+   $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+   
+apt update; apt install -y docker-ce
+然后直接generate安装脚本
+cd /root
+
+docker run --rm -it -v$PWD:/output livekit/generate
+然后开始提问回答环节
+LiveKit Server only
+
+主域名：
+
+turn的辅助域名：
+
+用什么证书，当然ACME
+
+版本，选最新的latest
+
+是否用外部的redis，当然no，选内置的
+
+然后生成脚本
+
+会给一段提示'><meta name=author content="八戒"><link rel=canonical href=https://rendoumi.com/posts/20260204-livekit/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.5d8a858b4ad07d913988e10d3c3dbc8c171f45316a396de8a60d67f44840812d.css integrity="sha256-XYqFi0rQfZE5iOENPD28jBcfRTFqOW3opg1n9EhAgS0=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/%3Clink%20/%20abs%20url%3E><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20260204-livekit/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20260204-livekit/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="Livekit的安装"><meta property="og:description" content='Livekit是个语音的套件，安装确实比较困难，步骤如下：
+准备好Debian 12，安装好Docker，因为Livekit安装脚本其实是有问题的
+apt update apt install -y curl gpg wget -O - https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \ $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null apt update; apt install -y docker-ce 然后直接generate安装脚本
+cd /root docker run --rm -it -v$PWD:/output livekit/generate 然后开始提问回答环节
+LiveKit Server only
+主域名：
+turn的辅助域名：
+用什么证书，当然ACME
+版本，选最新的latest
+是否用外部的redis，当然no，选内置的
+然后生成脚本
+会给一段提示'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2026-02-04T09:00:00+08:00"><meta property="article:modified_time" content="2026-02-04T09:00:00+08:00"><meta property="og:image" content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:title content="Livekit的安装"><meta name=twitter:description content='Livekit是个语音的套件，安装确实比较困难，步骤如下：
+准备好Debian 12，安装好Docker，因为Livekit安装脚本其实是有问题的
+apt update
+
+apt install -y curl gpg
+
+wget -O - https://download.docker.com/linux/debian/gpg |  gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+echo   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
+   $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+   
+apt update; apt install -y docker-ce
+然后直接generate安装脚本
+cd /root
+
+docker run --rm -it -v$PWD:/output livekit/generate
+然后开始提问回答环节
+LiveKit Server only
+
+主域名：
+
+turn的辅助域名：
+
+用什么证书，当然ACME
+
+版本，选最新的latest
+
+是否用外部的redis，当然no，选内置的
+
+然后生成脚本
+
+会给一段提示'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"Livekit的安装","item":"https://rendoumi.com/posts/20260204-livekit/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Livekit的安装","name":"Livekit的安装","description":"Livekit是个语音的套件，安装确实比较困难，步骤如下：\n准备好Debian 12，安装好Docker，因为Livekit安装脚本其实是有问题的\napt update apt install -y curl gpg wget -O - https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg echo \u0026#34;deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \\ $(lsb_release -cs) stable\u0026#34; | tee /etc/apt/sources.list.d/docker.list \u0026gt; /dev/null apt update; apt install -y docker-ce 然后直接generate安装脚本\ncd /root docker run --rm -it -v$PWD:/output livekit/generate 然后开始提问回答环节\nLiveKit Server only\n主域名：\nturn的辅助域名：\n用什么证书，当然ACME\n版本，选最新的latest\n是否用外部的redis，当然no，选内置的\n然后生成脚本\n会给一段提示\n","keywords":[],"articleBody":"Livekit是个语音的套件，安装确实比较困难，步骤如下：\n准备好Debian 12，安装好Docker，因为Livekit安装脚本其实是有问题的\napt update apt install -y curl gpg wget -O - https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg echo \"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \\ $(lsb_release -cs) stable\" | tee /etc/apt/sources.list.d/docker.list \u003e /dev/null apt update; apt install -y docker-ce 然后直接generate安装脚本\ncd /root docker run --rm -it -v$PWD:/output livekit/generate 然后开始提问回答环节\nLiveKit Server only\n主域名：\nturn的辅助域名：\n用什么证书，当然ACME\n版本，选最新的latest\n是否用外部的redis，当然no，选内置的\n然后生成脚本\n会给一段提示\n然后我们要设置Firewall防火墙\n80 — TLS issuance 443 — primary HTTPS and TURN/TLS 443/UDP — TURN/UDP 7881 — WebRTC over TCP 50000–60000/UDP — WebRTC over UDP 80 TCP、443 TCP、443 UDP、7881 TCP、50000-60000 UDP打开\n再设置DNS解析，如果是用Cloudflare做的解析，务必只解析，不要代理，否则无法联通\n然后就编辑初始化脚本\ncd livekit.xxx.com/ chmod +x init_script.sh 编辑这个init_script.sh\n# docker已经装了，所以隐掉 #curl -fsSL https://get.docker.com -o /tmp/get-docker.sh #sh /tmp/get-docker.sh curl -L \"https://github.com/docker/compose/releases/download/v5.0.0/docker-compose-$(uname -s)-$(uname -m)\" -o /usr/local/bin/docker-compose chmod 755 /usr/local/bin/docker-compose sudo systemctl enable docker # livekit config cat \u003c\u003c EOF \u003e /opt/livekit/livekit.yaml port: 7880 bind_addresses: - \"\" rtc: tcp_port: 7881 port_range_start: 50000 port_range_end: 60000 use_external_ip: false #没有独立公网ip，由true改成false 然后执行\n./init_script.sh 执行完以后啊，会在 /opt目录下产生真正的docker-compose文件，也会自启动容器\n再装客户端：\ncurl -sSL https://get.livekit.io/cli | bash livekit-cli create-token \\ --api-key --api-secret \\ --join --room my-first-room --identity user1 \\ --valid-for 24h 拿到token\n然后到网站去验证：\nhttps://meet.livekit.io/?tab=custom\n这样就ok了\n客户端文档：\nhttps://docs.livekit.io/references/client-sdks/\n","wordCount":"176","inLanguage":"zh","image":"https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E","datePublished":"2026-02-04T09:00:00+08:00","dateModified":"2026-02-04T09:00:00+08:00","author":{"@type":"Person","name":"八戒"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20260204-livekit/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="Home (Alt + H)"><img src=https://rendoumi.com/apple-touch-icon.png alt aria-label=logo height=35>Home</a><div class=logo-switches></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><div class=breadcrumbs><a href=https://rendoumi.com/>主页</a>&nbsp;»&nbsp;<a href=https://rendoumi.com/posts/>所有文章</a></div><h1 class="post-title entry-hint-parent">Livekit的安装
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2026-02-04 09:00:00 +0800 CST'>2026年4月</span>&nbsp;·&nbsp;<span>1 分钟</span>&nbsp;·&nbsp;<span>176 字</span>&nbsp;·&nbsp;<span>八戒</span></div></header><div class=post-content><p>Livekit是个语音的套件，安装确实比较困难，步骤如下：</p><p>准备好Debian 12，安装好Docker，因为Livekit安装脚本其实是有问题的</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>apt update
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>apt install -y curl gpg
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>wget -O - https://download.docker.com/linux/debian/gpg <span class=p>|</span>  gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>echo</span>   <span class=s2>&#34;deb [arch=</span><span class=k>$(</span>dpkg --print-architecture<span class=k>)</span><span class=s2> signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
+</span></span></span><span class=line><span class=cl><span class=s2>   </span><span class=k>$(</span>lsb_release -cs<span class=k>)</span><span class=s2> stable&#34;</span> <span class=p>|</span> tee /etc/apt/sources.list.d/docker.list &gt; /dev/null
+</span></span><span class=line><span class=cl>   
+</span></span><span class=line><span class=cl>apt update<span class=p>;</span> apt install -y docker-ce
+</span></span></code></pre></div><p>然后直接generate安装脚本</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>cd</span> /root
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>docker run --rm -it -v<span class=nv>$PWD</span>:/output livekit/generate
+</span></span></code></pre></div><p>然后开始提问回答环节</p><p>LiveKit Server only</p><p><img alt=image-20260204113729010 loading=lazy src=/posts/20260204-livekit/image-20260204113729010.png></p><p>主域名：</p><p><img alt=image-20260204113804816 loading=lazy src=/posts/20260204-livekit/image-20260204113804816.png></p><p>turn的辅助域名：</p><p><img alt=image-20260204113840669 loading=lazy src=/posts/20260204-livekit/image-20260204113840669.png></p><p>用什么证书，当然ACME</p><p><img alt=image-20260204113912308 loading=lazy src=/posts/20260204-livekit/image-20260204113912308.png></p><p>版本，选最新的latest</p><p><img alt=image-20260204113951152 loading=lazy src=/posts/20260204-livekit/image-20260204113951152.png></p><p>是否用外部的redis，当然no，选内置的</p><p><img alt=image-20260204114027722 loading=lazy src=/posts/20260204-livekit/image-20260204114027722.png></p><p>然后生成脚本</p><p><img alt=image-20260204114057643 loading=lazy src=/posts/20260204-livekit/image-20260204114057643.png></p><p>会给一段提示</p><p><img alt=image-20260204114131477 loading=lazy src=/posts/20260204-livekit/image-20260204114131477.png></p><p>然后我们要设置Firewall防火墙</p><ul><li>80 — TLS issuance</li><li>443 — primary HTTPS and TURN/TLS</li><li>443/UDP — TURN/UDP</li><li>7881 — WebRTC over TCP</li><li>50000–60000/UDP — WebRTC over UDP</li></ul><p>80 TCP、443 TCP、443 UDP、7881 TCP、50000-60000 UDP打开</p><p>再设置DNS解析，如果是用Cloudflare做的解析，务必只解析，不要代理，否则无法联通</p><p>然后就编辑初始化脚本</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>cd</span> livekit.xxx.com/
+</span></span><span class=line><span class=cl>chmod +x init_script.sh
+</span></span></code></pre></div><p>编辑这个init_script.sh</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># docker已经装了，所以隐掉</span>
+</span></span><span class=line><span class=cl><span class=c1>#curl -fsSL https://get.docker.com -o /tmp/get-docker.sh</span>
+</span></span><span class=line><span class=cl><span class=c1>#sh /tmp/get-docker.sh</span>
+</span></span><span class=line><span class=cl>curl -L <span class=s2>&#34;https://github.com/docker/compose/releases/download/v5.0.0/docker-compose-</span><span class=k>$(</span>uname -s<span class=k>)</span><span class=s2>-</span><span class=k>$(</span>uname -m<span class=k>)</span><span class=s2>&#34;</span> -o /usr/local/bin/docker-compose
+</span></span><span class=line><span class=cl>chmod <span class=m>755</span> /usr/local/bin/docker-compose
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>sudo systemctl <span class=nb>enable</span> docker
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># livekit config</span>
+</span></span><span class=line><span class=cl>cat &lt;&lt; EOF &gt; /opt/livekit/livekit.yaml
+</span></span><span class=line><span class=cl>port: <span class=m>7880</span>
+</span></span><span class=line><span class=cl>bind_addresses:
+</span></span><span class=line><span class=cl>    - <span class=s2>&#34;&#34;</span>
+</span></span><span class=line><span class=cl>rtc:
+</span></span><span class=line><span class=cl>    tcp_port: <span class=m>7881</span>
+</span></span><span class=line><span class=cl>    port_range_start: <span class=m>50000</span>
+</span></span><span class=line><span class=cl>    port_range_end: <span class=m>60000</span>
+</span></span><span class=line><span class=cl>    use_external_ip: <span class=nb>false</span> <span class=c1>#没有独立公网ip，由true改成false</span>
+</span></span></code></pre></div><p><img alt=image-20260204114559213 loading=lazy src=/posts/20260204-livekit/image-20260204114559213.png></p><p>然后执行</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>./init_script.sh
+</span></span></code></pre></div><p>执行完以后啊，会在 /opt目录下产生真正的docker-compose文件，也会自启动容器</p><p>再装客户端：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>curl -sSL https://get.livekit.io/cli <span class=p>|</span> bash
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>livekit-cli create-token <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --api-key &lt;project_api_key&gt; --api-secret &lt;project_secret_key&gt; <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --join --room my-first-room --identity user1 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --valid-for 24h
+</span></span></code></pre></div><p>拿到token</p><p><img alt=image-20260204130143142 loading=lazy src=/posts/20260204-livekit/image-20260204130143142.png></p><p>然后到网站去验证：</p><p><a href="https://meet.livekit.io/?tab=custom">https://meet.livekit.io/?tab=custom</a></p><p><img alt=image-20260204130216453 loading=lazy src=/posts/20260204-livekit/image-20260204130216453.png></p><p>这样就ok了</p><p>客户端文档：</p><p><a href=https://docs.livekit.io/references/client-sdks/>https://docs.livekit.io/references/client-sdks/</a></p></div><footer class=post-footer><ul class=post-tags></ul><nav class=paginav><a class=next href=https://rendoumi.com/posts/20260203-cluadecode_qwen2.5b/><span class=title>下一页 »</span><br><span>Claude Code如何使用ollama提供的qwen3:2.5B大模型来私网使用</span></a></nav></footer><div id=comments></div><script src=https://cwd.js.org/cwd.js></script><script>const comments=new CWDComments({el:"#comments",apiBaseUrl:"https://cwd.rendoumi.qzz.io"});comments.mount()</script></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script></body></html>
