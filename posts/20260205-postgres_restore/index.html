@@ -1,0 +1,88 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3988508441804851" crossorigin=anonymous></script><title>Postgres的恢复之三 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="那版上的Postgres恢复已经有两篇文章了，这是第三篇，数据大于天啊
+原因是看到了一篇文章：
+https://medium.com/engineering-playbook/i-deleted-production-database-on-friday-5-pm-heres-how-i-didn-t-get-fired-e5e53a133f9b
+我们来复盘整个过程，同事提醒自己也要同样清醒和多留备份
+一、建立**Point-in-Time Recovery (PITR)**归档
+# ps axjf的结果中，看到配置文件是 /etc/postgresql/13/main/postgresql.conf
+# 那就修改这个配置文件
+
+# 修改以下2行
+# 启用归档
+archive_mode = on
+# WAL 日志归档路径
+archive_command = 'cp %p /path_to_archive_directory/%f'
+
+# 然后重启服务生效
+systemctl restart postgresql
+二、建立每6小时的full backup
+# Cron job running every 6 hours
+pg_dump production_db | gzip > backup_$(date +%Y%m%d_%H%M%S).sql.gz
+三、恢复full backup
+# Create new database
+createdb production_db
+
+# Restore from backup
+gunzip < backup_20240126_160000.sql.gz | psql production_db
+四、恢复WAL log归档备份
+# Restore WAL logs from 4 PM to 5 PM
+recovery_target_time = '2024-01-26 17:00:00'
+"><meta name=author content="八戒"><link rel=canonical href=https://rendoumi.com/posts/20260205-postgres_restore/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.5d8a858b4ad07d913988e10d3c3dbc8c171f45316a396de8a60d67f44840812d.css integrity="sha256-XYqFi0rQfZE5iOENPD28jBcfRTFqOW3opg1n9EhAgS0=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/%3Clink%20/%20abs%20url%3E><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20260205-postgres_restore/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20260205-postgres_restore/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="Postgres的恢复之三"><meta property="og:description" content="那版上的Postgres恢复已经有两篇文章了，这是第三篇，数据大于天啊
+原因是看到了一篇文章：
+https://medium.com/engineering-playbook/i-deleted-production-database-on-friday-5-pm-heres-how-i-didn-t-get-fired-e5e53a133f9b
+我们来复盘整个过程，同事提醒自己也要同样清醒和多留备份
+一、建立**Point-in-Time Recovery (PITR)**归档 # ps axjf的结果中，看到配置文件是 /etc/postgresql/13/main/postgresql.conf # 那就修改这个配置文件 # 修改以下2行 # 启用归档 archive_mode = on # WAL 日志归档路径 archive_command = 'cp %p /path_to_archive_directory/%f' # 然后重启服务生效 systemctl restart postgresql 二、建立每6小时的full backup # Cron job running every 6 hours pg_dump production_db | gzip > backup_$(date +%Y%m%d_%H%M%S).sql.gz 三、恢复full backup # Create new database createdb production_db # Restore from backup gunzip < backup_20240126_160000.sql.gz | psql production_db 四、恢复WAL log归档备份 # Restore WAL logs from 4 PM to 5 PM recovery_target_time = '2024-01-26 17:00:00' "><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2026-02-05T09:00:00+08:00"><meta property="article:modified_time" content="2026-02-05T09:00:00+08:00"><meta property="og:image" content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:title content="Postgres的恢复之三"><meta name=twitter:description content="那版上的Postgres恢复已经有两篇文章了，这是第三篇，数据大于天啊
+原因是看到了一篇文章：
+https://medium.com/engineering-playbook/i-deleted-production-database-on-friday-5-pm-heres-how-i-didn-t-get-fired-e5e53a133f9b
+我们来复盘整个过程，同事提醒自己也要同样清醒和多留备份
+一、建立**Point-in-Time Recovery (PITR)**归档
+# ps axjf的结果中，看到配置文件是 /etc/postgresql/13/main/postgresql.conf
+# 那就修改这个配置文件
+
+# 修改以下2行
+# 启用归档
+archive_mode = on
+# WAL 日志归档路径
+archive_command = 'cp %p /path_to_archive_directory/%f'
+
+# 然后重启服务生效
+systemctl restart postgresql
+二、建立每6小时的full backup
+# Cron job running every 6 hours
+pg_dump production_db | gzip > backup_$(date +%Y%m%d_%H%M%S).sql.gz
+三、恢复full backup
+# Create new database
+createdb production_db
+
+# Restore from backup
+gunzip < backup_20240126_160000.sql.gz | psql production_db
+四、恢复WAL log归档备份
+# Restore WAL logs from 4 PM to 5 PM
+recovery_target_time = '2024-01-26 17:00:00'
+"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"Postgres的恢复之三","item":"https://rendoumi.com/posts/20260205-postgres_restore/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Postgres的恢复之三","name":"Postgres的恢复之三","description":"那版上的Postgres恢复已经有两篇文章了，这是第三篇，数据大于天啊\n原因是看到了一篇文章：\nhttps://medium.com/engineering-playbook/i-deleted-production-database-on-friday-5-pm-heres-how-i-didn-t-get-fired-e5e53a133f9b\n我们来复盘整个过程，同事提醒自己也要同样清醒和多留备份\n一、建立**Point-in-Time Recovery (PITR)**归档 # ps axjf的结果中，看到配置文件是 /etc/postgresql/13/main/postgresql.conf # 那就修改这个配置文件 # 修改以下2行 # 启用归档 archive_mode = on # WAL 日志归档路径 archive_command = \u0026#39;cp %p /path_to_archive_directory/%f\u0026#39; # 然后重启服务生效 systemctl restart postgresql 二、建立每6小时的full backup # Cron job running every 6 hours pg_dump production_db | gzip \u0026gt; backup_$(date +%Y%m%d_%H%M%S).sql.gz 三、恢复full backup # Create new database createdb production_db # Restore from backup gunzip \u0026lt; backup_20240126_160000.sql.gz | psql production_db 四、恢复WAL log归档备份 # Restore WAL logs from 4 PM to 5 PM recovery_target_time = \u0026#39;2024-01-26 17:00:00\u0026#39; ","keywords":[],"articleBody":"那版上的Postgres恢复已经有两篇文章了，这是第三篇，数据大于天啊\n原因是看到了一篇文章：\nhttps://medium.com/engineering-playbook/i-deleted-production-database-on-friday-5-pm-heres-how-i-didn-t-get-fired-e5e53a133f9b\n我们来复盘整个过程，同事提醒自己也要同样清醒和多留备份\n一、建立**Point-in-Time Recovery (PITR)**归档 # ps axjf的结果中，看到配置文件是 /etc/postgresql/13/main/postgresql.conf # 那就修改这个配置文件 # 修改以下2行 # 启用归档 archive_mode = on # WAL 日志归档路径 archive_command = 'cp %p /path_to_archive_directory/%f' # 然后重启服务生效 systemctl restart postgresql 二、建立每6小时的full backup # Cron job running every 6 hours pg_dump production_db | gzip \u003e backup_$(date +%Y%m%d_%H%M%S).sql.gz 三、恢复full backup # Create new database createdb production_db # Restore from backup gunzip \u003c backup_20240126_160000.sql.gz | psql production_db 四、恢复WAL log归档备份 # Restore WAL logs from 4 PM to 5 PM recovery_target_time = '2024-01-26 17:00:00' ","wordCount":"83","inLanguage":"zh","image":"https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E","datePublished":"2026-02-05T09:00:00+08:00","dateModified":"2026-02-05T09:00:00+08:00","author":{"@type":"Person","name":"八戒"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20260205-postgres_restore/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="Home (Alt + H)"><img src=https://rendoumi.com/apple-touch-icon.png alt aria-label=logo height=35>Home</a><div class=logo-switches></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><div class=breadcrumbs><a href=https://rendoumi.com/>主页</a>&nbsp;»&nbsp;<a href=https://rendoumi.com/posts/>所有文章</a></div><h1 class="post-title entry-hint-parent">Postgres的恢复之三
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2026-02-05 09:00:00 +0800 CST'>2026年5月</span>&nbsp;·&nbsp;<span>1 分钟</span>&nbsp;·&nbsp;<span>83 字</span>&nbsp;·&nbsp;<span>八戒</span></div></header><div class=post-content><p>那版上的Postgres恢复已经有两篇文章了，这是第三篇，数据大于天啊</p><p>原因是看到了一篇文章：</p><p><a href=https://medium.com/engineering-playbook/i-deleted-production-database-on-friday-5-pm-heres-how-i-didn-t-get-fired-e5e53a133f9b>https://medium.com/engineering-playbook/i-deleted-production-database-on-friday-5-pm-heres-how-i-didn-t-get-fired-e5e53a133f9b</a></p><p>我们来复盘整个过程，同事提醒自己也要同样清醒和多留备份</p><h2 id=一建立point-in-time-recovery-pitr归档>一、建立**Point-in-Time Recovery (PITR)**归档<a hidden class=anchor aria-hidden=true href=#一建立point-in-time-recovery-pitr归档>#</a></h2><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># ps axjf的结果中，看到配置文件是 /etc/postgresql/13/main/postgresql.conf</span>
+</span></span><span class=line><span class=cl><span class=c1># 那就修改这个配置文件</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 修改以下2行</span>
+</span></span><span class=line><span class=cl><span class=c1># 启用归档</span>
+</span></span><span class=line><span class=cl><span class=nv>archive_mode</span> <span class=o>=</span> on
+</span></span><span class=line><span class=cl><span class=c1># WAL 日志归档路径</span>
+</span></span><span class=line><span class=cl><span class=nv>archive_command</span> <span class=o>=</span> <span class=s1>&#39;cp %p /path_to_archive_directory/%f&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 然后重启服务生效</span>
+</span></span><span class=line><span class=cl>systemctl restart postgresql
+</span></span></code></pre></div><h3 id=二建立每6小时的full-backup>二、建立每6小时的full backup<a hidden class=anchor aria-hidden=true href=#二建立每6小时的full-backup>#</a></h3><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Cron job running every 6 hours</span>
+</span></span><span class=line><span class=cl>pg_dump production_db <span class=p>|</span> gzip &gt; backup_<span class=k>$(</span>date +%Y%m%d_%H%M%S<span class=k>)</span>.sql.gz
+</span></span></code></pre></div><h3 id=三恢复full-backup>三、恢复full backup<a hidden class=anchor aria-hidden=true href=#三恢复full-backup>#</a></h3><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Create new database</span>
+</span></span><span class=line><span class=cl>createdb production_db
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Restore from backup</span>
+</span></span><span class=line><span class=cl>gunzip &lt; backup_20240126_160000.sql.gz <span class=p>|</span> psql production_db
+</span></span></code></pre></div><h3 id=四恢复wal-log归档备份>四、恢复WAL log归档备份<a hidden class=anchor aria-hidden=true href=#四恢复wal-log归档备份>#</a></h3><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Restore WAL logs from 4 PM to 5 PM</span>
+</span></span><span class=line><span class=cl><span class=nv>recovery_target_time</span> <span class=o>=</span> <span class=s1>&#39;2024-01-26 17:00:00&#39;</span>
+</span></span></code></pre></div></div><footer class=post-footer><ul class=post-tags></ul><nav class=paginav><a class=prev href=https://rendoumi.com/posts/20260205-gemma/><span class=title>« 上一页</span><br><span>大语言模型TranslateGemma的实际应用</span>
+</a><a class=next href=https://rendoumi.com/posts/20260204-livekit/><span class=title>下一页 »</span><br><span>Livekit的安装</span></a></nav></footer><div id=comments></div><script src=https://cwd.js.org/cwd.js></script><script>const comments=new CWDComments({el:"#comments",apiBaseUrl:"https://cwd.rendoumi.qzz.io"});comments.mount()</script></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script></body></html>

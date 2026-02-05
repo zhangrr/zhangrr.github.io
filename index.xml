@@ -12,8 +12,69 @@
     <generator>Hugo -- 0.147.3</generator>
     <language>zh</language>
     <copyright>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Wed, 04 Feb 2026 09:00:00 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 05 Feb 2026 09:00:01 +0800</lastBuildDate>
     <atom:link href="https://rendoumi.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>大语言模型TranslateGemma的实际应用</title>
+      <link>https://rendoumi.com/posts/20260205-gemma/</link>
+      <pubDate>Thu, 05 Feb 2026 09:00:01 +0800</pubDate>
+      <guid>https://rendoumi.com/posts/20260205-gemma/</guid>
+      <description>&lt;p&gt;看到一个非常有趣的例子，分享一下，TranslateGemma以及其应用：&lt;/p&gt;
+&lt;p&gt;首先，TranslateGemma是什么？&lt;/p&gt;
+&lt;p&gt;TranslateGemma 是一套以 Gemma 3 为基础打造的开放式翻译模型，提供 4B（4 亿）、12B（12 亿）、27B（27  亿）三种参数规模，对应不同的使用场景。支持500组语言，可以识图，识别PDF中的文字。&lt;/p&gt;
+&lt;p&gt;TranslateGemma 的最大优势在于“可根据设备规模选择模型”，针对不同的计算环境提供了多种版本：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;4B（40 亿）版本&lt;/strong&gt;：已针对移动设备与边缘设备进行优化，适合进行离线翻译或内置于 App 中实时使用。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;12B（120 亿）版本&lt;/strong&gt;：可在笔记本电脑或本地环境顺畅运行，将研究级别的翻译能力带入本机。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;27B（270 亿）版本&lt;/strong&gt;：主打追求最高保真度，适合部署于云端 GPU 或 TPU 环境，例如单颗 NVIDIA H100 或 Google TPU。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;嘿嘿，我们可以直接在Huggingface下载模型文件，然后在ollama里用&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://huggingface.co/collections/google/translategemma&#34;&gt;https://huggingface.co/collections/google/translategemma&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.kaggle.com/models/google/translategemma/&#34;&gt;https://www.kaggle.com/models/google/translategemma/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;那更近一步，有个软件，叫做&lt;strong&gt;GPT旅行翻译神奇&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20260205102234900&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20260205-gemma/image-20260205102234900.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;安装之后，点击设定，可以启用离线模式，就下载的是TranslateGemma 4B的模型&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20260205102329809&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20260205-gemma/image-20260205102329809.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;启动离线模式，没有网的状态下就可以进行翻译：&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20260205102431735&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20260205-gemma/image-20260205102431735.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;我的手机有点逊色，iphone 12 Pro MAX有点费劲，主流的iphone 16应该很流畅&lt;/p&gt;
+&lt;p&gt;这也算是大模型的立即应用了。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Postgres的恢复之三</title>
+      <link>https://rendoumi.com/posts/20260205-postgres_restore/</link>
+      <pubDate>Thu, 05 Feb 2026 09:00:00 +0800</pubDate>
+      <guid>https://rendoumi.com/posts/20260205-postgres_restore/</guid>
+      <description>&lt;p&gt;那版上的Postgres恢复已经有两篇文章了，这是第三篇，数据大于天啊&lt;/p&gt;
+&lt;p&gt;原因是看到了一篇文章：&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://medium.com/engineering-playbook/i-deleted-production-database-on-friday-5-pm-heres-how-i-didn-t-get-fired-e5e53a133f9b&#34;&gt;https://medium.com/engineering-playbook/i-deleted-production-database-on-friday-5-pm-heres-how-i-didn-t-get-fired-e5e53a133f9b&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;我们来复盘整个过程，同事提醒自己也要同样清醒和多留备份&lt;/p&gt;
+&lt;h2 id=&#34;一建立point-in-time-recovery-pitr归档&#34;&gt;一、建立**Point-in-Time Recovery (PITR)**归档&lt;/h2&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# ps axjf的结果中，看到配置文件是 /etc/postgresql/13/main/postgresql.conf&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 那就修改这个配置文件&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 修改以下2行&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 启用归档&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;archive_mode&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; on
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# WAL 日志归档路径&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;archive_command&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;cp %p /path_to_archive_directory/%f&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 然后重启服务生效&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;systemctl restart postgresql
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;二建立每6小时的full-backup&#34;&gt;二、建立每6小时的full backup&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# Cron job running every 6 hours&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;pg_dump production_db &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; gzip &amp;gt; backup_&lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;date +%Y%m%d_%H%M%S&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;.sql.gz
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;三恢复full-backup&#34;&gt;三、恢复full backup&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# Create new database&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;createdb production_db
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# Restore from backup&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;gunzip &amp;lt; backup_20240126_160000.sql.gz &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; psql production_db
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;四恢复wal-log归档备份&#34;&gt;四、恢复WAL log归档备份&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# Restore WAL logs from 4 PM to 5 PM&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;recovery_target_time&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s1&#34;&gt;&amp;#39;2024-01-26 17:00:00&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+    </item>
     <item>
       <title>Livekit的安装</title>
       <link>https://rendoumi.com/posts/20260204-livekit/</link>
