@@ -12,8 +12,37 @@
     <generator>Hugo -- 0.147.3</generator>
     <language>zh</language>
     <copyright>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Thu, 05 Feb 2026 09:00:01 +0800</lastBuildDate>
+    <lastBuildDate>Sat, 14 Feb 2026 09:00:00 +0800</lastBuildDate>
     <atom:link href="https://rendoumi.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>自推荐一个Kubernetes的日志手机采集软件</title>
+      <link>https://rendoumi.com/posts/20260214_envlog/</link>
+      <pubDate>Sat, 14 Feb 2026 09:00:00 +0800</pubDate>
+      <guid>https://rendoumi.com/posts/20260214_envlog/</guid>
+      <description>&lt;p&gt;自荐一个 Kubernetes 的日志采集软件：envlog&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://github.com/zhangrr/envlog&#34;&gt;https://github.com/zhangrr/envlog&lt;/a&gt;&lt;/p&gt;
+&lt;h3 id=&#34;软件最大优势&#34;&gt;软件最大优势&lt;/h3&gt;
+&lt;h4 id=&#34;采集容器内自定义文件&#34;&gt;采集容器内自定义文件&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;阿里的SLS有个最大的优势，可以在Deployment中宣告pod容器内的文件路径，然后就会自动采集。&lt;/li&gt;
+&lt;li&gt;Docker引擎可以很容易搜索pod路径，Containerd做起来比较费劲。&lt;/li&gt;
+&lt;li&gt;但这也是最吸引人的特性，如果只采集stdout，那随便什么软件loki、filebeat都可以，就没什么吸引力。&lt;/li&gt;
+&lt;li&gt;这个困扰了我很多年，终于在AI的加持下实现了：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;例如我们要采集 Pod 内的文件 &lt;code&gt;/tmp/logtest.log&lt;/code&gt;：&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;    - env:
+      - name: envlog_ngtest
+        value: &amp;#34;/tmp/logtest.log&amp;#34;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;​&lt;/p&gt;
+&lt;p&gt;该模式会尝试将容器内路径映射到宿主机路径（优先使用 volume mount，其次使用容器 overlay upperdir），并生成对应的 Filebeat &lt;code&gt;paths&lt;/code&gt;。 然后发往ES、Kafka比较好，本软件优化了ES的字段，去掉了多余的字段，也便于阅读。 这也是本软件最大的特色！&lt;/p&gt;
+&lt;p&gt;然后我们去ES的Kibana面板，Management &amp;ndash;&amp;gt; Stack Management&lt;/p&gt;
+&lt;p&gt;建立Index Patterns&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20260214092942892&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20260214_envlog/image-20260214092942892.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;然后去 Analytics &amp;ndash;&amp;gt; Discover&lt;/p&gt;
+&lt;p&gt;就可以看到日志的详细内容了：&lt;/p&gt;
+&lt;p&gt;字段做了优化，不需要的字段统统都舍弃了，保留了必要的字段和日志的详细内容。&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20260214093107822&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20260214_envlog/image-20260214093107822.png&#34;&gt;&lt;/p&gt;</description>
+    </item>
     <item>
       <title>大语言模型TranslateGemma的实际应用</title>
       <link>https://rendoumi.com/posts/20260205-gemma/</link>
