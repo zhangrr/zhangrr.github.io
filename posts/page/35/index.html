@@ -77,7 +77,7 @@ docker pull vaultwarden/server:alpine docker create --name vw vaultwarden/server
 ...</p></div><footer class=entry-footer><span title='2021-10-27 09:30:11 +0800 CST'>2021年10月27日</span>&nbsp;·&nbsp;<span>2 分钟</span>&nbsp;·&nbsp;<span>265 字</span>&nbsp;·&nbsp;<span>八戒</span></footer><a class=entry-link aria-label="post link to Bitwarden（vaultwarden）如何在非Docker环境下安装使用" href=https://rendoumi.com/posts/20211027-bitwarden/></a></article><article class=post-entry><header class=entry-header><h2 class=entry-hint-parent>阿里云ACK完全生产环境规划和搭建
 <span class=entry-hint title=Draft><svg height="20" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h2></header><div class=entry-content><p>在生产环境来创建阿里ACK托管k8s集群的过程：
 完全用于生产，不是搭建来做测试用的。
-授公司委托，给的RAM用户，所以阿里云RAM第一次登录后，强制修改密码
+受公司委托，给的RAM用户，所以阿里云RAM第一次登录后，强制修改密码
 然后授权资源管理， 正式开始建立过程
 一、准备条件 两台及以上ecs服务器
 阿里云账户余额100元以上（阿里云要求）
@@ -105,8 +105,13 @@ service CIDR：为统一起见，192.168.240.0/20
 注意以上 建立好了三个网段，三个网段中均有240字段，便于记忆
 ECS(2台)：172.19.240.0/20
 POD网段：10.240.0.0/20
-Service网段：192.168.240.0/20 ​
+Service网段：192.168.240.0/20
+​
 节点IP数量：256，指单个节点可运行 Pod 数量的上限。 一定要拉到最大量256 ，弄到16的话，一个节点本身要跑10多个system的pod，就无法跑应用pod了。
+第三部分:
+配置SNAT：必选配置SNAT，对外主动访问的时候IP需要一致。解释：如果ecs没有访问外网能力，则必须使用snat，snat就是把vpc绑定一个eip，然后给内部的ecs使用nat方式主动外出访问用的，比如主动反问第三方的接口等。如果ecs自己已经绑定了eip或者自带ip带宽，可以不选择。
+APISERVER访问：必选公网EIP暴露，这个绑定以后ip不收费，可以使用流量包，管理master用的。如果要使用『云效』必选。
+默认不选中使用EIP暴露API Server。 API Server提供了各类资源对象（Pod，Service等）的增删改查及watch等HTTP Rest接口。 - 如果选择开放，会创建一个EIP，并挂载到内网SLB上。此时，Master节点的6443端口（对应API Server）暴露出来，用户可以在外网通过kubeconfig连接并操作集群。 - 如果选择不开放，则不会创建EIP，您只能在VPC内部用kubeconfig连接并操作集群。
 ...</p></div><footer class=entry-footer><span title='2021-10-26 09:30:11 +0800 CST'>2021年10月26日</span>&nbsp;·&nbsp;<span>1 分钟</span>&nbsp;·&nbsp;<span>119 字</span>&nbsp;·&nbsp;<span>八戒</span></footer><a class=entry-link aria-label="post link to 阿里云ACK完全生产环境规划和搭建" href=https://rendoumi.com/posts/20211026-ack_build/></a></article><article class=post-entry><header class=entry-header><h2 class=entry-hint-parent>Centos auto install cdrom自动安装cdrom的制作
 <span class=entry-hint title=Draft><svg height="20" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h2></header><div class=entry-content><p>之前介绍过如何制作一个 centos live cdrom 系统
 那么，某些情况下我们可能无法弄一个 pxe 系统，而只能通过 idrac 挂载 iso 的方式安装系统

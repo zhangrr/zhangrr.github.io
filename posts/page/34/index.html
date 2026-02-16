@@ -34,7 +34,7 @@ https://github.com/ntop/n2n
 超级节点：
 /usr/local/bin/supernode -p 11111 -v 边缘节点：
 /usr/local/bin/edge -d n2n0 -c ThisisaSecret2012 -k Fuck2020 -a 192.168.0.2 -l 41.22.59.112:11111 -f 参数解释：
--d 生成的虚拟网卡的命名 -c 某组vpn节点的口令。大家看到启动 supernode 的时候没有任何参数，supdernode 只负责转发。supernode 支持多组不同的 vpn。这里就是用来区分不同的 vpn 组的。 -k 节点之间通讯是用的 twofish 加密算法，这里指定的是密钥 -a 节点的ip -l supernode的ip和端口 -f 放到后台 daemon 执行 这样就建立好了，系统中会多出一张 n2n0 的网卡。
+-d 生成的虚拟网卡的命名 -c community-name 同一组vpn节点的密码。大家看到启动 supernode 的时候没有任何参数，supdernode 只负责转发，且支持多组不同的 vpn。这里就是用来区分不同的 vpn 组的。 -k 密码，节点之间通讯是用的 twofish 加密算法 -a 节点的ip -l supernode的ip和端口 -f 放到后台 daemon 执行 这样就建立好了，系统中会多出一张 n2n0 的网卡。
 ...</p></div><footer class=entry-footer><span title='2021-11-05 10:30:11 +0800 CST'>2021年11月05日</span>&nbsp;·&nbsp;<span>1 分钟</span>&nbsp;·&nbsp;<span>77 字</span>&nbsp;·&nbsp;<span>八戒</span></footer><a class=entry-link aria-label="post link to n2n一种peer to peer的VPN的使用" href=https://rendoumi.com/posts/20211105-n2n_vpn/></a></article><article class=post-entry><header class=entry-header><h2 class=entry-hint-parent>一站式Git软件onedev的安装使用
 <span class=entry-hint title=Draft><svg height="20" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h2></header><div class=entry-content><p>其实一直在用 github、gitlab、jenkins，但是 github 时不时的抽风， gitlab 的 runner 套 Docker in docker 的方法委实很难用。
 所以 CI/CD 这一块反倒挺喜欢阿里云效这种简便易行的。但确实找不到其他合适且类似的软件。

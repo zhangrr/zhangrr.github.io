@@ -46,15 +46,22 @@ when RULE_INIT { set static::windowSecs 30 } when HTTP_REQUEST { if { ( [HTTP::m
 POST的请求如下：
 POST /api/sendMessage.htm HTTP/1.1 Content-Length: 203 Content-Type: application/x-www-form-urlencoded; charset=UTF-8 Host: 172.8.2.23 Connection: Keep-Alive User-Agent: Apache-HttpClient/4.5 (Java/1.7.0_51) Accept-Encoding: gzip,deflate action=order.sumit.order&amp;jsonData=%7B%22channelCode%22%3A%22%22%2C%22mobiles%22%3A%5B%2215176989787%22%5D%2C%22source%22%3A%22pop%22%2C%22tempParameters%22%3A%5B%22480827%22%2C%2291%22%5D%2C%22templateId%22%3A2%7D 我们要阻止POST /api/sendMessage.htm且action=sendmsg的话，就比较复杂一些，我们判断uri满足条件后，还要进一步判断content中action=的内容：
 ...</p></div><footer class=entry-footer><span title='2024-01-11 14:20:11 +0800 CST'>2024年01月11日</span>&nbsp;·&nbsp;<span>2 分钟</span>&nbsp;·&nbsp;<span>226 字</span>&nbsp;·&nbsp;<span>八戒</span></footer><a class=entry-link aria-label="post link to F5利用irule来防止Ddos的方法" href=https://rendoumi.com/posts/20240111-f5_irule_ddos/></a></article><article class=post-entry><header class=entry-header><h2 class=entry-hint-parent>用openssh的tunnel建立隧道翻墙
-<span class=entry-hint title=Draft><svg height="20" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h2></header><div class=entry-content><p>openssh是支持隧道的，所以就可以在ssh中再套个管道，直接用来翻墙，做法如下：
-如上图，A机能ssh登录B机
+<span class=entry-hint title=Draft><svg height="20" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h2></header><div class=entry-content><p>openssh是支持隧道的，所以可以在ssh中再套个隧道，直接用来翻墙，做法如下：
+如上图，A机能ssh—->B机
 A机的IP：172.16.8.106
 B机的IP：172.16.8.108
 A机建立tunnel后tun的ip：192.168.244.1
 B机建立tunnel后tun的ip：192.168.244.2
-首先编辑A和B的/etc/ssh/sshd_config，允许tunnel，缺省是不允许的，然后service sshd restart ，重启sshd ... PermitTunnel yes ... A和B安装linux下的tun软件，并启动一个tunnel设备 yum install tunctl tunctl -t tun5 -u root 在A(172.16.8.106)机器上生成key，并设置能无密码证书直接登录B(172.16.8.108) ssh-keygen ssh-copy-id root@172.16.8.108 在A上执行命令，建立ssh tunnel： ssh -w 5:5 root@172.168.8.108 在A上执行 ifconfig tun5 192.168.244.1 pointopoint 192.168.244.2 netmask 255.255.255.0 在B上执行 ifconfig tun5 192.168.244.2 pointopoint 192.168.244.1 netmask 255.255.255.0 这样分别在A和B上ping 192.168.244.1和192.168.244.2，都能通就表示已经ok了。 优化一下，A和B两边都先把tun5启动以后，直接在A上一句话搞定，这个不会自动退出，所以得ctrl+z，然后bg放后台去，或者screen挂住：
+首先编辑A和B的/etc/ssh/sshd_config，允许tunnel，缺省是不允许的，然后service sshd restart ，重启sshd
+PermitTunnel yes A和B安装linux下的tun软件，并启动一个tunnel设备
+yum install tunctl tunctl -t tun5 -u root 在A(172.16.8.106)机器上生成key，并设置能无密码直接用证书登录B(172.16.8.108)
+ssh-keygen ssh-copy-id root@172.16.8.108 在A上执行命令，建立ssh tunnel：
+ssh -w 5:5 root@172.168.8.108 在A上执行
+ifconfig tun5 192.168.244.1 pointopoint 192.168.244.2 netmask 255.255.255.0 在B上执行
+ifconfig tun5 192.168.244.2 pointopoint 192.168.244.1 netmask 255.255.255.0 这样分别在A和B上ping 192.168.244.1和192.168.244.2，都能通就表示已经ok了。
+优化一下，A和B两边都先把tun5启动以后，直接在A上一句话搞定，这个不会自动退出，所以得ctrl+z，然后bg放后台去；或者直接用screen挂住：
 ssh \ -o PermitLocalCommand=yes \ -o LocalCommand="ifconfig tun5 192.168.244.1 pointopoint 192.168.244.2 netmask 255.255.255.0" \ -o ServerAliveInterval=60 \ -w 5:5 root@172.16.8.108 \ 'ifconfig tun5 192.168.244.2 pointopoint 192.168.244.1 netmask 255.255.255.0; echo tun5 ready' 如果要用在翻墙的环境，那就得保持长链接了。假设A机器是在一个防火墙后，且被NAT了，那么就得先这样打通隧道：
-...</p></div><footer class=entry-footer><span title='2024-01-11 14:05:11 +0800 CST'>2024年01月11日</span>&nbsp;·&nbsp;<span>1 分钟</span>&nbsp;·&nbsp;<span>153 字</span>&nbsp;·&nbsp;<span>八戒</span></footer><a class=entry-link aria-label="post link to 用openssh的tunnel建立隧道翻墙" href=https://rendoumi.com/posts/20240111-openssh_tunnel/></a></article><article class=post-entry><header class=entry-header><h2 class=entry-hint-parent>Docker急速搭建运行ikev2 vpn来让iphone翻墙
+...</p></div><footer class=entry-footer><span title='2024-01-11 14:05:11 +0800 CST'>2024年01月11日</span>&nbsp;·&nbsp;<span>1 分钟</span>&nbsp;·&nbsp;<span>151 字</span>&nbsp;·&nbsp;<span>八戒</span></footer><a class=entry-link aria-label="post link to 用openssh的tunnel建立隧道翻墙" href=https://rendoumi.com/posts/20240111-openssh_tunnel/></a></article><article class=post-entry><header class=entry-header><h2 class=entry-hint-parent>Docker急速搭建运行ikev2 vpn来让iphone翻墙
 <span class=entry-hint title=Draft><svg height="20" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h2></header><div class=entry-content><p>这篇文章只适用于在自己的vps上运行：
 步骤如下：
 1、拉回来镜像，ikev2-vpn-server，话说这么多年过去了，依然适用，2016年到现在
