@@ -19,8 +19,7 @@
       <link>https://rendoumi.com/posts/20260409-gemma4_install/</link>
       <pubDate>Thu, 09 Apr 2026 09:01:11 +0800</pubDate>
       <guid>https://rendoumi.com/posts/20260409-gemma4_install/</guid>
-      <description>&lt;p&gt;最近一直在搞chatgpt普号的注册机，L站上五花八门，各式各样，多数是用python写的&lt;/p&gt;
-&lt;p&gt;谷歌推出了Gemma4，那有好事者船载以入，直接破了它的道德感，可以逆向，破解，我们来试试吧&lt;/p&gt;
+      <description>&lt;p&gt;谷歌推出了Gemma4，那有好事者船载以入，直接破了它的道德感，可以逆向，破解，我们来试试吧&lt;/p&gt;
 &lt;p&gt;运行环境：&lt;/p&gt;
 &lt;p&gt;Ubuntu 22.04，Nvidia 3060 8G显卡&lt;/p&gt;
 &lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;# 首先下载模型
@@ -40,11 +39,6 @@ uv tool run hf download  HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive Gem
 # 下载多模态文件
 uv tool run hf download  HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf
 /home/ubuntu/.cache/huggingface/hub/models--HauhauCS--Gemma-4-E4B-Uncensored-HauhauCS-Aggressive/snapshots/45b6a334b4bcd1d7f37179df58b3b1d66a184e5d/mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf
-
-# With vision/audio
-llama-cli -m Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf \
-  --mmproj mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf \
-  --jinja -c 8192 -ngl 99
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;然后需要编译llama.app，否则认不出gemma4这个最新的模型：&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-driver-590
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-cuda-toolkit
@@ -55,7 +49,10 @@ llama-cli -m Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf \
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; llama.app
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# apt 安装的590其实版本比较旧，但是ubuntu 22.04自带的gcc11版本高了，导致cuda的编译认不出来高版本的文件&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 所以必须用低版本的gcc来编译旧版本的cuda驱动&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;cmake -S . -B build -DCMAKE_BUILD_TYPE&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;Release -DGGML_CUDA&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;ON -DCMAKE_CUDA_ARCHITECTURES&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;86&lt;/span&gt; -DCMAKE_CUDA_HOST_COMPILER&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/usr/bin/gcc-10
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;cmake -S . -B build -DCMAKE_BUILD_TYPE&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;Release &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;  -DGGML_CUDA&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;ON -DCMAKE_CUDA_ARCHITECTURES&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;86&lt;/span&gt; &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;  -DCMAKE_CUDA_HOST_COMPILER&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/usr/bin/gcc-10
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;cmake --build build --config Release -j &lt;span class=&#34;m&#34;&gt;8&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; build/bin
