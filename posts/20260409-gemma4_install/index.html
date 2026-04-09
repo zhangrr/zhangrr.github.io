@@ -1,0 +1,129 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3988508441804851" crossorigin=anonymous></script><title>Gemma4破限版的安装 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='最近一直在搞chatgpt普号的注册机，L站上五花八门，各式各样，多数是用python写的
+谷歌推出了Gemma4，那有好事者船载以入，直接破了它的道德感，可以逆向，破解，我们来试试吧
+运行环境：
+Ubuntu 22.04，Nvidia 3060 8G显卡
+# 首先下载模型
+uv pip install -U "huggingface_hub"
+
+uv tool run hf auth login --token hf_xxxxxxxx
+
+# 破限模型的地址：https://huggingface.co/HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive
+# 本来应该运行Q5_K_M 或者Q5_K_P，但是还要跑多模态，降一档
+# 跑Q4_K_P 或者Q4_K_M加上多模态文件
+
+# 下载Q4_KM
+uv tool run hf download  HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf
+/home/ubuntu/.cache/huggingface/hub/models--HauhauCS--Gemma-4-E4B-Uncensored-HauhauCS-Aggressive/snapshots/45b6a334b4bcd1d7f37179df58b3b1d66a184e5d/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf
+
+
+# 下载多模态文件
+uv tool run hf download  HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf
+/home/ubuntu/.cache/huggingface/hub/models--HauhauCS--Gemma-4-E4B-Uncensored-HauhauCS-Aggressive/snapshots/45b6a334b4bcd1d7f37179df58b3b1d66a184e5d/mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf
+
+# With vision/audio
+llama-cli -m Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf \
+  --mmproj mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf \
+  --jinja -c 8192 -ngl 99
+然后需要编译llama.app，否则认不出gemma4这个最新的模型：
+apt install nvidia-driver-590
+apt install nvidia-cuda-toolkit
+apt install gcc-10 g++-10
+
+git clone https://github.com/ggerganov/llama.cpp
+
+cd llama.app
+# apt 安装的590其实版本比较旧，但是ubuntu 22.04自带的gcc11版本高了，导致cuda的编译认不出来高版本的文件
+# 所以必须用低版本的gcc来编译旧版本的cuda驱动
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=86 -DCMAKE_CUDA_HOST_COMPILER=/usr/bin/gcc-10
+cmake --build build --config Release -j 8
+
+cd build/bin
+编译好后运行测试一下：'><meta name=author content="八戒"><link rel=canonical href=https://rendoumi.com/posts/20260409-gemma4_install/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.5d8a858b4ad07d913988e10d3c3dbc8c171f45316a396de8a60d67f44840812d.css integrity="sha256-XYqFi0rQfZE5iOENPD28jBcfRTFqOW3opg1n9EhAgS0=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/%3Clink%20/%20abs%20url%3E><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20260409-gemma4_install/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20260409-gemma4_install/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="Gemma4破限版的安装"><meta property="og:description" content='最近一直在搞chatgpt普号的注册机，L站上五花八门，各式各样，多数是用python写的
+谷歌推出了Gemma4，那有好事者船载以入，直接破了它的道德感，可以逆向，破解，我们来试试吧
+运行环境：
+Ubuntu 22.04，Nvidia 3060 8G显卡
+# 首先下载模型uv pip install -U "huggingface_hub"uv tool run hf auth login --token hf_xxxxxxxx# 破限模型的地址：https://huggingface.co/HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive# 本来应该运行Q5_K_M 或者Q5_K_P，但是还要跑多模态，降一档# 跑Q4_K_P 或者Q4_K_M加上多模态文件# 下载Q4_KMuv tool run hf download HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf/home/ubuntu/.cache/huggingface/hub/models--HauhauCS--Gemma-4-E4B-Uncensored-HauhauCS-Aggressive/snapshots/45b6a334b4bcd1d7f37179df58b3b1d66a184e5d/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf# 下载多模态文件uv tool run hf download HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf/home/ubuntu/.cache/huggingface/hub/models--HauhauCS--Gemma-4-E4B-Uncensored-HauhauCS-Aggressive/snapshots/45b6a334b4bcd1d7f37179df58b3b1d66a184e5d/mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf# With vision/audiollama-cli -m Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf \--mmproj mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf \--jinja -c 8192 -ngl 99 然后需要编译llama.app，否则认不出gemma4这个最新的模型：
+apt install nvidia-driver-590 apt install nvidia-cuda-toolkit apt install gcc-10 g++-10 git clone https://github.com/ggerganov/llama.cpp cd llama.app # apt 安装的590其实版本比较旧，但是ubuntu 22.04自带的gcc11版本高了，导致cuda的编译认不出来高版本的文件 # 所以必须用低版本的gcc来编译旧版本的cuda驱动 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=86 -DCMAKE_CUDA_HOST_COMPILER=/usr/bin/gcc-10 cmake --build build --config Release -j 8 cd build/bin 编译好后运行测试一下：'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2026-04-09T09:01:11+08:00"><meta property="article:modified_time" content="2026-04-09T09:01:11+08:00"><meta property="og:image" content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:title content="Gemma4破限版的安装"><meta name=twitter:description content='最近一直在搞chatgpt普号的注册机，L站上五花八门，各式各样，多数是用python写的
+谷歌推出了Gemma4，那有好事者船载以入，直接破了它的道德感，可以逆向，破解，我们来试试吧
+运行环境：
+Ubuntu 22.04，Nvidia 3060 8G显卡
+# 首先下载模型
+uv pip install -U "huggingface_hub"
+
+uv tool run hf auth login --token hf_xxxxxxxx
+
+# 破限模型的地址：https://huggingface.co/HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive
+# 本来应该运行Q5_K_M 或者Q5_K_P，但是还要跑多模态，降一档
+# 跑Q4_K_P 或者Q4_K_M加上多模态文件
+
+# 下载Q4_KM
+uv tool run hf download  HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf
+/home/ubuntu/.cache/huggingface/hub/models--HauhauCS--Gemma-4-E4B-Uncensored-HauhauCS-Aggressive/snapshots/45b6a334b4bcd1d7f37179df58b3b1d66a184e5d/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf
+
+
+# 下载多模态文件
+uv tool run hf download  HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf
+/home/ubuntu/.cache/huggingface/hub/models--HauhauCS--Gemma-4-E4B-Uncensored-HauhauCS-Aggressive/snapshots/45b6a334b4bcd1d7f37179df58b3b1d66a184e5d/mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf
+
+# With vision/audio
+llama-cli -m Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf \
+  --mmproj mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf \
+  --jinja -c 8192 -ngl 99
+然后需要编译llama.app，否则认不出gemma4这个最新的模型：
+apt install nvidia-driver-590
+apt install nvidia-cuda-toolkit
+apt install gcc-10 g++-10
+
+git clone https://github.com/ggerganov/llama.cpp
+
+cd llama.app
+# apt 安装的590其实版本比较旧，但是ubuntu 22.04自带的gcc11版本高了，导致cuda的编译认不出来高版本的文件
+# 所以必须用低版本的gcc来编译旧版本的cuda驱动
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=86 -DCMAKE_CUDA_HOST_COMPILER=/usr/bin/gcc-10
+cmake --build build --config Release -j 8
+
+cd build/bin
+编译好后运行测试一下：'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"Gemma4破限版的安装","item":"https://rendoumi.com/posts/20260409-gemma4_install/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Gemma4破限版的安装","name":"Gemma4破限版的安装","description":"最近一直在搞chatgpt普号的注册机，L站上五花八门，各式各样，多数是用python写的\n谷歌推出了Gemma4，那有好事者船载以入，直接破了它的道德感，可以逆向，破解，我们来试试吧\n运行环境：\nUbuntu 22.04，Nvidia 3060 8G显卡\n# 首先下载模型\ruv pip install -U \u0026#34;huggingface_hub\u0026#34;\ruv tool run hf auth login --token hf_xxxxxxxx\r# 破限模型的地址：https://huggingface.co/HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive\r# 本来应该运行Q5_K_M 或者Q5_K_P，但是还要跑多模态，降一档\r# 跑Q4_K_P 或者Q4_K_M加上多模态文件\r# 下载Q4_KM\ruv tool run hf download HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf\r/home/ubuntu/.cache/huggingface/hub/models--HauhauCS--Gemma-4-E4B-Uncensored-HauhauCS-Aggressive/snapshots/45b6a334b4bcd1d7f37179df58b3b1d66a184e5d/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf\r# 下载多模态文件\ruv tool run hf download HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf\r/home/ubuntu/.cache/huggingface/hub/models--HauhauCS--Gemma-4-E4B-Uncensored-HauhauCS-Aggressive/snapshots/45b6a334b4bcd1d7f37179df58b3b1d66a184e5d/mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf\r# With vision/audio\rllama-cli -m Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf \\\r--mmproj mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf \\\r--jinja -c 8192 -ngl 99 然后需要编译llama.app，否则认不出gemma4这个最新的模型：\napt install nvidia-driver-590 apt install nvidia-cuda-toolkit apt install gcc-10 g++-10 git clone https://github.com/ggerganov/llama.cpp cd llama.app # apt 安装的590其实版本比较旧，但是ubuntu 22.04自带的gcc11版本高了，导致cuda的编译认不出来高版本的文件 # 所以必须用低版本的gcc来编译旧版本的cuda驱动 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=86 -DCMAKE_CUDA_HOST_COMPILER=/usr/bin/gcc-10 cmake --build build --config Release -j 8 cd build/bin 编译好后运行测试一下：\n","keywords":[],"articleBody":"最近一直在搞chatgpt普号的注册机，L站上五花八门，各式各样，多数是用python写的\n谷歌推出了Gemma4，那有好事者船载以入，直接破了它的道德感，可以逆向，破解，我们来试试吧\n运行环境：\nUbuntu 22.04，Nvidia 3060 8G显卡\n# 首先下载模型\ruv pip install -U \"huggingface_hub\"\ruv tool run hf auth login --token hf_xxxxxxxx\r# 破限模型的地址：https://huggingface.co/HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive\r# 本来应该运行Q5_K_M 或者Q5_K_P，但是还要跑多模态，降一档\r# 跑Q4_K_P 或者Q4_K_M加上多模态文件\r# 下载Q4_KM\ruv tool run hf download HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf\r/home/ubuntu/.cache/huggingface/hub/models--HauhauCS--Gemma-4-E4B-Uncensored-HauhauCS-Aggressive/snapshots/45b6a334b4bcd1d7f37179df58b3b1d66a184e5d/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf\r# 下载多模态文件\ruv tool run hf download HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf\r/home/ubuntu/.cache/huggingface/hub/models--HauhauCS--Gemma-4-E4B-Uncensored-HauhauCS-Aggressive/snapshots/45b6a334b4bcd1d7f37179df58b3b1d66a184e5d/mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf\r# With vision/audio\rllama-cli -m Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf \\\r--mmproj mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf \\\r--jinja -c 8192 -ngl 99 然后需要编译llama.app，否则认不出gemma4这个最新的模型：\napt install nvidia-driver-590 apt install nvidia-cuda-toolkit apt install gcc-10 g++-10 git clone https://github.com/ggerganov/llama.cpp cd llama.app # apt 安装的590其实版本比较旧，但是ubuntu 22.04自带的gcc11版本高了，导致cuda的编译认不出来高版本的文件 # 所以必须用低版本的gcc来编译旧版本的cuda驱动 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=86 -DCMAKE_CUDA_HOST_COMPILER=/usr/bin/gcc-10 cmake --build build --config Release -j 8 cd build/bin 编译好后运行测试一下：\n./llama-cli -m /home/ubuntu/.cache/huggingface/hub/models--HauhauCS--Gemma-4-E4B-Uncensored-HauhauCS-Aggressive/snapshots/45b6a334b4bcd1d7f37179df58b3b1d66a184e5d/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf --mmproj /home/ubuntu/.cache/huggingface/hub/models--HauhauCS--Gemma-4-E4B-Uncensored-HauhauCS-Aggressive/snapshots/45b6a334b4bcd1d7f37179df58b3b1d66a184e5d/mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf -p \"你是一个有用的人工智能助手，尽量回答问题。\" -cnv -ngl 42 --temp 1.0 --top-p 0.95 --top-k 99 --jinja 参数解释：\n这串参数可以说是控制大模型“性格”和“性能”的控制台。给你一份炼丹师必备的参数备忘录：\n-cnv (Conversation Mode): 开启连续对话模式。 加上它，程序就不再是“回答完你的一句话就直接退出”，而是会变成像 ChatGPT 那样的聊天窗口，你可以一直和它连续对话，并且它能记住你们的上下文。\n-ngl 42 (Number of GPU Layers): 显卡加速层数。 这个参数极其关键！它决定了你要把模型的多少层神经网络“卸载”到显存里去跑。填 42 通常是一个足够大的数字（很多 7B/8B 级别的模型也就 32 层左右），这意味着它会把整个模型的计算任务全部塞进你的显卡里，彻底榨干硬件算力，实现推理速度的最大化。\n--temp 1.0 (Temperature): 温度值 / 创造力。 控制 AI 回答的随机性和发散程度。\n1.0 是默认偏活跃的设定，适合日常聊天或创意写作。 如果你让它写代码或翻译严谨的文档，建议调低到 0.1 - 0.3（极其老实，绝不胡编）。 如果调到 1.5 以上，它就开始天马行空甚至胡言乱语了。 --top-p 0.95 (Nucleus Sampling): 核心采样 / 靠谱过滤。 AI 在预测下一个词时，脑子里会有成千上万个候选项。0.95 意味着程序会把那些概率极低、看起来像“胡言乱语”的尾巴词汇直接砍掉，只在累计概率达到 95% 的“靠谱候选池”里做随机选择。\n--top-k 64 (Top-K Sampling): 候选词截断。 这是 top-p 的双保险。它强制 AI 在生成下一个词时，无论概率如何分布，永远只看排名前 64 位的最有可能的词。这能极大地防止模型在长篇大论时突然“精神错乱”。\n--jinja: 原生模板解析引擎。 这是针对现代模型（如 Gemma、Llama-3 等）的“外挂”。新一代大模型在对话时需要非常严格的隐藏控制符（比如 user 等）。加上 --jinja，llama.cpp 就会自动从 GGUF 文件内部读取作者写好的官方模板并完美应用，彻底免去了你手动拼装格式的痛苦，防止模型因为格式不对而产生幻觉。\n最后，做成服务，提供一个web界面\n./llama-server -m /home/ubuntu/.cache/huggingface/hub/models--HauhauCS--Gemma-4-E4B-Uncensored-HauhauCS-Aggressive/snapshots/45b6a334b4bcd1d7f37179df58b3b1d66a184e5d/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf --mmproj /home/ubuntu/.cache/huggingface/hub/models--HauhauCS--Gemma-4-E4B-Uncensored-HauhauCS-Aggressive/snapshots/45b6a334b4bcd1d7f37179df58b3b1d66a184e5d/mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf -ngl 42 --temp 1.0 --top-p 0.95 --top-k 99 --jinja --host 0.0.0.0 --port 12345 打完收工，提供给本地的openclaw大龙虾用。\n","wordCount":"219","inLanguage":"zh","image":"https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E","datePublished":"2026-04-09T09:01:11+08:00","dateModified":"2026-04-09T09:01:11+08:00","author":{"@type":"Person","name":"八戒"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20260409-gemma4_install/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="Home (Alt + H)"><img src=https://rendoumi.com/apple-touch-icon.png alt aria-label=logo height=35>Home</a><div class=logo-switches></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><div class=breadcrumbs><a href=https://rendoumi.com/>主页</a>&nbsp;»&nbsp;<a href=https://rendoumi.com/posts/>所有文章</a></div><h1 class="post-title entry-hint-parent">Gemma4破限版的安装
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2026-04-09 09:01:11 +0800 CST'>2026年04月09日</span>&nbsp;·&nbsp;<span>2 分钟</span>&nbsp;·&nbsp;<span>219 字</span>&nbsp;·&nbsp;<span>八戒</span></div></header><div class=post-content><p>最近一直在搞chatgpt普号的注册机，L站上五花八门，各式各样，多数是用python写的</p><p>谷歌推出了Gemma4，那有好事者船载以入，直接破了它的道德感，可以逆向，破解，我们来试试吧</p><p>运行环境：</p><p>Ubuntu 22.04，Nvidia 3060 8G显卡</p><pre tabindex=0><code># 首先下载模型
+uv pip install -U &#34;huggingface_hub&#34;
+
+uv tool run hf auth login --token hf_xxxxxxxx
+
+# 破限模型的地址：https://huggingface.co/HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive
+# 本来应该运行Q5_K_M 或者Q5_K_P，但是还要跑多模态，降一档
+# 跑Q4_K_P 或者Q4_K_M加上多模态文件
+
+# 下载Q4_KM
+uv tool run hf download  HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf
+/home/ubuntu/.cache/huggingface/hub/models--HauhauCS--Gemma-4-E4B-Uncensored-HauhauCS-Aggressive/snapshots/45b6a334b4bcd1d7f37179df58b3b1d66a184e5d/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf
+
+
+# 下载多模态文件
+uv tool run hf download  HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf
+/home/ubuntu/.cache/huggingface/hub/models--HauhauCS--Gemma-4-E4B-Uncensored-HauhauCS-Aggressive/snapshots/45b6a334b4bcd1d7f37179df58b3b1d66a184e5d/mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf
+
+# With vision/audio
+llama-cli -m Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf \
+  --mmproj mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf \
+  --jinja -c 8192 -ngl 99
+</code></pre><p>然后需要编译llama.app，否则认不出gemma4这个最新的模型：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>apt install nvidia-driver-590
+</span></span><span class=line><span class=cl>apt install nvidia-cuda-toolkit
+</span></span><span class=line><span class=cl>apt install gcc-10 g++-10
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>git clone https://github.com/ggerganov/llama.cpp
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>cd</span> llama.app
+</span></span><span class=line><span class=cl><span class=c1># apt 安装的590其实版本比较旧，但是ubuntu 22.04自带的gcc11版本高了，导致cuda的编译认不出来高版本的文件</span>
+</span></span><span class=line><span class=cl><span class=c1># 所以必须用低版本的gcc来编译旧版本的cuda驱动</span>
+</span></span><span class=line><span class=cl>cmake -S . -B build -DCMAKE_BUILD_TYPE<span class=o>=</span>Release -DGGML_CUDA<span class=o>=</span>ON -DCMAKE_CUDA_ARCHITECTURES<span class=o>=</span><span class=m>86</span> -DCMAKE_CUDA_HOST_COMPILER<span class=o>=</span>/usr/bin/gcc-10
+</span></span><span class=line><span class=cl>cmake --build build --config Release -j <span class=m>8</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>cd</span> build/bin
+</span></span></code></pre></div><p>编译好后运行测试一下：</p><pre tabindex=0><code>./llama-cli -m /home/ubuntu/.cache/huggingface/hub/models--HauhauCS--Gemma-4-E4B-Uncensored-HauhauCS-Aggressive/snapshots/45b6a334b4bcd1d7f37179df58b3b1d66a184e5d/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf   --mmproj /home/ubuntu/.cache/huggingface/hub/models--HauhauCS--Gemma-4-E4B-Uncensored-HauhauCS-Aggressive/snapshots/45b6a334b4bcd1d7f37179df58b3b1d66a184e5d/mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf -p &#34;你是一个有用的人工智能助手，尽量回答问题。&#34;  -cnv -ngl 42 --temp 1.0 --top-p 0.95 --top-k 99 --jinja
+</code></pre><p>参数解释：</p><p>这串参数可以说是控制大模型“性格”和“性能”的控制台。给你一份炼丹师必备的参数备忘录：</p><ul><li><p><strong><code>-cnv</code> (Conversation Mode): 开启连续对话模式。</strong> 加上它，程序就不再是“回答完你的一句话就直接退出”，而是会变成像 ChatGPT 那样的聊天窗口，你可以一直和它连续对话，并且它能记住你们的上下文。</p></li><li><p><strong><code>-ngl 42</code> (Number of GPU Layers): 显卡加速层数。</strong> 这个参数极其关键！它决定了你要把模型的多少层神经网络“卸载”到显存里去跑。填 <code>42</code> 通常是一个足够大的数字（很多 7B/8B 级别的模型也就 32 层左右），这意味着它会把整个模型的计算任务全部塞进你的显卡里，彻底榨干硬件算力，实现推理速度的最大化。</p></li><li><p><strong><code>--temp 1.0</code> (Temperature): 温度值 / 创造力。</strong> 控制 AI 回答的随机性和发散程度。</p><ul><li><code>1.0</code> 是默认偏活跃的设定，适合日常聊天或创意写作。</li><li>如果你让它写代码或翻译严谨的文档，建议调低到 <code>0.1 - 0.3</code>（极其老实，绝不胡编）。</li><li>如果调到 <code>1.5</code> 以上，它就开始天马行空甚至胡言乱语了。</li></ul></li><li><p><strong><code>--top-p 0.95</code> (Nucleus Sampling): 核心采样 / 靠谱过滤。</strong> AI 在预测下一个词时，脑子里会有成千上万个候选项。<code>0.95</code> 意味着程序会把那些概率极低、看起来像“胡言乱语”的尾巴词汇直接砍掉，只在累计概率达到 95% 的“靠谱候选池”里做随机选择。</p></li><li><p><strong><code>--top-k 64</code> (Top-K Sampling): 候选词截断。</strong> 这是 <code>top-p</code> 的双保险。它强制 AI 在生成下一个词时，无论概率如何分布，永远只看排名前 64 位的最有可能的词。这能极大地防止模型在长篇大论时突然“精神错乱”。</p></li><li><p><strong><code>--jinja</code>: 原生模板解析引擎。</strong> 这是针对现代模型（如 Gemma、Llama-3 等）的“外挂”。新一代大模型在对话时需要非常严格的隐藏控制符（比如 <code>&lt;start_of_turn>user</code> 等）。加上 <code>--jinja</code>，llama.cpp 就会自动从 GGUF 文件内部读取作者写好的官方模板并完美应用，彻底免去了你手动拼装格式的痛苦，防止模型因为格式不对而产生幻觉。</p></li></ul><p><img loading=lazy src=/posts/20260409-gemma4_install/image-20260409134024718.png></p><p>最后，做成服务，提供一个web界面</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>./llama-server -m /home/ubuntu/.cache/huggingface/hub/models--HauhauCS--Gemma-4-E4B-Uncensored-HauhauCS-Aggressive/snapshots/45b6a334b4bcd1d7f37179df58b3b1d66a184e5d/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf   --mmproj /home/ubuntu/.cache/huggingface/hub/models--HauhauCS--Gemma-4-E4B-Uncensored-HauhauCS-Aggressive/snapshots/45b6a334b4bcd1d7f37179df58b3b1d66a184e5d/mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf   -ngl <span class=m>42</span> --temp 1.0 --top-p 0.95 --top-k <span class=m>99</span> --jinja  --host 0.0.0.0 --port <span class=m>12345</span>
+</span></span></code></pre></div><p><img alt=image-20260409210444075 loading=lazy src=/posts/20260409-gemma4_install/image-20260409210444075.png></p><p>打完收工，提供给本地的openclaw大龙虾用。</p></div><footer class=post-footer><ul class=post-tags></ul><nav class=paginav><a class=next href=https://rendoumi.com/posts/20260409-uv_install_use/><span class=title>下一页 »</span><br><span>Linux环境下uv的安装和适用</span></a></nav></footer><div id=comments></div><script src=https://cwd.js.org/cwd.js></script><script>const comments=new CWDComments({el:"#comments",apiBaseUrl:"https://cwd.rendoumi.qzz.io"});comments.mount()</script></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script></body></html>
