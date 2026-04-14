@@ -12,8 +12,72 @@
     <generator>Hugo -- 0.147.3</generator>
     <language>zh</language>
     <copyright>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Thu, 09 Apr 2026 09:01:11 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 14 Apr 2026 09:00:00 +0800</lastBuildDate>
     <atom:link href="https://rendoumi.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>大模型蒸馏总结篇-unsloth的安装和使用</title>
+      <link>https://rendoumi.com/posts/20260413-unslosh/</link>
+      <pubDate>Tue, 14 Apr 2026 09:00:00 +0800</pubDate>
+      <guid>https://rendoumi.com/posts/20260413-unslosh/</guid>
+      <description>&lt;p&gt;在 AI 炼丹界有一句至理名言：&lt;strong&gt;“数据决定上限，模型只是逼近这个上限。”&lt;/strong&gt;&lt;/p&gt;
+&lt;h3 id=&#34;unsloth-硬目标蒸馏步骤&#34;&gt;Unsloth “硬目标”蒸馏步骤&lt;/h3&gt;
+&lt;p&gt;这种方法在工业界极其流行：用顶级大模型（GPT-4 或 Qwen-72B）生成海量高质量语料，然后用 Unsloth 对小模型（Qwen-0.5B）进行极其暴力的 SFT（监督微调），让它死记硬背老师的说话方式。&lt;/p&gt;
+&lt;h4 id=&#34;一llamacpp的手动编译如果装unsloth可以不装unsloth会自动装&#34;&gt;一、LLama.cpp的手动编译（如果装unsloth，可以不装，unsloth会自动装）：&lt;/h4&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt-get update
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt-get install pciutils build-essential cmake curl libcurl4-openssl-dev -y
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;git clone https://github.com/ggml-org/llama.cpp
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 指定静态编译&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;cmake llama.cpp -B llama.cpp/build &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    -DBUILD_SHARED_LIBS&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;OFF -DGGML_CUDA&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;ON
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 编译出主要得可运行程序&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;cmake --build llama.cpp/build --config Release -j --clean-first --target llama-cli llama-mtmd-cli llama-server llama-gguf-split
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;cp llama.cpp/build/bin/llama-* llama.cpp
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;huggingface.co 的模型下载大法：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;pip install huggingface_hub hf_transfer
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;hf download unsloth/gemma-4-26B-A4B-it-GGUF &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    --local-dir unsloth/gemma-4-26B-A4B-it-GGUF &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    --include &lt;span class=&#34;s2&#34;&gt;&amp;#34;*mmproj-BF16*&amp;#34;&lt;/span&gt; &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;    --include &lt;span class=&#34;s2&#34;&gt;&amp;#34;*UD-Q4_K_XL*&amp;#34;&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;# 动态 2 位请使用 &amp;#34;*UD-Q2_K_XL*&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;gemma4的运行，官方参数 temp 1.0、top-p 0.95、top-k 64&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>llama.app的编译安装以及模型蒸馏-Ubuntu&#43;nvidia 3060最终成功篇</title>
+      <link>https://rendoumi.com/posts/20260410-llama.cpp_install_nvidia/</link>
+      <pubDate>Fri, 10 Apr 2026 09:00:00 +0800</pubDate>
+      <guid>https://rendoumi.com/posts/20260410-llama.cpp_install_nvidia/</guid>
+      <description>&lt;p&gt;真是路途多揣，路漫漫其修远兮&amp;hellip;.&lt;/p&gt;
+&lt;p&gt;上次失败，这次换了正宗得Nvidia 3060显卡，显存8G来实验&lt;/p&gt;
+&lt;p&gt;操作系统是Ubuntu 22.04.5，搭配Nvidia  8G的显卡，用户是ubuntu，尽量用普通用户操作&lt;/p&gt;
+&lt;p&gt;先上去看：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;nvidia-smi
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;root@ollama:~# nvidia-smi
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Command &lt;span class=&#34;s1&#34;&gt;&amp;#39;nvidia-smi&amp;#39;&lt;/span&gt; not found, but can be installed with:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-390         &lt;span class=&#34;c1&#34;&gt;# version 390.157-0ubuntu0.22.04.2, or&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-418-server  &lt;span class=&#34;c1&#34;&gt;# version 418.226.00-0ubuntu5~0.22.04.1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-450-server  &lt;span class=&#34;c1&#34;&gt;# version 450.248.02-0ubuntu0.22.04.1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-470         &lt;span class=&#34;c1&#34;&gt;# version 470.256.02-0ubuntu0.22.04.1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-470-server  &lt;span class=&#34;c1&#34;&gt;# version 470.256.02-0ubuntu0.22.04.1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-535         &lt;span class=&#34;c1&#34;&gt;# version 535.288.01-0ubuntu0.22.04.1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-535-server  &lt;span class=&#34;c1&#34;&gt;# version 535.288.01-0ubuntu0.22.04.1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-550-server  &lt;span class=&#34;c1&#34;&gt;# version 550.163.01-0ubuntu0.22.04.1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-570         &lt;span class=&#34;c1&#34;&gt;# version 570.211.01-0ubuntu0.22.04.1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-570-server  &lt;span class=&#34;c1&#34;&gt;# version 570.211.01-0ubuntu0.22.04.1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-580         &lt;span class=&#34;c1&#34;&gt;# version 580.126.09-0ubuntu0.22.04.1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-580-server  &lt;span class=&#34;c1&#34;&gt;# version 580.126.09-0ubuntu0.22.04.1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-590         &lt;span class=&#34;c1&#34;&gt;# version 590.48.01-0ubuntu0.22.04.3&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-590-server  &lt;span class=&#34;c1&#34;&gt;# version 590.48.01-0ubuntu0.22.04.3&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-545         &lt;span class=&#34;c1&#34;&gt;# version 545.29.06-0ubuntu0.22.04.2&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-565-server  &lt;span class=&#34;c1&#34;&gt;# version 565.57.01-0ubuntu0.22.04.4&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-510         &lt;span class=&#34;c1&#34;&gt;# version 510.60.02-0ubuntu1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-510-server  &lt;span class=&#34;c1&#34;&gt;# version 510.47.03-0ubuntu3&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;最高是590，那就装590的驱动&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Gemma4破限版的安装</title>
       <link>https://rendoumi.com/posts/20260409-gemma4_install/</link>
@@ -103,39 +167,6 @@ uv tool run hf download  HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive mmp
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;uvx hf
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;uvx pycowsay hello from uv
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
-    </item>
-    <item>
-      <title>llama.app的编译安装以及模型蒸馏-Ubuntu&#43;nvidia 3060最终成功篇</title>
-      <link>https://rendoumi.com/posts/20260410-llama.cpp_install_nvidia/</link>
-      <pubDate>Mon, 16 Mar 2026 09:00:00 +0800</pubDate>
-      <guid>https://rendoumi.com/posts/20260410-llama.cpp_install_nvidia/</guid>
-      <description>&lt;p&gt;真是路途多揣，路漫漫其修远兮&amp;hellip;.&lt;/p&gt;
-&lt;p&gt;上次失败，这次换了正宗得Nvidia 3060显卡，显存8G来实验&lt;/p&gt;
-&lt;p&gt;操作系统是Ubuntu 22.04.5，搭配Nvidia  8G的显卡，用户是ubuntu，尽量用普通用户操作&lt;/p&gt;
-&lt;p&gt;先上去看：&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;nvidia-smi
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;root@ollama:~# nvidia-smi
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Command &lt;span class=&#34;s1&#34;&gt;&amp;#39;nvidia-smi&amp;#39;&lt;/span&gt; not found, but can be installed with:
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-390         &lt;span class=&#34;c1&#34;&gt;# version 390.157-0ubuntu0.22.04.2, or&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-418-server  &lt;span class=&#34;c1&#34;&gt;# version 418.226.00-0ubuntu5~0.22.04.1&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-450-server  &lt;span class=&#34;c1&#34;&gt;# version 450.248.02-0ubuntu0.22.04.1&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-470         &lt;span class=&#34;c1&#34;&gt;# version 470.256.02-0ubuntu0.22.04.1&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-470-server  &lt;span class=&#34;c1&#34;&gt;# version 470.256.02-0ubuntu0.22.04.1&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-535         &lt;span class=&#34;c1&#34;&gt;# version 535.288.01-0ubuntu0.22.04.1&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-535-server  &lt;span class=&#34;c1&#34;&gt;# version 535.288.01-0ubuntu0.22.04.1&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-550-server  &lt;span class=&#34;c1&#34;&gt;# version 550.163.01-0ubuntu0.22.04.1&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-570         &lt;span class=&#34;c1&#34;&gt;# version 570.211.01-0ubuntu0.22.04.1&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-570-server  &lt;span class=&#34;c1&#34;&gt;# version 570.211.01-0ubuntu0.22.04.1&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-580         &lt;span class=&#34;c1&#34;&gt;# version 580.126.09-0ubuntu0.22.04.1&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-580-server  &lt;span class=&#34;c1&#34;&gt;# version 580.126.09-0ubuntu0.22.04.1&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-590         &lt;span class=&#34;c1&#34;&gt;# version 590.48.01-0ubuntu0.22.04.3&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-590-server  &lt;span class=&#34;c1&#34;&gt;# version 590.48.01-0ubuntu0.22.04.3&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-545         &lt;span class=&#34;c1&#34;&gt;# version 545.29.06-0ubuntu0.22.04.2&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-565-server  &lt;span class=&#34;c1&#34;&gt;# version 565.57.01-0ubuntu0.22.04.4&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-510         &lt;span class=&#34;c1&#34;&gt;# version 510.60.02-0ubuntu1&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install nvidia-utils-510-server  &lt;span class=&#34;c1&#34;&gt;# version 510.47.03-0ubuntu3&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;最高是590，那就装590的驱动&lt;/p&gt;</description>
     </item>
     <item>
       <title>llama.app的编译安装以及模型蒸馏-Ubuntu成功烧毁gpu篇</title>

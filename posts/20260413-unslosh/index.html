@@ -1,0 +1,107 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3988508441804851" crossorigin=anonymous></script><title>大模型蒸馏总结篇-unsloth的安装和使用 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='在 AI 炼丹界有一句至理名言：“数据决定上限，模型只是逼近这个上限。”
+Unsloth “硬目标”蒸馏步骤
+这种方法在工业界极其流行：用顶级大模型（GPT-4 或 Qwen-72B）生成海量高质量语料，然后用 Unsloth 对小模型（Qwen-0.5B）进行极其暴力的 SFT（监督微调），让它死记硬背老师的说话方式。
+一、LLama.cpp的手动编译（如果装unsloth，可以不装，unsloth会自动装）：
+apt-get update
+apt-get install pciutils build-essential cmake curl libcurl4-openssl-dev -y
+
+git clone https://github.com/ggml-org/llama.cpp
+
+# 指定静态编译
+cmake llama.cpp -B llama.cpp/build \
+    -DBUILD_SHARED_LIBS=OFF -DGGML_CUDA=ON
+
+# 编译出主要得可运行程序
+cmake --build llama.cpp/build --config Release -j --clean-first --target llama-cli llama-mtmd-cli llama-server llama-gguf-split
+
+cp llama.cpp/build/bin/llama-* llama.cpp
+huggingface.co 的模型下载大法：
+pip install huggingface_hub hf_transfer
+
+hf download unsloth/gemma-4-26B-A4B-it-GGUF \
+    --local-dir unsloth/gemma-4-26B-A4B-it-GGUF \
+    --include "*mmproj-BF16*" \
+    --include "*UD-Q4_K_XL*" # 动态 2 位请使用 "*UD-Q2_K_XL*"
+gemma4的运行，官方参数 temp 1.0、top-p 0.95、top-k 64'><meta name=author content="八戒"><link rel=canonical href=https://rendoumi.com/posts/20260413-unslosh/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.5d8a858b4ad07d913988e10d3c3dbc8c171f45316a396de8a60d67f44840812d.css integrity="sha256-XYqFi0rQfZE5iOENPD28jBcfRTFqOW3opg1n9EhAgS0=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/%3Clink%20/%20abs%20url%3E><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20260413-unslosh/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20260413-unslosh/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="大模型蒸馏总结篇-unsloth的安装和使用"><meta property="og:description" content='在 AI 炼丹界有一句至理名言：“数据决定上限，模型只是逼近这个上限。”
+Unsloth “硬目标”蒸馏步骤 这种方法在工业界极其流行：用顶级大模型（GPT-4 或 Qwen-72B）生成海量高质量语料，然后用 Unsloth 对小模型（Qwen-0.5B）进行极其暴力的 SFT（监督微调），让它死记硬背老师的说话方式。
+一、LLama.cpp的手动编译（如果装unsloth，可以不装，unsloth会自动装）： apt-get update apt-get install pciutils build-essential cmake curl libcurl4-openssl-dev -y git clone https://github.com/ggml-org/llama.cpp # 指定静态编译 cmake llama.cpp -B llama.cpp/build \ -DBUILD_SHARED_LIBS=OFF -DGGML_CUDA=ON # 编译出主要得可运行程序 cmake --build llama.cpp/build --config Release -j --clean-first --target llama-cli llama-mtmd-cli llama-server llama-gguf-split cp llama.cpp/build/bin/llama-* llama.cpp huggingface.co 的模型下载大法：
+pip install huggingface_hub hf_transfer hf download unsloth/gemma-4-26B-A4B-it-GGUF \ --local-dir unsloth/gemma-4-26B-A4B-it-GGUF \ --include "*mmproj-BF16*" \ --include "*UD-Q4_K_XL*" # 动态 2 位请使用 "*UD-Q2_K_XL*" gemma4的运行，官方参数 temp 1.0、top-p 0.95、top-k 64'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2026-04-14T09:00:00+08:00"><meta property="article:modified_time" content="2026-04-14T09:00:00+08:00"><meta property="og:image" content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:title content="大模型蒸馏总结篇-unsloth的安装和使用"><meta name=twitter:description content='在 AI 炼丹界有一句至理名言：“数据决定上限，模型只是逼近这个上限。”
+Unsloth “硬目标”蒸馏步骤
+这种方法在工业界极其流行：用顶级大模型（GPT-4 或 Qwen-72B）生成海量高质量语料，然后用 Unsloth 对小模型（Qwen-0.5B）进行极其暴力的 SFT（监督微调），让它死记硬背老师的说话方式。
+一、LLama.cpp的手动编译（如果装unsloth，可以不装，unsloth会自动装）：
+apt-get update
+apt-get install pciutils build-essential cmake curl libcurl4-openssl-dev -y
+
+git clone https://github.com/ggml-org/llama.cpp
+
+# 指定静态编译
+cmake llama.cpp -B llama.cpp/build \
+    -DBUILD_SHARED_LIBS=OFF -DGGML_CUDA=ON
+
+# 编译出主要得可运行程序
+cmake --build llama.cpp/build --config Release -j --clean-first --target llama-cli llama-mtmd-cli llama-server llama-gguf-split
+
+cp llama.cpp/build/bin/llama-* llama.cpp
+huggingface.co 的模型下载大法：
+pip install huggingface_hub hf_transfer
+
+hf download unsloth/gemma-4-26B-A4B-it-GGUF \
+    --local-dir unsloth/gemma-4-26B-A4B-it-GGUF \
+    --include "*mmproj-BF16*" \
+    --include "*UD-Q4_K_XL*" # 动态 2 位请使用 "*UD-Q2_K_XL*"
+gemma4的运行，官方参数 temp 1.0、top-p 0.95、top-k 64'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"大模型蒸馏总结篇-unsloth的安装和使用","item":"https://rendoumi.com/posts/20260413-unslosh/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"大模型蒸馏总结篇-unsloth的安装和使用","name":"大模型蒸馏总结篇-unsloth的安装和使用","description":"在 AI 炼丹界有一句至理名言：“数据决定上限，模型只是逼近这个上限。”\nUnsloth “硬目标”蒸馏步骤 这种方法在工业界极其流行：用顶级大模型（GPT-4 或 Qwen-72B）生成海量高质量语料，然后用 Unsloth 对小模型（Qwen-0.5B）进行极其暴力的 SFT（监督微调），让它死记硬背老师的说话方式。\n一、LLama.cpp的手动编译（如果装unsloth，可以不装，unsloth会自动装）： apt-get update apt-get install pciutils build-essential cmake curl libcurl4-openssl-dev -y git clone https://github.com/ggml-org/llama.cpp # 指定静态编译 cmake llama.cpp -B llama.cpp/build \\ -DBUILD_SHARED_LIBS=OFF -DGGML_CUDA=ON # 编译出主要得可运行程序 cmake --build llama.cpp/build --config Release -j --clean-first --target llama-cli llama-mtmd-cli llama-server llama-gguf-split cp llama.cpp/build/bin/llama-* llama.cpp huggingface.co 的模型下载大法：\npip install huggingface_hub hf_transfer hf download unsloth/gemma-4-26B-A4B-it-GGUF \\ --local-dir unsloth/gemma-4-26B-A4B-it-GGUF \\ --include \u0026#34;*mmproj-BF16*\u0026#34; \\ --include \u0026#34;*UD-Q4_K_XL*\u0026#34; # 动态 2 位请使用 \u0026#34;*UD-Q2_K_XL*\u0026#34; gemma4的运行，官方参数 temp 1.0、top-p 0.95、top-k 64\n","keywords":[],"articleBody":"在 AI 炼丹界有一句至理名言：“数据决定上限，模型只是逼近这个上限。”\nUnsloth “硬目标”蒸馏步骤 这种方法在工业界极其流行：用顶级大模型（GPT-4 或 Qwen-72B）生成海量高质量语料，然后用 Unsloth 对小模型（Qwen-0.5B）进行极其暴力的 SFT（监督微调），让它死记硬背老师的说话方式。\n一、LLama.cpp的手动编译（如果装unsloth，可以不装，unsloth会自动装）： apt-get update apt-get install pciutils build-essential cmake curl libcurl4-openssl-dev -y git clone https://github.com/ggml-org/llama.cpp # 指定静态编译 cmake llama.cpp -B llama.cpp/build \\ -DBUILD_SHARED_LIBS=OFF -DGGML_CUDA=ON # 编译出主要得可运行程序 cmake --build llama.cpp/build --config Release -j --clean-first --target llama-cli llama-mtmd-cli llama-server llama-gguf-split cp llama.cpp/build/bin/llama-* llama.cpp huggingface.co 的模型下载大法：\npip install huggingface_hub hf_transfer hf download unsloth/gemma-4-26B-A4B-it-GGUF \\ --local-dir unsloth/gemma-4-26B-A4B-it-GGUF \\ --include \"*mmproj-BF16*\" \\ --include \"*UD-Q4_K_XL*\" # 动态 2 位请使用 \"*UD-Q2_K_XL*\" gemma4的运行，官方参数 temp 1.0、top-p 0.95、top-k 64\n# 温度1，发散思维，但又不至于出现幻觉 # 0.95 95%的数据匹配，把不沾边的数据滤掉 # 64 64层，把大多数层都加载 ./llama.cpp/llama-server \\ --model unsloth/gemma-4-26B-A4B-it-GGUF/gemma-4-26B-A4B-it-UD-Q4_K_XL.gguf \\ --mmproj unsloth/gemma-4-26B-A4B-it-GGUF/mmproj-BF16.gguf \\ --temp 1.0 \\ --top-p 0.95 \\ --top-k 64 \\ --alias \"unsloth/gemma-4-26B-A4B-it-GGUF\" \\ --port 8001 \\ --chat-template-kwargs '{\"enable_thinking\":true}' 二、Unsloth得安装（得翻墙，得有hf得login token，得装低版本的，高版本的对蒸馏数据有的不兼容）： # 不翻墙无法下载啊 export https_proxy=http://127.0.0.1:1080 # 教程是这一句安装，但是不行啊，这句在2026年4月14日，安装的是Python 3.13，这个版本高了，对某些训练数据集不友好 # curl -fsSL https://unsloth.ai/install.sh | sh git clone https://github.com/unslothai/unsloth cd unsloth # 降级装Python 3.11 ./install.sh --local --python 3.11 装完就自动运行起来了，先ctrl+c 断了，然后运行\n# 不翻无法从HF下模型！！！ export https_proxy=http://127.0.0.1:1080 unsloth studio -H 0.0.0.0 -p 8888 然后打开http://ip:8888 设置admin密码，就可以进去了\n打开studio，就可以开始炼模型了，之前的一大套东西，都简化了\n首先选HF已经下载过的Qwen/Qwen2.5-1.5B-Instruct模型，然后方法QLoRA(4-bit), 要炼其它模型就可以输入HF的Token\n底下上传之前准备好的训练数据，opus_full_3000.json，opos老师的3000条优质训练数据。然后就可以Start Training了\n炼的时候可以看到进度，GPU的使用率，好想有块好显卡啊\n炼完后去chat验收，选择Select model…，Fine-tuned是自己炼得模型，然后点击加载，需要一段时间……耐心等待一下\n加载好后就可以看到了，如果想切换模型，就Eject弹出它\n随便问了几个问题，感觉还行！\n关键是那么多优质得语料，要从何处获得。据说anyrouter.top是某大厂专门开出来给大家免费使用，然后收集训练语料用的，可以理解，可以理解。\n引用：\nhttps://unsloth.ai/docs/zh/mo-xing/gemma-4\n","wordCount":"166","inLanguage":"zh","image":"https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E","datePublished":"2026-04-14T09:00:00+08:00","dateModified":"2026-04-14T09:00:00+08:00","author":{"@type":"Person","name":"八戒"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20260413-unslosh/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="Home (Alt + H)"><img src=https://rendoumi.com/apple-touch-icon.png alt aria-label=logo height=35>Home</a><div class=logo-switches></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><div class=breadcrumbs><a href=https://rendoumi.com/>主页</a>&nbsp;»&nbsp;<a href=https://rendoumi.com/posts/>所有文章</a></div><h1 class="post-title entry-hint-parent">大模型蒸馏总结篇-unsloth的安装和使用
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2026-04-14 09:00:00 +0800 CST'>2026年04月14日</span>&nbsp;·&nbsp;<span>1 分钟</span>&nbsp;·&nbsp;<span>166 字</span>&nbsp;·&nbsp;<span>八戒</span></div></header><div class=post-content><p>在 AI 炼丹界有一句至理名言：<strong>“数据决定上限，模型只是逼近这个上限。”</strong></p><h3 id=unsloth-硬目标蒸馏步骤>Unsloth “硬目标”蒸馏步骤<a hidden class=anchor aria-hidden=true href=#unsloth-硬目标蒸馏步骤>#</a></h3><p>这种方法在工业界极其流行：用顶级大模型（GPT-4 或 Qwen-72B）生成海量高质量语料，然后用 Unsloth 对小模型（Qwen-0.5B）进行极其暴力的 SFT（监督微调），让它死记硬背老师的说话方式。</p><h4 id=一llamacpp的手动编译如果装unsloth可以不装unsloth会自动装>一、LLama.cpp的手动编译（如果装unsloth，可以不装，unsloth会自动装）：<a hidden class=anchor aria-hidden=true href=#一llamacpp的手动编译如果装unsloth可以不装unsloth会自动装>#</a></h4><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>apt-get update
+</span></span><span class=line><span class=cl>apt-get install pciutils build-essential cmake curl libcurl4-openssl-dev -y
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>git clone https://github.com/ggml-org/llama.cpp
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 指定静态编译</span>
+</span></span><span class=line><span class=cl>cmake llama.cpp -B llama.cpp/build <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    -DBUILD_SHARED_LIBS<span class=o>=</span>OFF -DGGML_CUDA<span class=o>=</span>ON
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 编译出主要得可运行程序</span>
+</span></span><span class=line><span class=cl>cmake --build llama.cpp/build --config Release -j --clean-first --target llama-cli llama-mtmd-cli llama-server llama-gguf-split
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>cp llama.cpp/build/bin/llama-* llama.cpp
+</span></span></code></pre></div><p>huggingface.co 的模型下载大法：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>pip install huggingface_hub hf_transfer
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>hf download unsloth/gemma-4-26B-A4B-it-GGUF <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --local-dir unsloth/gemma-4-26B-A4B-it-GGUF <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --include <span class=s2>&#34;*mmproj-BF16*&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --include <span class=s2>&#34;*UD-Q4_K_XL*&#34;</span> <span class=c1># 动态 2 位请使用 &#34;*UD-Q2_K_XL*&#34;</span>
+</span></span></code></pre></div><p>gemma4的运行，官方参数 temp 1.0、top-p 0.95、top-k 64</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 温度1，发散思维，但又不至于出现幻觉</span>
+</span></span><span class=line><span class=cl><span class=c1># 0.95 95%的数据匹配，把不沾边的数据滤掉</span>
+</span></span><span class=line><span class=cl><span class=c1># 64 64层，把大多数层都加载</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>./llama.cpp/llama-server <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --model unsloth/gemma-4-26B-A4B-it-GGUF/gemma-4-26B-A4B-it-UD-Q4_K_XL.gguf <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --mmproj unsloth/gemma-4-26B-A4B-it-GGUF/mmproj-BF16.gguf <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --temp 1.0 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --top-p 0.95 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --top-k <span class=m>64</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --alias <span class=s2>&#34;unsloth/gemma-4-26B-A4B-it-GGUF&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --port <span class=m>8001</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --chat-template-kwargs <span class=s1>&#39;{&#34;enable_thinking&#34;:true}&#39;</span>
+</span></span></code></pre></div><h4 id=二unsloth得安装得翻墙得有hf得login-token得装低版本的高版本的对蒸馏数据有的不兼容>二、Unsloth得安装（得翻墙，得有hf得login token，得装低版本的，高版本的对蒸馏数据有的不兼容）：<a hidden class=anchor aria-hidden=true href=#二unsloth得安装得翻墙得有hf得login-token得装低版本的高版本的对蒸馏数据有的不兼容>#</a></h4><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 不翻墙无法下载啊</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>https_proxy</span><span class=o>=</span>http://127.0.0.1:1080
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 教程是这一句安装，但是不行啊，这句在2026年4月14日，安装的是Python 3.13，这个版本高了，对某些训练数据集不友好</span>
+</span></span><span class=line><span class=cl><span class=c1># curl -fsSL https://unsloth.ai/install.sh | sh</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>git clone https://github.com/unslothai/unsloth
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>cd</span> unsloth
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 降级装Python 3.11</span>
+</span></span><span class=line><span class=cl>./install.sh --local --python 3.11
+</span></span></code></pre></div><p>装完就自动运行起来了，先ctrl+c 断了，然后运行</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 不翻无法从HF下模型！！！</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>https_proxy</span><span class=o>=</span>http://127.0.0.1:1080
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>unsloth studio -H 0.0.0.0 -p <span class=m>8888</span>
+</span></span></code></pre></div><p>然后打开http://ip:8888 设置admin密码，就可以进去了</p><p>打开studio，就可以开始炼模型了，之前的一大套东西，都简化了</p><p>首先选HF已经下载过的Qwen/Qwen2.5-1.5B-Instruct模型，然后方法QLoRA(4-bit), 要炼其它模型就可以输入HF的Token</p><p>底下上传之前准备好的训练数据，opus_full_3000.json，opos老师的3000条优质训练数据。然后就可以Start Training了</p><p><img alt=image-20260414153145812 loading=lazy src=/posts/20260413-unslosh/image-20260414153145812.png></p><p>炼的时候可以看到进度，GPU的使用率，好想有块好显卡啊</p><p><img alt=image-20260414153522516 loading=lazy src=/posts/20260413-unslosh/image-20260414153522516.png></p><p>炼完后去chat验收，选择Select model&mldr;，Fine-tuned是自己炼得模型，然后点击加载，需要一段时间&mldr;&mldr;耐心等待一下</p><p><img alt=image-20260414153628250 loading=lazy src=/posts/20260413-unslosh/image-20260414153628250.png></p><p>加载好后就可以看到了，如果想切换模型，就Eject弹出它</p><p><img alt=image-20260414152948485 loading=lazy src=/posts/20260413-unslosh/image-20260414152948485.png></p><p>随便问了几个问题，感觉还行！</p><p><img alt=image-20260414152916174 loading=lazy src=/posts/20260413-unslosh/image-20260414152916174.png></p><p>关键是那么多优质得语料，要从何处获得。据说anyrouter.top是某大厂专门开出来给大家免费使用，然后收集训练语料用的，可以理解，可以理解。</p><p>引用：</p><p><a href=https://unsloth.ai/docs/zh/mo-xing/gemma-4>https://unsloth.ai/docs/zh/mo-xing/gemma-4</a></p></div><footer class=post-footer><ul class=post-tags></ul><nav class=paginav><a class=next href=https://rendoumi.com/posts/20260410-llama.cpp_install_nvidia/><span class=title>下一页 »</span><br><span>llama.app的编译安装以及模型蒸馏-Ubuntu+nvidia 3060最终成功篇</span></a></nav></footer><div id=comments></div><script src=https://cwd.js.org/cwd.js></script><script>const comments=new CWDComments({el:"#comments",apiBaseUrl:"https://cwd.rendoumi.qzz.io"});comments.mount()</script></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script></body></html>
