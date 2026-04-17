@@ -1,0 +1,147 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3988508441804851" crossorigin=anonymous></script><title>黑魔法用Claude Opus蒸馏Qwen3.5的模型的安装运行 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="Claude Opus蒸馏Qwen3.5，9B小模型工具调用满分。9B的蒸馏模型，工具调用测试居然打了满分。
+不知道为什么，huggingface.co 总给我推Jackrong的模型
+从刚开始用opus数据蒸馏Qwen3.5开始，到现在的居然命名为 Qwopus3.5-9B-V3-GGUF
+后面的9B是比较适合 Nvidia 3060 8G显卡的实现
+我们来看看
+apt-get update
+apt-get install pciutils build-essential cmake curl libcurl4-openssl-dev -y
+
+apt-get search nvidia-driver
+
+#还是590是最新的
+apt install nvidia-driver-590 nvidia-cuda-toolkit libssl-dev
+
+git clone https://github.com/ggml-org/llama.cpp
+
+# 指定静态编译
+cmake llama.cpp -B llama.cpp/build \
+    -DBUILD_SHARED_LIBS=OFF -DGGML_CUDA=ON
+
+# 编译出主要得可运行程序
+cd llama.app
+cmake --build build --config Release -j 8
+
+# 装UV
+curl -LsSf https://astral.sh/uv/install.sh | sh
+source $HOME/.local/bin/env
+
+# 建目录
+mkdir qwen
+
+cd qwen
+uv venv --python 3.12
+source .venv/bin/activate
+
+uv pip install huggingface_hub hf_transfer
+
+hf  auth login --token hf_xxxxx
+
+# 下载Q4_K_M的量化文件
+hf download Jackrong/Qwopus3.5-9B-v3-GGUF --local-dir  Jackrong/Qwopus3.5-9B-v3-GGUF Qwopus3.5-9B-v3.Q4_K_M.gguf
+
+# 下载多模态量化文件
+hf download Jackrong/Qwopus3.5-9B-v3-GGUF --local-dir  Jackrong/Qwopus3.5-9B-v3-GGUF mmproj.gguf
+编写个run.sh"><meta name=author content="八戒"><link rel=canonical href=https://rendoumi.com/posts/20260417-jackrong_qwopus3.5/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.5d8a858b4ad07d913988e10d3c3dbc8c171f45316a396de8a60d67f44840812d.css integrity="sha256-XYqFi0rQfZE5iOENPD28jBcfRTFqOW3opg1n9EhAgS0=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/%3Clink%20/%20abs%20url%3E><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20260417-jackrong_qwopus3.5/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20260417-jackrong_qwopus3.5/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="黑魔法用Claude Opus蒸馏Qwen3.5的模型的安装运行"><meta property="og:description" content="Claude Opus蒸馏Qwen3.5，9B小模型工具调用满分。9B的蒸馏模型，工具调用测试居然打了满分。
+不知道为什么，huggingface.co 总给我推Jackrong的模型
+从刚开始用opus数据蒸馏Qwen3.5开始，到现在的居然命名为 Qwopus3.5-9B-V3-GGUF
+后面的9B是比较适合 Nvidia 3060 8G显卡的实现
+我们来看看
+apt-get update apt-get install pciutils build-essential cmake curl libcurl4-openssl-dev -y apt-get search nvidia-driver #还是590是最新的 apt install nvidia-driver-590 nvidia-cuda-toolkit libssl-dev git clone https://github.com/ggml-org/llama.cpp # 指定静态编译 cmake llama.cpp -B llama.cpp/build \ -DBUILD_SHARED_LIBS=OFF -DGGML_CUDA=ON # 编译出主要得可运行程序 cd llama.app cmake --build build --config Release -j 8 # 装UV curl -LsSf https://astral.sh/uv/install.sh | sh source $HOME/.local/bin/env # 建目录 mkdir qwen cd qwen uv venv --python 3.12 source .venv/bin/activate uv pip install huggingface_hub hf_transfer hf auth login --token hf_xxxxx # 下载Q4_K_M的量化文件 hf download Jackrong/Qwopus3.5-9B-v3-GGUF --local-dir Jackrong/Qwopus3.5-9B-v3-GGUF Qwopus3.5-9B-v3.Q4_K_M.gguf # 下载多模态量化文件 hf download Jackrong/Qwopus3.5-9B-v3-GGUF --local-dir Jackrong/Qwopus3.5-9B-v3-GGUF mmproj.gguf 编写个run.sh"><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2026-04-17T09:00:01+08:00"><meta property="article:modified_time" content="2026-04-17T09:00:01+08:00"><meta property="og:image" content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:title content="黑魔法用Claude Opus蒸馏Qwen3.5的模型的安装运行"><meta name=twitter:description content="Claude Opus蒸馏Qwen3.5，9B小模型工具调用满分。9B的蒸馏模型，工具调用测试居然打了满分。
+不知道为什么，huggingface.co 总给我推Jackrong的模型
+从刚开始用opus数据蒸馏Qwen3.5开始，到现在的居然命名为 Qwopus3.5-9B-V3-GGUF
+后面的9B是比较适合 Nvidia 3060 8G显卡的实现
+我们来看看
+apt-get update
+apt-get install pciutils build-essential cmake curl libcurl4-openssl-dev -y
+
+apt-get search nvidia-driver
+
+#还是590是最新的
+apt install nvidia-driver-590 nvidia-cuda-toolkit libssl-dev
+
+git clone https://github.com/ggml-org/llama.cpp
+
+# 指定静态编译
+cmake llama.cpp -B llama.cpp/build \
+    -DBUILD_SHARED_LIBS=OFF -DGGML_CUDA=ON
+
+# 编译出主要得可运行程序
+cd llama.app
+cmake --build build --config Release -j 8
+
+# 装UV
+curl -LsSf https://astral.sh/uv/install.sh | sh
+source $HOME/.local/bin/env
+
+# 建目录
+mkdir qwen
+
+cd qwen
+uv venv --python 3.12
+source .venv/bin/activate
+
+uv pip install huggingface_hub hf_transfer
+
+hf  auth login --token hf_xxxxx
+
+# 下载Q4_K_M的量化文件
+hf download Jackrong/Qwopus3.5-9B-v3-GGUF --local-dir  Jackrong/Qwopus3.5-9B-v3-GGUF Qwopus3.5-9B-v3.Q4_K_M.gguf
+
+# 下载多模态量化文件
+hf download Jackrong/Qwopus3.5-9B-v3-GGUF --local-dir  Jackrong/Qwopus3.5-9B-v3-GGUF mmproj.gguf
+编写个run.sh"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"黑魔法用Claude Opus蒸馏Qwen3.5的模型的安装运行","item":"https://rendoumi.com/posts/20260417-jackrong_qwopus3.5/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"黑魔法用Claude Opus蒸馏Qwen3.5的模型的安装运行","name":"黑魔法用Claude Opus蒸馏Qwen3.5的模型的安装运行","description":"Claude Opus蒸馏Qwen3.5，9B小模型工具调用满分。9B的蒸馏模型，工具调用测试居然打了满分。\n不知道为什么，huggingface.co 总给我推Jackrong的模型\n从刚开始用opus数据蒸馏Qwen3.5开始，到现在的居然命名为 Qwopus3.5-9B-V3-GGUF\n后面的9B是比较适合 Nvidia 3060 8G显卡的实现\n我们来看看\napt-get update apt-get install pciutils build-essential cmake curl libcurl4-openssl-dev -y apt-get search nvidia-driver #还是590是最新的 apt install nvidia-driver-590 nvidia-cuda-toolkit libssl-dev git clone https://github.com/ggml-org/llama.cpp # 指定静态编译 cmake llama.cpp -B llama.cpp/build \\ -DBUILD_SHARED_LIBS=OFF -DGGML_CUDA=ON # 编译出主要得可运行程序 cd llama.app cmake --build build --config Release -j 8 # 装UV curl -LsSf https://astral.sh/uv/install.sh | sh source $HOME/.local/bin/env # 建目录 mkdir qwen cd qwen uv venv --python 3.12 source .venv/bin/activate uv pip install huggingface_hub hf_transfer hf auth login --token hf_xxxxx # 下载Q4_K_M的量化文件 hf download Jackrong/Qwopus3.5-9B-v3-GGUF --local-dir Jackrong/Qwopus3.5-9B-v3-GGUF Qwopus3.5-9B-v3.Q4_K_M.gguf # 下载多模态量化文件 hf download Jackrong/Qwopus3.5-9B-v3-GGUF --local-dir Jackrong/Qwopus3.5-9B-v3-GGUF mmproj.gguf 编写个run.sh\n","keywords":[],"articleBody":"Claude Opus蒸馏Qwen3.5，9B小模型工具调用满分。9B的蒸馏模型，工具调用测试居然打了满分。\n不知道为什么，huggingface.co 总给我推Jackrong的模型\n从刚开始用opus数据蒸馏Qwen3.5开始，到现在的居然命名为 Qwopus3.5-9B-V3-GGUF\n后面的9B是比较适合 Nvidia 3060 8G显卡的实现\n我们来看看\napt-get update apt-get install pciutils build-essential cmake curl libcurl4-openssl-dev -y apt-get search nvidia-driver #还是590是最新的 apt install nvidia-driver-590 nvidia-cuda-toolkit libssl-dev git clone https://github.com/ggml-org/llama.cpp # 指定静态编译 cmake llama.cpp -B llama.cpp/build \\ -DBUILD_SHARED_LIBS=OFF -DGGML_CUDA=ON # 编译出主要得可运行程序 cd llama.app cmake --build build --config Release -j 8 # 装UV curl -LsSf https://astral.sh/uv/install.sh | sh source $HOME/.local/bin/env # 建目录 mkdir qwen cd qwen uv venv --python 3.12 source .venv/bin/activate uv pip install huggingface_hub hf_transfer hf auth login --token hf_xxxxx # 下载Q4_K_M的量化文件 hf download Jackrong/Qwopus3.5-9B-v3-GGUF --local-dir Jackrong/Qwopus3.5-9B-v3-GGUF Qwopus3.5-9B-v3.Q4_K_M.gguf # 下载多模态量化文件 hf download Jackrong/Qwopus3.5-9B-v3-GGUF --local-dir Jackrong/Qwopus3.5-9B-v3-GGUF mmproj.gguf 编写个run.sh\n#!/bin/bash # ~/llama.cpp/build/bin/llama-server \\ --model ~/qwen/Jackrong/Qwopus3.5-9B-v3-GGUF/Qwopus3.5-9B-v3.Q4_K_M.gguf \\ --mmproj ~/qwen/Jackrong/Qwopus3.5-9B-v3-GGUF/mmproj.gguf \\ --temp 1.0 \\ --top-p 0.95 \\ --top-k 64 \\ --alias \"Jackrong/Qwopus3.5-9B-v3-GGUF\" \\ --host 0.0.0.0 --port 8001 \\ --chat-template-kwargs '{\"enable_thinking\":true}' 打开 http://127.0.0.1:8001\n还可以，试试看给龙虾用\nJackrong 也着重提到了 unsloth，看来炼丹还是比较好玩啊。\n","wordCount":"136","inLanguage":"zh","image":"https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E","datePublished":"2026-04-17T09:00:01+08:00","dateModified":"2026-04-17T09:00:01+08:00","author":{"@type":"Person","name":"八戒"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20260417-jackrong_qwopus3.5/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="Home (Alt + H)"><img src=https://rendoumi.com/apple-touch-icon.png alt aria-label=logo height=35>Home</a><div class=logo-switches></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><div class=breadcrumbs><a href=https://rendoumi.com/>主页</a>&nbsp;»&nbsp;<a href=https://rendoumi.com/posts/>所有文章</a></div><h1 class="post-title entry-hint-parent">黑魔法用Claude Opus蒸馏Qwen3.5的模型的安装运行
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2026-04-17 09:00:01 +0800 CST'>2026年04月17日</span>&nbsp;·&nbsp;<span>1 分钟</span>&nbsp;·&nbsp;<span>136 字</span>&nbsp;·&nbsp;<span>八戒</span></div></header><div class=post-content><p>Claude Opus蒸馏Qwen3.5，9B小模型工具调用满分。9B的蒸馏模型，工具调用测试居然打了满分。</p><p>不知道为什么，huggingface.co 总给我推Jackrong的模型</p><p>从刚开始用opus数据蒸馏Qwen3.5开始，到现在的居然命名为 Qwopus3.5-9B-V3-GGUF</p><p>后面的9B是比较适合 Nvidia 3060 8G显卡的实现</p><p>我们来看看</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>apt-get update
+</span></span><span class=line><span class=cl>apt-get install pciutils build-essential cmake curl libcurl4-openssl-dev -y
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>apt-get search nvidia-driver
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#还是590是最新的</span>
+</span></span><span class=line><span class=cl>apt install nvidia-driver-590 nvidia-cuda-toolkit libssl-dev
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>git clone https://github.com/ggml-org/llama.cpp
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 指定静态编译</span>
+</span></span><span class=line><span class=cl>cmake llama.cpp -B llama.cpp/build <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    -DBUILD_SHARED_LIBS<span class=o>=</span>OFF -DGGML_CUDA<span class=o>=</span>ON
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 编译出主要得可运行程序</span>
+</span></span><span class=line><span class=cl><span class=nb>cd</span> llama.app
+</span></span><span class=line><span class=cl>cmake --build build --config Release -j <span class=m>8</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 装UV</span>
+</span></span><span class=line><span class=cl>curl -LsSf https://astral.sh/uv/install.sh <span class=p>|</span> sh
+</span></span><span class=line><span class=cl><span class=nb>source</span> <span class=nv>$HOME</span>/.local/bin/env
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 建目录</span>
+</span></span><span class=line><span class=cl>mkdir qwen
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>cd</span> qwen
+</span></span><span class=line><span class=cl>uv venv --python 3.12
+</span></span><span class=line><span class=cl><span class=nb>source</span> .venv/bin/activate
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>uv pip install huggingface_hub hf_transfer
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>hf  auth login --token hf_xxxxx
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 下载Q4_K_M的量化文件</span>
+</span></span><span class=line><span class=cl>hf download Jackrong/Qwopus3.5-9B-v3-GGUF --local-dir  Jackrong/Qwopus3.5-9B-v3-GGUF Qwopus3.5-9B-v3.Q4_K_M.gguf
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 下载多模态量化文件</span>
+</span></span><span class=line><span class=cl>hf download Jackrong/Qwopus3.5-9B-v3-GGUF --local-dir  Jackrong/Qwopus3.5-9B-v3-GGUF mmproj.gguf
+</span></span></code></pre></div><p>编写个run.sh</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/bin/bash
+</span></span></span><span class=line><span class=cl><span class=cp></span><span class=c1>#</span>
+</span></span><span class=line><span class=cl>~/llama.cpp/build/bin/llama-server <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --model ~/qwen/Jackrong/Qwopus3.5-9B-v3-GGUF/Qwopus3.5-9B-v3.Q4_K_M.gguf <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --mmproj ~/qwen/Jackrong/Qwopus3.5-9B-v3-GGUF/mmproj.gguf <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --temp 1.0 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --top-p 0.95 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --top-k <span class=m>64</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --alias <span class=s2>&#34;Jackrong/Qwopus3.5-9B-v3-GGUF&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --host 0.0.0.0 --port <span class=m>8001</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --chat-template-kwargs <span class=s1>&#39;{&#34;enable_thinking&#34;:true}&#39;</span>
+</span></span></code></pre></div><p>打开 http://127.0.0.1:8001</p><p><img alt=image-20260417160312680 loading=lazy src=/posts/20260417-jackrong_qwopus3.5/image-20260417160312680.png></p><p>还可以，试试看给龙虾用</p><p>Jackrong 也着重提到了 unsloth，看来炼丹还是比较好玩啊。</p></div><footer class=post-footer><ul class=post-tags></ul><nav class=paginav><a class=next href=https://rendoumi.com/posts/20260417-codex_usage/><span class=title>下一页 »</span><br><span>codex的安装和使用</span></a></nav></footer><div id=comments></div><script src=https://cwd.js.org/cwd.js></script><script>const comments=new CWDComments({el:"#comments",apiBaseUrl:"https://cwd.rendoumi.qzz.io"});comments.mount()</script></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script></body></html>
