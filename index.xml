@@ -12,8 +12,57 @@
     <generator>Hugo -- 0.147.3</generator>
     <language>zh</language>
     <copyright>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Fri, 17 Apr 2026 09:00:01 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 23 Apr 2026 09:00:00 +0800</lastBuildDate>
     <atom:link href="https://rendoumi.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Tencent腾讯MySQL迁移</title>
+      <link>https://rendoumi.com/posts/20260423-tencent_mysql_migrate/</link>
+      <pubDate>Thu, 23 Apr 2026 09:00:00 +0800</pubDate>
+      <guid>https://rendoumi.com/posts/20260423-tencent_mysql_migrate/</guid>
+      <description>&lt;p&gt;自打AWS全体迁移到AEPSLINK后，下一步就是Tencent腾讯的大迁移&lt;/p&gt;
+&lt;p&gt;这回已经有经验了，这里重点提一下腾讯MySQL的迁移，准备先建主备同步，切换的那天直接断开同步，就完事了&lt;/p&gt;
+&lt;p&gt;环境：腾讯的云数据库TencentDB是MySQL 8.0 InnoDB，内网IP 172.16.x.x&lt;/p&gt;
+&lt;p&gt;那建议是从一个跳板机进行端口转发进入MySQL，再从跳板机的security group对apeslink的IP进行限制&lt;/p&gt;
+&lt;p&gt;那第一步去腾讯云数据库备份中，把每天的full物理备份给下载出来&lt;/p&gt;
+&lt;p&gt;注：最佳方案是当时立刻手动备份一份，然后把备份拷贝到apeslink恢复&lt;/p&gt;
+&lt;p&gt;刚开始是去下载每天清晨自动的全备份，然后再拉binlog，实际操作过程中有问题，回放binlog的时候会出错，就很麻烦，浪费时间生命&lt;/p&gt;
+&lt;p&gt;Apeslink备库的操作如下，debian 12的操作系统，安装的社区版的8.0.45-1debian12的mysql：&lt;/p&gt;
+&lt;p&gt;腾讯备份采用的是xtrabackup，还用了qpress又压缩了一下，且binlog与my.cnf中的序列号不符&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;# 下载腾讯的full backup
+wget -c &amp;#34;https://mysql-database-backup-xxx&amp;#34; -O /root/full.xb
+
+# 下载percona，安装
+wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
+dpkg -i percona-release_latest.generic_all.deb 
+
+# 安装辅助包
+apt install curl
+apt --fix-broken install
+
+percona-release setup pdps8.0
+
+apt update
+apt install -y percona-xtrabackup-80 
+
+apt install -y percona-release
+percona-release enable tools release
+
+apt update
+apt install -y qpress
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;开始恢复：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;mkdir /root/full
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; /root/full
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 恢复/root/full.xb文件到目录/root/full&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;xbstream -x &amp;lt; /root/full.xb
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 把qpress文件都解压缩&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;xtrabackup --decompress --remove-original --target-dir&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/root/full
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 整理好 /root/full 目录&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;xtrabackup --prepare --target-dir&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/root/full
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;然后去TencentDB把配置文件拉下来，放到/etc/mysql/mysql.conf.d/mysqld.cnf&lt;/p&gt;</description>
+    </item>
     <item>
       <title>黑魔法用Claude Opus蒸馏Qwen3.5的模型的安装运行</title>
       <link>https://rendoumi.com/posts/20260417-jackrong_qwopus3.5/</link>

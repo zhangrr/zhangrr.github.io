@@ -1,0 +1,386 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3988508441804851" crossorigin=anonymous></script><title>Tencent腾讯MySQL迁移 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='自打AWS全体迁移到AEPSLINK后，下一步就是Tencent腾讯的大迁移
+这回已经有经验了，这里重点提一下腾讯MySQL的迁移，准备先建主备同步，切换的那天直接断开同步，就完事了
+环境：腾讯的云数据库TencentDB是MySQL 8.0 InnoDB，内网IP 172.16.x.x
+那建议是从一个跳板机进行端口转发进入MySQL，再从跳板机的security group对apeslink的IP进行限制
+那第一步去腾讯云数据库备份中，把每天的full物理备份给下载出来
+注：最佳方案是当时立刻手动备份一份，然后把备份拷贝到apeslink恢复
+刚开始是去下载每天清晨自动的全备份，然后再拉binlog，实际操作过程中有问题，回放binlog的时候会出错，就很麻烦，浪费时间生命
+Apeslink备库的操作如下，debian 12的操作系统，安装的社区版的8.0.45-1debian12的mysql：
+腾讯备份采用的是xtrabackup，还用了qpress又压缩了一下，且binlog与my.cnf中的序列号不符
+# 下载腾讯的full backup
+wget -c "https://mysql-database-backup-xxx" -O /root/full.xb
+
+# 下载percona，安装
+wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
+dpkg -i percona-release_latest.generic_all.deb 
+
+# 安装辅助包
+apt install curl
+apt --fix-broken install
+
+percona-release setup pdps8.0
+
+apt update
+apt install -y percona-xtrabackup-80 
+
+apt install -y percona-release
+percona-release enable tools release
+
+apt update
+apt install -y qpress
+开始恢复：
+mkdir /root/full
+cd /root/full
+
+# 恢复/root/full.xb文件到目录/root/full
+xbstream -x < /root/full.xb
+
+# 把qpress文件都解压缩
+xtrabackup --decompress --remove-original --target-dir=/root/full
+
+# 整理好 /root/full 目录
+xtrabackup --prepare --target-dir=/root/full
+然后去TencentDB把配置文件拉下来，放到/etc/mysql/mysql.conf.d/mysqld.cnf'><meta name=author content="八戒"><link rel=canonical href=https://rendoumi.com/posts/20260423-tencent_mysql_migrate/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.5d8a858b4ad07d913988e10d3c3dbc8c171f45316a396de8a60d67f44840812d.css integrity="sha256-XYqFi0rQfZE5iOENPD28jBcfRTFqOW3opg1n9EhAgS0=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/%3Clink%20/%20abs%20url%3E><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20260423-tencent_mysql_migrate/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20260423-tencent_mysql_migrate/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="Tencent腾讯MySQL迁移"><meta property="og:description" content='自打AWS全体迁移到AEPSLINK后，下一步就是Tencent腾讯的大迁移
+这回已经有经验了，这里重点提一下腾讯MySQL的迁移，准备先建主备同步，切换的那天直接断开同步，就完事了
+环境：腾讯的云数据库TencentDB是MySQL 8.0 InnoDB，内网IP 172.16.x.x
+那建议是从一个跳板机进行端口转发进入MySQL，再从跳板机的security group对apeslink的IP进行限制
+那第一步去腾讯云数据库备份中，把每天的full物理备份给下载出来
+注：最佳方案是当时立刻手动备份一份，然后把备份拷贝到apeslink恢复
+刚开始是去下载每天清晨自动的全备份，然后再拉binlog，实际操作过程中有问题，回放binlog的时候会出错，就很麻烦，浪费时间生命
+Apeslink备库的操作如下，debian 12的操作系统，安装的社区版的8.0.45-1debian12的mysql：
+腾讯备份采用的是xtrabackup，还用了qpress又压缩了一下，且binlog与my.cnf中的序列号不符
+# 下载腾讯的full backupwget -c "https://mysql-database-backup-xxx" -O /root/full.xb# 下载percona，安装wget https://repo.percona.com/apt/percona-release_latest.generic_all.debdpkg -i percona-release_latest.generic_all.deb # 安装辅助包apt install curlapt --fix-broken installpercona-release setup pdps8.0apt updateapt install -y percona-xtrabackup-80 apt install -y percona-releasepercona-release enable tools releaseapt updateapt install -y qpress 开始恢复：
+mkdir /root/full cd /root/full # 恢复/root/full.xb文件到目录/root/full xbstream -x < /root/full.xb # 把qpress文件都解压缩 xtrabackup --decompress --remove-original --target-dir=/root/full # 整理好 /root/full 目录 xtrabackup --prepare --target-dir=/root/full 然后去TencentDB把配置文件拉下来，放到/etc/mysql/mysql.conf.d/mysqld.cnf'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2026-04-23T09:00:00+08:00"><meta property="article:modified_time" content="2026-04-23T09:00:00+08:00"><meta property="og:image" content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:title content="Tencent腾讯MySQL迁移"><meta name=twitter:description content='自打AWS全体迁移到AEPSLINK后，下一步就是Tencent腾讯的大迁移
+这回已经有经验了，这里重点提一下腾讯MySQL的迁移，准备先建主备同步，切换的那天直接断开同步，就完事了
+环境：腾讯的云数据库TencentDB是MySQL 8.0 InnoDB，内网IP 172.16.x.x
+那建议是从一个跳板机进行端口转发进入MySQL，再从跳板机的security group对apeslink的IP进行限制
+那第一步去腾讯云数据库备份中，把每天的full物理备份给下载出来
+注：最佳方案是当时立刻手动备份一份，然后把备份拷贝到apeslink恢复
+刚开始是去下载每天清晨自动的全备份，然后再拉binlog，实际操作过程中有问题，回放binlog的时候会出错，就很麻烦，浪费时间生命
+Apeslink备库的操作如下，debian 12的操作系统，安装的社区版的8.0.45-1debian12的mysql：
+腾讯备份采用的是xtrabackup，还用了qpress又压缩了一下，且binlog与my.cnf中的序列号不符
+# 下载腾讯的full backup
+wget -c "https://mysql-database-backup-xxx" -O /root/full.xb
+
+# 下载percona，安装
+wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
+dpkg -i percona-release_latest.generic_all.deb 
+
+# 安装辅助包
+apt install curl
+apt --fix-broken install
+
+percona-release setup pdps8.0
+
+apt update
+apt install -y percona-xtrabackup-80 
+
+apt install -y percona-release
+percona-release enable tools release
+
+apt update
+apt install -y qpress
+开始恢复：
+mkdir /root/full
+cd /root/full
+
+# 恢复/root/full.xb文件到目录/root/full
+xbstream -x < /root/full.xb
+
+# 把qpress文件都解压缩
+xtrabackup --decompress --remove-original --target-dir=/root/full
+
+# 整理好 /root/full 目录
+xtrabackup --prepare --target-dir=/root/full
+然后去TencentDB把配置文件拉下来，放到/etc/mysql/mysql.conf.d/mysqld.cnf'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"Tencent腾讯MySQL迁移","item":"https://rendoumi.com/posts/20260423-tencent_mysql_migrate/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Tencent腾讯MySQL迁移","name":"Tencent腾讯MySQL迁移","description":"自打AWS全体迁移到AEPSLINK后，下一步就是Tencent腾讯的大迁移\n这回已经有经验了，这里重点提一下腾讯MySQL的迁移，准备先建主备同步，切换的那天直接断开同步，就完事了\n环境：腾讯的云数据库TencentDB是MySQL 8.0 InnoDB，内网IP 172.16.x.x\n那建议是从一个跳板机进行端口转发进入MySQL，再从跳板机的security group对apeslink的IP进行限制\n那第一步去腾讯云数据库备份中，把每天的full物理备份给下载出来\n注：最佳方案是当时立刻手动备份一份，然后把备份拷贝到apeslink恢复\n刚开始是去下载每天清晨自动的全备份，然后再拉binlog，实际操作过程中有问题，回放binlog的时候会出错，就很麻烦，浪费时间生命\nApeslink备库的操作如下，debian 12的操作系统，安装的社区版的8.0.45-1debian12的mysql：\n腾讯备份采用的是xtrabackup，还用了qpress又压缩了一下，且binlog与my.cnf中的序列号不符\n# 下载腾讯的full backup\rwget -c \u0026#34;https://mysql-database-backup-xxx\u0026#34; -O /root/full.xb\r# 下载percona，安装\rwget https://repo.percona.com/apt/percona-release_latest.generic_all.deb\rdpkg -i percona-release_latest.generic_all.deb # 安装辅助包\rapt install curl\rapt --fix-broken install\rpercona-release setup pdps8.0\rapt update\rapt install -y percona-xtrabackup-80 apt install -y percona-release\rpercona-release enable tools release\rapt update\rapt install -y qpress 开始恢复：\nmkdir /root/full cd /root/full # 恢复/root/full.xb文件到目录/root/full xbstream -x \u0026lt; /root/full.xb # 把qpress文件都解压缩 xtrabackup --decompress --remove-original --target-dir=/root/full # 整理好 /root/full 目录 xtrabackup --prepare --target-dir=/root/full 然后去TencentDB把配置文件拉下来，放到/etc/mysql/mysql.conf.d/mysqld.cnf\n","keywords":[],"articleBody":"自打AWS全体迁移到AEPSLINK后，下一步就是Tencent腾讯的大迁移\n这回已经有经验了，这里重点提一下腾讯MySQL的迁移，准备先建主备同步，切换的那天直接断开同步，就完事了\n环境：腾讯的云数据库TencentDB是MySQL 8.0 InnoDB，内网IP 172.16.x.x\n那建议是从一个跳板机进行端口转发进入MySQL，再从跳板机的security group对apeslink的IP进行限制\n那第一步去腾讯云数据库备份中，把每天的full物理备份给下载出来\n注：最佳方案是当时立刻手动备份一份，然后把备份拷贝到apeslink恢复\n刚开始是去下载每天清晨自动的全备份，然后再拉binlog，实际操作过程中有问题，回放binlog的时候会出错，就很麻烦，浪费时间生命\nApeslink备库的操作如下，debian 12的操作系统，安装的社区版的8.0.45-1debian12的mysql：\n腾讯备份采用的是xtrabackup，还用了qpress又压缩了一下，且binlog与my.cnf中的序列号不符\n# 下载腾讯的full backup\rwget -c \"https://mysql-database-backup-xxx\" -O /root/full.xb\r# 下载percona，安装\rwget https://repo.percona.com/apt/percona-release_latest.generic_all.deb\rdpkg -i percona-release_latest.generic_all.deb # 安装辅助包\rapt install curl\rapt --fix-broken install\rpercona-release setup pdps8.0\rapt update\rapt install -y percona-xtrabackup-80 apt install -y percona-release\rpercona-release enable tools release\rapt update\rapt install -y qpress 开始恢复：\nmkdir /root/full cd /root/full # 恢复/root/full.xb文件到目录/root/full xbstream -x \u003c /root/full.xb # 把qpress文件都解压缩 xtrabackup --decompress --remove-original --target-dir=/root/full # 整理好 /root/full 目录 xtrabackup --prepare --target-dir=/root/full 然后去TencentDB把配置文件拉下来，放到/etc/mysql/mysql.conf.d/mysqld.cnf\n内容如下：\n# mysqld.cnf\r[mysqld]\rpid-file = /var/run/mysqld/mysqld.pid\rsocket = /var/run/mysqld/mysqld.sock\rdatadir = /var/lib/mysql\rlog-error = /var/log/mysql/error.log\rserver-id=111\rlog_bin=mysql-bin\renforce_gtid_consistency=ON\rgtid_mode=ON\rreplica_preserve_commit_order=OFF\rauto_increment_increment=1\rauto_increment_offset=1\rautomatic_sp_privileges=ON\ravoid_temporal_upgrade=OFF\rback_log=3000\rbinlog_cache_size=32768\rbinlog_checksum=CRC32\rbinlog_order_commits=ON\rbinlog_row_event_max_size=8192\rbinlog_row_image=FULL\rbinlog_rows_query_log_events=OFF\rbinlog_stmt_cache_size=32768\rbinlog_transaction_compression=OFF\rbinlog_transaction_compression_level_zstd=3\rblock_encryption_mode=aes-128-ecb\rbulk_insert_buffer_size=8388608\rcharacter_set_filesystem=binary\rcharacter_set_server=utf8mb4\rcollation_server=utf8mb4_general_ci\rconcurrent_insert=AUTO\rconnect_timeout=10\rdefault_authentication_plugin=mysql_native_password\rdefault_password_lifetime=0\rdefault_storage_engine=InnoDB\rdefault_week_format=0\rdelay_key_write=ON\rdelayed_insert_limit=100\rdelayed_insert_timeout=300\rdelayed_queue_size=1000\rdisconnect_on_expired_password=ON\rdiv_precision_increment=4\rend_markers_in_json=OFF\req_range_index_dive_limit=200\revent_scheduler=OFF\rexplicit_defaults_for_timestamp=OFF\rflush_time=0\rft_max_word_len=84\rft_min_word_len=4\rft_query_expansion_limit=20\rgroup_concat_max_len=1024\rhost_cache_size=643\rinformation_schema_stats_expiry=86400\rinit_connect=\rinnodb_adaptive_flushing=ON\rinnodb_adaptive_flushing_lwm=10\rinnodb_adaptive_hash_index=ON\rinnodb_adaptive_max_sleep_delay=150000\rinnodb_autoextend_increment=64\rinnodb_autoinc_lock_mode=2\rinnodb_buffer_pool_dump_at_shutdown=ON\rinnodb_buffer_pool_dump_pct=25\rinnodb_buffer_pool_instances=8\rinnodb_buffer_pool_load_at_startup=ON\rinnodb_buffer_pool_size=12884901888\rinnodb_change_buffer_max_size=25\rinnodb_change_buffering=all\rinnodb_checksum_algorithm=crc32\rinnodb_cmp_per_index_enabled=OFF\rinnodb_commit_concurrency=0\rinnodb_compression_failure_threshold_pct=5\rinnodb_compression_level=6\rinnodb_compression_pad_pct_max=50\rinnodb_concurrency_tickets=5000\rinnodb_ddl_buffer_size=10485760\rinnodb_ddl_threads=4\rinnodb_deadlock_detect=ON\rinnodb_default_row_format=dynamic\rinnodb_disable_sort_file_cache=OFF\rinnodb_flush_log_at_trx_commit=2\rinnodb_flush_neighbors=0\rinnodb_flush_sync=ON\rinnodb_ft_cache_size=8000000\rinnodb_ft_enable_diag_print=OFF\rinnodb_ft_enable_stopword=ON\rinnodb_ft_max_token_size=84\rinnodb_ft_min_token_size=3\rinnodb_ft_num_word_optimize=2000\rinnodb_ft_result_cache_limit=2000000000\rinnodb_ft_server_stopword_table=\rinnodb_ft_sort_pll_degree=2\rinnodb_ft_total_cache_size=640000000\rinnodb_ft_user_stopword_table=\rinnodb_io_capacity=20000\rinnodb_io_capacity_max=40000\rinnodb_lock_wait_timeout=7200\rinnodb_log_checksums=ON\rinnodb_lru_scan_depth=1024\rinnodb_max_dirty_pages_pct=75.000000\rinnodb_max_dirty_pages_pct_lwm=0.000000\rinnodb_max_purge_lag=0\rinnodb_max_purge_lag_delay=0\rinnodb_max_undo_log_size=1073741824\rinnodb_monitor_disable=\rinnodb_monitor_enable=\rinnodb_old_blocks_pct=37\rinnodb_old_blocks_time=1000\rinnodb_online_alter_log_max_size=134217728\rinnodb_optimize_fulltext_only=OFF\rinnodb_page_cleaners=2\rinnodb_print_all_deadlocks=ON\rinnodb_purge_batch_size=300\rinnodb_purge_rseg_truncate_frequency=128\rinnodb_purge_threads=4\rinnodb_random_read_ahead=OFF\rinnodb_read_ahead_threshold=56\rinnodb_read_io_threads=4\rinnodb_rollback_on_timeout=OFF\rinnodb_rollback_segments=128\rinnodb_sort_buffer_size=1048576\rinnodb_spin_wait_delay=6\rinnodb_stats_auto_recalc=ON\rinnodb_stats_method=nulls_equal\rinnodb_stats_on_metadata=OFF\rinnodb_stats_persistent=ON\rinnodb_stats_persistent_sample_pages=20\rinnodb_stats_transient_sample_pages=8\rinnodb_status_output=OFF\rinnodb_status_output_locks=OFF\rinnodb_strict_mode=ON\rinnodb_sync_array_size=1\rinnodb_sync_spin_loops=30\rinnodb_table_locks=ON\rinnodb_temp_data_file_path=ibtmp1:12M:autoextend\rinnodb_thread_concurrency=0\rinnodb_undo_log_truncate=OFF\rinnodb_write_io_threads=4\rinteractive_timeout=3600\rinternal_tmp_mem_storage_engine=TempTable\rjoin_buffer_size=262144\rkey_cache_age_threshold=300\rkey_cache_block_size=1024\rkey_cache_division_limit=100\rlc_time_names=en_US\rlocal_infile=ON\rlock_wait_timeout=31536000\rlog_error_verbosity=3\rlog_output=FILE\rlog_queries_not_using_indexes=OFF\rlog_slow_admin_statements=OFF\rlog_throttle_queries_not_using_indexes=0\rlog_timestamps=SYSTEM\rlong_query_time=0.100000\rlow_priority_updates=OFF\rlower_case_table_names=0\rmaster_verify_checksum=OFF\rmax_allowed_packet=1073741824\rmax_connect_errors=999999999\rmax_connections=4500\rmax_error_count=64\rmax_execution_time=0\rmax_heap_table_size=16777216\rmax_length_for_sort_data=1024\rmax_points_in_geometry=65536\rmax_prepared_stmt_count=16382\rmax_sort_length=1024\rmax_sp_recursion_depth=0\rmax_user_connections=0\rmin_examined_row_limit=0\rmyisam_sort_buffer_size=8388608\rmysql_native_password_proxy_users=OFF\rmysqlx_max_connections=100\rnet_buffer_length=8192\rnet_read_timeout=30\rnet_retry_count=10\rnet_write_timeout=60\rngram_token_size=2\roptimizer_prune_level=1\roptimizer_search_depth=62\roptimizer_trace_limit=1\roptimizer_trace_max_mem_size=16384\roptimizer_trace_offset=-1\rperformance_schema=OFF\rpreload_buffer_size=32768\rquery_alloc_block_size=8192\rquery_prealloc_size=8192\rrange_alloc_block_size=4096\rrange_optimizer_max_mem_size=8388608\rread_buffer_size=262144\rread_rnd_buffer_size=524288\rsession_track_gtids=OFF\rsession_track_schema=ON\rsession_track_state_change=OFF\rsha256_password_proxy_users=OFF\rshow_old_temporals=OFF\rslave_net_timeout=120\rslave_parallel_type=DATABASE\rslave_parallel_workers=16\rslave_rows_search_algorithms=TABLE_SCAN,INDEX_SCAN\rslow_launch_time=2\rslow_query_log=ON\rsort_buffer_size=1048576\rsql_mode=ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION\rstored_program_cache=256\rsync_binlog=0\rtable_definition_cache=8192\rtable_open_cache=8192\rtable_open_cache_instances=16\rthread_cache_size=512\rthread_handling=one-thread-per-connection\rthread_stack=524288\rtmp_table_size=209715200\rtransaction_alloc_block_size=8192\rtransaction_isolation=REPEATABLE-READ\rtransaction_prealloc_size=4096\rupdatable_views_with_limit=YES\rwait_timeout=3600 注意上面这个文件，其实腾讯在里面加了很多自己的参数，经过一次又一次的启动失败，删掉了那些被标准版mysql无法识别参数，才弄成上面的样子。\n停掉MySQL，然后替换数据目录\nmv /var/lib/mysql /var/lib/mysql.bak.$(date +%F_%H%M%S) mkdir -p /var/lib/mysql xtrabackup --copy-back --target-dir=/root/full chown -R mysql:mysql /var/lib/mysql rm -f /var/lib/mysql/auto.cnf systemctl start mysql 天知道 systemctl restart mysql了多少遍，才把mysqld.cnf给改对\n下面就是追平 binlog 的过程\ncat /var/lib/mysql/xtrabackup_info ... binlog_pos = filename 'mysql-bin.003254', position '237' ... # 然后去下载binglog，实际序列是3087 3088 3089 3090，跟上面的003254不相符 wget binlog 到bin.3087 bin.3088 bin.3089 bin.3090 # 回放 mysqlbinlog --disable-log-bin --start-position=237 ./bin.3087 ./bin.3088 ./bin.3089 ./bin.3090 | mysql -uroot -p 上面这步有时候很顺滑，有时候报错 所以建议是当场手动full backup一下，省略掉这一步\n然后在腾讯主库上建同步用户\nCREATE USER 'backup'@'%' IDENTIFIED BY 'xxxxxxxx'; GRANT REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO 'backup'@'%'; FLUSH PRIVILEGES; 在apeslink上从库建同步\nSTOP REPLICA; CHANGE REPLICATION SOURCE TO SOURCE_HOST='111.222.333.444', SOURCE_PORT=3306, SOURCE_USER='backup', SOURCE_PASSWORD='xxxxxxxx', SOURCE_AUTO_POSITION=1; START REPLICA; show slave status\\G 看到Waiting for source to send event，这样就行了\n","wordCount":"419","inLanguage":"zh","image":"https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E","datePublished":"2026-04-23T09:00:00+08:00","dateModified":"2026-04-23T09:00:00+08:00","author":{"@type":"Person","name":"八戒"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20260423-tencent_mysql_migrate/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="Home (Alt + H)"><img src=https://rendoumi.com/apple-touch-icon.png alt aria-label=logo height=35>Home</a><div class=logo-switches></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><div class=breadcrumbs><a href=https://rendoumi.com/>主页</a>&nbsp;»&nbsp;<a href=https://rendoumi.com/posts/>所有文章</a></div><h1 class="post-title entry-hint-parent">Tencent腾讯MySQL迁移
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2026-04-23 09:00:00 +0800 CST'>2026年04月23日</span>&nbsp;·&nbsp;<span>2 分钟</span>&nbsp;·&nbsp;<span>419 字</span>&nbsp;·&nbsp;<span>八戒</span></div></header><div class=post-content><p>自打AWS全体迁移到AEPSLINK后，下一步就是Tencent腾讯的大迁移</p><p>这回已经有经验了，这里重点提一下腾讯MySQL的迁移，准备先建主备同步，切换的那天直接断开同步，就完事了</p><p>环境：腾讯的云数据库TencentDB是MySQL 8.0 InnoDB，内网IP 172.16.x.x</p><p>那建议是从一个跳板机进行端口转发进入MySQL，再从跳板机的security group对apeslink的IP进行限制</p><p>那第一步去腾讯云数据库备份中，把每天的full物理备份给下载出来</p><p>注：最佳方案是当时立刻手动备份一份，然后把备份拷贝到apeslink恢复</p><p>刚开始是去下载每天清晨自动的全备份，然后再拉binlog，实际操作过程中有问题，回放binlog的时候会出错，就很麻烦，浪费时间生命</p><p>Apeslink备库的操作如下，debian 12的操作系统，安装的社区版的8.0.45-1debian12的mysql：</p><p>腾讯备份采用的是xtrabackup，还用了qpress又压缩了一下，且binlog与my.cnf中的序列号不符</p><pre tabindex=0><code># 下载腾讯的full backup
+wget -c &#34;https://mysql-database-backup-xxx&#34; -O /root/full.xb
+
+# 下载percona，安装
+wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
+dpkg -i percona-release_latest.generic_all.deb 
+
+# 安装辅助包
+apt install curl
+apt --fix-broken install
+
+percona-release setup pdps8.0
+
+apt update
+apt install -y percona-xtrabackup-80 
+
+apt install -y percona-release
+percona-release enable tools release
+
+apt update
+apt install -y qpress
+</code></pre><p>开始恢复：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>mkdir /root/full
+</span></span><span class=line><span class=cl><span class=nb>cd</span> /root/full
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 恢复/root/full.xb文件到目录/root/full</span>
+</span></span><span class=line><span class=cl>xbstream -x &lt; /root/full.xb
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 把qpress文件都解压缩</span>
+</span></span><span class=line><span class=cl>xtrabackup --decompress --remove-original --target-dir<span class=o>=</span>/root/full
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 整理好 /root/full 目录</span>
+</span></span><span class=line><span class=cl>xtrabackup --prepare --target-dir<span class=o>=</span>/root/full
+</span></span></code></pre></div><p>然后去TencentDB把配置文件拉下来，放到/etc/mysql/mysql.conf.d/mysqld.cnf</p><p>内容如下：</p><pre tabindex=0><code># mysqld.cnf
+[mysqld]
+pid-file        = /var/run/mysqld/mysqld.pid
+socket          = /var/run/mysqld/mysqld.sock
+datadir         = /var/lib/mysql
+log-error       = /var/log/mysql/error.log
+server-id=111
+log_bin=mysql-bin
+enforce_gtid_consistency=ON
+gtid_mode=ON
+replica_preserve_commit_order=OFF
+
+auto_increment_increment=1
+auto_increment_offset=1
+automatic_sp_privileges=ON
+avoid_temporal_upgrade=OFF
+back_log=3000
+binlog_cache_size=32768
+binlog_checksum=CRC32
+binlog_order_commits=ON
+binlog_row_event_max_size=8192
+binlog_row_image=FULL
+binlog_rows_query_log_events=OFF
+binlog_stmt_cache_size=32768
+binlog_transaction_compression=OFF
+binlog_transaction_compression_level_zstd=3
+block_encryption_mode=aes-128-ecb
+bulk_insert_buffer_size=8388608
+character_set_filesystem=binary
+character_set_server=utf8mb4
+collation_server=utf8mb4_general_ci
+concurrent_insert=AUTO
+connect_timeout=10
+default_authentication_plugin=mysql_native_password
+default_password_lifetime=0
+default_storage_engine=InnoDB
+default_week_format=0
+delay_key_write=ON
+delayed_insert_limit=100
+delayed_insert_timeout=300
+delayed_queue_size=1000
+disconnect_on_expired_password=ON
+div_precision_increment=4
+end_markers_in_json=OFF
+eq_range_index_dive_limit=200
+event_scheduler=OFF
+explicit_defaults_for_timestamp=OFF
+flush_time=0
+ft_max_word_len=84
+ft_min_word_len=4
+ft_query_expansion_limit=20
+group_concat_max_len=1024
+host_cache_size=643
+information_schema_stats_expiry=86400
+init_connect=
+innodb_adaptive_flushing=ON
+innodb_adaptive_flushing_lwm=10
+innodb_adaptive_hash_index=ON
+innodb_adaptive_max_sleep_delay=150000
+innodb_autoextend_increment=64
+innodb_autoinc_lock_mode=2
+innodb_buffer_pool_dump_at_shutdown=ON
+innodb_buffer_pool_dump_pct=25
+innodb_buffer_pool_instances=8
+innodb_buffer_pool_load_at_startup=ON
+innodb_buffer_pool_size=12884901888
+innodb_change_buffer_max_size=25
+innodb_change_buffering=all
+innodb_checksum_algorithm=crc32
+innodb_cmp_per_index_enabled=OFF
+innodb_commit_concurrency=0
+innodb_compression_failure_threshold_pct=5
+innodb_compression_level=6
+innodb_compression_pad_pct_max=50
+innodb_concurrency_tickets=5000
+innodb_ddl_buffer_size=10485760
+innodb_ddl_threads=4
+innodb_deadlock_detect=ON
+innodb_default_row_format=dynamic
+innodb_disable_sort_file_cache=OFF
+innodb_flush_log_at_trx_commit=2
+innodb_flush_neighbors=0
+innodb_flush_sync=ON
+innodb_ft_cache_size=8000000
+innodb_ft_enable_diag_print=OFF
+innodb_ft_enable_stopword=ON
+innodb_ft_max_token_size=84
+innodb_ft_min_token_size=3
+innodb_ft_num_word_optimize=2000
+innodb_ft_result_cache_limit=2000000000
+innodb_ft_server_stopword_table=
+innodb_ft_sort_pll_degree=2
+innodb_ft_total_cache_size=640000000
+innodb_ft_user_stopword_table=
+innodb_io_capacity=20000
+innodb_io_capacity_max=40000
+innodb_lock_wait_timeout=7200
+innodb_log_checksums=ON
+innodb_lru_scan_depth=1024
+innodb_max_dirty_pages_pct=75.000000
+innodb_max_dirty_pages_pct_lwm=0.000000
+innodb_max_purge_lag=0
+innodb_max_purge_lag_delay=0
+innodb_max_undo_log_size=1073741824
+innodb_monitor_disable=
+innodb_monitor_enable=
+innodb_old_blocks_pct=37
+innodb_old_blocks_time=1000
+innodb_online_alter_log_max_size=134217728
+innodb_optimize_fulltext_only=OFF
+innodb_page_cleaners=2
+innodb_print_all_deadlocks=ON
+innodb_purge_batch_size=300
+innodb_purge_rseg_truncate_frequency=128
+innodb_purge_threads=4
+innodb_random_read_ahead=OFF
+innodb_read_ahead_threshold=56
+innodb_read_io_threads=4
+innodb_rollback_on_timeout=OFF
+innodb_rollback_segments=128
+innodb_sort_buffer_size=1048576
+innodb_spin_wait_delay=6
+innodb_stats_auto_recalc=ON
+innodb_stats_method=nulls_equal
+innodb_stats_on_metadata=OFF
+innodb_stats_persistent=ON
+innodb_stats_persistent_sample_pages=20
+innodb_stats_transient_sample_pages=8
+innodb_status_output=OFF
+innodb_status_output_locks=OFF
+innodb_strict_mode=ON
+innodb_sync_array_size=1
+innodb_sync_spin_loops=30
+innodb_table_locks=ON
+innodb_temp_data_file_path=ibtmp1:12M:autoextend
+innodb_thread_concurrency=0
+innodb_undo_log_truncate=OFF
+innodb_write_io_threads=4
+interactive_timeout=3600
+internal_tmp_mem_storage_engine=TempTable
+join_buffer_size=262144
+key_cache_age_threshold=300
+key_cache_block_size=1024
+key_cache_division_limit=100
+lc_time_names=en_US
+local_infile=ON
+lock_wait_timeout=31536000
+log_error_verbosity=3
+log_output=FILE
+log_queries_not_using_indexes=OFF
+log_slow_admin_statements=OFF
+log_throttle_queries_not_using_indexes=0
+log_timestamps=SYSTEM
+long_query_time=0.100000
+low_priority_updates=OFF
+lower_case_table_names=0
+master_verify_checksum=OFF
+max_allowed_packet=1073741824
+max_connect_errors=999999999
+max_connections=4500
+max_error_count=64
+max_execution_time=0
+max_heap_table_size=16777216
+max_length_for_sort_data=1024
+max_points_in_geometry=65536
+max_prepared_stmt_count=16382
+max_sort_length=1024
+max_sp_recursion_depth=0
+max_user_connections=0
+min_examined_row_limit=0
+myisam_sort_buffer_size=8388608
+mysql_native_password_proxy_users=OFF
+mysqlx_max_connections=100
+net_buffer_length=8192
+net_read_timeout=30
+net_retry_count=10
+net_write_timeout=60
+ngram_token_size=2
+optimizer_prune_level=1
+optimizer_search_depth=62
+optimizer_trace_limit=1
+optimizer_trace_max_mem_size=16384
+optimizer_trace_offset=-1
+performance_schema=OFF
+preload_buffer_size=32768
+query_alloc_block_size=8192
+query_prealloc_size=8192
+range_alloc_block_size=4096
+range_optimizer_max_mem_size=8388608
+read_buffer_size=262144
+read_rnd_buffer_size=524288
+session_track_gtids=OFF
+session_track_schema=ON
+session_track_state_change=OFF
+sha256_password_proxy_users=OFF
+show_old_temporals=OFF
+slave_net_timeout=120
+slave_parallel_type=DATABASE
+slave_parallel_workers=16
+slave_rows_search_algorithms=TABLE_SCAN,INDEX_SCAN
+slow_launch_time=2
+slow_query_log=ON
+sort_buffer_size=1048576
+sql_mode=ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
+stored_program_cache=256
+sync_binlog=0
+table_definition_cache=8192
+table_open_cache=8192
+table_open_cache_instances=16
+thread_cache_size=512
+thread_handling=one-thread-per-connection
+thread_stack=524288
+tmp_table_size=209715200
+transaction_alloc_block_size=8192
+transaction_isolation=REPEATABLE-READ
+transaction_prealloc_size=4096
+updatable_views_with_limit=YES
+wait_timeout=3600
+</code></pre><p>注意上面这个文件，其实腾讯在里面加了很多自己的参数，经过一次又一次的启动失败，删掉了那些被标准版mysql无法识别参数，才弄成上面的样子。</p><p>停掉MySQL，然后替换数据目录</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>mv /var/lib/mysql /var/lib/mysql.bak.<span class=k>$(</span>date +%F_%H%M%S<span class=k>)</span>
+</span></span><span class=line><span class=cl>mkdir -p /var/lib/mysql
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>xtrabackup --copy-back --target-dir<span class=o>=</span>/root/full
+</span></span><span class=line><span class=cl>chown -R mysql:mysql /var/lib/mysql
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>rm -f /var/lib/mysql/auto.cnf
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>systemctl start mysql
+</span></span></code></pre></div><p>天知道 systemctl restart mysql了多少遍，才把mysqld.cnf给改对</p><p>下面就是追平 binlog 的过程</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat /var/lib/mysql/xtrabackup_info
+</span></span><span class=line><span class=cl>...
+</span></span><span class=line><span class=cl><span class=nv>binlog_pos</span> <span class=o>=</span> filename <span class=s1>&#39;mysql-bin.003254&#39;</span>, position <span class=s1>&#39;237&#39;</span>
+</span></span><span class=line><span class=cl>...
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 然后去下载binglog，实际序列是3087 3088 3089 3090，跟上面的003254不相符</span>
+</span></span><span class=line><span class=cl>wget binlog 到bin.3087 bin.3088 bin.3089 bin.3090
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 回放</span>
+</span></span><span class=line><span class=cl>mysqlbinlog --disable-log-bin --start-position<span class=o>=</span><span class=m>237</span> ./bin.3087 ./bin.3088 ./bin.3089 ./bin.3090 <span class=p>|</span> mysql -uroot -p
+</span></span></code></pre></div><p>上面这步有时候很顺滑，有时候报错
+所以建议是当场手动full backup一下，省略掉这一步</p><p>然后在腾讯主库上建同步用户</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>CREATE USER <span class=s1>&#39;backup&#39;</span>@<span class=s1>&#39;%&#39;</span> IDENTIFIED BY <span class=s1>&#39;xxxxxxxx&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>GRANT REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO <span class=s1>&#39;backup&#39;</span>@<span class=s1>&#39;%&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>FLUSH PRIVILEGES<span class=p>;</span>
+</span></span></code></pre></div><p>在apeslink上从库建同步</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>STOP REPLICA<span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>CHANGE REPLICATION SOURCE TO
+</span></span><span class=line><span class=cl>  <span class=nv>SOURCE_HOST</span><span class=o>=</span><span class=s1>&#39;111.222.333.444&#39;</span>,
+</span></span><span class=line><span class=cl>  <span class=nv>SOURCE_PORT</span><span class=o>=</span>3306,
+</span></span><span class=line><span class=cl>  <span class=nv>SOURCE_USER</span><span class=o>=</span><span class=s1>&#39;backup&#39;</span>,
+</span></span><span class=line><span class=cl>  <span class=nv>SOURCE_PASSWORD</span><span class=o>=</span><span class=s1>&#39;xxxxxxxx&#39;</span>,
+</span></span><span class=line><span class=cl>  <span class=nv>SOURCE_AUTO_POSITION</span><span class=o>=</span>1<span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>START REPLICA<span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>show slave status<span class=se>\G</span>
+</span></span></code></pre></div><p>看到Waiting for source to send event，这样就行了</p><p><img alt=image-20260423105428893 loading=lazy src=/posts/20260423-tencent_mysql_migrate/image-20260423105428893.png></p></div><footer class=post-footer><ul class=post-tags></ul><nav class=paginav><a class=next href=https://rendoumi.com/posts/20260417-jackrong_qwopus3.5/><span class=title>下一页 »</span><br><span>黑魔法用Claude Opus蒸馏Qwen3.5的模型的安装运行</span></a></nav></footer><div id=comments></div><script src=https://cwd.js.org/cwd.js></script><script>const comments=new CWDComments({el:"#comments",apiBaseUrl:"https://cwd.rendoumi.qzz.io"});comments.mount()</script></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script></body></html>
