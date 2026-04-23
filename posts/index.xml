@@ -12,8 +12,53 @@
     <generator>Hugo -- 0.147.3</generator>
     <language>zh</language>
     <copyright>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Thu, 23 Apr 2026 09:00:00 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 23 Apr 2026 09:00:01 +0800</lastBuildDate>
     <atom:link href="https://rendoumi.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>模型的蒸馏文档</title>
+      <link>https://rendoumi.com/posts/20260423-model_distill/</link>
+      <pubDate>Thu, 23 Apr 2026 09:00:01 +0800</pubDate>
+      <guid>https://rendoumi.com/posts/20260423-model_distill/</guid>
+      <description>&lt;p&gt;前言：之前的文章有一篇是translategemma 4B在IOS手机上运行的&lt;/p&gt;
+&lt;p&gt;自己也很想做个这样的手机翻译软件，用本地模型，如果没有网络，可以用来救急，在Codex、Gemini的加持下，还真给弄出来了&lt;/p&gt;
+&lt;p&gt;开源：https://github.com/zhangrr/ios-translate&lt;/p&gt;
+&lt;p&gt;其中里面有2个模型：&lt;/p&gt;
+&lt;p&gt;opus-mt-tiny-zh-en-ct2-int8 源自于huggingface，才19M&lt;/p&gt;
+&lt;p&gt;奇怪的是没有对应的en-zh的小模型，于是乎自己炼了一个出来，也20M&lt;/p&gt;
+&lt;p&gt;opus-mt-small320d-opus100-joint32k-ft-money-coffee-ct2-int8&lt;/p&gt;
+&lt;p&gt;下面就是详细的炼丹过程了：&lt;/p&gt;
+&lt;h1 id=&#34;模型-opus-mt-small320d-opus100-joint32k-ft-money-coffee-ct2-int8-完整训练过程&#34;&gt;模型 opus-mt-small320d-opus100-joint32k-ft-money-coffee-ct2-int8 完整训练过程&lt;/h1&gt;
+&lt;blockquote&gt;
+&lt;p&gt;本文档从零开始，逐步解释最终模型 &lt;code&gt;outputs/opus-mt-small320d-opus100-joint32k-ft-money-coffee-ct2-int8/&lt;/code&gt; 的整个训练链路。每个名词、参数、步骤都有详细阐述，便于复现。&lt;/p&gt;&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;目录&#34;&gt;目录&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;#1-%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84%E7%9F%A5%E8%AF%86%E8%92%B8%E9%A6%8F%E6%98%AF%E4%BB%80%E4%B9%88&#34;&gt;整体架构：知识蒸馏是什么&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#2-%E5%BA%95%E6%A8%A1%E6%95%99%E5%B8%88%E6%A8%A1%E5%9E%8Bhelsinki-nlopus-mt-en-zh&#34;&gt;底模（教师模型）：Helsinki-NLP/opus-mt-en-zh&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#3-marian-%E6%A8%A1%E5%9E%8B%E6%9E%B6%E6%9E%84%E8%AF%A6%E8%A7%A3&#34;&gt;Marian 模型架构详解&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#4-%E8%AE%AD%E7%BB%83%E6%95%B0%E6%8D%AE%E9%9B%86%E4%B8%89%E5%B1%82%E6%9D%A5%E6%BA%90&#34;&gt;训练数据集：三层来源&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#5-%E8%87%AA%E5%AE%9A%E4%B9%89%E8%AF%8D%E8%A1%A8joint-32k-sentencepiece&#34;&gt;自定义词表（Joint 32k SentencePiece）&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#6-%E5%AD%A6%E7%94%9F%E6%A8%A1%E5%9E%8B%E9%85%8D%E7%BD%AE%E4%BB%8E-44m-%E5%88%B0-20m-%E7%9A%84%E6%BC%94%E5%8C%96&#34;&gt;学生模型配置：从 44M 到 20M 的演化&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#7-%E8%92%B8%E9%A6%8F%E8%AE%AD%E7%BB%83%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86&#34;&gt;蒸馏训练核心原理&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#8-%E5%AE%8C%E6%95%B4%E8%AE%AD%E7%BB%83%E9%93%BE%E8%B7%AF12-%E4%B8%AA%E9%98%B6%E6%AE%B5&#34;&gt;完整训练链路：12 个阶段&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#9-ctranslate2-%E8%BD%AC%E6%8D%A2%E4%B8%8E-int8-%E9%87%8F%E5%8C%96&#34;&gt;CTranslate2 转换与 int8 量化&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#10-ct2-%E6%8E%A8%E7%90%86%E6%B5%81%E7%A8%8B%E8%AF%A6%E8%A7%A3&#34;&gt;CT2 推理流程详解&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#11-pad-embedding-%E5%BD%92%E9%9B%B6%E9%97%AE%E9%A2%98ct2-%E5%AF%B9%E9%BD%90&#34;&gt;Pad Embedding 归零问题（CT2 对齐）&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#12-%E5%85%B3%E9%94%AE%E5%8F%82%E6%95%B0%E6%B1%87%E6%80%BB%E8%A1%A8&#34;&gt;关键参数汇总表&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#13-%E5%AE%8C%E6%95%B4%E5%A4%8D%E7%8E%B0%E5%91%BD%E4%BB%A4%E6%B8%85%E5%8D%95&#34;&gt;完整复现命令清单&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;1-整体架构知识蒸馏是什么&#34;&gt;1. 整体架构：知识蒸馏是什么&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;知识蒸馏（Knowledge Distillation, KD）&lt;/strong&gt; 是一种模型压缩技术。核心思想是让一个**小模型（学生）&lt;strong&gt;学习一个&lt;/strong&gt;大模型（教师）**的输出分布，而不是直接学习人工标注的&amp;quot;标准答案&amp;quot;（ground truth / hard labels）。&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;输入: &amp;#34;Hello world.&amp;#34;
+         │
+         ├─→ 教师模型 (opus-mt-en-zh, 52M参数) ─→ &amp;#34;你好世界。&amp;#34; (高质量)
+         │                                        产生 logits（概率分布）
+         │
+         └─→ 学生模型 (Tiny, ~20M参数) ─→ 模仿教师的 logits
+                                         最终学会产出接近教师的翻译
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;strong&gt;为什么用 KD 而不是直接训练？&lt;/strong&gt;&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Tencent腾讯MySQL迁移</title>
       <link>https://rendoumi.com/posts/20260423-tencent_mysql_migrate/</link>
@@ -122,7 +167,11 @@ apt install -y qpress
 &lt;p&gt;现在是Free号只有gpt-5.2可用，趁着闸门没有关死大量使用起来&lt;/p&gt;
 &lt;p&gt;必须留个记录，随时备查，安装使用&lt;/p&gt;
 &lt;p&gt;安装，前提是有nodejs的安装&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;npm i -g @openai/codex
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/refs/heads/master/install.sh &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; bash
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;nvm install &lt;span class=&#34;m&#34;&gt;24&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;npm i -g @openai/codex
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;然后就得去定义认证的两个文件&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;~/.codex/config.toml 
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
@@ -135,9 +184,9 @@ apt install -y qpress
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;model_providers.bajie&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;name&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;bajie&amp;#34;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;base_url&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;http://127.0.0.1:8317/v1&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;base_url&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;http://10.8.2.26:8317/v1&amp;#34;&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;wire_api&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;responses&amp;#34;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;requires_openai_auth&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; tru
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;requires_openai_auth&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;true&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;~/.codex/auth.json 
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
@@ -4209,7 +4258,9 @@ More tutorials. More projects. More pressure.&lt;/p&gt;
       <description>&lt;p&gt;有很多next、nuxt、yarn的nodejs程序，都是什么&lt;code&gt;npm start&lt;/code&gt;或者&lt;code&gt;yarn develop&lt;/code&gt;的启动模式，如何搞成systemd的服务呢，这里面麻烦的就是systemd的服务需要使用全路径。&lt;/p&gt;
 &lt;p&gt;那方法如下：&lt;/p&gt;
 &lt;h5 id=&#34;一安装nvm&#34;&gt;一、安装nvm&lt;/h5&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; bash
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/refs/heads/master/install.sh &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; bash
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;nvm install &lt;span class=&#34;m&#34;&gt;24&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h5 id=&#34;二安装nodejs和yarn&#34;&gt;二、安装nodejs和yarn&lt;/h5&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;source&lt;/span&gt; ~/.nvm/nvm.sh
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
@@ -15926,7 +15977,9 @@ cd qemu-kvm-virtfs
       <description>&lt;p&gt;最近在搞 JavaScripts，nodejs的版本满天飞，之前用的 nvm 管理的方法突然不能用了。&lt;/p&gt;
 &lt;p&gt;这里记录一下，比较新的 nvm 的安装使用方法：&lt;/p&gt;
 &lt;p&gt;下载安装：&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; bash
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/refs/heads/master/install.sh &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; bash
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;nvm install &lt;span class=&#34;m&#34;&gt;24&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;以上的脚本安装到底做了什么呢？&lt;/p&gt;
 &lt;p&gt;一、它 clone 了 nvm 到 $HOME/.nvm目录&lt;/p&gt;
 &lt;p&gt;二、它在 .bashrc 中添加了三行&lt;/p&gt;
