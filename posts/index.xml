@@ -12,8 +12,38 @@
     <generator>Hugo -- 0.147.3</generator>
     <language>zh</language>
     <copyright>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Thu, 23 Apr 2026 09:00:01 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 27 Apr 2026 09:00:01 +0800</lastBuildDate>
     <atom:link href="https://rendoumi.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>大模型的实际应用-ios-Translate</title>
+      <link>https://rendoumi.com/posts/20260427-iphone_translate/</link>
+      <pubDate>Mon, 27 Apr 2026 09:00:01 +0800</pubDate>
+      <guid>https://rendoumi.com/posts/20260427-iphone_translate/</guid>
+      <description>&lt;p&gt;之前写了一篇文章：&lt;a href=&#34;https://rendoumi.com/posts/20260205-gemma/&#34;&gt;大语言模型TranslateGemma的实际应用&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;感觉非常有意思，但是也觉得模型文件实在太大了一些，1.2G，过分了。&lt;/p&gt;
+&lt;p&gt;于是就想自己也造个出来，以备不时之需，在没有网络的时候也可以进行中-英翻译。&lt;/p&gt;
+&lt;p&gt;本身自己没有ios程序的任何经验，那就借助Codex和Gemini来徒手造一个。&lt;/p&gt;
+&lt;p&gt;结果还真弄出来了，过程非常曲折&lt;/p&gt;
+&lt;p&gt;项目地址：&lt;a href=&#34;https://github.com/zhangrr/ios-translate/&#34;&gt;https://github.com/zhangrr/ios-translate/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;最麻烦的部分有三个&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;模型的选择，huggingface.co上面有很多模型，从大到小，最后是没有en-zh的特别小的模型，于是干脆自己精炼出来了一个&lt;/p&gt;
+&lt;p&gt;整个精炼的过程也写到上篇文章了。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;ios程序swift的编写，xcode的安装运行，跟Linux不同，别扭的很，拷贝粘贴都不知道在哪里&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;mac系统的运行，还是别扭，找不到home目录在哪里，尤其是远程桌面完全不可用，最后不得已，用了rustdesk，才勉强可以&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;比较好的部分是模型的选择和精炼，zh-en用了现成的tiny zh-en，19MB；反向的en-zh，最后蒸馏压缩后也20MB，很可以了。&lt;/p&gt;
+&lt;p&gt;整个过程也是APP从体积1.2GB&amp;ndash;&amp;gt;600MB&amp;ndash;&amp;gt;400MB&amp;ndash;&amp;gt;200MB&amp;ndash;&amp;gt;80MB&amp;ndash;40MB一路压缩下来&lt;/p&gt;
+&lt;p&gt;给个运行截图：&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20260427104339341&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20260427-iphone_translate/image-20260427104339341.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;纪念一下，什么都不懂的人，居然写出了IOS程序，居然精炼了大模型！&lt;/p&gt;</description>
+    </item>
     <item>
       <title>模型的蒸馏文档</title>
       <link>https://rendoumi.com/posts/20260423-model_distill/</link>

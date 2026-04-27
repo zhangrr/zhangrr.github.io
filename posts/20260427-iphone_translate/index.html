@@ -1,0 +1,67 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3988508441804851" crossorigin=anonymous></script><title>大模型的实际应用-ios-Translate | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="之前写了一篇文章：大语言模型TranslateGemma的实际应用
+感觉非常有意思，但是也觉得模型文件实在太大了一些，1.2G，过分了。
+于是就想自己也造个出来，以备不时之需，在没有网络的时候也可以进行中-英翻译。
+本身自己没有ios程序的任何经验，那就借助Codex和Gemini来徒手造一个。
+结果还真弄出来了，过程非常曲折
+项目地址：https://github.com/zhangrr/ios-translate/
+最麻烦的部分有三个
+
+
+模型的选择，huggingface.co上面有很多模型，从大到小，最后是没有en-zh的特别小的模型，于是干脆自己精炼出来了一个
+整个精炼的过程也写到上篇文章了。
+
+
+ios程序swift的编写，xcode的安装运行，跟Linux不同，别扭的很，拷贝粘贴都不知道在哪里
+
+
+mac系统的运行，还是别扭，找不到home目录在哪里，尤其是远程桌面完全不可用，最后不得已，用了rustdesk，才勉强可以
+
+
+比较好的部分是模型的选择和精炼，zh-en用了现成的tiny zh-en，19MB；反向的en-zh，最后蒸馏压缩后也20MB，很可以了。
+整个过程也是APP从体积1.2GB&ndash;>600MB&ndash;>400MB&ndash;>200MB&ndash;>80MB&ndash;40MB一路压缩下来
+给个运行截图：
+
+纪念一下，什么都不懂的人，居然写出了IOS程序，居然精炼了大模型！"><meta name=author content="八戒"><link rel=canonical href=https://rendoumi.com/posts/20260427-iphone_translate/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.5d8a858b4ad07d913988e10d3c3dbc8c171f45316a396de8a60d67f44840812d.css integrity="sha256-XYqFi0rQfZE5iOENPD28jBcfRTFqOW3opg1n9EhAgS0=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/%3Clink%20/%20abs%20url%3E><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20260427-iphone_translate/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20260427-iphone_translate/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="大模型的实际应用-ios-Translate"><meta property="og:description" content="之前写了一篇文章：大语言模型TranslateGemma的实际应用
+感觉非常有意思，但是也觉得模型文件实在太大了一些，1.2G，过分了。
+于是就想自己也造个出来，以备不时之需，在没有网络的时候也可以进行中-英翻译。
+本身自己没有ios程序的任何经验，那就借助Codex和Gemini来徒手造一个。
+结果还真弄出来了，过程非常曲折
+项目地址：https://github.com/zhangrr/ios-translate/
+最麻烦的部分有三个
+模型的选择，huggingface.co上面有很多模型，从大到小，最后是没有en-zh的特别小的模型，于是干脆自己精炼出来了一个
+整个精炼的过程也写到上篇文章了。
+ios程序swift的编写，xcode的安装运行，跟Linux不同，别扭的很，拷贝粘贴都不知道在哪里
+mac系统的运行，还是别扭，找不到home目录在哪里，尤其是远程桌面完全不可用，最后不得已，用了rustdesk，才勉强可以
+比较好的部分是模型的选择和精炼，zh-en用了现成的tiny zh-en，19MB；反向的en-zh，最后蒸馏压缩后也20MB，很可以了。
+整个过程也是APP从体积1.2GB–>600MB–>400MB–>200MB–>80MB–40MB一路压缩下来
+给个运行截图：
+纪念一下，什么都不懂的人，居然写出了IOS程序，居然精炼了大模型！"><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2026-04-27T09:00:01+08:00"><meta property="article:modified_time" content="2026-04-27T09:00:01+08:00"><meta property="og:image" content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:title content="大模型的实际应用-ios-Translate"><meta name=twitter:description content="之前写了一篇文章：大语言模型TranslateGemma的实际应用
+感觉非常有意思，但是也觉得模型文件实在太大了一些，1.2G，过分了。
+于是就想自己也造个出来，以备不时之需，在没有网络的时候也可以进行中-英翻译。
+本身自己没有ios程序的任何经验，那就借助Codex和Gemini来徒手造一个。
+结果还真弄出来了，过程非常曲折
+项目地址：https://github.com/zhangrr/ios-translate/
+最麻烦的部分有三个
+
+
+模型的选择，huggingface.co上面有很多模型，从大到小，最后是没有en-zh的特别小的模型，于是干脆自己精炼出来了一个
+整个精炼的过程也写到上篇文章了。
+
+
+ios程序swift的编写，xcode的安装运行，跟Linux不同，别扭的很，拷贝粘贴都不知道在哪里
+
+
+mac系统的运行，还是别扭，找不到home目录在哪里，尤其是远程桌面完全不可用，最后不得已，用了rustdesk，才勉强可以
+
+
+比较好的部分是模型的选择和精炼，zh-en用了现成的tiny zh-en，19MB；反向的en-zh，最后蒸馏压缩后也20MB，很可以了。
+整个过程也是APP从体积1.2GB&ndash;>600MB&ndash;>400MB&ndash;>200MB&ndash;>80MB&ndash;40MB一路压缩下来
+给个运行截图：
+
+纪念一下，什么都不懂的人，居然写出了IOS程序，居然精炼了大模型！"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"大模型的实际应用-ios-Translate","item":"https://rendoumi.com/posts/20260427-iphone_translate/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"大模型的实际应用-ios-Translate","name":"大模型的实际应用-ios-Translate","description":"之前写了一篇文章：大语言模型TranslateGemma的实际应用\n感觉非常有意思，但是也觉得模型文件实在太大了一些，1.2G，过分了。\n于是就想自己也造个出来，以备不时之需，在没有网络的时候也可以进行中-英翻译。\n本身自己没有ios程序的任何经验，那就借助Codex和Gemini来徒手造一个。\n结果还真弄出来了，过程非常曲折\n项目地址：https://github.com/zhangrr/ios-translate/\n最麻烦的部分有三个\n模型的选择，huggingface.co上面有很多模型，从大到小，最后是没有en-zh的特别小的模型，于是干脆自己精炼出来了一个\n整个精炼的过程也写到上篇文章了。\nios程序swift的编写，xcode的安装运行，跟Linux不同，别扭的很，拷贝粘贴都不知道在哪里\nmac系统的运行，还是别扭，找不到home目录在哪里，尤其是远程桌面完全不可用，最后不得已，用了rustdesk，才勉强可以\n比较好的部分是模型的选择和精炼，zh-en用了现成的tiny zh-en，19MB；反向的en-zh，最后蒸馏压缩后也20MB，很可以了。\n整个过程也是APP从体积1.2GB\u0026ndash;\u0026gt;600MB\u0026ndash;\u0026gt;400MB\u0026ndash;\u0026gt;200MB\u0026ndash;\u0026gt;80MB\u0026ndash;40MB一路压缩下来\n给个运行截图：\n纪念一下，什么都不懂的人，居然写出了IOS程序，居然精炼了大模型！\n","keywords":[],"articleBody":"之前写了一篇文章：大语言模型TranslateGemma的实际应用\n感觉非常有意思，但是也觉得模型文件实在太大了一些，1.2G，过分了。\n于是就想自己也造个出来，以备不时之需，在没有网络的时候也可以进行中-英翻译。\n本身自己没有ios程序的任何经验，那就借助Codex和Gemini来徒手造一个。\n结果还真弄出来了，过程非常曲折\n项目地址：https://github.com/zhangrr/ios-translate/\n最麻烦的部分有三个\n模型的选择，huggingface.co上面有很多模型，从大到小，最后是没有en-zh的特别小的模型，于是干脆自己精炼出来了一个\n整个精炼的过程也写到上篇文章了。\nios程序swift的编写，xcode的安装运行，跟Linux不同，别扭的很，拷贝粘贴都不知道在哪里\nmac系统的运行，还是别扭，找不到home目录在哪里，尤其是远程桌面完全不可用，最后不得已，用了rustdesk，才勉强可以\n比较好的部分是模型的选择和精炼，zh-en用了现成的tiny zh-en，19MB；反向的en-zh，最后蒸馏压缩后也20MB，很可以了。\n整个过程也是APP从体积1.2GB–\u003e600MB–\u003e400MB–\u003e200MB–\u003e80MB–40MB一路压缩下来\n给个运行截图：\n纪念一下，什么都不懂的人，居然写出了IOS程序，居然精炼了大模型！\n","wordCount":"16","inLanguage":"zh","image":"https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E","datePublished":"2026-04-27T09:00:01+08:00","dateModified":"2026-04-27T09:00:01+08:00","author":{"@type":"Person","name":"八戒"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20260427-iphone_translate/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="Home (Alt + H)"><img src=https://rendoumi.com/apple-touch-icon.png alt aria-label=logo height=35>Home</a><div class=logo-switches></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><div class=breadcrumbs><a href=https://rendoumi.com/>主页</a>&nbsp;»&nbsp;<a href=https://rendoumi.com/posts/>所有文章</a></div><h1 class="post-title entry-hint-parent">大模型的实际应用-ios-Translate
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2026-04-27 09:00:01 +0800 CST'>2026年04月27日</span>&nbsp;·&nbsp;<span>1 分钟</span>&nbsp;·&nbsp;<span>16 字</span>&nbsp;·&nbsp;<span>八戒</span></div></header><div class=post-content><p>之前写了一篇文章：<a href=/posts/20260205-gemma/>大语言模型TranslateGemma的实际应用</a></p><p>感觉非常有意思，但是也觉得模型文件实在太大了一些，1.2G，过分了。</p><p>于是就想自己也造个出来，以备不时之需，在没有网络的时候也可以进行中-英翻译。</p><p>本身自己没有ios程序的任何经验，那就借助Codex和Gemini来徒手造一个。</p><p>结果还真弄出来了，过程非常曲折</p><p>项目地址：<a href=https://github.com/zhangrr/ios-translate/>https://github.com/zhangrr/ios-translate/</a></p><p>最麻烦的部分有三个</p><ol><li><p>模型的选择，huggingface.co上面有很多模型，从大到小，最后是没有en-zh的特别小的模型，于是干脆自己精炼出来了一个</p><p>整个精炼的过程也写到上篇文章了。</p></li><li><p>ios程序swift的编写，xcode的安装运行，跟Linux不同，别扭的很，拷贝粘贴都不知道在哪里</p></li><li><p>mac系统的运行，还是别扭，找不到home目录在哪里，尤其是远程桌面完全不可用，最后不得已，用了rustdesk，才勉强可以</p></li></ol><p>比较好的部分是模型的选择和精炼，zh-en用了现成的tiny zh-en，19MB；反向的en-zh，最后蒸馏压缩后也20MB，很可以了。</p><p>整个过程也是APP从体积1.2GB&ndash;>600MB&ndash;>400MB&ndash;>200MB&ndash;>80MB&ndash;40MB一路压缩下来</p><p>给个运行截图：</p><p><img alt=image-20260427104339341 loading=lazy src=/posts/20260427-iphone_translate/image-20260427104339341.png></p><p>纪念一下，什么都不懂的人，居然写出了IOS程序，居然精炼了大模型！</p></div><footer class=post-footer><ul class=post-tags></ul><nav class=paginav><a class=next href=https://rendoumi.com/posts/20260423-model_distill/><span class=title>下一页 »</span><br><span>模型的蒸馏文档</span></a></nav></footer><div id=comments></div><script src=https://cwd.js.org/cwd.js></script><script>const comments=new CWDComments({el:"#comments",apiBaseUrl:"https://cwd.rendoumi.qzz.io"});comments.mount()</script></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script></body></html>
