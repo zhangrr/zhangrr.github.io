@@ -12,8 +12,34 @@
     <generator>Hugo -- 0.147.3</generator>
     <language>zh</language>
     <copyright>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Sat, 09 May 2026 09:00:00 +0800</lastBuildDate>
+    <lastBuildDate>Sat, 09 May 2026 09:00:01 +0800</lastBuildDate>
     <atom:link href="https://rendoumi.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>ComfyUI生成视频</title>
+      <link>https://rendoumi.com/posts/20260509-llm_decode/</link>
+      <pubDate>Sat, 09 May 2026 09:00:01 +0800</pubDate>
+      <guid>https://rendoumi.com/posts/20260509-llm_decode/</guid>
+      <description>&lt;h2 id=&#34;dflash-项目&#34;&gt;DFlash 项目&lt;/h2&gt;
+&lt;h3 id=&#34;问能加快-model-运行吗&#34;&gt;问：能加快 model 运行吗？&lt;/h3&gt;
+&lt;p&gt;能。 DFlash 是一个专门用于加速大语言模型推理的项目，通过 Speculative Decoding（投机解码） 技术显著提升Token生成速度。&lt;/p&gt;
+&lt;p&gt;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━&lt;/p&gt;
+&lt;h3 id=&#34;核心原理分析&#34;&gt;核心原理分析：&lt;/h3&gt;
+&lt;p&gt;标准 LLM 推理是 自回归 的——每次只生成 1 个 token，每个 token 都需要完整的 target model forward pass，这是瓶颈所在（GPU 利用率低，受 memory bandwidth 限制）。&lt;/p&gt;
+&lt;p&gt;DFlash 的做法是 Block Diffusion + Speculative Decoding：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;轻量级 Draft Model（草稿模型）：一个很小的 diffusion 模型，它不是独立的 LM，而是复用 target model 的 embedding 层和 lm_head，只有几层自己的 transformer layers。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;并行草拟一个 block：Draft model 一次性并行生成 block_size（通常 15-16）个候选 token，而不是逐个生成。它通过以下方式实现：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;从 target model 的中间层提取 hidden states（extract_context_feature 从指定的 target_layer_ids 拼接隐藏状态）&lt;/li&gt;
+&lt;li&gt;将这些 hidden states 作为条件，对一个 masked block 做去噪（类似 diffusion），一步生成整个 block 的预测&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Target Model 并行验证：Target model 对这 block_size 个候选 token 做一次 forward pass（而非 block_size 次），验证哪些是正确的。&lt;/p&gt;</description>
+    </item>
     <item>
       <title>ComfyUI生成视频</title>
       <link>https://rendoumi.com/posts/20260509-comfyui_video/</link>
