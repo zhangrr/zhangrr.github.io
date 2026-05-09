@@ -12,8 +12,37 @@
     <generator>Hugo -- 0.147.3</generator>
     <language>zh</language>
     <copyright>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Mon, 27 Apr 2026 09:00:01 +0800</lastBuildDate>
+    <lastBuildDate>Sat, 09 May 2026 09:00:00 +0800</lastBuildDate>
     <atom:link href="https://rendoumi.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>ComfyUI生成视频</title>
+      <link>https://rendoumi.com/posts/20260509-comfyui_video/</link>
+      <pubDate>Sat, 09 May 2026 09:00:00 +0800</pubDate>
+      <guid>https://rendoumi.com/posts/20260509-comfyui_video/</guid>
+      <description>&lt;p&gt;之前写了一篇文章：&lt;a href=&#34;https://rendoumi.com/posts/20260305-comfyui/&#34;&gt;ComfyUI配置z-image-turbo工作流生成图片&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;能百无禁忌，生成图片了，那我们来试试生成视频&lt;/p&gt;
+&lt;p&gt;环境：操作系统是debian 12，搭配AMD 6700 xt 12G的显卡，已按上文搭好了ComfyUI&lt;/p&gt;
+&lt;p&gt;同样，要先去下载模型文件，这回我们直接去huggingface.co的 Mirro r站下：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# ComfyUI的目录是/root/ComfyUI&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; /root
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;mkdir -p ComfyUI/models/diffusion_models/wan-fusionx/
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 3个模型文件&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;wget -O &lt;span class=&#34;s2&#34;&gt;&amp;#34;ComfyUI/models/diffusion_models/wan-fusionx/WanT2V_MasterModel.safetensors&amp;#34;&lt;/span&gt;   &lt;span class=&#34;s2&#34;&gt;&amp;#34;https://hf-mirror.com/vrgamedevgirl84/Wan14BT2VFusioniX/resolve/main/WanT2V_MasterModel.safetensors&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;wget -O &lt;span class=&#34;s2&#34;&gt;&amp;#34;ComfyUI/models/vae/wan_2.1_vae.safetensors&amp;#34;&lt;/span&gt;   &lt;span class=&#34;s2&#34;&gt;&amp;#34;https://hf-mirror.com/Comfy-Org/Wan_2.1_ComfyUI_repackaged/resolve/main/split_files/vae/wan_2.1_vae.safetensors&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;wget -O &lt;span class=&#34;s2&#34;&gt;&amp;#34;ComfyUI/models/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors&amp;#34;&lt;/span&gt;   &lt;span class=&#34;s2&#34;&gt;&amp;#34;https://hf-mirror.com/Comfy-Org/Wan_2.1_ComfyUI_repackaged/resolve/main/split_files/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;下载、打开加载我们的视频工作流文件：&lt;a href=&#34;video_wan2.1_fusionx.json&#34;&gt;video_wan2.1_fusionx.json&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20260305160433143&#34; loading=&#34;lazy&#34; src=&#34;../20260305-comfyui/image-20260305160433143.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20260509141201615&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20260509-comfyui_video/image-20260509141201615.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;看看模型文件都对不对，然后修改提示词：草地上有个小马在奔跑&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20260509141249768&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20260509-comfyui_video/image-20260509141249768.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;然后就生图吧&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20260509141351082&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20260509-comfyui_video/image-20260509141351082.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;搞好后，就要弄我们的下一步，搞个自动营销生推广视频的玩意了。&lt;/p&gt;</description>
+    </item>
     <item>
       <title>大模型的实际应用-ios-Translate</title>
       <link>https://rendoumi.com/posts/20260427-iphone_translate/</link>
