@@ -15,14 +15,14 @@
     <lastBuildDate>Sat, 09 May 2026 09:00:01 +0800</lastBuildDate>
     <atom:link href="https://rendoumi.com/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>ComfyUI生成视频</title>
+      <title>多Token预测MTP技术-dflash</title>
       <link>https://rendoumi.com/posts/20260509-llm_decode/</link>
       <pubDate>Sat, 09 May 2026 09:00:01 +0800</pubDate>
       <guid>https://rendoumi.com/posts/20260509-llm_decode/</guid>
       <description>&lt;h2 id=&#34;dflash-项目&#34;&gt;DFlash 项目&lt;/h2&gt;
 &lt;h3 id=&#34;问能加快-model-运行吗&#34;&gt;问：能加快 model 运行吗？&lt;/h3&gt;
 &lt;p&gt;能。 DFlash 是一个专门用于加速大语言模型推理的项目，通过 Speculative Decoding（投机解码） 技术显著提升Token生成速度。&lt;/p&gt;
-&lt;p&gt;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━&lt;/p&gt;
+&lt;p&gt;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━&lt;/p&gt;
 &lt;h3 id=&#34;核心原理分析&#34;&gt;核心原理分析：&lt;/h3&gt;
 &lt;p&gt;标准 LLM 推理是 自回归 的——每次只生成 1 个 token，每个 token 都需要完整的 target model forward pass，这是瓶颈所在（GPU 利用率低，受 memory bandwidth 限制）。&lt;/p&gt;
 &lt;p&gt;DFlash 的做法是 Block Diffusion + Speculative Decoding：&lt;/p&gt;
