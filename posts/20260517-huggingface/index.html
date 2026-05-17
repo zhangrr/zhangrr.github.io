@@ -1,0 +1,106 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3988508441804851" crossorigin=anonymous></script><title>huggingface及其dataset | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="我们蒸馏模型的过程中会要到 huggingface.co 下载底模和数据文件，有必要单独拿出来说一下
+安装
+
+uv venv --python 3.12
+source .venv/bin/activate
+
+uv pip install huggingface_hub hf_transfer
+
+hf  auth login --token hf_xxxxx
+
+#使用国内加速站下载
+HF_ENDPOINT=https://hf-mirror.com hf download
+
+# 下载所有文件，直接下载
+hf download google/gemma-4-1b-it        --local-dir ./gemma-4-1b-it
+hf download google/translategemma-4b-it --local-dir ./translategemma-4b
+
+# 下载多个文件，不指定下载目录
+# 文件会放到 
+# ~/.cache/huggingface/hub/models--lmstudio-community--Qwen3.5-9B-GGUF/snapshots/1379f25c6b505a3fc737bd7818cb09389cf807c1/Qwen3.5-9B-Q4_K_M.gguf \
+# ~/.cache/huggingface/hub/models--lmstudio-community--Qwen3.5-9B-GGUF/snapshots/1379f25c6b505a3fc737bd7818cb09389cf807c1/mmproj-Qwen3.5-9B-BF16.gguf \
+hf download lmstudio-community/Qwen3.5-9B-GGUF Qwen3.5-9B-Q4_K_M.gguf mmproj-Qwen3.5-9B-BF16.gguf --revision main 
+
+# 下载多个文件，指定下载目录
+uv tool run hf download facebook/m2m100_418M     config.json     vocab.json     sentencepiece.bpe.model     special_tokens_map.json     tokenizer_config.json     pytorch_model.bin     --local-dir Translate/m2m100
+
+# 下载单个文件，指定下载目录
+hf download Jackrong/Qwopus3.5-9B-v3-GGUF --local-dir Jackrong/Qwopus3.5-9B-v3-GGUF Qwopus3.5-9B-v3.Q4_K_M.gguf
+hf download Jackrong/Qwopus3.5-9B-v3-GGUF --local-dir Jackrong/Qwopus3.5-9B-v3-GGUF mmproj.gguf
+
+# 下载无限制的gemma4
+uv tool run hf download  HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf
+uv tool run hf download  HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf
+那一些非常好的训练数据集："><meta name=author content="八戒"><link rel=canonical href=https://rendoumi.com/posts/20260517-huggingface/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.5d8a858b4ad07d913988e10d3c3dbc8c171f45316a396de8a60d67f44840812d.css integrity="sha256-XYqFi0rQfZE5iOENPD28jBcfRTFqOW3opg1n9EhAgS0=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/%3Clink%20/%20abs%20url%3E><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20260517-huggingface/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20260517-huggingface/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="huggingface及其dataset"><meta property="og:description" content="我们蒸馏模型的过程中会要到 huggingface.co 下载底模和数据文件，有必要单独拿出来说一下
+安装
+uv venv --python 3.12 source .venv/bin/activate uv pip install huggingface_hub hf_transfer hf auth login --token hf_xxxxx #使用国内加速站下载 HF_ENDPOINT=https://hf-mirror.com hf download # 下载所有文件，直接下载 hf download google/gemma-4-1b-it --local-dir ./gemma-4-1b-it hf download google/translategemma-4b-it --local-dir ./translategemma-4b # 下载多个文件，不指定下载目录 # 文件会放到 # ~/.cache/huggingface/hub/models--lmstudio-community--Qwen3.5-9B-GGUF/snapshots/1379f25c6b505a3fc737bd7818cb09389cf807c1/Qwen3.5-9B-Q4_K_M.gguf \ # ~/.cache/huggingface/hub/models--lmstudio-community--Qwen3.5-9B-GGUF/snapshots/1379f25c6b505a3fc737bd7818cb09389cf807c1/mmproj-Qwen3.5-9B-BF16.gguf \ hf download lmstudio-community/Qwen3.5-9B-GGUF Qwen3.5-9B-Q4_K_M.gguf mmproj-Qwen3.5-9B-BF16.gguf --revision main # 下载多个文件，指定下载目录 uv tool run hf download facebook/m2m100_418M config.json vocab.json sentencepiece.bpe.model special_tokens_map.json tokenizer_config.json pytorch_model.bin --local-dir Translate/m2m100 # 下载单个文件，指定下载目录 hf download Jackrong/Qwopus3.5-9B-v3-GGUF --local-dir Jackrong/Qwopus3.5-9B-v3-GGUF Qwopus3.5-9B-v3.Q4_K_M.gguf hf download Jackrong/Qwopus3.5-9B-v3-GGUF --local-dir Jackrong/Qwopus3.5-9B-v3-GGUF mmproj.gguf # 下载无限制的gemma4 uv tool run hf download HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf uv tool run hf download HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf 那一些非常好的训练数据集："><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2026-05-17T09:00:00+08:00"><meta property="article:modified_time" content="2026-05-17T09:00:00+08:00"><meta property="og:image" content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:title content="huggingface及其dataset"><meta name=twitter:description content="我们蒸馏模型的过程中会要到 huggingface.co 下载底模和数据文件，有必要单独拿出来说一下
+安装
+
+uv venv --python 3.12
+source .venv/bin/activate
+
+uv pip install huggingface_hub hf_transfer
+
+hf  auth login --token hf_xxxxx
+
+#使用国内加速站下载
+HF_ENDPOINT=https://hf-mirror.com hf download
+
+# 下载所有文件，直接下载
+hf download google/gemma-4-1b-it        --local-dir ./gemma-4-1b-it
+hf download google/translategemma-4b-it --local-dir ./translategemma-4b
+
+# 下载多个文件，不指定下载目录
+# 文件会放到 
+# ~/.cache/huggingface/hub/models--lmstudio-community--Qwen3.5-9B-GGUF/snapshots/1379f25c6b505a3fc737bd7818cb09389cf807c1/Qwen3.5-9B-Q4_K_M.gguf \
+# ~/.cache/huggingface/hub/models--lmstudio-community--Qwen3.5-9B-GGUF/snapshots/1379f25c6b505a3fc737bd7818cb09389cf807c1/mmproj-Qwen3.5-9B-BF16.gguf \
+hf download lmstudio-community/Qwen3.5-9B-GGUF Qwen3.5-9B-Q4_K_M.gguf mmproj-Qwen3.5-9B-BF16.gguf --revision main 
+
+# 下载多个文件，指定下载目录
+uv tool run hf download facebook/m2m100_418M     config.json     vocab.json     sentencepiece.bpe.model     special_tokens_map.json     tokenizer_config.json     pytorch_model.bin     --local-dir Translate/m2m100
+
+# 下载单个文件，指定下载目录
+hf download Jackrong/Qwopus3.5-9B-v3-GGUF --local-dir Jackrong/Qwopus3.5-9B-v3-GGUF Qwopus3.5-9B-v3.Q4_K_M.gguf
+hf download Jackrong/Qwopus3.5-9B-v3-GGUF --local-dir Jackrong/Qwopus3.5-9B-v3-GGUF mmproj.gguf
+
+# 下载无限制的gemma4
+uv tool run hf download  HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf
+uv tool run hf download  HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf
+那一些非常好的训练数据集："><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"huggingface及其dataset","item":"https://rendoumi.com/posts/20260517-huggingface/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"huggingface及其dataset","name":"huggingface及其dataset","description":"我们蒸馏模型的过程中会要到 huggingface.co 下载底模和数据文件，有必要单独拿出来说一下\n安装\nuv venv --python 3.12 source .venv/bin/activate uv pip install huggingface_hub hf_transfer hf auth login --token hf_xxxxx #使用国内加速站下载 HF_ENDPOINT=https://hf-mirror.com hf download # 下载所有文件，直接下载 hf download google/gemma-4-1b-it --local-dir ./gemma-4-1b-it hf download google/translategemma-4b-it --local-dir ./translategemma-4b # 下载多个文件，不指定下载目录 # 文件会放到 # ~/.cache/huggingface/hub/models--lmstudio-community--Qwen3.5-9B-GGUF/snapshots/1379f25c6b505a3fc737bd7818cb09389cf807c1/Qwen3.5-9B-Q4_K_M.gguf \\ # ~/.cache/huggingface/hub/models--lmstudio-community--Qwen3.5-9B-GGUF/snapshots/1379f25c6b505a3fc737bd7818cb09389cf807c1/mmproj-Qwen3.5-9B-BF16.gguf \\ hf download lmstudio-community/Qwen3.5-9B-GGUF Qwen3.5-9B-Q4_K_M.gguf mmproj-Qwen3.5-9B-BF16.gguf --revision main # 下载多个文件，指定下载目录 uv tool run hf download facebook/m2m100_418M config.json vocab.json sentencepiece.bpe.model special_tokens_map.json tokenizer_config.json pytorch_model.bin --local-dir Translate/m2m100 # 下载单个文件，指定下载目录 hf download Jackrong/Qwopus3.5-9B-v3-GGUF --local-dir Jackrong/Qwopus3.5-9B-v3-GGUF Qwopus3.5-9B-v3.Q4_K_M.gguf hf download Jackrong/Qwopus3.5-9B-v3-GGUF --local-dir Jackrong/Qwopus3.5-9B-v3-GGUF mmproj.gguf # 下载无限制的gemma4 uv tool run hf download HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf uv tool run hf download HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf 那一些非常好的训练数据集：\n","keywords":[],"articleBody":"我们蒸馏模型的过程中会要到 huggingface.co 下载底模和数据文件，有必要单独拿出来说一下\n安装\nuv venv --python 3.12 source .venv/bin/activate uv pip install huggingface_hub hf_transfer hf auth login --token hf_xxxxx #使用国内加速站下载 HF_ENDPOINT=https://hf-mirror.com hf download # 下载所有文件，直接下载 hf download google/gemma-4-1b-it --local-dir ./gemma-4-1b-it hf download google/translategemma-4b-it --local-dir ./translategemma-4b # 下载多个文件，不指定下载目录 # 文件会放到 # ~/.cache/huggingface/hub/models--lmstudio-community--Qwen3.5-9B-GGUF/snapshots/1379f25c6b505a3fc737bd7818cb09389cf807c1/Qwen3.5-9B-Q4_K_M.gguf \\ # ~/.cache/huggingface/hub/models--lmstudio-community--Qwen3.5-9B-GGUF/snapshots/1379f25c6b505a3fc737bd7818cb09389cf807c1/mmproj-Qwen3.5-9B-BF16.gguf \\ hf download lmstudio-community/Qwen3.5-9B-GGUF Qwen3.5-9B-Q4_K_M.gguf mmproj-Qwen3.5-9B-BF16.gguf --revision main # 下载多个文件，指定下载目录 uv tool run hf download facebook/m2m100_418M config.json vocab.json sentencepiece.bpe.model special_tokens_map.json tokenizer_config.json pytorch_model.bin --local-dir Translate/m2m100 # 下载单个文件，指定下载目录 hf download Jackrong/Qwopus3.5-9B-v3-GGUF --local-dir Jackrong/Qwopus3.5-9B-v3-GGUF Qwopus3.5-9B-v3.Q4_K_M.gguf hf download Jackrong/Qwopus3.5-9B-v3-GGUF --local-dir Jackrong/Qwopus3.5-9B-v3-GGUF mmproj.gguf # 下载无限制的gemma4 uv tool run hf download HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf uv tool run hf download HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf 那一些非常好的训练数据集：\nhttps://huggingface.co/datasets/nohurry/Opus-4.6-Reasoning-3000x-filtered\nopus 4.6的数据\nhttps://huggingface.co/datasets/TeichAI/claude-4.5-opus-high-reasoning-250x\nopus 4.5的数据\nhttps://huggingface.co/datasets/Jackrong/Qwen3.5-reasoning-700x\nqwen 3.5的数据\n","wordCount":"109","inLanguage":"zh","image":"https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E","datePublished":"2026-05-17T09:00:00+08:00","dateModified":"2026-05-17T09:00:00+08:00","author":{"@type":"Person","name":"八戒"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20260517-huggingface/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="Home (Alt + H)"><img src=https://rendoumi.com/apple-touch-icon.png alt aria-label=logo height=35>Home</a><div class=logo-switches></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><div class=breadcrumbs><a href=https://rendoumi.com/>主页</a>&nbsp;»&nbsp;<a href=https://rendoumi.com/posts/>所有文章</a></div><h1 class="post-title entry-hint-parent">huggingface及其dataset
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2026-05-17 09:00:00 +0800 CST'>2026年05月17日</span>&nbsp;·&nbsp;<span>1 分钟</span>&nbsp;·&nbsp;<span>109 字</span>&nbsp;·&nbsp;<span>八戒</span></div></header><div class=post-content><p>我们蒸馏模型的过程中会要到 huggingface.co 下载底模和数据文件，有必要单独拿出来说一下</p><p>安装</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>uv venv --python 3.12
+</span></span><span class=line><span class=cl><span class=nb>source</span> .venv/bin/activate
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>uv pip install huggingface_hub hf_transfer
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>hf  auth login --token hf_xxxxx
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#使用国内加速站下载</span>
+</span></span><span class=line><span class=cl><span class=nv>HF_ENDPOINT</span><span class=o>=</span>https://hf-mirror.com hf download
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 下载所有文件，直接下载</span>
+</span></span><span class=line><span class=cl>hf download google/gemma-4-1b-it        --local-dir ./gemma-4-1b-it
+</span></span><span class=line><span class=cl>hf download google/translategemma-4b-it --local-dir ./translategemma-4b
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 下载多个文件，不指定下载目录</span>
+</span></span><span class=line><span class=cl><span class=c1># 文件会放到 </span>
+</span></span><span class=line><span class=cl><span class=c1># ~/.cache/huggingface/hub/models--lmstudio-community--Qwen3.5-9B-GGUF/snapshots/1379f25c6b505a3fc737bd7818cb09389cf807c1/Qwen3.5-9B-Q4_K_M.gguf \</span>
+</span></span><span class=line><span class=cl><span class=c1># ~/.cache/huggingface/hub/models--lmstudio-community--Qwen3.5-9B-GGUF/snapshots/1379f25c6b505a3fc737bd7818cb09389cf807c1/mmproj-Qwen3.5-9B-BF16.gguf \</span>
+</span></span><span class=line><span class=cl>hf download lmstudio-community/Qwen3.5-9B-GGUF Qwen3.5-9B-Q4_K_M.gguf mmproj-Qwen3.5-9B-BF16.gguf --revision main 
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 下载多个文件，指定下载目录</span>
+</span></span><span class=line><span class=cl>uv tool run hf download facebook/m2m100_418M     config.json     vocab.json     sentencepiece.bpe.model     special_tokens_map.json     tokenizer_config.json     pytorch_model.bin     --local-dir Translate/m2m100
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 下载单个文件，指定下载目录</span>
+</span></span><span class=line><span class=cl>hf download Jackrong/Qwopus3.5-9B-v3-GGUF --local-dir Jackrong/Qwopus3.5-9B-v3-GGUF Qwopus3.5-9B-v3.Q4_K_M.gguf
+</span></span><span class=line><span class=cl>hf download Jackrong/Qwopus3.5-9B-v3-GGUF --local-dir Jackrong/Qwopus3.5-9B-v3-GGUF mmproj.gguf
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 下载无限制的gemma4</span>
+</span></span><span class=line><span class=cl>uv tool run hf download  HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf
+</span></span><span class=line><span class=cl>uv tool run hf download  HauhauCS/Gemma-4-E4B-Uncensored-HauhauCS-Aggressive mmproj-Gemma-4-E4B-Uncensored-HauhauCS-Aggressive-f16.gguf
+</span></span></code></pre></div><p>那一些非常好的训练数据集：</p><p><a href=https://huggingface.co/datasets/nohurry/Opus-4.6-Reasoning-3000x-filtered>https://huggingface.co/datasets/nohurry/Opus-4.6-Reasoning-3000x-filtered</a></p><p>opus 4.6的数据</p><p><a href=https://huggingface.co/datasets/TeichAI/claude-4.5-opus-high-reasoning-250x>https://huggingface.co/datasets/TeichAI/claude-4.5-opus-high-reasoning-250x</a></p><p>opus 4.5的数据</p><p><a href=https://huggingface.co/datasets/Jackrong/Qwen3.5-reasoning-700x>https://huggingface.co/datasets/Jackrong/Qwen3.5-reasoning-700x</a></p><p>qwen 3.5的数据</p></div><footer class=post-footer><ul class=post-tags></ul><nav class=paginav><a class=next href=https://rendoumi.com/posts/20260509-llm_decode/><span class=title>下一页 »</span><br><span>多Token预测MTP技术-dflash</span></a></nav></footer><div id=comments></div><script src=https://cwd.js.org/cwd.js></script><script>const comments=new CWDComments({el:"#comments",apiBaseUrl:"https://cwd.rendoumi.qzz.io"});comments.mount()</script></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script></body></html>
