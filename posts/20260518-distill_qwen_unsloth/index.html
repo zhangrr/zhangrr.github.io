@@ -1,0 +1,537 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3988508441804851" crossorigin=anonymous></script><title>一步一步用unsloth LoRA微调Qwen3 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='LoRA（Low-Rank Adaptation，低秩微调）。
+全面微调（Full Fine-Tuning）一个几百亿参数的大模型像是在“重新装修整栋摩天大楼”（成本极高、极易塌房），那么 LoRA 就是在摩天大楼外面搭几根轻量级的“外挂管道”。
+我们来一步一步实现这个过程：
+准备
+uv pip install --no-deps bitsandbytes accelerate xformers==0.0.29.post3 peft trl==0.15.2 triton cut_cross_entropy unsloth_zoo
+uv pip install sentencepiece protobuf datasets huggingface_hub hf_transfer
+uv pip install --no-deps unsloth
+一、加载底模：
+from unsloth import FastLanguageModel
+import torch
+
+MODEL = "unsloth/Qwen3-14B"
+model, tokenizer = FastLanguageModel.from_pretrained(
+    model_name =MODEL,
+    max_seq_length = 2048,
+    dtype = None,
+    load_in_4bit = True,
+    full_finetuning = False
+)
+
+model = FastLanguageModel.get_peft_model(
+    model,
+    r = 32,         
+    target_modules = ["q_proj", "k_proj", "v_proj", "o_proj",
+                      "gate_proj", "up_proj", "down_proj",],
+    lora_alpha = 32,
+    lora_dropout = 0,
+    bias = "none",   
+    use_gradient_checkpointing = "unsloth",
+    use_rslora = False,  
+    loftq_config = None,
+)
+140 亿（14B 参数） 的庞然大物（通义千问最新版）塞进你的电脑里。'><meta name=author content="八戒"><link rel=canonical href=https://rendoumi.com/posts/20260518-distill_qwen_unsloth/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.5d8a858b4ad07d913988e10d3c3dbc8c171f45316a396de8a60d67f44840812d.css integrity="sha256-XYqFi0rQfZE5iOENPD28jBcfRTFqOW3opg1n9EhAgS0=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/%3Clink%20/%20abs%20url%3E><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20260518-distill_qwen_unsloth/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20260518-distill_qwen_unsloth/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="一步一步用unsloth LoRA微调Qwen3"><meta property="og:description" content='LoRA（Low-Rank Adaptation，低秩微调）。
+全面微调（Full Fine-Tuning）一个几百亿参数的大模型像是在“重新装修整栋摩天大楼”（成本极高、极易塌房），那么 LoRA 就是在摩天大楼外面搭几根轻量级的“外挂管道”。
+我们来一步一步实现这个过程：
+准备 uv pip install --no-deps bitsandbytes accelerate xformers==0.0.29.post3 peft trl==0.15.2 triton cut_cross_entropy unsloth_zoo uv pip install sentencepiece protobuf datasets huggingface_hub hf_transfer uv pip install --no-deps unsloth 一、加载底模： from unsloth import FastLanguageModel import torch MODEL = "unsloth/Qwen3-14B" model, tokenizer = FastLanguageModel.from_pretrained( model_name =MODEL, max_seq_length = 2048, dtype = None, load_in_4bit = True, full_finetuning = False ) model = FastLanguageModel.get_peft_model( model, r = 32, target_modules = ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj",], lora_alpha = 32, lora_dropout = 0, bias = "none", use_gradient_checkpointing = "unsloth", use_rslora = False, loftq_config = None, ) 140 亿（14B 参数） 的庞然大物（通义千问最新版）塞进你的电脑里。'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2026-05-18T09:00:00+08:00"><meta property="article:modified_time" content="2026-05-18T09:00:00+08:00"><meta property="og:image" content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:title content="一步一步用unsloth LoRA微调Qwen3"><meta name=twitter:description content='LoRA（Low-Rank Adaptation，低秩微调）。
+全面微调（Full Fine-Tuning）一个几百亿参数的大模型像是在“重新装修整栋摩天大楼”（成本极高、极易塌房），那么 LoRA 就是在摩天大楼外面搭几根轻量级的“外挂管道”。
+我们来一步一步实现这个过程：
+准备
+uv pip install --no-deps bitsandbytes accelerate xformers==0.0.29.post3 peft trl==0.15.2 triton cut_cross_entropy unsloth_zoo
+uv pip install sentencepiece protobuf datasets huggingface_hub hf_transfer
+uv pip install --no-deps unsloth
+一、加载底模：
+from unsloth import FastLanguageModel
+import torch
+
+MODEL = "unsloth/Qwen3-14B"
+model, tokenizer = FastLanguageModel.from_pretrained(
+    model_name =MODEL,
+    max_seq_length = 2048,
+    dtype = None,
+    load_in_4bit = True,
+    full_finetuning = False
+)
+
+model = FastLanguageModel.get_peft_model(
+    model,
+    r = 32,         
+    target_modules = ["q_proj", "k_proj", "v_proj", "o_proj",
+                      "gate_proj", "up_proj", "down_proj",],
+    lora_alpha = 32,
+    lora_dropout = 0,
+    bias = "none",   
+    use_gradient_checkpointing = "unsloth",
+    use_rslora = False,  
+    loftq_config = None,
+)
+140 亿（14B 参数） 的庞然大物（通义千问最新版）塞进你的电脑里。'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"一步一步用unsloth LoRA微调Qwen3","item":"https://rendoumi.com/posts/20260518-distill_qwen_unsloth/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"一步一步用unsloth LoRA微调Qwen3","name":"一步一步用unsloth LoRA微调Qwen3","description":"LoRA（Low-Rank Adaptation，低秩微调）。\n全面微调（Full Fine-Tuning）一个几百亿参数的大模型像是在“重新装修整栋摩天大楼”（成本极高、极易塌房），那么 LoRA 就是在摩天大楼外面搭几根轻量级的“外挂管道”。\n我们来一步一步实现这个过程：\n准备 uv pip install --no-deps bitsandbytes accelerate xformers==0.0.29.post3 peft trl==0.15.2 triton cut_cross_entropy unsloth_zoo uv pip install sentencepiece protobuf datasets huggingface_hub hf_transfer uv pip install --no-deps unsloth 一、加载底模： from unsloth import FastLanguageModel import torch MODEL = \u0026#34;unsloth/Qwen3-14B\u0026#34; model, tokenizer = FastLanguageModel.from_pretrained( model_name =MODEL, max_seq_length = 2048, dtype = None, load_in_4bit = True, full_finetuning = False ) model = FastLanguageModel.get_peft_model( model, r = 32, target_modules = [\u0026#34;q_proj\u0026#34;, \u0026#34;k_proj\u0026#34;, \u0026#34;v_proj\u0026#34;, \u0026#34;o_proj\u0026#34;, \u0026#34;gate_proj\u0026#34;, \u0026#34;up_proj\u0026#34;, \u0026#34;down_proj\u0026#34;,], lora_alpha = 32, lora_dropout = 0, bias = \u0026#34;none\u0026#34;, use_gradient_checkpointing = \u0026#34;unsloth\u0026#34;, use_rslora = False, loftq_config = None, ) 140 亿（14B 参数） 的庞然大物（通义千问最新版）塞进你的电脑里。\n","keywords":[],"articleBody":"LoRA（Low-Rank Adaptation，低秩微调）。\n全面微调（Full Fine-Tuning）一个几百亿参数的大模型像是在“重新装修整栋摩天大楼”（成本极高、极易塌房），那么 LoRA 就是在摩天大楼外面搭几根轻量级的“外挂管道”。\n我们来一步一步实现这个过程：\n准备 uv pip install --no-deps bitsandbytes accelerate xformers==0.0.29.post3 peft trl==0.15.2 triton cut_cross_entropy unsloth_zoo uv pip install sentencepiece protobuf datasets huggingface_hub hf_transfer uv pip install --no-deps unsloth 一、加载底模： from unsloth import FastLanguageModel import torch MODEL = \"unsloth/Qwen3-14B\" model, tokenizer = FastLanguageModel.from_pretrained( model_name =MODEL, max_seq_length = 2048, dtype = None, load_in_4bit = True, full_finetuning = False ) model = FastLanguageModel.get_peft_model( model, r = 32, target_modules = [\"q_proj\", \"k_proj\", \"v_proj\", \"o_proj\", \"gate_proj\", \"up_proj\", \"down_proj\",], lora_alpha = 32, lora_dropout = 0, bias = \"none\", use_gradient_checkpointing = \"unsloth\", use_rslora = False, loftq_config = None, ) 140 亿（14B 参数） 的庞然大物（通义千问最新版）塞进你的电脑里。\n算笔账： 如果按标准出厂格式（Float16，每个参数占 2 字节），140亿参数光是安静地躺在显存里，就需要 28 GB 的显存！如果强行全参微调，显存直接飙升到 80GB 以上。普通人根本玩不起。\nmax_seq_length = 2048 是模型的“短期记忆草稿纸”大小（上下文窗口）。\n为什么不设成 128K？ 虽然 Qwen 支持极长的上下文，但在微调时，长度越长，计算 Attention 时的中间矩阵（特别是 KV Cache）就越庞大。设定为 2048，是为了在“能看懂足够长的问题”和“不把显卡内存撑爆”之间找一个黄金平衡。\nfull_finetuning = False\rload_in_4bit = True 为你下一步接入上一章讲的 LoRA 外挂管道 做准备！\n这就是在向 PyTorch 的内存管家下达死命令：“给我把这 140 亿个被压缩成 4-bit 的原生脑细胞彻底冻结（Freeze）！不管等会儿训练老师（Loss 交叉熵）发多大火，绝对不准修改它们中的任何一个数字！”\n先用 load_in_4bit = True 把一栋 140 亿块砖头的摩天大楼，强行压缩成了极其轻量的“马赛克微缩模型”，塞进了你的游戏显卡里。\n然后你用 full_finetuning = False 给这栋大楼贴上了封条，严禁拆卸。\n大模型并不是靠某几个极其精确的数字来思考的，而是靠几百亿个数字的整体网络结构和相对大小。所以即使把精度砍到 4-bit，它的智商也几乎只有极其微小的下降。\n二、LoRA微调 # 获取高效微调模型 (PEFT model) model = FastLanguageModel.get_peft_model( model, # 目标模块 (需进行 LoRA 适配的层) target_modules = [\"q_proj\", \"k_proj\", \"v_proj\", \"o_proj\"], # 使用梯度检查点 (优化显存技术)，这里指定 Unsloth 的实现 use_gradient_checkpointing = \"unsloth\", r = 16, # 秩 (Rank)，低秩适应层的大小 lora_alpha = 4, # LoRA 的缩放因子 lora_dropout = 0, # LoRA 层的 Dropout 概率 (防止过拟合) bias = \"none\" # 是否微调偏置 (bias) 项 ) 代码使用了目前极其火爆的极速微调库 Unsloth（结合了 HuggingFace 的 PEFT）。每一行都在精妙地控制我们刚才说的那根“外挂管道”：\ntarget_modules = [\"q_proj\", \"k_proj\", \"v_proj\", \"o_proj\"] 含义： 我们要把外挂管道接在哪里？ 直觉： 大模型里有无数个矩阵，这里指定只把 LoRA 挂在注意力机制（Attention）的 Q、K、V 和输出层 O 上。这是业界公认性价比最高的“挂载点”。 use_gradient_checkpointing = \"unsloth\" 含义： 开启梯度检查点（一种省显存的黑科技）。 直觉： “时间换空间”。不把所有中间计算结果都存在显卡里，而是用的时候再重新算一遍。unsloth 提供了极其优化的版本，能让你在小显存游戏显卡（比如 RTX 3090/4090）上跑起庞然大物。 r = 16 (最关键的参数) 含义： 就是流程图里的那个“秩（Rank）”维度。 直觉： 也就是那个“沙漏”最窄的地方有多宽。$r$ 越大，这根管道能流过去的信息越多，模型能学到的新知识越复杂，但需要的显存也越大。通常设置在 8、16、32 左右。 lora_alpha = 4 含义： LoRA 的缩放比例（Scaling factor）。 直觉： 相当于“外挂管道”的音量旋钮。由于最后两路信号要相加（$\\oplus$），alpha 决定了外挂信号的声音有多大。在数学上，外挂权重会乘以 $\\frac{alpha}{r}$。 lora_dropout = 0 和 bias = \"none\" 含义： 关闭 Dropout，不训练偏置项。 直觉： 极致的抠门学！因为 LoRA 模块本来就极小（参数很少），不容易发生过拟合，所以不需要用 Dropout 来“毒死”神经元。不训练 bias 也是为了进一步榨干显存，把所有算力全用在核心矩阵上。 graph TD\r%% 定义样式类\rclassDef input fill:#e1bee7,stroke:#8e24aa,stroke-width:2px,color:#000\rclassDef frozen fill:#fff9c4,stroke:#fbc02d,stroke-width:2px,stroke-dasharray: 5 5,color:#000\rclassDef loraA fill:#c8e6c9,stroke:#388e3c,stroke-width:2px,color:#000\rclassDef loraB fill:#ffcdd2,stroke:#d32f2f,stroke-width:2px,color:#000\rclassDef operation fill:#eeeeee,stroke:#9e9e9e,stroke-width:2px,color:#000\rclassDef output fill:#bbdefb,stroke:#1976d2,stroke-width:2px,color:#000\rclassDef note fill:#f5f5f5,stroke:#666666,stroke-width:1px,stroke-dasharray: 3 3,color:#333\r%% 节点定义\rX[\"输入数据 X (维度 d)\"]:::input\rsubgraph Pretrained [预训练模型 - 微调时冻结]\rW[\"原生权重矩阵 W\n(d × k)\"]:::frozen\rend\rsubgraph LoRAPath [LoRA 外挂管道 - 微调时只学习它们]\rA[\"降维矩阵 A\n(d × r)\"]:::loraA\rMUL((\"⊗ 相乘\")):::operation\rB[\"升维矩阵 B\n(r × k)\"]:::loraB\rend\rADD((\"⊕ 相加\")):::operation\rY[\"输出数据 Y (维度 k)\"]:::output\r%% 注释节点\rNote[\"💡 提示：\n秩 r 远小于 d 和 k (如 r=16)\n所以外挂管道的参数量极小！\"]:::note\r%% 连接关系\rX --\u003e W\rX --\u003e A\rW --\u003e|保持不变的原生输出| ADD\rA --\u003e MUL\rMUL --\u003e B\rB --\u003e|微调学到的增量输出| ADD\rADD --\u003e Y\r%% 注释连线\rB -.-\u003e Note 这张图解释了“如何在不改变原有大模型智商的前提下，教它新知识”。\n左侧的主路（预训练模型）： 这是大模型出厂时自带的“原生知识矩阵”。 注意旁边的字：（微调时冻结）。这意味着在训练时，我们绝对不修改大模型原来的参数（彻底避免了“灾难性遗忘”，不用担心它学了写诗就忘了算数学）。 右侧的旁路（降维矩阵A 和 升维矩阵B）： 这是我们加装的“外挂管道”（LoRA 模块）。旁边写着（微调时只学习它们）。 核心魔法在于这个“沙漏形”结构： 假设输入数据 x 是 4096 维的。 矩阵 A (降维)： 把 4096 维的信息，狠狠压缩到一个极小的维度 r（比如图中的 $r=16）。 矩阵 B (升维)： 拿着这 16 维的精华特征，再把它重新放大回 4096 维。 顶部的相加（+）： 原始大模型的输出，和我们“外挂管道”算出来的输出，在最后一步直接相加。 物理直觉： “原生大脑”负责提供基础常识，“外挂大脑”负责提供特定领域的微调风格，两者混合，输出最终结果。 三、加载训练数据集 from datasets import load_dataset reasoning_dataset = load_dataset(\"unsloth/OpenMathReasoning-mini\", split = \"cot\") non_reasoning_dataset = load_dataset(\"mlabonne/FineTome-100k\", split = \"train\") 上面可以看到，我们加载了2种数据集，一种是推理型数据样本，一种是非推理型数据样本，格式是不一样的：\n# 处理推理数据集 from pprint import pprint pprint(reasoning_dataset[0]) # 手写一个 generate_conversation 函数，把原始的 problem（问题）和 generated_solution（生成的解答）强行打包成了标准的字典列表 [{\"role\": \"user\", ...}, {\"role\": \"assistant\", ...}]。 # 样例特征与翻译要求的呼应： # 思维链 (Chain-of-Thought)： 一开始就是 标签，里面装满了诸如 \"Okay, let's see...\", \"Let me try that...\" 这样的碎碎念。这就是在教模型“三思而后行”，不要急于给出答案，把中间的推理步骤显式地打印出来。 # 清晰标记最终答案 (Mark the final answer clearly)： 在回复的最后，使用了 \\boxed{14}。 # 兼容评估基准 (Compatibility with evaluation benchmarks)： 为什么要用 \\boxed{}？因为主流的开源数学能力测试集（如 GSM8K, MATH），它们的自动判分脚本都是靠正则表达式去抓取 \\boxed{} 里面的内容来判断对错的。如果你不教模型输出这个框，就算它算对了，在测试跑分时也会得零分。 def generate_conversation(examples): problems = examples[\"problem\"] solutions = examples[\"generated_solution\"] conversations = [] for problem, solution in zip(problems, solutions): conversations.append([ {\"role\" : \"user\", \"content\" : problem}, {\"role\" : \"assistant\", \"content\" : solution}, ]) return { \"conversations\": conversations, } reasoning_conversations = tokenizer.apply_chat_template( reasoning_dataset.map(generate_conversation, batched = True)[\"conversations\"], tokenize = False, ) pprint(reasoning_dataset[0]) # 整理完的推理型的例子 \u003c|im_start|\u003euser Given $\\sqrt{x^2+165}-\\sqrt{x^2-52}=7$ and $x$ is positive, find all possible values of $x$.\u003c|im_end|\u003e \u003c|im_start|\u003eassistant Okay, let's see. I need to solve the equation √(x² + 165) - √(x² - 52) = 7, and find all positive values of x. Hmm, radicals can be tricky, but maybe if I can eliminate the square roots by squaring both sides. Let me try that. First, let me write down the equation again to make sure I have it right: √(x² + 165) - √(x² - 52) = 7. Okay, so the idea is to isolate one of the radicals and then square both sides. Let me try moving the second radical to the other side: √(x² + 165) = 7 + √(x² - 52). Now, if I square both sides, maybe I can get rid of the square roots. Let's do that: (√(x² + 165))² = (7 + √(x² - 52))². Simplifying the left side: x² + 165 = 49 + 14√(x² - 52) + (√(x² - 52))². The right side is expanded using the formula (a + b)² = a² + 2ab + b². So the right side becomes 7² + 2*7*√(x² - 52) + (√(x² - 52))², which is 49 + 14√(x² - 52) + (x² - 52). So putting it all together: x² + 165 = 49 + 14√(x² - 52) + x² - 52. Hmm, let's simplify the right side. The x² terms will cancel out, right? Let's subtract x² from both sides: 165 = 49 + 14√(x² - 52) - 52. Simplify the constants on the right: 49 - 52 is -3, so: 165 = -3 + 14√(x² - 52). Now, add 3 to both sides to isolate the radical term: 165 + 3 = 14√(x² - 52). So 168 = 14√(x² - 52). Divide both sides by 14: 168 / 14 = √(x² - 52). 12 = √(x² - 52). Now, square both sides again to eliminate the square root: 12² = x² - 52. 144 = x² - 52. Add 52 to both sides: 144 + 52 = x². 196 = x². So x = √196 = 14. But wait, since the problem states that x is positive, we only take the positive root. So x = 14. But hold on, when dealing with squaring equations, sometimes extraneous solutions can come up. I should check if this solution actually satisfies the original equation. Let's plug x = 14 back into the original equation: √(14² + 165) - √(14² - 52) = ? Calculate each term: 14² is 196. So first radical: √(196 + 165) = √361 = 19. Second radical: √(196 - 52) = √144 = 12. So 19 - 12 = 7, which is exactly the right-hand side. So yes, it checks out. Therefore, the only solution is x = 14. Since the problem says x is positive, we don't have to consider negative roots. So I think that's the answer. To solve the equation \\(\\sqrt{x^2 + 165} - \\sqrt{x^2 - 52} = 7\\) for positive \\(x\\), we proceed as follows: 1. Start with the given equation: \\[ \\sqrt{x^2 + 165} - \\sqrt{x^2 - 52} = 7 \\] 2. Isolate one of the square roots by moving \\(\\sqrt{x^2 - 52}\\) to the right side: \\[ \\sqrt{x^2 + 165} = 7 + \\sqrt{x^2 - 52} \\] 3. Square both sides to eliminate the square root on the left: \\[ (\\sqrt{x^2 + 165})^2 = (7 + \\sqrt{x^2 - 52})^2 \\] Simplifying both sides, we get: \\[ x^2 + 165 = 49 + 14\\sqrt{x^2 - 52} + (x^2 - 52) \\] 4. Combine like terms on the right side: \\[ x^2 + 165 = x^2 - 52 + 49 + 14\\sqrt{x^2 - 52} \\] Simplifying further: \\[ x^2 + 165 = x^2 - 3 + 14\\sqrt{x^2 - 52} \\] 5. Subtract \\(x^2\\) from both sides: \\[ 165 = -3 + 14\\sqrt{x^2 - 52} \\] 6. Add 3 to both sides to isolate the term with the square root: \\[ 168 = 14\\sqrt{x^2 - 52} \\] 7. Divide both sides by 14: \\[ 12 = \\sqrt{x^2 - 52} \\] 8. Square both sides again to eliminate the square root: \\[ 12^2 = x^2 - 52 \\] Simplifying: \\[ 144 = x^2 - 52 \\] 9. Add 52 to both sides to solve for \\(x^2\\): \\[ 196 = x^2 \\] 10. Take the positive square root (since \\(x\\) is positive): \\[ x = \\sqrt{196} = 14 \\] 11. Verify the solution by substituting \\(x = 14\\) back into the original equation: \\[ \\sqrt{14^2 + 165} - \\sqrt{14^2 - 52} = \\sqrt{196 + 165} - \\sqrt{196 - 52} = \\sqrt{361} - \\sqrt{144} = 19 - 12 = 7 \\] The solution checks out. Thus, the only positive solution is: \\[ \\boxed{14} \\]\u003c|im_end|\u003e 同样整理非推理型的数据\n# 非推理型 pprint(non_reasoning_dataset[0]) # 直接调用了开源微调神器 unsloth 自带的魔法库：standardize_sharegpt 和 apply_chat_template。 # ShareGPT 是目前开源界最流行的人机对话数据格式。 # 这两行代码会自动给数据穿上模型认识的“制服”（比如自动添加 \u003c|im_start|\u003e 和 \u003c|im_end|\u003e 这种特殊的控制字符）。 # 非推理型通常处理常识问答、代码编写、文本翻译等“知道就知道，不知道就不知道”的任务 from unsloth.chat_templates import standardize_sharegpt dataset = standardize_sharegpt(non_reasoning_dataset) non_reasoning_conversations = tokenizer.apply_chat_template( dataset[\"conversations\"], tokenize = False, ) pprint(non_reasoning_dataset[0]) # 整理完的非推理型的例子 \u003c|im_start|\u003euser Explain what boolean operators are, what they do, and provide examples of how they can be used in programming. Additionally, describe the concept of operator precedence and provide examples of how it affects the evaluation of boolean expressions. Discuss the difference between short-circuit evaluation and normal evaluation in boolean expressions and demonstrate their usage in code. Furthermore, add the requirement that the code must be written in a language that does not support short-circuit evaluation natively, forcing the test taker to implement their own logic for short-circuit evaluation. Finally, delve into the concept of truthiness and falsiness in programming languages, explaining how it affects the evaluation of boolean expressions. Add the constraint that the test taker must write code that handles cases where truthiness and falsiness are implemented differently across different programming languages.\u003c|im_end|\u003e \u003c|im_start|\u003eassistant Boolean operators are logical operators used in programming to manipulate boolean values. They operate on one or more boolean operands and return a boolean result. The three main boolean operators are \"AND\" (\u0026\u0026), \"OR\" (||), and \"NOT\" (!). The \"AND\" operator returns true if both of its operands are true, and false otherwise. For example: ```python x = 5 y = 10 result = (x \u003e 0) and (y \u003c 20) # This expression evaluates to True ``` The \"OR\" operator returns true if at least one of its operands is true, and false otherwise. For example: ```python x = 5 y = 10 result = (x \u003e 0) or (y \u003c 20) # This expression evaluates to True ``` The \"NOT\" operator negates the boolean value of its operand. It returns true if the operand is false, and false if the operand is true. For example: ```python x = 5 result = not (x \u003e 10) # This expression evaluates to True ``` Operator precedence refers to the order in which operators are evaluated in an expression. It ensures that expressions are evaluated correctly. In most programming languages, logical AND has higher precedence than logical OR. For example: ```python result = True or False and False # This expression is evaluated as (True or (False and False)), which is True ``` Short-circuit evaluation is a behavior where the second operand of a logical operator is not evaluated if the result can be determined based on the value of the first operand. In short-circuit evaluation, if the first operand of an \"AND\" operator is false, the second operand is not evaluated because the result will always be false. Similarly, if the first operand of an \"OR\" operator is true, the second operand is not evaluated because the result will always be true. In programming languages that support short-circuit evaluation natively, you can use it to improve performance or avoid errors. For example: ```python if x != 0 and (y / x) \u003e 10: # Perform some operation ``` In languages without native short-circuit evaluation, you can implement your own logic to achieve the same behavior. Here's an example in pseudocode: ``` if x != 0 { if (y / x) \u003e 10 { // Perform some operation } } ``` Truthiness and falsiness refer to how non-boolean values are evaluated in boolean contexts. In many programming languages, non-zero numbers and non-empty strings are considered truthy, while zero, empty strings, and null/None values are considered falsy. When evaluating boolean expressions, truthiness and falsiness come into play. For example: ```python x = 5 result = x # The value of x is truthy, so result is also truthy ``` To handle cases where truthiness and falsiness are implemented differently across programming languages, you can explicitly check the desired condition. For example: ```python x = 5 result = bool(x) # Explicitly converting x to a boolean value ``` This ensures that the result is always a boolean value, regardless of the language's truthiness and falsiness rules.\u003c|im_end|\u003e 数据集大小也不一样\nprint(len(reasoning_conversations)) 19252 print(len(non_reasoning_conversations)) 100000 四、对齐格式，合并训练数据集 data = pd.concat([ pd.Series(reasoning_conversations), pd.Series(non_reasoning_subset) ]) data.name = \"text\" from datasets import Dataset combined_dataset = Dataset.from_pandas(pd.DataFrame(data)) combined_dataset = combined_dataset.shuffle(seed = 3407) 在微调之前，我们必须将数据集准备成对话格式：\n对于推理型数据，我们提取解答过程（solution）和最终答案（solution keys）。\n对于非推理型数据，我们使用标准化方法，将其转换为所需的格式。\n五、定义一个训练对象 from trl import SFTTrainer, SFTConfig trainer = SFTTrainer( model = model, tokenizer = tokenizer, train_dataset = combined_dataset, eval_dataset = None, args = SFTConfig( dataset_text_field = \"text\", per_device_train_batch_size = 2, gradient_accumulation_steps = 4, warmup_steps = 5, max_steps = 60, learning_rate = 2e-4, logging_steps = 1, optim = \"adamw_8bit\", weight_decay = 0.01, lr_scheduler_type = \"linear\", seed = 3407, report_to = \"none\", ) ) 1. 显存刺客的克星：积少成多的“吞咽法” per_device_train_batch_size = 2 (单次处理量) 物理直觉： 每次只给模型看 2 道题。为什么这么小？因为即使模型被压到了 4-bit，训练时的中间变量（激活值）依然极其庞大。设为 2 是为了保证绝不爆显存（OOM）。 gradient_accumulation_steps = 4 (梯度累加步数) 物理直觉： 这是深度学习最伟大的工程发明之一！如果每次只看 2 道题就去更新参数，模型学到的知识会非常“偏科”和“震荡”。 魔法效果： 它告诉模型：“你看完 2 道题，先别急着改参数，把心得体会（梯度）记在脑子里；接着再看 2 道，再看 2 道……直到连续看了 4 批（总共 2 * 4 = 8 道题）之后，把心得体会加在一起，统一修改一次参数！” 结果： 你用极其微小的显存，完美模拟了 Batch Size = 8 的平滑训练效果。 2. 学习节奏的艺术：先热身，再冲刺 learning_rate = 2e-4 (学习率：0.0002) 物理直觉： 决定了模型每次修改参数时的“步子跨多大”。对于 LoRA 微调来说，2e-4 是一个极其经典的“甜点值”。步子太大容易忘记常识（灾难性遗忘），步子太小半天学不会。 warmup_steps = 5 (热身步数) 物理直觉： 刚开始训练时，外挂管道里的参数是随机初始化的。如果一开始就用全速（2e-4）去冲，会引发梯度爆炸，瞬间摧毁模型。 魔法效果： 在前 5 步，学习率会从 0 极其平滑地慢慢上升到 2e-4。就像开车起步先轻踩油门。 lr_scheduler_type = \"linear\" (学习率调度器) 物理直觉： 过了 5 步热身期后，随着训练步数越来越接近尾声，学习率会变成直线下降，越来越小。这意味着模型在训练后期会进行更精细的“微调雕刻”，而不是大刀阔斧地乱改。 3. 终极算力压榨：8-bit 优化器 optim = \"adamw_8bit\" 物理直觉： 训练模型不光需要保存模型本身的参数，还要保存一个叫“优化器状态（动量）”的东西。标准的 32 位 AdamW 优化器是个内存巨兽，会吃掉极大量的显存。 魔法效果： 这是 bitsandbytes 库的又一神作。它把优化器的状态强行压缩成了 8-bit！这能让你额外省出好几个 G 的显存，是单卡微调必开的终极选项。 4. 其他常规设置 max_steps = 60 (总训练步数): 你只打算让模型更新 60 次参数。这通常不是为了训练出一个最终成品，而是一个 “跑通验证 (Sanity Check)” —— 用来测试代码会不会报错、Loss（误差）会不会正常下降。真正训练可能需要几百上千步（通常用 num_train_epochs 控制）。 weight_decay = 0.01 (权重衰减): 防止模型死记硬背训练集（过拟合）的惩罚机制。 seed = 3407: 固定随机种子，保证每次跑的结果完全一样。（圈内冷知识：3407 是 AI 学术界著名的玄学种子，有一篇著名论文叫《Torch.manual_seed(3407) is all you need》，发现用这个数字通常能跑出好结果。） report_to = \"none\": 关闭监控面板（比如 WandB），专注于在终端看日志。 六、开始训练 trainer_stats = trainer.train() # 测测看 messages = [ {\"role\" : \"user\", \"content\" : \"Solve (x^2 + 5x + 6 = 0).\"} ] text = tokenizer.apply_chat_template( messages, tokenize = False, add_generation_prompt = True, enable_thinking = False, ) from transformers import TextStreamer _ = model.generate( **tokenizer(text, return_tensors = \"pt\").to(\"cuda\"), max_new_tokens = 2048, temperature = 0.7, top_p = 0.8, top_k = 20, streamer = TextStreamer(tokenizer, skip_prompt = True), ) # 保存 model.save_pretrained(\"qwen3_lora_model\") tokenizer.save_pretrained(\"qwen3_lora_model\") 会存下以下文件：\n('qwen3_lora_model/tokenizer_config.json', 'qwen3_lora_model/special_tokens_map.json', 'qwen3_lora_model/vocab.json', 'qwen3_lora_model/merges.txt', 'qwen3_lora_model/added_tokens.json', 'qwen3_lora_model/tokenizer.json') 加载训练成果\nfrom unsloth import FastLanguageModel finetuned_model, finetuned_tokenizer = FastLanguageModel.from_pretrained( model_name = \"qwen3_lora_model\", max_seq_length = 2048, load_in_4bit = True, ) # 测一把 messages = [{\"role\" : \"user\", \"content\" : \"Solve (x^2 + 5x + 6 = 0).\"}] text = finetuned_tokenizer.apply_chat_template( messages, tokenize = False, add_generation_prompt = True, enable_thinking = False, ) from transformers import TextStreamer _ = finetuned_model.generate( **finetuned_tokenizer(text, return_tensors = \"pt\").to(\"cuda\"), max_new_tokens = 2048, temperature = 0.7, top_p = 0.8, top_k = 20, streamer = TextStreamer(finetuned_tokenizer, skip_prompt = True), ) 弄完收工！！！ ","wordCount":"2406","inLanguage":"zh","image":"https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E","datePublished":"2026-05-18T09:00:00+08:00","dateModified":"2026-05-18T09:00:00+08:00","author":{"@type":"Person","name":"八戒"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20260518-distill_qwen_unsloth/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="Home (Alt + H)"><img src=https://rendoumi.com/apple-touch-icon.png alt aria-label=logo height=35>Home</a><div class=logo-switches></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><div class=breadcrumbs><a href=https://rendoumi.com/>主页</a>&nbsp;»&nbsp;<a href=https://rendoumi.com/posts/>所有文章</a></div><h1 class="post-title entry-hint-parent">一步一步用unsloth LoRA微调Qwen3
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2026-05-18 09:00:00 +0800 CST'>2026年05月18日</span>&nbsp;·&nbsp;<span>12 分钟</span>&nbsp;·&nbsp;<span>2406 字</span>&nbsp;·&nbsp;<span>八戒</span></div></header><div class=post-content><p><strong>LoRA（Low-Rank Adaptation，低秩微调）</strong>。</p><p>全面微调（Full Fine-Tuning）一个几百亿参数的大模型像是在“重新装修整栋摩天大楼”（成本极高、极易塌房），那么 <strong>LoRA 就是在摩天大楼外面搭几根轻量级的“外挂管道”</strong>。</p><p>我们来一步一步实现这个过程：</p><h3 id=准备>准备<a hidden class=anchor aria-hidden=true href=#准备>#</a></h3><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>uv pip install --no-deps bitsandbytes accelerate <span class=nv>xformers</span><span class=o>==</span>0.0.29.post3 peft <span class=nv>trl</span><span class=o>==</span>0.15.2 triton cut_cross_entropy unsloth_zoo
+</span></span><span class=line><span class=cl>uv pip install sentencepiece protobuf datasets huggingface_hub hf_transfer
+</span></span><span class=line><span class=cl>uv pip install --no-deps unsloth
+</span></span></code></pre></div><h3 id=一加载底模>一、加载底模：<a hidden class=anchor aria-hidden=true href=#一加载底模>#</a></h3><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>from unsloth import FastLanguageModel
+</span></span><span class=line><span class=cl>import torch
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>MODEL</span> <span class=o>=</span> <span class=s2>&#34;unsloth/Qwen3-14B&#34;</span>
+</span></span><span class=line><span class=cl>model, <span class=nv>tokenizer</span> <span class=o>=</span> FastLanguageModel.from_pretrained<span class=o>(</span>
+</span></span><span class=line><span class=cl>    <span class=nv>model_name</span> <span class=o>=</span>MODEL,
+</span></span><span class=line><span class=cl>    <span class=nv>max_seq_length</span> <span class=o>=</span> 2048,
+</span></span><span class=line><span class=cl>    <span class=nv>dtype</span> <span class=o>=</span> None,
+</span></span><span class=line><span class=cl>    <span class=nv>load_in_4bit</span> <span class=o>=</span> True,
+</span></span><span class=line><span class=cl>    <span class=nv>full_finetuning</span> <span class=o>=</span> False
+</span></span><span class=line><span class=cl><span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>model</span> <span class=o>=</span> FastLanguageModel.get_peft_model<span class=o>(</span>
+</span></span><span class=line><span class=cl>    model,
+</span></span><span class=line><span class=cl>    <span class=nv>r</span> <span class=o>=</span> 32,         
+</span></span><span class=line><span class=cl>    <span class=nv>target_modules</span> <span class=o>=</span> <span class=o>[</span><span class=s2>&#34;q_proj&#34;</span>, <span class=s2>&#34;k_proj&#34;</span>, <span class=s2>&#34;v_proj&#34;</span>, <span class=s2>&#34;o_proj&#34;</span>,
+</span></span><span class=line><span class=cl>                      <span class=s2>&#34;gate_proj&#34;</span>, <span class=s2>&#34;up_proj&#34;</span>, <span class=s2>&#34;down_proj&#34;</span>,<span class=o>]</span>,
+</span></span><span class=line><span class=cl>    <span class=nv>lora_alpha</span> <span class=o>=</span> 32,
+</span></span><span class=line><span class=cl>    <span class=nv>lora_dropout</span> <span class=o>=</span> 0,
+</span></span><span class=line><span class=cl>    <span class=nv>bias</span> <span class=o>=</span> <span class=s2>&#34;none&#34;</span>,   
+</span></span><span class=line><span class=cl>    <span class=nv>use_gradient_checkpointing</span> <span class=o>=</span> <span class=s2>&#34;unsloth&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=nv>use_rslora</span> <span class=o>=</span> False,  
+</span></span><span class=line><span class=cl>    <span class=nv>loftq_config</span> <span class=o>=</span> None,
+</span></span><span class=line><span class=cl><span class=o>)</span>
+</span></span></code></pre></div><p><strong>140 亿（14B 参数）</strong> 的庞然大物（通义千问最新版）塞进你的电脑里。</p><p><strong>算笔账：</strong> 如果按标准出厂格式（Float16，每个参数占 2 字节），140亿参数光是安静地躺在显存里，就需要 <strong>28 GB</strong> 的显存！如果强行全参微调，显存直接飙升到 80GB 以上。普通人根本玩不起。</p><pre tabindex=0><code>max_seq_length = 2048
+</code></pre><p>是模型的“短期记忆草稿纸”大小（上下文窗口）。</p><p><strong>为什么不设成 128K？</strong> 虽然 Qwen 支持极长的上下文，但在微调时，长度越长，计算 Attention 时的中间矩阵（特别是 KV Cache）就越庞大。设定为 2048，是为了在“能看懂足够长的问题”和“不把显卡内存撑爆”之间找一个黄金平衡。</p><pre tabindex=0><code>full_finetuning = False
+load_in_4bit = True
+</code></pre><p>为你下一步接入上一章讲的 <strong>LoRA 外挂管道</strong> 做准备！</p><p>这就是在向 PyTorch 的内存管家下达死命令：<strong>“给我把这 140 亿个被压缩成 4-bit 的原生脑细胞彻底冻结（Freeze）！不管等会儿训练老师（Loss 交叉熵）发多大火，绝对不准修改它们中的任何一个数字！”</strong></p><p>先用 <code>load_in_4bit = True</code> 把一栋 140 亿块砖头的摩天大楼，强行压缩成了极其轻量的“马赛克微缩模型”，塞进了你的游戏显卡里。</p><p>然后你用 <code>full_finetuning = False</code> 给这栋大楼贴上了封条，严禁拆卸。</p><p>大模型并不是靠某几个极其精确的数字来思考的，而是靠几百亿个数字的<strong>整体网络结构和相对大小</strong>。所以即使把精度砍到 4-bit，它的智商也几乎只有极其微小的下降。</p><h3 id=二lora微调>二、LoRA微调<a hidden class=anchor aria-hidden=true href=#二lora微调>#</a></h3><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 获取高效微调模型 (PEFT model)</span>
+</span></span><span class=line><span class=cl><span class=nv>model</span> <span class=o>=</span> FastLanguageModel.get_peft_model<span class=o>(</span>
+</span></span><span class=line><span class=cl>    model,
+</span></span><span class=line><span class=cl>    <span class=c1># 目标模块 (需进行 LoRA 适配的层)</span>
+</span></span><span class=line><span class=cl>    <span class=nv>target_modules</span> <span class=o>=</span> <span class=o>[</span><span class=s2>&#34;q_proj&#34;</span>, <span class=s2>&#34;k_proj&#34;</span>, <span class=s2>&#34;v_proj&#34;</span>, <span class=s2>&#34;o_proj&#34;</span><span class=o>]</span>,
+</span></span><span class=line><span class=cl>    <span class=c1># 使用梯度检查点 (优化显存技术)，这里指定 Unsloth 的实现</span>
+</span></span><span class=line><span class=cl>    <span class=nv>use_gradient_checkpointing</span> <span class=o>=</span> <span class=s2>&#34;unsloth&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=nv>r</span> <span class=o>=</span> 16,            <span class=c1># 秩 (Rank)，低秩适应层的大小</span>
+</span></span><span class=line><span class=cl>    <span class=nv>lora_alpha</span> <span class=o>=</span> 4,    <span class=c1># LoRA 的缩放因子</span>
+</span></span><span class=line><span class=cl>    <span class=nv>lora_dropout</span> <span class=o>=</span> 0,  <span class=c1># LoRA 层的 Dropout 概率 (防止过拟合)</span>
+</span></span><span class=line><span class=cl>    <span class=nv>bias</span> <span class=o>=</span> <span class=s2>&#34;none&#34;</span>      <span class=c1># 是否微调偏置 (bias) 项</span>
+</span></span><span class=line><span class=cl><span class=o>)</span>
+</span></span></code></pre></div><p>代码使用了目前极其火爆的极速微调库 <code>Unsloth</code>（结合了 HuggingFace 的 PEFT）。每一行都在精妙地控制我们刚才说的那根“外挂管道”：</p><ul><li><strong><code>target_modules = ["q_proj", "k_proj", "v_proj", "o_proj"]</code></strong><ul><li><strong>含义：</strong> 我们要把外挂管道接在哪里？</li><li><strong>直觉：</strong> 大模型里有无数个矩阵，这里指定只把 LoRA 挂在注意力机制（Attention）的 Q、K、V 和输出层 O 上。这是业界公认性价比最高的“挂载点”。</li></ul></li><li><strong><code>use_gradient_checkpointing = "unsloth"</code></strong><ul><li><strong>含义：</strong> 开启梯度检查点（一种省显存的黑科技）。</li><li><strong>直觉：</strong> “时间换空间”。不把所有中间计算结果都存在显卡里，而是用的时候再重新算一遍。<code>unsloth</code> 提供了极其优化的版本，能让你在小显存游戏显卡（比如 RTX 3090/4090）上跑起庞然大物。</li></ul></li><li><strong><code>r = 16</code> (最关键的参数)</strong><ul><li><strong>含义：</strong> 就是流程图里的那个“秩（Rank）”维度。</li><li><strong>直觉：</strong> 也就是那个“沙漏”最窄的地方有多宽。$r$ 越大，这根管道能流过去的信息越多，模型能学到的新知识越复杂，但需要的显存也越大。通常设置在 8、16、32 左右。</li></ul></li><li><strong><code>lora_alpha = 4</code></strong><ul><li><strong>含义：</strong> LoRA 的缩放比例（Scaling factor）。</li><li><strong>直觉：</strong> 相当于“外挂管道”的<strong>音量旋钮</strong>。由于最后两路信号要相加（$\oplus$），<code>alpha</code> 决定了外挂信号的声音有多大。在数学上，外挂权重会乘以 $\frac{alpha}{r}$。</li></ul></li><li><strong><code>lora_dropout = 0</code> 和 <code>bias = "none"</code></strong><ul><li><strong>含义：</strong> 关闭 Dropout，不训练偏置项。</li><li><strong>直觉：</strong> 极致的抠门学！因为 LoRA 模块本来就极小（参数很少），不容易发生过拟合，所以不需要用 Dropout 来“毒死”神经元。不训练 bias 也是为了进一步榨干显存，把所有算力全用在核心矩阵上。</li></ul></li></ul><pre tabindex=0><code class=language-mermaid data-lang=mermaid>graph TD
+    %% 定义样式类
+    classDef input fill:#e1bee7,stroke:#8e24aa,stroke-width:2px,color:#000
+    classDef frozen fill:#fff9c4,stroke:#fbc02d,stroke-width:2px,stroke-dasharray: 5 5,color:#000
+    classDef loraA fill:#c8e6c9,stroke:#388e3c,stroke-width:2px,color:#000
+    classDef loraB fill:#ffcdd2,stroke:#d32f2f,stroke-width:2px,color:#000
+    classDef operation fill:#eeeeee,stroke:#9e9e9e,stroke-width:2px,color:#000
+    classDef output fill:#bbdefb,stroke:#1976d2,stroke-width:2px,color:#000
+    classDef note fill:#f5f5f5,stroke:#666666,stroke-width:1px,stroke-dasharray: 3 3,color:#333
+
+    %% 节点定义
+    X[&#34;输入数据 X (维度 d)&#34;]:::input
+    
+    subgraph Pretrained [预训练模型 - 微调时冻结]
+        W[&#34;原生权重矩阵 W&lt;br&gt;(d × k)&#34;]:::frozen
+    end
+    
+    subgraph LoRAPath [LoRA 外挂管道 - 微调时只学习它们]
+        A[&#34;降维矩阵 A&lt;br&gt;(d × r)&#34;]:::loraA
+        MUL((&#34;⊗ 相乘&#34;)):::operation
+        B[&#34;升维矩阵 B&lt;br&gt;(r × k)&#34;]:::loraB
+    end
+    
+    ADD((&#34;⊕ 相加&#34;)):::operation
+    Y[&#34;输出数据 Y (维度 k)&#34;]:::output
+    
+    %% 注释节点
+    Note[&#34;💡 提示：&lt;br&gt;秩 r 远小于 d 和 k (如 r=16)&lt;br&gt;所以外挂管道的参数量极小！&#34;]:::note
+
+    %% 连接关系
+    X --&gt; W
+    X --&gt; A
+    
+    W --&gt;|保持不变的原生输出| ADD
+    
+    A --&gt; MUL
+    MUL --&gt; B
+    B --&gt;|微调学到的增量输出| ADD
+    
+    ADD --&gt; Y
+    
+    %% 注释连线
+    B -.-&gt; Note
+</code></pre><p>这张图解释了“如何在不改变原有大模型智商的前提下，教它新知识”。</p><ol><li><strong>左侧的主路（预训练模型）：</strong><ul><li>这是大模型出厂时自带的“原生知识矩阵”。</li><li>注意旁边的字：（微调时冻结）。这意味着在训练时，我们<strong>绝对不修改</strong>大模型原来的参数（彻底避免了“灾难性遗忘”，不用担心它学了写诗就忘了算数学）。</li></ul></li><li><strong>右侧的旁路（降维矩阵A 和 升维矩阵B）：</strong><ul><li>这是我们加装的“外挂管道”（LoRA 模块）。旁边写着（微调时只学习它们）。</li><li><strong>核心魔法在于这个“沙漏形”结构：</strong><ul><li>假设输入数据 x 是 4096 维的。</li><li><strong>矩阵 A (降维)：</strong> 把 4096 维的信息，狠狠压缩到一个极小的维度 r（比如图中的 $r=16）。</li><li><strong>矩阵 B (升维)：</strong> 拿着这 16 维的精华特征，再把它重新放大回 4096 维。</li></ul></li></ul></li><li><strong>顶部的相加（+）：</strong><ul><li>原始大模型的输出，和我们“外挂管道”算出来的输出，在最后一步<strong>直接相加</strong>。</li><li><strong>物理直觉：</strong> “原生大脑”负责提供基础常识，“外挂大脑”负责提供特定领域的微调风格，两者混合，输出最终结果。</li></ul></li></ol><h3 id=三加载训练数据集>三、加载训练数据集<a hidden class=anchor aria-hidden=true href=#三加载训练数据集>#</a></h3><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>from datasets import load_dataset
+</span></span><span class=line><span class=cl><span class=nv>reasoning_dataset</span> <span class=o>=</span> load_dataset<span class=o>(</span><span class=s2>&#34;unsloth/OpenMathReasoning-mini&#34;</span>, <span class=nv>split</span> <span class=o>=</span> <span class=s2>&#34;cot&#34;</span><span class=o>)</span>
+</span></span><span class=line><span class=cl><span class=nv>non_reasoning_dataset</span> <span class=o>=</span> load_dataset<span class=o>(</span><span class=s2>&#34;mlabonne/FineTome-100k&#34;</span>, <span class=nv>split</span> <span class=o>=</span> <span class=s2>&#34;train&#34;</span><span class=o>)</span>
+</span></span></code></pre></div><p>上面可以看到，我们加载了2种数据集，一种是推理型数据样本，一种是非推理型数据样本，格式是不一样的：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 处理推理数据集</span>
+</span></span><span class=line><span class=cl>from pprint import pprint
+</span></span><span class=line><span class=cl>pprint<span class=o>(</span>reasoning_dataset<span class=o>[</span>0<span class=o>])</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 手写一个 generate_conversation 函数，把原始的 problem（问题）和 generated_solution（生成的解答）强行打包成了标准的字典列表 [{&#34;role&#34;: &#34;user&#34;, ...}, {&#34;role&#34;: &#34;assistant&#34;, ...}]。</span>
+</span></span><span class=line><span class=cl><span class=c1># 样例特征与翻译要求的呼应：</span>
+</span></span><span class=line><span class=cl><span class=c1>#    思维链 (Chain-of-Thought)： 一开始就是 &lt;think&gt; 标签，里面装满了诸如 &#34;Okay, let&#39;s see...&#34;, &#34;Let me try that...&#34; 这样的碎碎念。这就是在教模型“三思而后行”，不要急于给出答案，把中间的推理步骤显式地打印出来。</span>
+</span></span><span class=line><span class=cl><span class=c1>#    清晰标记最终答案 (Mark the final answer clearly)： 在回复的最后，使用了 \boxed{14}。</span>
+</span></span><span class=line><span class=cl><span class=c1>#    兼容评估基准 (Compatibility with evaluation benchmarks)： 为什么要用 \boxed{}？因为主流的开源数学能力测试集（如 GSM8K, MATH），它们的自动判分脚本都是靠正则表达式去抓取 \boxed{} 里面的内容来判断对错的。如果你不教模型输出这个框，就算它算对了，在测试跑分时也会得零分。    </span>
+</span></span><span class=line><span class=cl>def generate_conversation<span class=o>(</span>examples<span class=o>)</span>:
+</span></span><span class=line><span class=cl>    <span class=nv>problems</span>  <span class=o>=</span> examples<span class=o>[</span><span class=s2>&#34;problem&#34;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>    <span class=nv>solutions</span> <span class=o>=</span> examples<span class=o>[</span><span class=s2>&#34;generated_solution&#34;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>    <span class=nv>conversations</span> <span class=o>=</span> <span class=o>[]</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> problem, solution in zip<span class=o>(</span>problems, solutions<span class=o>)</span>:
+</span></span><span class=line><span class=cl>        conversations.append<span class=o>([</span>
+</span></span><span class=line><span class=cl>            <span class=o>{</span><span class=s2>&#34;role&#34;</span> : <span class=s2>&#34;user&#34;</span>,      <span class=s2>&#34;content&#34;</span> : problem<span class=o>}</span>,
+</span></span><span class=line><span class=cl>            <span class=o>{</span><span class=s2>&#34;role&#34;</span> : <span class=s2>&#34;assistant&#34;</span>, <span class=s2>&#34;content&#34;</span> : solution<span class=o>}</span>,
+</span></span><span class=line><span class=cl>        <span class=o>])</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=o>{</span> <span class=s2>&#34;conversations&#34;</span>: conversations, <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>reasoning_conversations</span> <span class=o>=</span> tokenizer.apply_chat_template<span class=o>(</span>
+</span></span><span class=line><span class=cl>    reasoning_dataset.map<span class=o>(</span>generate_conversation, <span class=nv>batched</span> <span class=o>=</span> True<span class=o>)[</span><span class=s2>&#34;conversations&#34;</span><span class=o>]</span>,
+</span></span><span class=line><span class=cl>    <span class=nv>tokenize</span> <span class=o>=</span> False,
+</span></span><span class=line><span class=cl><span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>pprint<span class=o>(</span>reasoning_dataset<span class=o>[</span>0<span class=o>])</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 整理完的推理型的例子</span>
+</span></span><span class=line><span class=cl>&lt;<span class=p>|</span>im_start<span class=p>|</span>&gt;user
+</span></span><span class=line><span class=cl>Given $<span class=se>\s</span>qrt<span class=o>{</span>x^2+165<span class=o>}</span>-<span class=se>\s</span>qrt<span class=o>{</span>x^2-52<span class=o>}=</span>7$ and <span class=nv>$x</span>$ is positive, find all possible values of <span class=nv>$x</span>$.&lt;<span class=p>|</span>im_end<span class=p>|</span>&gt;
+</span></span><span class=line><span class=cl>&lt;<span class=p>|</span>im_start<span class=p>|</span>&gt;assistant
+</span></span><span class=line><span class=cl>&lt;think&gt;
+</span></span><span class=line><span class=cl>Okay, let<span class=s1>&#39;s see. I need to solve the equation √(x² + 165) - √(x² - 52) = 7, and find all positive values of x. Hmm, radicals can be tricky, but maybe if I can eliminate the square roots by squaring both sides. Let me try that.
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>First, let me write down the equation again to make sure I have it right:
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>√(x² + 165) - √(x² - 52) = 7.
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>Okay, so the idea is to isolate one of the radicals and then square both sides. Let me try moving the second radical to the other side:
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>√(x² + 165) = 7 + √(x² - 52).
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>Now, if I square both sides, maybe I can get rid of the square roots. Let&#39;</span>s <span class=k>do</span> that:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>(</span>√<span class=o>(</span>x² + 165<span class=o>))</span>² <span class=o>=</span> <span class=o>(</span><span class=m>7</span> + √<span class=o>(</span>x² - 52<span class=o>))</span>².
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Simplifying the left side:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>x² + <span class=nv>165</span> <span class=o>=</span> <span class=m>49</span> + 14√<span class=o>(</span>x² - 52<span class=o>)</span> + <span class=o>(</span>√<span class=o>(</span>x² - 52<span class=o>))</span>².
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>The right side is expanded using the formula <span class=o>(</span>a + b<span class=o>)</span>² <span class=o>=</span> a² + 2ab + b². So the right side becomes 7² + 2*7*√<span class=o>(</span>x² - 52<span class=o>)</span> + <span class=o>(</span>√<span class=o>(</span>x² - 52<span class=o>))</span>², which is <span class=m>49</span> + 14√<span class=o>(</span>x² - 52<span class=o>)</span> + <span class=o>(</span>x² - 52<span class=o>)</span>.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>So putting it all together:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>x² + <span class=nv>165</span> <span class=o>=</span> <span class=m>49</span> + 14√<span class=o>(</span>x² - 52<span class=o>)</span> + x² - 52.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Hmm, let<span class=s1>&#39;s simplify the right side. The x² terms will cancel out, right? Let&#39;</span>s subtract x² from both sides:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>165</span> <span class=o>=</span> <span class=m>49</span> + 14√<span class=o>(</span>x² - 52<span class=o>)</span> - 52.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Simplify the constants on the right:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=m>49</span> - <span class=m>52</span> is -3, so:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>165</span> <span class=o>=</span> -3 + 14√<span class=o>(</span>x² - 52<span class=o>)</span>.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Now, add <span class=m>3</span> to both sides to isolate the radical term:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=m>165</span> + <span class=nv>3</span> <span class=o>=</span> 14√<span class=o>(</span>x² - 52<span class=o>)</span>.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>So <span class=nv>168</span> <span class=o>=</span> 14√<span class=o>(</span>x² - 52<span class=o>)</span>.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Divide both sides by 14:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=m>168</span> / <span class=nv>14</span> <span class=o>=</span> √<span class=o>(</span>x² - 52<span class=o>)</span>.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>12</span> <span class=o>=</span> √<span class=o>(</span>x² - 52<span class=o>)</span>.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Now, square both sides again to eliminate the square root:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>12² <span class=o>=</span> x² - 52.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>144</span> <span class=o>=</span> x² - 52.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Add <span class=m>52</span> to both sides:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=m>144</span> + <span class=nv>52</span> <span class=o>=</span> x².
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>196</span> <span class=o>=</span> x².
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>So <span class=nv>x</span> <span class=o>=</span> √196 <span class=o>=</span> 14.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>But wait, since the problem states that x is positive, we only take the positive root. So <span class=nv>x</span> <span class=o>=</span> 14.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>But hold on, when dealing with squaring equations, sometimes extraneous solutions can come up. I should check <span class=k>if</span> this solution actually satisfies the original equation.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Let<span class=s1>&#39;s plug x = 14 back into the original equation:
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>√(14² + 165) - √(14² - 52) = ?
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>Calculate each term:
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>14² is 196.
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>So first radical: √(196 + 165) = √361 = 19.
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>Second radical: √(196 - 52) = √144 = 12.
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>So 19 - 12 = 7, which is exactly the right-hand side. So yes, it checks out.
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>Therefore, the only solution is x = 14. Since the problem says x is positive, we don&#39;</span>t have to consider negative roots. So I think that<span class=err>&#39;</span>s the answer.
+</span></span><span class=line><span class=cl>&lt;/think&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>To solve the equation <span class=se>\(\s</span>qrt<span class=o>{</span>x^2 + 165<span class=o>}</span> - <span class=se>\s</span>qrt<span class=o>{</span>x^2 - 52<span class=o>}</span> <span class=o>=</span> 7<span class=se>\)</span> <span class=k>for</span> positive <span class=se>\(</span>x<span class=se>\)</span>, we proceed as follows:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>1. Start with the given equation:
+</span></span><span class=line><span class=cl>   <span class=se>\[</span>
+</span></span><span class=line><span class=cl>   <span class=se>\s</span>qrt<span class=o>{</span>x^2 + 165<span class=o>}</span> - <span class=se>\s</span>qrt<span class=o>{</span>x^2 - 52<span class=o>}</span> <span class=o>=</span> <span class=m>7</span>
+</span></span><span class=line><span class=cl>   <span class=se>\]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>2. Isolate one of the square roots by moving <span class=se>\(\s</span>qrt<span class=o>{</span>x^2 - 52<span class=o>}</span><span class=se>\)</span> to the right side:
+</span></span><span class=line><span class=cl>   <span class=se>\[</span>
+</span></span><span class=line><span class=cl>   <span class=se>\s</span>qrt<span class=o>{</span>x^2 + 165<span class=o>}</span> <span class=o>=</span> <span class=m>7</span> + <span class=se>\s</span>qrt<span class=o>{</span>x^2 - 52<span class=o>}</span>
+</span></span><span class=line><span class=cl>   <span class=se>\]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>3. Square both sides to eliminate the square root on the left:
+</span></span><span class=line><span class=cl>   <span class=se>\[</span>
+</span></span><span class=line><span class=cl>   <span class=o>(</span><span class=se>\s</span>qrt<span class=o>{</span>x^2 + 165<span class=o>})</span>^2 <span class=o>=</span> <span class=o>(</span><span class=m>7</span> + <span class=se>\s</span>qrt<span class=o>{</span>x^2 - 52<span class=o>})</span>^2
+</span></span><span class=line><span class=cl>   <span class=se>\]</span>
+</span></span><span class=line><span class=cl>   Simplifying both sides, we get:
+</span></span><span class=line><span class=cl>   <span class=se>\[</span>
+</span></span><span class=line><span class=cl>   x^2 + <span class=nv>165</span> <span class=o>=</span> <span class=m>49</span> + 14<span class=se>\s</span>qrt<span class=o>{</span>x^2 - 52<span class=o>}</span> + <span class=o>(</span>x^2 - 52<span class=o>)</span>
+</span></span><span class=line><span class=cl>   <span class=se>\]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>4. Combine like terms on the right side:
+</span></span><span class=line><span class=cl>   <span class=se>\[</span>
+</span></span><span class=line><span class=cl>   x^2 + <span class=nv>165</span> <span class=o>=</span> x^2 - <span class=m>52</span> + <span class=m>49</span> + 14<span class=se>\s</span>qrt<span class=o>{</span>x^2 - 52<span class=o>}</span>
+</span></span><span class=line><span class=cl>   <span class=se>\]</span>
+</span></span><span class=line><span class=cl>   Simplifying further:
+</span></span><span class=line><span class=cl>   <span class=se>\[</span>
+</span></span><span class=line><span class=cl>   x^2 + <span class=nv>165</span> <span class=o>=</span> x^2 - <span class=m>3</span> + 14<span class=se>\s</span>qrt<span class=o>{</span>x^2 - 52<span class=o>}</span>
+</span></span><span class=line><span class=cl>   <span class=se>\]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>5. Subtract <span class=se>\(</span>x^2<span class=se>\)</span> from both sides:
+</span></span><span class=line><span class=cl>   <span class=se>\[</span>
+</span></span><span class=line><span class=cl>   <span class=nv>165</span> <span class=o>=</span> -3 + 14<span class=se>\s</span>qrt<span class=o>{</span>x^2 - 52<span class=o>}</span>
+</span></span><span class=line><span class=cl>   <span class=se>\]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>6. Add <span class=m>3</span> to both sides to isolate the term with the square root:
+</span></span><span class=line><span class=cl>   <span class=se>\[</span>
+</span></span><span class=line><span class=cl>   <span class=nv>168</span> <span class=o>=</span> 14<span class=se>\s</span>qrt<span class=o>{</span>x^2 - 52<span class=o>}</span>
+</span></span><span class=line><span class=cl>   <span class=se>\]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>7. Divide both sides by 14:
+</span></span><span class=line><span class=cl>   <span class=se>\[</span>
+</span></span><span class=line><span class=cl>   <span class=nv>12</span> <span class=o>=</span> <span class=se>\s</span>qrt<span class=o>{</span>x^2 - 52<span class=o>}</span>
+</span></span><span class=line><span class=cl>   <span class=se>\]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>8. Square both sides again to eliminate the square root:
+</span></span><span class=line><span class=cl>   <span class=se>\[</span>
+</span></span><span class=line><span class=cl>   12^2 <span class=o>=</span> x^2 - <span class=m>52</span>
+</span></span><span class=line><span class=cl>   <span class=se>\]</span>
+</span></span><span class=line><span class=cl>   Simplifying:
+</span></span><span class=line><span class=cl>   <span class=se>\[</span>
+</span></span><span class=line><span class=cl>   <span class=nv>144</span> <span class=o>=</span> x^2 - <span class=m>52</span>
+</span></span><span class=line><span class=cl>   <span class=se>\]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>9. Add <span class=m>52</span> to both sides to solve <span class=k>for</span> <span class=se>\(</span>x^2<span class=se>\)</span>:
+</span></span><span class=line><span class=cl>   <span class=se>\[</span>
+</span></span><span class=line><span class=cl>   <span class=nv>196</span> <span class=o>=</span> x^2
+</span></span><span class=line><span class=cl>   <span class=se>\]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>10. Take the positive square root <span class=o>(</span>since <span class=se>\(</span>x<span class=se>\)</span> is positive<span class=o>)</span>:
+</span></span><span class=line><span class=cl>    <span class=se>\[</span>
+</span></span><span class=line><span class=cl>    <span class=nv>x</span> <span class=o>=</span> <span class=se>\s</span>qrt<span class=o>{</span>196<span class=o>}</span> <span class=o>=</span> <span class=m>14</span>
+</span></span><span class=line><span class=cl>    <span class=se>\]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>11. Verify the solution by substituting <span class=se>\(</span><span class=nv>x</span> <span class=o>=</span> 14<span class=se>\)</span> back into the original equation:
+</span></span><span class=line><span class=cl>    <span class=se>\[</span>
+</span></span><span class=line><span class=cl>    <span class=se>\s</span>qrt<span class=o>{</span>14^2 + 165<span class=o>}</span> - <span class=se>\s</span>qrt<span class=o>{</span>14^2 - 52<span class=o>}</span> <span class=o>=</span> <span class=se>\s</span>qrt<span class=o>{</span><span class=m>196</span> + 165<span class=o>}</span> - <span class=se>\s</span>qrt<span class=o>{</span><span class=m>196</span> - 52<span class=o>}</span> <span class=o>=</span> <span class=se>\s</span>qrt<span class=o>{</span>361<span class=o>}</span> - <span class=se>\s</span>qrt<span class=o>{</span>144<span class=o>}</span> <span class=o>=</span> <span class=m>19</span> - <span class=nv>12</span> <span class=o>=</span> <span class=m>7</span>
+</span></span><span class=line><span class=cl>    <span class=se>\]</span>
+</span></span><span class=line><span class=cl>    The solution checks out.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Thus, the only positive solution is:
+</span></span><span class=line><span class=cl><span class=se>\[</span>
+</span></span><span class=line><span class=cl><span class=se>\b</span>oxed<span class=o>{</span>14<span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=se>\]</span>&lt;<span class=p>|</span>im_end<span class=p>|</span>&gt;
+</span></span></code></pre></div><p>同样整理非推理型的数据</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 非推理型</span>
+</span></span><span class=line><span class=cl>pprint<span class=o>(</span>non_reasoning_dataset<span class=o>[</span>0<span class=o>])</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 直接调用了开源微调神器 unsloth 自带的魔法库：standardize_sharegpt 和 apply_chat_template。</span>
+</span></span><span class=line><span class=cl><span class=c1># ShareGPT 是目前开源界最流行的人机对话数据格式。</span>
+</span></span><span class=line><span class=cl><span class=c1># 这两行代码会自动给数据穿上模型认识的“制服”（比如自动添加 &lt;|im_start|&gt; 和 &lt;|im_end|&gt; 这种特殊的控制字符）。</span>
+</span></span><span class=line><span class=cl><span class=c1># 非推理型通常处理常识问答、代码编写、文本翻译等“知道就知道，不知道就不知道”的任务</span>
+</span></span><span class=line><span class=cl>from unsloth.chat_templates import standardize_sharegpt
+</span></span><span class=line><span class=cl><span class=nv>dataset</span> <span class=o>=</span> standardize_sharegpt<span class=o>(</span>non_reasoning_dataset<span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>non_reasoning_conversations</span> <span class=o>=</span> tokenizer.apply_chat_template<span class=o>(</span>
+</span></span><span class=line><span class=cl>    dataset<span class=o>[</span><span class=s2>&#34;conversations&#34;</span><span class=o>]</span>,
+</span></span><span class=line><span class=cl>    <span class=nv>tokenize</span> <span class=o>=</span> False,
+</span></span><span class=line><span class=cl><span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>pprint<span class=o>(</span>non_reasoning_dataset<span class=o>[</span>0<span class=o>])</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 整理完的非推理型的例子</span>
+</span></span><span class=line><span class=cl>&lt;<span class=p>|</span>im_start<span class=p>|</span>&gt;user
+</span></span><span class=line><span class=cl>Explain what boolean operators are, what they <span class=k>do</span>, and provide examples of how they can be used in programming. Additionally, describe the concept of operator precedence and provide examples of how it affects the evaluation of boolean expressions. Discuss the difference between short-circuit evaluation and normal evaluation in boolean expressions and demonstrate their usage in code. 
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Furthermore, add the requirement that the code must be written in a language that does not support short-circuit evaluation natively, forcing the <span class=nb>test</span> taker to implement their own logic <span class=k>for</span> short-circuit evaluation.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Finally, delve into the concept of truthiness and falsiness in programming languages, explaining how it affects the evaluation of boolean expressions. Add the constraint that the <span class=nb>test</span> taker must write code that handles cases where truthiness and falsiness are implemented differently across different programming languages.&lt;<span class=p>|</span>im_end<span class=p>|</span>&gt;
+</span></span><span class=line><span class=cl>&lt;<span class=p>|</span>im_start<span class=p>|</span>&gt;assistant
+</span></span><span class=line><span class=cl>&lt;think&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>&lt;/think&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Boolean operators are logical operators used in programming to manipulate boolean values. They operate on one or more boolean operands and <span class=k>return</span> a boolean result. The three main boolean operators are <span class=s2>&#34;AND&#34;</span> <span class=o>(&amp;&amp;)</span>, <span class=s2>&#34;OR&#34;</span> <span class=o>(||)</span>, and <span class=s2>&#34;NOT&#34;</span> <span class=o>(</span>!<span class=o>)</span>.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>The <span class=s2>&#34;AND&#34;</span> operator returns <span class=nb>true</span> <span class=k>if</span> both of its operands are true, and <span class=nb>false</span> otherwise. For example:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=sb>```</span>python
+</span></span><span class=line><span class=cl><span class=nv>x</span> <span class=o>=</span> <span class=m>5</span>
+</span></span><span class=line><span class=cl><span class=nv>y</span> <span class=o>=</span> <span class=m>10</span>
+</span></span><span class=line><span class=cl><span class=nv>result</span> <span class=o>=</span> <span class=o>(</span>x &gt; 0<span class=o>)</span> and <span class=o>(</span>y &lt; 20<span class=o>)</span>  <span class=c1># This expression evaluates to True</span>
+</span></span><span class=line><span class=cl><span class=sb>```</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>The <span class=s2>&#34;OR&#34;</span> operator returns <span class=nb>true</span> <span class=k>if</span> at least one of its operands is true, and <span class=nb>false</span> otherwise. For example:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=sb>```</span>python
+</span></span><span class=line><span class=cl><span class=nv>x</span> <span class=o>=</span> <span class=m>5</span>
+</span></span><span class=line><span class=cl><span class=nv>y</span> <span class=o>=</span> <span class=m>10</span>
+</span></span><span class=line><span class=cl><span class=nv>result</span> <span class=o>=</span> <span class=o>(</span>x &gt; 0<span class=o>)</span> or <span class=o>(</span>y &lt; 20<span class=o>)</span>  <span class=c1># This expression evaluates to True</span>
+</span></span><span class=line><span class=cl><span class=sb>```</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>The <span class=s2>&#34;NOT&#34;</span> operator negates the boolean value of its operand. It returns <span class=nb>true</span> <span class=k>if</span> the operand is false, and <span class=nb>false</span> <span class=k>if</span> the operand is true. For example:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=sb>```</span>python
+</span></span><span class=line><span class=cl><span class=nv>x</span> <span class=o>=</span> <span class=m>5</span>
+</span></span><span class=line><span class=cl><span class=nv>result</span> <span class=o>=</span> not <span class=o>(</span>x &gt; 10<span class=o>)</span>  <span class=c1># This expression evaluates to True</span>
+</span></span><span class=line><span class=cl><span class=sb>```</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Operator precedence refers to the order in which operators are evaluated in an expression. It ensures that expressions are evaluated correctly. In most programming languages, logical AND has higher precedence than logical OR. For example:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=sb>```</span>python
+</span></span><span class=line><span class=cl><span class=nv>result</span> <span class=o>=</span> True or False and False  <span class=c1># This expression is evaluated as (True or (False and False)), which is True</span>
+</span></span><span class=line><span class=cl><span class=sb>```</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Short-circuit evaluation is a behavior where the second operand of a logical operator is not evaluated <span class=k>if</span> the result can be determined based on the value of the first operand. In short-circuit evaluation, <span class=k>if</span> the first operand of an <span class=s2>&#34;AND&#34;</span> operator is false, the second operand is not evaluated because the result will always be false. Similarly, <span class=k>if</span> the first operand of an <span class=s2>&#34;OR&#34;</span> operator is true, the second operand is not evaluated because the result will always be true.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>In programming languages that support short-circuit evaluation natively, you can use it to improve performance or avoid errors. For example:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=sb>```</span>python
+</span></span><span class=line><span class=cl><span class=k>if</span> x !<span class=o>=</span> <span class=m>0</span> and <span class=o>(</span>y / x<span class=o>)</span> &gt; 10:
+</span></span><span class=line><span class=cl>    <span class=c1># Perform some operation</span>
+</span></span><span class=line><span class=cl><span class=sb>```</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>In languages without native short-circuit evaluation, you can implement your own logic to achieve the same behavior. Here<span class=s1>&#39;s an example in pseudocode:
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>```
+</span></span></span><span class=line><span class=cl><span class=s1>if x != 0 {
+</span></span></span><span class=line><span class=cl><span class=s1>    if (y / x) &gt; 10 {
+</span></span></span><span class=line><span class=cl><span class=s1>        // Perform some operation
+</span></span></span><span class=line><span class=cl><span class=s1>    }
+</span></span></span><span class=line><span class=cl><span class=s1>}
+</span></span></span><span class=line><span class=cl><span class=s1>```
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>Truthiness and falsiness refer to how non-boolean values are evaluated in boolean contexts. In many programming languages, non-zero numbers and non-empty strings are considered truthy, while zero, empty strings, and null/None values are considered falsy.
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>When evaluating boolean expressions, truthiness and falsiness come into play. For example:
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>```python
+</span></span></span><span class=line><span class=cl><span class=s1>x = 5
+</span></span></span><span class=line><span class=cl><span class=s1>result = x  # The value of x is truthy, so result is also truthy
+</span></span></span><span class=line><span class=cl><span class=s1>```
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>To handle cases where truthiness and falsiness are implemented differently across programming languages, you can explicitly check the desired condition. For example:
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>```python
+</span></span></span><span class=line><span class=cl><span class=s1>x = 5
+</span></span></span><span class=line><span class=cl><span class=s1>result = bool(x)  # Explicitly converting x to a boolean value
+</span></span></span><span class=line><span class=cl><span class=s1>```
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>This ensures that the result is always a boolean value, regardless of the language&#39;</span>s truthiness and falsiness rules.&lt;<span class=p>|</span>im_end<span class=p>|</span>&gt;
+</span></span></code></pre></div><p>数据集大小也不一样</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>print<span class=o>(</span>len<span class=o>(</span>reasoning_conversations<span class=o>))</span>
+</span></span><span class=line><span class=cl><span class=m>19252</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>print<span class=o>(</span>len<span class=o>(</span>non_reasoning_conversations<span class=o>))</span>
+</span></span><span class=line><span class=cl><span class=m>100000</span>
+</span></span></code></pre></div><h3 id=四对齐格式合并训练数据集>四、对齐格式，合并训练数据集<a hidden class=anchor aria-hidden=true href=#四对齐格式合并训练数据集>#</a></h3><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nv>data</span> <span class=o>=</span> pd.concat<span class=o>([</span>
+</span></span><span class=line><span class=cl>    pd.Series<span class=o>(</span>reasoning_conversations<span class=o>)</span>,
+</span></span><span class=line><span class=cl>    pd.Series<span class=o>(</span>non_reasoning_subset<span class=o>)</span>
+</span></span><span class=line><span class=cl><span class=o>])</span>
+</span></span><span class=line><span class=cl>data.name <span class=o>=</span> <span class=s2>&#34;text&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>from datasets import Dataset
+</span></span><span class=line><span class=cl><span class=nv>combined_dataset</span> <span class=o>=</span> Dataset.from_pandas<span class=o>(</span>pd.DataFrame<span class=o>(</span>data<span class=o>))</span>
+</span></span><span class=line><span class=cl><span class=nv>combined_dataset</span> <span class=o>=</span> combined_dataset.shuffle<span class=o>(</span><span class=nv>seed</span> <span class=o>=</span> 3407<span class=o>)</span>
+</span></span></code></pre></div><blockquote><p>在微调之前，我们必须将数据集准备成对话格式：</p><p>对于推理型数据，我们提取解答过程（solution）和最终答案（solution keys）。</p><p>对于非推理型数据，我们使用标准化方法，将其转换为所需的格式。</p></blockquote><h3 id=五定义一个训练对象>五、定义一个训练对象<a hidden class=anchor aria-hidden=true href=#五定义一个训练对象>#</a></h3><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>from trl import SFTTrainer, SFTConfig
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>trainer</span> <span class=o>=</span> SFTTrainer<span class=o>(</span>
+</span></span><span class=line><span class=cl>    <span class=nv>model</span> <span class=o>=</span> model,
+</span></span><span class=line><span class=cl>    <span class=nv>tokenizer</span> <span class=o>=</span> tokenizer,
+</span></span><span class=line><span class=cl>    <span class=nv>train_dataset</span> <span class=o>=</span> combined_dataset,
+</span></span><span class=line><span class=cl>    <span class=nv>eval_dataset</span> <span class=o>=</span> None,
+</span></span><span class=line><span class=cl>    <span class=nv>args</span> <span class=o>=</span> SFTConfig<span class=o>(</span>
+</span></span><span class=line><span class=cl>        <span class=nv>dataset_text_field</span> <span class=o>=</span> <span class=s2>&#34;text&#34;</span>,
+</span></span><span class=line><span class=cl>        <span class=nv>per_device_train_batch_size</span> <span class=o>=</span> 2,
+</span></span><span class=line><span class=cl>        <span class=nv>gradient_accumulation_steps</span> <span class=o>=</span> 4,
+</span></span><span class=line><span class=cl>        <span class=nv>warmup_steps</span> <span class=o>=</span> 5,
+</span></span><span class=line><span class=cl>        <span class=nv>max_steps</span> <span class=o>=</span> 60,
+</span></span><span class=line><span class=cl>        <span class=nv>learning_rate</span> <span class=o>=</span> 2e-4,
+</span></span><span class=line><span class=cl>        <span class=nv>logging_steps</span> <span class=o>=</span> 1,
+</span></span><span class=line><span class=cl>        <span class=nv>optim</span> <span class=o>=</span> <span class=s2>&#34;adamw_8bit&#34;</span>,
+</span></span><span class=line><span class=cl>        <span class=nv>weight_decay</span> <span class=o>=</span> 0.01,
+</span></span><span class=line><span class=cl>        <span class=nv>lr_scheduler_type</span> <span class=o>=</span> <span class=s2>&#34;linear&#34;</span>,
+</span></span><span class=line><span class=cl>        <span class=nv>seed</span> <span class=o>=</span> 3407,
+</span></span><span class=line><span class=cl>        <span class=nv>report_to</span> <span class=o>=</span> <span class=s2>&#34;none&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=o>)</span>
+</span></span><span class=line><span class=cl><span class=o>)</span>
+</span></span></code></pre></div><h4 id=1-显存刺客的克星积少成多的吞咽法>1. 显存刺客的克星：积少成多的“吞咽法”<a hidden class=anchor aria-hidden=true href=#1-显存刺客的克星积少成多的吞咽法>#</a></h4><ul><li><strong><code>per_device_train_batch_size = 2</code> (单次处理量)</strong><ul><li><strong>物理直觉：</strong> 每次只给模型看 <strong>2 道题</strong>。为什么这么小？因为即使模型被压到了 4-bit，训练时的中间变量（激活值）依然极其庞大。设为 2 是为了保证绝不爆显存（OOM）。</li></ul></li><li><strong><code>gradient_accumulation_steps = 4</code> (梯度累加步数)</strong><ul><li><strong>物理直觉：</strong> 这是深度学习最伟大的工程发明之一！如果每次只看 2 道题就去更新参数，模型学到的知识会非常“偏科”和“震荡”。</li><li><strong>魔法效果：</strong> 它告诉模型：“你看完 2 道题，先别急着改参数，把心得体会（梯度）记在脑子里；接着再看 2 道，再看 2 道……直到连续看了 4 批（总共 2 * 4 = 8 道题）之后，把心得体会加在一起，统一修改一次参数！”</li><li><strong>结果：</strong> 你用极其微小的显存，完美模拟了 <code>Batch Size = 8</code> 的平滑训练效果。</li></ul></li></ul><h4 id=2-学习节奏的艺术先热身再冲刺>2. 学习节奏的艺术：先热身，再冲刺<a hidden class=anchor aria-hidden=true href=#2-学习节奏的艺术先热身再冲刺>#</a></h4><ul><li><strong><code>learning_rate = 2e-4</code> (学习率：0.0002)</strong><ul><li><strong>物理直觉：</strong> 决定了模型每次修改参数时的“步子跨多大”。对于 LoRA 微调来说，<code>2e-4</code> 是一个极其经典的“甜点值”。步子太大容易忘记常识（灾难性遗忘），步子太小半天学不会。</li></ul></li><li><strong><code>warmup_steps = 5</code> (热身步数)</strong><ul><li><strong>物理直觉：</strong> 刚开始训练时，外挂管道里的参数是随机初始化的。如果一开始就用全速（2e-4）去冲，会引发梯度爆炸，瞬间摧毁模型。</li><li><strong>魔法效果：</strong> 在前 5 步，学习率会从 0 极其平滑地慢慢上升到 2e-4。就像开车起步先轻踩油门。</li></ul></li><li><strong><code>lr_scheduler_type = "linear"</code> (学习率调度器)</strong><ul><li><strong>物理直觉：</strong> 过了 5 步热身期后，随着训练步数越来越接近尾声，学习率会变成直线下降，越来越小。这意味着模型在训练后期会进行更精细的“微调雕刻”，而不是大刀阔斧地乱改。</li></ul></li></ul><h4 id=3-终极算力压榨8-bit-优化器>3. 终极算力压榨：8-bit 优化器<a hidden class=anchor aria-hidden=true href=#3-终极算力压榨8-bit-优化器>#</a></h4><ul><li><strong><code>optim = "adamw_8bit"</code></strong><ul><li><strong>物理直觉：</strong> 训练模型不光需要保存模型本身的参数，还要保存一个叫“优化器状态（动量）”的东西。标准的 32 位 AdamW 优化器是个内存巨兽，会吃掉极大量的显存。</li><li><strong>魔法效果：</strong> 这是 bitsandbytes 库的又一神作。它把优化器的状态强行压缩成了 8-bit！这能让你额外省出好几个 G 的显存，是单卡微调必开的终极选项。</li></ul></li></ul><h4 id=4-其他常规设置>4. 其他常规设置<a hidden class=anchor aria-hidden=true href=#4-其他常规设置>#</a></h4><ul><li><strong><code>max_steps = 60</code> (总训练步数):</strong> 你只打算让模型更新 60 次参数。这通常不是为了训练出一个最终成品，而是一个 <strong>“跑通验证 (Sanity Check)”</strong> —— 用来测试代码会不会报错、Loss（误差）会不会正常下降。真正训练可能需要几百上千步（通常用 <code>num_train_epochs</code> 控制）。</li><li><strong><code>weight_decay = 0.01</code> (权重衰减):</strong> 防止模型死记硬背训练集（过拟合）的惩罚机制。</li><li><strong><code>seed = 3407</code>:</strong> 固定随机种子，保证每次跑的结果完全一样。（<em>圈内冷知识：3407 是 AI 学术界著名的玄学种子，有一篇著名论文叫《Torch.manual_seed(3407) is all you need》，发现用这个数字通常能跑出好结果。</em>）</li><li><strong><code>report_to = "none"</code>:</strong> 关闭监控面板（比如 WandB），专注于在终端看日志。</li></ul><h4 id=六开始训练>六、开始训练<a hidden class=anchor aria-hidden=true href=#六开始训练>#</a></h4><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nv>trainer_stats</span> <span class=o>=</span> trainer.train<span class=o>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 测测看</span>
+</span></span><span class=line><span class=cl><span class=nv>messages</span> <span class=o>=</span> <span class=o>[</span>
+</span></span><span class=line><span class=cl>    <span class=o>{</span><span class=s2>&#34;role&#34;</span> : <span class=s2>&#34;user&#34;</span>, <span class=s2>&#34;content&#34;</span> : <span class=s2>&#34;Solve (x^2 + 5x + 6 = 0).&#34;</span><span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>text</span> <span class=o>=</span> tokenizer.apply_chat_template<span class=o>(</span>
+</span></span><span class=line><span class=cl>    messages,
+</span></span><span class=line><span class=cl>    <span class=nv>tokenize</span> <span class=o>=</span> False,
+</span></span><span class=line><span class=cl>    <span class=nv>add_generation_prompt</span> <span class=o>=</span> True,
+</span></span><span class=line><span class=cl>    <span class=nv>enable_thinking</span> <span class=o>=</span> False,
+</span></span><span class=line><span class=cl><span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>from transformers import TextStreamer
+</span></span><span class=line><span class=cl><span class=nv>_</span> <span class=o>=</span> model.generate<span class=o>(</span>
+</span></span><span class=line><span class=cl>    **tokenizer<span class=o>(</span>text, <span class=nv>return_tensors</span> <span class=o>=</span> <span class=s2>&#34;pt&#34;</span><span class=o>)</span>.to<span class=o>(</span><span class=s2>&#34;cuda&#34;</span><span class=o>)</span>,
+</span></span><span class=line><span class=cl>    <span class=nv>max_new_tokens</span> <span class=o>=</span> 2048,
+</span></span><span class=line><span class=cl>    <span class=nv>temperature</span> <span class=o>=</span> 0.7, <span class=nv>top_p</span> <span class=o>=</span> 0.8, <span class=nv>top_k</span> <span class=o>=</span> 20,
+</span></span><span class=line><span class=cl>    <span class=nv>streamer</span> <span class=o>=</span> TextStreamer<span class=o>(</span>tokenizer, <span class=nv>skip_prompt</span> <span class=o>=</span> True<span class=o>)</span>,
+</span></span><span class=line><span class=cl><span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 保存</span>
+</span></span><span class=line><span class=cl>model.save_pretrained<span class=o>(</span><span class=s2>&#34;qwen3_lora_model&#34;</span><span class=o>)</span>
+</span></span><span class=line><span class=cl>tokenizer.save_pretrained<span class=o>(</span><span class=s2>&#34;qwen3_lora_model&#34;</span><span class=o>)</span>
+</span></span></code></pre></div><p>会存下以下文件：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=o>(</span><span class=s1>&#39;qwen3_lora_model/tokenizer_config.json&#39;</span>,
+</span></span><span class=line><span class=cl> <span class=s1>&#39;qwen3_lora_model/special_tokens_map.json&#39;</span>,
+</span></span><span class=line><span class=cl> <span class=s1>&#39;qwen3_lora_model/vocab.json&#39;</span>,
+</span></span><span class=line><span class=cl> <span class=s1>&#39;qwen3_lora_model/merges.txt&#39;</span>,
+</span></span><span class=line><span class=cl> <span class=s1>&#39;qwen3_lora_model/added_tokens.json&#39;</span>,
+</span></span><span class=line><span class=cl> <span class=s1>&#39;qwen3_lora_model/tokenizer.json&#39;</span><span class=o>)</span>
+</span></span></code></pre></div><p>加载训练成果</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>from unsloth import FastLanguageModel
+</span></span><span class=line><span class=cl>finetuned_model, <span class=nv>finetuned_tokenizer</span> <span class=o>=</span> FastLanguageModel.from_pretrained<span class=o>(</span>
+</span></span><span class=line><span class=cl>        <span class=nv>model_name</span> <span class=o>=</span> <span class=s2>&#34;qwen3_lora_model&#34;</span>,
+</span></span><span class=line><span class=cl>        <span class=nv>max_seq_length</span> <span class=o>=</span> 2048,
+</span></span><span class=line><span class=cl>        <span class=nv>load_in_4bit</span> <span class=o>=</span> True,
+</span></span><span class=line><span class=cl>    <span class=o>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 测一把</span>
+</span></span><span class=line><span class=cl><span class=nv>messages</span> <span class=o>=</span> <span class=o>[{</span><span class=s2>&#34;role&#34;</span> : <span class=s2>&#34;user&#34;</span>, <span class=s2>&#34;content&#34;</span> : <span class=s2>&#34;Solve (x^2 + 5x + 6 = 0).&#34;</span><span class=o>}]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>text</span> <span class=o>=</span> finetuned_tokenizer.apply_chat_template<span class=o>(</span>
+</span></span><span class=line><span class=cl>    messages,
+</span></span><span class=line><span class=cl>    <span class=nv>tokenize</span> <span class=o>=</span> False,
+</span></span><span class=line><span class=cl>    <span class=nv>add_generation_prompt</span> <span class=o>=</span> True,
+</span></span><span class=line><span class=cl>    <span class=nv>enable_thinking</span> <span class=o>=</span> False,
+</span></span><span class=line><span class=cl><span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>from transformers import TextStreamer
+</span></span><span class=line><span class=cl><span class=nv>_</span> <span class=o>=</span> finetuned_model.generate<span class=o>(</span>
+</span></span><span class=line><span class=cl>    **finetuned_tokenizer<span class=o>(</span>text, <span class=nv>return_tensors</span> <span class=o>=</span> <span class=s2>&#34;pt&#34;</span><span class=o>)</span>.to<span class=o>(</span><span class=s2>&#34;cuda&#34;</span><span class=o>)</span>,
+</span></span><span class=line><span class=cl>    <span class=nv>max_new_tokens</span> <span class=o>=</span> 2048,
+</span></span><span class=line><span class=cl>    <span class=nv>temperature</span> <span class=o>=</span> 0.7, <span class=nv>top_p</span> <span class=o>=</span> 0.8, <span class=nv>top_k</span> <span class=o>=</span> 20,
+</span></span><span class=line><span class=cl>    <span class=nv>streamer</span> <span class=o>=</span> TextStreamer<span class=o>(</span>finetuned_tokenizer, <span class=nv>skip_prompt</span> <span class=o>=</span> True<span class=o>)</span>,
+</span></span><span class=line><span class=cl><span class=o>)</span>
+</span></span></code></pre></div><h3 id=弄完收工>弄完收工！！！<a hidden class=anchor aria-hidden=true href=#弄完收工>#</a></h3></div><footer class=post-footer><ul class=post-tags></ul><nav class=paginav><a class=next href=https://rendoumi.com/posts/20260517-huggingface/><span class=title>下一页 »</span><br><span>huggingface.co得模型文件及其dataset的下载管理</span></a></nav></footer><div id=comments></div><script src=https://cwd.js.org/cwd.js></script><script>const comments=new CWDComments({el:"#comments",apiBaseUrl:"https://cwd.rendoumi.qzz.io"});comments.mount()</script></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script></body></html>
