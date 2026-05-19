@@ -12,8 +12,79 @@
     <generator>Hugo -- 0.147.3</generator>
     <language>zh</language>
     <copyright>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Mon, 18 May 2026 09:00:00 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 19 May 2026 09:00:00 +0800</lastBuildDate>
     <atom:link href="https://rendoumi.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>一步一步手撕大模型</title>
+      <link>https://rendoumi.com/posts/20260519-gpt2_step_by_step/</link>
+      <pubDate>Tue, 19 May 2026 09:00:00 +0800</pubDate>
+      <guid>https://rendoumi.com/posts/20260519-gpt2_step_by_step/</guid>
+      <description>&lt;p&gt;上星期花时间翻译了一篇： &lt;a href=&#34;https://github.com/raiyanyahya/how-to-train-your-gpt&#34;&gt;https://github.com/raiyanyahya/how-to-train-your-gpt&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;写的非常好，用简单明了的方式讲解了GPT2是怎么训练出来的&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://github.com/zhangrr/how-to-train-your-gpt/&#34;&gt;https://github.com/zhangrr/how-to-train-your-gpt/&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;-这是什么&#34;&gt;📖 这是什么？&lt;/h2&gt;
+&lt;p&gt;这是一本 &lt;strong&gt;12 章、3,900+ 行的交互式教科书&lt;/strong&gt;，手把手教你从零开始构建、训练和运行一个现代语言模型——和 ChatGPT、Claude、LLaMA、Mistral 背后的架构属于同一家族。&lt;/p&gt;
+&lt;p&gt;你不只是&amp;quot;读&amp;quot;关于 Transformer 的内容，而是 &lt;strong&gt;亲手写下每一行代码&lt;/strong&gt;：分词器（Tokenizer）、嵌入（Embedding）、注意力、训练循环、推理引擎。每一行都有注释，解释它 &lt;strong&gt;做了什么&lt;/strong&gt; 以及 &lt;strong&gt;为什么这么做&lt;/strong&gt;。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;-为什么要做这个&#34;&gt;🤔 为什么要做这个&lt;/h2&gt;
+&lt;p&gt;大多数 ML 教程都逃不出两个坑：&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;❌ 太浅&lt;/th&gt;
+          &lt;th&gt;❌ 太学术&lt;/th&gt;
+          &lt;th&gt;✅ 本指南&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;code&gt;model = GPT().fit(data)&lt;/code&gt;&lt;/td&gt;
+          &lt;td&gt;40 页论文，密密麻麻的数学符号&lt;/td&gt;
+          &lt;td&gt;五岁小孩的类比 → 完整可运行代码&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;你只学会了调 API&lt;/td&gt;
+          &lt;td&gt;默认你有 ML 博士学位&lt;/td&gt;
+          &lt;td&gt;零 ML 经验也能上手&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;完全不了解内部原理&lt;/td&gt;
+          &lt;td&gt;没有实际示例&lt;/td&gt;
+          &lt;td&gt;每一行都标注了&amp;quot;做什么&amp;quot;和&amp;quot;为什么&amp;quot;&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;strong&gt;目标：&lt;/strong&gt; 学完之后，你不只是知道注意力&amp;quot;有用&amp;quot;。你会理解 &lt;code&gt;1/√d_k&lt;/code&gt; 背后的方差论证、RoPE 如何通过旋转捕获相对位置、为什么 pre-norm 在深层网络中优于 post-norm，以及反向传播时每个梯度的流向。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;-适合谁&#34;&gt;👥 适合谁？&lt;/h2&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;🧑‍💻 你是……&lt;/th&gt;
+          &lt;th&gt;📚 你需要……&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;一个好奇 ChatGPT 到底怎么工作的 Python 开发者&lt;/td&gt;
+          &lt;td&gt;基础 Python（函数、类、列表）。不需要 ML 经验&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;一个想深入理解 Transformer 的学生&lt;/td&gt;
+          &lt;td&gt;愿意阅读约 3,500 行带注释代码的耐心&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;一个在评估 LLM 架构的工程师&lt;/td&gt;
+          &lt;td&gt;理解各种技术权衡（RoPE vs 学习式位置编码、RMSNorm vs LayerNorm）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;一个在其他教程里被&amp;quot;注意力&amp;quot;搞晕的人&lt;/td&gt;
+          &lt;td&gt;派对类比 + 用真实数字走一遍的完整示例&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;strong&gt;🔧 前置要求：&lt;/strong&gt; Python 基础（变量、函数、类、&lt;code&gt;pip install&lt;/code&gt;）。就这些。不需要微积分、线性代数或 PyTorch 经验——我们边做边教。&lt;/p&gt;</description>
+    </item>
     <item>
       <title>一步一步用unsloth LoRA微调Qwen3</title>
       <link>https://rendoumi.com/posts/20260518-distill_qwen_unsloth/</link>
