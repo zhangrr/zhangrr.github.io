@@ -12,8 +12,53 @@
     <generator>Hugo -- 0.147.3</generator>
     <language>zh</language>
     <copyright>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Fri, 22 May 2026 09:00:00 +0800</lastBuildDate>
+    <lastBuildDate>Wed, 03 Jun 2026 09:00:00 +0800</lastBuildDate>
     <atom:link href="https://rendoumi.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>私有仓库Nexus的安装和配置</title>
+      <link>https://rendoumi.com/posts/20260603-nexus_repos/</link>
+      <pubDate>Wed, 03 Jun 2026 09:00:00 +0800</pubDate>
+      <guid>https://rendoumi.com/posts/20260603-nexus_repos/</guid>
+      <description>&lt;p&gt;Nexus 的安装其实只要一分钟，但是配置确实要费点功夫，本文重点就是如何配置的：&lt;/p&gt;
+&lt;h4 id=&#34;一安装&#34;&gt;一、安装：&lt;/h4&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# nexus的启动用户居然是200:200&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;mkdir -p /app/nexus/data
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;chown -R 200:200 /app/nexus/data
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; /app/nexus
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;cat &amp;gt; docker-compose.yaml &lt;span class=&#34;s&#34;&gt;&amp;lt;&amp;lt;EOF
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;s&#34;&gt;services:
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;s&#34;&gt;  nexus:
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;s&#34;&gt;    image: sonatype/nexus3:latest
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;s&#34;&gt;    container_name: nexus
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;s&#34;&gt;    restart: always
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;s&#34;&gt;    ports:
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;s&#34;&gt;      - &amp;#34;8081:8081&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;s&#34;&gt;    volumes:
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;s&#34;&gt;      - /app/nexus/data:/nexus-data
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;s&#34;&gt;EOF&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;docker compose up -d
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 拿到admin管理员密码&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;docker &lt;span class=&#34;nb&#34;&gt;exec&lt;/span&gt; -it nexus cat /nexus-data/admin.password
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h4 id=&#34;二配置仓库&#34;&gt;二、配置仓库：&lt;/h4&gt;
+&lt;p&gt;首先需要了解一个概念，hosted、proxy、group，仓有三个类型：&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20260603112412546&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20260603-nexus_repos/image-20260603112412546.png&#34;&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;hosted 这里是私仓，自己产生的包和library可以放进去&lt;/li&gt;
+&lt;li&gt;proxy 这是指代理网络上公开的仓库&lt;/li&gt;
+&lt;li&gt;gropu 这里只把上面两个合并起来，暴漏出去&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;这样就完美了，既可以放私有的包，还能代理公共的包，最后合并成组后还能起个好记的名字暴露出去&lt;/p&gt;
+&lt;p&gt;那我们要建立一个pypi的仓，顺手就建立三个：&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20260603112801491&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20260603-nexus_repos/image-20260603112801491.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;其中pypi-proxy代理的公仓地址：https://pypi.org/&lt;/p&gt;
+&lt;p&gt;那就欧克了。&lt;/p&gt;
+&lt;p&gt;下一步必须进行权限管控：&lt;/p&gt;
+&lt;h4 id=&#34;首先加role&#34;&gt;首先加Role&lt;/h4&gt;
+&lt;p&gt;Role ID: private-repo-developer&lt;/p&gt;</description>
+    </item>
     <item>
       <title>蒸馏翻译模型的详细过程</title>
       <link>https://rendoumi.com/posts/20260522-distill_oput_mt_en_zh/</link>
@@ -38,7 +83,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;-rw-rw-r--  &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; ubuntu ubuntu 778K Apr &lt;span class=&#34;m&#34;&gt;21&lt;/span&gt; 05:27 target.spm
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;-rw-rw-r--  &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; ubuntu ubuntu  &lt;span class=&#34;m&#34;&gt;819&lt;/span&gt; Apr &lt;span class=&#34;m&#34;&gt;21&lt;/span&gt; 05:27 tokenizer_config.json
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;-rw-rw-r--  &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt; ubuntu ubuntu 828K Apr &lt;span class=&#34;m&#34;&gt;21&lt;/span&gt; 05:27 vocab.json
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;整个蒸馏的过程和代码都放到github了：https://github.com/zhangrr/distill-opus-mt-en-zh&lt;/p&gt;</description>
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;整个蒸馏的过程和代码都放到github了：&lt;a href=&#34;https://github.com/zhangrr/distill-opus-mt-en-zh&#34;&gt;https://github.com/zhangrr/distill-opus-mt-en-zh&lt;/a&gt;&lt;/p&gt;</description>
     </item>
     <item>
       <title>手撕大模型GPT2</title>
@@ -47,7 +92,9 @@
       <guid>https://rendoumi.com/posts/20260519-gpt2_step_by_step/</guid>
       <description>&lt;p&gt;上星期花时间翻译了一篇： &lt;a href=&#34;https://github.com/raiyanyahya/how-to-train-your-gpt&#34;&gt;https://github.com/raiyanyahya/how-to-train-your-gpt&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;写的非常好，用简单明了的方式讲解了GPT2是怎么训练出来的&lt;/p&gt;
-&lt;p&gt;译文：https://github.com/zhangrr/how-to-train-your-gpt/&lt;/p&gt;
+&lt;p&gt;译文：&lt;a href=&#34;https://github.com/zhangrr/how-to-train-your-gpt/&#34;&gt;https://github.com/zhangrr/how-to-train-your-gpt/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;有个问题，就是原文其中有些类比方式需要修改，更适合工程师，另外还有一些重要的细节也需要补充资料。&lt;/p&gt;
+&lt;p&gt;所以补充一些东西，也尽量保留原版的味道。&lt;/p&gt;
 &lt;h2 id=&#34;-这是什么&#34;&gt;📖 这是什么？&lt;/h2&gt;
 &lt;p&gt;这是一本 &lt;strong&gt;12 章、3,900+ 行的交互式教科书&lt;/strong&gt;，手把手教你从零开始构建、训练和运行一个现代语言模型——和 ChatGPT、Claude、LLaMA、Mistral 背后的架构属于同一家族。&lt;/p&gt;
 &lt;p&gt;你不只是&amp;quot;读&amp;quot;关于 Transformer 的内容，而是 &lt;strong&gt;亲手写下每一行代码&lt;/strong&gt;：分词器（Tokenizer）、嵌入（Embedding）、注意力、训练循环、推理引擎。每一行都有注释，解释它 &lt;strong&gt;做了什么&lt;/strong&gt; 以及 &lt;strong&gt;为什么这么做&lt;/strong&gt;。&lt;/p&gt;
