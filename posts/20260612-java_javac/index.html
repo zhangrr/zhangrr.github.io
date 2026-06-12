@@ -1,0 +1,190 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3988508441804851" crossorigin=anonymous></script><title>Java古早程序class源代码的修改 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='公司的古早java程序，上传视频的时候有50M的限制，结果前端开发新功能，就不行了
+必须解开这个限制，首先从链路开始，先到Nginx，放开500M
+然后还是报错，看到是后端tomcat的报错
+先修改tomcat的xml，放大到500M
+    <!-- 文件上传 start 配置文件上传，如果没有使用文件上传可以不用配置，当然如果不配，那么配置文件中也不必引入上传组件包 -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- 默认编码 -->
+        <property name="defaultEncoding" value="UTF-8"/>
+        <!-- 文件大小最大值 上传文件大小限制为500M，50*1024*1024 -->
+        <property name="maxUploadSize" value="524288000"/>
+        <!-- 内存中的最大值 -->
+        <property name="maxInMemorySize" value="4096"/>
+    </bean>
+    <!--文件上传 end-->
+重启tomcat，依然报错！
+不过这次不是tomcat报错，而是程序内提示报错，这下拉了，得改代码
+程序是2019年的，人早找不到了
+完犊子，查查class吧，结果grep到是一个FileUploadRule.class做了限制
+只能反编译class再放回去吧
+mkdir test
+cd test
+
+# 下载反编译jar包
+wget https://www.benf.org/other/cfr/cfr-0.152.jar
+cp /xxx/FileUploadRule.class .
+
+java -jar cfr-0.152.jar FileUploadRule.class
+...
+public class FileUploadRule
+implements Rule {
+    public EvaluateResult evaluate(Object file) {
+        EvaluateResult result = new EvaluateResult();
+        if (file != null && file instanceof FileEntity) {
+            FileEntity fe = (FileEntity)file;
+            if ("UNION".equals(fe.getPlatformId()) && "VIDEO".equals(fe.getSourceEntityType())) {
+                if (fe.getFileLength() > 0x3200000L) {
+                    result.addViolation("\u89c6\u9891\u6587\u4ef6\u4e0d\u80fd\u5927\u4e8e50M");
+                }
+            } else if (fe.getFileLength() > 0xA00000L) {
+                result.addViolation("\u666e\u901a\u6587\u4ef6\u4e0d\u80fd\u5927\u4e8e10M");
+            }
+        }
+        return result;
+    }
+
+    public boolean suitsFor(Object obj) {
+        return FileEntity.class.isInstance(obj);
+    }
+}
+
+唉，还得算：
+0x3200000L = 0x3200000 换算成十进制：3 * 16^6 + 2 * 16^5 + 0*... 但更简单：0x3200000 = 3*16^6 + 2*16^5 = 3*16777216 + 2*1048576 = 50331648 + 2097152 = 52428800 字节。52428800 字节 = 50 MB (因为 1 MB = 1024*1024 = 1048576, 52428800 / 1048576 = 50)。所以 0x3200000L = 50MB。
+
+0xA00000L = 0xA00000 = 10 * 16^5 = 10 * 1048576 = 10485760 字节 = 10 MB (因为 10485760 / 1048576 = 10)。所以 10MB。
+
+改成500M：
+500 MB = 500 × 1024 × 1024 = 524,288,000 字节
+524,288,000 转换为十六进制 = 0x1F400000
+
+编译回去，注意jar包和其它都要放在cp路径里
+javac -cp "WEB-INF/lib/*:WEB-INF/classes" -d . FileUploadRule.java
+最后把class替换回去，重启就解决了。'><meta name=author content="八戒"><link rel=canonical href=https://rendoumi.com/posts/20260612-java_javac/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.5d8a858b4ad07d913988e10d3c3dbc8c171f45316a396de8a60d67f44840812d.css integrity="sha256-XYqFi0rQfZE5iOENPD28jBcfRTFqOW3opg1n9EhAgS0=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/%3Clink%20/%20abs%20url%3E><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20260612-java_javac/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20260612-java_javac/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="Java古早程序class源代码的修改"><meta property="og:description" content='公司的古早java程序，上传视频的时候有50M的限制，结果前端开发新功能，就不行了
+必须解开这个限制，首先从链路开始，先到Nginx，放开500M
+然后还是报错，看到是后端tomcat的报错
+先修改tomcat的xml，放大到500M
+<!-- 文件上传 start 配置文件上传，如果没有使用文件上传可以不用配置，当然如果不配，那么配置文件中也不必引入上传组件包 --> <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"> <!-- 默认编码 --> <property name="defaultEncoding" value="UTF-8"/> <!-- 文件大小最大值 上传文件大小限制为500M，50*1024*1024 --> <property name="maxUploadSize" value="524288000"/> <!-- 内存中的最大值 --> <property name="maxInMemorySize" value="4096"/> </bean> <!--文件上传 end--> 重启tomcat，依然报错！
+不过这次不是tomcat报错，而是程序内提示报错，这下拉了，得改代码
+程序是2019年的，人早找不到了
+完犊子，查查class吧，结果grep到是一个FileUploadRule.class做了限制
+只能反编译class再放回去吧
+mkdir test cd test # 下载反编译jar包 wget https://www.benf.org/other/cfr/cfr-0.152.jar cp /xxx/FileUploadRule.class . java -jar cfr-0.152.jar FileUploadRule.class ... public class FileUploadRule implements Rule { public EvaluateResult evaluate(Object file) { EvaluateResult result = new EvaluateResult(); if (file != null && file instanceof FileEntity) { FileEntity fe = (FileEntity)file; if ("UNION".equals(fe.getPlatformId()) && "VIDEO".equals(fe.getSourceEntityType())) { if (fe.getFileLength() > 0x3200000L) { result.addViolation("\u89c6\u9891\u6587\u4ef6\u4e0d\u80fd\u5927\u4e8e50M"); } } else if (fe.getFileLength() > 0xA00000L) { result.addViolation("\u666e\u901a\u6587\u4ef6\u4e0d\u80fd\u5927\u4e8e10M"); } } return result; } public boolean suitsFor(Object obj) { return FileEntity.class.isInstance(obj); } } 唉，还得算： 0x3200000L = 0x3200000 换算成十进制：3 * 16^6 + 2 * 16^5 + 0*... 但更简单：0x3200000 = 3*16^6 + 2*16^5 = 3*16777216 + 2*1048576 = 50331648 + 2097152 = 52428800 字节。52428800 字节 = 50 MB (因为 1 MB = 1024*1024 = 1048576, 52428800 / 1048576 = 50)。所以 0x3200000L = 50MB。 0xA00000L = 0xA00000 = 10 * 16^5 = 10 * 1048576 = 10485760 字节 = 10 MB (因为 10485760 / 1048576 = 10)。所以 10MB。 改成500M： 500 MB = 500 × 1024 × 1024 = 524,288,000 字节 524,288,000 转换为十六进制 = 0x1F400000 编译回去，注意jar包和其它都要放在cp路径里 javac -cp "WEB-INF/lib/*:WEB-INF/classes" -d . FileUploadRule.java 最后把class替换回去，重启就解决了。'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2026-06-12T09:00:00+08:00"><meta property="article:modified_time" content="2026-06-12T09:00:00+08:00"><meta property="og:image" content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:title content="Java古早程序class源代码的修改"><meta name=twitter:description content='公司的古早java程序，上传视频的时候有50M的限制，结果前端开发新功能，就不行了
+必须解开这个限制，首先从链路开始，先到Nginx，放开500M
+然后还是报错，看到是后端tomcat的报错
+先修改tomcat的xml，放大到500M
+    <!-- 文件上传 start 配置文件上传，如果没有使用文件上传可以不用配置，当然如果不配，那么配置文件中也不必引入上传组件包 -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- 默认编码 -->
+        <property name="defaultEncoding" value="UTF-8"/>
+        <!-- 文件大小最大值 上传文件大小限制为500M，50*1024*1024 -->
+        <property name="maxUploadSize" value="524288000"/>
+        <!-- 内存中的最大值 -->
+        <property name="maxInMemorySize" value="4096"/>
+    </bean>
+    <!--文件上传 end-->
+重启tomcat，依然报错！
+不过这次不是tomcat报错，而是程序内提示报错，这下拉了，得改代码
+程序是2019年的，人早找不到了
+完犊子，查查class吧，结果grep到是一个FileUploadRule.class做了限制
+只能反编译class再放回去吧
+mkdir test
+cd test
+
+# 下载反编译jar包
+wget https://www.benf.org/other/cfr/cfr-0.152.jar
+cp /xxx/FileUploadRule.class .
+
+java -jar cfr-0.152.jar FileUploadRule.class
+...
+public class FileUploadRule
+implements Rule {
+    public EvaluateResult evaluate(Object file) {
+        EvaluateResult result = new EvaluateResult();
+        if (file != null && file instanceof FileEntity) {
+            FileEntity fe = (FileEntity)file;
+            if ("UNION".equals(fe.getPlatformId()) && "VIDEO".equals(fe.getSourceEntityType())) {
+                if (fe.getFileLength() > 0x3200000L) {
+                    result.addViolation("\u89c6\u9891\u6587\u4ef6\u4e0d\u80fd\u5927\u4e8e50M");
+                }
+            } else if (fe.getFileLength() > 0xA00000L) {
+                result.addViolation("\u666e\u901a\u6587\u4ef6\u4e0d\u80fd\u5927\u4e8e10M");
+            }
+        }
+        return result;
+    }
+
+    public boolean suitsFor(Object obj) {
+        return FileEntity.class.isInstance(obj);
+    }
+}
+
+唉，还得算：
+0x3200000L = 0x3200000 换算成十进制：3 * 16^6 + 2 * 16^5 + 0*... 但更简单：0x3200000 = 3*16^6 + 2*16^5 = 3*16777216 + 2*1048576 = 50331648 + 2097152 = 52428800 字节。52428800 字节 = 50 MB (因为 1 MB = 1024*1024 = 1048576, 52428800 / 1048576 = 50)。所以 0x3200000L = 50MB。
+
+0xA00000L = 0xA00000 = 10 * 16^5 = 10 * 1048576 = 10485760 字节 = 10 MB (因为 10485760 / 1048576 = 10)。所以 10MB。
+
+改成500M：
+500 MB = 500 × 1024 × 1024 = 524,288,000 字节
+524,288,000 转换为十六进制 = 0x1F400000
+
+编译回去，注意jar包和其它都要放在cp路径里
+javac -cp "WEB-INF/lib/*:WEB-INF/classes" -d . FileUploadRule.java
+最后把class替换回去，重启就解决了。'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"Java古早程序class源代码的修改","item":"https://rendoumi.com/posts/20260612-java_javac/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Java古早程序class源代码的修改","name":"Java古早程序class源代码的修改","description":"公司的古早java程序，上传视频的时候有50M的限制，结果前端开发新功能，就不行了\n必须解开这个限制，首先从链路开始，先到Nginx，放开500M\n然后还是报错，看到是后端tomcat的报错\n先修改tomcat的xml，放大到500M\n\u0026lt;!-- 文件上传 start 配置文件上传，如果没有使用文件上传可以不用配置，当然如果不配，那么配置文件中也不必引入上传组件包 --\u0026gt; \u0026lt;bean id=\u0026#34;multipartResolver\u0026#34; class=\u0026#34;org.springframework.web.multipart.commons.CommonsMultipartResolver\u0026#34;\u0026gt; \u0026lt;!-- 默认编码 --\u0026gt; \u0026lt;property name=\u0026#34;defaultEncoding\u0026#34; value=\u0026#34;UTF-8\u0026#34;/\u0026gt; \u0026lt;!-- 文件大小最大值 上传文件大小限制为500M，50*1024*1024 --\u0026gt; \u0026lt;property name=\u0026#34;maxUploadSize\u0026#34; value=\u0026#34;524288000\u0026#34;/\u0026gt; \u0026lt;!-- 内存中的最大值 --\u0026gt; \u0026lt;property name=\u0026#34;maxInMemorySize\u0026#34; value=\u0026#34;4096\u0026#34;/\u0026gt; \u0026lt;/bean\u0026gt; \u0026lt;!--文件上传 end--\u0026gt; 重启tomcat，依然报错！\n不过这次不是tomcat报错，而是程序内提示报错，这下拉了，得改代码\n程序是2019年的，人早找不到了\n完犊子，查查class吧，结果grep到是一个FileUploadRule.class做了限制\n只能反编译class再放回去吧\nmkdir test cd test # 下载反编译jar包 wget https://www.benf.org/other/cfr/cfr-0.152.jar cp /xxx/FileUploadRule.class . java -jar cfr-0.152.jar FileUploadRule.class ... public class FileUploadRule implements Rule { public EvaluateResult evaluate(Object file) { EvaluateResult result = new EvaluateResult(); if (file != null \u0026amp;\u0026amp; file instanceof FileEntity) { FileEntity fe = (FileEntity)file; if (\u0026#34;UNION\u0026#34;.equals(fe.getPlatformId()) \u0026amp;\u0026amp; \u0026#34;VIDEO\u0026#34;.equals(fe.getSourceEntityType())) { if (fe.getFileLength() \u0026gt; 0x3200000L) { result.addViolation(\u0026#34;\\u89c6\\u9891\\u6587\\u4ef6\\u4e0d\\u80fd\\u5927\\u4e8e50M\u0026#34;); } } else if (fe.getFileLength() \u0026gt; 0xA00000L) { result.addViolation(\u0026#34;\\u666e\\u901a\\u6587\\u4ef6\\u4e0d\\u80fd\\u5927\\u4e8e10M\u0026#34;); } } return result; } public boolean suitsFor(Object obj) { return FileEntity.class.isInstance(obj); } } 唉，还得算： 0x3200000L = 0x3200000 换算成十进制：3 * 16^6 + 2 * 16^5 + 0*... 但更简单：0x3200000 = 3*16^6 + 2*16^5 = 3*16777216 + 2*1048576 = 50331648 + 2097152 = 52428800 字节。52428800 字节 = 50 MB (因为 1 MB = 1024*1024 = 1048576, 52428800 / 1048576 = 50)。所以 0x3200000L = 50MB。 0xA00000L = 0xA00000 = 10 * 16^5 = 10 * 1048576 = 10485760 字节 = 10 MB (因为 10485760 / 1048576 = 10)。所以 10MB。 改成500M： 500 MB = 500 × 1024 × 1024 = 524,288,000 字节 524,288,000 转换为十六进制 = 0x1F400000 编译回去，注意jar包和其它都要放在cp路径里 javac -cp \u0026#34;WEB-INF/lib/*:WEB-INF/classes\u0026#34; -d . FileUploadRule.java 最后把class替换回去，重启就解决了。\n","keywords":[],"articleBody":"公司的古早java程序，上传视频的时候有50M的限制，结果前端开发新功能，就不行了\n必须解开这个限制，首先从链路开始，先到Nginx，放开500M\n然后还是报错，看到是后端tomcat的报错\n先修改tomcat的xml，放大到500M\n","wordCount":"214","inLanguage":"zh","image":"https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E","datePublished":"2026-06-12T09:00:00+08:00","dateModified":"2026-06-12T09:00:00+08:00","author":{"@type":"Person","name":"八戒"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20260612-java_javac/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="Home (Alt + H)"><img src=https://rendoumi.com/apple-touch-icon.png alt aria-label=logo height=35>Home</a><div class=logo-switches></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><div class=breadcrumbs><a href=https://rendoumi.com/>主页</a>&nbsp;»&nbsp;<a href=https://rendoumi.com/posts/>所有文章</a></div><h1 class="post-title entry-hint-parent">Java古早程序class源代码的修改
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2026-06-12 09:00:00 +0800 CST'>2026年06月12日</span>&nbsp;·&nbsp;<span>2 分钟</span>&nbsp;·&nbsp;<span>214 字</span>&nbsp;·&nbsp;<span>八戒</span></div></header><div class=post-content><p>公司的古早java程序，上传视频的时候有50M的限制，结果前端开发新功能，就不行了</p><p>必须解开这个限制，首先从链路开始，先到Nginx，放开500M</p><p>然后还是报错，看到是后端tomcat的报错</p><p>先修改tomcat的xml，放大到500M</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>    &lt;!-- 文件上传 start 配置文件上传，如果没有使用文件上传可以不用配置，当然如果不配，那么配置文件中也不必引入上传组件包 --&gt;
+</span></span><span class=line><span class=cl>    &lt;bean <span class=nv>id</span><span class=o>=</span><span class=s2>&#34;multipartResolver&#34;</span> <span class=nv>class</span><span class=o>=</span><span class=s2>&#34;org.springframework.web.multipart.commons.CommonsMultipartResolver&#34;</span>&gt;
+</span></span><span class=line><span class=cl>        &lt;!-- 默认编码 --&gt;
+</span></span><span class=line><span class=cl>        &lt;property <span class=nv>name</span><span class=o>=</span><span class=s2>&#34;defaultEncoding&#34;</span> <span class=nv>value</span><span class=o>=</span><span class=s2>&#34;UTF-8&#34;</span>/&gt;
+</span></span><span class=line><span class=cl>        &lt;!-- 文件大小最大值 上传文件大小限制为500M，50*1024*1024 --&gt;
+</span></span><span class=line><span class=cl>        &lt;property <span class=nv>name</span><span class=o>=</span><span class=s2>&#34;maxUploadSize&#34;</span> <span class=nv>value</span><span class=o>=</span><span class=s2>&#34;524288000&#34;</span>/&gt;
+</span></span><span class=line><span class=cl>        &lt;!-- 内存中的最大值 --&gt;
+</span></span><span class=line><span class=cl>        &lt;property <span class=nv>name</span><span class=o>=</span><span class=s2>&#34;maxInMemorySize&#34;</span> <span class=nv>value</span><span class=o>=</span><span class=s2>&#34;4096&#34;</span>/&gt;
+</span></span><span class=line><span class=cl>    &lt;/bean&gt;
+</span></span><span class=line><span class=cl>    &lt;!--文件上传 end--&gt;
+</span></span></code></pre></div><p>重启tomcat，依然报错！</p><p>不过这次不是tomcat报错，而是程序内提示报错，这下拉了，得改代码</p><p>程序是2019年的，人早找不到了</p><p>完犊子，查查class吧，结果grep到是一个FileUploadRule.class做了限制</p><p>只能反编译class再放回去吧</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>mkdir <span class=nb>test</span>
+</span></span><span class=line><span class=cl><span class=nb>cd</span> <span class=nb>test</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 下载反编译jar包</span>
+</span></span><span class=line><span class=cl>wget https://www.benf.org/other/cfr/cfr-0.152.jar
+</span></span><span class=line><span class=cl>cp /xxx/FileUploadRule.class .
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>java -jar cfr-0.152.jar FileUploadRule.class
+</span></span><span class=line><span class=cl>...
+</span></span><span class=line><span class=cl>public class FileUploadRule
+</span></span><span class=line><span class=cl>implements Rule <span class=o>{</span>
+</span></span><span class=line><span class=cl>    public EvaluateResult evaluate<span class=o>(</span>Object file<span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>        EvaluateResult <span class=nv>result</span> <span class=o>=</span> new EvaluateResult<span class=o>()</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=o>(</span>file !<span class=o>=</span> null <span class=o>&amp;&amp;</span> file instanceof FileEntity<span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>            FileEntity <span class=nv>fe</span> <span class=o>=</span> <span class=o>(</span>FileEntity<span class=o>)</span>file<span class=p>;</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=o>(</span><span class=s2>&#34;UNION&#34;</span>.equals<span class=o>(</span>fe.getPlatformId<span class=o>())</span> <span class=o>&amp;&amp;</span> <span class=s2>&#34;VIDEO&#34;</span>.equals<span class=o>(</span>fe.getSourceEntityType<span class=o>()))</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>                <span class=k>if</span> <span class=o>(</span>fe.getFileLength<span class=o>()</span> &gt; 0x3200000L<span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>                    result.addViolation<span class=o>(</span><span class=s2>&#34;\u89c6\u9891\u6587\u4ef6\u4e0d\u80fd\u5927\u4e8e50M&#34;</span><span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>                <span class=o>}</span>
+</span></span><span class=line><span class=cl>            <span class=o>}</span> <span class=k>else</span> <span class=k>if</span> <span class=o>(</span>fe.getFileLength<span class=o>()</span> &gt; 0xA00000L<span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>                result.addViolation<span class=o>(</span><span class=s2>&#34;\u666e\u901a\u6587\u4ef6\u4e0d\u80fd\u5927\u4e8e10M&#34;</span><span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>            <span class=o>}</span>
+</span></span><span class=line><span class=cl>        <span class=o>}</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> result<span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    public boolean suitsFor<span class=o>(</span>Object obj<span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> FileEntity.class.isInstance<span class=o>(</span>obj<span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>唉，还得算：
+</span></span><span class=line><span class=cl><span class=nv>0x3200000L</span> <span class=o>=</span> 0x3200000 换算成十进制：3 * 16^6 + <span class=m>2</span> * 16^5 + 0*... 但更简单：0x3200000 <span class=o>=</span> 3*16^6 + 2*16^5 <span class=o>=</span> 3*16777216 + 2*1048576 <span class=o>=</span> <span class=m>50331648</span> + <span class=nv>2097152</span> <span class=o>=</span> <span class=m>52428800</span> 字节。52428800 <span class=nv>字节</span> <span class=o>=</span> <span class=m>50</span> MB <span class=o>(</span>因为 <span class=m>1</span> <span class=nv>MB</span> <span class=o>=</span> 1024*1024 <span class=o>=</span> 1048576, <span class=m>52428800</span> / <span class=nv>1048576</span> <span class=o>=</span> 50<span class=o>)</span>。所以 <span class=nv>0x3200000L</span> <span class=o>=</span> 50MB。
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>0xA00000L</span> <span class=o>=</span> <span class=nv>0xA00000</span> <span class=o>=</span> <span class=m>10</span> * 16^5 <span class=o>=</span> <span class=m>10</span> * <span class=nv>1048576</span> <span class=o>=</span> <span class=m>10485760</span> <span class=nv>字节</span> <span class=o>=</span> <span class=m>10</span> MB <span class=o>(</span>因为 <span class=m>10485760</span> / <span class=nv>1048576</span> <span class=o>=</span> 10<span class=o>)</span>。所以 10MB。
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>改成500M：
+</span></span><span class=line><span class=cl><span class=m>500</span> <span class=nv>MB</span> <span class=o>=</span> <span class=m>500</span> × <span class=m>1024</span> × <span class=nv>1024</span> <span class=o>=</span> 524,288,000 字节
+</span></span><span class=line><span class=cl>524,288,000 <span class=nv>转换为十六进制</span> <span class=o>=</span> 0x1F400000
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>编译回去，注意jar包和其它都要放在cp路径里
+</span></span><span class=line><span class=cl>javac -cp <span class=s2>&#34;WEB-INF/lib/*:WEB-INF/classes&#34;</span> -d . FileUploadRule.java
+</span></span></code></pre></div><p>最后把class替换回去，重启就解决了。</p></div><footer class=post-footer><ul class=post-tags></ul><nav class=paginav><a class=next href=https://rendoumi.com/posts/20260609-cloudflare_ip/><span class=title>下一页 »</span><br><span>Cloudflare优选IP</span></a></nav></footer><div id=comments></div><script src=https://cwd.js.org/cwd.js></script><script>const comments=new CWDComments({el:"#comments",apiBaseUrl:"https://cwd.rendoumi.qzz.io"});comments.mount()</script></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script></body></html>
