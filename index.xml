@@ -12,8 +12,41 @@
     <generator>Hugo -- 0.147.3</generator>
     <language>zh</language>
     <copyright>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Fri, 12 Jun 2026 09:00:00 +0800</lastBuildDate>
+    <lastBuildDate>Fri, 12 Jun 2026 09:00:01 +0800</lastBuildDate>
     <atom:link href="https://rendoumi.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>gitlab的ci</title>
+      <link>https://rendoumi.com/posts/20260612-gitlab_ci/</link>
+      <pubDate>Fri, 12 Jun 2026 09:00:01 +0800</pubDate>
+      <guid>https://rendoumi.com/posts/20260612-gitlab_ci/</guid>
+      <description>&lt;p&gt;记录备存一下，gitlab是很多公司的常用ci工具，可以定义.gitlab-ci.yml，现在肯定用轻量级的gitea了，但是这个上古的古物万一要用到，还是需要思考一下用法的。&lt;/p&gt;
+&lt;p&gt;需要提交代码就用sonar扫描，.gitlab-ci.yml如下：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;stages:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  - sonarqube_scan
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 定义job（任务），多个任务分开定义&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sonarqube_scan_job:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;c1&#34;&gt;#阶段，取自开始的stages&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  stage: sonarqube_scan
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;c1&#34;&gt;#定义该job执行的脚本&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;c1&#34;&gt;#注意-Dsonar.host.url 是sonarqube服务器地址&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;c1&#34;&gt;#-Dsonar.login 是sonarqube服务器地址账号&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;c1&#34;&gt;#-Dsonar.password 是sonarqube服务器地址密码&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;c1&#34;&gt;#-Dsonar.java.binaries=. sonar4.12版本之后，分析java代码需要提供该参数。&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  script:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    - sonar-scanner -Dsonar.projectName&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$CI_PROJECT_PATH&lt;/span&gt; -Dsonar.projectKey&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;$CI_PROJECT_NAME&lt;/span&gt;  -Dsonar.language&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;java -Dsonar.java.binaries&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;. 
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    - &lt;span class=&#34;nb&#34;&gt;echo&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;sonarqube_scan is done&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;c1&#34;&gt;#标签，只有这个标签的runner才会执行任务;在gilab-runner注册时填写的tag-list&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  tags:
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    - default
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;c1&#34;&gt;#只有指定的分支提交才会执行&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;c1&#34;&gt;#only:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;c1&#34;&gt;#  - master&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;c1&#34;&gt;#when: manual&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+    </item>
     <item>
       <title>Java古早程序class源代码的修改</title>
       <link>https://rendoumi.com/posts/20260612-java_javac/</link>
@@ -19169,13 +19202,6 @@ sudo reboot
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;%end
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;注意，上面注释了两个地方，都可以添加软件或者运行脚本&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title></title>
-      <link>https://rendoumi.com/posts/20260612-gitlab_ci/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://rendoumi.com/posts/20260612-gitlab_ci/</guid>
-      <description></description>
     </item>
     <item>
       <title></title>
