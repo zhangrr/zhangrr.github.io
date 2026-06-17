@@ -1,0 +1,197 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3988508441804851" crossorigin=anonymous></script><title>Cloudflare的tunnel的应用-如何暴露22端口 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='Cloudflare真是个大善人啊，各种免费的好东西
+如果我们得到一个容器，然后想ssh进入容器进行操作，该如何做呢？
+基于以下场景：免费拿到一个openclaw类型的容器，然后怎么把容器中的服务透出来呢？（比如免费的模型）首先要透一个ssh出来，能进入容器进行各种操作，做法如下：
+一、建立CF的tunnel
+CF菜单 Protect & Connect &ndash;> Zero Trust，注意，这一步需要建立Team，然后绑信用卡，最好是没钱的Bybit卡，生成一个 Zero Trust Free的Plan
+
+然后去Networks&ndash;>Connectors
+
+新建个tunnel
+
+建好的tunnel呢，需要执行cloudflared的一个命令，这样通道就建立了
+/usr/local/bin/cloudflared tunnel run --token ${TUNNEL_TOKEN}
+那最好把它做成一个服务
+#!/bin/bash
+set -e
+
+# ── 配置 ──
+TUNNEL_TOKEN="aaabbbcccddd"
+
+# ── cloudflared ──
+curl -sL "https://ghfast.top/https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64" -o /usr/local/bin/cloudflared
+chmod +x /usr/local/bin/cloudflared
+
+cat > /etc/systemd/system/cloudflared.service <<EOF
+[Unit]
+Description=Cloudflare Tunnel
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/cloudflared tunnel run --token ${TUNNEL_TOKEN}
+Restart=always
+RestartSec=5
+User=root
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl enable --now cloudflared
+二、安装Dropbear sshd的服务
+第二步我们需要安装最轻量级的sshd服务'><meta name=author content="八戒"><link rel=canonical href=https://rendoumi.com/posts/20260617-cf_tunnel/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.5d8a858b4ad07d913988e10d3c3dbc8c171f45316a396de8a60d67f44840812d.css integrity="sha256-XYqFi0rQfZE5iOENPD28jBcfRTFqOW3opg1n9EhAgS0=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/%3Clink%20/%20abs%20url%3E><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20260617-cf_tunnel/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20260617-cf_tunnel/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="Cloudflare的tunnel的应用-如何暴露22端口"><meta property="og:description" content='Cloudflare真是个大善人啊，各种免费的好东西
+如果我们得到一个容器，然后想ssh进入容器进行操作，该如何做呢？
+基于以下场景：免费拿到一个openclaw类型的容器，然后怎么把容器中的服务透出来呢？（比如免费的模型）首先要透一个ssh出来，能进入容器进行各种操作，做法如下：
+一、建立CF的tunnel CF菜单 Protect & Connect –> Zero Trust，注意，这一步需要建立Team，然后绑信用卡，最好是没钱的Bybit卡，生成一个 Zero Trust Free的Plan
+然后去Networks–>Connectors
+新建个tunnel
+建好的tunnel呢，需要执行cloudflared的一个命令，这样通道就建立了
+/usr/local/bin/cloudflared tunnel run --token ${TUNNEL_TOKEN} 那最好把它做成一个服务
+#!/bin/bash set -e # ── 配置 ── TUNNEL_TOKEN="aaabbbcccddd" # ── cloudflared ── curl -sL "https://ghfast.top/https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64" -o /usr/local/bin/cloudflared chmod +x /usr/local/bin/cloudflared cat > /etc/systemd/system/cloudflared.service <<EOF [Unit] Description=Cloudflare Tunnel After=network-online.target Wants=network-online.target [Service] Type=simple ExecStart=/usr/local/bin/cloudflared tunnel run --token ${TUNNEL_TOKEN} Restart=always RestartSec=5 User=root [Install] WantedBy=multi-user.target EOF systemctl daemon-reload systemctl enable --now cloudflared 二、安装Dropbear sshd的服务 第二步我们需要安装最轻量级的sshd服务'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2026-06-17T09:00:01+08:00"><meta property="article:modified_time" content="2026-06-17T09:00:01+08:00"><meta property="og:image" content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:title content="Cloudflare的tunnel的应用-如何暴露22端口"><meta name=twitter:description content='Cloudflare真是个大善人啊，各种免费的好东西
+如果我们得到一个容器，然后想ssh进入容器进行操作，该如何做呢？
+基于以下场景：免费拿到一个openclaw类型的容器，然后怎么把容器中的服务透出来呢？（比如免费的模型）首先要透一个ssh出来，能进入容器进行各种操作，做法如下：
+一、建立CF的tunnel
+CF菜单 Protect & Connect &ndash;> Zero Trust，注意，这一步需要建立Team，然后绑信用卡，最好是没钱的Bybit卡，生成一个 Zero Trust Free的Plan
+
+然后去Networks&ndash;>Connectors
+
+新建个tunnel
+
+建好的tunnel呢，需要执行cloudflared的一个命令，这样通道就建立了
+/usr/local/bin/cloudflared tunnel run --token ${TUNNEL_TOKEN}
+那最好把它做成一个服务
+#!/bin/bash
+set -e
+
+# ── 配置 ──
+TUNNEL_TOKEN="aaabbbcccddd"
+
+# ── cloudflared ──
+curl -sL "https://ghfast.top/https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64" -o /usr/local/bin/cloudflared
+chmod +x /usr/local/bin/cloudflared
+
+cat > /etc/systemd/system/cloudflared.service <<EOF
+[Unit]
+Description=Cloudflare Tunnel
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/cloudflared tunnel run --token ${TUNNEL_TOKEN}
+Restart=always
+RestartSec=5
+User=root
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl enable --now cloudflared
+二、安装Dropbear sshd的服务
+第二步我们需要安装最轻量级的sshd服务'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"Cloudflare的tunnel的应用-如何暴露22端口","item":"https://rendoumi.com/posts/20260617-cf_tunnel/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Cloudflare的tunnel的应用-如何暴露22端口","name":"Cloudflare的tunnel的应用-如何暴露22端口","description":"Cloudflare真是个大善人啊，各种免费的好东西\n如果我们得到一个容器，然后想ssh进入容器进行操作，该如何做呢？\n基于以下场景：免费拿到一个openclaw类型的容器，然后怎么把容器中的服务透出来呢？（比如免费的模型）首先要透一个ssh出来，能进入容器进行各种操作，做法如下：\n一、建立CF的tunnel CF菜单 Protect \u0026amp; Connect \u0026ndash;\u0026gt; Zero Trust，注意，这一步需要建立Team，然后绑信用卡，最好是没钱的Bybit卡，生成一个 Zero Trust Free的Plan\n然后去Networks\u0026ndash;\u0026gt;Connectors\n新建个tunnel\n建好的tunnel呢，需要执行cloudflared的一个命令，这样通道就建立了\n/usr/local/bin/cloudflared tunnel run --token ${TUNNEL_TOKEN} 那最好把它做成一个服务\n#!/bin/bash set -e # ── 配置 ── TUNNEL_TOKEN=\u0026#34;aaabbbcccddd\u0026#34; # ── cloudflared ── curl -sL \u0026#34;https://ghfast.top/https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64\u0026#34; -o /usr/local/bin/cloudflared chmod +x /usr/local/bin/cloudflared cat \u0026gt; /etc/systemd/system/cloudflared.service \u0026lt;\u0026lt;EOF [Unit] Description=Cloudflare Tunnel After=network-online.target Wants=network-online.target [Service] Type=simple ExecStart=/usr/local/bin/cloudflared tunnel run --token ${TUNNEL_TOKEN} Restart=always RestartSec=5 User=root [Install] WantedBy=multi-user.target EOF systemctl daemon-reload systemctl enable --now cloudflared 二、安装Dropbear sshd的服务 第二步我们需要安装最轻量级的sshd服务\n","keywords":[],"articleBody":"Cloudflare真是个大善人啊，各种免费的好东西\n如果我们得到一个容器，然后想ssh进入容器进行操作，该如何做呢？\n基于以下场景：免费拿到一个openclaw类型的容器，然后怎么把容器中的服务透出来呢？（比如免费的模型）首先要透一个ssh出来，能进入容器进行各种操作，做法如下：\n一、建立CF的tunnel CF菜单 Protect \u0026 Connect –\u003e Zero Trust，注意，这一步需要建立Team，然后绑信用卡，最好是没钱的Bybit卡，生成一个 Zero Trust Free的Plan\n然后去Networks–\u003eConnectors\n新建个tunnel\n建好的tunnel呢，需要执行cloudflared的一个命令，这样通道就建立了\n/usr/local/bin/cloudflared tunnel run --token ${TUNNEL_TOKEN} 那最好把它做成一个服务\n#!/bin/bash set -e # ── 配置 ── TUNNEL_TOKEN=\"aaabbbcccddd\" # ── cloudflared ── curl -sL \"https://ghfast.top/https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64\" -o /usr/local/bin/cloudflared chmod +x /usr/local/bin/cloudflared cat \u003e /etc/systemd/system/cloudflared.service \u003c","wordCount":"302","inLanguage":"zh","image":"https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E","datePublished":"2026-06-17T09:00:01+08:00","dateModified":"2026-06-17T09:00:01+08:00","author":{"@type":"Person","name":"八戒"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20260617-cf_tunnel/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="Home (Alt + H)"><img src=https://rendoumi.com/apple-touch-icon.png alt aria-label=logo height=35>Home</a><div class=logo-switches></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><div class=breadcrumbs><a href=https://rendoumi.com/>主页</a>&nbsp;»&nbsp;<a href=https://rendoumi.com/posts/>所有文章</a></div><h1 class="post-title entry-hint-parent">Cloudflare的tunnel的应用-如何暴露22端口
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2026-06-17 09:00:01 +0800 CST'>2026年06月17日</span>&nbsp;·&nbsp;<span>2 分钟</span>&nbsp;·&nbsp;<span>302 字</span>&nbsp;·&nbsp;<span>八戒</span></div></header><div class=post-content><p>Cloudflare真是个大善人啊，各种免费的好东西</p><p>如果我们得到一个容器，然后想ssh进入容器进行操作，该如何做呢？</p><p>基于以下场景：免费拿到一个openclaw类型的容器，然后怎么把容器中的服务透出来呢？（比如免费的模型）首先要透一个ssh出来，能进入容器进行各种操作，做法如下：</p><h3 id=一建立cf的tunnel>一、建立CF的tunnel<a hidden class=anchor aria-hidden=true href=#一建立cf的tunnel>#</a></h3><p>CF菜单 Protect & Connect &ndash;> Zero Trust，注意，这一步需要建立Team，然后绑信用卡，最好是没钱的Bybit卡，生成一个 Zero Trust Free的Plan</p><p><img alt=image-20260617133103074 loading=lazy src=/posts/20260617-cf_tunnel/image-20260617133103074.png></p><p>然后去Networks&ndash;>Connectors</p><p><img alt=image-20260617133255699 loading=lazy src=/posts/20260617-cf_tunnel/image-20260617133255699.png></p><p>新建个tunnel</p><p><img alt=image-20260617133321570 loading=lazy src=/posts/20260617-cf_tunnel/image-20260617133321570.png></p><p>建好的tunnel呢，需要执行cloudflared的一个命令，这样通道就建立了</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>/usr/local/bin/cloudflared tunnel run --token <span class=si>${</span><span class=nv>TUNNEL_TOKEN</span><span class=si>}</span>
+</span></span></code></pre></div><p>那最好把它做成一个服务</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/bin/bash
+</span></span></span><span class=line><span class=cl><span class=cp></span><span class=nb>set</span> -e
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># ── 配置 ──</span>
+</span></span><span class=line><span class=cl><span class=nv>TUNNEL_TOKEN</span><span class=o>=</span><span class=s2>&#34;aaabbbcccddd&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># ── cloudflared ──</span>
+</span></span><span class=line><span class=cl>curl -sL <span class=s2>&#34;https://ghfast.top/https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64&#34;</span> -o /usr/local/bin/cloudflared
+</span></span><span class=line><span class=cl>chmod +x /usr/local/bin/cloudflared
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>cat &gt; /etc/systemd/system/cloudflared.service <span class=s>&lt;&lt;EOF
+</span></span></span><span class=line><span class=cl><span class=s>[Unit]
+</span></span></span><span class=line><span class=cl><span class=s>Description=Cloudflare Tunnel
+</span></span></span><span class=line><span class=cl><span class=s>After=network-online.target
+</span></span></span><span class=line><span class=cl><span class=s>Wants=network-online.target
+</span></span></span><span class=line><span class=cl><span class=s>
+</span></span></span><span class=line><span class=cl><span class=s>[Service]
+</span></span></span><span class=line><span class=cl><span class=s>Type=simple
+</span></span></span><span class=line><span class=cl><span class=s>ExecStart=/usr/local/bin/cloudflared tunnel run --token ${TUNNEL_TOKEN}
+</span></span></span><span class=line><span class=cl><span class=s>Restart=always
+</span></span></span><span class=line><span class=cl><span class=s>RestartSec=5
+</span></span></span><span class=line><span class=cl><span class=s>User=root
+</span></span></span><span class=line><span class=cl><span class=s>
+</span></span></span><span class=line><span class=cl><span class=s>[Install]
+</span></span></span><span class=line><span class=cl><span class=s>WantedBy=multi-user.target
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>systemctl daemon-reload
+</span></span><span class=line><span class=cl>systemctl <span class=nb>enable</span> --now cloudflared
+</span></span></code></pre></div><h3 id=二安装dropbear-sshd的服务>二、安装Dropbear sshd的服务<a hidden class=anchor aria-hidden=true href=#二安装dropbear-sshd的服务>#</a></h3><p>第二步我们需要安装最轻量级的sshd服务</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=cp>#!/bin/bash
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=c1># ===== 1. 下载并解压 dropbear 二进制 =====</span>
+</span></span><span class=line><span class=cl>mkdir -p /root/.local/bin /root/.local/lib /root/.ssh
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[</span> ! -x /root/.local/bin/dropbear <span class=o>]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>  curl -sSL <span class=s1>&#39;http://deb.debian.org/debian/pool/main/d/dropbear/dropbear-bin_2022.83-1+deb12u3_amd64.deb&#39;</span> -o /tmp/dropbear.deb
+</span></span><span class=line><span class=cl>  dpkg-deb -x /tmp/dropbear.deb /tmp/dropbear-extract
+</span></span><span class=line><span class=cl>  cp /tmp/dropbear-extract/usr/sbin/dropbear /root/.local/bin/dropbear
+</span></span><span class=line><span class=cl>  cp /tmp/dropbear-extract/usr/bin/dropbearkey /root/.local/bin/dropbearkey
+</span></span><span class=line><span class=cl>  cp /tmp/dropbear-extract/usr/bin/dbclient /root/.local/bin/dbclient 2&gt;/dev/null <span class=o>||</span> <span class=nb>true</span>
+</span></span><span class=line><span class=cl>  chmod +x /root/.local/bin/dropbear /root/.local/bin/dropbearkey
+</span></span><span class=line><span class=cl>  rm -rf /tmp/dropbear.deb /tmp/dropbear-extract
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># ===== 2. 下载并解压依赖库 =====</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[</span> ! -f /root/.local/lib/libtomcrypt.so.1 <span class=o>]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>  curl -sSL <span class=s1>&#39;http://deb.debian.org/debian/pool/main/libt/libtommath/libtommath1_1.2.0-6_amd64.deb&#39;</span> -o /tmp/libtommath1.deb
+</span></span><span class=line><span class=cl>  curl -sSL <span class=s1>&#39;http://deb.debian.org/debian/pool/main/libt/libtomcrypt/libtomcrypt1_1.18.2-6_amd64.deb&#39;</span> -o /tmp/libtomcrypt1.deb
+</span></span><span class=line><span class=cl>  dpkg-deb -x /tmp/libtommath1.deb /tmp/libtommath1-extract
+</span></span><span class=line><span class=cl>  dpkg-deb -x /tmp/libtomcrypt1.deb /tmp/libtomcrypt1-extract
+</span></span><span class=line><span class=cl>  cp /tmp/libtommath1-extract/usr/lib/x86_64-linux-gnu/libtommath.so.1.2.0 /root/.local/lib/
+</span></span><span class=line><span class=cl>  cp /tmp/libtomcrypt1-extract/usr/lib/x86_64-linux-gnu/libtomcrypt.so.1.0.1 /root/.local/lib/
+</span></span><span class=line><span class=cl>  <span class=nb>cd</span> /root/.local/lib/ <span class=o>&amp;&amp;</span> ln -sf libtommath.so.1.2.0 libtommath.so.1
+</span></span><span class=line><span class=cl>  <span class=nb>cd</span> /root/.local/lib/ <span class=o>&amp;&amp;</span> ln -sf libtomcrypt.so.1.0.1 libtomcrypt.so.1
+</span></span><span class=line><span class=cl>  rm -rf /tmp/libtommath1.deb /tmp/libtomcrypt1.deb /tmp/libtommath1-extract /tmp/libtomcrypt1-extract
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># ===== 3. 生成主机密钥 =====</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[</span> ! -f /root/.ssh/dropbear_ed25519_host_key <span class=o>]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>  <span class=nv>LD_LIBRARY_PATH</span><span class=o>=</span>/root/.local/lib /root/.local/bin/dropbearkey -t ed25519 -f /root/.ssh/dropbear_ed25519_host_key
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[</span> ! -f /root/.ssh/dropbear_rsa_host_key <span class=o>]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>  <span class=nv>LD_LIBRARY_PATH</span><span class=o>=</span>/root/.local/lib /root/.local/bin/dropbearkey -t rsa -f /root/.ssh/dropbear_rsa_host_key
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># ===== 4. 生成用户密钥（无密码）并配置 authorized_keys =====</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[</span> ! -f /root/.ssh/id_ed25519 <span class=o>]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>  ssh-keygen -t ed25519 -f /root/.ssh/id_ed25519 -N <span class=s1>&#39;&#39;</span>
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span><span class=line><span class=cl>cat /root/.ssh/id_ed25519.pub &gt; /root/.ssh/authorized_keys
+</span></span><span class=line><span class=cl>chmod <span class=m>700</span> /root/.ssh
+</span></span><span class=line><span class=cl>chmod <span class=m>600</span> /root/.ssh/authorized_keys
+</span></span><span class=line><span class=cl>chmod <span class=m>600</span> /root/.ssh/id_ed25519
+</span></span></code></pre></div><p>同样也做成服务</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=o>[</span>Unit<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>Description</span><span class=o>=</span>dropbear Tunnel
+</span></span><span class=line><span class=cl><span class=nv>After</span><span class=o>=</span>network-online.target
+</span></span><span class=line><span class=cl><span class=nv>Wants</span><span class=o>=</span>network-online.target
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>Service<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>Type</span><span class=o>=</span>simple
+</span></span><span class=line><span class=cl><span class=nv>ExecStart</span><span class=o>=</span>/root/.local/bin/dropbear -F -E -R -p <span class=m>22</span> -r /root/.ssh/dropbear_ed25519_host_key -r /root/.ssh/dropbear_rsa_host_key
+</span></span><span class=line><span class=cl><span class=nv>Environment</span><span class=o>=</span><span class=s2>&#34;LD_LIBRARY_PATH=&#34;</span>/root/.local/lib<span class=s2>&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>Restart=always
+</span></span></span><span class=line><span class=cl><span class=s2>RestartSec=5
+</span></span></span><span class=line><span class=cl><span class=s2>User=root
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>[Install]
+</span></span></span><span class=line><span class=cl><span class=s2>WantedBy=multi-user.target
+</span></span></span></code></pre></div><h3 id=三配置cf-tunnel>三、配置CF tunnel<a hidden class=anchor aria-hidden=true href=#三配置cf-tunnel>#</a></h3><p>配置路由，Published application routes</p><p><img alt=image-20260617134232796 loading=lazy src=/posts/20260617-cf_tunnel/image-20260617134232796.png></p><p>其实就是配置一个qclaw.aaa.bbb的域名，然后ssh转发到localhost:22</p><p><img alt=image-20260617134331653 loading=lazy src=/posts/20260617-cf_tunnel/image-20260617134331653.png></p><h3 id=四ssh连接>四、ssh连接<a hidden class=anchor aria-hidden=true href=#四ssh连接>#</a></h3><p>这一点也非常重要，看起来22端口是被反代出来了，但是仅存在于CF的网络中，并不在公网，所以从公网连还需要通过CF搭桥</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># .ssh/config</span>
+</span></span><span class=line><span class=cl>Host qclaw.aaa.bbb.ccc
+</span></span><span class=line><span class=cl>    HostName qclaw.aaa.bbb.ccc
+</span></span><span class=line><span class=cl>    User root
+</span></span><span class=line><span class=cl>    ProxyCommand /usr/local/bin/cloudflared access ssh --hostname %h
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl><span class=c1># 连接也必须指定特定方式：</span>
+</span></span><span class=line><span class=cl>ssh -i /root/.ssh/key   -o <span class=nv>HostKeyAlgorithms</span><span class=o>=</span>ssh-ed25519   root@qclaw.aaa.bbb.ccc
+</span></span></code></pre></div></div><footer class=post-footer><ul class=post-tags></ul><nav class=paginav><a class=next href=https://rendoumi.com/posts/20260612-gitlab_ci/><span class=title>下一页 »</span><br><span>gitlab的ci</span></a></nav></footer><div id=comments></div><script src=https://cwd.js.org/cwd.js></script><script>const comments=new CWDComments({el:"#comments",apiBaseUrl:"https://cwd.rendoumi.qzz.io"});comments.mount()</script></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script></body></html>
