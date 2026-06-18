@@ -1,0 +1,236 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3988508441804851" crossorigin=anonymous></script><title>Macmini如何运行本地大模型提供给openclaw | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='Macmini 下安装并使用本地大模型的文章已经满天飞了，记录一下，还是稍有不同的：
+起点就是先安装homebrew
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+然后装一些必备工具
+brew install uv
+brew install procps
+
+brew install htop
+装编译工具
+brew install cmake curl
+编译llama.cpp
+# Clone llama.cpp
+git clone https://github.com/ggml-org/llama.cpp
+
+# Configure build with Metal acceleration
+cmake llama.cpp -B llama.cpp/build \
+    -DBUILD_SHARED_LIBS=OFF \
+    -DGGML_METAL=ON \
+    -DGGML_CUDA=OFF
+
+# Build
+cmake --build llama.cpp/build \
+    --config Release \
+    -j$(sysctl -n hw.ncpu) \
+    --clean-first \
+    --target llama-cli llama-mtmd-cli llama-server llama-gguf-split
+下载模型文件
+# download model
+curl -L -o models/Qwen3.5-9B-UD-Q4_K_KL.gguf \
+"https://huggingface.co/unsloth/Qwen3.5-9B-MTP-GGUF/resolve/main/Qwen3.5-9B-UD-Q4_K_XL.gguf?download=true"
+下载模板，注意：如果模型用来跑openclaw，需要下载agent兼容得模板，否则没用'><meta name=author content="八戒"><link rel=canonical href=https://rendoumi.com/posts/20260618-macmini_llama/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.5d8a858b4ad07d913988e10d3c3dbc8c171f45316a396de8a60d67f44840812d.css integrity="sha256-XYqFi0rQfZE5iOENPD28jBcfRTFqOW3opg1n9EhAgS0=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/%3Clink%20/%20abs%20url%3E><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20260618-macmini_llama/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20260618-macmini_llama/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="Macmini如何运行本地大模型提供给openclaw"><meta property="og:description" content='Macmini 下安装并使用本地大模型的文章已经满天飞了，记录一下，还是稍有不同的：
+起点就是先安装homebrew
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" 然后装一些必备工具
+brew install uv brew install procps brew install htop 装编译工具
+brew install cmake curl 编译llama.cpp
+# Clone llama.cpp git clone https://github.com/ggml-org/llama.cpp # Configure build with Metal acceleration cmake llama.cpp -B llama.cpp/build \ -DBUILD_SHARED_LIBS=OFF \ -DGGML_METAL=ON \ -DGGML_CUDA=OFF # Build cmake --build llama.cpp/build \ --config Release \ -j$(sysctl -n hw.ncpu) \ --clean-first \ --target llama-cli llama-mtmd-cli llama-server llama-gguf-split 下载模型文件
+# download model curl -L -o models/Qwen3.5-9B-UD-Q4_K_KL.gguf \ "https://huggingface.co/unsloth/Qwen3.5-9B-MTP-GGUF/resolve/main/Qwen3.5-9B-UD-Q4_K_XL.gguf?download=true" 下载模板，注意：如果模型用来跑openclaw，需要下载agent兼容得模板，否则没用'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2026-06-18T09:00:01+08:00"><meta property="article:modified_time" content="2026-06-18T09:00:01+08:00"><meta property="og:image" content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:title content="Macmini如何运行本地大模型提供给openclaw"><meta name=twitter:description content='Macmini 下安装并使用本地大模型的文章已经满天飞了，记录一下，还是稍有不同的：
+起点就是先安装homebrew
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+然后装一些必备工具
+brew install uv
+brew install procps
+
+brew install htop
+装编译工具
+brew install cmake curl
+编译llama.cpp
+# Clone llama.cpp
+git clone https://github.com/ggml-org/llama.cpp
+
+# Configure build with Metal acceleration
+cmake llama.cpp -B llama.cpp/build \
+    -DBUILD_SHARED_LIBS=OFF \
+    -DGGML_METAL=ON \
+    -DGGML_CUDA=OFF
+
+# Build
+cmake --build llama.cpp/build \
+    --config Release \
+    -j$(sysctl -n hw.ncpu) \
+    --clean-first \
+    --target llama-cli llama-mtmd-cli llama-server llama-gguf-split
+下载模型文件
+# download model
+curl -L -o models/Qwen3.5-9B-UD-Q4_K_KL.gguf \
+"https://huggingface.co/unsloth/Qwen3.5-9B-MTP-GGUF/resolve/main/Qwen3.5-9B-UD-Q4_K_XL.gguf?download=true"
+下载模板，注意：如果模型用来跑openclaw，需要下载agent兼容得模板，否则没用'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"Macmini如何运行本地大模型提供给openclaw","item":"https://rendoumi.com/posts/20260618-macmini_llama/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Macmini如何运行本地大模型提供给openclaw","name":"Macmini如何运行本地大模型提供给openclaw","description":"Macmini 下安装并使用本地大模型的文章已经满天飞了，记录一下，还是稍有不同的：\n起点就是先安装homebrew\n/bin/bash -c \u0026#34;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\u0026#34; 然后装一些必备工具\nbrew install uv brew install procps brew install htop 装编译工具\nbrew install cmake curl 编译llama.cpp\n# Clone llama.cpp git clone https://github.com/ggml-org/llama.cpp # Configure build with Metal acceleration cmake llama.cpp -B llama.cpp/build \\ -DBUILD_SHARED_LIBS=OFF \\ -DGGML_METAL=ON \\ -DGGML_CUDA=OFF # Build cmake --build llama.cpp/build \\ --config Release \\ -j$(sysctl -n hw.ncpu) \\ --clean-first \\ --target llama-cli llama-mtmd-cli llama-server llama-gguf-split 下载模型文件\n# download model curl -L -o models/Qwen3.5-9B-UD-Q4_K_KL.gguf \\ \u0026#34;https://huggingface.co/unsloth/Qwen3.5-9B-MTP-GGUF/resolve/main/Qwen3.5-9B-UD-Q4_K_XL.gguf?download=true\u0026#34; 下载模板，注意：如果模型用来跑openclaw，需要下载agent兼容得模板，否则没用\n","keywords":[],"articleBody":"Macmini 下安装并使用本地大模型的文章已经满天飞了，记录一下，还是稍有不同的：\n起点就是先安装homebrew\n/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\" 然后装一些必备工具\nbrew install uv brew install procps brew install htop 装编译工具\nbrew install cmake curl 编译llama.cpp\n# Clone llama.cpp git clone https://github.com/ggml-org/llama.cpp # Configure build with Metal acceleration cmake llama.cpp -B llama.cpp/build \\ -DBUILD_SHARED_LIBS=OFF \\ -DGGML_METAL=ON \\ -DGGML_CUDA=OFF # Build cmake --build llama.cpp/build \\ --config Release \\ -j$(sysctl -n hw.ncpu) \\ --clean-first \\ --target llama-cli llama-mtmd-cli llama-server llama-gguf-split 下载模型文件\n# download model curl -L -o models/Qwen3.5-9B-UD-Q4_K_KL.gguf \\ \"https://huggingface.co/unsloth/Qwen3.5-9B-MTP-GGUF/resolve/main/Qwen3.5-9B-UD-Q4_K_XL.gguf?download=true\" 下载模板，注意：如果模型用来跑openclaw，需要下载agent兼容得模板，否则没用\nmkdir templates \u0026\u0026 \\ curl -o templates/qwen35.jinja \\ \"https://huggingface.co/froggeric/Qwen-Fixed-Chat-Templates/resolve/main/chat_template.jinja\" 启动一下，测测\n./llama.cpp/llama-server \\ -m models/Qwen3.5-9B-UD-Q4_K_XL.gguf \\ --chat-template-file templates/qwen35.jinja \\ --temp 0.7 \\ --top-p 0.9 \\ --top-k 20 \\ -c 64000 \\ -ngl 20 \\ --host 127.0.0.1 \\ --port 8080 建立mac系统的所谓systemd，真是臭长\nsudo vi /Library/LaunchDaemons/com.openclaw.llama-server.plist # 内容如下，注意替换掉 YOUR_USERNAME \u003c?xml version=\"1.0\" encoding=\"UTF-8\"?\u003e \u003c!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\"\u003e ","wordCount":"404","inLanguage":"zh","image":"https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E","datePublished":"2026-06-18T09:00:01+08:00","dateModified":"2026-06-18T09:00:01+08:00","author":{"@type":"Person","name":"八戒"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20260618-macmini_llama/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="Home (Alt + H)"><img src=https://rendoumi.com/apple-touch-icon.png alt aria-label=logo height=35>Home</a><div class=logo-switches></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><div class=breadcrumbs><a href=https://rendoumi.com/>主页</a>&nbsp;»&nbsp;<a href=https://rendoumi.com/posts/>所有文章</a></div><h1 class="post-title entry-hint-parent">Macmini如何运行本地大模型提供给openclaw
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2026-06-18 09:00:01 +0800 CST'>2026年06月18日</span>&nbsp;·&nbsp;<span>2 分钟</span>&nbsp;·&nbsp;<span>404 字</span>&nbsp;·&nbsp;<span>八戒</span></div></header><div class=post-content><p>Macmini 下安装并使用本地大模型的文章已经满天飞了，记录一下，还是稍有不同的：</p><p>起点就是先安装homebrew</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>/bin/bash -c <span class=s2>&#34;</span><span class=k>$(</span>curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh<span class=k>)</span><span class=s2>&#34;</span>
+</span></span></code></pre></div><p>然后装一些必备工具</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>brew install uv
+</span></span><span class=line><span class=cl>brew install procps
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>brew install htop
+</span></span></code></pre></div><p>装编译工具</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>brew install cmake curl
+</span></span></code></pre></div><p>编译llama.cpp</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Clone llama.cpp</span>
+</span></span><span class=line><span class=cl>git clone https://github.com/ggml-org/llama.cpp
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Configure build with Metal acceleration</span>
+</span></span><span class=line><span class=cl>cmake llama.cpp -B llama.cpp/build <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    -DBUILD_SHARED_LIBS<span class=o>=</span>OFF <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    -DGGML_METAL<span class=o>=</span>ON <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    -DGGML_CUDA<span class=o>=</span>OFF
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Build</span>
+</span></span><span class=line><span class=cl>cmake --build llama.cpp/build <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --config Release <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    -j<span class=k>$(</span>sysctl -n hw.ncpu<span class=k>)</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --clean-first <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --target llama-cli llama-mtmd-cli llama-server llama-gguf-split
+</span></span></code></pre></div><p>下载模型文件</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># download model</span>
+</span></span><span class=line><span class=cl>curl -L -o models/Qwen3.5-9B-UD-Q4_K_KL.gguf <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span><span class=s2>&#34;https://huggingface.co/unsloth/Qwen3.5-9B-MTP-GGUF/resolve/main/Qwen3.5-9B-UD-Q4_K_XL.gguf?download=true&#34;</span>
+</span></span></code></pre></div><p>下载模板，注意：如果模型用来跑openclaw，需要下载agent兼容得模板，否则没用</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>mkdir templates <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>curl -o templates/qwen35.jinja <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span><span class=s2>&#34;https://huggingface.co/froggeric/Qwen-Fixed-Chat-Templates/resolve/main/chat_template.jinja&#34;</span>
+</span></span></code></pre></div><p>启动一下，测测</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl> ./llama.cpp/llama-server <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -m models/Qwen3.5-9B-UD-Q4_K_XL.gguf <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --chat-template-file templates/qwen35.jinja <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --temp 0.7 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --top-p 0.9 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --top-k <span class=m>20</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -c <span class=m>64000</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -ngl <span class=m>20</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --host 127.0.0.1 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --port <span class=m>8080</span>
+</span></span></code></pre></div><p>建立mac系统的所谓systemd，真是臭长</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>sudo vi /Library/LaunchDaemons/com.openclaw.llama-server.plist
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 内容如下，注意替换掉 YOUR_USERNAME</span>
+</span></span><span class=line><span class=cl>&lt;?xml <span class=nv>version</span><span class=o>=</span><span class=s2>&#34;1.0&#34;</span> <span class=nv>encoding</span><span class=o>=</span><span class=s2>&#34;UTF-8&#34;</span>?&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>&lt;!DOCTYPE plist PUBLIC <span class=s2>&#34;-//Apple//DTD PLIST 1.0//EN&#34;</span>
+</span></span><span class=line><span class=cl><span class=s2>&#34;http://www.apple.com/DTDs/PropertyList-1.0.dtd&#34;</span>&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>&lt;plist <span class=nv>version</span><span class=o>=</span><span class=s2>&#34;1.0&#34;</span>&gt;
+</span></span><span class=line><span class=cl>&lt;dict&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>&lt;key&gt;Label&lt;/key&gt;
+</span></span><span class=line><span class=cl>&lt;string&gt;com.openclaw.llama-server&lt;/string&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>&lt;key&gt;UserName&lt;/key&gt;
+</span></span><span class=line><span class=cl>&lt;string&gt;YOUR_USERNAME&lt;/string&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>&lt;key&gt;ProgramArguments&lt;/key&gt;
+</span></span><span class=line><span class=cl>&lt;array&gt;
+</span></span><span class=line><span class=cl>    &lt;string&gt;/Users/YOUR_USERNAME/llama.cpp/llama-server&lt;/string&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    &lt;string&gt;-m&lt;/string&gt;
+</span></span><span class=line><span class=cl>    &lt;string&gt;/Users/YOUR_USERNAME/models/Qwen3.5-9B-UD-Q4_K_XL.gguf&lt;/string&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    &lt;string&gt;--chat-template-file&lt;/string&gt;
+</span></span><span class=line><span class=cl>    &lt;string&gt;/Users/YOUR_USERNAME/templates/qwen35.jinja&lt;/string&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    &lt;string&gt;--temp&lt;/string&gt;
+</span></span><span class=line><span class=cl>    &lt;string&gt;0.7&lt;/string&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    &lt;string&gt;--top-p&lt;/string&gt;
+</span></span><span class=line><span class=cl>    &lt;string&gt;0.9&lt;/string&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    &lt;string&gt;--top-k&lt;/string&gt;
+</span></span><span class=line><span class=cl>    &lt;string&gt;20&lt;/string&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    &lt;string&gt;-c&lt;/string&gt;
+</span></span><span class=line><span class=cl>    &lt;string&gt;64000&lt;/string&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    &lt;string&gt;-ngl&lt;/string&gt;
+</span></span><span class=line><span class=cl>    &lt;string&gt;20&lt;/string&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    &lt;string&gt;--host&lt;/string&gt;
+</span></span><span class=line><span class=cl>    &lt;string&gt;127.0.0.1&lt;/string&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    &lt;string&gt;--port&lt;/string&gt;
+</span></span><span class=line><span class=cl>    &lt;string&gt;8080&lt;/string&gt;
+</span></span><span class=line><span class=cl>&lt;/array&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>&lt;key&gt;WorkingDirectory&lt;/key&gt;
+</span></span><span class=line><span class=cl>&lt;string&gt;/Users/YOUR_USERNAME&lt;/string&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>&lt;key&gt;RunAtLoad&lt;/key&gt;
+</span></span><span class=line><span class=cl>&lt;true/&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>&lt;key&gt;KeepAlive&lt;/key&gt;
+</span></span><span class=line><span class=cl>&lt;true/&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>&lt;key&gt;StandardOutPath&lt;/key&gt;
+</span></span><span class=line><span class=cl>&lt;string&gt;/tmp/llama-server.log&lt;/string&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>&lt;key&gt;StandardErrorPath&lt;/key&gt;
+</span></span><span class=line><span class=cl>&lt;string&gt;/tmp/llama-server.err&lt;/string&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>&lt;/dict&gt;
+</span></span><span class=line><span class=cl>&lt;/plist&gt;
+</span></span></code></pre></div><p>启动plist</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>sudo chown root:wheel /Library/LaunchDaemons/com.openclaw.llama-server.plist <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>sudo chmod <span class=m>644</span> /Library/LaunchDaemons/com.openclaw.llama-server.plist <span class=o>&amp;&amp;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>sudo launchctl bootstrap system /Library/LaunchDaemons/com.openclaw.llama-server.plist
+</span></span></code></pre></div><p>编辑openclaw，在.openclaw/openclaw.json文件中新增models配置块</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=o>{</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;models&#34;</span>: <span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;providers&#34;</span>: <span class=o>{</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;local&#34;</span>: <span class=o>{</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;baseUrl&#34;</span>: <span class=s2>&#34;http://127.0.0.1:8080/v1&#34;</span>,
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;apiKey&#34;</span>: <span class=s2>&#34;sk-local&#34;</span>,
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;api&#34;</span>: <span class=s2>&#34;openai-completions&#34;</span>,
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;models&#34;</span>: <span class=o>[</span>
+</span></span><span class=line><span class=cl>          <span class=o>{</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;id&#34;</span>: <span class=s2>&#34;qwen3-9b&#34;</span>,
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;name&#34;</span>: <span class=s2>&#34;Qwen3.5 9B Local&#34;</span>,
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;contextWindow&#34;</span>: 64000,
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;maxTokens&#34;</span>: <span class=m>8192</span>
+</span></span><span class=line><span class=cl>          <span class=o>}</span>
+</span></span><span class=line><span class=cl>        <span class=o>]</span>
+</span></span><span class=line><span class=cl>      <span class=o>}</span>
+</span></span><span class=line><span class=cl>    /* REMOVE THIS COMMENT */
+</span></span><span class=line><span class=cl>    /* you may add additional providers, like anthropic here */ 
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>  <span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></div><p>设置agents的缺省模型：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=s2>&#34;agents&#34;</span>: <span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;defaults&#34;</span>: <span class=o>{</span>
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;model&#34;</span>: <span class=o>{</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;primary&#34;</span>: <span class=s2>&#34;local/qwen3-9b&#34;</span>
+</span></span><span class=line><span class=cl>      <span class=o>}</span>,
+</span></span><span class=line><span class=cl>      <span class=s2>&#34;models&#34;</span>: <span class=o>{</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;local/qwen3-9b&#34;</span>: <span class=o>{}</span>
+</span></span><span class=line><span class=cl>      <span class=o>}</span>
+</span></span><span class=line><span class=cl> <span class=o>}</span>
+</span></span></code></pre></div><p>用龙虾测试一下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>openclaw config validate
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>openclaw gateway restart
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>openclaw models list --provider <span class=nb>local</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>openclaw infer model run <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --model local/qwen3-9b <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --prompt <span class=s2>&#34;Reply with exactly: pong&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --json
+</span></span></code></pre></div><p>做个skill来试试</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>mkdir -p ~/.openclaw/workspace/skills/python-calc
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>cat <span class=s>&lt;&lt; &#39;EOF&#39; &gt; ~/.openclaw/workspace/skills/python-calc/SKILL.md
+</span></span></span><span class=line><span class=cl><span class=s>---
+</span></span></span><span class=line><span class=cl><span class=s>name: python-calc
+</span></span></span><span class=line><span class=cl><span class=s>description: A tool that evaluates mathematical expressions by executing a Python one-liner.
+</span></span></span><span class=line><span class=cl><span class=s>version: 1.0.0
+</span></span></span><span class=line><span class=cl><span class=s>---
+</span></span></span><span class=line><span class=cl><span class=s>## Instructions
+</span></span></span><span class=line><span class=cl><span class=s>1. Extract the exact mathematical expression the user wants to calculate.
+</span></span></span><span class=line><span class=cl><span class=s>2. Use your built-in shell tool to run this exact command, replacing `&lt;expr&gt;` with the expression: `python3 -c &#34;print(&lt;expr&gt;)&#34;`
+</span></span></span><span class=line><span class=cl><span class=s>3. Wait for the shell tool to return the stdout output.
+</span></span></span><span class=line><span class=cl><span class=s>4. You MUST generate a final conversational response to the user containing the exact numeric result returned by the script.
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span></code></pre></div><p>调用：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>openclaw agent --local --agent main --verbose on --thinking high --message <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span><span class=s2>&#34;Use the python-calc skill to calculate 8664 multiplied by 222. 
+</span></span></span><span class=line><span class=cl><span class=s2>Do not use skill_workshop. Tell me the final answer.&#34;</span>
+</span></span></code></pre></div></div><footer class=post-footer><ul class=post-tags></ul><nav class=paginav><a class=next href=https://rendoumi.com/posts/20260617-chinaunion_mclaw/><span class=title>下一页 »</span><br><span>移动mclaw 9.9一年的龙虾魔改方法</span></a></nav></footer><div id=comments></div><script src=https://cwd.js.org/cwd.js></script><script>const comments=new CWDComments({el:"#comments",apiBaseUrl:"https://cwd.rendoumi.qzz.io"});comments.mount()</script></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script></body></html>
