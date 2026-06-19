@@ -12,8 +12,41 @@
     <generator>Hugo -- 0.147.3</generator>
     <language>zh</language>
     <copyright>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Thu, 18 Jun 2026 09:00:01 +0800</lastBuildDate>
+    <lastBuildDate>Fri, 19 Jun 2026 09:00:01 +0800</lastBuildDate>
     <atom:link href="https://rendoumi.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>使用 Transformers.js 和 Sentence Embeddings 句子嵌入构建语义搜索</title>
+      <link>https://rendoumi.com/posts/20260619-bigmodel_vector_search/</link>
+      <pubDate>Fri, 19 Jun 2026 09:00:01 +0800</pubDate>
+      <guid>https://rendoumi.com/posts/20260619-bigmodel_vector_search/</guid>
+      <description>&lt;h1 id=&#34;使用-transformersjs-和sentence-embeddings句子嵌入构建语义搜索&#34;&gt;使用 Transformers.js 和Sentence Embeddings(句子嵌入)构建语义搜索&lt;/h1&gt;
+&lt;p&gt;我们之前学习了&lt;a href=&#34;https://rendoumi.com/posts/20260519-gpt2_step_by_step/&#34;&gt;手撕大模型2&lt;/a&gt; , 那学以致用，来运用一下&lt;/p&gt;
+&lt;p&gt;在本文中，我们将学习句子嵌入（Sentence Embeddings）的工作原理，以及如何使用 &lt;strong&gt;Transformers.js&lt;/strong&gt; 构建一个完全在客户端（浏览器端）运行的语义搜索引擎。无需服务器、无需 API 密钥，也不需要任何后端基础设施。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;我们将涵盖的主题包括：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;句子嵌入和余弦相似度如何构成语义搜索的基础。&lt;/li&gt;
+&lt;li&gt;如何使用 Transformers.js 的特征提取管道（Feature-extraction Pipeline）来生成和缓存嵌入，包括批处理和 Web Worker 线程卸载。&lt;/li&gt;
+&lt;li&gt;如何构建一个通用的 &lt;code&gt;SemanticSearch&lt;/code&gt; 类，并实现索引在页面刷新后的持久化。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;引言&#34;&gt;引言&lt;/h3&gt;
+&lt;p&gt;你以前可能写过这样的“Bug”：用户在搜索框中输入“affordable laptop（便宜的笔记本）”，结果返回零匹配。但你分明知道数据库里有几十篇关于笔记本的文章，只不过它们的标题叫“budget notebook（经济型便携本）”。&lt;/p&gt;
+&lt;p&gt;单词完全不同，但意思一模一样。传统的关键字搜索将它们视为无关的字符串，这就是关键字匹配的核心缺陷：&lt;strong&gt;它比较的是字符，而不是概念和语义。&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;语义搜索通过比较“含义”解决了这个问题。借助 Transformers.js，你可以在浏览器中独立实现它。&lt;/p&gt;
+&lt;h3 id=&#34;什么是句子嵌入&#34;&gt;什么是句子嵌入？&lt;/h3&gt;
+&lt;p&gt;Transformer 模型无法直接处理原始文本。在进行任何计算之前，句子必须变成数字。&lt;strong&gt;嵌入（Embeddings）&lt;/strong&gt; 就是这种转换的结果：用一个被称为向量（Vector）的浮点数列表来表示一个句子。&lt;/p&gt;
+&lt;p&gt;它的关键特性在于：&lt;strong&gt;含义相似的句子在相同的向量空间里，其向量在几何结构上也是彼此接近的。&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;本教程中使用的模型 &lt;a href=&#34;https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2&#34;&gt;sentence-transformers/all-MiniLM-L6-v2&lt;/a&gt;会将每个句子映射到 &lt;strong&gt;384 维&lt;/strong&gt; 的向量空间中。该模型在超过 10 亿个句子对上进行了微调。诸如“我需要取消订单”和“如何退货？”的向量会靠得很近，而“今天天气真好”则会离它们很远。&lt;/p&gt;
+&lt;p&gt;跟手撕大模型中的猫和狗各提问384个问题，然后逐渐训练后，猫和狗的位置会相互靠近。&lt;/p&gt;
+&lt;p&gt;给个3维的例子，相近语义的句子会自然靠在一起。但实际，我们不知道第74维到底是什么含义，那是训练后的自动结果：&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20260619181055522&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20260619-bigmodel_vector_search/image-20260619181055522.png&#34;&gt;&lt;/p&gt;
+&lt;h3 id=&#34;平均池化与归一化pooling-and-normalization&#34;&gt;平均池化与归一化（Pooling and Normalization）&lt;/h3&gt;
+&lt;p&gt;原始的 Transformer 模型会为每个 Token 输出一个向量。对于语义搜索，我们需要&lt;strong&gt;每个句子&lt;/strong&gt;只有一个向量。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;平均池化（Mean Pooling）&lt;/strong&gt;：通过对所有 Token 向量取平均值来解决这个问题。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;归一化（Normalization）&lt;/strong&gt;：将结果缩放到单位长度（模长为 1），这能极大简化相似度的计算。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;在 Transformers.js 中，当你向管道调用传递 &lt;code&gt;{ pooling: &#39;mean&#39;, normalize: true }&lt;/code&gt; 时，这两个步骤都会自动完成。&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Macmini如何运行本地大模型提供给openclaw</title>
       <link>https://rendoumi.com/posts/20260618-macmini_llama/</link>

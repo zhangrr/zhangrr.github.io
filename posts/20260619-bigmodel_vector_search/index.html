@@ -1,0 +1,919 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3988508441804851" crossorigin=anonymous></script><title>使用 Transformers.js 和 Sentence Embeddings 句子嵌入构建语义搜索 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content="使用 Transformers.js 和Sentence Embeddings(句子嵌入)构建语义搜索
+我们之前学习了手撕大模型2 , 那学以致用，来运用一下
+在本文中，我们将学习句子嵌入（Sentence Embeddings）的工作原理，以及如何使用 Transformers.js 构建一个完全在客户端（浏览器端）运行的语义搜索引擎。无需服务器、无需 API 密钥，也不需要任何后端基础设施。
+我们将涵盖的主题包括：
+
+句子嵌入和余弦相似度如何构成语义搜索的基础。
+如何使用 Transformers.js 的特征提取管道（Feature-extraction Pipeline）来生成和缓存嵌入，包括批处理和 Web Worker 线程卸载。
+如何构建一个通用的 SemanticSearch 类，并实现索引在页面刷新后的持久化。
+
+引言
+你以前可能写过这样的“Bug”：用户在搜索框中输入“affordable laptop（便宜的笔记本）”，结果返回零匹配。但你分明知道数据库里有几十篇关于笔记本的文章，只不过它们的标题叫“budget notebook（经济型便携本）”。
+单词完全不同，但意思一模一样。传统的关键字搜索将它们视为无关的字符串，这就是关键字匹配的核心缺陷：它比较的是字符，而不是概念和语义。
+语义搜索通过比较“含义”解决了这个问题。借助 Transformers.js，你可以在浏览器中独立实现它。
+什么是句子嵌入？
+Transformer 模型无法直接处理原始文本。在进行任何计算之前，句子必须变成数字。嵌入（Embeddings） 就是这种转换的结果：用一个被称为向量（Vector）的浮点数列表来表示一个句子。
+它的关键特性在于：含义相似的句子在相同的向量空间里，其向量在几何结构上也是彼此接近的。
+本教程中使用的模型 sentence-transformers/all-MiniLM-L6-v2会将每个句子映射到 384 维 的向量空间中。该模型在超过 10 亿个句子对上进行了微调。诸如“我需要取消订单”和“如何退货？”的向量会靠得很近，而“今天天气真好”则会离它们很远。
+跟手撕大模型中的猫和狗各提问384个问题，然后逐渐训练后，猫和狗的位置会相互靠近。
+给个3维的例子，相近语义的句子会自然靠在一起。但实际，我们不知道第74维到底是什么含义，那是训练后的自动结果：
+
+平均池化与归一化（Pooling and Normalization）
+原始的 Transformer 模型会为每个 Token 输出一个向量。对于语义搜索，我们需要每个句子只有一个向量。
+
+平均池化（Mean Pooling）：通过对所有 Token 向量取平均值来解决这个问题。
+归一化（Normalization）：将结果缩放到单位长度（模长为 1），这能极大简化相似度的计算。
+
+在 Transformers.js 中，当你向管道调用传递 { pooling: 'mean', normalize: true } 时，这两个步骤都会自动完成。"><meta name=author content="八戒"><link rel=canonical href=https://rendoumi.com/posts/20260619-bigmodel_vector_search/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.5d8a858b4ad07d913988e10d3c3dbc8c171f45316a396de8a60d67f44840812d.css integrity="sha256-XYqFi0rQfZE5iOENPD28jBcfRTFqOW3opg1n9EhAgS0=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/%3Clink%20/%20abs%20url%3E><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20260619-bigmodel_vector_search/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20260619-bigmodel_vector_search/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="使用 Transformers.js 和 Sentence Embeddings 句子嵌入构建语义搜索"><meta property="og:description" content="使用 Transformers.js 和Sentence Embeddings(句子嵌入)构建语义搜索 我们之前学习了手撕大模型2 , 那学以致用，来运用一下
+在本文中，我们将学习句子嵌入（Sentence Embeddings）的工作原理，以及如何使用 Transformers.js 构建一个完全在客户端（浏览器端）运行的语义搜索引擎。无需服务器、无需 API 密钥，也不需要任何后端基础设施。
+我们将涵盖的主题包括：
+句子嵌入和余弦相似度如何构成语义搜索的基础。 如何使用 Transformers.js 的特征提取管道（Feature-extraction Pipeline）来生成和缓存嵌入，包括批处理和 Web Worker 线程卸载。 如何构建一个通用的 SemanticSearch 类，并实现索引在页面刷新后的持久化。 引言 你以前可能写过这样的“Bug”：用户在搜索框中输入“affordable laptop（便宜的笔记本）”，结果返回零匹配。但你分明知道数据库里有几十篇关于笔记本的文章，只不过它们的标题叫“budget notebook（经济型便携本）”。
+单词完全不同，但意思一模一样。传统的关键字搜索将它们视为无关的字符串，这就是关键字匹配的核心缺陷：它比较的是字符，而不是概念和语义。
+语义搜索通过比较“含义”解决了这个问题。借助 Transformers.js，你可以在浏览器中独立实现它。
+什么是句子嵌入？ Transformer 模型无法直接处理原始文本。在进行任何计算之前，句子必须变成数字。嵌入（Embeddings） 就是这种转换的结果：用一个被称为向量（Vector）的浮点数列表来表示一个句子。
+它的关键特性在于：含义相似的句子在相同的向量空间里，其向量在几何结构上也是彼此接近的。
+本教程中使用的模型 sentence-transformers/all-MiniLM-L6-v2会将每个句子映射到 384 维 的向量空间中。该模型在超过 10 亿个句子对上进行了微调。诸如“我需要取消订单”和“如何退货？”的向量会靠得很近，而“今天天气真好”则会离它们很远。
+跟手撕大模型中的猫和狗各提问384个问题，然后逐渐训练后，猫和狗的位置会相互靠近。
+给个3维的例子，相近语义的句子会自然靠在一起。但实际，我们不知道第74维到底是什么含义，那是训练后的自动结果：
+平均池化与归一化（Pooling and Normalization） 原始的 Transformer 模型会为每个 Token 输出一个向量。对于语义搜索，我们需要每个句子只有一个向量。
+平均池化（Mean Pooling）：通过对所有 Token 向量取平均值来解决这个问题。 归一化（Normalization）：将结果缩放到单位长度（模长为 1），这能极大简化相似度的计算。 在 Transformers.js 中，当你向管道调用传递 { pooling: 'mean', normalize: true } 时，这两个步骤都会自动完成。"><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2026-06-19T09:00:01+08:00"><meta property="article:modified_time" content="2026-06-19T09:00:01+08:00"><meta property="og:image" content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:title content="使用 Transformers.js 和 Sentence Embeddings 句子嵌入构建语义搜索"><meta name=twitter:description content="使用 Transformers.js 和Sentence Embeddings(句子嵌入)构建语义搜索
+我们之前学习了手撕大模型2 , 那学以致用，来运用一下
+在本文中，我们将学习句子嵌入（Sentence Embeddings）的工作原理，以及如何使用 Transformers.js 构建一个完全在客户端（浏览器端）运行的语义搜索引擎。无需服务器、无需 API 密钥，也不需要任何后端基础设施。
+我们将涵盖的主题包括：
+
+句子嵌入和余弦相似度如何构成语义搜索的基础。
+如何使用 Transformers.js 的特征提取管道（Feature-extraction Pipeline）来生成和缓存嵌入，包括批处理和 Web Worker 线程卸载。
+如何构建一个通用的 SemanticSearch 类，并实现索引在页面刷新后的持久化。
+
+引言
+你以前可能写过这样的“Bug”：用户在搜索框中输入“affordable laptop（便宜的笔记本）”，结果返回零匹配。但你分明知道数据库里有几十篇关于笔记本的文章，只不过它们的标题叫“budget notebook（经济型便携本）”。
+单词完全不同，但意思一模一样。传统的关键字搜索将它们视为无关的字符串，这就是关键字匹配的核心缺陷：它比较的是字符，而不是概念和语义。
+语义搜索通过比较“含义”解决了这个问题。借助 Transformers.js，你可以在浏览器中独立实现它。
+什么是句子嵌入？
+Transformer 模型无法直接处理原始文本。在进行任何计算之前，句子必须变成数字。嵌入（Embeddings） 就是这种转换的结果：用一个被称为向量（Vector）的浮点数列表来表示一个句子。
+它的关键特性在于：含义相似的句子在相同的向量空间里，其向量在几何结构上也是彼此接近的。
+本教程中使用的模型 sentence-transformers/all-MiniLM-L6-v2会将每个句子映射到 384 维 的向量空间中。该模型在超过 10 亿个句子对上进行了微调。诸如“我需要取消订单”和“如何退货？”的向量会靠得很近，而“今天天气真好”则会离它们很远。
+跟手撕大模型中的猫和狗各提问384个问题，然后逐渐训练后，猫和狗的位置会相互靠近。
+给个3维的例子，相近语义的句子会自然靠在一起。但实际，我们不知道第74维到底是什么含义，那是训练后的自动结果：
+
+平均池化与归一化（Pooling and Normalization）
+原始的 Transformer 模型会为每个 Token 输出一个向量。对于语义搜索，我们需要每个句子只有一个向量。
+
+平均池化（Mean Pooling）：通过对所有 Token 向量取平均值来解决这个问题。
+归一化（Normalization）：将结果缩放到单位长度（模长为 1），这能极大简化相似度的计算。
+
+在 Transformers.js 中，当你向管道调用传递 { pooling: 'mean', normalize: true } 时，这两个步骤都会自动完成。"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"使用 Transformers.js 和 Sentence Embeddings 句子嵌入构建语义搜索","item":"https://rendoumi.com/posts/20260619-bigmodel_vector_search/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"使用 Transformers.js 和 Sentence Embeddings 句子嵌入构建语义搜索","name":"使用 Transformers.js 和 Sentence Embeddings 句子嵌入构建语义搜索","description":"使用 Transformers.js 和Sentence Embeddings(句子嵌入)构建语义搜索 我们之前学习了手撕大模型2 , 那学以致用，来运用一下\n在本文中，我们将学习句子嵌入（Sentence Embeddings）的工作原理，以及如何使用 Transformers.js 构建一个完全在客户端（浏览器端）运行的语义搜索引擎。无需服务器、无需 API 密钥，也不需要任何后端基础设施。\n我们将涵盖的主题包括：\n句子嵌入和余弦相似度如何构成语义搜索的基础。 如何使用 Transformers.js 的特征提取管道（Feature-extraction Pipeline）来生成和缓存嵌入，包括批处理和 Web Worker 线程卸载。 如何构建一个通用的 SemanticSearch 类，并实现索引在页面刷新后的持久化。 引言 你以前可能写过这样的“Bug”：用户在搜索框中输入“affordable laptop（便宜的笔记本）”，结果返回零匹配。但你分明知道数据库里有几十篇关于笔记本的文章，只不过它们的标题叫“budget notebook（经济型便携本）”。\n单词完全不同，但意思一模一样。传统的关键字搜索将它们视为无关的字符串，这就是关键字匹配的核心缺陷：它比较的是字符，而不是概念和语义。\n语义搜索通过比较“含义”解决了这个问题。借助 Transformers.js，你可以在浏览器中独立实现它。\n什么是句子嵌入？ Transformer 模型无法直接处理原始文本。在进行任何计算之前，句子必须变成数字。嵌入（Embeddings） 就是这种转换的结果：用一个被称为向量（Vector）的浮点数列表来表示一个句子。\n它的关键特性在于：含义相似的句子在相同的向量空间里，其向量在几何结构上也是彼此接近的。\n本教程中使用的模型 sentence-transformers/all-MiniLM-L6-v2会将每个句子映射到 384 维 的向量空间中。该模型在超过 10 亿个句子对上进行了微调。诸如“我需要取消订单”和“如何退货？”的向量会靠得很近，而“今天天气真好”则会离它们很远。\n跟手撕大模型中的猫和狗各提问384个问题，然后逐渐训练后，猫和狗的位置会相互靠近。\n给个3维的例子，相近语义的句子会自然靠在一起。但实际，我们不知道第74维到底是什么含义，那是训练后的自动结果：\n平均池化与归一化（Pooling and Normalization） 原始的 Transformer 模型会为每个 Token 输出一个向量。对于语义搜索，我们需要每个句子只有一个向量。\n平均池化（Mean Pooling）：通过对所有 Token 向量取平均值来解决这个问题。 归一化（Normalization）：将结果缩放到单位长度（模长为 1），这能极大简化相似度的计算。 在 Transformers.js 中，当你向管道调用传递 { pooling: 'mean', normalize: true } 时，这两个步骤都会自动完成。\n","keywords":[],"articleBody":"使用 Transformers.js 和Sentence Embeddings(句子嵌入)构建语义搜索 我们之前学习了手撕大模型2 , 那学以致用，来运用一下\n在本文中，我们将学习句子嵌入（Sentence Embeddings）的工作原理，以及如何使用 Transformers.js 构建一个完全在客户端（浏览器端）运行的语义搜索引擎。无需服务器、无需 API 密钥，也不需要任何后端基础设施。\n我们将涵盖的主题包括：\n句子嵌入和余弦相似度如何构成语义搜索的基础。 如何使用 Transformers.js 的特征提取管道（Feature-extraction Pipeline）来生成和缓存嵌入，包括批处理和 Web Worker 线程卸载。 如何构建一个通用的 SemanticSearch 类，并实现索引在页面刷新后的持久化。 引言 你以前可能写过这样的“Bug”：用户在搜索框中输入“affordable laptop（便宜的笔记本）”，结果返回零匹配。但你分明知道数据库里有几十篇关于笔记本的文章，只不过它们的标题叫“budget notebook（经济型便携本）”。\n单词完全不同，但意思一模一样。传统的关键字搜索将它们视为无关的字符串，这就是关键字匹配的核心缺陷：它比较的是字符，而不是概念和语义。\n语义搜索通过比较“含义”解决了这个问题。借助 Transformers.js，你可以在浏览器中独立实现它。\n什么是句子嵌入？ Transformer 模型无法直接处理原始文本。在进行任何计算之前，句子必须变成数字。嵌入（Embeddings） 就是这种转换的结果：用一个被称为向量（Vector）的浮点数列表来表示一个句子。\n它的关键特性在于：含义相似的句子在相同的向量空间里，其向量在几何结构上也是彼此接近的。\n本教程中使用的模型 sentence-transformers/all-MiniLM-L6-v2会将每个句子映射到 384 维 的向量空间中。该模型在超过 10 亿个句子对上进行了微调。诸如“我需要取消订单”和“如何退货？”的向量会靠得很近，而“今天天气真好”则会离它们很远。\n跟手撕大模型中的猫和狗各提问384个问题，然后逐渐训练后，猫和狗的位置会相互靠近。\n给个3维的例子，相近语义的句子会自然靠在一起。但实际，我们不知道第74维到底是什么含义，那是训练后的自动结果：\n平均池化与归一化（Pooling and Normalization） 原始的 Transformer 模型会为每个 Token 输出一个向量。对于语义搜索，我们需要每个句子只有一个向量。\n平均池化（Mean Pooling）：通过对所有 Token 向量取平均值来解决这个问题。 归一化（Normalization）：将结果缩放到单位长度（模长为 1），这能极大简化相似度的计算。 在 Transformers.js 中，当你向管道调用传递 { pooling: 'mean', normalize: true } 时，这两个步骤都会自动完成。\n我们来详细解释一下什么是平均池化： 下面把 Mean Pooling（平均池化） 用一个更细的例子拆开讲，重点解释：\nTransformer 给每个 token 一个向量，Mean Pooling 如何把多个 token 向量变成一个句子向量。\n1. 先从最简单例子开始 假设有一句话：\n我 喜欢 机器 学习 为了方便理解，我们假设每个 token 的向量只有 3 维。\n真实模型里通常是 384、768、1024、4096 维，但原理完全一样。\nTransformer 输出如下：\n我 -\u003e [1, 2, 3] 喜欢 -\u003e [2, 3, 4] 机器 -\u003e [3, 4, 5] 学习 -\u003e [4, 5, 6] 现在我们有 4 个 token 向量：\ntoken1 = [1, 2, 3] token2 = [2, 3, 4] token3 = [3, 4, 5] token4 = [4, 5, 6] Mean Pooling 要做的是：\n句子向量 = 所有 token 向量相加 / token 数量 2. 第一步：逐维相加 把 4 个向量按维度相加。\n[1, 2, 3]\r[2, 3, 4]\r[3, 4, 5]\r[4, 5, 6] 第 1 维相加：\n1 + 2 + 3 + 4 = 10 第 2 维相加：\n2 + 3 + 4 + 5 = 14 第 3 维相加：\n3 + 4 + 5 + 6 = 18 所以所有 token 向量之和是：\n[10, 14, 18] 3. 第二步：除以 token 数量 一共有 4 个 token，所以除以 4：\n[10, 14, 18] / 4 逐维计算：\n10 / 4 = 2.5\r14 / 4 = 3.5\r18 / 4 = 4.5 所以最终句子向量是：\n[2.5, 3.5, 4.5] 这就是 Mean Pooling 的结果。\n4. 用表格看更清楚 Token 第 1 维 第 2 维 第 3 维 我 1 2 3 喜欢 2 3 4 机器 3 4 5 学习 4 5 6 求和 10 14 18 平均 2.5 3.5 4.5 所以：\n句子向量 = [2.5, 3.5, 4.5] 5. Mean Pooling 的本质 Mean Pooling 不是把词拼起来，也不是选一个词。\n它是做这个事情：\n每一维分别求平均 也就是说：\n句子向量第 1 维 = 所有 token 第 1 维的平均值\r句子向量第 2 维 = 所有 token 第 2 维的平均值\r句子向量第 3 维 = 所有 token 第 3 维的平均值\r... 如果真实模型输出 768 维，那么就是：\n句子向量第 1 维 = 所有 token 第 1 维平均\r句子向量第 2 维 = 所有 token 第 2 维平均\r...\r句子向量第 768 维 = 所有 token 第 768 维平均 6. 再加上特殊 token 的例子 真实 Transformer 输入通常不是：\n我 喜欢 机器 学习 而可能是：\n[CLS] 我 喜欢 机器 学习 [SEP] 模型会输出：\n[CLS] -\u003e [0, 1, 2]\r我 -\u003e [1, 2, 3]\r喜欢 -\u003e [2, 3, 4]\r机器 -\u003e [3, 4, 5]\r学习 -\u003e [4, 5, 6]\r[SEP] -\u003e [5, 6, 7] 这时候有两种常见做法：\n做法 A：包含特殊 token 一起平均 把 [CLS] 和 [SEP] 也算进去：\n[0, 1, 2]\r[1, 2, 3]\r[2, 3, 4]\r[3, 4, 5]\r[4, 5, 6]\r[5, 6, 7] 求和：\n第 1 维：0 + 1 + 2 + 3 + 4 + 5 = 15\r第 2 维：1 + 2 + 3 + 4 + 5 + 6 = 21\r第 3 维：2 + 3 + 4 + 5 + 6 + 7 = 27 一共 6 个 token，所以：\n[15, 21, 27] / 6 = [2.5, 3.5, 4.5] 句子向量：\n[2.5, 3.5, 4.5] 做法 B：只平均真实文本 token 只算：\n我 喜欢 机器 学习 不算：\n[CLS] [SEP] 那么就是前面的结果：\n[2.5, 3.5, 4.5] 实际工程中，不同模型处理方式不完全一样。很多 sentence-transformers 风格的 embedding 模型会根据它自己的训练方式来决定是否包含特殊 token。\n但核心思想不变：\n有效 token 向量求平均 7. 更真实的问题：padding Mean Pooling 里最重要的细节是：\n不能把 padding token 算进去。\n比如有两个句子：\n句子 A：我 喜欢 机器 学习\r句子 B：我 喜欢 为了让它们放进同一个 batch，短句子 B 要补齐：\n句子 A：[CLS] 我 喜欢 机器 学习 [SEP]\r句子 B：[CLS] 我 喜欢 [SEP] [PAD] [PAD] 这样两个句子长度都是 6。\n8. 假设句子 B 的 token 向量 句子 B：\n[CLS] 我 喜欢 [SEP] [PAD] [PAD] 对应向量假设是：\n[CLS] -\u003e [0, 1, 2]\r我 -\u003e [1, 2, 3]\r喜欢 -\u003e [2, 3, 4]\r[SEP] -\u003e [3, 4, 5]\r[PAD] -\u003e [9, 9, 9]\r[PAD] -\u003e [9, 9, 9] 注意：\n[PAD] -\u003e [9, 9, 9] 这里故意写成很大的值，是为了说明： 如果把 PAD 算进去，结果会被污染。\n9. 错误做法：把 PAD 也平均进去 如果错误地把所有 6 个 token 都平均：\n[0, 1, 2]\r[1, 2, 3]\r[2, 3, 4]\r[3, 4, 5]\r[9, 9, 9]\r[9, 9, 9] 逐维求和：\n第 1 维：0 + 1 + 2 + 3 + 9 + 9 = 24\r第 2 维：1 + 2 + 3 + 4 + 9 + 9 = 28\r第 3 维：2 + 3 + 4 + 5 + 9 + 9 = 32 除以 6：\n[24, 28, 32] / 6 = [4, 4.67, 5.33] 错误的句子向量是：\n[4, 4.67, 5.33] 这个结果明显被 [PAD] 的 [9, 9, 9] 拉偏了。\n10. 正确做法：用 attention_mask 排除 PAD 句子 B：\n[CLS] 我 喜欢 [SEP] [PAD] [PAD] 对应的 attention_mask 是：\n[1, 1, 1, 1, 0, 0] 意思是：\n[CLS] 有效 -\u003e 1\r我 有效 -\u003e 1\r喜欢 有效 -\u003e 1\r[SEP] 有效 -\u003e 1\r[PAD] 无效 -\u003e 0\r[PAD] 无效 -\u003e 0 11. 用 mask 后怎么计算？ 原始向量：\n[CLS] -\u003e [0, 1, 2] mask = 1\r我 -\u003e [1, 2, 3] mask = 1\r喜欢 -\u003e [2, 3, 4] mask = 1\r[SEP] -\u003e [3, 4, 5] mask = 1\r[PAD] -\u003e [9, 9, 9] mask = 0\r[PAD] -\u003e [9, 9, 9] mask = 0 每个 token 向量乘以 mask：\n[CLS] -\u003e [0, 1, 2] × 1 = [0, 1, 2]\r我 -\u003e [1, 2, 3] × 1 = [1, 2, 3]\r喜欢 -\u003e [2, 3, 4] × 1 = [2, 3, 4]\r[SEP] -\u003e [3, 4, 5] × 1 = [3, 4, 5]\r[PAD] -\u003e [9, 9, 9] × 0 = [0, 0, 0]\r[PAD] -\u003e [9, 9, 9] × 0 = [0, 0, 0] 所以有效参与求和的是：\n[0, 1, 2]\r[1, 2, 3]\r[2, 3, 4]\r[3, 4, 5]\r[0, 0, 0]\r[0, 0, 0] 12. 求和 逐维相加：\n第 1 维：0 + 1 + 2 + 3 + 0 + 0 = 6\r第 2 维：1 + 2 + 3 + 4 + 0 + 0 = 10\r第 3 维：2 + 3 + 4 + 5 + 0 + 0 = 14 所以和是：\n[6, 10, 14] 13. 除以有效 token 数量 注意，不是除以 6。\n因为有效 token 只有 4 个：\nattention_mask 之和 = 1 + 1 + 1 + 1 + 0 + 0 = 4 所以：\n[6, 10, 14] / 4 = [1.5, 2.5, 3.5] 最终句子 B 的 Mean Pooling 结果是：\n[1.5, 2.5, 3.5] 14. 用表格看 mask 计算过程 Token 向量 Mask 乘 Mask 后 [CLS] [0, 1, 2] 1 [0, 1, 2] 我 [1, 2, 3] 1 [1, 2, 3] 喜欢 [2, 3, 4] 1 [2, 3, 4] [SEP] [3, 4, 5] 1 [3, 4, 5] [PAD] [9, 9, 9] 0 [0, 0, 0] [PAD] [9, 9, 9] 0 [0, 0, 0] 求和：\n[6, 10, 14] 有效 token 数量：\n4 平均：\n[6, 10, 14] / 4 = [1.5, 2.5, 3.5] 15. Mean Pooling 的通用公式 假设：\nH1, H2, H3, ..., Hn 是每个 token 的向量。\nM1, M2, M3, ..., Mn 是 attention mask。\n那么：\n句子向量 = (H1×M1 + H2×M2 + ... + Hn×Mn) / (M1 + M2 + ... + Mn) 也就是：\nsentence_embedding = sum(token_embedding × attention_mask) / sum(attention_mask) 16. 对应到代码 假设模型输出：\ntoken_embeddings 形状是：\n[batch_size, seq_len, hidden_size] 例如：\n[2, 6, 3] 表示：\n2 个句子\r每个句子 6 个 token\r每个 token 3 维向量 attention_mask 是：\nattention_mask 形状是：\n[batch_size, seq_len] 例如：\n[2, 6] 代码：\ndef mean_pooling(token_embeddings, attention_mask): mask = attention_mask.unsqueeze(-1).float() masked_embeddings = token_embeddings * mask sum_embeddings = masked_embeddings.sum(dim=1) token_count = mask.sum(dim=1) sentence_embeddings = sum_embeddings / token_count return sentence_embeddings 17. 每一行代码对应什么？ 原始形状 token_embeddings.shape 可能是：\n[2, 6, 3] 表示：\n2 个句子，每句 6 个 token，每个 token 3 维 attention_mask.shape 是：\n[2, 6] 比如：\n[\r[1, 1, 1, 1, 1, 1],\r[1, 1, 1, 1, 0, 0]\r] 这一行： mask = attention_mask.unsqueeze(-1).float() 把：\n[2, 6] 变成：\n[2, 6, 1] 为什么要这样？\n因为 token 向量是 3 维：\n[2, 6, 3] mask 需要能和每个 token 的每一维相乘。\n原来 mask 是：\n1 要变成可以作用到整个向量：\n[1, 1, 1] 也就是：\ntextmask=1 -\u003e 保留整个 token 向量\rmask=0 -\u003e 整个 token 向量变成 0 这一行： masked_embeddings = token_embeddings * mask 就是把 PAD 清零。\n例如：\n[9, 9, 9] × 0 = [0, 0, 0] 这一行： sum_embeddings = masked_embeddings.sum(dim=1) dim=1 表示沿着 token 维度求和。\n也就是：\n把一个句子里的所有 token 向量加起来 从形状看：\n[2, 6, 3] -\u003e [2, 3] 意思是：\n每个句子得到一个求和向量 这一行： token_count = mask.sum(dim=1) 计算每个句子的有效 token 数量。\n例如：\n[1, 1, 1, 1, 0, 0] 求和得到：\n4 最后一行： sentence_embeddings = sum_embeddings / token_count 就是：\n求和向量 / 有效 token 数量 最终得到每个句子的句向量。\n18. Mean Pooling 后还不是最终检索向量 Mean Pooling 得到的是句子向量，例如：\n[1.5, 2.5, 3.5] 通常下一步还会做：\nL2 Normalization 也就是把它变成单位向量。\n但 Mean Pooling 这一步只负责：\n多个 token 向量 -\u003e 一个句子向量 Normalization 负责：\n把句子向量缩放到长度为 1 19. 一句话总结 Mean Pooling 就是：\n把一句话中所有有效 token 的向量，逐维求平均。 更完整地说：\n先用 attention_mask 把 PAD token 排除掉，\r然后把有效 token 的向量逐维相加，\r最后除以有效 token 数量，\r得到一个固定长度的句子向量。 例如：\n我 -\u003e [1, 2, 3]\r喜欢 -\u003e [2, 3, 4]\r机器 -\u003e [3, 4, 5]\r学习 -\u003e [4, 5, 6] Mean Pooling：\n([1,2,3] + [2,3,4] + [3,4,5] + [4,5,6]) / 4\r= [2.5, 3.5, 4.5] 这个：\n[2.5, 3.5, 4.5] 就是整句话的向量表示。\n再来归一化 简单来说，归一化就是把数据按照一定的比例进行缩放，使其落入一个特定的限制范围（通常是 [0,1] 或 [−1,1]），或者使其满足某种特定的数学特征（如模长为 1）。\n为什么要这么做？因为原始数据往往带有不同的**量纲（单位）*或*数量级。如果不做处理，大数值的数据就会在计算中占据绝对主导地位，从而掩盖掉真正重要的特征。\n向量归一化（Unit Vector / L2 归一化） —— 语义搜索、大模型嵌入的最爱\n正如我们在前面讨论 Transformers.js 时提到的，向量归一化（通常指 L2 归一化）的目的不是改变单个数字，而是把一个向量的长度（模长）缩放到刚好等于 1，使其变成一个“单位向量”。\n解释一下勾股定理延申：\n总结：为什么计算模长要先平方求和再开方？因为多维空间中的“距离”，本质上就是无数个跨维度的直角三角形斜边嵌套。 “平方和再开方”不是科学家凭空发明的规则，它就是勾股定理在多维空间里极其自然、完美的数学延伸。\n为什么语义搜索一定要做这个？ 做完 L2 归一化后，这个向量的几何长度就固定成了 1。在多维空间中，这意味着所有的句子向量都被投影到了一个半径为 1 的超球面上。 此时，向量的绝对大小（比如长文本带来的大数值）被消除了，模型只关心向量的方向。这就使得点积计算直接等价于余弦相似度，极大提升了搜索的准确性和计算速度。\n点积（Dot Product）（又称数量积、内积）是最核心的数学工具之一。\n简单来说，点积把两个向量（方向和大小的组合）组合起来，变成了一个标量（一个纯数字）。这个数字能够直观地反映出这两个向量有多“同心协力”。\n下面从几何、代数以及它在语义搜索中的应用三个维度，为你拆解点积的本质。\n我们得出结论：在 AI 的向量检索中，只要提前对向量做了归一化，点积就等于余弦相似度。此时，点积完全不再受文本长度的影响，它变成了一个纯粹用来衡量方向一致性（语义相似度）的指标，数值严格落在 [−1,1] 之间。这也是现代向量数据库和前端语义搜索能高效运行的数学基石。\n延展了这么多，那拉回去：\n平均池化（Mean Pooling）：把一句话中所有有效 Token 的向量逐维求平均，从而将多个 Token 向量合成为一个句子向量。\n归一化（Normalization）：把池化后的句子向量缩放为模长为 1 的单位向量，使点积可以直接表示余弦相似度。\n在 Transformers.js 中，当你向管道调用传递 { pooling: 'mean', normalize: true } 时，这两个步骤都会自动完成。\n特征提取管道（The Feature-Extraction Pipeline） 特征提取任务（Feature-extraction）返回的是模型在内部计算出的原始向量表示。以下是生成单个句子嵌入的核心 JavaScript 代码：\nimport { pipeline } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2';\r// 加载特征提取管道\r// Xenova/all-MiniLM-L6-v2 是该模型的浏览器兼容版本，权重相同\rconst extractor = await pipeline(\r'feature-extraction',\r'Xenova/all-MiniLM-L6-v2',\r{ dtype: 'q8' } // 8位量化：下载量更小（~23 MB），精度高\r);\r// 提取单个句子的嵌入向量\rconst output = await extractor('I need help with my order', {\rpooling: 'mean',\rnormalize: true\r});\rconsole.log(output);\r// 输出 Tensor 对象:\r// dims: [1, 384] 代表 1 个句子，384 个维度\r// data: Float32Array(384) 包含实际的数字\r// 转换为普通的 JavaScript 数组以便使用\rconst vector = output.tolist()[0]; console.log(`向量长度: ${vector.length}`); // 384 这段代码的作用： pipeline() 在第一次运行时会下载并初始化模型（随后浏览器会将其缓存，因此后续的页面加载都是瞬间完成的）。 然后，你只需传入一个字符串和两个配置项来调用提取器（extractor），这会为你返回一个单一的、归一化的句子向量。 返回的结果是一个 Tensor（张量） 对象；调用 .tolist()[0] 可以将其转换为包含 384 个数字的普通 JavaScript 数组，供你在代码中直接使用。 理解输出的 Tensor（张量） feature-extraction（特征提取）任务返回的 Tensor 对象有三个非常值得了解的字段：\ndims 是张量的形状 [n_sentences, 384]。如果传入 1 个句子，dims[0] 就是 1；如果批量（batch）传入 10 个句子，dims[0] 就是 10。对于该模型，第二个维度始终是 384。 type 值为 'float32'，这意味着 384 个数值中的每一个都是 32 位的浮点数。 data 是一个 Float32Array（32位浮点数数组），它以行优先顺序（row-major order）包含了所有的数字。例如，对于包含 3 个句子的批量任务，这是一个包含 3×384=1,152 个数字的一维扁平数组。 .tolist() 会将张量转换为一个嵌套的 JavaScript 数组（每个句子对应一个内层数组）。output.tolist()[0] 则以普通数组的形式获取第一个句子的向量（包含 384 个数字）。\n批处理：一次性嵌入多个句子 向提取器传入一个字符串数组，可以在单次模型调用中处理所有句子。这比在循环中逐个调用快得多，因为 Transformer 架构针对并行输入进行了优化。\nconst sentences = [\r'How do I track my shipment?',\r'What is your return policy?',\r'How can I reset my password?',\r'Do you offer international delivery?'\r];\rconst batchOutput = await extractor(sentences, {\rpooling: 'mean',\rnormalize: true\r});\r// batchOutput.dims = [4, 384] -- 4个句子，每个384维\rconst vectors = batchOutput.tolist();\rconsole.log(`生成的向量数量: ${vectors.length}`); // 4 在构建包含数十个文档的知识库时，始终应该优先选择批处理。\n余弦相似度：搜索背后的数学 一旦你获得了文档向量和查询向量，就需要衡量它们有多相似。由于我们在生成嵌入时使用了 normalize: true，两个向量的模长都已经为 1。此时，余弦相似度直接简化为两个向量的点积：\ncosine_similarity(A,B)=A⋅B=∑(A[i]×B[i])\n我们只需要将两个向量对应位置的数字相乘并求和即可。实际的得分范围大致如下：\n0.90 到 1.00：含义几乎完全相同 0.70 到 0.90：强语义匹配 0.50 到 0.70：主题相关，角度不同 0.30 以下：基本不相关 仔细解释一下：\n1. 想象一个生活场景：手电筒与影子 假设地上放着一根巨大的箭竹，我们叫它 向量 A。 旁边斜着立了一根晾衣杆，我们叫它 向量 B。它们两个的底部是连在一起的。\n现在，你拿一把手电筒，站在垂直于 A的正上方（也就是垂直于地面）往下照。\n这时候，晾衣杆（向量 B）就会在地面（向量 A）上投下一个影子。\n这个“影子的实际长度”，在数学上就叫做“向量 B 在向量 A 方向上的投影长度”。 2. 怎么用数学算出这个影子的长度？ 现在我们把这个“手电筒照影子”的画面连成一个几何图形：\n斜着的晾衣杆是 向量 B（它的长度是 ∣A∣ 还是 ∣B∣呢？当然是∣B∣）。\r垂直照下来的光线，和地面是一条垂直线。\r地面上的影子，是直角三角形的底边。\r这刚好构成了一个标准的直角三角形：\n斜边：晾衣杆，长度是 ∣B∣。\r夹角：晾衣杆和地面的夹角，就是 θ。\r底边（影子）：就是我们要算的长。\r根据我们在初中/高中学过的三角函数定义：\ncos(θ) = 底边 / 斜边\n我们把两边同时乘以“斜边”，公式就变成了：\n底边=斜边×cos(θ)\n把我们的主角代入进去：\n底边就是影子长度。 斜边就是∣B∣，向量的长度 所以： 影子的长度=∣B∣×cos(θ)\n这就是为什么说 (∣B∣cos(θ)) 实际上就是向量 B 在向量 A 方向上的“投影长度”。它不是凭空编出来的，它就是用夹角和斜边算出来的直角三角形底边长。\n3. 再回头看点积公式 现在我们把这个影子带回点积的几何公式： A⋅B = ∣A∣×∣B∣× cos(θ)\n我们给它加个括号，分组看一下： A⋅B = ∣A∣ × ( ∣B∣ x cos(θ) )\n用大白话翻译这个公式就是： 两个向量的点积=（向量 A 的长度）×（向量 B 射在 A 上的影子长度） 为什么这个乘积能代表“相关性”？\n如果向量 B 和向量 A 的方向非常接近（夹角很小），那么晾衣杆倒得比较平，地面的影子就很长，影子长，两个长度相乘的点积就很大。\r如果向量 B 和向量 A 互相垂直（夹角 90∘），手电筒从正上方照下来，晾衣杆变成了一条垂直的线，它在地面上的影子就缩成了一个点（长度为 0）。影子是 0，无论 A 有多长，相乘之后的点积就是 0。\r这就是为什么点积可以用来算相似度。方向越接近，投影（影子）就越长，点积就越大！\n相似度计算函数：\nfunction cosineSimilarity(vecA, vecB) {\rlet dotProduct = 0;\rfor (let i = 0; i \u003c vecA.length; i++) {\rdotProduct += vecA[i] * vecB[i];\r}\rreturn dotProduct;\r} 为什么加起来最大也就是1，不会突破1呢？\n构建一个语义搜索类（Semantic Search Class） 在实际应用中，我们可以将上述逻辑封装进一个可重用的 JavaScript 类中。该类负责管理文档库、生成向量以及计算搜索结果：\n/**\r* SemanticSearch -- a simple client-side semantic search engine.\r*\r* Usage:\r* const search = new SemanticSearch(extractor);\r* await search.indexDocuments(myDocs);\r* const results = await search.search('my query', 5);\r*/\rclass SemanticSearch {\rconstructor(extractor) {\r// The feature-extraction pipeline instance (already loaded)\rthis.extractor = extractor;\r// Stores documents after indexing: { id, text, metadata, vector }\rthis.index = [];\r}\r/**\r* Embed all documents and store their vectors in memory.\r* Call this once at startup. Searches reuse these cached vectors.\r*\r* @param {Array} docs\r*/\rasync indexDocuments(docs) {\rconsole.time('indexing');\r// Pull just the text strings for batch embedding\rconst texts = docs.map(doc =\u003e doc.text);\r// Single batch call embeds all documents at once -- much faster than looping\rconst output = await this.extractor(texts, {\rpooling: 'mean',\rnormalize: true\r});\r// Convert the tensor to an array of 384-element arrays, one per document\rconst vectors = output.tolist();\r// Attach each vector to its original document object\r// The spread (...doc) preserves all original fields: title, URL, tags, etc.\rthis.index = docs.map((doc, i) =\u003e ({\r...doc,\rvector: vectors[i]\r}));\rconsole.timeEnd('indexing');\rconsole.log(`Indexed ${this.index.length} documents`);\rreturn this;\r}\r/**\r* Search indexed documents for the most semantically relevant results.\r*\r* @param {string} query - The search query in plain language\r* @param {number} topK - How many results to return (default: 5)\r* @returns {Promise} Results sorted by relevance, highest first\r*/\rasync search(query, topK = 5) {\rif (this.index.length === 0) {\rthrow new Error('No documents indexed. Call indexDocuments() first.');\r}\rconsole.time('query embedding');\r// Embed the search query -- the only model inference call during a search\rconst queryOutput = await this.extractor(query, {\rpooling: 'mean',\rnormalize: true\r});\rconst queryVector = queryOutput.tolist()[0];\rconsole.timeEnd('query embedding');\rconsole.time('scoring');\r// Score every indexed document against the query vector\r// This is pure JavaScript math -- no model involved, so it's instant\rconst scored = this.index.map(doc =\u003e ({\rdoc,\rscore: cosineSimilarity(queryVector, doc.vector)\r}));\r// Sort descending -- highest relevance score first\rscored.sort((a, b) =\u003e b.score - a.score);\rconsole.timeEnd('scoring');\r// Return the top-k results, stripping the vector from the output\rreturn scored.slice(0, topK).map(({ doc, score }) =\u003e ({\rid: doc.id,\rtitle: doc.title,\rtext: doc.text,\rmetadata: doc.metadata,\rscore: score\r}));\r}\r/**\r* Serialize the index to JSON for storage in localStorage or IndexedDB.\r* Saves the embedding step on subsequent page loads.\r*/\rtoJSON() {\rreturn JSON.stringify(this.index);\r}\r/**\r* Restore a previously serialized index without re-embedding anything.\r* Vectors are plain arrays in JSON and deserialize directly.\r*/\rfromJSON(json) {\rthis.index = JSON.parse(json);\rreturn this;\r}\r} 这段代码的作用： indexDocuments 接收你传入的文档对象数组（每个对象至少需要包含一个 text 字段），并在单次批量调用中对所有文本进行嵌入处理（Embedding），然后将结果存储在 this.index 中。 扩展运算符（...doc） 会完整保留你传入的所有元数据（Metadata），确保没有任何信息会丢失。 search 仅对查询语句（Query）进行嵌入处理（单次模型推理调用，通常在 100 毫秒以内），然后在一个普通的 JavaScript 循环中，对每一个缓存的文档向量运行 cosineSimilarity（余弦相似度） 计算。 在评分（Scoring）阶段不需要再次进行模型推理，这就是为什么在索引建立完成后，搜索体验会让人感觉是瞬间响应的原因。 toJSON 和 fromJSON 方法 允许你在页面加载之间持久化保存索引。当用户再次访问时，可以完全跳过文本嵌入步骤。 全代码：\n\u003c!DOCTYPE html\u003e ","wordCount":"4318","inLanguage":"zh","image":"https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E","datePublished":"2026-06-19T09:00:01+08:00","dateModified":"2026-06-19T09:00:01+08:00","author":{"@type":"Person","name":"八戒"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20260619-bigmodel_vector_search/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="Home (Alt + H)"><img src=https://rendoumi.com/apple-touch-icon.png alt aria-label=logo height=35>Home</a><div class=logo-switches></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><div class=breadcrumbs><a href=https://rendoumi.com/>主页</a>&nbsp;»&nbsp;<a href=https://rendoumi.com/posts/>所有文章</a></div><h1 class="post-title entry-hint-parent">使用 Transformers.js 和 Sentence Embeddings 句子嵌入构建语义搜索
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2026-06-19 09:00:01 +0800 CST'>2026年06月19日</span>&nbsp;·&nbsp;<span>21 分钟</span>&nbsp;·&nbsp;<span>4318 字</span>&nbsp;·&nbsp;<span>八戒</span></div></header><div class=post-content><h1 id=使用-transformersjs-和sentence-embeddings句子嵌入构建语义搜索>使用 Transformers.js 和Sentence Embeddings(句子嵌入)构建语义搜索<a hidden class=anchor aria-hidden=true href=#使用-transformersjs-和sentence-embeddings句子嵌入构建语义搜索>#</a></h1><p>我们之前学习了<a href=https://rendoumi.com/posts/20260519-gpt2_step_by_step/>手撕大模型2</a> , 那学以致用，来运用一下</p><p>在本文中，我们将学习句子嵌入（Sentence Embeddings）的工作原理，以及如何使用 <strong>Transformers.js</strong> 构建一个完全在客户端（浏览器端）运行的语义搜索引擎。无需服务器、无需 API 密钥，也不需要任何后端基础设施。</p><p><strong>我们将涵盖的主题包括：</strong></p><ul><li>句子嵌入和余弦相似度如何构成语义搜索的基础。</li><li>如何使用 Transformers.js 的特征提取管道（Feature-extraction Pipeline）来生成和缓存嵌入，包括批处理和 Web Worker 线程卸载。</li><li>如何构建一个通用的 <code>SemanticSearch</code> 类，并实现索引在页面刷新后的持久化。</li></ul><h3 id=引言>引言<a hidden class=anchor aria-hidden=true href=#引言>#</a></h3><p>你以前可能写过这样的“Bug”：用户在搜索框中输入“affordable laptop（便宜的笔记本）”，结果返回零匹配。但你分明知道数据库里有几十篇关于笔记本的文章，只不过它们的标题叫“budget notebook（经济型便携本）”。</p><p>单词完全不同，但意思一模一样。传统的关键字搜索将它们视为无关的字符串，这就是关键字匹配的核心缺陷：<strong>它比较的是字符，而不是概念和语义。</strong></p><p>语义搜索通过比较“含义”解决了这个问题。借助 Transformers.js，你可以在浏览器中独立实现它。</p><h3 id=什么是句子嵌入>什么是句子嵌入？<a hidden class=anchor aria-hidden=true href=#什么是句子嵌入>#</a></h3><p>Transformer 模型无法直接处理原始文本。在进行任何计算之前，句子必须变成数字。<strong>嵌入（Embeddings）</strong> 就是这种转换的结果：用一个被称为向量（Vector）的浮点数列表来表示一个句子。</p><p>它的关键特性在于：<strong>含义相似的句子在相同的向量空间里，其向量在几何结构上也是彼此接近的。</strong></p><p>本教程中使用的模型 <a href=https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2>sentence-transformers/all-MiniLM-L6-v2</a>会将每个句子映射到 <strong>384 维</strong> 的向量空间中。该模型在超过 10 亿个句子对上进行了微调。诸如“我需要取消订单”和“如何退货？”的向量会靠得很近，而“今天天气真好”则会离它们很远。</p><p>跟手撕大模型中的猫和狗各提问384个问题，然后逐渐训练后，猫和狗的位置会相互靠近。</p><p>给个3维的例子，相近语义的句子会自然靠在一起。但实际，我们不知道第74维到底是什么含义，那是训练后的自动结果：</p><p><img alt=image-20260619181055522 loading=lazy src=/posts/20260619-bigmodel_vector_search/image-20260619181055522.png></p><h3 id=平均池化与归一化pooling-and-normalization>平均池化与归一化（Pooling and Normalization）<a hidden class=anchor aria-hidden=true href=#平均池化与归一化pooling-and-normalization>#</a></h3><p>原始的 Transformer 模型会为每个 Token 输出一个向量。对于语义搜索，我们需要<strong>每个句子</strong>只有一个向量。</p><ul><li><strong>平均池化（Mean Pooling）</strong>：通过对所有 Token 向量取平均值来解决这个问题。</li><li><strong>归一化（Normalization）</strong>：将结果缩放到单位长度（模长为 1），这能极大简化相似度的计算。</li></ul><p>在 Transformers.js 中，当你向管道调用传递 <code>{ pooling: 'mean', normalize: true }</code> 时，这两个步骤都会自动完成。</p><h4 id=我们来详细解释一下什么是平均池化>我们来详细解释一下什么是平均池化：<a hidden class=anchor aria-hidden=true href=#我们来详细解释一下什么是平均池化>#</a></h4><p>下面把 <strong>Mean Pooling（平均池化）</strong> 用一个更细的例子拆开讲，重点解释：</p><blockquote><p>Transformer 给每个 token 一个向量，Mean Pooling 如何把多个 token 向量变成一个句子向量。</p></blockquote><hr><h5 id=1-先从最简单例子开始>1. 先从最简单例子开始<a hidden class=anchor aria-hidden=true href=#1-先从最简单例子开始>#</a></h5><p>假设有一句话：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-text data-lang=text><span class=line><span class=cl>我 喜欢 机器 学习
+</span></span></code></pre></div><p>为了方便理解，我们假设每个 token 的向量只有 <strong>3 维</strong>。</p><p>真实模型里通常是 384、768、1024、4096 维，但原理完全一样。</p><p>Transformer 输出如下：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-text data-lang=text><span class=line><span class=cl>我     -&gt; [1, 2, 3]
+</span></span><span class=line><span class=cl>喜欢   -&gt; [2, 3, 4]
+</span></span><span class=line><span class=cl>机器   -&gt; [3, 4, 5]
+</span></span><span class=line><span class=cl>学习   -&gt; [4, 5, 6]
+</span></span></code></pre></div><p>现在我们有 4 个 token 向量：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-text data-lang=text><span class=line><span class=cl>token1 = [1, 2, 3]
+</span></span><span class=line><span class=cl>token2 = [2, 3, 4]
+</span></span><span class=line><span class=cl>token3 = [3, 4, 5]
+</span></span><span class=line><span class=cl>token4 = [4, 5, 6]
+</span></span></code></pre></div><p>Mean Pooling 要做的是：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-text data-lang=text><span class=line><span class=cl>句子向量 = 所有 token 向量相加 / token 数量
+</span></span></code></pre></div><hr><h5 id=2-第一步逐维相加>2. 第一步：逐维相加<a hidden class=anchor aria-hidden=true href=#2-第一步逐维相加>#</a></h5><p>把 4 个向量按维度相加。</p><pre tabindex=0><code>[1, 2, 3]
+[2, 3, 4]
+[3, 4, 5]
+[4, 5, 6]
+</code></pre><p>第 1 维相加：</p><pre tabindex=0><code>1 + 2 + 3 + 4 = 10
+</code></pre><p>第 2 维相加：</p><pre tabindex=0><code>2 + 3 + 4 + 5 = 14
+</code></pre><p>第 3 维相加：</p><pre tabindex=0><code>3 + 4 + 5 + 6 = 18
+</code></pre><p>所以所有 token 向量之和是：</p><pre tabindex=0><code>[10, 14, 18]
+</code></pre><hr><h5 id=3-第二步除以-token-数量>3. 第二步：除以 token 数量<a hidden class=anchor aria-hidden=true href=#3-第二步除以-token-数量>#</a></h5><p>一共有 4 个 token，所以除以 4：</p><pre tabindex=0><code>[10, 14, 18] / 4
+</code></pre><p>逐维计算：</p><pre tabindex=0><code>10 / 4 = 2.5
+14 / 4 = 3.5
+18 / 4 = 4.5
+</code></pre><p>所以最终句子向量是：</p><pre tabindex=0><code>[2.5, 3.5, 4.5]
+</code></pre><p>这就是 Mean Pooling 的结果。</p><hr><h5 id=4-用表格看更清楚>4. 用表格看更清楚<a hidden class=anchor aria-hidden=true href=#4-用表格看更清楚>#</a></h5><table><thead><tr><th>Token</th><th style=text-align:right>第 1 维</th><th style=text-align:right>第 2 维</th><th style=text-align:right>第 3 维</th></tr></thead><tbody><tr><td>我</td><td style=text-align:right>1</td><td style=text-align:right>2</td><td style=text-align:right>3</td></tr><tr><td>喜欢</td><td style=text-align:right>2</td><td style=text-align:right>3</td><td style=text-align:right>4</td></tr><tr><td>机器</td><td style=text-align:right>3</td><td style=text-align:right>4</td><td style=text-align:right>5</td></tr><tr><td>学习</td><td style=text-align:right>4</td><td style=text-align:right>5</td><td style=text-align:right>6</td></tr><tr><td>求和</td><td style=text-align:right>10</td><td style=text-align:right>14</td><td style=text-align:right>18</td></tr><tr><td>平均</td><td style=text-align:right>2.5</td><td style=text-align:right>3.5</td><td style=text-align:right>4.5</td></tr></tbody></table><p>所以：</p><pre tabindex=0><code>句子向量 = [2.5, 3.5, 4.5]
+</code></pre><hr><h5 id=5-mean-pooling-的本质>5. Mean Pooling 的本质<a hidden class=anchor aria-hidden=true href=#5-mean-pooling-的本质>#</a></h5><p>Mean Pooling 不是把词拼起来，也不是选一个词。</p><p>它是做这个事情：</p><pre tabindex=0><code>每一维分别求平均
+</code></pre><p>也就是说：</p><pre tabindex=0><code>句子向量第 1 维 = 所有 token 第 1 维的平均值
+句子向量第 2 维 = 所有 token 第 2 维的平均值
+句子向量第 3 维 = 所有 token 第 3 维的平均值
+...
+</code></pre><p>如果真实模型输出 768 维，那么就是：</p><pre tabindex=0><code>句子向量第 1 维 = 所有 token 第 1 维平均
+句子向量第 2 维 = 所有 token 第 2 维平均
+...
+句子向量第 768 维 = 所有 token 第 768 维平均
+</code></pre><hr><h5 id=6-再加上特殊-token-的例子>6. 再加上特殊 token 的例子<a hidden class=anchor aria-hidden=true href=#6-再加上特殊-token-的例子>#</a></h5><p>真实 Transformer 输入通常不是：</p><pre tabindex=0><code>我 喜欢 机器 学习
+</code></pre><p>而可能是：</p><pre tabindex=0><code>[CLS] 我 喜欢 机器 学习 [SEP]
+</code></pre><p>模型会输出：</p><pre tabindex=0><code>[CLS] -&gt; [0, 1, 2]
+我     -&gt; [1, 2, 3]
+喜欢   -&gt; [2, 3, 4]
+机器   -&gt; [3, 4, 5]
+学习   -&gt; [4, 5, 6]
+[SEP] -&gt; [5, 6, 7]
+</code></pre><p>这时候有两种常见做法：</p><h5 id=做法-a包含特殊-token-一起平均>做法 A：包含特殊 token 一起平均<a hidden class=anchor aria-hidden=true href=#做法-a包含特殊-token-一起平均>#</a></h5><p>把 <code>[CLS]</code> 和 <code>[SEP]</code> 也算进去：</p><pre tabindex=0><code>[0, 1, 2]
+[1, 2, 3]
+[2, 3, 4]
+[3, 4, 5]
+[4, 5, 6]
+[5, 6, 7]
+</code></pre><p>求和：</p><pre tabindex=0><code>第 1 维：0 + 1 + 2 + 3 + 4 + 5 = 15
+第 2 维：1 + 2 + 3 + 4 + 5 + 6 = 21
+第 3 维：2 + 3 + 4 + 5 + 6 + 7 = 27
+</code></pre><p>一共 6 个 token，所以：</p><pre tabindex=0><code>[15, 21, 27] / 6 = [2.5, 3.5, 4.5]
+</code></pre><p>句子向量：</p><pre tabindex=0><code>[2.5, 3.5, 4.5]
+</code></pre><h5 id=做法-b只平均真实文本-token>做法 B：只平均真实文本 token<a hidden class=anchor aria-hidden=true href=#做法-b只平均真实文本-token>#</a></h5><p>只算：</p><pre tabindex=0><code>我 喜欢 机器 学习
+</code></pre><p>不算：</p><pre tabindex=0><code>[CLS] [SEP]
+</code></pre><p>那么就是前面的结果：</p><pre tabindex=0><code>[2.5, 3.5, 4.5]
+</code></pre><p>实际工程中，不同模型处理方式不完全一样。很多 sentence-transformers 风格的 embedding 模型会根据它自己的训练方式来决定是否包含特殊 token。</p><p>但核心思想不变：</p><pre tabindex=0><code>有效 token 向量求平均
+</code></pre><hr><h5 id=7-更真实的问题padding>7. 更真实的问题：padding<a hidden class=anchor aria-hidden=true href=#7-更真实的问题padding>#</a></h5><p>Mean Pooling 里最重要的细节是：</p><blockquote><p>不能把 padding token 算进去。</p></blockquote><p>比如有两个句子：</p><pre tabindex=0><code>句子 A：我 喜欢 机器 学习
+句子 B：我 喜欢
+</code></pre><p>为了让它们放进同一个 batch，短句子 B 要补齐：</p><pre tabindex=0><code>句子 A：[CLS] 我 喜欢 机器 学习 [SEP]
+句子 B：[CLS] 我 喜欢 [SEP] [PAD] [PAD]
+</code></pre><p>这样两个句子长度都是 6。</p><hr><h5 id=8-假设句子-b-的-token-向量>8. 假设句子 B 的 token 向量<a hidden class=anchor aria-hidden=true href=#8-假设句子-b-的-token-向量>#</a></h5><p>句子 B：</p><pre tabindex=0><code>[CLS] 我 喜欢 [SEP] [PAD] [PAD]
+</code></pre><p>对应向量假设是：</p><pre tabindex=0><code>[CLS] -&gt; [0, 1, 2]
+我     -&gt; [1, 2, 3]
+喜欢   -&gt; [2, 3, 4]
+[SEP] -&gt; [3, 4, 5]
+[PAD] -&gt; [9, 9, 9]
+[PAD] -&gt; [9, 9, 9]
+</code></pre><p>注意：</p><pre tabindex=0><code>[PAD] -&gt; [9, 9, 9]
+</code></pre><p>这里故意写成很大的值，是为了说明：
+如果把 PAD 算进去，结果会被污染。</p><hr><h5 id=9-错误做法把-pad-也平均进去>9. 错误做法：把 PAD 也平均进去<a hidden class=anchor aria-hidden=true href=#9-错误做法把-pad-也平均进去>#</a></h5><p>如果错误地把所有 6 个 token 都平均：</p><pre tabindex=0><code>[0, 1, 2]
+[1, 2, 3]
+[2, 3, 4]
+[3, 4, 5]
+[9, 9, 9]
+[9, 9, 9]
+</code></pre><p>逐维求和：</p><pre tabindex=0><code>第 1 维：0 + 1 + 2 + 3 + 9 + 9 = 24
+第 2 维：1 + 2 + 3 + 4 + 9 + 9 = 28
+第 3 维：2 + 3 + 4 + 5 + 9 + 9 = 32
+</code></pre><p>除以 6：</p><pre tabindex=0><code>[24, 28, 32] / 6 = [4, 4.67, 5.33]
+</code></pre><p>错误的句子向量是：</p><pre tabindex=0><code>[4, 4.67, 5.33]
+</code></pre><p>这个结果明显被 <code>[PAD]</code> 的 <code>[9, 9, 9]</code> 拉偏了。</p><hr><h5 id=10-正确做法用-attention_mask-排除-pad>10. 正确做法：用 attention_mask 排除 PAD<a hidden class=anchor aria-hidden=true href=#10-正确做法用-attention_mask-排除-pad>#</a></h5><p>句子 B：</p><pre tabindex=0><code>[CLS] 我 喜欢 [SEP] [PAD] [PAD]
+</code></pre><p>对应的 attention_mask 是：</p><pre tabindex=0><code>[1, 1, 1, 1, 0, 0]
+</code></pre><p>意思是：</p><pre tabindex=0><code>[CLS] 有效 -&gt; 1
+我     有效 -&gt; 1
+喜欢   有效 -&gt; 1
+[SEP] 有效 -&gt; 1
+[PAD] 无效 -&gt; 0
+[PAD] 无效 -&gt; 0
+</code></pre><hr><h5 id=11-用-mask-后怎么计算>11. 用 mask 后怎么计算？<a hidden class=anchor aria-hidden=true href=#11-用-mask-后怎么计算>#</a></h5><p>原始向量：</p><pre tabindex=0><code>[CLS] -&gt; [0, 1, 2]   mask = 1
+我     -&gt; [1, 2, 3]   mask = 1
+喜欢   -&gt; [2, 3, 4]   mask = 1
+[SEP] -&gt; [3, 4, 5]   mask = 1
+[PAD] -&gt; [9, 9, 9]   mask = 0
+[PAD] -&gt; [9, 9, 9]   mask = 0
+</code></pre><p>每个 token 向量乘以 mask：</p><pre tabindex=0><code>[CLS] -&gt; [0, 1, 2] × 1 = [0, 1, 2]
+我     -&gt; [1, 2, 3] × 1 = [1, 2, 3]
+喜欢   -&gt; [2, 3, 4] × 1 = [2, 3, 4]
+[SEP] -&gt; [3, 4, 5] × 1 = [3, 4, 5]
+[PAD] -&gt; [9, 9, 9] × 0 = [0, 0, 0]
+[PAD] -&gt; [9, 9, 9] × 0 = [0, 0, 0]
+</code></pre><p>所以有效参与求和的是：</p><pre tabindex=0><code>[0, 1, 2]
+[1, 2, 3]
+[2, 3, 4]
+[3, 4, 5]
+[0, 0, 0]
+[0, 0, 0]
+</code></pre><hr><h5 id=12-求和>12. 求和<a hidden class=anchor aria-hidden=true href=#12-求和>#</a></h5><p>逐维相加：</p><pre tabindex=0><code>第 1 维：0 + 1 + 2 + 3 + 0 + 0 = 6
+第 2 维：1 + 2 + 3 + 4 + 0 + 0 = 10
+第 3 维：2 + 3 + 4 + 5 + 0 + 0 = 14
+</code></pre><p>所以和是：</p><pre tabindex=0><code>[6, 10, 14]
+</code></pre><hr><h5 id=13-除以有效-token-数量>13. 除以有效 token 数量<a hidden class=anchor aria-hidden=true href=#13-除以有效-token-数量>#</a></h5><p>注意，不是除以 6。</p><p>因为有效 token 只有 4 个：</p><pre tabindex=0><code>attention_mask 之和 = 1 + 1 + 1 + 1 + 0 + 0 = 4
+</code></pre><p>所以：</p><pre tabindex=0><code>[6, 10, 14] / 4 = [1.5, 2.5, 3.5]
+</code></pre><p>最终句子 B 的 Mean Pooling 结果是：</p><pre tabindex=0><code>[1.5, 2.5, 3.5]
+</code></pre><hr><h5 id=14-用表格看-mask-计算过程>14. 用表格看 mask 计算过程<a hidden class=anchor aria-hidden=true href=#14-用表格看-mask-计算过程>#</a></h5><table><thead><tr><th>Token</th><th>向量</th><th style=text-align:right>Mask</th><th>乘 Mask 后</th></tr></thead><tbody><tr><td><code>[CLS]</code></td><td><code>[0, 1, 2]</code></td><td style=text-align:right>1</td><td><code>[0, 1, 2]</code></td></tr><tr><td>我</td><td><code>[1, 2, 3]</code></td><td style=text-align:right>1</td><td><code>[1, 2, 3]</code></td></tr><tr><td>喜欢</td><td><code>[2, 3, 4]</code></td><td style=text-align:right>1</td><td><code>[2, 3, 4]</code></td></tr><tr><td><code>[SEP]</code></td><td><code>[3, 4, 5]</code></td><td style=text-align:right>1</td><td><code>[3, 4, 5]</code></td></tr><tr><td><code>[PAD]</code></td><td><code>[9, 9, 9]</code></td><td style=text-align:right>0</td><td><code>[0, 0, 0]</code></td></tr><tr><td><code>[PAD]</code></td><td><code>[9, 9, 9]</code></td><td style=text-align:right>0</td><td><code>[0, 0, 0]</code></td></tr></tbody></table><p>求和：</p><pre tabindex=0><code>[6, 10, 14]
+</code></pre><p>有效 token 数量：</p><pre tabindex=0><code>4
+</code></pre><p>平均：</p><pre tabindex=0><code>[6, 10, 14] / 4 = [1.5, 2.5, 3.5]
+</code></pre><hr><h5 id=15-mean-pooling-的通用公式>15. Mean Pooling 的通用公式<a hidden class=anchor aria-hidden=true href=#15-mean-pooling-的通用公式>#</a></h5><p>假设：</p><pre tabindex=0><code>H1, H2, H3, ..., Hn
+</code></pre><p>是每个 token 的向量。</p><pre tabindex=0><code>M1, M2, M3, ..., Mn
+</code></pre><p>是 attention mask。</p><p>那么：</p><pre tabindex=0><code>句子向量 = (H1×M1 + H2×M2 + ... + Hn×Mn) / (M1 + M2 + ... + Mn)
+</code></pre><p>也就是：</p><pre tabindex=0><code>sentence_embedding = sum(token_embedding × attention_mask) / sum(attention_mask)
+</code></pre><hr><h5 id=16-对应到代码>16. 对应到代码<a hidden class=anchor aria-hidden=true href=#16-对应到代码>#</a></h5><p>假设模型输出：</p><pre tabindex=0><code>token_embeddings
+</code></pre><p>形状是：</p><pre tabindex=0><code>[batch_size, seq_len, hidden_size]
+</code></pre><p>例如：</p><pre tabindex=0><code>[2, 6, 3]
+</code></pre><p>表示：</p><pre tabindex=0><code>2 个句子
+每个句子 6 个 token
+每个 token 3 维向量
+</code></pre><p>attention_mask 是：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>attention_mask</span>
+</span></span></code></pre></div><p>形状是：</p><pre tabindex=0><code>[batch_size, seq_len]
+</code></pre><p>例如：</p><pre tabindex=0><code>[2, 6]
+</code></pre><p>代码：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>def</span> <span class=nf>mean_pooling</span><span class=p>(</span><span class=n>token_embeddings</span><span class=p>,</span> <span class=n>attention_mask</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>mask</span> <span class=o>=</span> <span class=n>attention_mask</span><span class=o>.</span><span class=n>unsqueeze</span><span class=p>(</span><span class=o>-</span><span class=mi>1</span><span class=p>)</span><span class=o>.</span><span class=n>float</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>masked_embeddings</span> <span class=o>=</span> <span class=n>token_embeddings</span> <span class=o>*</span> <span class=n>mask</span>
+</span></span><span class=line><span class=cl>    <span class=n>sum_embeddings</span> <span class=o>=</span> <span class=n>masked_embeddings</span><span class=o>.</span><span class=n>sum</span><span class=p>(</span><span class=n>dim</span><span class=o>=</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>token_count</span> <span class=o>=</span> <span class=n>mask</span><span class=o>.</span><span class=n>sum</span><span class=p>(</span><span class=n>dim</span><span class=o>=</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>sentence_embeddings</span> <span class=o>=</span> <span class=n>sum_embeddings</span> <span class=o>/</span> <span class=n>token_count</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>sentence_embeddings</span>
+</span></span></code></pre></div><hr><h5 id=17-每一行代码对应什么>17. 每一行代码对应什么？<a hidden class=anchor aria-hidden=true href=#17-每一行代码对应什么>#</a></h5><h5 id=原始形状>原始形状<a hidden class=anchor aria-hidden=true href=#原始形状>#</a></h5><pre tabindex=0><code>token_embeddings.shape
+</code></pre><p>可能是：</p><pre tabindex=0><code>[2, 6, 3]
+</code></pre><p>表示：</p><pre tabindex=0><code>2 个句子，每句 6 个 token，每个 token 3 维
+</code></pre><pre tabindex=0><code>attention_mask.shape
+</code></pre><p>是：</p><pre tabindex=0><code>[2, 6]
+</code></pre><p>比如：</p><pre tabindex=0><code>[
+  [1, 1, 1, 1, 1, 1],
+  [1, 1, 1, 1, 0, 0]
+]
+</code></pre><hr><h5 id=这一行>这一行：<a hidden class=anchor aria-hidden=true href=#这一行>#</a></h5><pre tabindex=0><code>mask = attention_mask.unsqueeze(-1).float()
+</code></pre><p>把：</p><pre tabindex=0><code>[2, 6]
+</code></pre><p>变成：</p><pre tabindex=0><code>[2, 6, 1]
+</code></pre><p>为什么要这样？</p><p>因为 token 向量是 3 维：</p><pre tabindex=0><code>[2, 6, 3]
+</code></pre><p>mask 需要能和每个 token 的每一维相乘。</p><p>原来 mask 是：</p><pre tabindex=0><code>1
+</code></pre><p>要变成可以作用到整个向量：</p><pre tabindex=0><code>[1, 1, 1]
+</code></pre><p>也就是：</p><pre tabindex=0><code>textmask=1 -&gt; 保留整个 token 向量
+mask=0 -&gt; 整个 token 向量变成 0
+</code></pre><hr><h5 id=这一行-1>这一行：<a hidden class=anchor aria-hidden=true href=#这一行-1>#</a></h5><pre tabindex=0><code>masked_embeddings = token_embeddings * mask
+</code></pre><p>就是把 PAD 清零。</p><p>例如：</p><pre tabindex=0><code>[9, 9, 9] × 0 = [0, 0, 0]
+</code></pre><hr><h5 id=这一行-2>这一行：<a hidden class=anchor aria-hidden=true href=#这一行-2>#</a></h5><pre tabindex=0><code>sum_embeddings = masked_embeddings.sum(dim=1)
+</code></pre><p><code>dim=1</code> 表示沿着 token 维度求和。</p><p>也就是：</p><pre tabindex=0><code>把一个句子里的所有 token 向量加起来
+</code></pre><p>从形状看：</p><pre tabindex=0><code>[2, 6, 3] -&gt; [2, 3]
+</code></pre><p>意思是：</p><pre tabindex=0><code>每个句子得到一个求和向量
+</code></pre><hr><h5 id=这一行-3>这一行：<a hidden class=anchor aria-hidden=true href=#这一行-3>#</a></h5><pre tabindex=0><code>token_count = mask.sum(dim=1)
+</code></pre><p>计算每个句子的有效 token 数量。</p><p>例如：</p><pre tabindex=0><code>[1, 1, 1, 1, 0, 0]
+</code></pre><p>求和得到：</p><pre tabindex=0><code>4
+</code></pre><hr><h5 id=最后一行>最后一行：<a hidden class=anchor aria-hidden=true href=#最后一行>#</a></h5><pre tabindex=0><code>sentence_embeddings = sum_embeddings / token_count
+</code></pre><p>就是：</p><pre tabindex=0><code>求和向量 / 有效 token 数量
+</code></pre><p>最终得到每个句子的句向量。</p><hr><h5 id=18-mean-pooling-后还不是最终检索向量>18. Mean Pooling 后还不是最终检索向量<a hidden class=anchor aria-hidden=true href=#18-mean-pooling-后还不是最终检索向量>#</a></h5><p>Mean Pooling 得到的是句子向量，例如：</p><pre tabindex=0><code>[1.5, 2.5, 3.5]
+</code></pre><p>通常下一步还会做：</p><pre tabindex=0><code>L2 Normalization
+</code></pre><p>也就是把它变成单位向量。</p><p>但 Mean Pooling 这一步只负责：</p><pre tabindex=0><code>多个 token 向量 -&gt; 一个句子向量
+</code></pre><p>Normalization 负责：</p><pre tabindex=0><code>把句子向量缩放到长度为 1
+</code></pre><hr><h4 id=19-一句话总结>19. 一句话总结<a hidden class=anchor aria-hidden=true href=#19-一句话总结>#</a></h4><p>Mean Pooling 就是：</p><pre tabindex=0><code>把一句话中所有有效 token 的向量，逐维求平均。
+</code></pre><p>更完整地说：</p><pre tabindex=0><code>先用 attention_mask 把 PAD token 排除掉，
+然后把有效 token 的向量逐维相加，
+最后除以有效 token 数量，
+得到一个固定长度的句子向量。
+</code></pre><p>例如：</p><pre tabindex=0><code>我     -&gt; [1, 2, 3]
+喜欢   -&gt; [2, 3, 4]
+机器   -&gt; [3, 4, 5]
+学习   -&gt; [4, 5, 6]
+</code></pre><p>Mean Pooling：</p><pre tabindex=0><code>([1,2,3] + [2,3,4] + [3,4,5] + [4,5,6]) / 4
+= [2.5, 3.5, 4.5]
+</code></pre><p>这个：</p><pre tabindex=0><code>[2.5, 3.5, 4.5]
+</code></pre><p>就是整句话的向量表示。</p><h4 id=再来归一化>再来归一化<a hidden class=anchor aria-hidden=true href=#再来归一化>#</a></h4><p>简单来说，归一化就是<strong>把数据按照一定的比例进行缩放，使其落入一个特定的限制范围（通常是 [0,1] 或 [−1,1]），或者使其满足某种特定的数学特征（如模长为 1）</strong>。</p><p>为什么要这么做？因为原始数据往往带有不同的**量纲（单位）*<em>或*<em>数量级</em></em>。如果不做处理，大数值的数据就会在计算中占据绝对主导地位，从而掩盖掉真正重要的特征。</p><h5 id=向量归一化unit-vector--l2-归一化>向量归一化（Unit Vector / L2 归一化）<a hidden class=anchor aria-hidden=true href=#向量归一化unit-vector--l2-归一化>#</a></h5><p><em>—— 语义搜索、大模型嵌入的最爱</em></p><p>正如我们在前面讨论 Transformers.js 时提到的，<strong>向量归一化</strong>（通常指 L2 归一化）的目的不是改变单个数字，而是<strong>把一个向量的长度（模长）缩放到刚好等于 1</strong>，使其变成一个“单位向量”。</p><p><img alt=image-20260619174554951 loading=lazy src=/posts/20260619-bigmodel_vector_search/image-20260619174554951.png></p><p>解释一下勾股定理延申：</p><p><img alt=image-20260619174958445 loading=lazy src=/posts/20260619-bigmodel_vector_search/image-20260619174958445.png></p><p><img alt=image-20260619175039545 loading=lazy src=/posts/20260619-bigmodel_vector_search/image-20260619175039545.png></p><p><img alt=image-20260619175108521 loading=lazy src=/posts/20260619-bigmodel_vector_search/image-20260619175108521.png></p><p>总结：为什么计算模长要先平方求和再开方？因为<strong>多维空间中的“距离”，本质上就是无数个跨维度的直角三角形斜边嵌套。</strong> “平方和再开方”不是科学家凭空发明的规则，它就是勾股定理在多维空间里极其自然、完美的数学延伸。</p><h5 id=为什么语义搜索一定要做这个>为什么语义搜索一定要做这个？<a hidden class=anchor aria-hidden=true href=#为什么语义搜索一定要做这个>#</a></h5><p>做完 L2 归一化后，这个向量的几何长度就固定成了 1。在多维空间中，这意味着所有的句子向量都被投影到了一个<strong>半径为 1 的超球面上</strong>。 此时，向量的绝对大小（比如长文本带来的大数值）被消除了，模型只关心向量的<strong>方向</strong>。这就使得<strong>点积计算直接等价于余弦相似度</strong>，极大提升了搜索的准确性和计算速度。</p><p><strong>点积（Dot Product）</strong>（又称数量积、内积）是最核心的数学工具之一。</p><p>简单来说，点积把两个<strong>向量</strong>（方向和大小的组合）组合起来，变成了一个<strong>标量</strong>（一个纯数字）。这个数字能够直观地反映出<strong>这两个向量有多“同心协力”</strong>。</p><p>下面从几何、代数以及它在语义搜索中的应用三个维度，为你拆解点积的本质。</p><p><img alt=image-20260619175458619 loading=lazy src=/posts/20260619-bigmodel_vector_search/image-20260619175458619.png></p><p><img alt=image-20260619175706624 loading=lazy src=/posts/20260619-bigmodel_vector_search/image-20260619175706624.png></p><p><img alt=image-20260619175757527 loading=lazy src=/posts/20260619-bigmodel_vector_search/image-20260619175757527.png></p><p>我们得出结论：在 AI 的向量检索中，只要提前对向量做了归一化，<strong>点积就等于余弦相似度</strong>。此时，点积完全不再受文本长度的影响，它变成了一个纯粹用来衡量方向一致性（语义相似度）的指标，数值严格落在 [−1,1] 之间。这也是现代向量数据库和前端语义搜索能高效运行的数学基石。</p><p>延展了这么多，那拉回去：</p><p><strong>平均池化（Mean Pooling）</strong>：把一句话中所有有效 Token 的向量逐维求平均，从而将多个 Token 向量合成为一个句子向量。</p><p><strong>归一化（Normalization）</strong>：把池化后的句子向量缩放为模长为 1 的单位向量，使点积可以直接表示余弦相似度。</p><p>在 Transformers.js 中，当你向管道调用传递 <code>{ pooling: 'mean', normalize: true }</code> 时，这两个步骤都会自动完成。</p><h3 id=特征提取管道the-feature-extraction-pipeline>特征提取管道（The Feature-Extraction Pipeline）<a hidden class=anchor aria-hidden=true href=#特征提取管道the-feature-extraction-pipeline>#</a></h3><p>特征提取任务（Feature-extraction）返回的是模型在内部计算出的原始向量表示。以下是生成单个句子嵌入的核心 JavaScript 代码：</p><pre tabindex=0><code>import { pipeline } from &#39;https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2&#39;;
+
+// 加载特征提取管道
+// Xenova/all-MiniLM-L6-v2 是该模型的浏览器兼容版本，权重相同
+const extractor = await pipeline(
+  &#39;feature-extraction&#39;,
+  &#39;Xenova/all-MiniLM-L6-v2&#39;,
+  { dtype: &#39;q8&#39; } // 8位量化：下载量更小（~23 MB），精度高
+);
+
+// 提取单个句子的嵌入向量
+const output = await extractor(&#39;I need help with my order&#39;, {
+  pooling: &#39;mean&#39;,
+  normalize: true
+});
+
+console.log(output);
+// 输出 Tensor 对象:
+// dims: [1, 384] 代表 1 个句子，384 个维度
+// data: Float32Array(384) 包含实际的数字
+
+// 转换为普通的 JavaScript 数组以便使用
+const vector = output.tolist()[0]; 
+console.log(`向量长度: ${vector.length}`); // 384
+</code></pre><h5 id=这段代码的作用>这段代码的作用：<a hidden class=anchor aria-hidden=true href=#这段代码的作用>#</a></h5><ul><li><strong><code>pipeline()</code></strong> 在第一次运行时会下载并初始化模型（随后浏览器会将其缓存，因此后续的页面加载都是瞬间完成的）。</li><li>然后，你只需传入一个字符串和两个配置项来调用提取器（extractor），这会为你返回一个单一的、归一化的句子向量。</li><li>返回的结果是一个 <strong><code>Tensor</code>（张量）</strong> 对象；调用 <strong><code>.tolist()[0]</code></strong> 可以将其转换为包含 384 个数字的普通 JavaScript 数组，供你在代码中直接使用。</li></ul><h5 id=理解输出的-tensor张量>理解输出的 Tensor（张量）<a hidden class=anchor aria-hidden=true href=#理解输出的-tensor张量>#</a></h5><p><code>feature-extraction</code>（特征提取）任务返回的 <code>Tensor</code> 对象有三个非常值得了解的字段：</p><ul><li><strong><code>dims</code></strong> 是张量的形状 <code>[n_sentences, 384]</code>。如果传入 1 个句子，<code>dims[0]</code> 就是 <code>1</code>；如果批量（batch）传入 10 个句子，<code>dims[0]</code> 就是 <code>10</code>。对于该模型，第二个维度始终是 <code>384</code>。</li><li><strong><code>type</code></strong> 值为 <code>'float32'</code>，这意味着 384 个数值中的每一个都是 32 位的浮点数。</li><li><strong><code>data</code></strong> 是一个 <code>Float32Array</code>（32位浮点数数组），它以行优先顺序（row-major order）包含了所有的数字。例如，对于包含 3 个句子的批量任务，这是一个包含 3×384=1,152 个数字的一维扁平数组。</li></ul><p><strong><code>.tolist()</code></strong> 会将张量转换为一个嵌套的 JavaScript 数组（每个句子对应一个内层数组）。<strong><code>output.tolist()[0]</code></strong> 则以普通数组的形式获取第一个句子的向量（包含 384 个数字）。</p><h3 id=批处理一次性嵌入多个句子>批处理：一次性嵌入多个句子<a hidden class=anchor aria-hidden=true href=#批处理一次性嵌入多个句子>#</a></h3><p>向提取器传入一个字符串数组，可以在单次模型调用中处理所有句子。这比在循环中逐个调用快得多，因为 Transformer 架构针对并行输入进行了优化。</p><pre tabindex=0><code>const sentences = [
+  &#39;How do I track my shipment?&#39;,
+  &#39;What is your return policy?&#39;,
+  &#39;How can I reset my password?&#39;,
+  &#39;Do you offer international delivery?&#39;
+];
+
+const batchOutput = await extractor(sentences, {
+  pooling: &#39;mean&#39;,
+  normalize: true
+});
+
+// batchOutput.dims = [4, 384] -- 4个句子，每个384维
+const vectors = batchOutput.tolist();
+console.log(`生成的向量数量: ${vectors.length}`); // 4
+</code></pre><p>在构建包含数十个文档的知识库时，<strong>始终应该优先选择批处理</strong>。</p><h3 id=余弦相似度搜索背后的数学>余弦相似度：搜索背后的数学<a hidden class=anchor aria-hidden=true href=#余弦相似度搜索背后的数学>#</a></h3><p>一旦你获得了文档向量和查询向量，就需要衡量它们有多相似。由于我们在生成嵌入时使用了 <code>normalize: true</code>，两个向量的模长都已经为 1。此时，<strong>余弦相似度直接简化为两个向量的点积</strong>：</p><p>cosine_similarity(A,B)=A⋅B=∑(A[i]×B[i])</p><p>我们只需要将两个向量对应位置的数字相乘并求和即可。实际的得分范围大致如下：</p><ul><li><strong>0.90 到 1.00</strong>：含义几乎完全相同</li><li><strong>0.70 到 0.90</strong>：强语义匹配</li><li><strong>0.50 到 0.70</strong>：主题相关，角度不同</li><li><strong>0.30 以下</strong>：基本不相关</li></ul><p>仔细解释一下：</p><h5 id=1-想象一个生活场景手电筒与影子>1. 想象一个生活场景：手电筒与影子<a hidden class=anchor aria-hidden=true href=#1-想象一个生活场景手电筒与影子>#</a></h5><p>假设地上放着一根巨大的箭竹，我们叫它 <strong>向量 A</strong>。 旁边斜着立了一根晾衣杆，我们叫它 <strong>向量 B</strong>。它们两个的底部是连在一起的。</p><p>现在，你拿一把手电筒，站在<strong>垂直于 A的正上方</strong>（也就是垂直于地面）往下照。</p><p>这时候，晾衣杆（向量 B）就会在地面（向量 A）上投下一个<strong>影子</strong>。</p><ul><li><strong>这个“影子的实际长度”，在数学上就叫做“向量 B 在向量 A 方向上的投影长度”。</strong></li></ul><p><img alt=image-20260619183801540 loading=lazy src=/posts/20260619-bigmodel_vector_search/image-20260619183801540.png></p><h5 id=2-怎么用数学算出这个影子的长度>2. 怎么用数学算出这个影子的长度？<a hidden class=anchor aria-hidden=true href=#2-怎么用数学算出这个影子的长度>#</a></h5><p>现在我们把这个“手电筒照影子”的画面连成一个几何图形：</p><pre><code>斜着的晾衣杆是 向量 B（它的长度是 ∣A∣ 还是 ∣B∣呢？当然是∣B∣）。
+
+垂直照下来的光线，和地面是一条垂直线。
+
+地面上的影子，是直角三角形的底边。
+</code></pre><p>这刚好构成了一个标准的直角三角形：</p><pre><code>斜边：晾衣杆，长度是 ∣B∣。
+
+夹角：晾衣杆和地面的夹角，就是 θ。
+
+底边（影子）：就是我们要算的长。
+</code></pre><p>根据我们在初中/高中学过的三角函数定义：</p><p>cos(θ) = 底边 / 斜边</p><p>我们把两边同时乘以“斜边”，公式就变成了：</p><p>底边=斜边×cos(θ)</p><p>把我们的主角代入进去：</p><ul><li>底边就是<strong>影子长度</strong>。</li><li>斜边就是∣B∣，向量的长度</li></ul><p>所以：
+影子的长度=∣B∣×cos(θ)</p><p>这就是为什么说 (∣B∣cos(θ)) 实际上就是向量 B 在向量 A 方向上的“投影长度”。它不是凭空编出来的，它就是用夹角和斜边算出来的直角三角形底边长。</p><h5 id=3-再回头看点积公式>3. 再回头看点积公式<a hidden class=anchor aria-hidden=true href=#3-再回头看点积公式>#</a></h5><p>现在我们把这个影子带回点积的几何公式：
+A⋅B = ∣A∣×∣B∣× cos(θ)</p><p>我们给它加个括号，分组看一下：
+A⋅B = ∣A∣ × ( ∣B∣ x cos(θ) )</p><p>用大白话翻译这个公式就是：
+两个向量的点积=（向量 A 的长度）×（向量 B 射在 A 上的影子长度）
+为什么这个乘积能代表“相关性”？</p><pre><code>如果向量 B 和向量 A 的方向非常接近（夹角很小），那么晾衣杆倒得比较平，地面的影子就很长，影子长，两个长度相乘的点积就很大。
+
+如果向量 B 和向量 A 互相垂直（夹角 90∘），手电筒从正上方照下来，晾衣杆变成了一条垂直的线，它在地面上的影子就缩成了一个点（长度为 0）。影子是 0，无论 A 有多长，相乘之后的点积就是 0。
+</code></pre><p>这就是为什么点积可以用来算相似度。方向越接近，投影（影子）就越长，点积就越大！</p><p><strong>相似度计算函数：</strong></p><pre tabindex=0><code>function cosineSimilarity(vecA, vecB) {
+  let dotProduct = 0;
+  for (let i = 0; i &lt; vecA.length; i++) {
+    dotProduct += vecA[i] * vecB[i];
+  }
+  return dotProduct;
+}
+</code></pre><p>为什么加起来最大也就是1，不会突破1呢？</p><p><img alt=image-20260619190444032 loading=lazy src=/posts/20260619-bigmodel_vector_search/image-20260619190444032.png></p><h3 id=构建一个语义搜索类semantic-search-class>构建一个语义搜索类（Semantic Search Class）<a hidden class=anchor aria-hidden=true href=#构建一个语义搜索类semantic-search-class>#</a></h3><p>在实际应用中，我们可以将上述逻辑封装进一个可重用的 JavaScript 类中。该类负责管理文档库、生成向量以及计算搜索结果：</p><pre tabindex=0><code>/**
+ * SemanticSearch -- a simple client-side semantic search engine.
+ *
+ * Usage:
+ *   const search = new SemanticSearch(extractor);
+ *   await search.indexDocuments(myDocs);
+ *   const results = await search.search(&#39;my query&#39;, 5);
+ */
+class SemanticSearch {
+  constructor(extractor) {
+    // The feature-extraction pipeline instance (already loaded)
+    this.extractor = extractor;
+
+    // Stores documents after indexing: { id, text, metadata, vector }
+    this.index = [];
+  }
+
+  /**
+   * Embed all documents and store their vectors in memory.
+   * Call this once at startup. Searches reuse these cached vectors.
+   *
+   * @param {Array} docs
+   */
+  async indexDocuments(docs) {
+    console.time(&#39;indexing&#39;);
+
+    // Pull just the text strings for batch embedding
+    const texts = docs.map(doc =&gt; doc.text);
+
+    // Single batch call embeds all documents at once -- much faster than looping
+    const output = await this.extractor(texts, {
+      pooling: &#39;mean&#39;,
+      normalize: true
+    });
+
+    // Convert the tensor to an array of 384-element arrays, one per document
+    const vectors = output.tolist();
+
+    // Attach each vector to its original document object
+    // The spread (...doc) preserves all original fields: title, URL, tags, etc.
+    this.index = docs.map((doc, i) =&gt; ({
+      ...doc,
+      vector: vectors[i]
+    }));
+
+    console.timeEnd(&#39;indexing&#39;);
+    console.log(`Indexed ${this.index.length} documents`);
+    return this;
+  }
+
+  /**
+   * Search indexed documents for the most semantically relevant results.
+   *
+   * @param {string} query - The search query in plain language
+   * @param {number} topK  - How many results to return (default: 5)
+   * @returns {Promise&lt;Array&gt;} Results sorted by relevance, highest first
+   */
+  async search(query, topK = 5) {
+    if (this.index.length === 0) {
+      throw new Error(&#39;No documents indexed. Call indexDocuments() first.&#39;);
+    }
+
+    console.time(&#39;query embedding&#39;);
+
+    // Embed the search query -- the only model inference call during a search
+    const queryOutput = await this.extractor(query, {
+      pooling: &#39;mean&#39;,
+      normalize: true
+    });
+    const queryVector = queryOutput.tolist()[0];
+
+    console.timeEnd(&#39;query embedding&#39;);
+    console.time(&#39;scoring&#39;);
+
+    // Score every indexed document against the query vector
+    // This is pure JavaScript math -- no model involved, so it&#39;s instant
+    const scored = this.index.map(doc =&gt; ({
+      doc,
+      score: cosineSimilarity(queryVector, doc.vector)
+    }));
+
+    // Sort descending -- highest relevance score first
+    scored.sort((a, b) =&gt; b.score - a.score);
+
+    console.timeEnd(&#39;scoring&#39;);
+
+    // Return the top-k results, stripping the vector from the output
+    return scored.slice(0, topK).map(({ doc, score }) =&gt; ({
+      id:       doc.id,
+      title:    doc.title,
+      text:     doc.text,
+      metadata: doc.metadata,
+      score:    score
+    }));
+  }
+
+  /**
+   * Serialize the index to JSON for storage in localStorage or IndexedDB.
+   * Saves the embedding step on subsequent page loads.
+   */
+  toJSON() {
+    return JSON.stringify(this.index);
+  }
+
+  /**
+   * Restore a previously serialized index without re-embedding anything.
+   * Vectors are plain arrays in JSON and deserialize directly.
+   */
+  fromJSON(json) {
+    this.index = JSON.parse(json);
+    return this;
+  }
+}
+</code></pre><h5 id=这段代码的作用-1>这段代码的作用：<a hidden class=anchor aria-hidden=true href=#这段代码的作用-1>#</a></h5><ul><li><strong><code>indexDocuments</code></strong> 接收你传入的文档对象数组（每个对象至少需要包含一个 <code>text</code> 字段），并在单次批量调用中对所有文本进行嵌入处理（Embedding），然后将结果存储在 <code>this.index</code> 中。</li><li><strong>扩展运算符（<code>...doc</code>）</strong> 会完整保留你传入的所有元数据（Metadata），确保没有任何信息会丢失。</li><li><strong><code>search</code></strong> 仅对查询语句（Query）进行嵌入处理（单次模型推理调用，通常在 100 毫秒以内），然后在一个普通的 JavaScript 循环中，对每一个缓存的文档向量运行 <strong><code>cosineSimilarity</code>（余弦相似度）</strong> 计算。</li><li>在评分（Scoring）阶段<strong>不需要再次进行模型推理</strong>，这就是为什么在索引建立完成后，搜索体验会让人感觉是瞬间响应的原因。</li><li><strong><code>toJSON</code> 和 <code>fromJSON</code> 方法</strong> 允许你在页面加载之间持久化保存索引。当用户再次访问时，可以完全跳过文本嵌入步骤。</li></ul><p>全代码：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>&lt;!DOCTYPE html&gt;
+</span></span><span class=line><span class=cl>&lt;html <span class=nv>lang</span><span class=o>=</span><span class=s2>&#34;en&#34;</span>&gt;
+</span></span><span class=line><span class=cl>&lt;head&gt;
+</span></span><span class=line><span class=cl>  &lt;meta <span class=nv>charset</span><span class=o>=</span><span class=s2>&#34;UTF-8&#34;</span> /&gt;
+</span></span><span class=line><span class=cl>  &lt;meta <span class=nv>name</span><span class=o>=</span><span class=s2>&#34;viewport&#34;</span> <span class=nv>content</span><span class=o>=</span><span class=s2>&#34;width=device-width, initial-scale=1.0&#34;</span> /&gt;
+</span></span><span class=line><span class=cl>  &lt;title&gt;Semantic Knowledge Base Search&lt;/title&gt;
+</span></span><span class=line><span class=cl>  &lt;style&gt;
+</span></span><span class=line><span class=cl>    * <span class=o>{</span> box-sizing: border-box<span class=p>;</span> margin: 0<span class=p>;</span> padding: 0<span class=p>;</span> <span class=o>}</span>
+</span></span><span class=line><span class=cl>    body <span class=o>{</span>
+</span></span><span class=line><span class=cl>      font-family: system-ui, sans-serif<span class=p>;</span>
+</span></span><span class=line><span class=cl>      max-width: 760px<span class=p>;</span>
+</span></span><span class=line><span class=cl>      margin: 2rem auto<span class=p>;</span>
+</span></span><span class=line><span class=cl>      padding: <span class=m>0</span> 1rem<span class=p>;</span>
+</span></span><span class=line><span class=cl>      background: <span class=c1>#f8fafc;</span>
+</span></span><span class=line><span class=cl>      color: <span class=c1>#1e293b;</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>    h1 <span class=o>{</span> font-size: 1.5rem<span class=p>;</span> margin-bottom: 0.25rem<span class=p>;</span> <span class=o>}</span>
+</span></span><span class=line><span class=cl>    .subtitle <span class=o>{</span> color: <span class=c1>#64748b; font-size: 0.9rem; margin-bottom: 1.5rem; }</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    .search-bar <span class=o>{</span>
+</span></span><span class=line><span class=cl>      display: flex<span class=p>;</span>
+</span></span><span class=line><span class=cl>      gap: 0.5rem<span class=p>;</span>
+</span></span><span class=line><span class=cl>      margin-bottom: 0.75rem<span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>    input<span class=o>[</span><span class=nv>type</span><span class=o>=</span><span class=s2>&#34;text&#34;</span><span class=o>]</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>      flex: 1<span class=p>;</span>
+</span></span><span class=line><span class=cl>      padding: 0.6rem 0.8rem<span class=p>;</span>
+</span></span><span class=line><span class=cl>      font-size: 1rem<span class=p>;</span>
+</span></span><span class=line><span class=cl>      border: 1px solid <span class=c1>#cbd5e1;</span>
+</span></span><span class=line><span class=cl>      border-radius: 6px<span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>    button <span class=o>{</span>
+</span></span><span class=line><span class=cl>      padding: 0.6rem 1.4rem<span class=p>;</span>
+</span></span><span class=line><span class=cl>      font-size: 1rem<span class=p>;</span>
+</span></span><span class=line><span class=cl>      background: <span class=c1>#2563eb;</span>
+</span></span><span class=line><span class=cl>      color: white<span class=p>;</span>
+</span></span><span class=line><span class=cl>      border: none<span class=p>;</span>
+</span></span><span class=line><span class=cl>      border-radius: 6px<span class=p>;</span>
+</span></span><span class=line><span class=cl>      cursor: pointer<span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>    button:disabled <span class=o>{</span> background: <span class=c1>#93c5fd; cursor: not-allowed; }</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>#status {</span>
+</span></span><span class=line><span class=cl>      font-size: 0.85rem<span class=p>;</span>
+</span></span><span class=line><span class=cl>      color: <span class=c1>#64748b;</span>
+</span></span><span class=line><span class=cl>      margin-bottom: 1rem<span class=p>;</span>
+</span></span><span class=line><span class=cl>      min-height: 1.2em<span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>    .examples <span class=o>{</span>
+</span></span><span class=line><span class=cl>      font-size: 0.85rem<span class=p>;</span>
+</span></span><span class=line><span class=cl>      color: <span class=c1>#64748b;</span>
+</span></span><span class=line><span class=cl>      margin-bottom: 1.5rem<span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>    .example-query <span class=o>{</span>
+</span></span><span class=line><span class=cl>      display: inline-block<span class=p>;</span>
+</span></span><span class=line><span class=cl>      background: <span class=c1>#e0f2fe;</span>
+</span></span><span class=line><span class=cl>      color: <span class=c1>#0369a1;</span>
+</span></span><span class=line><span class=cl>      border-radius: 4px<span class=p>;</span>
+</span></span><span class=line><span class=cl>      padding: 0.2rem 0.5rem<span class=p>;</span>
+</span></span><span class=line><span class=cl>      margin: 0.2rem<span class=p>;</span>
+</span></span><span class=line><span class=cl>      cursor: pointer<span class=p>;</span>
+</span></span><span class=line><span class=cl>      font-size: 0.82rem<span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>    .example-query:hover <span class=o>{</span> background: <span class=c1>#bae6fd; }</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    .result-card <span class=o>{</span>
+</span></span><span class=line><span class=cl>      background: white<span class=p>;</span>
+</span></span><span class=line><span class=cl>      border: 1px solid <span class=c1>#e2e8f0;</span>
+</span></span><span class=line><span class=cl>      border-radius: 8px<span class=p>;</span>
+</span></span><span class=line><span class=cl>      padding: 1rem<span class=p>;</span>
+</span></span><span class=line><span class=cl>      margin-bottom: 0.75rem<span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>    .result-header <span class=o>{</span>
+</span></span><span class=line><span class=cl>      display: flex<span class=p>;</span>
+</span></span><span class=line><span class=cl>      justify-content: space-between<span class=p>;</span>
+</span></span><span class=line><span class=cl>      align-items: flex-start<span class=p>;</span>
+</span></span><span class=line><span class=cl>      margin-bottom: 0.4rem<span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>    .result-title <span class=o>{</span> font-weight: 600<span class=p>;</span> font-size: 1rem<span class=p>;</span> <span class=o>}</span>
+</span></span><span class=line><span class=cl>    .score-badge <span class=o>{</span>
+</span></span><span class=line><span class=cl>      font-size: 0.78rem<span class=p>;</span>
+</span></span><span class=line><span class=cl>      font-weight: 700<span class=p>;</span>
+</span></span><span class=line><span class=cl>      padding: 0.15rem 0.5rem<span class=p>;</span>
+</span></span><span class=line><span class=cl>      border-radius: 12px<span class=p>;</span>
+</span></span><span class=line><span class=cl>      white-space: nowrap<span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>    .score-high   <span class=o>{</span> background: <span class=c1>#dcfce7; color: #15803d; }</span>
+</span></span><span class=line><span class=cl>    .score-medium <span class=o>{</span> background: <span class=c1>#fef9c3; color: #854d0e; }</span>
+</span></span><span class=line><span class=cl>    .score-low    <span class=o>{</span> background: <span class=c1>#f1f5f9; color: #64748b; }</span>
+</span></span><span class=line><span class=cl>    .result-category <span class=o>{</span> font-size: 0.78rem<span class=p>;</span> color: <span class=c1>#64748b; margin-bottom: 0.4rem; }</span>
+</span></span><span class=line><span class=cl>    .result-text <span class=o>{</span> font-size: 0.9rem<span class=p>;</span> color: <span class=c1>#475569; line-height: 1.5; }</span>
+</span></span><span class=line><span class=cl>    <span class=c1>#no-results { text-align: center; color: #94a3b8; padding: 2rem; }</span>
+</span></span><span class=line><span class=cl>  &lt;/style&gt;
+</span></span><span class=line><span class=cl>&lt;/head&gt;
+</span></span><span class=line><span class=cl>&lt;body&gt;
+</span></span><span class=line><span class=cl>  &lt;h1&gt;Knowledge Base Search&lt;/h1&gt;
+</span></span><span class=line><span class=cl>  &lt;p <span class=nv>class</span><span class=o>=</span><span class=s2>&#34;subtitle&#34;</span>&gt;
+</span></span><span class=line><span class=cl>    Finds relevant articles even when your words don<span class=s1>&#39;t appear in the text.
+</span></span></span><span class=line><span class=cl><span class=s1>    Runs entirely in your browser.
+</span></span></span><span class=line><span class=cl><span class=s1>  &lt;/p&gt;
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>  &lt;div class=&#34;search-bar&#34;&gt;
+</span></span></span><span class=line><span class=cl><span class=s1>    &lt;input type=&#34;text&#34; id=&#34;query-input&#34; placeholder=&#34;Ask anything...&#34; disabled /&gt;
+</span></span></span><span class=line><span class=cl><span class=s1>    &lt;button id=&#34;search-btn&#34; disabled&gt;Search&lt;/button&gt;
+</span></span></span><span class=line><span class=cl><span class=s1>  &lt;/div&gt;
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>  &lt;div id=&#34;status&#34;&gt;Loading model -- first run downloads ~23 MB...&lt;/div&gt;
+</span></span></span><span class=line><span class=cl><span class=s1>
+</span></span></span><span class=line><span class=cl><span class=s1>  &lt;div class=&#34;examples&#34;&gt;
+</span></span></span><span class=line><span class=cl><span class=s1>    Try these (no keyword overlap with matching articles):
+</span></span></span><span class=line><span class=cl><span class=s1>    &lt;span class=&#34;example-query&#34;&gt;cheap shipping option&lt;/span&gt;
+</span></span></span><span class=line><span class=cl><span class=s1>    &lt;span class=&#34;example-query&#34;&gt;I can&#39;</span>t get into my account&lt;/span&gt;
+</span></span><span class=line><span class=cl>    &lt;span <span class=nv>class</span><span class=o>=</span><span class=s2>&#34;example-query&#34;</span>&gt;item arrived damaged&lt;/span&gt;
+</span></span><span class=line><span class=cl>    &lt;span <span class=nv>class</span><span class=o>=</span><span class=s2>&#34;example-query&#34;</span>&gt;stop receiving emails&lt;/span&gt;
+</span></span><span class=line><span class=cl>    &lt;span <span class=nv>class</span><span class=o>=</span><span class=s2>&#34;example-query&#34;</span>&gt;buy now pay later&lt;/span&gt;
+</span></span><span class=line><span class=cl>  &lt;/div&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  &lt;div <span class=nv>id</span><span class=o>=</span><span class=s2>&#34;results&#34;</span>&gt;&lt;/div&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  &lt;script <span class=nv>type</span><span class=o>=</span><span class=s2>&#34;module&#34;</span>&gt;
+</span></span><span class=line><span class=cl>    import <span class=o>{</span> pipeline <span class=o>}</span>
+</span></span><span class=line><span class=cl>      from <span class=s1>&#39;https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    // ----------------------------------------------------------------
+</span></span><span class=line><span class=cl>    // Knowledge base corpus
+</span></span><span class=line><span class=cl>    // Each document has an id, title, category, and text to embed.
+</span></span><span class=line><span class=cl>    // In a real application, load this from an API or a JSON file.
+</span></span><span class=line><span class=cl>    // ----------------------------------------------------------------
+</span></span><span class=line><span class=cl>    const <span class=nv>KNOWLEDGE_BASE</span> <span class=o>=</span> <span class=o>[</span>
+</span></span><span class=line><span class=cl>      <span class=o>{</span>
+</span></span><span class=line><span class=cl>        id: <span class=s1>&#39;kb-001&#39;</span>,
+</span></span><span class=line><span class=cl>        title: <span class=s1>&#39;Standard Shipping Information&#39;</span>,
+</span></span><span class=line><span class=cl>        category: <span class=s1>&#39;Shipping&#39;</span>,
+</span></span><span class=line><span class=cl>        text: <span class=s1>&#39;Standard shipping takes 5-7 business days. Orders over $50 qualify for free standard shipping. We ship to all 50 US states and most US territories.&#39;</span>
+</span></span><span class=line><span class=cl>      <span class=o>}</span>,
+</span></span><span class=line><span class=cl>      <span class=o>{</span>
+</span></span><span class=line><span class=cl>        id: <span class=s1>&#39;kb-002&#39;</span>,
+</span></span><span class=line><span class=cl>        title: <span class=s1>&#39;Economy Delivery Options&#39;</span>,
+</span></span><span class=line><span class=cl>        category: <span class=s1>&#39;Shipping&#39;</span>,
+</span></span><span class=line><span class=cl>        text: <span class=s1>&#39;Our budget-friendly delivery option delivers in 7-10 business days at a reduced rate of $2.99 for small packages. This is our most affordable way to receive your order.&#39;</span>
+</span></span><span class=line><span class=cl>      <span class=o>}</span>,
+</span></span><span class=line><span class=cl>      <span class=o>{</span>
+</span></span><span class=line><span class=cl>        id: <span class=s1>&#39;kb-003&#39;</span>,
+</span></span><span class=line><span class=cl>        title: <span class=s1>&#39;Express and Overnight Shipping&#39;</span>,
+</span></span><span class=line><span class=cl>        category: <span class=s1>&#39;Shipping&#39;</span>,
+</span></span><span class=line><span class=cl>        text: <span class=s1>&#39;Expedited delivery guarantees arrival within 2 business days. Overnight delivery is available for orders placed before 2pm EST. Premium shipping rates apply.&#39;</span>
+</span></span><span class=line><span class=cl>      <span class=o>}</span>,
+</span></span><span class=line><span class=cl>      <span class=o>{</span>
+</span></span><span class=line><span class=cl>        id: <span class=s1>&#39;kb-004&#39;</span>,
+</span></span><span class=line><span class=cl>        title: <span class=s1>&#39;Return Policy Overview&#39;</span>,
+</span></span><span class=line><span class=cl>        category: <span class=s1>&#39;Returns&#39;</span>,
+</span></span><span class=line><span class=cl>        text: <span class=s1>&#39;You can send back most items within 30 days of purchase for a full refund. Items must be in original packaging. Electronics have a 15-day return window.&#39;</span>
+</span></span><span class=line><span class=cl>      <span class=o>}</span>,
+</span></span><span class=line><span class=cl>      <span class=o>{</span>
+</span></span><span class=line><span class=cl>        id: <span class=s1>&#39;kb-005&#39;</span>,
+</span></span><span class=line><span class=cl>        title: <span class=s1>&#39;Damaged Item Policy&#39;</span>,
+</span></span><span class=line><span class=cl>        category: <span class=s1>&#39;Returns&#39;</span>,
+</span></span><span class=line><span class=cl>        text: <span class=s1>&#39;If your package arrived broken or defective, please contact us within 7 days. We will send a prepaid label and ship a replacement at no additional cost. Take photos before returning.&#39;</span>
+</span></span><span class=line><span class=cl>      <span class=o>}</span>,
+</span></span><span class=line><span class=cl>      <span class=o>{</span>
+</span></span><span class=line><span class=cl>        id: <span class=s1>&#39;kb-006&#39;</span>,
+</span></span><span class=line><span class=cl>        title: <span class=s1>&#39;How Refunds Are Processed&#39;</span>,
+</span></span><span class=line><span class=cl>        category: <span class=s1>&#39;Returns&#39;</span>,
+</span></span><span class=line><span class=cl>        text: <span class=s1>&#39;After we receive your returned merchandise, refunds are issued to your original payment method within 3-5 business days. You will receive an email confirmation when processing is complete.&#39;</span>
+</span></span><span class=line><span class=cl>      <span class=o>}</span>,
+</span></span><span class=line><span class=cl>      <span class=o>{</span>
+</span></span><span class=line><span class=cl>        id: <span class=s1>&#39;kb-007&#39;</span>,
+</span></span><span class=line><span class=cl>        title: <span class=s1>&#39;Account Access and Password Reset&#39;</span>,
+</span></span><span class=line><span class=cl>        category: <span class=s1>&#39;Account&#39;</span>,
+</span></span><span class=line><span class=cl>        text: <span class=s1>&#39;If you cannot sign in or forgot your credentials, click Forgot Password on the login page. We will email you a reset link valid for 24 hours. Check your spam folder if you do not see it.&#39;</span>
+</span></span><span class=line><span class=cl>      <span class=o>}</span>,
+</span></span><span class=line><span class=cl>      <span class=o>{</span>
+</span></span><span class=line><span class=cl>        id: <span class=s1>&#39;kb-008&#39;</span>,
+</span></span><span class=line><span class=cl>        title: <span class=s1>&#39;Email Preferences and Unsubscribing&#39;</span>,
+</span></span><span class=line><span class=cl>        category: <span class=s1>&#39;Account&#39;</span>,
+</span></span><span class=line><span class=cl>        text: <span class=s1>&#39;To stop receiving promotional messages, click the unsubscribe link at the bottom of any marketing email. You can also manage notification preferences in your account settings under Communication.&#39;</span>
+</span></span><span class=line><span class=cl>      <span class=o>}</span>,
+</span></span><span class=line><span class=cl>      <span class=o>{</span>
+</span></span><span class=line><span class=cl>        id: <span class=s1>&#39;kb-009&#39;</span>,
+</span></span><span class=line><span class=cl>        title: <span class=s1>&#39;Updating Payment Methods&#39;</span>,
+</span></span><span class=line><span class=cl>        category: <span class=s1>&#39;Billing&#39;</span>,
+</span></span><span class=line><span class=cl>        text: <span class=s1>&#39;Add, remove, or change your credit card and billing details in the Wallet section of your account. We accept Visa, Mastercard, American Express, and PayPal.&#39;</span>
+</span></span><span class=line><span class=cl>      <span class=o>}</span>,
+</span></span><span class=line><span class=cl>      <span class=o>{</span>
+</span></span><span class=line><span class=cl>        id: <span class=s1>&#39;kb-010&#39;</span>,
+</span></span><span class=line><span class=cl>        title: <span class=s1>&#39;Buy Now Pay Later Options&#39;</span>,
+</span></span><span class=line><span class=cl>        category: <span class=s1>&#39;Billing&#39;</span>,
+</span></span><span class=line><span class=cl>        text: <span class=s1>&#39;We offer installment payment plans through Klarna and Afterpay, letting you split your purchase into four interest-free payments. Select your preferred pay-later service at checkout.&#39;</span>
+</span></span><span class=line><span class=cl>      <span class=o>}</span>,
+</span></span><span class=line><span class=cl>      <span class=o>{</span>
+</span></span><span class=line><span class=cl>        id: <span class=s1>&#39;kb-011&#39;</span>,
+</span></span><span class=line><span class=cl>        title: <span class=s1>&#39;Order Tracking and Status&#39;</span>,
+</span></span><span class=line><span class=cl>        category: <span class=s1>&#39;Orders&#39;</span>,
+</span></span><span class=line><span class=cl>        text: <span class=s1>&#39;Track your shipment using the link in your dispatch confirmation email or by entering your order number on our tracking page. Updates occur every 12-24 hours once your parcel is in transit.&#39;</span>
+</span></span><span class=line><span class=cl>      <span class=o>}</span>,
+</span></span><span class=line><span class=cl>      <span class=o>{</span>
+</span></span><span class=line><span class=cl>        id: <span class=s1>&#39;kb-012&#39;</span>,
+</span></span><span class=line><span class=cl>        title: <span class=s1>&#39;Cancelling an Order&#39;</span>,
+</span></span><span class=line><span class=cl>        category: <span class=s1>&#39;Orders&#39;</span>,
+</span></span><span class=line><span class=cl>        text: <span class=s1>&#39;Orders can be cancelled within 1 hour of placement before they enter our fulfillment process. After that window, you will need to wait for delivery and then initiate a return.&#39;</span>
+</span></span><span class=line><span class=cl>      <span class=o>}</span>
+</span></span><span class=line><span class=cl>    <span class=o>]</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    // ----------------------------------------------------------------
+</span></span><span class=line><span class=cl>    // Cosine similarity -- dot product shortcut works because
+</span></span><span class=line><span class=cl>    // normalize: <span class=nb>true</span> gives us unit-length vectors
+</span></span><span class=line><span class=cl>    // ----------------------------------------------------------------
+</span></span><span class=line><span class=cl>    <span class=k>function</span> cosineSimilarity<span class=o>(</span>vecA, vecB<span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>      <span class=nb>let</span> <span class=nv>dot</span> <span class=o>=</span> 0<span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=k>for</span> <span class=o>(</span><span class=nb>let</span> <span class=nv>i</span> <span class=o>=</span> 0<span class=p>;</span> i &lt; vecA.length<span class=p>;</span> i++<span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>        <span class=nv>dot</span> <span class=o>+=</span> vecA<span class=o>[</span>i<span class=o>]</span> * vecB<span class=o>[</span>i<span class=o>]</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=o>}</span>
+</span></span><span class=line><span class=cl>      <span class=k>return</span> Math.max<span class=o>(</span>-1, Math.min<span class=o>(</span>1, dot<span class=o>))</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    // ----------------------------------------------------------------
+</span></span><span class=line><span class=cl>    // SemanticSearch class -- embed documents once, search many <span class=nb>times</span>
+</span></span><span class=line><span class=cl>    // ----------------------------------------------------------------
+</span></span><span class=line><span class=cl>    class SemanticSearch <span class=o>{</span>
+</span></span><span class=line><span class=cl>      constructor<span class=o>(</span>extractor<span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>        this.extractor <span class=o>=</span> extractor<span class=p>;</span>
+</span></span><span class=line><span class=cl>        this.index <span class=o>=</span> <span class=o>[]</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>      async indexDocuments<span class=o>(</span>docs<span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>        const <span class=nv>texts</span> <span class=o>=</span> docs.map<span class=o>(</span><span class=nv>d</span> <span class=o>=</span>&gt; d.text<span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        // One batch call embeds all documents simultaneously
+</span></span><span class=line><span class=cl>        const <span class=nv>output</span> <span class=o>=</span> await this.extractor<span class=o>(</span>texts, <span class=o>{</span>
+</span></span><span class=line><span class=cl>          pooling: <span class=s1>&#39;mean&#39;</span>,
+</span></span><span class=line><span class=cl>          normalize: <span class=nb>true</span>
+</span></span><span class=line><span class=cl>        <span class=o>})</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        const <span class=nv>vectors</span> <span class=o>=</span> output.tolist<span class=o>()</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        // Store each document with its pre-computed embedding attached
+</span></span><span class=line><span class=cl>        this.index <span class=o>=</span> docs.map<span class=o>((</span>doc, i<span class=o>)</span> <span class=o>=</span>&gt; <span class=o>({</span> ...doc, vector: vectors<span class=o>[</span>i<span class=o>]</span> <span class=o>}))</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> this<span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>      async search<span class=o>(</span>query, <span class=nv>topK</span> <span class=o>=</span> 5<span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>        // Embed only the query -- documents are already cached in this.index
+</span></span><span class=line><span class=cl>        const <span class=nv>qOutput</span> <span class=o>=</span> await this.extractor<span class=o>(</span>query, <span class=o>{</span>
+</span></span><span class=line><span class=cl>          pooling: <span class=s1>&#39;mean&#39;</span>,
+</span></span><span class=line><span class=cl>          normalize: <span class=nb>true</span>
+</span></span><span class=line><span class=cl>        <span class=o>})</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        const <span class=nv>qVec</span> <span class=o>=</span> qOutput.tolist<span class=o>()[</span>0<span class=o>]</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        // Score all documents <span class=o>(</span>pure JS arithmetic, no model involved<span class=o>)</span>
+</span></span><span class=line><span class=cl>        const <span class=nv>scored</span> <span class=o>=</span> this.index
+</span></span><span class=line><span class=cl>          .map<span class=o>(</span><span class=nv>doc</span> <span class=o>=</span>&gt; <span class=o>({</span> doc, score: cosineSimilarity<span class=o>(</span>qVec, doc.vector<span class=o>)</span> <span class=o>}))</span>
+</span></span><span class=line><span class=cl>          .sort<span class=o>((</span>a, b<span class=o>)</span> <span class=o>=</span>&gt; b.score - a.score<span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> scored.slice<span class=o>(</span>0, topK<span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=o>}</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    // ----------------------------------------------------------------
+</span></span><span class=line><span class=cl>    // UI helpers
+</span></span><span class=line><span class=cl>    // ----------------------------------------------------------------
+</span></span><span class=line><span class=cl>    const <span class=nv>statusEl</span>  <span class=o>=</span> document.getElementById<span class=o>(</span><span class=s1>&#39;status&#39;</span><span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    const <span class=nv>queryEl</span>   <span class=o>=</span> document.getElementById<span class=o>(</span><span class=s1>&#39;query-input&#39;</span><span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    const <span class=nv>searchBtn</span> <span class=o>=</span> document.getElementById<span class=o>(</span><span class=s1>&#39;search-btn&#39;</span><span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    const <span class=nv>resultsEl</span> <span class=o>=</span> document.getElementById<span class=o>(</span><span class=s1>&#39;results&#39;</span><span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>function</span> scoreClass<span class=o>(</span>score<span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>      <span class=k>if</span> <span class=o>(</span>score &gt;<span class=o>=</span> 0.55<span class=o>)</span> <span class=k>return</span> <span class=s1>&#39;score-high&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=k>if</span> <span class=o>(</span>score &gt;<span class=o>=</span> 0.35<span class=o>)</span> <span class=k>return</span> <span class=s1>&#39;score-medium&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=k>return</span> <span class=s1>&#39;score-low&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>function</span> renderResults<span class=o>(</span>results<span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>      <span class=k>if</span> <span class=o>(</span>results.length <span class=o>===</span> 0<span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>        resultsEl.innerHTML <span class=o>=</span> <span class=s1>&#39;&lt;div id=&#34;no-results&#34;&gt;No results found.&lt;/div&gt;&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=o>}</span>
+</span></span><span class=line><span class=cl>      resultsEl.innerHTML <span class=o>=</span> results.map<span class=o>(({</span> doc, score <span class=o>})</span> <span class=o>=</span>&gt; <span class=o>{</span>
+</span></span><span class=line><span class=cl>        const <span class=nv>pct</span> <span class=o>=</span> <span class=o>(</span>score * 100<span class=o>)</span>.toFixed<span class=o>(</span>1<span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        const <span class=nv>cls</span> <span class=o>=</span> scoreClass<span class=o>(</span>score<span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=sb>`</span>
+</span></span><span class=line><span class=cl>          &lt;div <span class=nv>class</span><span class=o>=</span><span class=s2>&#34;result-card&#34;</span>&gt;
+</span></span><span class=line><span class=cl>            &lt;div <span class=nv>class</span><span class=o>=</span><span class=s2>&#34;result-header&#34;</span>&gt;
+</span></span><span class=line><span class=cl>              &lt;span <span class=nv>class</span><span class=o>=</span><span class=s2>&#34;result-title&#34;</span>&gt;<span class=si>${</span><span class=nv>doc</span><span class=p>.title</span><span class=si>}</span>&lt;/span&gt;
+</span></span><span class=line><span class=cl>              &lt;span <span class=nv>class</span><span class=o>=</span><span class=s2>&#34;score-badge </span><span class=si>${</span><span class=nv>cls</span><span class=si>}</span><span class=s2>&#34;</span>&gt;<span class=si>${</span><span class=nv>pct</span><span class=si>}</span>% match&lt;/span&gt;
+</span></span><span class=line><span class=cl>            &lt;/div&gt;
+</span></span><span class=line><span class=cl>            &lt;div <span class=nv>class</span><span class=o>=</span><span class=s2>&#34;result-category&#34;</span>&gt;<span class=si>${</span><span class=nv>doc</span><span class=p>.category</span><span class=si>}</span>&lt;/div&gt;
+</span></span><span class=line><span class=cl>            &lt;div <span class=nv>class</span><span class=o>=</span><span class=s2>&#34;result-text&#34;</span>&gt;<span class=si>${</span><span class=nv>doc</span><span class=p>.text</span><span class=si>}</span>&lt;/div&gt;
+</span></span><span class=line><span class=cl>          &lt;/div&gt;<span class=sb>`</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=o>})</span>.join<span class=o>(</span><span class=s1>&#39;&#39;</span><span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    // ----------------------------------------------------------------
+</span></span><span class=line><span class=cl>    // Boot sequence: load model, index documents, <span class=nb>enable</span> UI
+</span></span><span class=line><span class=cl>    // ----------------------------------------------------------------
+</span></span><span class=line><span class=cl>    <span class=nb>let</span> searcher<span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    async <span class=k>function</span> init<span class=o>()</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>      try <span class=o>{</span>
+</span></span><span class=line><span class=cl>        // Load the feature-extraction pipeline
+</span></span><span class=line><span class=cl>        // dtype: <span class=s1>&#39;q8&#39;</span> <span class=o>=</span> 8-bit quantized -- smaller download, nearly identical accuracy
+</span></span><span class=line><span class=cl>        const <span class=nv>extractor</span> <span class=o>=</span> await pipeline<span class=o>(</span>
+</span></span><span class=line><span class=cl>          <span class=s1>&#39;feature-extraction&#39;</span>,
+</span></span><span class=line><span class=cl>          <span class=s1>&#39;Xenova/all-MiniLM-L6-v2&#39;</span>,
+</span></span><span class=line><span class=cl>          <span class=o>{</span>
+</span></span><span class=line><span class=cl>            dtype: <span class=s1>&#39;q8&#39;</span>,
+</span></span><span class=line><span class=cl>            progress_callback: <span class=o>(</span>p<span class=o>)</span> <span class=o>=</span>&gt; <span class=o>{</span>
+</span></span><span class=line><span class=cl>              <span class=k>if</span> <span class=o>(</span>p.status <span class=o>===</span> <span class=s1>&#39;progress&#39;</span><span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>                const <span class=nv>pct</span> <span class=o>=</span> Math.round<span class=o>(</span>p.progress ?? 0<span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>                statusEl.textContent <span class=o>=</span> <span class=sb>`</span>Downloading model: <span class=si>${</span><span class=nv>pct</span><span class=si>}</span>%<span class=sb>`</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>              <span class=o>}</span>
+</span></span><span class=line><span class=cl>            <span class=o>}</span>
+</span></span><span class=line><span class=cl>          <span class=o>}</span>
+</span></span><span class=line><span class=cl>        <span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        statusEl.textContent <span class=o>=</span> <span class=s1>&#39;Indexing knowledge base...&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        // Embed all <span class=m>12</span> documents -- cached in memory <span class=k>for</span> the session
+</span></span><span class=line><span class=cl>        <span class=nv>searcher</span> <span class=o>=</span> new SemanticSearch<span class=o>(</span>extractor<span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        await searcher.indexDocuments<span class=o>(</span>KNOWLEDGE_BASE<span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        statusEl.textContent <span class=o>=</span>
+</span></span><span class=line><span class=cl>          <span class=sb>`</span>Ready -- <span class=si>${</span><span class=nv>KNOWLEDGE_BASE</span><span class=p>.length</span><span class=si>}</span> articles indexed. <span class=sb>`</span> +
+</span></span><span class=line><span class=cl>          <span class=sb>`</span>Model cached <span class=k>for</span> instant reload.<span class=sb>`</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        queryEl.disabled  <span class=o>=</span> false<span class=p>;</span>
+</span></span><span class=line><span class=cl>        searchBtn.disabled <span class=o>=</span> false<span class=p>;</span>
+</span></span><span class=line><span class=cl>        queryEl.focus<span class=o>()</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>      <span class=o>}</span> catch <span class=o>(</span>err<span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>        statusEl.textContent <span class=o>=</span> <span class=sb>`</span>Error: <span class=si>${</span><span class=nv>err</span><span class=p>.message</span><span class=si>}</span><span class=sb>`</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        console.error<span class=o>(</span>err<span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=o>}</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    // ----------------------------------------------------------------
+</span></span><span class=line><span class=cl>    // Search handler
+</span></span><span class=line><span class=cl>    // ----------------------------------------------------------------
+</span></span><span class=line><span class=cl>    async <span class=k>function</span> handleSearch<span class=o>()</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>      const <span class=nv>query</span> <span class=o>=</span> queryEl.value.trim<span class=o>()</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=k>if</span> <span class=o>(</span>!query <span class=o>||</span> !searcher<span class=o>)</span> <span class=k>return</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>      searchBtn.disabled <span class=o>=</span> true<span class=p>;</span>
+</span></span><span class=line><span class=cl>      searchBtn.textContent <span class=o>=</span> <span class=s1>&#39;Searching...&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      resultsEl.innerHTML <span class=o>=</span> <span class=s1>&#39;&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>      try <span class=o>{</span>
+</span></span><span class=line><span class=cl>        // Returns top <span class=m>5</span> results ranked by cosine similarity score
+</span></span><span class=line><span class=cl>        const <span class=nv>results</span> <span class=o>=</span> await searcher.search<span class=o>(</span>query, 5<span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        renderResults<span class=o>(</span>results<span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=o>}</span> catch <span class=o>(</span>err<span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>        resultsEl.innerHTML <span class=o>=</span>
+</span></span><span class=line><span class=cl>          <span class=sb>`</span>&lt;div <span class=nv>style</span><span class=o>=</span><span class=s2>&#34;color:#dc2626&#34;</span>&gt;Search error: <span class=si>${</span><span class=nv>err</span><span class=p>.message</span><span class=si>}</span>&lt;/div&gt;<span class=sb>`</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>      searchBtn.disabled <span class=o>=</span> false<span class=p>;</span>
+</span></span><span class=line><span class=cl>      searchBtn.textContent <span class=o>=</span> <span class=s1>&#39;Search&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    // Clicking an example chip populates and runs the search
+</span></span><span class=line><span class=cl>    document.querySelectorAll<span class=o>(</span><span class=s1>&#39;.example-query&#39;</span><span class=o>)</span>.forEach<span class=o>(</span><span class=nv>chip</span> <span class=o>=</span>&gt; <span class=o>{</span>
+</span></span><span class=line><span class=cl>      chip.addEventListener<span class=o>(</span><span class=s1>&#39;click&#39;</span>, <span class=o>()</span> <span class=o>=</span>&gt; <span class=o>{</span>
+</span></span><span class=line><span class=cl>        queryEl.value <span class=o>=</span> chip.textContent<span class=p>;</span>
+</span></span><span class=line><span class=cl>        handleSearch<span class=o>()</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=o>})</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=o>})</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    searchBtn.addEventListener<span class=o>(</span><span class=s1>&#39;click&#39;</span>, handleSearch<span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    queryEl.addEventListener<span class=o>(</span><span class=s1>&#39;keydown&#39;</span>, <span class=nv>e</span> <span class=o>=</span>&gt; <span class=o>{</span>
+</span></span><span class=line><span class=cl>      <span class=k>if</span> <span class=o>(</span>e.key <span class=o>===</span> <span class=s1>&#39;Enter&#39;</span> <span class=o>&amp;&amp;</span> !searchBtn.disabled<span class=o>)</span> handleSearch<span class=o>()</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=o>})</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    // Start loading as soon as the page opens
+</span></span><span class=line><span class=cl>    init<span class=o>()</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  &lt;/script&gt;
+</span></span><span class=line><span class=cl>&lt;/body&gt;
+</span></span><span class=line><span class=cl>&lt;/html&gt;
+</span></span></code></pre></div><h5 id=这段代码的作用-2>这段代码的作用：<a hidden class=anchor aria-hidden=true href=#这段代码的作用-2>#</a></h5><ul><li><strong>当页面加载时</strong>，<code>init()</code> 函数会立即运行。它会创建特征提取管道（Feature-extraction Pipeline），并通过一个进度回调函数（Progress Callback）在模型下载期间实时更新状态行。</li><li><strong>一旦模型准备就绪</strong>，<code>indexDocuments</code> 会在单次批量调用中对全部 12 篇文章进行嵌入处理（Embedding），并将这些向量存储在内存中。在此步骤完成之前，搜索输入框和搜索按钮都处于禁用（Disabled）状态，从而防止用户在索引建立中途触发搜索。</li><li><strong>当用户进行搜索时</strong>，<code>search()</code> 函数仅对查询语句进行嵌入（单次模型推理调用，通常在 100 毫秒以内），然后遍历所有 12 个缓存的文档向量，计算每一个向量的余弦相似度。</li><li><strong>该评分循环</strong>属于纯 JavaScript 算术运算，不涉及任何模型调用，因此在不到 1 毫秒的时间内即可完成。</li><li><strong>最终的搜索结果</strong>会按照分数从高到低进行渲染，并配有颜色编码的匹配百分比徽章（Badges）。</li></ul><p><img alt=image-20260619191814432 loading=lazy src=/posts/20260619-bigmodel_vector_search/image-20260619191814432.png></p><h3 id=在-web-worker-中运行推理>在 Web Worker 中运行推理<a hidden class=anchor aria-hidden=true href=#在-web-worker-中运行推理>#</a></h3><p>上面的示例（Demo）是在浏览器的主线程（Main Thread）中运行所有模型推理的。对于内部工具和演示 Demo 来说这没什么问题，但在面向用户的**生产级应用（Production App）*<em>中，这种做法是绝对不行的：因为加载模型和生成嵌入（Embedding）会*<em>阻塞主线程</em></em>，这意味着在模型运行推理时，页面的滚动、输入和动画都会卡死。在配置较低的硬件设备上，浏览器甚至可能会弹出“页面无响应”的警告。</p><p><strong>Web Worker</strong> 很好地解决了这个问题。它允许 JavaScript 在一个<strong>后台线程</strong>中运行，这样一来，主线程可以继续保持流畅的交互和响应，而 Worker 则在后台处理所有繁的模型相关工作。</p><p>以下是 Worker 文件的内容（<code>embedder-worker.js</code>）：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>// embedder-worker.js
+</span></span><span class=line><span class=cl>// Runs in a background thread -- has no access to the DOM.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>import <span class=o>{</span> pipeline <span class=o>}</span> from
+</span></span><span class=line><span class=cl>  <span class=s1>&#39;https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>// Singleton pattern: load the pipeline once and reuse it.
+</span></span><span class=line><span class=cl>// Prevents re-downloading the model <span class=k>if</span> multiple messages arrive quickly.
+</span></span><span class=line><span class=cl><span class=nb>let</span> <span class=nv>extractor</span> <span class=o>=</span> null<span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>async <span class=k>function</span> getExtractor<span class=o>()</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=o>(</span>!extractor<span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=nv>extractor</span> <span class=o>=</span> await pipeline<span class=o>(</span>
+</span></span><span class=line><span class=cl>      <span class=s1>&#39;feature-extraction&#39;</span>,
+</span></span><span class=line><span class=cl>      <span class=s1>&#39;Xenova/all-MiniLM-L6-v2&#39;</span>,
+</span></span><span class=line><span class=cl>      <span class=o>{</span>
+</span></span><span class=line><span class=cl>        dtype: <span class=s1>&#39;q8&#39;</span>,
+</span></span><span class=line><span class=cl>        progress_callback: <span class=o>(</span>p<span class=o>)</span> <span class=o>=</span>&gt; <span class=o>{</span>
+</span></span><span class=line><span class=cl>          // Forward progress updates back to the main thread <span class=k>for</span> UI display
+</span></span><span class=line><span class=cl>          self.postMessage<span class=o>({</span> type: <span class=s1>&#39;progress&#39;</span>, payload: p <span class=o>})</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=o>}</span>
+</span></span><span class=line><span class=cl>      <span class=o>}</span>
+</span></span><span class=line><span class=cl>    <span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=o>}</span>
+</span></span><span class=line><span class=cl>  <span class=k>return</span> extractor<span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>// Listen <span class=k>for</span> embedding requests from the main thread
+</span></span><span class=line><span class=cl>self.addEventListener<span class=o>(</span><span class=s1>&#39;message&#39;</span>, async <span class=o>(</span>event<span class=o>)</span> <span class=o>=</span>&gt; <span class=o>{</span>
+</span></span><span class=line><span class=cl>  const <span class=o>{</span> type, id, payload <span class=o>}</span> <span class=o>=</span> event.data<span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  try <span class=o>{</span>
+</span></span><span class=line><span class=cl>    const <span class=nv>ext</span> <span class=o>=</span> await getExtractor<span class=o>()</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=o>(</span><span class=nb>type</span> <span class=o>===</span> <span class=s1>&#39;embed&#39;</span><span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>      // payload.texts can be a single string or an array of strings
+</span></span><span class=line><span class=cl>      const <span class=nv>output</span> <span class=o>=</span> await ext<span class=o>(</span>payload.texts, <span class=o>{</span>
+</span></span><span class=line><span class=cl>        pooling: <span class=s1>&#39;mean&#39;</span>,
+</span></span><span class=line><span class=cl>        normalize: <span class=nb>true</span>
+</span></span><span class=line><span class=cl>      <span class=o>})</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>      // Convert tensor to plain array before sending back
+</span></span><span class=line><span class=cl>      // <span class=o>(</span>Tensor objects are not transferable across threads<span class=o>)</span>
+</span></span><span class=line><span class=cl>      self.postMessage<span class=o>({</span>
+</span></span><span class=line><span class=cl>        type: <span class=s1>&#39;embed_result&#39;</span>,
+</span></span><span class=line><span class=cl>        id,       // Echo the request ID so the main thread can match this response
+</span></span><span class=line><span class=cl>        payload: output.tolist<span class=o>()</span>
+</span></span><span class=line><span class=cl>      <span class=o>})</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>  <span class=o>}</span> catch <span class=o>(</span>err<span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>    self.postMessage<span class=o>({</span> type: <span class=s1>&#39;error&#39;</span>, id, payload: err.message <span class=o>})</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>})</span><span class=p>;</span>
+</span></span></code></pre></div><p>主线程main.js的内容：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>// Create the Worker -- it starts loading the model immediately in the background
+</span></span><span class=line><span class=cl>const <span class=nv>worker</span> <span class=o>=</span> new Worker<span class=o>(</span><span class=s1>&#39;./embedder-worker.js&#39;</span>, <span class=o>{</span> type: <span class=s1>&#39;module&#39;</span> <span class=o>})</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>// Track in-flight requests so we can resolve them when results come back
+</span></span><span class=line><span class=cl>const <span class=nv>pending</span> <span class=o>=</span> new Map<span class=o>()</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=nb>let</span> <span class=nv>requestId</span> <span class=o>=</span> 0<span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>// Send an embedding request to the Worker and <span class=k>return</span> a Promise
+</span></span><span class=line><span class=cl><span class=k>function</span> embedText<span class=o>(</span>texts<span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>  <span class=k>return</span> new Promise<span class=o>((</span>resolve, reject<span class=o>)</span> <span class=o>=</span>&gt; <span class=o>{</span>
+</span></span><span class=line><span class=cl>    const <span class=nv>id</span> <span class=o>=</span> requestId++<span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    // Store resolve/reject so we can call them when the Worker responds
+</span></span><span class=line><span class=cl>    pending.set<span class=o>(</span>id, <span class=o>{</span> resolve, reject <span class=o>})</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    // Send the request to the background thread
+</span></span><span class=line><span class=cl>    worker.postMessage<span class=o>({</span> type: <span class=s1>&#39;embed&#39;</span>, id, payload: <span class=o>{</span> texts <span class=o>}</span> <span class=o>})</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=o>})</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>// Handle messages coming back from the Worker
+</span></span><span class=line><span class=cl>worker.addEventListener<span class=o>(</span><span class=s1>&#39;message&#39;</span>, <span class=o>(</span>event<span class=o>)</span> <span class=o>=</span>&gt; <span class=o>{</span>
+</span></span><span class=line><span class=cl>  const <span class=o>{</span> type, id, payload <span class=o>}</span> <span class=o>=</span> event.data<span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=o>(</span><span class=nb>type</span> <span class=o>===</span> <span class=s1>&#39;progress&#39;</span><span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>    // Update your loading UI here
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=o>(</span>payload.status <span class=o>===</span> <span class=s1>&#39;progress&#39;</span><span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>      console.log<span class=o>(</span><span class=sb>`</span>Model loading: <span class=si>${</span><span class=nv>Math</span><span class=p>.round(payload.progress)</span><span class=si>}</span>%<span class=sb>`</span><span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  // Find the pending Promise that matches this response by ID
+</span></span><span class=line><span class=cl>  const <span class=nv>p</span> <span class=o>=</span> pending.get<span class=o>(</span>id<span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=o>(</span>!p<span class=o>)</span> <span class=k>return</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  pending.delete<span class=o>(</span>id<span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=o>(</span><span class=nb>type</span> <span class=o>===</span> <span class=s1>&#39;embed_result&#39;</span><span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>    p.resolve<span class=o>(</span>payload<span class=o>)</span><span class=p>;</span>  // payload is an array of 384-element vectors
+</span></span><span class=line><span class=cl>  <span class=o>}</span> <span class=k>else</span> <span class=k>if</span> <span class=o>(</span><span class=nb>type</span> <span class=o>===</span> <span class=s1>&#39;error&#39;</span><span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>    p.reject<span class=o>(</span>new Error<span class=o>(</span>payload<span class=o>))</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>})</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>// Usage -- works the same as the non-Worker version but stays off the main thread
+</span></span><span class=line><span class=cl>const <span class=nv>vectors</span> <span class=o>=</span> await embedText<span class=o>([</span><span class=s1>&#39;How do I return a product?&#39;</span><span class=o>])</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>console.log<span class=o>(</span><span class=sb>`</span>Embedding dimensions: <span class=si>${</span><span class=nv>vectors</span><span class=p>[0].length</span><span class=si>}</span><span class=sb>`</span><span class=o>)</span><span class=p>;</span>  // <span class=m>384</span>
+</span></span></code></pre></div><h5 id=上面2段代码的作用>上面2段代码的作用：<a hidden class=anchor aria-hidden=true href=#上面2段代码的作用>#</a></h5><ul><li><strong>该 Worker 采用了单例模式（Singleton Pattern）</strong>：<code>getExtractor()</code> 函数在第一次运行时会创建提取管道，并在后续的调用中直接返回该实例。这样可以避免在多个消息接踵而至时重复下载模型。</li><li><strong>每个消息中的 <code>id</code> 字段是一个关联键（Correlation Key）</strong>：当 Worker 返回 <code>embed_result</code>（嵌入结果）时，主线程会利用这个 <code>id</code> 在 <code>pending</code>（挂起）的 Map 映射表中找到匹配的 Promise 并将其状态变为已完成（Resolve）。如果没有这个机制，当有两个嵌入请求同时在运行时，你将无法分辨哪个结果属于哪个请求。</li><li><strong><code>pending</code> Map 映射表保持着极小的体积</strong>：它在同一时间只为每个正在运行的请求保留一个条目，并在收到对应的响应后自动进行清理。</li></ul><h4 id=在页面加载之间持久化保存索引>在页面加载之间持久化保存索引<a hidden class=anchor aria-hidden=true href=#在页面加载之间持久化保存索引>#</a></h4><p>在整个流程中，<strong>计算嵌入（Embeddings）是最耗时的步骤</strong>。如果你的文档库在用户多次访问之间不会发生改变，你可以将整个向量索引序列化为 <strong>JSON 字符串</strong>，并将其存储在浏览器的 <strong><code>localStorage</code></strong> 中。这样一来，用户下一次打开页面时，就可以完全跳过嵌入计算这一步骤。</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>// After indexing -- save to localStorage
+</span></span><span class=line><span class=cl>const <span class=nv>serialized</span> <span class=o>=</span> JSON.stringify<span class=o>(</span>searcher.index<span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>localStorage.setItem<span class=o>(</span><span class=s1>&#39;kb-index&#39;</span>, serialized<span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>localStorage.setItem<span class=o>(</span><span class=s1>&#39;kb-index-version&#39;</span>, <span class=s1>&#39;2025-06-01&#39;</span><span class=o>)</span><span class=p>;</span> // Update this when content changes
+</span></span><span class=line><span class=cl> 
+</span></span><span class=line><span class=cl>// On page load -- restore the index <span class=k>if</span> it exists and is still current
+</span></span><span class=line><span class=cl>const <span class=nv>storedVersion</span> <span class=o>=</span> localStorage.getItem<span class=o>(</span><span class=s1>&#39;kb-index-version&#39;</span><span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>const <span class=nv>currentVersion</span> <span class=o>=</span> <span class=s1>&#39;2025-06-01&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl> 
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>(</span><span class=nv>storedVersion</span> <span class=o>===</span> currentVersion<span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>  const <span class=nv>stored</span> <span class=o>=</span> localStorage.getItem<span class=o>(</span><span class=s1>&#39;kb-index&#39;</span><span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=o>(</span>stored<span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>    searcher.index <span class=o>=</span> JSON.parse<span class=o>(</span>stored<span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    // Vectors are plain arrays in JSON -- no special deserialization needed
+</span></span><span class=line><span class=cl>    console.log<span class=o>(</span><span class=s1>&#39;Index restored from cache, skipping embedding step&#39;</span><span class=o>)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></div><p><strong><code>localStorage</code> 可以处理大约 5 MB 的数据量</strong>（具体取决于浏览器）。对于包含 12 篇文档、每篇文档带有 384 维浮点数向量的情况，序列化后的索引大约只有 <strong>200 KB</strong>，完全在这一限制范围之内。</p><p>而关于更大规模的数据集，<strong><code>IndexedDB</code> 则没有实际上的容量限制</strong>。它的工作原理与 <code>localStorage</code> 完全相同，只是其 API（代码调用接口）会稍微繁琐、复杂一些。</p><h3 id=选择合适的模型>选择合适的模型<a hidden class=anchor aria-hidden=true href=#选择合适的模型>#</a></h3><p>对于大多数英文应用场景来说，<strong><code>Xenova/all-MiniLM-L6-v2</code></strong> 是最完美的默认选择。它速度快、体积小，并且在语义搜索任务中表现出非常强劲的效果。下表列出了常用的几个核心模型选项：</p><table><thead><tr><th>Model</th><th>Dimensions</th><th>Download size (q8)</th><th>Best for</th></tr></thead><tbody><tr><td><a href=https://huggingface.co/Xenova/all-MiniLM-L6-v2>Xenova/all-MiniLM-L6-v2</a></td><td>384</td><td>~23 MB</td><td>General English search, fast</td></tr><tr><td><a href=https://huggingface.co/Xenova/all-mpnet-base-v2>Xenova/all-mpnet-base-v2</a></td><td>768</td><td>~86 MB</td><td>Higher accuracy, larger download</td></tr><tr><td><a href=https://huggingface.co/Xenova/multilingual-e5-small>Xenova/multilingual-e5-small</a></td><td>384</td><td>~34 MB</td><td>100+ languages</td></tr></tbody></table><p>对于一个同时包含法语、德语和英语内容的知识库这类<strong>多语言应用场景</strong>来说，<strong><code>multilingual-e5-small</code></strong> 模型能够非常完美地处理<strong>跨语言查询</strong>。即使用户使用的是英语进行搜索，系统也能精准地找出用法语撰写的相关文档。这是因为该模型能够将相同或相近的含义映射到向量空间的临近区域，而完全不受其具体语言种类的限制。</p><h3 id=生产环境优化建议>生产环境优化建议<a hidden class=anchor aria-hidden=true href=#生产环境优化建议>#</a></h3><p>为了让这个前端搜索引擎达到工业级可用，几个关键的优化技术：</p><ol><li><strong>使用 Web Worker 避免线程阻塞</strong>：模型推理（Inference）属于密集型计算。如果直接在主线程运行，会导致 UI 卡死。建议将 <code>pipeline</code> 的加载和执行放入 Web Worker 中，通过 <code>postMessage</code> 与主线程通信。</li><li><strong>持久化索引（localStorage / IndexedDB）</strong>：文档的向量在内容不变的情况下是固定的。不需要每次页面加载都重新对整个知识库计算嵌入。你可以使用 <code>JSON.stringify()</code> 将计算好的向量数组保存到 <code>localStorage</code>（数据量小）或 <code>IndexedDB</code>（数据量大）中，下次直接加载即可。</li></ol><h3 id=总结>总结<a hidden class=anchor aria-hidden=true href=#总结>#</a></h3><p>利用 Transformers.js，纯前端不仅能做简单的文本匹配，更能将复杂的 NLP 模型（如 Sentence-Transformers）直接搬到用户的浏览器里。这不仅消除了高昂的服务器和 API 成本，还提供了绝佳的隐私保护（数据不出本地）。</p></div><footer class=post-footer><ul class=post-tags></ul><nav class=paginav><a class=next href=https://rendoumi.com/posts/20260618-macmini_llama/><span class=title>下一页 »</span><br><span>Macmini如何运行本地大模型提供给openclaw</span></a></nav></footer><div id=comments></div><script src=https://cwd.js.org/cwd.js></script><script>const comments=new CWDComments({el:"#comments",apiBaseUrl:"https://cwd.rendoumi.qzz.io"});comments.mount()</script></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script></body></html>
