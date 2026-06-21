@@ -19,8 +19,7 @@
       <link>https://rendoumi.com/posts/20260619-bigmodel_vector_search/</link>
       <pubDate>Fri, 19 Jun 2026 09:00:01 +0800</pubDate>
       <guid>https://rendoumi.com/posts/20260619-bigmodel_vector_search/</guid>
-      <description>&lt;h1 id=&#34;使用-transformersjs-和sentence-embeddings句子嵌入构建语义搜索&#34;&gt;使用 Transformers.js 和Sentence Embeddings(句子嵌入)构建语义搜索&lt;/h1&gt;
-&lt;p&gt;我们之前学习了&lt;a href=&#34;https://rendoumi.com/posts/20260519-gpt2_step_by_step/&#34;&gt;手撕大模型2&lt;/a&gt; , 那学以致用，来运用一下&lt;/p&gt;
+      <description>&lt;p&gt;我们之前学习了&lt;a href=&#34;https://rendoumi.com/posts/20260519-gpt2_step_by_step/&#34;&gt;手撕大模型2&lt;/a&gt; , 那学以致用，来运用一下&lt;/p&gt;
 &lt;p&gt;在本文中，我们将学习句子嵌入（Sentence Embeddings）的工作原理，以及如何使用 &lt;strong&gt;Transformers.js&lt;/strong&gt; 构建一个完全在客户端（浏览器端）运行的语义搜索引擎。无需服务器、无需 API 密钥，也不需要任何后端基础设施。&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;我们将涵盖的主题包括：&lt;/strong&gt;&lt;/p&gt;
 &lt;ul&gt;
@@ -45,7 +44,9 @@
 &lt;li&gt;&lt;strong&gt;平均池化（Mean Pooling）&lt;/strong&gt;：通过对所有 Token 向量取平均值来解决这个问题。&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;归一化（Normalization）&lt;/strong&gt;：将结果缩放到单位长度（模长为 1），这能极大简化相似度的计算。&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;在 Transformers.js 中，当你向管道调用传递 &lt;code&gt;{ pooling: &#39;mean&#39;, normalize: true }&lt;/code&gt; 时，这两个步骤都会自动完成。&lt;/p&gt;</description>
+&lt;p&gt;在 Transformers.js 中，当你向管道调用传递 &lt;code&gt;{ pooling: &#39;mean&#39;, normalize: true }&lt;/code&gt; 时，这两个步骤都会自动完成。&lt;/p&gt;
+&lt;h4 id=&#34;我们来详细解释一下什么是平均池化&#34;&gt;我们来详细解释一下什么是平均池化：&lt;/h4&gt;
+&lt;p&gt;下面把 &lt;strong&gt;Mean Pooling（平均池化）&lt;/strong&gt; 用一个更细的例子拆开讲，重点解释：&lt;/p&gt;</description>
     </item>
     <item>
       <title>Macmini如何运行本地大模型提供给openclaw</title>
