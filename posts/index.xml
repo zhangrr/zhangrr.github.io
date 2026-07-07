@@ -12,8 +12,34 @@
     <generator>Hugo -- 0.147.3</generator>
     <language>zh</language>
     <copyright>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Fri, 19 Jun 2026 09:00:01 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 07 Jul 2026 09:00:00 +0800</lastBuildDate>
     <atom:link href="https://rendoumi.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>大语言模型（LLM）微调（Fine-tuning）流水线</title>
+      <link>https://rendoumi.com/posts/20260707-gpt2_fine_tune/</link>
+      <pubDate>Tue, 07 Jul 2026 09:00:00 +0800</pubDate>
+      <guid>https://rendoumi.com/posts/20260707-gpt2_fine_tune/</guid>
+      <description>&lt;p&gt;其实我们之前有用这种方法，就是我们训出来的翻译小模型不懂latte这个词，也不懂点咖啡。so，我们准备了一批语料来强训它，让它记住。&lt;/p&gt;
+&lt;h2 id=&#34;大语言模型llm微调fine-tuning流水线&#34;&gt;&lt;strong&gt;大语言模型（LLM）微调（Fine-tuning）流水线&lt;/strong&gt;：&lt;/h2&gt;
+&lt;p&gt;利用 Hugging Face 的生态（&lt;code&gt;transformers&lt;/code&gt; 和 &lt;code&gt;datasets&lt;/code&gt;），走完了从“准备数据 -&amp;gt; 处理数据 -&amp;gt; 配置参数 -&amp;gt; 启动训练 -&amp;gt; 保存模型”的全过程。它的核心目的是：&lt;strong&gt;拿一个已经有基础能力的预训练模型（GPT-2），用大量的中文维基百科数据让它继续学习（Next-Token Prediction），从而掌握（或增强）生成连贯中文文本的能力。&lt;/strong&gt;&lt;/p&gt;
+&lt;h2 id=&#34;load_dataset&#34;&gt;load_dataset&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;load_dataset&lt;/code&gt; 是 Hugging Face &lt;code&gt;datasets&lt;/code&gt; 库中最核心、也是使用频率最高的“魔法函数”。你可以把它理解为&lt;strong&gt;大模型时代的数据集版 &lt;code&gt;git clone&lt;/code&gt; 或 &lt;code&gt;pip install&lt;/code&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;dataset&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; load_dataset&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;wikimedia/wikipedia&amp;#34;&lt;/span&gt;, &lt;span class=&#34;s2&#34;&gt;&amp;#34;20231101.zh&amp;#34;&lt;/span&gt;, &lt;span class=&#34;nv&#34;&gt;split&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;train&amp;#34;&lt;/span&gt;, &lt;span class=&#34;nv&#34;&gt;cache_dir&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;./hf_cache&amp;#34;&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;一-它是怎么从-huggingfaceco-拉取数据的&#34;&gt;一、 它是怎么从 huggingface.co 拉取数据的？&lt;/h3&gt;
+&lt;p&gt;当你执行 &lt;code&gt;load_dataset(&amp;quot;wikimedia/wikipedia&amp;quot;, ...)&lt;/code&gt; 时，底层其实经历了一场精密的协同：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;API 寻址&lt;/strong&gt;：函数首先会向 Hugging Face Hub 的 API 发送请求，查找名为 &lt;code&gt;wikimedia/wikipedia&lt;/code&gt; 的仓库。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;下载脚本或元数据&lt;/strong&gt;：它不仅会查找数据文件，还会寻找仓库里的 &lt;code&gt;dataset_script.py&lt;/code&gt;（数据集处理脚本）或者直接寻找 Parquet / JSONL 格式的底层数据文件。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;本地缓存（核心机制）&lt;/strong&gt;：下载的数据会存入你指定的 &lt;code&gt;cache_dir&lt;/code&gt;（如果没有指定，默认存放在 &lt;code&gt;~/.cache/huggingface/datasets/&lt;/code&gt;）。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Arrow 内存映射（黑科技）&lt;/strong&gt;：Hugging Face 极其聪明地使用了 &lt;strong&gt;Apache Arrow&lt;/strong&gt; 格式来将数据序列化到本地硬盘，并通过内存映射（Memory-Mapping）技术读取。
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;这意味着什么？&lt;/strong&gt; 即使你加载了一个 100GB 的维基百科数据集，你的电脑内存也不会爆炸！因为它不会把数据全塞进 RAM 里，而是放在硬盘上，用到哪一行才读取哪一行，速度极快。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;二-核心参数全解析&#34;&gt;二、 核心参数全解析&lt;/h3&gt;
+&lt;p&gt;以代码为例：&lt;/p&gt;</description>
+    </item>
     <item>
       <title>使用 Transformers.js 和 Sentence Embeddings 句子嵌入构建语义搜索</title>
       <link>https://rendoumi.com/posts/20260619-bigmodel_vector_search/</link>
@@ -29,7 +55,7 @@
 &lt;/ul&gt;
 &lt;h3 id=&#34;引言&#34;&gt;引言&lt;/h3&gt;
 &lt;p&gt;你以前可能写过这样的“Bug”：用户在搜索框中输入“affordable laptop（便宜的笔记本）”，结果返回零匹配。但你分明知道数据库里有几十篇关于笔记本的文章，只不过它们的标题叫“budget notebook（经济型便携本）”。&lt;/p&gt;
-&lt;p&gt;单词完全不同，但意思一模一样。传统的关键字搜索将它们视为无关的字符串，这就是关键字匹配的核心缺陷：&lt;strong&gt;它比较的是字符，而不是概念和语义。&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;单词完全不同，但意思一模一样。传统的re关键字搜索将它们视为无关的字符串，这就是关键字匹配的核心缺陷：&lt;strong&gt;它比较的是字符，而不是概念和语义。&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;语义搜索通过比较“含义”解决了这个问题。借助 Transformers.js，你可以在浏览器中独立实现它。&lt;/p&gt;
 &lt;h3 id=&#34;什么是句子嵌入&#34;&gt;什么是句子嵌入？&lt;/h3&gt;
 &lt;p&gt;Transformer 模型无法直接处理原始文本。在进行任何计算之前，句子必须变成数字。&lt;strong&gt;嵌入（Embeddings）&lt;/strong&gt; 就是这种转换的结果：用一个被称为向量（Vector）的浮点数列表来表示一个句子。&lt;/p&gt;
