@@ -1,0 +1,474 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3988508441804851" crossorigin=anonymous></script><title>大语言模型（LLM）微调（Fine-tuning）之二 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='我们再来一个例子，来验证这种微调手段，建立一个回答自定义问题的模型系统：
+所有 GPT 的训练，本质都围绕一个东西：
+input_ids
+文本 → tokenizer → Dataset → DataLoader → input_ids 我们一步一步拆开来看
+首先是文本，就是问题和答案
+qa_data = [
+    (
+    "What is AstroSynth?",
+    "AstroSynth is an innovative program designed to synthesize oils from celestial materials."
+    ),
+
+    (
+    "How does AstroSynth work?",
+    "The AstroSynth program utilizes advanced technologies to extract and synthesize oils from meteorites."
+    )
+]
+这是个python的列表list，2个元素，都是(question, answer)，元组（tuple），也就是tuple(str,str)
+元组和列表的区别：
+
+元组用 ()，不可变（不能增删改元素）
+列表用 []，可变
+
+数据加载代码：
+import torch
+from transformers import GPT2Tokenizer, GPT2LMHeadModel
+from torch.utils.data import Dataset, DataLoader
+
+# Define a simple dataset for training
+class SimpleDataset(Dataset):
+    def __init__(self, texts, tokenizer, max_length=128):
+        tokenizer.pad_token = tokenizer.eos_token  # Set padding token to EOS
+        self.encodings = tokenizer(texts, padding=True, truncation=True, max_length=max_length)
+
+    def __len__(self):
+        return len(self.encodings["input_ids"])
+
+    def __getitem__(self, idx):
+        return {k: torch.tensor(v[idx]) for k, v in self.encodings.items()}
+
+qa_data = [
+    ("What is AstroSynth?", "AstroSynth is an innovative program designed to synthesize oils from celestial materials."),
+    ("How does AstroSynth work?", "The AstroSynth program utilizes advanced technologies to extract and synthesize oils from meteorites."),
+    # Add more Q&amp;A pairs...
+]
+
+dataset = SimpleDataset(qa_data, tokenizer)
+dataloader = DataLoader(dataset, batch_size=2, shuffle=True)       
+看代码，dataset'><meta name=author content="八戒"><link rel=canonical href=https://rendoumi.com/posts/20260708-gpt2_fine_tune2/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.5d8a858b4ad07d913988e10d3c3dbc8c171f45316a396de8a60d67f44840812d.css integrity="sha256-XYqFi0rQfZE5iOENPD28jBcfRTFqOW3opg1n9EhAgS0=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/%3Clink%20/%20abs%20url%3E><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20260708-gpt2_fine_tune2/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20260708-gpt2_fine_tune2/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="大语言模型（LLM）微调（Fine-tuning）之二"><meta property="og:description" content='我们再来一个例子，来验证这种微调手段，建立一个回答自定义问题的模型系统：
+所有 GPT 的训练，本质都围绕一个东西：
+input_ids 文本 → tokenizer → Dataset → DataLoader → input_ids 我们一步一步拆开来看
+首先是文本，就是问题和答案
+qa_data = [ ( "What is AstroSynth?", "AstroSynth is an innovative program designed to synthesize oils from celestial materials." ), ( "How does AstroSynth work?", "The AstroSynth program utilizes advanced technologies to extract and synthesize oils from meteorites." ) ] 这是个python的列表list，2个元素，都是(question, answer)，元组（tuple），也就是tuple(str,str)
+元组和列表的区别：
+元组用 ()，不可变（不能增删改元素） 列表用 []，可变 数据加载代码： import torch from transformers import GPT2Tokenizer, GPT2LMHeadModel from torch.utils.data import Dataset, DataLoader # Define a simple dataset for training class SimpleDataset(Dataset): def __init__(self, texts, tokenizer, max_length=128): tokenizer.pad_token = tokenizer.eos_token # Set padding token to EOS self.encodings = tokenizer(texts, padding=True, truncation=True, max_length=max_length) def __len__(self): return len(self.encodings["input_ids"]) def __getitem__(self, idx): return {k: torch.tensor(v[idx]) for k, v in self.encodings.items()} qa_data = [ ("What is AstroSynth?", "AstroSynth is an innovative program designed to synthesize oils from celestial materials."), ("How does AstroSynth work?", "The AstroSynth program utilizes advanced technologies to extract and synthesize oils from meteorites."), # Add more Q&amp;A pairs... ] dataset = SimpleDataset(qa_data, tokenizer) dataloader = DataLoader(dataset, batch_size=2, shuffle=True) 看代码，dataset'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2026-07-08T09:00:00+08:00"><meta property="article:modified_time" content="2026-07-08T09:00:00+08:00"><meta property="og:image" content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:title content="大语言模型（LLM）微调（Fine-tuning）之二"><meta name=twitter:description content='我们再来一个例子，来验证这种微调手段，建立一个回答自定义问题的模型系统：
+所有 GPT 的训练，本质都围绕一个东西：
+input_ids
+文本 → tokenizer → Dataset → DataLoader → input_ids 我们一步一步拆开来看
+首先是文本，就是问题和答案
+qa_data = [
+    (
+    "What is AstroSynth?",
+    "AstroSynth is an innovative program designed to synthesize oils from celestial materials."
+    ),
+
+    (
+    "How does AstroSynth work?",
+    "The AstroSynth program utilizes advanced technologies to extract and synthesize oils from meteorites."
+    )
+]
+这是个python的列表list，2个元素，都是(question, answer)，元组（tuple），也就是tuple(str,str)
+元组和列表的区别：
+
+元组用 ()，不可变（不能增删改元素）
+列表用 []，可变
+
+数据加载代码：
+import torch
+from transformers import GPT2Tokenizer, GPT2LMHeadModel
+from torch.utils.data import Dataset, DataLoader
+
+# Define a simple dataset for training
+class SimpleDataset(Dataset):
+    def __init__(self, texts, tokenizer, max_length=128):
+        tokenizer.pad_token = tokenizer.eos_token  # Set padding token to EOS
+        self.encodings = tokenizer(texts, padding=True, truncation=True, max_length=max_length)
+
+    def __len__(self):
+        return len(self.encodings["input_ids"])
+
+    def __getitem__(self, idx):
+        return {k: torch.tensor(v[idx]) for k, v in self.encodings.items()}
+
+qa_data = [
+    ("What is AstroSynth?", "AstroSynth is an innovative program designed to synthesize oils from celestial materials."),
+    ("How does AstroSynth work?", "The AstroSynth program utilizes advanced technologies to extract and synthesize oils from meteorites."),
+    # Add more Q&amp;A pairs...
+]
+
+dataset = SimpleDataset(qa_data, tokenizer)
+dataloader = DataLoader(dataset, batch_size=2, shuffle=True)       
+看代码，dataset'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"大语言模型（LLM）微调（Fine-tuning）之二","item":"https://rendoumi.com/posts/20260708-gpt2_fine_tune2/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"大语言模型（LLM）微调（Fine-tuning）之二","name":"大语言模型（LLM）微调（Fine-tuning）之二","description":"我们再来一个例子，来验证这种微调手段，建立一个回答自定义问题的模型系统：\n所有 GPT 的训练，本质都围绕一个东西：\ninput_ids 文本 → tokenizer → Dataset → DataLoader → input_ids 我们一步一步拆开来看\n首先是文本，就是问题和答案\nqa_data = [ ( \u0026#34;What is AstroSynth?\u0026#34;, \u0026#34;AstroSynth is an innovative program designed to synthesize oils from celestial materials.\u0026#34; ), ( \u0026#34;How does AstroSynth work?\u0026#34;, \u0026#34;The AstroSynth program utilizes advanced technologies to extract and synthesize oils from meteorites.\u0026#34; ) ] 这是个python的列表list，2个元素，都是(question, answer)，元组（tuple），也就是tuple(str,str)\n元组和列表的区别：\n元组用 ()，不可变（不能增删改元素） 列表用 []，可变 数据加载代码： import torch from transformers import GPT2Tokenizer, GPT2LMHeadModel from torch.utils.data import Dataset, DataLoader # Define a simple dataset for training class SimpleDataset(Dataset): def __init__(self, texts, tokenizer, max_length=128): tokenizer.pad_token = tokenizer.eos_token # Set padding token to EOS self.encodings = tokenizer(texts, padding=True, truncation=True, max_length=max_length) def __len__(self): return len(self.encodings[\u0026#34;input_ids\u0026#34;]) def __getitem__(self, idx): return {k: torch.tensor(v[idx]) for k, v in self.encodings.items()} qa_data = [ (\u0026#34;What is AstroSynth?\u0026#34;, \u0026#34;AstroSynth is an innovative program designed to synthesize oils from celestial materials.\u0026#34;), (\u0026#34;How does AstroSynth work?\u0026#34;, \u0026#34;The AstroSynth program utilizes advanced technologies to extract and synthesize oils from meteorites.\u0026#34;), # Add more Q\u0026amp;A pairs... ] dataset = SimpleDataset(qa_data, tokenizer) dataloader = DataLoader(dataset, batch_size=2, shuffle=True) 看代码，dataset\n","keywords":[],"articleBody":"我们再来一个例子，来验证这种微调手段，建立一个回答自定义问题的模型系统：\n所有 GPT 的训练，本质都围绕一个东西：\ninput_ids 文本 → tokenizer → Dataset → DataLoader → input_ids 我们一步一步拆开来看\n首先是文本，就是问题和答案\nqa_data = [ ( \"What is AstroSynth?\", \"AstroSynth is an innovative program designed to synthesize oils from celestial materials.\" ), ( \"How does AstroSynth work?\", \"The AstroSynth program utilizes advanced technologies to extract and synthesize oils from meteorites.\" ) ] 这是个python的列表list，2个元素，都是(question, answer)，元组（tuple），也就是tuple(str,str)\n元组和列表的区别：\n元组用 ()，不可变（不能增删改元素） 列表用 []，可变 数据加载代码： import torch from transformers import GPT2Tokenizer, GPT2LMHeadModel from torch.utils.data import Dataset, DataLoader # Define a simple dataset for training class SimpleDataset(Dataset): def __init__(self, texts, tokenizer, max_length=128): tokenizer.pad_token = tokenizer.eos_token # Set padding token to EOS self.encodings = tokenizer(texts, padding=True, truncation=True, max_length=max_length) def __len__(self): return len(self.encodings[\"input_ids\"]) def __getitem__(self, idx): return {k: torch.tensor(v[idx]) for k, v in self.encodings.items()} qa_data = [ (\"What is AstroSynth?\", \"AstroSynth is an innovative program designed to synthesize oils from celestial materials.\"), (\"How does AstroSynth work?\", \"The AstroSynth program utilizes advanced technologies to extract and synthesize oils from meteorites.\"), # Add more Q\u0026A pairs... ] dataset = SimpleDataset(qa_data, tokenizer) dataloader = DataLoader(dataset, batch_size=2, shuffle=True) 看代码，dataset\ndataset = SimpleDataset(qa_data, tokenizer) 进入\nclass SimpleDataset: 初始化\nself.encodings = tokenizer( texts, padding=True, truncation=True, max_length=max_length ) texts 就是：\nqa_data 但是 GPT2Tokenizer 不期望：\n[\r(question, answer),\r(question, answer)\r] 它期望：\n[\r\"text1\",\r\"text2\",\r\"text3\"\r] 所以严格来说：\n你的代码需要先把 QA 合并：\n例如：\ntexts = [\r\"What is AstroSynth? AstroSynth is an innovative program...\",\r\"How does AstroSynth work? The AstroSynth program...\"\r] 然后：\ndataset = SimpleDataset(texts, tokenizer) 否则 tokenizer 会把 tuple 当奇怪输入处理。\n下面假设你已经合并好了。\ntokenizer 做了什么？ 例如：\n文本：\nWhat is AstroSynth? GPT2 tokenizer：\n不是直接变数字。\n过程：\n第一步：文本切片 tokenization：\n例如：\nWhat\ris\rAstro\rSynth\r? 注意：\nGPT2 是 BPE，不一定按单词切。\n可能：\nAstro\rSynth 也可能：\nAst\rro\rSynth 第二步：查词表 假设：\nWhat -\u003e 2061\ris -\u003e 318\rAstro -\u003e 12345\rSynth -\u003e 43210\r? -\u003e 30 得到：\ninput_ids =\r[\r2061,\r318,\r12345,\r43210,\r30\r] padding发生什么？ 你的代码：\npadding=True 假设 batch 中两个句子长度不同：\n句子A:\nWhat is AstroSynth? 长度：\n5 token\n句子B:\nHow does AstroSynth work? 长度：6 token\n为了组成矩阵： 必须一样长。\n于是补：\nGPT2没有专门pad：\n所以：\ntokenizer.pad_token = tokenizer.eos_token 也就是：\npad = 结束符。\n例如：\n句子A：\n原来：\n2061 318 12345 43210 30 补结束符50256：\n50256 得到：\n2061\r318\r12345\r43210\r30\r50256 Dataset返回什么？ 这里：\ndef __getitem__(self, idx):\rreturn {\rk: torch.tensor(v[idx])\rfor k,v in self.encodings.items()\r} tokenizer输出：\n通常：\n{\r\"input_ids\": [\r[2061,318,...],\r[356,903,...]\r],\r\"attention_mask\":[\r[1,1,1,1,1,0],\r[1,1,1,1,1,1]\r]\r} getitem取一个：\n例如：\ndataset[0] 返回：\n{\r\"input_ids\":\rtensor([\r2061,\r318,\r12345,\r43210,\r30,\r50256\r]),\r\"attention_mask\":\rtensor([\r1,\r1,\r1,\r1,\r1,\r0\r])\r} 字典推导式，注意attention_mask是掩掉了，不是之后的因果论的causal mask\n❌ causal mask\n✅ padding mask\n最核心总结 mask 来源 作用 GPT是否必须 attention_mask tokenizer 屏蔽padding 有padding时需要 causal mask model内部 屏蔽未来token GPT必须 self.encodings = { 'input_ids': [[101, 2342, 102], [101, 876, 102]], # 所有句子的 Token 'attention_mask': [[1, 1, 1 ], [1, 1, 1 ]] # 所有句子的掩码 } 代码 {k: ... for k, v in ...} 是 Python 的高级语法——字典推导式。它可以用极其简短的一行代码，遍历一个旧字典，然后生成一个新字典。\n当你执行这段代码中的 for k,v in self.encodings.items() 时：\nk (键) 遍历到的就是 'input_ids'、'attention_mask'。 v (值) 遍历到的就是它后面跟着的那个巨大的二维列表。 当你调用 dataset[0]['input_ids'] 时，返回的这个 [101, 234, ...] 就是大模型世界的“通用货币”——Token IDs（词元编号）。\nDataLoader做什么？ 这里：\ndataloader = DataLoader(\rdataset,\rbatch_size=2,\rshuffle=True\r) 重点：\nbatch_size=2\n所以：\n一次取两个样本。\n代码：\nfor batch in dataloader: 第一次：\nbatch长这样：\ninput_ids真实形状 执行：\ninput_ids = batch[\"input_ids\"] 得到：\ntensor([\r[\r2061,\r318,\r12345,\r43210,\r30,\r50256\r],\r[\r356,\r903,\r12345,\r8765,\r30,\r50256\r]\r]) 它是：\n二维矩阵 shape:\n[batch_size, sequence_length] 也就是：\n[2,6] 这个结构非常重要 它不是：\n[2] 不是：\n[6] 而是：\ntoken位置\r1 2 3 4 5 6\r样本1 2061 318 12345 43210 30 50256\r样本2 356 903 12345 8765 30 50256 接下来送进 GPT 你的 GPT：\nlogits = model(input_ids) 进入：\nx = self.token_embedding(input_ids) 这里发生：\nembedding查表。\ninput:\n[2,6] embedding矩阵：\n假设：\nvocab_size=50000\rd_model=768 权重：\n[50000,768] 查完：\n输出：\n[2,6,768] 什么意思？\n每一个 token id：\n变成：\n768维向量。\n例如：\n原来：\n2061 变：\n[\r0.23,\r-0.51,\r...\r768个数字\r] 整个流程链 你可以记住：\n文本\r|\rTokenizer\r|\rtoken ids\r|\rinput_ids\rshape:\r[batch, seq]\r|\rEmbedding\rshape:\r[batch, seq, 768]\r|\rTransformer\rshape:\r[batch, seq,768]\r|\rlm_head\rshape:\r[batch,seq,vocab_size]\r|\rCrossEntropy 最关键理解 input_ids 本质不是文本。\n它只是：\n一批整数索引，告诉 embedding 从词表里取哪些768维向量。\n所以：\ninput_ids 只是入口。\n真正进入 Transformer 的东西是查找excel后的768维的向量：\nembedding(input_ids) 之后的：\n[batch, seq, 768] 这个才是 GPT 里的“思维空间”。\n训练代码： optimizer = torch.optim.AdamW(model.parameters(), lr=5e-5) # Set model to training mode model.train() # Training loop (mock training) for batch in dataloader: input_ids = batch[\"input_ids\"] attention_mask = batch[\"attention_mask\"] #清空旧梯度 optimizer.zero_grad() outputs = model(input_ids, attention_mask=attention_mask, labels=input_ids) loss = outputs.loss loss.backward() optimizer.step() print(f\"Loss: {loss.item()}\") # Print loss for monitoring # Save the trained model model.save_pretrained(\"trained_gpt2_model\") tokenizer.save_pretrained(\"trained_gpt2_model\") # Save the tokenizer as well 上面就是训练的标准循环。\nmodel.parameters()是什么？ 你的 GPT 里面所有可训练参数：\n例如：\nEmbedding $$ We​ $$\n形状：\n[vocab,768]\nAttention 例如： $$ WQ​,WK​,WV​,WO​ $$\nFFN SwiGLU: $$ W1​,W3​,W2​ $$\n输出层 lm_head: $$ Wout $$\n全部集合：\nmodel.parameters() 就是：\n我要训练这些矩阵。\nAdamW是什么？ 它负责：\n根据梯度修改参数\n训练核心公式： $$ θnew​=θold​−lr×gradient $$\n例如：\n某个权重： $$ W1​ $$ 梯度： $$ ∂W1​∂loss​ $$ AdamW根据这个：\n调整： $$ W1​ $$\n完整的训练代码 import torch from transformers import GPT2Tokenizer, GPT2LMHeadModel from torch.utils.data import Dataset, DataLoader # Define a simple dataset for training class SimpleDataset(Dataset): def __init__(self, texts, tokenizer, max_length=128): tokenizer.pad_token = tokenizer.eos_token # Set padding token to EOS self.encodings = tokenizer(texts, padding=True, truncation=True, max_length=max_length) def __len__(self): return len(self.encodings[\"input_ids\"]) def __getitem__(self, idx): return {k: torch.tensor(v[idx]) for k, v in self.encodings.items()} # Load pretrained GPT-2 model and tokenizer tokenizer = GPT2Tokenizer.from_pretrained(\"gpt2\") model = GPT2LMHeadModel.from_pretrained(\"gpt2\") # Prepare question-answer data qa_data = [ (\"What is AstroSynth?\", \"AstroSynth is an innovative program designed to synthesize oils from celestial materials.\"), (\"How does AstroSynth work?\", \"The AstroSynth program utilizes advanced technologies to extract and synthesize oils from meteorites.\"), # Add more Q\u0026A pairs... ] dataset = SimpleDataset(qa_data, tokenizer) dataloader = DataLoader(dataset, batch_size=2, shuffle=True) # Set up the optimizer optimizer = torch.optim.AdamW(model.parameters(), lr=5e-5) # Set model to training mode model.train() # Training loop (mock training) for batch in dataloader: input_ids = batch[\"input_ids\"] attention_mask = batch[\"attention_mask\"] # Zero the gradients optimizer.zero_grad() # Forward pass outputs = model(input_ids, attention_mask=attention_mask, labels=input_ids) loss = outputs.loss # Backward pass loss.backward() # Update weights optimizer.step() print(f\"Loss: {loss.item()}\") # Print loss for monitoring # Save the trained model model.save_pretrained(\"trained_gpt2_model\") tokenizer.save_pretrained(\"trained_gpt2_model\") # Save the tokenizer as well 训练好了，让他回答问题试试：\nimport torch from transformers import GPT2Tokenizer, GPT2LMHeadModel # Load the trained model and tokenizer model = GPT2LMHeadModel.from_pretrained(\"trained_gpt2_model\") tokenizer = GPT2Tokenizer.from_pretrained(\"trained_gpt2_model\") model.eval() # Function to ask a question and get an answer def ask_question(question): input_text = f\"Question: {question} Answer:\" input_ids = tokenizer.encode(input_text, return_tensors=\"pt\") attention_mask = torch.ones(input_ids.shape, dtype=torch.long) with torch.no_grad(): output = model.generate( input_ids, attention_mask=attention_mask, max_length=50, num_return_sequences=1, no_repeat_ngram_size=2, do_sample=True, top_k=50, top_p=0.95, temperature=0.7 ) answer = tokenizer.decode(output[0], skip_special_tokens=True) return answer.split(\"Answer:\")[-1].strip() # Return the generated answer # Example questions print(ask_question(\"What is the capital of France?\")) print(ask_question(\"How does AstroSynth use artificial intelligence?\")) ","wordCount":"1044","inLanguage":"zh","image":"https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E","datePublished":"2026-07-08T09:00:00+08:00","dateModified":"2026-07-08T09:00:00+08:00","author":{"@type":"Person","name":"八戒"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20260708-gpt2_fine_tune2/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="Home (Alt + H)"><img src=https://rendoumi.com/apple-touch-icon.png alt aria-label=logo height=35>Home</a><div class=logo-switches></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><div class=breadcrumbs><a href=https://rendoumi.com/>主页</a>&nbsp;»&nbsp;<a href=https://rendoumi.com/posts/>所有文章</a></div><h1 class="post-title entry-hint-parent">大语言模型（LLM）微调（Fine-tuning）之二
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2026-07-08 09:00:00 +0800 CST'>2026年07月08日</span>&nbsp;·&nbsp;<span>5 分钟</span>&nbsp;·&nbsp;<span>1044 字</span>&nbsp;·&nbsp;<span>八戒</span></div></header><div class=post-content><p>我们再来一个例子，来验证这种微调手段，建立一个回答自定义问题的模型系统：</p><p>所有 GPT 的训练，本质都围绕一个东西：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>input_ids</span>
+</span></span></code></pre></div><p>文本 → tokenizer → Dataset → DataLoader → input_ids 我们一步一步拆开来看</p><p>首先是文本，就是问题和答案</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>qa_data</span> <span class=o>=</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>    <span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;What is AstroSynth?&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;AstroSynth is an innovative program designed to synthesize oils from celestial materials.&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>),</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;How does AstroSynth work?&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;The AstroSynth program utilizes advanced technologies to extract and synthesize oils from meteorites.&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>]</span>
+</span></span></code></pre></div><p>这是个python的列表list，2个元素，都是(question, answer)，<strong>元组（tuple）</strong>，也就是tuple(str,str)</p><p>元组和列表的区别：</p><ul><li>元组用 <code>()</code>，不可变（不能增删改元素）</li><li>列表用 <code>[]</code>，可变</li></ul><h3 id=数据加载代码>数据加载代码：<a hidden class=anchor aria-hidden=true href=#数据加载代码>#</a></h3><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>torch</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>transformers</span> <span class=kn>import</span> <span class=n>GPT2Tokenizer</span><span class=p>,</span> <span class=n>GPT2LMHeadModel</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>torch.utils.data</span> <span class=kn>import</span> <span class=n>Dataset</span><span class=p>,</span> <span class=n>DataLoader</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Define a simple dataset for training</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>SimpleDataset</span><span class=p>(</span><span class=n>Dataset</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>texts</span><span class=p>,</span> <span class=n>tokenizer</span><span class=p>,</span> <span class=n>max_length</span><span class=o>=</span><span class=mi>128</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>tokenizer</span><span class=o>.</span><span class=n>pad_token</span> <span class=o>=</span> <span class=n>tokenizer</span><span class=o>.</span><span class=n>eos_token</span>  <span class=c1># Set padding token to EOS</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>encodings</span> <span class=o>=</span> <span class=n>tokenizer</span><span class=p>(</span><span class=n>texts</span><span class=p>,</span> <span class=n>padding</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span> <span class=n>truncation</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span> <span class=n>max_length</span><span class=o>=</span><span class=n>max_length</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__len__</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>encodings</span><span class=p>[</span><span class=s2>&#34;input_ids&#34;</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__getitem__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>idx</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=p>{</span><span class=n>k</span><span class=p>:</span> <span class=n>torch</span><span class=o>.</span><span class=n>tensor</span><span class=p>(</span><span class=n>v</span><span class=p>[</span><span class=n>idx</span><span class=p>])</span> <span class=k>for</span> <span class=n>k</span><span class=p>,</span> <span class=n>v</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>encodings</span><span class=o>.</span><span class=n>items</span><span class=p>()}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>qa_data</span> <span class=o>=</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>    <span class=p>(</span><span class=s2>&#34;What is AstroSynth?&#34;</span><span class=p>,</span> <span class=s2>&#34;AstroSynth is an innovative program designed to synthesize oils from celestial materials.&#34;</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>    <span class=p>(</span><span class=s2>&#34;How does AstroSynth work?&#34;</span><span class=p>,</span> <span class=s2>&#34;The AstroSynth program utilizes advanced technologies to extract and synthesize oils from meteorites.&#34;</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>    <span class=c1># Add more Q&amp;A pairs...</span>
+</span></span><span class=line><span class=cl><span class=p>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>dataset</span> <span class=o>=</span> <span class=n>SimpleDataset</span><span class=p>(</span><span class=n>qa_data</span><span class=p>,</span> <span class=n>tokenizer</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>dataloader</span> <span class=o>=</span> <span class=n>DataLoader</span><span class=p>(</span><span class=n>dataset</span><span class=p>,</span> <span class=n>batch_size</span><span class=o>=</span><span class=mi>2</span><span class=p>,</span> <span class=n>shuffle</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>       
+</span></span></code></pre></div><p>看代码，dataset</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>dataset</span> <span class=o>=</span> <span class=n>SimpleDataset</span><span class=p>(</span><span class=n>qa_data</span><span class=p>,</span> <span class=n>tokenizer</span><span class=p>)</span>
+</span></span></code></pre></div><p>进入</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>SimpleDataset</span><span class=p>:</span>
+</span></span></code></pre></div><p>初始化</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=bp>self</span><span class=o>.</span><span class=n>encodings</span> <span class=o>=</span> <span class=n>tokenizer</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>texts</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>padding</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>truncation</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>max_length</span><span class=o>=</span><span class=n>max_length</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span></code></pre></div><pre tabindex=0><code>texts
+</code></pre><p>就是：</p><pre tabindex=0><code>qa_data
+</code></pre><hr><p>但是 GPT2Tokenizer 不期望：</p><pre tabindex=0><code>[
+(question, answer),
+(question, answer)
+]
+</code></pre><p>它期望：</p><pre tabindex=0><code>[
+&#34;text1&#34;,
+&#34;text2&#34;,
+&#34;text3&#34;
+]
+</code></pre><hr><p>所以严格来说：</p><p>你的代码需要先把 QA 合并：</p><p>例如：</p><pre tabindex=0><code>texts = [
+&#34;What is AstroSynth? AstroSynth is an innovative program...&#34;,
+&#34;How does AstroSynth work? The AstroSynth program...&#34;
+]
+</code></pre><p>然后：</p><pre tabindex=0><code>dataset = SimpleDataset(texts, tokenizer)
+</code></pre><p>否则 tokenizer 会把 tuple 当奇怪输入处理。</p><p>下面假设你已经合并好了。</p><hr><h4 id=tokenizer-做了什么>tokenizer 做了什么？<a hidden class=anchor aria-hidden=true href=#tokenizer-做了什么>#</a></h4><p>例如：</p><p>文本：</p><pre tabindex=0><code>What is AstroSynth?
+</code></pre><p>GPT2 tokenizer：</p><p>不是直接变数字。</p><p>过程：</p><hr><h5 id=第一步文本切片>第一步：文本切片<a hidden class=anchor aria-hidden=true href=#第一步文本切片>#</a></h5><p>tokenization：</p><p>例如：</p><pre tabindex=0><code>What
+is
+Astro
+Synth
+?
+</code></pre><p>注意：</p><p>GPT2 是 BPE，不一定按单词切。</p><p>可能：</p><pre tabindex=0><code>Astro
+Synth
+</code></pre><p>也可能：</p><pre tabindex=0><code>Ast
+ro
+Synth
+</code></pre><hr><h5 id=第二步查词表>第二步：查词表<a hidden class=anchor aria-hidden=true href=#第二步查词表>#</a></h5><p>假设：</p><pre tabindex=0><code>What       -&gt; 2061
+is         -&gt; 318
+Astro      -&gt; 12345
+Synth      -&gt; 43210
+?          -&gt; 30
+</code></pre><p>得到：</p><pre tabindex=0><code>input_ids =
+[
+2061,
+318,
+12345,
+43210,
+30
+]
+</code></pre><hr><h4 id=padding发生什么>padding发生什么？<a hidden class=anchor aria-hidden=true href=#padding发生什么>#</a></h4><p>你的代码：</p><pre tabindex=0><code>padding=True
+</code></pre><p>假设 batch 中两个句子长度不同：</p><p>句子A:</p><pre tabindex=0><code>What is AstroSynth?
+</code></pre><p>长度：</p><p>5 token</p><p>句子B:</p><pre tabindex=0><code>How does AstroSynth work?
+</code></pre><p>长度：6 token</p><p>为了组成矩阵：
+必须一样长。</p><p>于是补：</p><pre tabindex=0><code>&lt;pad&gt;
+</code></pre><hr><p>GPT2没有专门pad：</p><p>所以：</p><pre tabindex=0><code>tokenizer.pad_token = tokenizer.eos_token
+</code></pre><p>也就是：</p><p>pad = 结束符。</p><hr><p>例如：</p><p>句子A：</p><p>原来：</p><pre tabindex=0><code>2061 318 12345 43210 30
+</code></pre><p>补结束符50256：</p><pre tabindex=0><code>50256
+</code></pre><p>得到：</p><pre tabindex=0><code>2061
+318
+12345
+43210
+30
+50256
+</code></pre><hr><h5 id=dataset返回什么>Dataset返回什么？<a hidden class=anchor aria-hidden=true href=#dataset返回什么>#</a></h5><p>这里：</p><pre tabindex=0><code>def __getitem__(self, idx):
+    return {
+        k: torch.tensor(v[idx])
+        for k,v in self.encodings.items()
+    }
+</code></pre><hr><p>tokenizer输出：</p><p>通常：</p><pre tabindex=0><code>{
+&#34;input_ids&#34;: [
+ [2061,318,...],
+ [356,903,...]
+],
+
+&#34;attention_mask&#34;:[
+ [1,1,1,1,1,0],
+ [1,1,1,1,1,1]
+]
+}
+</code></pre><hr><p>getitem取一个：</p><p>例如：</p><pre tabindex=0><code>dataset[0]
+</code></pre><p>返回：</p><pre tabindex=0><code>{
+&#34;input_ids&#34;:
+tensor([
+2061,
+318,
+12345,
+43210,
+30,
+50256
+]),
+
+
+&#34;attention_mask&#34;:
+tensor([
+1,
+1,
+1,
+1,
+1,
+0
+])
+}
+</code></pre><p>字典推导式，注意attention_mask是掩掉了，不是之后的因果论的causal mask</p><p>❌ causal mask</p><p>✅ padding mask</p><h4 id=最核心总结>最核心总结<a hidden class=anchor aria-hidden=true href=#最核心总结>#</a></h4><table><thead><tr><th>mask</th><th>来源</th><th>作用</th><th>GPT是否必须</th></tr></thead><tbody><tr><td>attention_mask</td><td>tokenizer</td><td>屏蔽padding</td><td>有padding时需要</td></tr><tr><td>causal mask</td><td>model内部</td><td>屏蔽未来token</td><td>GPT必须</td></tr></tbody></table><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=bp>self</span><span class=o>.</span><span class=n>encodings</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;input_ids&#39;</span><span class=p>:</span>      <span class=p>[[</span><span class=mi>101</span><span class=p>,</span> <span class=mi>2342</span><span class=p>,</span> <span class=mi>102</span><span class=p>],</span> <span class=p>[</span><span class=mi>101</span><span class=p>,</span> <span class=mi>876</span><span class=p>,</span> <span class=mi>102</span><span class=p>]],</span>  <span class=c1># 所有句子的 Token</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;attention_mask&#39;</span><span class=p>:</span> <span class=p>[[</span><span class=mi>1</span><span class=p>,</span>   <span class=mi>1</span><span class=p>,</span>    <span class=mi>1</span>  <span class=p>],</span> <span class=p>[</span><span class=mi>1</span><span class=p>,</span>   <span class=mi>1</span><span class=p>,</span>   <span class=mi>1</span>  <span class=p>]]</span>   <span class=c1># 所有句子的掩码</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><p>代码 <code>{k: ... for k, v in ...}</code> 是 Python 的高级语法——<strong>字典推导式</strong>。它可以用极其简短的一行代码，遍历一个旧字典，然后生成一个新字典。</p><p>当你执行这段代码中的 <code>for k,v in self.encodings.items()</code> 时：</p><ul><li><code>k</code> (键) 遍历到的就是 <code>'input_ids'</code>、<code>'attention_mask'</code>。</li><li><code>v</code> (值) 遍历到的就是它后面跟着的那个巨大的二维列表。</li></ul><p>当你调用 <code>dataset[0]['input_ids']</code> 时，返回的这个 <code>[101, 234, ...]</code> 就是大模型世界的“通用货币”——<strong>Token IDs（词元编号）</strong>。</p><hr><h4 id=dataloader做什么>DataLoader做什么？<a hidden class=anchor aria-hidden=true href=#dataloader做什么>#</a></h4><p>这里：</p><pre tabindex=0><code>dataloader = DataLoader(
+    dataset,
+    batch_size=2,
+    shuffle=True
+)
+</code></pre><p>重点：</p><p>batch_size=2</p><p>所以：</p><p>一次取两个样本。</p><hr><p>代码：</p><pre tabindex=0><code>for batch in dataloader:
+</code></pre><p>第一次：</p><p>batch长这样：</p><hr><h4 id=input_ids真实形状>input_ids真实形状<a hidden class=anchor aria-hidden=true href=#input_ids真实形状>#</a></h4><p>执行：</p><pre tabindex=0><code>input_ids = batch[&#34;input_ids&#34;]
+</code></pre><p>得到：</p><pre tabindex=0><code>tensor([
+    [
+    2061,
+    318,
+    12345,
+    43210,
+    30,
+    50256
+    ],
+
+
+    [
+    356,
+    903,
+    12345,
+    8765,
+    30,
+    50256
+    ]
+])
+</code></pre><hr><p>它是：</p><h5 id=二维矩阵>二维矩阵<a hidden class=anchor aria-hidden=true href=#二维矩阵>#</a></h5><p>shape:</p><pre tabindex=0><code>[batch_size, sequence_length]
+</code></pre><p>也就是：</p><pre tabindex=0><code>[2,6]
+</code></pre><hr><h4 id=这个结构非常重要>这个结构非常重要<a hidden class=anchor aria-hidden=true href=#这个结构非常重要>#</a></h4><p>它不是：</p><pre tabindex=0><code>[2]
+</code></pre><p>不是：</p><pre tabindex=0><code>[6]
+</code></pre><p>而是：</p><pre tabindex=0><code>      token位置
+
+      1    2    3    4    5    6
+
+样本1 2061 318 12345 43210 30 50256
+
+样本2 356 903 12345 8765 30 50256
+</code></pre><hr><h4 id=接下来送进-gpt>接下来送进 GPT<a hidden class=anchor aria-hidden=true href=#接下来送进-gpt>#</a></h4><p>你的 GPT：</p><pre tabindex=0><code>logits = model(input_ids)
+</code></pre><p>进入：</p><pre tabindex=0><code>x = self.token_embedding(input_ids)
+</code></pre><hr><p>这里发生：</p><p>embedding查表。</p><hr><p>input:</p><pre tabindex=0><code>[2,6]
+</code></pre><hr><p>embedding矩阵：</p><p>假设：</p><pre tabindex=0><code>vocab_size=50000
+d_model=768
+</code></pre><p>权重：</p><pre tabindex=0><code>[50000,768]
+</code></pre><hr><p>查完：</p><p>输出：</p><pre tabindex=0><code>[2,6,768]
+</code></pre><p>什么意思？</p><hr><p>每一个 token id：</p><p>变成：</p><p>768维向量。</p><hr><p>例如：</p><p>原来：</p><pre tabindex=0><code>2061
+</code></pre><p>变：</p><pre tabindex=0><code>[
+0.23,
+-0.51,
+...
+768个数字
+]
+</code></pre><hr><h4 id=整个流程链>整个流程链<a hidden class=anchor aria-hidden=true href=#整个流程链>#</a></h4><p>你可以记住：</p><pre tabindex=0><code>文本
+ |
+Tokenizer
+ |
+token ids
+ |
+input_ids
+
+shape:
+[batch, seq]
+
+ |
+Embedding
+
+shape:
+[batch, seq, 768]
+
+ |
+Transformer
+
+shape:
+[batch, seq,768]
+
+ |
+lm_head
+
+shape:
+[batch,seq,vocab_size]
+
+ |
+CrossEntropy
+</code></pre><hr><h4 id=最关键理解>最关键理解<a hidden class=anchor aria-hidden=true href=#最关键理解>#</a></h4><p><code>input_ids</code> 本质不是文本。</p><p>它只是：</p><blockquote><p>一批整数索引，告诉 embedding 从词表里取哪些768维向量。</p></blockquote><p>所以：</p><pre tabindex=0><code>input_ids
+</code></pre><p>只是入口。</p><p>真正进入 Transformer 的东西是查找excel后的768维的向量：</p><pre tabindex=0><code>embedding(input_ids)
+</code></pre><p>之后的：</p><pre tabindex=0><code>[batch, seq, 768]
+</code></pre><p>这个才是 GPT 里的“思维空间”。</p><h3 id=训练代码>训练代码：<a hidden class=anchor aria-hidden=true href=#训练代码>#</a></h3><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>optimizer</span> <span class=o>=</span> <span class=n>torch</span><span class=o>.</span><span class=n>optim</span><span class=o>.</span><span class=n>AdamW</span><span class=p>(</span><span class=n>model</span><span class=o>.</span><span class=n>parameters</span><span class=p>(),</span> <span class=n>lr</span><span class=o>=</span><span class=mf>5e-5</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Set model to training mode</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>train</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Training loop (mock training)</span>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>batch</span> <span class=ow>in</span> <span class=n>dataloader</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>input_ids</span> <span class=o>=</span> <span class=n>batch</span><span class=p>[</span><span class=s2>&#34;input_ids&#34;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=n>attention_mask</span> <span class=o>=</span> <span class=n>batch</span><span class=p>[</span><span class=s2>&#34;attention_mask&#34;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>#清空旧梯度</span>
+</span></span><span class=line><span class=cl>    <span class=n>optimizer</span><span class=o>.</span><span class=n>zero_grad</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>outputs</span> <span class=o>=</span> <span class=n>model</span><span class=p>(</span><span class=n>input_ids</span><span class=p>,</span> <span class=n>attention_mask</span><span class=o>=</span><span class=n>attention_mask</span><span class=p>,</span> <span class=n>labels</span><span class=o>=</span><span class=n>input_ids</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>loss</span> <span class=o>=</span> <span class=n>outputs</span><span class=o>.</span><span class=n>loss</span>
+</span></span><span class=line><span class=cl>    <span class=n>loss</span><span class=o>.</span><span class=n>backward</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>optimizer</span><span class=o>.</span><span class=n>step</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Loss: </span><span class=si>{</span><span class=n>loss</span><span class=o>.</span><span class=n>item</span><span class=p>()</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>  <span class=c1># Print loss for monitoring</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Save the trained model</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>save_pretrained</span><span class=p>(</span><span class=s2>&#34;trained_gpt2_model&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>tokenizer</span><span class=o>.</span><span class=n>save_pretrained</span><span class=p>(</span><span class=s2>&#34;trained_gpt2_model&#34;</span><span class=p>)</span>  <span class=c1># Save the tokenizer as well</span>
+</span></span></code></pre></div><p>上面就是训练的标准循环。</p><h4 id=modelparameters是什么>model.parameters()是什么？<a hidden class=anchor aria-hidden=true href=#modelparameters是什么>#</a></h4><p>你的 GPT 里面所有可训练参数：</p><p>例如：</p><h3 id=embedding>Embedding<a hidden class=anchor aria-hidden=true href=#embedding>#</a></h3><p>$$
+We​
+$$</p><p>形状：</p><p>[vocab,768]</p><hr><h3 id=attention>Attention<a hidden class=anchor aria-hidden=true href=#attention>#</a></h3><p>例如：
+$$
+WQ​,WK​,WV​,WO​
+$$</p><hr><h3 id=ffn>FFN<a hidden class=anchor aria-hidden=true href=#ffn>#</a></h3><p>SwiGLU:
+$$
+W1​,W3​,W2​
+$$</p><hr><h3 id=输出层>输出层<a hidden class=anchor aria-hidden=true href=#输出层>#</a></h3><p>lm_head:
+$$
+Wout
+$$</p><p>全部集合：</p><pre tabindex=0><code>model.parameters()
+</code></pre><p>就是：</p><blockquote><p>我要训练这些矩阵。</p></blockquote><h4 id=adamw是什么>AdamW是什么？<a hidden class=anchor aria-hidden=true href=#adamw是什么>#</a></h4><p>它负责：</p><blockquote><p>根据梯度修改参数</p></blockquote><p>训练核心公式：
+$$
+θnew​=θold​−lr×gradient
+$$</p><p>例如：</p><p>某个权重：
+$$
+W1​
+$$
+梯度：
+$$
+∂W1​∂loss​
+$$
+AdamW根据这个：</p><p>调整：
+$$
+W1​
+$$</p><hr><h3 id=完整的训练代码>完整的训练代码<a hidden class=anchor aria-hidden=true href=#完整的训练代码>#</a></h3><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>torch</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>transformers</span> <span class=kn>import</span> <span class=n>GPT2Tokenizer</span><span class=p>,</span> <span class=n>GPT2LMHeadModel</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>torch.utils.data</span> <span class=kn>import</span> <span class=n>Dataset</span><span class=p>,</span> <span class=n>DataLoader</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Define a simple dataset for training</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>SimpleDataset</span><span class=p>(</span><span class=n>Dataset</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>texts</span><span class=p>,</span> <span class=n>tokenizer</span><span class=p>,</span> <span class=n>max_length</span><span class=o>=</span><span class=mi>128</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>tokenizer</span><span class=o>.</span><span class=n>pad_token</span> <span class=o>=</span> <span class=n>tokenizer</span><span class=o>.</span><span class=n>eos_token</span>  <span class=c1># Set padding token to EOS</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>encodings</span> <span class=o>=</span> <span class=n>tokenizer</span><span class=p>(</span><span class=n>texts</span><span class=p>,</span> <span class=n>padding</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span> <span class=n>truncation</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span> <span class=n>max_length</span><span class=o>=</span><span class=n>max_length</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__len__</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nb>len</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>encodings</span><span class=p>[</span><span class=s2>&#34;input_ids&#34;</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__getitem__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>idx</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=p>{</span><span class=n>k</span><span class=p>:</span> <span class=n>torch</span><span class=o>.</span><span class=n>tensor</span><span class=p>(</span><span class=n>v</span><span class=p>[</span><span class=n>idx</span><span class=p>])</span> <span class=k>for</span> <span class=n>k</span><span class=p>,</span> <span class=n>v</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>encodings</span><span class=o>.</span><span class=n>items</span><span class=p>()}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Load pretrained GPT-2 model and tokenizer</span>
+</span></span><span class=line><span class=cl><span class=n>tokenizer</span> <span class=o>=</span> <span class=n>GPT2Tokenizer</span><span class=o>.</span><span class=n>from_pretrained</span><span class=p>(</span><span class=s2>&#34;gpt2&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>model</span> <span class=o>=</span> <span class=n>GPT2LMHeadModel</span><span class=o>.</span><span class=n>from_pretrained</span><span class=p>(</span><span class=s2>&#34;gpt2&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Prepare question-answer data</span>
+</span></span><span class=line><span class=cl><span class=n>qa_data</span> <span class=o>=</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>    <span class=p>(</span><span class=s2>&#34;What is AstroSynth?&#34;</span><span class=p>,</span> <span class=s2>&#34;AstroSynth is an innovative program designed to synthesize oils from celestial materials.&#34;</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>    <span class=p>(</span><span class=s2>&#34;How does AstroSynth work?&#34;</span><span class=p>,</span> <span class=s2>&#34;The AstroSynth program utilizes advanced technologies to extract and synthesize oils from meteorites.&#34;</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>    <span class=c1># Add more Q&amp;A pairs...</span>
+</span></span><span class=line><span class=cl><span class=p>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>dataset</span> <span class=o>=</span> <span class=n>SimpleDataset</span><span class=p>(</span><span class=n>qa_data</span><span class=p>,</span> <span class=n>tokenizer</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>dataloader</span> <span class=o>=</span> <span class=n>DataLoader</span><span class=p>(</span><span class=n>dataset</span><span class=p>,</span> <span class=n>batch_size</span><span class=o>=</span><span class=mi>2</span><span class=p>,</span> <span class=n>shuffle</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Set up the optimizer</span>
+</span></span><span class=line><span class=cl><span class=n>optimizer</span> <span class=o>=</span> <span class=n>torch</span><span class=o>.</span><span class=n>optim</span><span class=o>.</span><span class=n>AdamW</span><span class=p>(</span><span class=n>model</span><span class=o>.</span><span class=n>parameters</span><span class=p>(),</span> <span class=n>lr</span><span class=o>=</span><span class=mf>5e-5</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Set model to training mode</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>train</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Training loop (mock training)</span>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>batch</span> <span class=ow>in</span> <span class=n>dataloader</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>input_ids</span> <span class=o>=</span> <span class=n>batch</span><span class=p>[</span><span class=s2>&#34;input_ids&#34;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=n>attention_mask</span> <span class=o>=</span> <span class=n>batch</span><span class=p>[</span><span class=s2>&#34;attention_mask&#34;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Zero the gradients</span>
+</span></span><span class=line><span class=cl>    <span class=n>optimizer</span><span class=o>.</span><span class=n>zero_grad</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Forward pass</span>
+</span></span><span class=line><span class=cl>    <span class=n>outputs</span> <span class=o>=</span> <span class=n>model</span><span class=p>(</span><span class=n>input_ids</span><span class=p>,</span> <span class=n>attention_mask</span><span class=o>=</span><span class=n>attention_mask</span><span class=p>,</span> <span class=n>labels</span><span class=o>=</span><span class=n>input_ids</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>loss</span> <span class=o>=</span> <span class=n>outputs</span><span class=o>.</span><span class=n>loss</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Backward pass</span>
+</span></span><span class=line><span class=cl>    <span class=n>loss</span><span class=o>.</span><span class=n>backward</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Update weights</span>
+</span></span><span class=line><span class=cl>    <span class=n>optimizer</span><span class=o>.</span><span class=n>step</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Loss: </span><span class=si>{</span><span class=n>loss</span><span class=o>.</span><span class=n>item</span><span class=p>()</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>  <span class=c1># Print loss for monitoring</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Save the trained model</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>save_pretrained</span><span class=p>(</span><span class=s2>&#34;trained_gpt2_model&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>tokenizer</span><span class=o>.</span><span class=n>save_pretrained</span><span class=p>(</span><span class=s2>&#34;trained_gpt2_model&#34;</span><span class=p>)</span>  <span class=c1># Save the tokenizer as well</span>
+</span></span></code></pre></div><p>训练好了，让他回答问题试试：</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>torch</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>transformers</span> <span class=kn>import</span> <span class=n>GPT2Tokenizer</span><span class=p>,</span> <span class=n>GPT2LMHeadModel</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Load the trained model and tokenizer</span>
+</span></span><span class=line><span class=cl><span class=n>model</span> <span class=o>=</span> <span class=n>GPT2LMHeadModel</span><span class=o>.</span><span class=n>from_pretrained</span><span class=p>(</span><span class=s2>&#34;trained_gpt2_model&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>tokenizer</span> <span class=o>=</span> <span class=n>GPT2Tokenizer</span><span class=o>.</span><span class=n>from_pretrained</span><span class=p>(</span><span class=s2>&#34;trained_gpt2_model&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>model</span><span class=o>.</span><span class=n>eval</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Function to ask a question and get an answer</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>ask_question</span><span class=p>(</span><span class=n>question</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>input_text</span> <span class=o>=</span> <span class=sa>f</span><span class=s2>&#34;Question: </span><span class=si>{</span><span class=n>question</span><span class=si>}</span><span class=s2> Answer:&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>input_ids</span> <span class=o>=</span> <span class=n>tokenizer</span><span class=o>.</span><span class=n>encode</span><span class=p>(</span><span class=n>input_text</span><span class=p>,</span> <span class=n>return_tensors</span><span class=o>=</span><span class=s2>&#34;pt&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>attention_mask</span> <span class=o>=</span> <span class=n>torch</span><span class=o>.</span><span class=n>ones</span><span class=p>(</span><span class=n>input_ids</span><span class=o>.</span><span class=n>shape</span><span class=p>,</span> <span class=n>dtype</span><span class=o>=</span><span class=n>torch</span><span class=o>.</span><span class=n>long</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>with</span> <span class=n>torch</span><span class=o>.</span><span class=n>no_grad</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>        <span class=n>output</span> <span class=o>=</span> <span class=n>model</span><span class=o>.</span><span class=n>generate</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>            <span class=n>input_ids</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>attention_mask</span><span class=o>=</span><span class=n>attention_mask</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>max_length</span><span class=o>=</span><span class=mi>50</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>num_return_sequences</span><span class=o>=</span><span class=mi>1</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>no_repeat_ngram_size</span><span class=o>=</span><span class=mi>2</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>do_sample</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>top_k</span><span class=o>=</span><span class=mi>50</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>top_p</span><span class=o>=</span><span class=mf>0.95</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>temperature</span><span class=o>=</span><span class=mf>0.7</span>
+</span></span><span class=line><span class=cl>        <span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>answer</span> <span class=o>=</span> <span class=n>tokenizer</span><span class=o>.</span><span class=n>decode</span><span class=p>(</span><span class=n>output</span><span class=p>[</span><span class=mi>0</span><span class=p>],</span> <span class=n>skip_special_tokens</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>answer</span><span class=o>.</span><span class=n>split</span><span class=p>(</span><span class=s2>&#34;Answer:&#34;</span><span class=p>)[</span><span class=o>-</span><span class=mi>1</span><span class=p>]</span><span class=o>.</span><span class=n>strip</span><span class=p>()</span>  <span class=c1># Return the generated answer</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Example questions</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>ask_question</span><span class=p>(</span><span class=s2>&#34;What is the capital of France?&#34;</span><span class=p>))</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>ask_question</span><span class=p>(</span><span class=s2>&#34;How does AstroSynth use artificial intelligence?&#34;</span><span class=p>))</span>
+</span></span></code></pre></div></div><footer class=post-footer><ul class=post-tags></ul><nav class=paginav><a class=next href=https://rendoumi.com/posts/20260707-gpt2_fine_tune/><span class=title>下一页 »</span><br><span>大语言模型（LLM）微调（Fine-tuning）流水线</span></a></nav></footer><div id=comments></div><script src=https://cwd.js.org/cwd.js></script><script>const comments=new CWDComments({el:"#comments",apiBaseUrl:"https://cwd.rendoumi.qzz.io"});comments.mount()</script></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script></body></html>
