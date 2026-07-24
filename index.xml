@@ -12,8 +12,36 @@
     <generator>Hugo -- 0.147.3</generator>
     <language>zh</language>
     <copyright>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Wed, 08 Jul 2026 09:00:00 +0800</lastBuildDate>
+    <lastBuildDate>Fri, 24 Jul 2026 09:00:00 +0800</lastBuildDate>
     <atom:link href="https://rendoumi.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>AI中转站的运营成本分析</title>
+      <link>https://rendoumi.com/posts/20260724-ai_newapi/</link>
+      <pubDate>Fri, 24 Jul 2026 09:00:00 +0800</pubDate>
+      <guid>https://rendoumi.com/posts/20260724-ai_newapi/</guid>
+      <description>&lt;p&gt;一直对现在市场上的各种AI中转站的成本非常感兴趣，我们来仔细研究一下：&lt;/p&gt;
+&lt;h2 id=&#34;一gpt中转的成本&#34;&gt;一、GPT中转的成本&lt;/h2&gt;
+&lt;p&gt;那通常可以设置&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;1 美金 = 多少平台币
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;大部分都是 1:1&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;1 美金 = 1 人民币
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;然后就是用户使用时的倍率分组，就是用来计算真实加个的分组&lt;/p&gt;
+&lt;p&gt;比如输入 5 元，给你倍率 0.1，那么实际就是：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;5 * 0.1 = 0.5 元
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;注意前面，1 人民币 = 1 美元的时候，实际已经做了 1/7 的折扣&lt;/p&gt;
+&lt;p&gt;这里这个倍率，又做了进一步的折扣，那要疯了，这么折，怎么赚钱？！&lt;/p&gt;
+&lt;h2 id=&#34;二pro订阅号的额度计算&#34;&gt;二、Pro订阅号的额度计算&lt;/h2&gt;
+&lt;p&gt;我们直接从Pro号来计算，可以大概知道每个 &lt;code&gt;20x Pro&lt;/code&gt; 的号，一周满额度一般是 &lt;code&gt;1600+&lt;/code&gt;刀。&lt;/p&gt;
+&lt;p&gt;之前 Pro 的额度约为 &lt;code&gt;2500+&lt;/code&gt;。OpenAI 后来调整降低了不少额度。&lt;/p&gt;
+&lt;p&gt;现在这个额度，乘以 4 周一个月，就是中转正常获取的额度：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;m&#34;&gt;1600&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;*&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;m&#34;&gt;4&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;l&#34;&gt;= 6400&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;在过程中，一般会有 1-2 次重置，也就是额度差不多在：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;m&#34;&gt;1600&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;*&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;m&#34;&gt;6&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;l&#34;&gt;= 9600&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;也就是大概 10000 刀。&lt;/p&gt;
+&lt;p&gt;整体来看，一个号大概能跑出：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;m&#34;&gt;6000&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;- &lt;span class=&#34;m&#34;&gt;10000&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;l&#34;&gt;刀&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;但是只需要 200 美元，1400元左右即可撬动。我们需要忘记美元，记牢1400元是我们的成本。&lt;/p&gt;</description>
+    </item>
     <item>
       <title>大语言模型（LLM）微调（Fine-tuning）之二</title>
       <link>https://rendoumi.com/posts/20260708-gpt2_fine_tune2/</link>
