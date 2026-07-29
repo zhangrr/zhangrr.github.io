@@ -1,0 +1,146 @@
+<!doctype html><html lang=zh dir=auto data-theme=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3988508441804851" crossorigin=anonymous></script><title>Nodejs Python Go在Linux下的指定安装 | 八戒的技术博客</title>
+<meta name=keywords content><meta name=description content='为什么会有这么奇怪的事，是因为新的GPU机器是一个runpod
+持久化卷是网络的，但是pod一重启，系统便被洗的干干净净，重新出生了，那难道每次重启都重新安装nodejs python go ?
+那可太烦了，我们把这些固定软件指定安装到持久化卷上，重启后只要引入资源文件，就恢复原样，那就完事大吉了
+一、nodejs
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | NVM_DIR=/workspace/nvm bash
+
+export NVM_DIR="/workspace/nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
+这样nvm就装好了，然后装node
+nvm list
+nvm ls-remote
+nvm install 24
+
+# 顺手装个codex
+npm i -g @openai/codex
+二、python
+curl -LsSf https://astral.sh/uv/install.sh | UV_INSTALL_DIR=/workspace/uv sh
+
+source /workspace/uv/env
+这样uv就装好了，然后装python
+uv python list
+
+# 建议用到时再用venv初始化python
+uv venv --python 3.12
+三、go
+wget https://go.dev/dl/go1.25.11.linux-amd64.tar.gz
+
+tar zxvf go1.25.11.linux-amd64.tar.gz
+mv go /workspace/go
+
+export GOROOT=/workspace/go
+export PATH=$GOROOT/bin:$PATH
+四、整合bashrc
+# 类似screen的软件
+https://github.com/coder/boo/releases/download/v0.6.4/boo-x86_64-linux.tar.gz
+
+# smart cd的软件
+https://github.com/ajeetdsouza/zoxide/releases/download/v0.10.0/zoxide-0.10.0-x86_64-unknown-linux-musl.tar.gz
+
+# 下载后是boo和zoxide，放到/workspace/bin目录下
+/workspace/bin/boo /workspace/bin/zoxide
+整合/workspace/bashrc'><meta name=author content="八戒"><link rel=canonical href=https://rendoumi.com/posts/20260729-go_nodejs_python/><meta name=google-site-verification content="XYZabc"><meta name=yandex-verification content="XYZabc"><meta name=msvalidate.01 content="XYZabc"><link crossorigin=anonymous href=/assets/css/stylesheet.5d8a858b4ad07d913988e10d3c3dbc8c171f45316a396de8a60d67f44840812d.css integrity="sha256-XYqFi0rQfZE5iOENPD28jBcfRTFqOW3opg1n9EhAgS0=" rel="preload stylesheet" as=style><link rel=icon href=https://rendoumi.com/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://rendoumi.com/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://rendoumi.com/favicon-32x32.png><link rel=apple-touch-icon href=https://rendoumi.com/apple-touch-icon.png><link rel=mask-icon href=https://rendoumi.com/%3Clink%20/%20abs%20url%3E><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh href=https://rendoumi.com/posts/20260729-go_nodejs_python/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51);color-scheme:dark}.list{background:var(--theme)}.toc{background:var(--entry)}}@media(prefers-color-scheme:light){.list::-webkit-scrollbar-thumb{border-color:var(--code-bg)}}</style></noscript><script>window.matchMedia("(prefers-color-scheme: dark)").matches?document.querySelector("html").dataset.theme="dark":document.querySelector("html").dataset.theme="light"</script><meta property="og:url" content="https://rendoumi.com/posts/20260729-go_nodejs_python/"><meta property="og:site_name" content="八戒的技术博客"><meta property="og:title" content="Nodejs Python Go在Linux下的指定安装"><meta property="og:description" content='为什么会有这么奇怪的事，是因为新的GPU机器是一个runpod
+持久化卷是网络的，但是pod一重启，系统便被洗的干干净净，重新出生了，那难道每次重启都重新安装nodejs python go ?
+那可太烦了，我们把这些固定软件指定安装到持久化卷上，重启后只要引入资源文件，就恢复原样，那就完事大吉了
+一、nodejs
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | NVM_DIR=/workspace/nvm bash export NVM_DIR="/workspace/nvm" [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion" 这样nvm就装好了，然后装node
+nvm list nvm ls-remote nvm install 24 # 顺手装个codex npm i -g @openai/codex 二、python
+curl -LsSf https://astral.sh/uv/install.sh | UV_INSTALL_DIR=/workspace/uv sh source /workspace/uv/env 这样uv就装好了，然后装python
+uv python list # 建议用到时再用venv初始化python uv venv --python 3.12 三、go
+wget https://go.dev/dl/go1.25.11.linux-amd64.tar.gz tar zxvf go1.25.11.linux-amd64.tar.gz mv go /workspace/go export GOROOT=/workspace/go export PATH=$GOROOT/bin:$PATH 四、整合bashrc
+# 类似screen的软件 https://github.com/coder/boo/releases/download/v0.6.4/boo-x86_64-linux.tar.gz # smart cd的软件 https://github.com/ajeetdsouza/zoxide/releases/download/v0.10.0/zoxide-0.10.0-x86_64-unknown-linux-musl.tar.gz # 下载后是boo和zoxide，放到/workspace/bin目录下 /workspace/bin/boo /workspace/bin/zoxide 整合/workspace/bashrc'><meta property="og:locale" content="zh"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2026-07-29T09:00:00+08:00"><meta property="article:modified_time" content="2026-07-29T09:00:00+08:00"><meta property="og:image" content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"><meta name=twitter:title content="Nodejs Python Go在Linux下的指定安装"><meta name=twitter:description content='为什么会有这么奇怪的事，是因为新的GPU机器是一个runpod
+持久化卷是网络的，但是pod一重启，系统便被洗的干干净净，重新出生了，那难道每次重启都重新安装nodejs python go ?
+那可太烦了，我们把这些固定软件指定安装到持久化卷上，重启后只要引入资源文件，就恢复原样，那就完事大吉了
+一、nodejs
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | NVM_DIR=/workspace/nvm bash
+
+export NVM_DIR="/workspace/nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
+这样nvm就装好了，然后装node
+nvm list
+nvm ls-remote
+nvm install 24
+
+# 顺手装个codex
+npm i -g @openai/codex
+二、python
+curl -LsSf https://astral.sh/uv/install.sh | UV_INSTALL_DIR=/workspace/uv sh
+
+source /workspace/uv/env
+这样uv就装好了，然后装python
+uv python list
+
+# 建议用到时再用venv初始化python
+uv venv --python 3.12
+三、go
+wget https://go.dev/dl/go1.25.11.linux-amd64.tar.gz
+
+tar zxvf go1.25.11.linux-amd64.tar.gz
+mv go /workspace/go
+
+export GOROOT=/workspace/go
+export PATH=$GOROOT/bin:$PATH
+四、整合bashrc
+# 类似screen的软件
+https://github.com/coder/boo/releases/download/v0.6.4/boo-x86_64-linux.tar.gz
+
+# smart cd的软件
+https://github.com/ajeetdsouza/zoxide/releases/download/v0.10.0/zoxide-0.10.0-x86_64-unknown-linux-musl.tar.gz
+
+# 下载后是boo和zoxide，放到/workspace/bin目录下
+/workspace/bin/boo /workspace/bin/zoxide
+整合/workspace/bashrc'><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"所有文章","item":"https://rendoumi.com/posts/"},{"@type":"ListItem","position":2,"name":"Nodejs Python Go在Linux下的指定安装","item":"https://rendoumi.com/posts/20260729-go_nodejs_python/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Nodejs Python Go在Linux下的指定安装","name":"Nodejs Python Go在Linux下的指定安装","description":"为什么会有这么奇怪的事，是因为新的GPU机器是一个runpod\n持久化卷是网络的，但是pod一重启，系统便被洗的干干净净，重新出生了，那难道每次重启都重新安装nodejs python go ?\n那可太烦了，我们把这些固定软件指定安装到持久化卷上，重启后只要引入资源文件，就恢复原样，那就完事大吉了\n一、nodejs\ncurl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | NVM_DIR=/workspace/nvm bash export NVM_DIR=\u0026#34;/workspace/nvm\u0026#34; [ -s \u0026#34;$NVM_DIR/nvm.sh\u0026#34; ] \u0026amp;\u0026amp; . \u0026#34;$NVM_DIR/nvm.sh\u0026#34; [ -s \u0026#34;$NVM_DIR/bash_completion\u0026#34; ] \u0026amp;\u0026amp; . \u0026#34;$NVM_DIR/bash_completion\u0026#34; 这样nvm就装好了，然后装node\nnvm list nvm ls-remote nvm install 24 # 顺手装个codex npm i -g @openai/codex 二、python\ncurl -LsSf https://astral.sh/uv/install.sh | UV_INSTALL_DIR=/workspace/uv sh source /workspace/uv/env 这样uv就装好了，然后装python\nuv python list # 建议用到时再用venv初始化python uv venv --python 3.12 三、go\nwget https://go.dev/dl/go1.25.11.linux-amd64.tar.gz tar zxvf go1.25.11.linux-amd64.tar.gz mv go /workspace/go export GOROOT=/workspace/go export PATH=$GOROOT/bin:$PATH 四、整合bashrc\n# 类似screen的软件 https://github.com/coder/boo/releases/download/v0.6.4/boo-x86_64-linux.tar.gz # smart cd的软件 https://github.com/ajeetdsouza/zoxide/releases/download/v0.10.0/zoxide-0.10.0-x86_64-unknown-linux-musl.tar.gz # 下载后是boo和zoxide，放到/workspace/bin目录下 /workspace/bin/boo /workspace/bin/zoxide 整合/workspace/bashrc\n","keywords":[],"articleBody":"为什么会有这么奇怪的事，是因为新的GPU机器是一个runpod\n持久化卷是网络的，但是pod一重启，系统便被洗的干干净净，重新出生了，那难道每次重启都重新安装nodejs python go ?\n那可太烦了，我们把这些固定软件指定安装到持久化卷上，重启后只要引入资源文件，就恢复原样，那就完事大吉了\n一、nodejs\ncurl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | NVM_DIR=/workspace/nvm bash export NVM_DIR=\"/workspace/nvm\" [ -s \"$NVM_DIR/nvm.sh\" ] \u0026\u0026 . \"$NVM_DIR/nvm.sh\" [ -s \"$NVM_DIR/bash_completion\" ] \u0026\u0026 . \"$NVM_DIR/bash_completion\" 这样nvm就装好了，然后装node\nnvm list nvm ls-remote nvm install 24 # 顺手装个codex npm i -g @openai/codex 二、python\ncurl -LsSf https://astral.sh/uv/install.sh | UV_INSTALL_DIR=/workspace/uv sh source /workspace/uv/env 这样uv就装好了，然后装python\nuv python list # 建议用到时再用venv初始化python uv venv --python 3.12 三、go\nwget https://go.dev/dl/go1.25.11.linux-amd64.tar.gz tar zxvf go1.25.11.linux-amd64.tar.gz mv go /workspace/go export GOROOT=/workspace/go export PATH=$GOROOT/bin:$PATH 四、整合bashrc\n# 类似screen的软件 https://github.com/coder/boo/releases/download/v0.6.4/boo-x86_64-linux.tar.gz # smart cd的软件 https://github.com/ajeetdsouza/zoxide/releases/download/v0.10.0/zoxide-0.10.0-x86_64-unknown-linux-musl.tar.gz # 下载后是boo和zoxide，放到/workspace/bin目录下 /workspace/bin/boo /workspace/bin/zoxide 整合/workspace/bashrc\nexport HOME=/workspace export NVM_DIR=\"/workspace/nvm\" [ -s \"$NVM_DIR/nvm.sh\" ] \u0026\u0026 . \"$NVM_DIR/nvm.sh\" [ -s \"$NVM_DIR/bash_completion\" ] \u0026\u0026 . \"$NVM_DIR/bash_completion\" source /workspace/uv/env export GOROOT=/workspace/go export PATH=$GOROOT/bin:$PATH export PATH=$HOME/bin:$PATH eval \"$(zoxide init bash)\" 然后每次pod重启后，我们直接. /workspace/bashrc就可以恢复正常了\n我们也可以把这一句加入/root/.bashrc就自动执行，这样下次重启之前，重新ssh登录就可以直接恢复\n","wordCount":"121","inLanguage":"zh","image":"https://rendoumi.com/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E","datePublished":"2026-07-29T09:00:00+08:00","dateModified":"2026-07-29T09:00:00+08:00","author":{"@type":"Person","name":"八戒"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://rendoumi.com/posts/20260729-go_nodejs_python/"},"publisher":{"@type":"Organization","name":"八戒的技术博客","logo":{"@type":"ImageObject","url":"https://rendoumi.com/favicon.ico"}}}</script></head><body id=top><header class=header><nav class=nav><div class=logo><a href=https://rendoumi.com/ accesskey=h title="Home (Alt + H)"><img src=https://rendoumi.com/apple-touch-icon.png alt aria-label=logo height=35>Home</a><div class=logo-switches></div></div><ul id=menu><li><a href=https://rendoumi.com/ title=首页><span>首页</span></a></li><li><a href=https://rendoumi.com/posts/ title=文章><span>文章</span></a></li><li><a href=https://rendoumi.com/archives/ title=归档><span>归档</span></a></li><li><a href=https://blog.rendoumi.com title=生活><span>生活</span>&nbsp;<svg fill="none" shape-rendering="geometricPrecision" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="12" width="12"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg></a></li><li><a href=https://rendoumi.com/search/ title=搜索><span>搜索</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><div class=breadcrumbs><a href=https://rendoumi.com/>主页</a>&nbsp;»&nbsp;<a href=https://rendoumi.com/posts/>所有文章</a></div><h1 class="post-title entry-hint-parent">Nodejs Python Go在Linux下的指定安装
+<span class=entry-hint title=Draft><svg height="35" viewBox="0 -960 960 960" fill="currentcolor"><path d="M160-410v-60h3e2v60H160zm0-165v-60h470v60H160zm0-165v-60h470v60H160zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22-4.5 22.5T862.09-380L643-160H520zm3e2-263-37-37 37 37zM580-220h38l121-122-18-19-19-18-122 121v38zm141-141-19-18 37 37-18-19z"/></svg></span></h1><div class=post-meta><span title='2026-07-29 09:00:00 +0800 CST'>2026年07月29日</span>&nbsp;·&nbsp;<span>1 分钟</span>&nbsp;·&nbsp;<span>121 字</span>&nbsp;·&nbsp;<span>八戒</span></div></header><div class=post-content><p>为什么会有这么奇怪的事，是因为新的GPU机器是一个runpod</p><p>持久化卷是网络的，但是pod一重启，系统便被洗的干干净净，重新出生了，那难道每次重启都重新安装nodejs python go ?</p><p>那可太烦了，我们把这些固定软件指定安装到持久化卷上，重启后只要引入资源文件，就恢复原样，那就完事大吉了</p><p>一、nodejs</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh <span class=p>|</span> <span class=nv>NVM_DIR</span><span class=o>=</span>/workspace/nvm bash
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>NVM_DIR</span><span class=o>=</span><span class=s2>&#34;/workspace/nvm&#34;</span>
+</span></span><span class=line><span class=cl><span class=o>[</span> -s <span class=s2>&#34;</span><span class=nv>$NVM_DIR</span><span class=s2>/nvm.sh&#34;</span> <span class=o>]</span> <span class=o>&amp;&amp;</span> . <span class=s2>&#34;</span><span class=nv>$NVM_DIR</span><span class=s2>/nvm.sh&#34;</span>
+</span></span><span class=line><span class=cl><span class=o>[</span> -s <span class=s2>&#34;</span><span class=nv>$NVM_DIR</span><span class=s2>/bash_completion&#34;</span> <span class=o>]</span> <span class=o>&amp;&amp;</span> . <span class=s2>&#34;</span><span class=nv>$NVM_DIR</span><span class=s2>/bash_completion&#34;</span>
+</span></span></code></pre></div><p>这样nvm就装好了，然后装node</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>nvm list
+</span></span><span class=line><span class=cl>nvm ls-remote
+</span></span><span class=line><span class=cl>nvm install <span class=m>24</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 顺手装个codex</span>
+</span></span><span class=line><span class=cl>npm i -g @openai/codex
+</span></span></code></pre></div><p>二、python</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>curl -LsSf https://astral.sh/uv/install.sh <span class=p>|</span> <span class=nv>UV_INSTALL_DIR</span><span class=o>=</span>/workspace/uv sh
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>source</span> /workspace/uv/env
+</span></span></code></pre></div><p>这样uv就装好了，然后装python</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>uv python list
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 建议用到时再用venv初始化python</span>
+</span></span><span class=line><span class=cl>uv venv --python 3.12
+</span></span></code></pre></div><p>三、go</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>wget https://go.dev/dl/go1.25.11.linux-amd64.tar.gz
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>tar zxvf go1.25.11.linux-amd64.tar.gz
+</span></span><span class=line><span class=cl>mv go /workspace/go
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>GOROOT</span><span class=o>=</span>/workspace/go
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>PATH</span><span class=o>=</span><span class=nv>$GOROOT</span>/bin:<span class=nv>$PATH</span>
+</span></span></code></pre></div><p>四、整合bashrc</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 类似screen的软件</span>
+</span></span><span class=line><span class=cl>https://github.com/coder/boo/releases/download/v0.6.4/boo-x86_64-linux.tar.gz
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># smart cd的软件</span>
+</span></span><span class=line><span class=cl>https://github.com/ajeetdsouza/zoxide/releases/download/v0.10.0/zoxide-0.10.0-x86_64-unknown-linux-musl.tar.gz
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 下载后是boo和zoxide，放到/workspace/bin目录下</span>
+</span></span><span class=line><span class=cl>/workspace/bin/boo /workspace/bin/zoxide
+</span></span></code></pre></div><p>整合/workspace/bashrc</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>export</span> <span class=nv>HOME</span><span class=o>=</span>/workspace
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>NVM_DIR</span><span class=o>=</span><span class=s2>&#34;/workspace/nvm&#34;</span>
+</span></span><span class=line><span class=cl><span class=o>[</span> -s <span class=s2>&#34;</span><span class=nv>$NVM_DIR</span><span class=s2>/nvm.sh&#34;</span> <span class=o>]</span> <span class=o>&amp;&amp;</span> . <span class=s2>&#34;</span><span class=nv>$NVM_DIR</span><span class=s2>/nvm.sh&#34;</span>
+</span></span><span class=line><span class=cl><span class=o>[</span> -s <span class=s2>&#34;</span><span class=nv>$NVM_DIR</span><span class=s2>/bash_completion&#34;</span> <span class=o>]</span> <span class=o>&amp;&amp;</span> . <span class=s2>&#34;</span><span class=nv>$NVM_DIR</span><span class=s2>/bash_completion&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>source</span> /workspace/uv/env
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>GOROOT</span><span class=o>=</span>/workspace/go
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>PATH</span><span class=o>=</span><span class=nv>$GOROOT</span>/bin:<span class=nv>$PATH</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>PATH</span><span class=o>=</span><span class=nv>$HOME</span>/bin:<span class=nv>$PATH</span>
+</span></span><span class=line><span class=cl><span class=nb>eval</span> <span class=s2>&#34;</span><span class=k>$(</span>zoxide init bash<span class=k>)</span><span class=s2>&#34;</span>
+</span></span></code></pre></div><p>然后每次pod重启后，我们直接<code>. /workspace/bashrc</code>就可以恢复正常了</p><p>我们也可以把这一句加入/root/.bashrc就自动执行，这样下次重启之前，重新ssh登录就可以直接恢复</p></div><footer class=post-footer><ul class=post-tags></ul><nav class=paginav><a class=next href=https://rendoumi.com/posts/20260724-ai_newapi/><span class=title>下一页 »</span><br><span>AI中转站的运营成本分析</span></a></nav></footer><div id=comments></div><script src=https://cwd.js.org/cwd.js></script><script>const comments=new CWDComments({el:"#comments",apiBaseUrl:"https://cwd.rendoumi.qzz.io"});comments.mount()</script></article></main><footer class=footer><span>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</span><br>·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");if(menu){const e=localStorage.getItem("menu-scroll-position");e&&(menu.scrollLeft=parseInt(e,10)),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}}document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script></body></html>
