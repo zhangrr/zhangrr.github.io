@@ -12,8 +12,74 @@
     <generator>Hugo -- 0.147.3</generator>
     <language>zh</language>
     <copyright>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Fri, 07 Aug 2026 09:00:01 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 10 Aug 2026 09:00:01 +0800</lastBuildDate>
     <atom:link href="https://rendoumi.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>从零训练中文 GPT-2：通俗教程与项目复盘</title>
+      <link>https://rendoumi.com/posts/20260810/</link>
+      <pubDate>Mon, 10 Aug 2026 09:00:01 +0800</pubDate>
+      <guid>https://rendoumi.com/posts/20260810/</guid>
+      <description>&lt;p&gt;之前翻译了一篇GPT2的文章：如何训练你的 GPT&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://github.com/zhangrr/how-to-train-your-gpt&#34;&gt;https://github.com/zhangrr/how-to-train-your-gpt&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;对分词、嵌入、位置编码、QKV、多头注意力、自我注意力、transformer块，前馈理解了一部分后；&lt;/p&gt;
+&lt;p&gt;最好的办法还是去实践、实践、实践，然后再不断的实践！&lt;/p&gt;
+&lt;h1 id=&#34;从零训练中文-gpt-2通俗教程与项目复盘&#34;&gt;从零训练中文 GPT-2：通俗教程与项目复盘&lt;/h1&gt;
+&lt;blockquote&gt;
+&lt;p&gt;项目路径：&lt;code&gt;/workspace/gpt2&lt;/code&gt;&lt;br&gt;
+文档更新：2026-08-08&lt;br&gt;
+目标读者：想弄懂「分词之后怎么训 GPT-2、改了哪些参数、每个模型能干什么」的人&lt;/p&gt;
+&lt;p&gt;注意：tokenizer的过程需要大量内存，32G是不够的，本文是基于wikimedia/wikipedia 20231101.zhs数据集进行训练的&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;本文既是&lt;strong&gt;实验记录&lt;/strong&gt;，也是&lt;strong&gt;入门教程&lt;/strong&gt;。建议按目录顺序阅读：先建立直觉，再对照参数表与命令复现。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;目录&#34;&gt;目录&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;#1-%E7%94%A8%E4%B8%80%E5%8F%A5%E8%AF%9D%E7%90%86%E8%A7%A3%E6%95%B4%E6%9D%A1%E6%B5%81%E6%B0%B4%E7%BA%BF&#34;&gt;用一句话理解整条流水线&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#2-%E7%8E%AF%E5%A2%83%E4%B8%8E%E4%BE%9D%E8%B5%96&#34;&gt;环境与依赖&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#3-%E9%98%B6%E6%AE%B5-03%E6%95%B0%E6%8D%AE%E4%B8%8E%E5%88%86%E8%AF%8D%E5%99%A8%E8%AE%AD%E7%BB%83%E5%89%8D%E5%A5%8F&#34;&gt;阶段 0～3：数据与分词器（训练前奏）&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#4-%E9%98%B6%E6%AE%B5-4-%E8%AF%A6%E8%A7%A3%E4%BB%8E%E5%88%86%E8%AF%8D%E5%99%A8%E5%88%B0%E5%8F%AF%E8%AE%AD%E7%BB%83%E7%9A%84-gpt-2&#34;&gt;阶段 4 详解：从分词器到可训练的 GPT-2&lt;/a&gt;（&lt;strong&gt;重点&lt;/strong&gt;）&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#5-%E6%9C%AC%E9%A1%B9%E7%9B%AE%E5%AE%9E%E9%99%85%E8%B7%91%E8%BF%87%E7%9A%84%E5%85%A8%E9%83%A8%E5%AE%9E%E9%AA%8Caf&#34;&gt;本项目实际跑过的全部实验（A～F）&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#6-%E9%87%8D%E7%82%B9%E5%AF%B9%E6%AF%9450000-%E6%AD%A5--%E5%86%8D%E8%AE%AD-150000-%E6%AD%A5%E6%94%B9%E4%BA%86%E4%BB%80%E4%B9%88&#34;&gt;重点对比：50000 步 → 再训 150000 步改了什么&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#7-%E4%B8%BA%E4%BB%80%E4%B9%88%E6%96%B0%E5%A2%9E-qa-%E8%AF%AD%E6%96%99%E4%BB%8E%E5%93%AA%E6%9D%A5%E6%80%8E%E4%B9%88%E7%94%A8&#34;&gt;为什么新增 QA 语料？从哪来？怎么用？&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#8-%E6%AF%8F%E4%B8%AA%E6%A8%A1%E5%9E%8B%E7%9B%AE%E5%BD%95%E9%80%82%E7%94%A8%E4%BA%8E%E4%BB%80%E4%B9%88%E5%9C%BA%E6%99%AF&#34;&gt;每个模型目录适用于什么场景&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#9-%E6%8C%87%E6%A0%87%E6%80%8E%E4%B9%88%E8%AF%BB%E7%94%9F%E6%88%90%E6%97%B6%E6%80%8E%E4%B9%88%E8%B0%83&#34;&gt;指标怎么读、生成时怎么调&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#10-%E8%B8%A9%E5%9D%91%E4%B8%8E%E7%BB%8F%E9%AA%8C&#34;&gt;踩坑与经验&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#11-%E7%AB%AF%E5%88%B0%E7%AB%AF%E5%A4%8D%E7%8E%B0%E5%91%BD%E4%BB%A4&#34;&gt;端到端复现命令&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#12-%E5%8F%98%E6%9B%B4%E6%97%A5%E5%BF%97&#34;&gt;变更日志&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;1-用一句话理解整条流水线&#34;&gt;1. 用一句话理解整条流水线&lt;/h2&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;原始中文维基
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    → 清洗成纯文本
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    → 训练分词器（把文字变成数字 ID）
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    → 搭一个「只会猜下一个词」的 GPT-2（随机初始化）
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    → 用大量文本做预训练（CLM：因果语言建模）
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    → 发现：会写中文，但不保证答对常识
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    → 用问答对做 SFT（监督微调）
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    → 再小幅续训语言流畅度（并混入问答，防止忘掉事实）
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;11-两个容易混的概念&#34;&gt;1.1 两个容易混的概念&lt;/h3&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;概念&lt;/th&gt;
+          &lt;th&gt;通俗解释&lt;/th&gt;
+          &lt;th&gt;本项目里对应&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;预训练（Pretrain / CLM）&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;让模型读海量文章，学会「下一个字/词大概是什么」&lt;/td&gt;
+          &lt;td&gt;&lt;code&gt;04.train_gpt2.py&lt;/code&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;监督微调（SFT）&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;拿「问题→标准答案」专门教它怎么答&lt;/td&gt;
+          &lt;td&gt;&lt;code&gt;06.sft_qa.py&lt;/code&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;strong&gt;重要结论：&lt;/strong&gt;&lt;/p&gt;</description>
+    </item>
     <item>
       <title>pi的安装配置</title>
       <link>https://rendoumi.com/posts/20260807/</link>
