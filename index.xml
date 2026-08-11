@@ -12,13 +12,66 @@
     <generator>Hugo -- 0.147.3</generator>
     <language>zh</language>
     <copyright>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Mon, 10 Aug 2026 09:00:01 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 11 Aug 2026 09:00:01 +0800</lastBuildDate>
     <atom:link href="https://rendoumi.com/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>一种跳过jumpserver的方法-psc</title>
+      <link>https://rendoumi.com/posts/20260811-psc_jumper/</link>
+      <pubDate>Tue, 11 Aug 2026 09:00:01 +0800</pubDate>
+      <guid>https://rendoumi.com/posts/20260811-psc_jumper/</guid>
+      <description>&lt;p&gt;这是一篇补记的文章，防止自己给忘了&lt;/p&gt;
+&lt;p&gt;jumpserver跳板机是常备的需求，那怎么跳过它的审计呢？&lt;/p&gt;
+&lt;p&gt;有办法，psc , &lt;a href=&#34;https://github.com/stealth/psc&#34;&gt;https://github.com/stealth/psc&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;它的核心思路是： 在现有的 shell 会话之上，再铺一层&lt;strong&gt;端到端加密的协议&lt;/strong&gt;，数据全部用 Base64 编码传输（所以看起来是乱码），从而规避跳板机/堡垒机的会话审计和字符过滤。&lt;/p&gt;
+&lt;h3 id=&#34;数据流向示意&#34;&gt;数据流向示意&lt;/h3&gt;
+&lt;p&gt;text&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;本地机器                          远程机器
+┌─────────────┐                   ┌─────────────┐
+│   你的程序   │                   │  目标服务     │
+│ (ssh/curl等)│                   │ (22/80等)    │
+└──────┬──────┘                   └──────▲──────┘
+       │ 连接本地端口                       │
+       ▼                                  │
+┌─────────────┐                    ┌───────┴───────┐
+│    pscl     │ ◄── Base64+加密 ──► │     pscr      │
+│ (本地进程)  │    （通过shell）      │ (远程进程)     │
+└──────┬──────┘                    └───────▲───────┘
+       │                                  │
+       │  标准输入/输出                     │ 标准输入/输出
+       ▼                                  │
+┌─────────────┐                   ┌───────┴───────┐
+│  本地pty    │ ◄── SSH/UART等 ──► │  远程shell     │
+└─────────────┘                   └───────────────┘
+&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&#34;1-基本组件&#34;&gt;1. 基本组件&lt;/h3&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;程序&lt;/th&gt;
+          &lt;th&gt;运行位置&lt;/th&gt;
+          &lt;th&gt;作用&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;pscl&lt;/td&gt;
+          &lt;td&gt;本地（攻击机）&lt;/td&gt;
+          &lt;td&gt;等待远程会话，设置本地监听端口，处理加密与转发&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;pscr&lt;/td&gt;
+          &lt;td&gt;远程（目标/跳板机 shell 里）&lt;/td&gt;
+          &lt;td&gt;与本地建立加密握手，处理远程侧的连接&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h3 id=&#34;2-编译&#34;&gt;2. 编译&lt;/h3&gt;
+&lt;p&gt;Bash&lt;/p&gt;</description>
+    </item>
+    <item>
       <title>从零训练中文 GPT-2：通俗教程与项目复盘</title>
-      <link>https://rendoumi.com/posts/20260810/</link>
+      <link>https://rendoumi.com/posts/20260810-gpt2_train/</link>
       <pubDate>Mon, 10 Aug 2026 09:00:01 +0800</pubDate>
-      <guid>https://rendoumi.com/posts/20260810/</guid>
+      <guid>https://rendoumi.com/posts/20260810-gpt2_train/</guid>
       <description>&lt;p&gt;之前翻译了一篇GPT2的文章：如何训练你的 GPT&lt;/p&gt;
 &lt;p&gt;&lt;a href=&#34;https://github.com/zhangrr/how-to-train-your-gpt&#34;&gt;https://github.com/zhangrr/how-to-train-your-gpt&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;对分词、嵌入、位置编码、QKV、多头注意力、自我注意力、transformer块，前馈理解了一部分后；&lt;/p&gt;
@@ -82,9 +135,9 @@
     </item>
     <item>
       <title>pi的安装配置</title>
-      <link>https://rendoumi.com/posts/20260807/</link>
+      <link>https://rendoumi.com/posts/20260807-pi_usage/</link>
       <pubDate>Fri, 07 Aug 2026 09:00:01 +0800</pubDate>
-      <guid>https://rendoumi.com/posts/20260807/</guid>
+      <guid>https://rendoumi.com/posts/20260807-pi_usage/</guid>
       <description>&lt;p&gt;Claude code和codex以及grok的cli都试过了，还有个更加精简的pi&lt;/p&gt;
 &lt;p&gt;它是一个运行在 CLI 里的 Coding Agent，它的设计逻辑就是四个字 — 极简内核。&lt;/p&gt;
 &lt;p&gt;下面就说说pi的安装和使用：&lt;/p&gt;
