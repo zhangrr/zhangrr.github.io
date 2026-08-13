@@ -12,8 +12,35 @@
     <generator>Hugo -- 0.147.3</generator>
     <language>zh</language>
     <copyright>Copyright © 2020-2025 Zhang Ranrui. All Rights Reserved.</copyright>
-    <lastBuildDate>Tue, 11 Aug 2026 09:00:01 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 13 Aug 2026 09:00:01 +0800</lastBuildDate>
     <atom:link href="https://rendoumi.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Math-to-Manim把严肃的数学和物理提示词变成 Manim 讲解视频</title>
+      <link>https://rendoumi.com/posts/20260813-math-to-manim/</link>
+      <pubDate>Thu, 13 Aug 2026 09:00:01 +0800</pubDate>
+      <guid>https://rendoumi.com/posts/20260813-math-to-manim/</guid>
+      <description>&lt;p&gt;这个项目很不错，很多线性代数和几何的知识用图形来变现出来，就变得简单易懂了&lt;/p&gt;
+&lt;p&gt;必须来试试&lt;/p&gt;
+&lt;p&gt;clone代码&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;git clone https://github.com/HarleyCoops/Math-to-Manim-CH
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;安装的话，不要看文档，代码比文档更直白，用uv来管理python&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; Math-to-Manim-CH
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;uv sync
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;然后测一把&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;uv run math-to-manim generate &lt;span class=&#34;s2&#34;&gt;&amp;#34;Explain why derivatives are slopes&amp;#34;&lt;/span&gt; --deterministic --no-render
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;没问题安装渲染的其它组件&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install -y ffmpeg dvisvgm texlive-latex-base texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;apt install -y pkg-config     libcairo2-dev     libpango1.0-dev     libpangocairo-1.0-0
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;uv pip install -e &lt;span class=&#34;s2&#34;&gt;&amp;#34;.[dev,render]&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;一切就绪，然后需要配置好codex的cli，需要用到它的推理&lt;/p&gt;
+&lt;p&gt;验证一下GPT2模型中的 RoPE 旋转编码原理&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;uv run math-to-manim generate &lt;span class=&#34;s2&#34;&gt;&amp;#34;Explain RoPE Positional Encoding in GPT2 model&amp;#34;&lt;/span&gt; --codegen-provider codex-cli
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;img alt=&#34;image-20260813094604107&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20260813-math-to-manim/image-20260813094604107.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;上面可以看到生成了MP4视频，下载下来看看：&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image-20260813094758116&#34; loading=&#34;lazy&#34; src=&#34;https://rendoumi.com/posts/20260813-math-to-manim/image-20260813094758116.png&#34;&gt;&lt;/p&gt;
+&lt;p&gt;可以看到还可以，但是实际有偏差，因为RoPE是捉对厮杀，快慢时钟，但是还可以了，配上更详细的Prompt提示词，应该是可以实现。&lt;/p&gt;</description>
+    </item>
     <item>
       <title>一种跳过jumpserver的方法-psc</title>
       <link>https://rendoumi.com/posts/20260811-psc_jumper/</link>
